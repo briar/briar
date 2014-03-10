@@ -26,6 +26,7 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
@@ -55,6 +56,7 @@ import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.RemoteRetentionTimeUpdatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
+import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.event.TransportAddedEvent;
@@ -103,6 +105,8 @@ DatabaseCleaner.Callback {
 	private final ReentrantReadWriteLock messageLock =
 			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock retentionLock =
+			new ReentrantReadWriteLock(true);
+	private final ReentrantReadWriteLock settingLock =
 			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock subscriptionLock =
 			new ReentrantReadWriteLock(true);
@@ -1152,6 +1156,23 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Settings getSettings() throws DbException {
+		settingLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Settings s = db.getSettings(txn);
+				db.commitTransaction(txn);
+				return s;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			settingLock.readLock().unlock();
+		}
+	}
+
 	public Map<TransportId, Long> getTransportLatencies() throws DbException {
 		transportLock.readLock().lock();
 		try {
@@ -1284,6 +1305,27 @@ DatabaseCleaner.Callback {
 			transportLock.writeLock().unlock();
 		}
 		if(changed) callListeners(new LocalTransportsUpdatedEvent());
+	}
+
+	public void mergeSettings(Settings s) throws DbException {
+		boolean changed = false;
+		settingLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!s.equals(db.getSettings(txn))) {
+					db.mergeSettings(txn, s);
+					changed = true;
+				}
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			settingLock.writeLock().unlock();
+		}
+		if(changed) callListeners(new SettingsUpdatedEvent());
 	}
 
 	public void receiveAck(ContactId c, Ack a) throws DbException {

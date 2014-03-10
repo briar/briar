@@ -9,6 +9,7 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
@@ -44,6 +45,7 @@ import org.briarproject.api.transport.TemporarySecret;
  * <li> identity
  * <li> message
  * <li> retention
+ * <li> setting
  * <li> subscription
  * <li> transport
  * <li> window
@@ -486,6 +488,13 @@ interface Database<T> {
 	Collection<TemporarySecret> getSecrets(T txn) throws DbException;
 
 	/**
+	 * Returns all settings.
+	 * <p>
+	 * Locking: setting read.
+	 */
+	Settings getSettings(T txn) throws DbException;
+
+	/**
 	 * Returns a subscription ack for the given contact, or null if no ack is
 	 * due.
 	 * <p>
@@ -595,6 +604,13 @@ interface Database<T> {
 	 */
 	void mergeLocalProperties(T txn, TransportId t, TransportProperties p)
 			throws DbException;
+
+	/**
+	 * Merges the given settings with the existing settings.
+	 * <p>
+	 * Locking: setting write.
+	 */
+	void mergeSettings(T txn, Settings s) throws DbException;
 
 	/**
 	 * Marks a message as needing to be acknowledged to the given contact.

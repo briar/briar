@@ -35,6 +35,7 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
@@ -378,10 +379,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(!checkSchemaVersion(txn)) throw new DbException();
 			} else {
 				createTables(txn);
-				String schemaVersion = String.valueOf(SCHEMA_VERSION);
-				setSetting(txn, "schemaVersion", schemaVersion);
-				String minSchemaVersion = String.valueOf(MIN_SCHEMA_VERSION);
-				setSetting(txn, "minSchemaVersion", minSchemaVersion);
+				Settings s = new Settings();
+				s.put("schemaVersion", String.valueOf(SCHEMA_VERSION));
+				s.put("minSchemaVersion", String.valueOf(MIN_SCHEMA_VERSION));
+				mergeSettings(txn, s);
 			}
 			commitTransaction(txn);
 		} catch(DbException e) {
@@ -392,52 +393,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
 		try {
-			String value = getSetting(txn, "schemaVersion");
-			int schemaVersion = Integer.valueOf(value);
+			Settings s = getSettings(txn);
+			int schemaVersion = Integer.valueOf(s.get("schemaVersion"));
 			if(schemaVersion == SCHEMA_VERSION) return true;
 			if(schemaVersion < MIN_SCHEMA_VERSION) return false;
-			value = getSetting(txn, "minSchemaVersion");
-			int minSchemaVersion = Integer.valueOf(value);
+			int minSchemaVersion = Integer.valueOf(s.get("minSchemaVersion"));
 			return SCHEMA_VERSION >= minSchemaVersion;
 		} catch(NumberFormatException e) {
-			throw new DbException(e);
-		}
-	}
-
-	private String getSetting(Connection txn, String key) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT value FROM settings WHERE key = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, key);
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			String value = rs.getString(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return value;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	private void setSetting(Connection txn, String key, String value)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "INSERT INTO settings (key, value) VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, key);
-			ps.setString(2, value);
-			int affected = ps.executeUpdate();
-			if(affected < 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
 			throw new DbException(e);
 		}
 	}
@@ -2215,6 +2177,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Settings getSettings(Connection txn) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT key, value FROM settings";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Settings s = new Settings();
+			while(rs.next()) s.put(rs.getString(1), rs.getString(2));
+			rs.close();
+			ps.close();
+			return s;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public SubscriptionAck getSubscriptionAck(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2640,6 +2621,48 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(batchAffected[updateIndex] == 0) {
 					ps.setString(2, e.getKey());
 					ps.setString(3, e.getValue());
+					ps.addBatch();
+					inserted++;
+				}
+				updateIndex++;
+			}
+			batchAffected = ps.executeBatch();
+			if(batchAffected.length != inserted) throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void mergeSettings(Connection txn, Settings s) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Update any settings that already exist
+			String sql = "UPDATE settings SET value = ? WHERE key = ?";
+			ps = txn.prepareStatement(sql);
+			for(Entry<String, String> e : s.entrySet()) {
+				ps.setString(1, e.getValue());
+				ps.setString(2, e.getKey());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != s.size()) throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] < 0) throw new DbStateException();
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
+			// Insert any settings that don't already exist
+			sql = "INSERT INTO settings (key, value) VALUES (?, ?)";
+			ps = txn.prepareStatement(sql);
+			int updateIndex = 0, inserted = 0;
+			for(Entry<String, String> e : s.entrySet()) {
+				if(batchAffected[updateIndex] == 0) {
+					ps.setString(1, e.getKey());
+					ps.setString(2, e.getValue());
 					ps.addBatch();
 					inserted++;
 				}

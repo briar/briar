@@ -9,6 +9,7 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
@@ -233,6 +234,9 @@ public interface DatabaseComponent {
 	/** Returns all temporary secrets. */
 	Collection<TemporarySecret> getSecrets() throws DbException;
 
+	/** Returns all settings. */
+	Settings getSettings() throws DbException;
+
 	/** Returns the maximum latencies of all local transports. */
 	Map<TransportId, Long> getTransportLatencies() throws DbException;
 
@@ -262,6 +266,9 @@ public interface DatabaseComponent {
 	 */
 	void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException;
+
+	/** Merges the given settings with the existing settings. */
+	void mergeSettings(Settings s) throws DbException;
 
 	/** Processes an ack from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;

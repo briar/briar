@@ -1,0 +1,29 @@
+package org.briarproject.api;
+
+import java.util.Hashtable;
+import java.util.Map;
+
+abstract class StringMap extends Hashtable<String, String> {
+
+	private static final long serialVersionUID = 2497176435908100448L;
+
+	protected StringMap(Map<String, String> m) {
+		super(m);
+	}
+
+	protected StringMap() {
+		super();
+	}
+
+	public boolean getBoolean(String key, boolean defaultValue) {
+		String s = get(key);
+		if(s == null) return defaultValue;
+		if("true".equals(s)) return true;
+		if("false".equals(s)) return false;
+		return defaultValue;
+	}
+
+	public void putBoolean(String key, boolean value) {
+		put(key, String.valueOf(value));
+	}
+}
