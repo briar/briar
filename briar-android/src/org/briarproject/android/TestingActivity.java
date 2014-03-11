@@ -383,7 +383,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	private void sendEmail(Uri attachment) {
 		Intent i = new Intent(ACTION_SEND);
 		i.setType("message/rfc822");
-		i.putExtra(EXTRA_EMAIL, new String[] { "debug@briarproject.org" });
+		i.putExtra(EXTRA_EMAIL, new String[] { "briartest@gmail.com" });
 		i.putExtra(EXTRA_SUBJECT, "Debugging information");
 		i.putExtra(EXTRA_STREAM, attachment);
 		startActivity(Intent.createChooser(i, "Send to developers"));
