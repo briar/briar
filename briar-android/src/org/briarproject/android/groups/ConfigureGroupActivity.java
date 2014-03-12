@@ -19,6 +19,7 @@ import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.contact.SelectContactsDialog;
 import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
@@ -81,6 +82,8 @@ SelectContactsDialog.Listener {
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
+		int pad = LayoutUtils.getPadding(this);
+		layout.setPadding(pad, pad, pad, pad);
 
 		subscribeCheckBox = new CheckBox(this);
 		subscribeCheckBox.setId(1);
