@@ -261,7 +261,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 				}
 			});
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			LOG.warning("Interrupted while getting BluetoothAdapter");
+			Thread.currentThread().interrupt();
 		} catch(ExecutionException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}

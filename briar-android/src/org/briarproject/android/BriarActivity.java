@@ -92,6 +92,7 @@ public class BriarActivity extends RoboFragmentActivity {
 					service.waitForShutdown();
 				} catch(InterruptedException e) {
 					LOG.warning("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
 				}
 				finishAndExit();
 			}

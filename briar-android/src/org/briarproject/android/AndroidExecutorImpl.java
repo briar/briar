@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -18,6 +19,9 @@ import android.os.Message;
 class AndroidExecutorImpl implements AndroidExecutor {
 
 	private static final int SHUTDOWN = 0, RUN = 1;
+
+	private static final Logger LOG =
+			Logger.getLogger(AndroidExecutorImpl.class.getName());
 
 	private final Runnable loop;
 	private final AtomicBoolean started = new AtomicBoolean(false);
@@ -43,6 +47,7 @@ class AndroidExecutorImpl implements AndroidExecutor {
 		try {
 			startLatch.await();
 		} catch(InterruptedException e) {
+			LOG.warning("Interrupted while starting executor thread");
 			Thread.currentThread().interrupt();
 		}
 	}

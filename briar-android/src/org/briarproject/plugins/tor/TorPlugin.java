@@ -178,6 +178,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				}
 			} catch(InterruptedException e1) {
 				LOG.warning("Interrupted while starting Tor");
+				Thread.currentThread().interrupt();
 				return false;
 			}
 			// Now we should be able to connect to the new process
@@ -471,6 +472,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} catch(InterruptedException e) {
 				LOG.warning("Interrupted while creating hidden service");
+				Thread.currentThread().interrupt();
+				return;
 			}
 		}
 		// Publish the hidden service's onion hostname in transport properties

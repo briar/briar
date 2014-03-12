@@ -252,6 +252,7 @@ abstract class DuplexConnection implements EventListener {
 			}
 		} catch(InterruptedException e) {
 			LOG.warning("Interrupted while waiting for task");
+			Thread.currentThread().interrupt();
 			dispose(true, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

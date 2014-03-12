@@ -110,7 +110,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 				}
 			});
 		} catch(InterruptedException e) {
-			throw new IOException(e.toString());
+			Thread.currentThread().interrupt();
+			throw new IOException("Interrupted while getting BluetoothAdapter");
 		} catch(ExecutionException e) {
 			throw new IOException(e.toString());
 		}
@@ -427,6 +428,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 					addresses = discoverDevices(end - now);
 				} catch(InterruptedException e) {
 					LOG.warning("Interrupted while discovering devices");
+					Thread.currentThread().interrupt();
 					return;
 				}
 				// Connect to any device with the right UUID
