@@ -51,8 +51,7 @@ implements OnClickListener {
 
 	private String contactName = null;
 	private AuthorId localAuthorId = null;
-	private boolean read = false;
-	private ImageButton readButton = null, prevButton = null, nextButton = null;
+	private ImageButton prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
 	private int position = -1;
@@ -88,13 +87,6 @@ implements OnClickListener {
 		if(timestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
 		if(position == -1) throw new IllegalStateException();
-
-		if(state == null) {
-			read = false;
-			setReadInDatabase(true);
-		} else {
-			read = state.getBoolean("briar.READ");
-		}
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
@@ -143,14 +135,6 @@ implements OnClickListener {
 		Resources res = getResources();
 		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
 
-		readButton = new ImageButton(this);
-		readButton.setBackgroundResource(0);
-		if(read) readButton.setImageResource(R.drawable.content_unread);
-		else readButton.setImageResource(R.drawable.content_read);
-		readButton.setOnClickListener(this);
-		footer.addView(readButton);
-		footer.addView(new ElasticHorizontalSpace(this));
-
 		prevButton = new ImageButton(this);
 		prevButton.setBackgroundResource(0);
 		prevButton.setImageResource(R.drawable.navigation_previous_item);
@@ -175,30 +159,25 @@ implements OnClickListener {
 		setContentView(layout);
 	}
 
-	private void setReadInDatabase(final boolean read) {
+	@Override
+	public void onPause() {
+		super.onPause();
+		if(isFinishing()) markMessageRead();
+	}
+
+	private void markMessageRead() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					db.setReadFlag(messageId, read);
+					db.setReadFlag(messageId, true);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Setting flag took " + duration + " ms");
-					setReadInUi(read);
+						LOG.info("Marking read took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
-			}
-		});
-	}
-
-	private void setReadInUi(final boolean read) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				ReadPrivateMessageActivity.this.read = read;
-				if(read) readButton.setImageResource(R.drawable.content_unread);
-				else readButton.setImageResource(R.drawable.content_read);
 			}
 		});
 	}
@@ -231,16 +210,8 @@ implements OnClickListener {
 		});
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle state) {
-		super.onSaveInstanceState(state);
-		state.putBoolean("briar.READ", read);
-	}
-
 	public void onClick(View view) {
-		if(view == readButton) {
-			setReadInDatabase(!read);
-		} else if(view == prevButton) {
+		if(view == prevButton) {
 			Intent i = new Intent();
 			i.putExtra("briar.POSITION", position - 1);
 			setResult(RESULT_PREV_NEXT, i);
