@@ -233,15 +233,15 @@ ConnectionListener {
 			loadContacts();
 		} else if(e instanceof ContactRemovedEvent) {
 			// Reload the conversation, expecting NoSuchContactException
-			if(LOG.isLoggable(INFO)) LOG.info("Contact removed, reloading");
+			LOG.info("Contact removed, reloading");
 			reloadContact(((ContactRemovedEvent) e).getContactId());
 		} else if(e instanceof MessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+			LOG.info("Message added, reloading");
 			ContactId source = ((MessageAddedEvent) e).getContactId();
 			if(source == null) loadContacts();
 			else reloadContact(source);
 		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
+			LOG.info("Message expired, reloading");
 			loadContacts();
 		}
 	}

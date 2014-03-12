@@ -70,8 +70,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 						}
 					}
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Interrupted while waiting to write");
+					LOG.warning("Interrupted while waiting to write");
 					Thread.currentThread().interrupt();
 					running = false;
 				} catch(IOException e) {

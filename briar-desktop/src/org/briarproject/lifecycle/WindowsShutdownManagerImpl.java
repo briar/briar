@@ -2,7 +2,6 @@ package org.briarproject.lifecycle;
 
 import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
 import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collections;
@@ -64,8 +63,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		if(OsUtils.isWindows()) {
 			new EventLoop().start();
 		} else {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Windows shutdown manager used on non-Windows OS");
+			LOG.warning("Windows shutdown manager used on non-Windows OS");
 		}
 		initialised = true;
 	}
@@ -80,8 +78,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 			try {
 				hook.join();
 			} catch(InterruptedException e) {
-				if(LOG.isLoggable(INFO))
-					LOG.info("Interrupted while running shutdown hooks");
+				LOG.warning("Interrupted while running shutdown hooks");
 				interrupted = true;
 			}
 		}
@@ -119,13 +116,11 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 				try {
 					// Use SetWindowLongPtr if available (64-bit safe)
 					user32.SetWindowLongPtr(hwnd, GWL_WNDPROC, proc);
-					if(LOG.isLoggable(INFO))
-						LOG.info("Registered 64-bit callback");
+					LOG.info("Registered 64-bit callback");
 				} catch(UnsatisfiedLinkError e) {
 					// Use SetWindowLong if SetWindowLongPtr isn't available
 					user32.SetWindowLong(hwnd, GWL_WNDPROC, proc);
-					if(LOG.isLoggable(INFO))
-						LOG.info("Registered 32-bit callback");
+					LOG.info("Registered 32-bit callback");
 				}
 				// Handle events until the window is destroyed
 				MSG msg = new MSG();

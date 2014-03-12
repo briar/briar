@@ -310,7 +310,7 @@ abstract class Connector extends Thread {
 	protected void tryToClose(DuplexTransportConnection conn,
 			boolean exception) {
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Closing connection");
+			LOG.info("Closing connection");
 			conn.dispose(exception, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

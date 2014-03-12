@@ -151,14 +151,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				if(resetModem()) continue;
 				break;
 			}
-			if(LOG.isLoggable(INFO)) LOG.info("Outgoing call connected");
+			LOG.info("Outgoing call connected");
 			ModemTransportConnection conn = new ModemTransportConnection();
 			callback.outgoingConnectionCreated(c, conn);
 			try {
 				conn.waitForDisposal();
 			} catch(InterruptedException e) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Interrupted while polling");
+				LOG.warning("Interrupted while polling");
 				Thread.currentThread().interrupt();
 				break;
 			}
@@ -221,7 +220,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	public void incomingCallConnected() {
-		if(LOG.isLoggable(INFO)) LOG.info("Incoming call connected");
+		LOG.info("Incoming call connected");
 		callback.incomingConnectionCreated(new ModemTransportConnection());
 	}
 
@@ -247,7 +246,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 
 		public void dispose(boolean exception, boolean recognised) {
-			if(LOG.isLoggable(INFO)) LOG.info("Call disconnected");
+			LOG.info("Call disconnected");
 			try {
 				modem.hangUp();
 			} catch(IOException e) {

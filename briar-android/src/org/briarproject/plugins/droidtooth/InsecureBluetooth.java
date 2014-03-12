@@ -1,7 +1,5 @@
 package org.briarproject.plugins.droidtooth;
 
-import static java.util.logging.Level.INFO;
-
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,12 +31,12 @@ class InsecureBluetooth {
 	static BluetoothServerSocket listen(BluetoothAdapter adapter, String name,
 			UUID uuid) throws IOException {
 		if(Build.VERSION.SDK_INT >= 10) {
-			if(LOG.isLoggable(INFO)) LOG.info("Listening with new API");
+			LOG.info("Listening with new API");
 			return adapter.listenUsingInsecureRfcommWithServiceRecord(name,
 					uuid);
 		}
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Listening via reflection");
+			LOG.info("Listening via reflection");
 			// Find an available channel
 			String className = BluetoothAdapter.class.getCanonicalName()
 					+ ".RfcommChannelPicker";
@@ -144,11 +142,11 @@ class InsecureBluetooth {
 	static BluetoothSocket createSocket(BluetoothDevice device, UUID uuid)
 			throws IOException {
 		if(Build.VERSION.SDK_INT >= 10) {
-			if(LOG.isLoggable(INFO)) LOG.info("Creating socket with new API");
+			LOG.info("Creating socket with new API");
 			return device.createInsecureRfcommSocketToServiceRecord(uuid);
 		}
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Creating socket via reflection");
+			LOG.info("Creating socket via reflection");
 			Constructor<BluetoothSocket> constructor =
 					BluetoothSocket.class.getDeclaredConstructor(int.class,
 							int.class, boolean.class, boolean.class,

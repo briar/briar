@@ -3,7 +3,6 @@ package org.briarproject.android;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.concurrent.CountDownLatch;
@@ -61,14 +60,14 @@ public class BriarService extends RoboService implements EventListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		if(LOG.isLoggable(INFO)) LOG.info("Created");
+		LOG.info("Created");
 		if(created.getAndSet(true)) {
-			if(LOG.isLoggable(INFO)) LOG.info("Already created");
+			LOG.info("Already created");
 			stopSelf();
 			return;
 		}
 		if(databaseConfig.getEncryptionKey() == null) {
-			if(LOG.isLoggable(INFO)) LOG.info("No database key");
+			LOG.info("No database key");
 			stopSelf();
 			return;
 		}
@@ -92,7 +91,7 @@ public class BriarService extends RoboService implements EventListener {
 					db.addListener(BriarService.this);
 					started = true;
 				} else {
-					if(LOG.isLoggable(INFO)) LOG.info("Startup failed");
+					LOG.info("Startup failed");
 					showStartupFailureNotification();
 					stopSelf();
 				}
@@ -130,7 +129,7 @@ public class BriarService extends RoboService implements EventListener {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
+		LOG.info("Destroyed");
 		stopForeground(true);
 		notificationManager.clearNotifications();
 		// Stop the services in a background thread
@@ -167,8 +166,7 @@ public class BriarService extends RoboService implements EventListener {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interruped while waiting for database");
+					LOG.info("Interruped while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}

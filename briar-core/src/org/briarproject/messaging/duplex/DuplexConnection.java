@@ -162,58 +162,53 @@ abstract class DuplexConnection implements EventListener {
 		try {
 			InputStream in = createConnectionReader().getInputStream();
 			PacketReader reader = packetReaderFactory.createPacketReader(in);
-			if(LOG.isLoggable(INFO)) LOG.info("Starting to read");
+			LOG.info("Starting to read");
 			while(!reader.eof()) {
 				if(reader.hasAck()) {
 					Ack a = reader.readAck();
-					if(LOG.isLoggable(INFO)) LOG.info("Received ack");
+					LOG.info("Received ack");
 					dbExecutor.execute(new ReceiveAck(a));
 				} else if(reader.hasMessage()) {
 					UnverifiedMessage m = reader.readMessage();
-					if(LOG.isLoggable(INFO)) LOG.info("Received message");
+					LOG.info("Received message");
 					cryptoExecutor.execute(new VerifyMessage(m));
 				} else if(reader.hasOffer()) {
 					Offer o = reader.readOffer();
-					if(LOG.isLoggable(INFO)) LOG.info("Received offer");
+					LOG.info("Received offer");
 					dbExecutor.execute(new ReceiveOffer(o));
 				} else if(reader.hasRequest()) {
 					Request r = reader.readRequest();
-					if(LOG.isLoggable(INFO)) LOG.info("Received request");
+					LOG.info("Received request");
 					dbExecutor.execute(new ReceiveRequest(r));
 				} else if(reader.hasRetentionAck()) {
 					RetentionAck a = reader.readRetentionAck();
-					if(LOG.isLoggable(INFO)) LOG.info("Received retention ack");
+					LOG.info("Received retention ack");
 					dbExecutor.execute(new ReceiveRetentionAck(a));
 				} else if(reader.hasRetentionUpdate()) {
 					RetentionUpdate u = reader.readRetentionUpdate();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Received retention update");
+					LOG.info("Received retention update");
 					dbExecutor.execute(new ReceiveRetentionUpdate(u));
 				} else if(reader.hasSubscriptionAck()) {
 					SubscriptionAck a = reader.readSubscriptionAck();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Received subscription ack");
+					LOG.info("Received subscription ack");
 					dbExecutor.execute(new ReceiveSubscriptionAck(a));
 				} else if(reader.hasSubscriptionUpdate()) {
 					SubscriptionUpdate u = reader.readSubscriptionUpdate();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Received subscription update");
+					LOG.info("Received subscription update");
 					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
 				} else if(reader.hasTransportAck()) {
 					TransportAck a = reader.readTransportAck();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Received transport ack");
+					LOG.info("Received transport ack");
 					dbExecutor.execute(new ReceiveTransportAck(a));
 				} else if(reader.hasTransportUpdate()) {
 					TransportUpdate u = reader.readTransportUpdate();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Received transport update");
+					LOG.info("Received transport update");
 					dbExecutor.execute(new ReceiveTransportUpdate(u));
 				} else {
 					throw new FormatException();
 				}
 			}
-			if(LOG.isLoggable(INFO)) LOG.info("Finished reading");
+			LOG.info("Finished reading");
 			writerTasks.add(CLOSE);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -227,7 +222,7 @@ abstract class DuplexConnection implements EventListener {
 		try {
 			OutputStream out = createConnectionWriter().getOutputStream();
 			writer = packetWriterFactory.createPacketWriter(out, true);
-			if(LOG.isLoggable(INFO)) LOG.info("Starting to write");
+			LOG.info("Starting to write");
 			// Send the initial packets
 			dbExecutor.execute(new GenerateTransportAcks());
 			dbExecutor.execute(new GenerateTransportUpdates());
@@ -242,13 +237,12 @@ abstract class DuplexConnection implements EventListener {
 			// Main loop
 			Runnable task = null;
 			while(true) {
-				if(LOG.isLoggable(INFO))
-					LOG.info("Waiting for something to write");
+				LOG.info("Waiting for something to write");
 				task = writerTasks.take();
 				if(task == CLOSE || task == DIE) break;
 				task.run();
 			}
-			if(LOG.isLoggable(INFO)) LOG.info("Finished writing");
+			LOG.info("Finished writing");
 			if(task == CLOSE) {
 				writer.flush();
 				writer.close();
@@ -257,8 +251,7 @@ abstract class DuplexConnection implements EventListener {
 				dispose(true, true);
 			}
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Interrupted while waiting for task");
+			LOG.warning("Interrupted while waiting for task");
 			dispose(true, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -292,7 +285,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveAck(contactId, ack);
-				if(LOG.isLoggable(INFO)) LOG.info("DB received ack");
+				LOG.info("DB received ack");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -311,7 +304,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				Message m = messageVerifier.verifyMessage(message);
-				if(LOG.isLoggable(INFO)) LOG.info("Verified message");
+				LOG.info("Verified message");
 				dbExecutor.execute(new ReceiveMessage(m));
 			} catch(GeneralSecurityException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -331,7 +324,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveMessage(contactId, message);
-				if(LOG.isLoggable(INFO)) LOG.info("DB received message");
+				LOG.info("DB received message");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -350,7 +343,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveOffer(contactId, offer);
-				if(LOG.isLoggable(INFO)) LOG.info("DB received offer");
+				LOG.info("DB received offer");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -369,7 +362,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveRequest(contactId, request);
-				if(LOG.isLoggable(INFO)) LOG.info("DB received request");
+				LOG.info("DB received request");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -388,7 +381,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveRetentionAck(contactId, ack);
-				if(LOG.isLoggable(INFO)) LOG.info("DB received retention ack");
+				LOG.info("DB received retention ack");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -407,8 +400,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveRetentionUpdate(contactId, update);
-				if(LOG.isLoggable(INFO))
-					LOG.info("DB received retention update");
+				LOG.info("DB received retention update");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -427,8 +419,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveSubscriptionAck(contactId, ack);
-				if(LOG.isLoggable(INFO))
-					LOG.info("DB received subscription ack");
+				LOG.info("DB received subscription ack");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -447,8 +438,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
-				if(LOG.isLoggable(INFO))
-					LOG.info("DB received subscription update");
+				LOG.info("DB received subscription update");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -467,7 +457,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveTransportAck(contactId, ack);
-				if(LOG.isLoggable(INFO)) LOG.info("DB received transport ack");
+				LOG.info("DB received transport ack");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -486,8 +476,7 @@ abstract class DuplexConnection implements EventListener {
 		public void run() {
 			try {
 				db.receiveTransportUpdate(contactId, update);
-				if(LOG.isLoggable(INFO))
-					LOG.info("DB received transport update");
+				LOG.info("DB received transport update");
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -524,7 +513,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				writer.writeAck(ack);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent ack");
+				LOG.info("Sent ack");
 				dbExecutor.execute(new GenerateAck());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -563,7 +552,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				for(byte[] raw : batch) writer.writeMessage(raw);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent batch");
+				LOG.info("Sent batch");
 				dbExecutor.execute(new GenerateBatch());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -602,7 +591,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				writer.writeOffer(offer);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent offer");
+				LOG.info("Sent offer");
 				dbExecutor.execute(new GenerateOffer());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -641,7 +630,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				writer.writeRequest(request);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent request");
+				LOG.info("Sent request");
 				dbExecutor.execute(new GenerateRequest());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -678,7 +667,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				writer.writeRetentionAck(ack);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent retention ack");
+				LOG.info("Sent retention ack");
 				dbExecutor.execute(new GenerateRetentionAck());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -716,7 +705,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				writer.writeRetentionUpdate(update);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent retention update");
+				LOG.info("Sent retention update");
 				dbExecutor.execute(new GenerateRetentionUpdate());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -753,7 +742,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				writer.writeSubscriptionAck(ack);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent subscription ack");
+				LOG.info("Sent subscription ack");
 				dbExecutor.execute(new GenerateSubscriptionAck());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -791,7 +780,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				writer.writeSubscriptionUpdate(update);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent subscription update");
+				LOG.info("Sent subscription update");
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -829,7 +818,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				for(TransportAck a : acks) writer.writeTransportAck(a);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent transport acks");
+				LOG.info("Sent transport acks");
 				dbExecutor.execute(new GenerateTransportAcks());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -867,7 +856,7 @@ abstract class DuplexConnection implements EventListener {
 			assert writer != null;
 			try {
 				for(TransportUpdate u : updates) writer.writeTransportUpdate(u);
-				if(LOG.isLoggable(INFO)) LOG.info("Sent transport updates");
+				LOG.info("Sent transport updates");
 				dbExecutor.execute(new GenerateTransportUpdates());
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

@@ -87,7 +87,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			}
 		}
 		if(!found) {
-			if(LOG.isLoggable(INFO)) LOG.info("Could not bind server socket");
+			LOG.info("Could not bind server socket");
 			return;
 		}
 		if(!running) {

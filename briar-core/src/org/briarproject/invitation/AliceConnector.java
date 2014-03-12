@@ -113,8 +113,7 @@ class AliceConnector extends Connector {
 			tryToClose(conn, true);
 			return;
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while waiting for confirmation");
+			LOG.warning("Interrupted while waiting for confirmation");
 			group.remoteConfirmationFailed();
 			tryToClose(conn, true);
 			Thread.currentThread().interrupt();

@@ -1,7 +1,5 @@
 package org.briarproject.plugins.file;
 
-import static java.util.logging.Level.INFO;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -56,8 +54,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 				drives = newDrives;
 			}
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Interrupted while waiting to poll");
+			LOG.warning("Interrupted while waiting to poll");
 			Thread.currentThread().interrupt();
 		} catch(IOException e) {
 			callback.exceptionThrown(e);

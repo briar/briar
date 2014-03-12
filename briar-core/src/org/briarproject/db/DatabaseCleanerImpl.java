@@ -1,6 +1,5 @@
 package org.briarproject.db;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.TimerTask;
@@ -39,11 +38,11 @@ class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 		if(callback == null) throw new IllegalStateException();
 		try {
 			if(callback.shouldCheckFreeSpace()) {
-				if(LOG.isLoggable(INFO)) LOG.info("Checking free space");
+				LOG.info("Checking free space");
 				callback.checkFreeSpaceAndClean();
 			}
 		} catch(DbClosedException e) {
-			if(LOG.isLoggable(INFO)) LOG.info("Database closed, exiting");
+			LOG.info("Database closed, exiting");
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			throw new Error(e); // Kill the application

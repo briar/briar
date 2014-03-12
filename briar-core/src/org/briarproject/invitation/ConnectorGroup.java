@@ -158,8 +158,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		try {
 			for(Connector c : connectors) c.join();
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while waiting for connectors");
+			LOG.warning("Interrupted while waiting for connectors");
 		}
 		// If none of the threads connected, inform the listeners
 		if(!connected.get()) {

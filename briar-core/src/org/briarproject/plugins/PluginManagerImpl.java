@@ -82,14 +82,14 @@ class PluginManagerImpl implements PluginManager {
 
 	public synchronized boolean start() {
 		// Instantiate and start the simplex plugins
-		if(LOG.isLoggable(INFO)) LOG.info("Starting simplex plugins");
+		LOG.info("Starting simplex plugins");
 		Collection<SimplexPluginFactory> sFactories =
 				simplexPluginConfig.getFactories();
 		final CountDownLatch sLatch = new CountDownLatch(sFactories.size());
 		for(SimplexPluginFactory factory : sFactories)
 			pluginExecutor.execute(new SimplexPluginStarter(factory, sLatch));
 		// Instantiate and start the duplex plugins
-		if(LOG.isLoggable(INFO)) LOG.info("Starting duplex plugins");
+		LOG.info("Starting duplex plugins");
 		Collection<DuplexPluginFactory> dFactories =
 				duplexPluginConfig.getFactories();
 		final CountDownLatch dLatch = new CountDownLatch(dFactories.size());
@@ -100,13 +100,12 @@ class PluginManagerImpl implements PluginManager {
 			sLatch.await();
 			dLatch.await();
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while starting plugins");
+			LOG.warning("Interrupted while starting plugins");
 			Thread.currentThread().interrupt();
 			return false;
 		}
 		// Start the poller
-		if(LOG.isLoggable(INFO)) LOG.info("Starting poller");
+		LOG.info("Starting poller");
 		List<Plugin> start = new ArrayList<Plugin>(plugins.values());
 		poller.start(Collections.unmodifiableList(start));
 		return true;
@@ -114,15 +113,15 @@ class PluginManagerImpl implements PluginManager {
 
 	public synchronized boolean stop() {
 		// Stop the poller
-		if(LOG.isLoggable(INFO)) LOG.info("Stopping poller");
+		LOG.info("Stopping poller");
 		poller.stop();
 		final CountDownLatch latch = new CountDownLatch(plugins.size());
 		// Stop the simplex plugins
-		if(LOG.isLoggable(INFO)) LOG.info("Stopping simplex plugins");
+		LOG.info("Stopping simplex plugins");
 		for(SimplexPlugin plugin : simplexPlugins)
 			pluginExecutor.execute(new PluginStopper(plugin, latch));
 		// Stop the duplex plugins
-		if(LOG.isLoggable(INFO)) LOG.info("Stopping duplex plugins");
+		LOG.info("Stopping duplex plugins");
 		for(DuplexPlugin plugin : duplexPlugins)
 			pluginExecutor.execute(new PluginStopper(plugin, latch));
 		plugins.clear();
@@ -132,8 +131,7 @@ class PluginManagerImpl implements PluginManager {
 		try {
 			latch.await();
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while stopping plugins");
+			LOG.warning("Interrupted while stopping plugins");
 			Thread.currentThread().interrupt();
 			return false;
 		}

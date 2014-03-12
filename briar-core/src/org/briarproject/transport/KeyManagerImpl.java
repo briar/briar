@@ -1,6 +1,5 @@
 package org.briarproject.transport;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
@@ -116,7 +115,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			// Discard the secret if the transport has been removed
 			Long maxLatency = maxLatencies.get(s.getTransportId());
 			if(maxLatency == null) {
-				if(LOG.isLoggable(INFO)) LOG.info("Discarding obsolete secret");
+				LOG.info("Discarding obsolete secret");
 				ByteUtils.erase(s.getSecret());
 				continue;
 			}
@@ -234,14 +233,14 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			TransportId t) {
 		TemporarySecret s = currentSecrets.get(new EndpointKey(c, t));
 		if(s == null) {
-			if(LOG.isLoggable(INFO)) LOG.info("No secret for endpoint");
+			LOG.info("No secret for endpoint");
 			return null;
 		}
 		long connection;
 		try {
 			connection = db.incrementConnectionCounter(c, t, s.getPeriod());
 			if(connection == -1) {
-				if(LOG.isLoggable(INFO)) LOG.info("No counter for period");
+				LOG.info("No counter for period");
 				return null;
 			}
 		} catch(DbException e) {

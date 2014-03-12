@@ -1,7 +1,5 @@
 package org.briarproject.messaging.simplex;
 
-import static java.util.logging.Level.WARNING;
-
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -77,8 +75,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 			SimplexTransportWriter w) {
 		ConnectionContext ctx = keyManager.getConnectionContext(c, t);
 		if(ctx == null) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Could not create outgoing connection context");
+			LOG.warning("Could not create outgoing connection context");
 			return;
 		}		
 		final OutgoingSimplexConnection conn = new OutgoingSimplexConnection(db,

@@ -53,7 +53,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 
 	public boolean startServices() {
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Starting");
+			LOG.info("Starting");
 			long start = clock.currentTimeMillis();
 			boolean reopened = db.open();
 			long duration = clock.currentTimeMillis() - start;
@@ -92,7 +92,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 
 	public void stopServices() {
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Shutting down");
+			LOG.info("Shutting down");
 			for(Service s : services) {
 				boolean stopped = s.stop();
 				if(LOG.isLoggable(INFO)) {
@@ -105,7 +105,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 			if(LOG.isLoggable(INFO))
 				LOG.info(executors.size() + " executors shut down");
 			db.close();
-			if(LOG.isLoggable(INFO)) LOG.info("Database closed");
+			LOG.info("Database closed");
 			shutdownLatch.countDown();
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

@@ -268,8 +268,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			StreamConnection s = socketLatch.waitForReference(timeout);
 			if(s != null) return new BluetoothTransportConnection(this, s);
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Interrupted while exchanging invitations");
+			LOG.warning("Interrupted while exchanging invitations");
 			Thread.currentThread().interrupt();
 		} finally {
 			// Closing the socket will terminate the listener thread
@@ -307,8 +306,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			long end = now + timeout;
 			while(now < end && running && !socketLatch.isSet()) {
 				if(!discoverySemaphore.tryAcquire()) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Another device discovery is in progress");
+					LOG.info("Another device discovery is in progress");
 					return;
 				}
 				try {
@@ -319,10 +317,9 @@ class BluetoothPlugin implements DuplexPlugin {
 					if(url == null) continue;
 					StreamConnection s = connect(url);
 					if(s == null) continue;
-					if(LOG.isLoggable(INFO)) LOG.info("Outgoing connection");
+					LOG.info("Outgoing connection");
 					if(!socketLatch.set(s)) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Closing redundant connection");
+						LOG.info("Closing redundant connection");
 						tryToClose(s);
 					}
 					return;
@@ -331,8 +328,7 @@ class BluetoothPlugin implements DuplexPlugin {
 						LOG.log(WARNING, e.toString(), e);
 					return;
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for URL");
+					LOG.warning("Interrupted while waiting for URL");
 					Thread.currentThread().interrupt();
 					return;
 				} finally {
@@ -364,15 +360,13 @@ class BluetoothPlugin implements DuplexPlugin {
 
 		@Override
 		public void run() {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Listening for invitation connections");
+			LOG.info("Listening for invitation connections");
 			// Listen until a connection is received or the socket is closed
 			try {
 				StreamConnection s = serverSocket.acceptAndOpen();
-				if(LOG.isLoggable(INFO)) LOG.info("Incoming connection");
+				LOG.info("Incoming connection");
 				if(!socketLatch.set(s)) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Closing redundant connection");
+					LOG.info("Closing redundant connection");
 					s.close();
 				}
 			} catch(IOException e) {

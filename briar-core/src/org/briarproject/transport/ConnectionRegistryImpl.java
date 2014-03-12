@@ -42,7 +42,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	}
 
 	public void registerConnection(ContactId c, TransportId t) {
-		if(LOG.isLoggable(INFO)) LOG.info("Connection registered");
+		LOG.info("Connection registered");
 		boolean firstConnection = false;
 		synchronized(this) {
 			Map<ContactId, Integer> m = connections.get(t);
@@ -62,13 +62,13 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			}
 		}
 		if(firstConnection) {
-			if(LOG.isLoggable(INFO)) LOG.info("Contact connected");
+			LOG.info("Contact connected");
 			for(ConnectionListener l : listeners) l.contactConnected(c);
 		}
 	}
 
 	public void unregisterConnection(ContactId c, TransportId t) {
-		if(LOG.isLoggable(INFO)) LOG.info("Connection unregistered");
+		LOG.info("Connection unregistered");
 		boolean lastConnection = false;
 		synchronized(this) {
 			Map<ContactId, Integer> m = connections.get(t);
@@ -90,7 +90,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			}
 		}
 		if(lastConnection) {
-			if(LOG.isLoggable(INFO)) LOG.info("Contact disconnected");
+			LOG.info("Contact disconnected");
 			for(ConnectionListener l : listeners) l.contactDisconnected(c);
 		}
 	}

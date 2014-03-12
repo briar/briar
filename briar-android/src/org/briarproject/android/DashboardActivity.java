@@ -61,7 +61,7 @@ public class DashboardActivity extends BriarActivity {
 		long handle = i.getLongExtra("briar.LOCAL_AUTHOR_HANDLE", -1);
 		if(failed) {
 			finish();
-			if(LOG.isLoggable(INFO)) LOG.info("Exiting");
+			LOG.info("Exiting");
 			System.exit(0);
 		} else if(handle == -1) {
 			// The activity has been launched before

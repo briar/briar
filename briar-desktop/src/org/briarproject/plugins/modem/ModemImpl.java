@@ -56,7 +56,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	public boolean start() throws IOException {
-		if(LOG.isLoggable(INFO)) LOG.info("Starting");
+		LOG.info("Starting");
 		try {
 			stateChange.acquire();
 		} catch(InterruptedException e) {
@@ -121,7 +121,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	public void stop() throws IOException {
-		if(LOG.isLoggable(INFO)) LOG.info("Stopping");
+		LOG.info("Stopping");
 		// Wake any threads that are waiting to connect
 		synchronized(this) {
 			initialised = false;
@@ -149,8 +149,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		ReliabilityLayer reliability;
 		synchronized(this) {
 			if(this.reliability == null) {
-				if(LOG.isLoggable(INFO))
-					LOG.info("Not hanging up - already on the hook");
+				LOG.info("Not hanging up - already on the hook");
 				return;
 			}
 			reliability = this.reliability;
@@ -158,7 +157,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			connected = false;
 		}
 		reliability.stop();
-		if(LOG.isLoggable(INFO)) LOG.info("Hanging up");
+		LOG.info("Hanging up");
 		try {
 			clock.sleep(ESCAPE_SEQUENCE_GUARD_TIME);
 			port.writeBytes("+++".getBytes("US-ASCII"));
@@ -176,8 +175,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	public boolean dial(String number) throws IOException {
 		if(!stateChange.tryAcquire()) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Not dialling - state change in progress");
+			LOG.info("Not dialling - state change in progress");
 			return false;
 		}
 		try {
@@ -185,19 +183,17 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					reliabilityFactory.createReliabilityLayer(this);
 			synchronized(this) {
 				if(!initialised) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Not dialling - modem not initialised");
+					LOG.info("Not dialling - modem not initialised");
 					return false;
 				}
 				if(this.reliability != null) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Not dialling - call in progress");
+					LOG.info("Not dialling - call in progress");
 					return false;
 				}
 				this.reliability = reliability;
 			}
 			reliability.start();
-			if(LOG.isLoggable(INFO)) LOG.info("Dialling");
+			LOG.info("Dialling");
 			try {
 				String dial = "ATDT" + number + "\r\n";
 				port.writeBytes(dial.getBytes("US-ASCII"));
@@ -276,7 +272,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				byte[] b = port.readBytes();
 				if(!handleData(b)) handleText(b);
 			} else if(ev.isDSR() && ev.getEventValue() == 0) {
-				if(LOG.isLoggable(INFO)) LOG.info("Remote end hung up");
+				LOG.info("Remote end hung up");
 				hangUp();
 			} else {
 				if(LOG.isLoggable(INFO)) {
@@ -355,8 +351,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private void answer() throws IOException {
 		if(!stateChange.tryAcquire()) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Not answering - state change in progress");
+			LOG.info("Not answering - state change in progress");
 			return;
 		}
 		try {
@@ -364,19 +359,17 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					reliabilityFactory.createReliabilityLayer(this);
 			synchronized(this) {
 				if(!initialised) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Not answering - modem not initialised");
+					LOG.info("Not answering - modem not initialised");
 					return;
 				}
 				if(this.reliability != null) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Not answering - call in progress");
+					LOG.info("Not answering - call in progress");
 					return;
 				}
 				this.reliability = reliability;
 			}
 			reliability.start();
-			if(LOG.isLoggable(INFO)) LOG.info("Answering");
+			LOG.info("Answering");
 			try {
 				port.writeBytes("ATA\r\n".getBytes("US-ASCII"));
 			} catch(IOException e) {

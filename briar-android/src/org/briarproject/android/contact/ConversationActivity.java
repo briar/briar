@@ -369,17 +369,17 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(c.getContactId().equals(contactId)) {
-				if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
+				LOG.info("Contact removed");
 				finishOnUiThread();
 			}
 		} else if(e instanceof MessageAddedEvent) {
 			GroupId g = ((MessageAddedEvent) e).getGroup().getId();
 			if(g.equals(groupId)) {
-				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
 		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
+			LOG.info("Message expired, reloading");
 			loadHeaders();
 		}
 	}

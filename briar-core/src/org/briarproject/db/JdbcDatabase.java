@@ -2,7 +2,6 @@ package org.briarproject.db;
 
 import static java.sql.Types.BINARY;
 import static java.sql.Types.VARCHAR;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.Author.Status.ANONYMOUS;
 import static org.briarproject.api.Author.Status.UNKNOWN;
@@ -544,8 +543,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				try {
 					connections.wait();
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while closing connections");
+					LOG.warning("Interrupted while closing connections");
 					interrupted = true;
 				}
 				for(Connection c : connections) c.close();

@@ -262,24 +262,23 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		if(e instanceof MessageAddedEvent) {
 			Group g = ((MessageAddedEvent) e).getGroup();
 			if(groups.containsKey(g.getId())) {
-				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+				LOG.info("Message added, reloading");
 				loadHeaders(g);
 			}
 		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
+			LOG.info("Message expired, reloading");
 			loadHeaders();
 		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Remote subscriptions changed, reloading");
+			LOG.info("Remote subscriptions changed, reloading");
 			loadAvailable();
 		} else if(e instanceof SubscriptionAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
+			LOG.info("Group added, reloading");
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
 			if(groups.containsKey(g.getId())) {
 				// Reload the group, expecting NoSuchSubscriptionException
-				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
+				LOG.info("Group removed, reloading");
 				loadHeaders(g);
 			}
 		}

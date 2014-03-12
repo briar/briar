@@ -64,7 +64,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 		if(LOG.isLoggable(INFO))
 			LOG.info("Guice startup took " + duration + " ms");
 		if(System.currentTimeMillis() >= EXPIRY_DATE) {
-			if(LOG.isLoggable(INFO)) LOG.info("Expired");
+			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
 			SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);

@@ -1,7 +1,5 @@
 package org.briarproject.messaging.duplex;
 
-import static java.util.logging.Level.WARNING;
-
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -83,8 +81,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 			DuplexTransportConnection transport) {
 		ConnectionContext ctx = keyManager.getConnectionContext(c, t);
 		if(ctx == null) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Could not create outgoing connection context");
+			LOG.warning("Could not create outgoing connection context");
 			return;
 		}
 		final DuplexConnection conn = new OutgoingDuplexConnection(dbExecutor,

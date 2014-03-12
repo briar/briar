@@ -116,14 +116,13 @@ implements EventListener, OnItemClickListener {
 
 	public void eventOccurred(Event e) {
 		if(e instanceof RemoteSubscriptionsUpdatedEvent) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Remote subscriptions changed, reloading");
+			LOG.info("Remote subscriptions changed, reloading");
 			loadGroups();
 		} else if(e instanceof SubscriptionAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
+			LOG.info("Group added, reloading");
 			loadGroups();
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
+			LOG.info("Group removed, reloading");
 			loadGroups();
 		}
 	}

@@ -59,7 +59,7 @@ class PollerImpl implements Poller, Runnable {
 		while(true) {
 			synchronized(this) {
 				if(pollTimes.isEmpty()) {
-					if(LOG.isLoggable(INFO)) LOG.info("Finished polling");
+					LOG.info("Finished polling");
 					return;
 				}
 				long now = clock.currentTimeMillis();
@@ -83,8 +83,7 @@ class PollerImpl implements Poller, Runnable {
 					try {
 						wait(p.time - now);
 					} catch(InterruptedException e) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Interrupted while waiting to poll");
+						LOG.warning("Interrupted while waiting to poll");
 						Thread.currentThread().interrupt();
 						return;
 					}

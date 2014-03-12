@@ -122,23 +122,23 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		boolean startProcess = false;
 		try {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
-			if(LOG.isLoggable(INFO)) LOG.info("Tor is already running");
+			LOG.info("Tor is already running");
 			if(readPidFile() == -1) {
 				controlSocket.close();
 				killZombieProcess();
 				startProcess = true;
 			}
 		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.info("Tor is not running");
+			LOG.info("Tor is not running");
 			startProcess = true;
 		}
 		if(startProcess) {
 			// Install the binary, GeoIP database and config file if necessary
 			if(!isInstalled() && !install()) {
-				if(LOG.isLoggable(INFO)) LOG.info("Could not install Tor");
+				LOG.info("Could not install Tor");
 				return false;
 			}
-			if(LOG.isLoggable(INFO)) LOG.info("Starting Tor");
+			LOG.info("Starting Tor");
 			// Watch for the auth cookie file being created/updated
 			cookieFile.getParentFile().mkdirs();
 			cookieFile.createNewFile();
@@ -172,14 +172,12 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				}
 				// Wait for the auth cookie file to be created/updated
 				if(!latch.await(COOKIE_TIMEOUT, MILLISECONDS)) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Auth cookie not created");
+					LOG.warning("Auth cookie not created");
 					listFiles(torDirectory);
 					return false;
 				}
 			} catch(InterruptedException e1) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Interrupted while starting Tor");
+				LOG.warning("Interrupted while starting Tor");
 				return false;
 			}
 			// Now we should be able to connect to the new process
@@ -236,8 +234,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			copy(in, out);
 			// Make the Tor binary executable
 			if(!setExecutable(torFile)) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Could not make Tor executable");
+				LOG.warning("Could not make Tor executable");
 				return false;
 			}
 			// Create a file to indicate that installation succeeded
@@ -291,8 +288,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} catch(InterruptedException e) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Interrupted while executing chmod");
+				LOG.warning("Interrupted while executing chmod");
 				Thread.currentThread().interrupt();
 			} catch(SecurityException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -343,9 +339,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		try {
 			return Integer.parseInt(new String(read(pidFile), "UTF-8").trim());
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("Could not read PID file");
+			LOG.warning("Could not read PID file");
 		} catch(NumberFormatException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("Could not parse PID file");
+			LOG.warning("Could not parse PID file");
 		}
 		return -1;
 	}
@@ -383,20 +379,18 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 					found = true;
 				}
 			}
-			if(!found) if(LOG.isLoggable(INFO)) LOG.info("No zombies found");
+			if(!found) LOG.info("No zombies found");
 			scanner.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Could not parse ps output");
+			LOG.warning("Could not parse ps output");
 		} catch(SecurityException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("Could not execute ps");
+			LOG.warning("Could not execute ps");
 		}
 	}
 
 	private void killTorProcess() {
 		if(tor != null) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Killing Tor via destroy()");
+			LOG.info("Killing Tor via destroy()");
 			tor.destroy();
 		}
 		if(pid != -1) {
@@ -452,7 +446,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private void publishHiddenService(final String port) {
 		if(!running) return;
 		if(!hostnameFile.exists()) {
-			if(LOG.isLoggable(INFO)) LOG.info("Creating hidden service");
+			LOG.info("Creating hidden service");
 			try {
 				// Watch for the hostname file being created/updated
 				hostnameFile.getParentFile().mkdirs();
@@ -468,8 +462,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				controlConnection.saveConf();
 				// Wait for the hostname file to be created/updated
 				if(!latch.await(HOSTNAME_TIMEOUT, MILLISECONDS)) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Hidden service not created");
+					LOG.warning("Hidden service not created");
 					listFiles(torDirectory);
 					return;
 				}
@@ -477,8 +470,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} catch(InterruptedException e) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Interrupted while creating hidden service");
+				LOG.warning("Interrupted while creating hidden service");
 			}
 		}
 		// Publish the hidden service's onion hostname in transport properties
@@ -504,7 +496,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				tryToClose(ss);
 				return;
 			}
-			if(LOG.isLoggable(INFO)) LOG.info("Connection received");
+			LOG.info("Connection received");
 			TorTransportConnection conn = new TorTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
 			if(!running) return;
@@ -524,7 +516,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		if(networkStateReceiver != null)
 			appContext.unregisterReceiver(networkStateReceiver);
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Stopping Tor");
+			LOG.info("Stopping Tor");
 			if(controlSocket == null)
 				controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			if(controlConnection == null) {

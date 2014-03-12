@@ -299,16 +299,16 @@ OnClickListener, OnItemClickListener {
 	public void eventOccurred(Event e) {
 		if(e instanceof MessageAddedEvent) {
 			if(((MessageAddedEvent) e).getGroup().getId().equals(groupId)) {
-				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
 		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
+			LOG.info("Message expired, reloading");
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
 			if(s.getGroup().getId().equals(groupId)) {
-				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
+				LOG.info("Subscription removed");
 				finishOnUiThread();
 			}
 		}

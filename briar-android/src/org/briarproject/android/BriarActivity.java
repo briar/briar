@@ -2,7 +2,6 @@ package org.briarproject.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static java.util.logging.Level.INFO;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -88,12 +87,11 @@ public class BriarActivity extends RoboFragmentActivity {
 					BriarService service = ((BriarBinder) binder).getService();
 					service.waitForStartup();
 					// Shut down the service and wait for it to shut down
-					if(LOG.isLoggable(INFO)) LOG.info("Shutting down service");
+					LOG.info("Shutting down service");
 					service.shutdown();
 					service.waitForShutdown();
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+					LOG.warning("Interrupted while waiting for service");
 				}
 				finishAndExit();
 			}
@@ -104,7 +102,7 @@ public class BriarActivity extends RoboFragmentActivity {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				finish();
-				if(LOG.isLoggable(INFO)) LOG.info("Exiting");
+				LOG.info("Exiting");
 				System.exit(0);
 			}
 		});
@@ -117,8 +115,7 @@ public class BriarActivity extends RoboFragmentActivity {
 					lifecycleManager.waitForDatabase();
 					task.run();
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
+					LOG.warning("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
