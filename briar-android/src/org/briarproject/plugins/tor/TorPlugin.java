@@ -57,6 +57,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	static final TransportId ID = new TransportId("tor");
 
+	private static final String[] EVENTS = { 
+		"CIRC", "STREAM", "ORCONN", "NOTICE", "WARN", "ERR"
+	};
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
 	private static final int HOSTNAME_TIMEOUT = 30 * 1000; // Milliseconds
@@ -199,7 +202,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		controlConnection.authenticate(read(cookieFile));
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
-		controlConnection.setEvents(Arrays.asList("NOTICE", "WARN", "ERR"));
+		controlConnection.setEvents(Arrays.asList(EVENTS));
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
 		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
@@ -599,11 +602,17 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		throw new UnsupportedOperationException();
 	}
 
-	public void circuitStatus(String status, String circID, String path) {}
+	public void circuitStatus(String status, String id, String path) {
+		if(LOG.isLoggable(INFO)) LOG.info("Circuit " + id + " " + status);
+	}
 
-	public void streamStatus(String status, String streamID, String target) {}
+	public void streamStatus(String status, String id, String target) {
+		if(LOG.isLoggable(INFO)) LOG.info("Stream " + id + " " + status);
+	}
 
-	public void orConnStatus(String status, String orName) {}
+	public void orConnStatus(String status, String orName) {
+		if(LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
+	}
 
 	public void bandwidthUsed(long read, long written) {}
 
