@@ -322,11 +322,13 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		else btPluginStatus += "not running";
 		statusMap.put("Bluetooth plugin:", btPluginStatus);
 
+		// All log output from the current process
 		StringBuilder log = new StringBuilder();
 		try {
 			int pid = android.os.Process.myPid();
-			Pattern pattern = Pattern.compile("./[^(]+\\( *" + pid + "\\):.*");
-			Process process = Runtime.getRuntime().exec("logcat -d *:I");
+			Pattern pattern = Pattern.compile(".*\\( *" + pid + "\\).*");
+			Runtime runtime = Runtime.getRuntime();
+			Process process = runtime.exec("logcat -d -v time *:I");
 			Scanner scanner = new Scanner(process.getInputStream());
 			while(scanner.hasNextLine()) {
 				String line = scanner.nextLine();
@@ -340,6 +342,22 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		statusMap.put("Debugging log:", log.toString());
+
+		// TorPlugin log output for all processes
+		StringBuilder torLog = new StringBuilder();
+		try {
+			Runtime runtime = Runtime.getRuntime();
+			Process process = runtime.exec("logcat -d -v time -s TorPlugin");
+			Scanner scanner = new Scanner(process.getInputStream());
+			while(scanner.hasNextLine()) {
+				torLog.append(scanner.nextLine());
+				torLog.append('\n');
+			}
+			scanner.close();
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+		statusMap.put("Tor debugging log:", torLog.toString());
 
 		return Collections.unmodifiableMap(statusMap);
 	}
