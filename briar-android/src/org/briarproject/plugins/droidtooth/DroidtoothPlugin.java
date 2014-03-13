@@ -68,9 +68,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private volatile boolean running = false;
 	private volatile boolean wasDisabled = false;
+	private volatile BluetoothStateReceiver receiver = null;
 	private volatile BluetoothServerSocket socket = null;
 
-	// Non-null if running has ever been true
+	// Non-null if the plugin started successfully
 	private volatile BluetoothAdapter adapter = null;
 
 	DroidtoothPlugin(Executor pluginExecutor, AndroidExecutor androidExecutor,
@@ -120,66 +121,56 @@ class DroidtoothPlugin implements DuplexPlugin {
 			return false;
 		}
 		running = true;
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				bind();
+		// Listen for changes to the Bluetooth state
+		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
+		receiver = new BluetoothStateReceiver();
+		appContext.registerReceiver(receiver, filter);
+		// If Bluetooth is enabled, bind a socket - otherwise enable it
+		if(adapter.isEnabled()) {
+			bind();
+		} else if(callback.getConfig().getBoolean("enable", true)) {
+			if(adapter.enable()) {
+				LOG.info("Enabling Bluetooth");
+				wasDisabled = true;
+			} else {
+				LOG.info("Could not enable Bluetooth");
 			}
-		});
+		} else {
+			LOG.info("Not enabling Bluetooth");
+		}
 		return true;
 	}
 
 	private void bind() {
-		if(!running) return;
-		if(!enableBluetooth()) return;
-		if(LOG.isLoggable(INFO))
-			LOG.info("Local address " + adapter.getAddress());
-		// Advertise the Bluetooth address to contacts
-		TransportProperties p = new TransportProperties();
-		p.put("address", adapter.getAddress());
-		callback.mergeLocalProperties(p);
-		// Bind a server socket to accept connections from contacts
-		BluetoothServerSocket ss = null;
-		try {
-			ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid());
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(ss);
-			return;
-		}
-		if(!running) {
-			tryToClose(ss);
-			return;
-		}
-		socket = ss;
-		acceptContactConnections();
-	}
-
-	private boolean enableBluetooth() {
-		if(adapter.isEnabled()) return true;
-		if(!callback.getConfig().getBoolean("enable", true)) {
-			LOG.info("Not enabling Bluetooth");
-			return false;
-		}
-		wasDisabled = true;
-		// Try to enable the adapter and wait for the result
-		LOG.info("Enabling Bluetooth");
-		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
-		BluetoothStateReceiver receiver = new BluetoothStateReceiver();
-		appContext.registerReceiver(receiver, filter);
-		try {
-			if(adapter.enable()) {
-				boolean enabled = receiver.waitForStateChange();
-				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + enabled);
-				return enabled;
-			} else {
-				LOG.info("Could not enable Bluetooth");
-				return false;
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				if(!running) return;
+				if(!adapter.isEnabled()) return;
+				if(LOG.isLoggable(INFO))
+					LOG.info("Local address " + adapter.getAddress());
+				// Advertise the Bluetooth address to contacts
+				TransportProperties p = new TransportProperties();
+				p.put("address", adapter.getAddress());
+				callback.mergeLocalProperties(p);
+				// Bind a server socket to accept connections from contacts
+				BluetoothServerSocket ss = null;
+				try {
+					ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid());
+				} catch(IOException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					tryToClose(ss);
+					return;
+				}
+				if(!running) {
+					tryToClose(ss);
+					return;
+				}
+				LOG.info("Socket bound");
+				socket = ss;
+				acceptContactConnections();
 			}
-		} catch(InterruptedException e) {
-			LOG.warning("Interrupted while enabling Bluetooth");
-			Thread.currentThread().interrupt();
-			return false;
-		}
+		});
 	}
 
 	private UUID getUuid() {
@@ -204,7 +195,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	private void acceptContactConnections() {
-		while(true) {
+		while(running) {
 			BluetoothSocket s;
 			try {
 				s = socket.accept();
@@ -215,7 +206,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 				return;
 			}
 			callback.incomingConnectionCreated(wrapSocket(s));
-			if(!running) return;
 		}
 	}
 
@@ -225,33 +215,17 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public void stop() {
 		running = false;
-		if(socket != null) tryToClose(socket);
-		// Disable Bluetooth if we enabled it at any point
-		if(wasDisabled) disableBluetooth();
-	}
-
-	private void disableBluetooth() {
-		if(!adapter.isEnabled()) return;
-		// Try to disable the adapter and wait for the result
-		LOG.info("Disabling Bluetooth");
-		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
-		BluetoothStateReceiver receiver = new BluetoothStateReceiver();
-		appContext.registerReceiver(receiver, filter);
-		try {
-			if(adapter.disable()) {
-				boolean enabled = receiver.waitForStateChange();
-				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + enabled);
-			} else {
-				LOG.info("Could not disable Bluetooth");
-			}
-		} catch(InterruptedException e) {
-			LOG.warning("Interrupted while disabling Bluetooth");
-			Thread.currentThread().interrupt();
+		if(receiver != null) appContext.unregisterReceiver(receiver);
+		tryToClose(socket);
+		// Disable Bluetooth if we enabled it and it's still enabled
+		if(wasDisabled && adapter.isEnabled()) {
+			if(adapter.disable()) LOG.info("Disabling Bluetooth");
+			else LOG.info("Could not disable Bluetooth");
 		}
 	}
 
 	public boolean isRunning() {
-		return running && socket != null;
+		return running && adapter.isEnabled();
 	}
 
 	public boolean shouldPoll() {
@@ -379,27 +353,17 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return null;
 	}
 
-	private static class BluetoothStateReceiver extends BroadcastReceiver {
-
-		private final CountDownLatch finished = new CountDownLatch(1);
-
-		private volatile boolean enabled = false;
+	private class BluetoothStateReceiver extends BroadcastReceiver {
 
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
 			if(state == STATE_ON) {
-				enabled = true;
-				ctx.unregisterReceiver(this);
-				finished.countDown();
+				LOG.info("Bluetooth enabled");
+				bind();
 			} else if(state == STATE_OFF) {
-				ctx.unregisterReceiver(this);
-				finished.countDown();
+				LOG.info("Bluetooth disabled");
+				tryToClose(socket);
 			}
-		}
-
-		boolean waitForStateChange() throws InterruptedException {
-			finished.await();
-			return enabled;
 		}
 	}
 
