@@ -75,8 +75,8 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 				FRAME_LENGTH, tag);
 		// Write an empty final frame without having written any other frames
 		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], 0, true);
-		// Nothing should be written to the output stream
-		assertEquals(0, out.size());
+		// The tag and the empty frame should be written to the output stream
+		assertEquals(TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH, out.size());
 	}
 
 	@Test

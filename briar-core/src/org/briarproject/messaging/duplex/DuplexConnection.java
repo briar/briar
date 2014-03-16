@@ -223,6 +223,8 @@ abstract class DuplexConnection implements EventListener {
 			OutputStream out = createConnectionWriter().getOutputStream();
 			writer = packetWriterFactory.createPacketWriter(out, true);
 			LOG.info("Starting to write");
+			// Ensure the tag is sent
+			out.flush();
 			// Send the initial packets
 			dbExecutor.execute(new GenerateTransportAcks());
 			dbExecutor.execute(new GenerateTransportUpdates());

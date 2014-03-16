@@ -63,9 +63,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 	public void writeFrame(byte[] frame, int payloadLength, boolean finalFrame)
 			throws IOException {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		// If the initiator's side of the connection is closed without writing
-		// any data, don't write anything to the underlying transport
-		if(writeTag && finalFrame && payloadLength == 0) return;
 		// Write the tag if required
 		if(writeTag) {
 			try {
@@ -115,6 +112,17 @@ class OutgoingEncryptionLayer implements FrameWriter {
 	}
 
 	public void flush() throws IOException {
+		// Write the tag if required
+		if(writeTag) {
+			try {
+				out.write(tag, 0, tag.length);
+			} catch(IOException e) {
+				frameKey.erase();
+				throw e;
+			}
+			capacity -= tag.length;
+			writeTag = false;
+		}
 		out.flush();
 	}
 
