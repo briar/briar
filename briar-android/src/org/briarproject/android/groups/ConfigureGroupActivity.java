@@ -47,7 +47,6 @@ SelectContactsDialog.Listener {
 	private static final Logger LOG =
 			Logger.getLogger(ConfigureGroupActivity.class.getName());
 
-	private boolean subscribed = false;
 	private CheckBox subscribeCheckBox = null;
 	private RadioGroup radioGroup = null;
 	private RadioButton visibleToAll = null, visibleToSome = null;
@@ -58,8 +57,11 @@ SelectContactsDialog.Listener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	private volatile GroupId groupId = null;
 	private volatile Group group = null;
-	private volatile Collection<ContactId> selected = Collections.emptyList();
+	private volatile boolean subscribed = false;
+	private volatile Collection<Contact> contacts = null;
+	private volatile Collection<ContactId> selected = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -68,13 +70,13 @@ SelectContactsDialog.Listener {
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
-		GroupId id = new GroupId(b);
+		groupId = new GroupId(b);
 		String name = i.getStringExtra("briar.GROUP_NAME");
 		if(name == null) throw new IllegalStateException();
 		setTitle(name);
 		b = i.getByteArrayExtra("briar.GROUP_SALT");
 		if(b == null) throw new IllegalStateException();
-		group = new Group(id, name, b);
+		group = new Group(groupId, name, b);
 		subscribed = i.getBooleanExtra("briar.SUBSCRIBED", false);
 		boolean all = i.getBooleanExtra("briar.VISIBLE_TO_ALL", false);
 
@@ -145,18 +147,16 @@ SelectContactsDialog.Listener {
 			visibleToAll.setEnabled(subscribe);
 			visibleToSome.setEnabled(subscribe);
 		} else if(view == visibleToSome) {
-			loadContacts();
+			if(contacts == null) loadContacts();
+			else displayContacts();
 		} else if(view == doneButton) {
 			boolean subscribe = subscribeCheckBox.isChecked();
 			boolean all = visibleToAll.isChecked();
-			Collection<ContactId> visible =
-					Collections.unmodifiableCollection(selected);
 			// Replace the button with a progress bar
 			doneButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
 			// Update the blog in a background thread
-			if(subscribe || subscribed)
-				updateGroup(subscribe, subscribed, all, visible);
+			if(subscribe || subscribed) updateGroup(subscribe, all);
 		}
 	}
 
@@ -165,11 +165,12 @@ SelectContactsDialog.Listener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<Contact> contacts = db.getContacts();
+					contacts = db.getContacts();
+					selected = db.getVisibility(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayContacts(contacts);
+					displayContacts();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -178,7 +179,7 @@ SelectContactsDialog.Listener {
 		});
 	}
 
-	private void displayContacts(final Collection<Contact> contacts) {
+	private void displayContacts() {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				FragmentManager fm = getSupportFragmentManager();
@@ -186,24 +187,23 @@ SelectContactsDialog.Listener {
 					noContactsDialog.show(fm, "NoContactsDialog");
 				} else {
 					selectContactsDialog.setContacts(contacts);
+					selectContactsDialog.setSelected(selected);
 					selectContactsDialog.show(fm, "SelectContactsDialog");
 				}
 			}
 		});
 	}
 
-	private void updateGroup(final boolean subscribe,
-			final boolean wasSubscribed, final boolean all,
-			final Collection<ContactId> visible) {
+	private void updateGroup(final boolean subscribe, final boolean all) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
 					if(subscribe) {
-						if(!wasSubscribed) db.addGroup(group);
-						db.setVisibleToAll(group.getId(), all);
-						if(!all) db.setVisibility(group.getId(), visible);
-					} else if(wasSubscribed) {
+						if(!subscribed) db.addGroup(group);
+						db.setVisibleToAll(groupId, all);
+						if(!all) db.setVisibility(groupId, selected);
+					} else if(subscribed) {
 						db.removeGroup(group);
 					}
 					long duration = System.currentTimeMillis() - now;
@@ -225,7 +225,7 @@ SelectContactsDialog.Listener {
 	public void contactCreationCancelled() {}
 
 	public void contactsSelected(Collection<ContactId> selected) {
-		this.selected = selected;
+		this.selected = Collections.unmodifiableCollection(selected);
 	}
 
 	public void contactSelectionCancelled() {}

@@ -1,7 +1,9 @@
 package org.briarproject.android.contact;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.briarproject.R;
@@ -17,27 +19,35 @@ import android.support.v4.app.DialogFragment;
 public class SelectContactsDialog extends DialogFragment
 implements DialogInterface.OnMultiChoiceClickListener {
 
-	private final Set<ContactId> selected = new HashSet<ContactId>();
-
 	private Listener listener = null;
-	private Contact[] contacts = null;
+	private List<Contact> contacts = null;
+	private Set<ContactId> selected = null;
 
 	public void setListener(Listener listener) {
 		this.listener = listener;
 	}
 
 	public void setContacts(Collection<Contact> contacts) {
-		this.contacts = contacts.toArray(new Contact[contacts.size()]);
+		this.contacts = new ArrayList<Contact>(contacts);
+	}
+
+	public void setSelected(Collection<ContactId> selected) {
+		this.selected = new HashSet<ContactId>(selected);
 	}
 
 	@Override
 	public Dialog onCreateDialog(Bundle state) {
 		if(listener == null || contacts == null) return null;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		String[] names = new String[contacts.length];
-		for(int i = 0; i < contacts.length; i++)
-			names[i] = contacts[i].getAuthor().getName();
-		builder.setMultiChoiceItems(names, new boolean[contacts.length], this);
+		int size = contacts.size();
+		String[] names = new String[size];
+		boolean[] checked = new boolean[size];
+		for(int i = 0; i < size; i++) {
+			Contact c = contacts.get(i);
+			names[i] = c.getAuthor().getName();
+			checked[i] = selected.contains(c.getId());
+		}
+		builder.setMultiChoiceItems(names, checked, this);
 		builder.setPositiveButton(R.string.done_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
@@ -54,8 +64,8 @@ implements DialogInterface.OnMultiChoiceClickListener {
 	}
 
 	public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-		if(isChecked) selected.add(contacts[which].getId());
-		else selected.remove(contacts[which].getId());
+		if(isChecked) selected.add(contacts.get(which).getId());
+		else selected.remove(contacts.get(which).getId());
 	}
 
 	public interface Listener {

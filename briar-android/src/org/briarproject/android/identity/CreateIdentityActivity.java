@@ -109,13 +109,24 @@ implements OnEditorActionListener, OnClickListener {
 		setContentView(layout);
 	}
 
+	// FIXME: What is this for?
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
 		validateNickname();
 		return true;
 	}
 
+	private boolean validateNickname() {
+		if(nicknameEntry.getText().length() == 0) return false;
+		byte[] b = StringUtils.toUtf8(nicknameEntry.getText().toString());
+		if(b.length > MAX_AUTHOR_NAME_LENGTH) return false;
+		// Hide the soft keyboard
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		return true;
+	}
+
 	public void onClick(View view) {
-		if(!validateNickname()) return;
+		if(!validateNickname()) return; // FIXME: Show feedback
 		final String nickname = nicknameEntry.getText().toString();
 		// Replace the button with a progress bar
 		createButton.setVisibility(GONE);
@@ -131,16 +142,6 @@ implements OnEditorActionListener, OnClickListener {
 				storeLocalAuthor(a);
 			}
 		});
-	}
-
-	private boolean validateNickname() {
-		if(nicknameEntry.getText().length() == 0) return false;
-		byte[] b = StringUtils.toUtf8(nicknameEntry.getText().toString());
-		if(b.length > MAX_AUTHOR_NAME_LENGTH) return false;
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
-		return true;
 	}
 
 	private void storeLocalAuthor(final LocalAuthor a) {

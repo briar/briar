@@ -70,7 +70,8 @@ SelectContactsDialog.Listener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile GroupFactory groupFactory;
 	@Inject private volatile DatabaseComponent db;
-	private volatile Collection<ContactId> selected = Collections.emptyList();
+	private volatile Collection<Contact> contacts = null;
+	private volatile Collection<ContactId> selected = Collections.emptySet();
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -144,15 +145,25 @@ SelectContactsDialog.Listener {
 	}
 
 	private void enableOrDisableCreateButton() {
-		if(nameEntry == null || radioGroup == null || createButton == null)
-			return; // Activity not created yet
+		if(createButton == null) return; // Activity not created yet
 		boolean nameNotEmpty = nameEntry.getText().length() > 0;
 		boolean visibilitySelected = radioGroup.getCheckedRadioButtonId() != -1;
 		createButton.setEnabled(nameNotEmpty && visibilitySelected);
 	}
 
+	// FIXME: What is this for?
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
 		validateName();
+		return true;
+	}
+
+	private boolean validateName() {
+		if(nameEntry.getText().length() == 0) return false;
+		byte[] b = StringUtils.toUtf8(nameEntry.getText().toString());
+		if(b.length > MAX_GROUP_NAME_LENGTH) return false;
+		// Hide the soft keyboard
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
 		return true;
 	}
 
@@ -160,21 +171,52 @@ SelectContactsDialog.Listener {
 		if(view == visibleToAll) {
 			enableOrDisableCreateButton();
 		} else if(view == visibleToSome) {
-			loadContacts();
+			if(contacts == null) loadContacts();
+			else displayContacts();
 		} else if(view == createButton) {
-			if(!validateName()) return;
+			if(!validateName()) return; // FIXME: Show feedback
 			createButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
 			String name = nameEntry.getText().toString();
 			boolean all = visibleToAll.isChecked();
-			Collection<ContactId> visible =
-					Collections.unmodifiableCollection(selected);
-			storeGroup(name, all, visible);
+			storeGroup(name, all);
 		}
 	}
 
-	private void storeGroup(final String name, final boolean all,
-			final Collection<ContactId> visible) {
+	private void loadContacts() {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					long now = System.currentTimeMillis();
+					contacts = db.getContacts();
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Load took " + duration + " ms");
+					displayContacts();
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	private void displayContacts() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				FragmentManager fm = getSupportFragmentManager();
+				if(contacts.isEmpty()) {
+					noContactsDialog.show(fm, "NoContactsDialog");
+				} else {
+					selectContactsDialog.setContacts(contacts);
+					selectContactsDialog.setSelected(selected);
+					selectContactsDialog.show(fm, "SelectContactsDialog");
+				}
+			}
+		});
+	}
+
+	private void storeGroup(final String name, final boolean all) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -182,7 +224,7 @@ SelectContactsDialog.Listener {
 					long now = System.currentTimeMillis();
 					db.addGroup(g);
 					if(all) db.setVisibleToAll(g.getId(), true);
-					else db.setVisibility(g.getId(), visible);
+					else db.setVisibility(g.getId(), selected);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Storing group took " + duration + " ms");
@@ -211,48 +253,6 @@ SelectContactsDialog.Listener {
 		});
 	}
 
-	private void loadContacts() {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Collection<Contact> contacts = db.getContacts();
-					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
-						LOG.info("Load took " + duration + " ms");
-					displayContacts(contacts);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void displayContacts(final Collection<Contact> contacts) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				FragmentManager fm = getSupportFragmentManager();
-				if(contacts.isEmpty()) {
-					noContactsDialog.show(fm, "NoContactsDialog");
-				} else {
-					selectContactsDialog.setContacts(contacts);
-					selectContactsDialog.show(fm, "SelectContactsDialog");
-				}
-			}
-		});
-	}
-
-	private boolean validateName() {
-		if(nameEntry.getText().length() == 0) return false;
-		byte[] b = StringUtils.toUtf8(nameEntry.getText().toString());
-		if(b.length > MAX_GROUP_NAME_LENGTH) return false;
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
-		return true;
-	}
-
 	public void contactCreationSelected() {
 		startActivity(new Intent(this, AddContactActivity.class));
 	}
@@ -262,7 +262,7 @@ SelectContactsDialog.Listener {
 	}
 
 	public void contactsSelected(Collection<ContactId> selected) {
-		this.selected = selected;
+		this.selected = Collections.unmodifiableCollection(selected);
 		enableOrDisableCreateButton();
 	}
 
