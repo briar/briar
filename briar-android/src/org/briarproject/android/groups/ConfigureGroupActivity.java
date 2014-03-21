@@ -29,8 +29,6 @@ import org.briarproject.api.messaging.GroupId;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -52,8 +50,6 @@ SelectContactsDialog.Listener {
 	private RadioButton visibleToAll = null, visibleToSome = null;
 	private Button doneButton = null;
 	private ProgressBar progress = null;
-	private NoContactsDialog noContactsDialog = null;
-	private SelectContactsDialog selectContactsDialog = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -128,17 +124,6 @@ SelectContactsDialog.Listener {
 		layout.addView(progress);
 
 		setContentView(layout);
-
-		FragmentManager fm = getSupportFragmentManager();
-		Fragment f = fm.findFragmentByTag("NoContactsDialog");
-		if(f == null) noContactsDialog = new NoContactsDialog();
-		else noContactsDialog = (NoContactsDialog) f;
-		noContactsDialog.setListener(this);
-
-		f = fm.findFragmentByTag("SelectContactsDialog");
-		if(f == null) selectContactsDialog = new SelectContactsDialog();
-		else selectContactsDialog = (SelectContactsDialog) f;
-		selectContactsDialog.setListener(this);
 	}
 
 	public void onClick(View view) {
@@ -182,13 +167,16 @@ SelectContactsDialog.Listener {
 	private void displayContacts() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				FragmentManager fm = getSupportFragmentManager();
 				if(contacts.isEmpty()) {
-					noContactsDialog.show(fm, "NoContactsDialog");
+					NoContactsDialog builder = new NoContactsDialog();
+					builder.setListener(ConfigureGroupActivity.this);
+					builder.build(ConfigureGroupActivity.this).show();
 				} else {
-					selectContactsDialog.setContacts(contacts);
-					selectContactsDialog.setSelected(selected);
-					selectContactsDialog.show(fm, "SelectContactsDialog");
+					SelectContactsDialog builder = new SelectContactsDialog();
+					builder.setListener(ConfigureGroupActivity.this);
+					builder.setContacts(contacts);
+					builder.setSelected(selected);
+					builder.build(ConfigureGroupActivity.this).show();
 				}
 			}
 		});

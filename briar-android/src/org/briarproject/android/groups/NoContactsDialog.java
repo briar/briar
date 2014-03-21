@@ -4,11 +4,10 @@ import org.briarproject.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 
-public class NoContactsDialog extends DialogFragment {
+public class NoContactsDialog {
 
 	private Listener listener = null;
 
@@ -16,9 +15,9 @@ public class NoContactsDialog extends DialogFragment {
 		this.listener = listener;
 	}
 
-	@Override
-	public Dialog onCreateDialog(Bundle state) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+	public Dialog build(Context ctx) {
+		if(listener == null) throw new IllegalStateException();
+		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		builder.setMessage(R.string.no_contacts_prompt);
 		builder.setPositiveButton(R.string.add_button,
 				new DialogInterface.OnClickListener() {

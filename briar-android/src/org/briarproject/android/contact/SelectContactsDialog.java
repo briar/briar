@@ -12,12 +12,11 @@ import org.briarproject.api.ContactId;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 
-public class SelectContactsDialog extends DialogFragment
-implements DialogInterface.OnMultiChoiceClickListener {
+public class SelectContactsDialog implements OnMultiChoiceClickListener {
 
 	private Listener listener = null;
 	private List<Contact> contacts = null;
@@ -35,10 +34,10 @@ implements DialogInterface.OnMultiChoiceClickListener {
 		this.selected = new HashSet<ContactId>(selected);
 	}
 
-	@Override
-	public Dialog onCreateDialog(Bundle state) {
-		if(listener == null || contacts == null) return null;
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+	public Dialog build(Context ctx) {
+		if(listener == null || contacts == null || selected == null)
+			throw new IllegalStateException();
+		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		int size = contacts.size();
 		String[] names = new String[size];
 		boolean[] checked = new boolean[size];

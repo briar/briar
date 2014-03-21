@@ -14,12 +14,12 @@ import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
-import roboguice.activity.RoboFragmentActivity;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
-public class BriarActivity extends RoboFragmentActivity {
+public class BriarActivity extends RoboActivity {
 
 	public static final int REQUEST_PASSWORD = 1;
 
