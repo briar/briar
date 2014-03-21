@@ -53,6 +53,14 @@
     </plurals>
     <string name="no_posts">No posts</string>
     <string name="subscribe_to_this_forum">Subscribe to this forum</string>
+    <string name="no_subscribers">No contacts subscribe to this forum</string>
+    <plurals name="subscribers">
+        <item quantity="one">%d contact subscribes to this forum:</item>
+        <item quantity="other">%d contacts subscribe to this forum:</item>
+    </plurals>
+    <string name="public_space_warning">Forums are public spaces. There may be other subscribers who are not your contacts.</string>
+    <string name="subscribe_button">Subscribe</string>
+    <string name="unsubscribe_button">Unsubscribe</string>
     <string name="create_forum_title">New Forum</string>
     <string name="choose_forum_name">Choose a name for your forum:</string>
     <string name="forum_visible_to_all">Share this forum with all contacts</string>

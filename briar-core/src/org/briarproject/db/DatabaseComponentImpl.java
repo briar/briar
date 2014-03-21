@@ -1154,6 +1154,23 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Collection<Contact> getSubscribers(GroupId g) throws DbException {
+		subscriptionLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Collection<Contact> contacts = db.getSubscribers(txn, g);
+				db.commitTransaction(txn);
+				return contacts;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			subscriptionLock.readLock().unlock();
+		}
+	}
+
 	public Map<TransportId, Long> getTransportLatencies() throws DbException {
 		transportLock.readLock().lock();
 		try {

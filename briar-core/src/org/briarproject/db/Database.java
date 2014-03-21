@@ -487,6 +487,13 @@ interface Database<T> {
 	Settings getSettings(T txn) throws DbException;
 
 	/**
+	 * Returns all contacts who subscribe to the given group.
+	 * <p>
+	 * Locking: subscription read.
+	 */
+	Collection<Contact> getSubscribers(T txn, GroupId g) throws DbException;
+
+	/**
 	 * Returns a subscription ack for the given contact, or null if no ack is
 	 * due.
 	 * <p>

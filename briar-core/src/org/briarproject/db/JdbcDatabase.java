@@ -2154,6 +2154,40 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<Contact> getSubscribers(Connection txn, GroupId g)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT c.contactId, authorId, c.name, publicKey,"
+					+ " localAuthorId"
+					+ " FROM contacts AS c"
+					+ " JOIN contactGroups AS cg"
+					+ " ON c.contactId = cg.contactId"
+					+ " WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			List<Contact> contacts = new ArrayList<Contact>();
+			while(rs.next()) {
+				ContactId contactId = new ContactId(rs.getInt(1));
+				AuthorId authorId = new AuthorId(rs.getBytes(2));
+				String name = rs.getString(3);
+				byte[] publicKey = rs.getBytes(4);
+				Author author = new Author(authorId, name, publicKey);
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
+				contacts.add(new Contact(contactId, author, localAuthorId));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(contacts);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public SubscriptionAck getSubscriptionAck(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;

@@ -231,6 +231,9 @@ public interface DatabaseComponent {
 	/** Returns all settings. */
 	Settings getSettings() throws DbException;
 
+	/** Returns all contacts who subscribe to the given group. */
+	Collection<Contact> getSubscribers(GroupId g) throws DbException;
+
 	/** Returns the maximum latencies of all local transports. */
 	Map<TransportId, Long> getTransportLatencies() throws DbException;
 
