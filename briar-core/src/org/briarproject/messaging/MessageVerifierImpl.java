@@ -1,8 +1,10 @@
 package org.briarproject.messaging;
 
+import static java.util.logging.Level.INFO;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
 import java.security.GeneralSecurityException;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -20,6 +22,9 @@ import org.briarproject.api.system.Clock;
 
 class MessageVerifierImpl implements MessageVerifier {
 
+	private static final Logger LOG =
+			Logger.getLogger(MessageVerifierImpl.class.getName());
+
 	private final CryptoComponent crypto;
 	private final Clock clock;
 	private final KeyParser keyParser;
@@ -33,11 +38,11 @@ class MessageVerifierImpl implements MessageVerifier {
 
 	public Message verifyMessage(UnverifiedMessage m)
 			throws GeneralSecurityException {
+		long now = System.currentTimeMillis();
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		Signature signature = crypto.getSignature();
 		// Reject the message if it's too far in the future
-		long now = clock.currentTimeMillis();
-		if(m.getTimestamp() > now + MAX_CLOCK_DIFFERENCE)
+		if(m.getTimestamp() > clock.currentTimeMillis() + MAX_CLOCK_DIFFERENCE)
 			throw new GeneralSecurityException();
 		// Hash the message to get the message ID
 		byte[] raw = m.getSerialised();
@@ -52,8 +57,12 @@ class MessageVerifierImpl implements MessageVerifier {
 			if(!signature.verify(m.getSignature()))
 				throw new GeneralSecurityException();
 		}
-		return new MessageImpl(id, m.getParent(), m.getGroup(), author,
-				m.getContentType(), m.getTimestamp(), raw, m.getBodyStart(),
-				m.getBodyLength());
+		Message verified = new MessageImpl(id, m.getParent(), m.getGroup(),
+				author, m.getContentType(), m.getTimestamp(), raw,
+				m.getBodyStart(), m.getBodyLength());
+		long duration = System.currentTimeMillis() - now;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Verifying message took " + duration + " ms");
+		return verified;
 	}
 }

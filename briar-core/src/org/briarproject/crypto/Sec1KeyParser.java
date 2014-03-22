@@ -1,7 +1,10 @@
 package org.briarproject.crypto;
 
+import static java.util.logging.Level.INFO;
+
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.util.logging.Logger;
 
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
@@ -18,6 +21,9 @@ import org.spongycastle.math.ec.ECPoint;
  * compression is not used.
  */
 class Sec1KeyParser implements KeyParser {
+
+	private static final Logger LOG =
+			Logger.getLogger(Sec1KeyParser.class.getName());
 
 	private final ECDomainParameters params;
 	private final BigInteger modulus;
@@ -36,6 +42,7 @@ class Sec1KeyParser implements KeyParser {
 			throws GeneralSecurityException {
 		// The validation procedure comes from SEC 1, section 3.2.2.1. Note
 		// that SEC 1 parameter names are used below, not RFC 5639 names
+		long now = System.currentTimeMillis();
 		if(encodedKey.length != publicKeyBytes)
 			throw new GeneralSecurityException();
 		// The first byte must be 0x04
@@ -66,11 +73,16 @@ class Sec1KeyParser implements KeyParser {
 			throw new GeneralSecurityException();
 		// Construct a public key from the point (x, y) and the params
 		ECPublicKeyParameters k = new ECPublicKeyParameters(pub, params);
-		return new Sec1PublicKey(k, keyBits);
+		PublicKey p = new Sec1PublicKey(k, keyBits);
+		long duration = System.currentTimeMillis() - now;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Parsing public key took " + duration + " ms");
+		return p;
 	}
 
 	public PrivateKey parsePrivateKey(byte[] encodedKey)
 			throws GeneralSecurityException {
+		long now = System.currentTimeMillis();
 		if(encodedKey.length != privateKeyBytes)
 			throw new GeneralSecurityException();
 		BigInteger d = new BigInteger(1, encodedKey); // Positive signum
@@ -79,6 +91,10 @@ class Sec1KeyParser implements KeyParser {
 			throw new GeneralSecurityException();
 		// Construct a private key from the private value and the params
 		ECPrivateKeyParameters k = new ECPrivateKeyParameters(d, params);
-		return new Sec1PrivateKey(k, keyBits);
+		PrivateKey p = new Sec1PrivateKey(k, keyBits);
+		long duration = System.currentTimeMillis() - now;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Parsing private key took " + duration + " ms");
+		return p;
 	}
 }
