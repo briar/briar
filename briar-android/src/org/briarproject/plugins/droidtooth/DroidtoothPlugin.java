@@ -1,7 +1,12 @@
 package org.briarproject.plugins.droidtooth;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
@@ -122,7 +127,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		running = true;
 		// Listen for changes to the Bluetooth state
-		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_STATE_CHANGED);
+		filter.addAction(ACTION_SCAN_MODE_CHANGED);
 		receiver = new BluetoothStateReceiver();
 		appContext.registerReceiver(receiver, filter);
 		// If Bluetooth is enabled, bind a socket - otherwise enable it
@@ -364,6 +371,14 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.info("Bluetooth disabled");
 				tryToClose(socket);
 			}
+			int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, 0);
+			if(scanMode == SCAN_MODE_NONE) {
+				LOG.info("Scan mode: None");
+			} else if(scanMode == SCAN_MODE_CONNECTABLE) {
+				LOG.info("Scan mode: Connectable");
+			} else if(scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+				LOG.info("Scan mode: Discoverable");
+			}
 		}
 	}
 
@@ -395,6 +410,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 					Thread.currentThread().interrupt();
 					return;
 				}
+				if(addresses.isEmpty()) {
+					LOG.info("No devices discovered");
+					now = clock.currentTimeMillis();
+					continue;
+				}
 				// Connect to any device with the right UUID
 				for(String address : addresses) {
 					now = clock.currentTimeMillis();
@@ -419,6 +439,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			filter.addAction(DISCOVERY_FINISHED);
 			DiscoveryReceiver disco = new DiscoveryReceiver();
 			appContext.registerReceiver(disco, filter);
+			LOG.info("Starting discovery");
 			adapter.startDiscovery();
 			return disco.waitForAddresses(timeout);
 		}
@@ -433,6 +454,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		public void onReceive(Context ctx, Intent intent) {
 			String action = intent.getAction();
 			if(action.equals(DISCOVERY_FINISHED)) {
+				LOG.info("Discovery finished");
 				ctx.unregisterReceiver(this);
 				finished.countDown();
 			} else if(action.equals(FOUND)) {
