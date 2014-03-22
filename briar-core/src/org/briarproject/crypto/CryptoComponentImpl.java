@@ -234,9 +234,14 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		ECPrivateKeyParameters ecPriv = ((Sec1PrivateKey) priv).getKey();
 		ECPublicKeyParameters ecPub = ((Sec1PublicKey) pub).getKey();
+		long now = System.currentTimeMillis();
 		ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
 		agreement.init(ecPriv);
-		return agreement.calculateAgreement(ecPub).toByteArray();
+		byte[] secret = agreement.calculateAgreement(ecPub).toByteArray();
+		long duration = System.currentTimeMillis() - now;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Deriving shared secret took " + duration + " ms");
+		return secret;
 	}
 
 	public byte[] deriveGroupSalt(byte[] secret) {
