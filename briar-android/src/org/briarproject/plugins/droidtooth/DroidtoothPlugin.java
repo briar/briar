@@ -58,7 +58,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(DroidtoothPlugin.class.getName());
 	private static final int UUID_BYTES = 16;
-	private static final String FOUND = "android.bluetooth.device.action.FOUND";
+	private static final String FOUND =
+			"android.bluetooth.device.action.FOUND";
 	private static final String DISCOVERY_FINISHED =
 			"android.bluetooth.adapter.action.DISCOVERY_FINISHED";
 
@@ -136,12 +137,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 		if(adapter.isEnabled()) {
 			bind();
 		} else if(callback.getConfig().getBoolean("enable", true)) {
-			if(adapter.enable()) {
-				LOG.info("Enabling Bluetooth");
-				wasDisabled = true;
-			} else {
-				LOG.info("Could not enable Bluetooth");
-			}
+			wasDisabled = true;
+			if(adapter.enable()) LOG.info("Enabling Bluetooth");
+			else LOG.info("Could not enable Bluetooth");
 		} else {
 			LOG.info("Not enabling Bluetooth");
 		}
@@ -151,8 +149,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private void bind() {
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
-				if(!running) return;
-				if(!adapter.isEnabled()) return;
+				if(!isRunning()) return;
 				if(LOG.isLoggable(INFO))
 					LOG.info("Local address " + adapter.getAddress());
 				// Advertise the Bluetooth address to contacts
@@ -169,7 +166,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 					tryToClose(ss);
 					return;
 				}
-				if(!running) {
+				if(!isRunning()) {
 					tryToClose(ss);
 					return;
 				}
@@ -202,7 +199,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	private void acceptContactConnections() {
-		while(running) {
+		while(isRunning()) {
 			BluetoothSocket s;
 			try {
 				s = socket.accept();
@@ -244,8 +241,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	public void poll(Collection<ContactId> connected) {
-		if(!running) return;
-		if(!adapter.isEnabled()) return;
+		if(!isRunning()) return;
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -308,7 +304,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		if(!running) return null;
+		if(!isRunning()) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String address = p.get("address");
@@ -326,8 +322,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
-		if(!running) return null;
-		if(!adapter.isEnabled()) return null;
+		if(!isRunning()) return null;
 		// Use the invitation codes to generate the UUID
 		byte[] b = r.nextBytes(UUID_BYTES);
 		UUID uuid = UUID.nameUUIDFromBytes(b);
@@ -397,13 +392,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 		@Override
 		public void run() {
-			long now = clock.currentTimeMillis();
-			long end = now + timeout;
-			while(now < end && running && !socketLatch.isSet()) {
+			long end = clock.currentTimeMillis() + timeout;
+			while(!finished(end)) {
 				// Discover nearby devices
 				LOG.info("Discovering nearby devices");
 				List<String> addresses;
 				try {
+					long now = clock.currentTimeMillis();
 					addresses = discoverDevices(end - now);
 				} catch(InterruptedException e) {
 					LOG.warning("Interrupted while discovering devices");
@@ -412,15 +407,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 				}
 				if(addresses.isEmpty()) {
 					LOG.info("No devices discovered");
-					now = clock.currentTimeMillis();
 					continue;
 				}
 				// Connect to any device with the right UUID
 				for(String address : addresses) {
-					now = clock.currentTimeMillis();
-					if(now < end  && running && !socketLatch.isSet()) {
-						BluetoothSocket s = connect(address, uuid);
-						if(s == null) continue;
+					if(finished(end)) return;
+					BluetoothSocket s = connect(address, uuid);
+					if(s != null) {
 						LOG.info("Outgoing connection");
 						if(!socketLatch.set(s)) {
 							LOG.info("Closing redundant connection");
@@ -430,6 +423,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 					}
 				}
 			}
+		}
+
+		private boolean finished(long end) {
+			long now = clock.currentTimeMillis();
+			return now >= end || !isRunning() || socketLatch.isSet();
 		}
 
 		private List<String> discoverDevices(long timeout)
