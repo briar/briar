@@ -50,6 +50,7 @@ SelectContactsDialog.Listener {
 	private RadioButton visibleToAll = null, visibleToSome = null;
 	private Button doneButton = null;
 	private ProgressBar progress = null;
+	private boolean changed = false;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -128,20 +129,28 @@ SelectContactsDialog.Listener {
 
 	public void onClick(View view) {
 		if(view == subscribeCheckBox) {
+			changed = true;
 			boolean subscribe = subscribeCheckBox.isChecked();
 			visibleToAll.setEnabled(subscribe);
 			visibleToSome.setEnabled(subscribe);
+		} else if(view == visibleToAll) {
+			changed = true;
 		} else if(view == visibleToSome) {
+			changed = true;
 			if(contacts == null) loadContacts();
 			else displayContacts();
 		} else if(view == doneButton) {
-			boolean subscribe = subscribeCheckBox.isChecked();
-			boolean all = visibleToAll.isChecked();
-			// Replace the button with a progress bar
-			doneButton.setVisibility(GONE);
-			progress.setVisibility(VISIBLE);
-			// Update the blog in a background thread
-			if(subscribe || subscribed) updateGroup(subscribe, all);
+			if(changed) {
+				boolean subscribe = subscribeCheckBox.isChecked();
+				boolean all = visibleToAll.isChecked();
+				// Replace the button with a progress bar
+				doneButton.setVisibility(GONE);
+				progress.setVisibility(VISIBLE);
+				// Update the blog in a background thread
+				if(subscribe || subscribed) updateGroup(subscribe, all);
+			} else {
+				finish();
+			}
 		}
 	}
 
