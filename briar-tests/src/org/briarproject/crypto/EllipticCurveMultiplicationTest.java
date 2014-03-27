@@ -1,21 +1,18 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.crypto.EllipticCurveConstants.A;
-import static org.briarproject.crypto.EllipticCurveConstants.B;
 import static org.briarproject.crypto.EllipticCurveConstants.CURVE;
 import static org.briarproject.crypto.EllipticCurveConstants.G;
 import static org.briarproject.crypto.EllipticCurveConstants.H;
-import static org.briarproject.crypto.EllipticCurveConstants.P;
 import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.briarproject.crypto.EllipticCurveConstants.Q;
-import static org.briarproject.crypto.EllipticCurveConstants.X;
-import static org.briarproject.crypto.EllipticCurveConstants.Y;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
+import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
+import org.spongycastle.asn1.x9.X9ECParameters;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
@@ -30,17 +27,24 @@ public class EllipticCurveMultiplicationTest extends BriarTestCase {
 
 	@Test
 	public void testMultiplierProducesSameResultsAsDefault() throws Exception {
-		// Construct a curve and base point using the default multiplier
-		ECCurve defaultCurve = new ECCurve.Fp(P, A, B);
-		ECPoint defaultG = defaultCurve.createPoint(X, Y);
-		// Check that the curve and base point are equal to those constructed
-		// using the Montgomery ladder multiplier
+		// Instantiate the built-in implementation of the curve, which uses
+		// the default multiplier
+		X9ECParameters defaultX9Parameters =
+				TeleTrusTNamedCurves.getByName("brainpoolp384r1");
+		ECCurve defaultCurve = defaultX9Parameters.getCurve();
+		ECPoint defaultG = defaultX9Parameters.getG();
+		BigInteger defaultQ = defaultX9Parameters.getN();
+		BigInteger defaultH = defaultX9Parameters.getH();
+		// Check that the built-in parameters are equal to our parameters,
+		// which use the Montgomery ladder multiplier
 		assertEquals(CURVE, defaultCurve);
 		assertEquals(G, defaultG);
+		assertEquals(Q, defaultQ);
+		assertEquals(H, defaultH);
 		// ECDomainParameters doesn't have an equals() method, but it's just a
 		// container for the parameters
-		ECDomainParameters defaultParameters =
-				new ECDomainParameters(defaultCurve, defaultG, Q, H);
+		ECDomainParameters defaultParameters = new ECDomainParameters(
+				defaultCurve, defaultG, defaultQ, defaultH);
 		// Generate two key pairs with each set of parameters, using the same
 		// deterministic PRNG for both sets of parameters
 		byte[] seed = new byte[32];
