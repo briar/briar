@@ -69,7 +69,7 @@ implements OnClickListener {
 	private volatile GroupId groupId = null;
 	private volatile AuthorId localAuthorId = null;
 	private volatile MessageId parentId = null;
-	private volatile long timestamp = -1;
+	private volatile long minTimestamp = -1;
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Group group = null;
 
@@ -86,10 +86,11 @@ implements OnClickListener {
 		groupId = new GroupId(b);
 		b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
 		if(b == null) throw new IllegalStateException();
+		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
+		if(minTimestamp == -1) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
 		b = i.getByteArrayExtra("briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
-		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
@@ -187,12 +188,12 @@ implements OnClickListener {
 	private void createMessage(final byte[] body) {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
-				// Don't use an earlier timestamp than the parent
-				long time = System.currentTimeMillis();
-				time = Math.max(time, timestamp + 1);
+				// Don't use an earlier timestamp than the newest message
+				long timestamp = System.currentTimeMillis();
+				timestamp = Math.max(timestamp, minTimestamp);
 				try {
 					Message m = messageFactory.createAnonymousMessage(parentId,
-							group, "text/plain", time, body);
+							group, "text/plain", timestamp, body);
 					storeMessage(m);
 				} catch(GeneralSecurityException e) {
 					throw new RuntimeException(e);

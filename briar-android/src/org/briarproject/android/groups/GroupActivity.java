@@ -318,7 +318,19 @@ OnClickListener, OnItemClickListener {
 		Intent i = new Intent(this, WriteGroupPostActivity.class);
 		i.putExtra("briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("briar.GROUP_NAME", groupName);
+		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
 		startActivity(i);
+	}
+
+	private long getMinTimestampForNewMessage() {
+		// Don't use an earlier timestamp than the newest message
+		long timestamp = 0;
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			long t = adapter.getItem(i).getHeader().getTimestamp();
+			if(t > timestamp) timestamp = t;
+		}
+		return timestamp + 1;
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -337,6 +349,7 @@ OnClickListener, OnItemClickListener {
 		i.putExtra("briar.AUTHOR_STATUS", item.getAuthorStatus().name());
 		i.putExtra("briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("briar.TIMESTAMP", item.getTimestamp());
+		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
 		i.putExtra("briar.POSITION", position);
 		startActivityForResult(i, REQUEST_READ);
 	}

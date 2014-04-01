@@ -51,6 +51,7 @@ implements OnClickListener {
 
 	private String contactName = null;
 	private AuthorId localAuthorId = null;
+	private long timestamp = -1, minTimestamp = -1;
 	private ImageButton prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
@@ -60,7 +61,6 @@ implements OnClickListener {
 	@Inject private volatile DatabaseComponent db;
 	private volatile MessageId messageId = null;
 	private volatile GroupId groupId = null;
-	private volatile long timestamp = -1;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -85,6 +85,8 @@ implements OnClickListener {
 		if(contentType == null) throw new IllegalStateException();
 		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
+		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
+		if(minTimestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
 		if(position == -1) throw new IllegalStateException();
 
@@ -228,7 +230,7 @@ implements OnClickListener {
 			i.putExtra("briar.LOCAL_AUTHOR_ID",
 					localAuthorId.getBytes());
 			i.putExtra("briar.PARENT_ID", messageId.getBytes());
-			i.putExtra("briar.TIMESTAMP", timestamp);
+			i.putExtra("briar.MIN_TIMESTAMP", minTimestamp);
 			startActivity(i);
 			setResult(RESULT_REPLY);
 			finish();

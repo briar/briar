@@ -79,7 +79,7 @@ implements OnItemSelectedListener, OnClickListener {
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile MessageId parentId = null;
-	private volatile long timestamp = -1;
+	private volatile long minTimestamp = -1;
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Group group = null;
 
@@ -94,9 +94,10 @@ implements OnItemSelectedListener, OnClickListener {
 		String groupName = i.getStringExtra("briar.GROUP_NAME");
 		if(groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
+		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
+		if(minTimestamp == -1) throw new IllegalStateException();
 		b = i.getByteArrayExtra("briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
-		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 
 		if(state != null) {
 			b = state.getByteArray("briar.LOCAL_AUTHOR_ID");
@@ -260,21 +261,21 @@ implements OnItemSelectedListener, OnClickListener {
 	private void createMessage(final byte[] body) {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
-				// Don't use an earlier timestamp than the parent
-				long time = System.currentTimeMillis();
-				time = Math.max(time, timestamp + 1);
+				// Don't use an earlier timestamp than the newest post
+				long timestamp = System.currentTimeMillis();
+				timestamp = Math.max(timestamp, minTimestamp);
 				Message m;
 				try {
 					if(localAuthor == null) {
 						m = messageFactory.createAnonymousMessage(parentId,
-								group, "text/plain", time, body);
+								group, "text/plain", timestamp, body);
 					} else {
 						KeyParser keyParser = crypto.getSignatureKeyParser();
 						byte[] b = localAuthor.getPrivateKey();
 						PrivateKey authorKey = keyParser.parsePrivateKey(b);
 						m = messageFactory.createPseudonymousMessage(parentId,
 								group, localAuthor, authorKey, "text/plain",
-								time, body);
+								timestamp, body);
 					}
 				} catch(GeneralSecurityException e) {
 					throw new RuntimeException(e);

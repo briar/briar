@@ -387,19 +387,25 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	public void onClick(View view) {
 		String message = content.getText().toString();
 		if(message.equals("")) return;
-		// Don't use an earlier timestamp than the newest message
 		long timestamp = System.currentTimeMillis();
-		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
-			long time = adapter.getItem(i).getHeader().getTimestamp() + 1;
-			if(time > timestamp) timestamp = time;
-		}
+		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		createMessage(StringUtils.toUtf8(message), timestamp);
 		Toast.makeText(this, R.string.message_sent_toast, LENGTH_SHORT).show();
 		content.setText("");
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+	}
+
+	private long getMinTimestampForNewMessage() {
+		// Don't use an earlier timestamp than the newest message
+		long timestamp = 0;
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			long t = adapter.getItem(i).getHeader().getTimestamp();
+			if(t > timestamp) timestamp = t;
+		}
+		return timestamp + 1;
 	}
 
 	private void createMessage(final byte[] body, final long timestamp) {
@@ -452,6 +458,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
 		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
 		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
+		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
 		i.putExtra("briar.POSITION", position);
 		startActivityForResult(i, REQUEST_READ);
 	}

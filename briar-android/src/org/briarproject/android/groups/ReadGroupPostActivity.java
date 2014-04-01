@@ -50,6 +50,7 @@ implements OnClickListener {
 
 	private GroupId groupId = null;
 	private String groupName = null;
+	private long timestamp = -1, minTimestamp = -1;
 	private ImageButton prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
@@ -58,7 +59,6 @@ implements OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	private volatile MessageId messageId = null;
-	private volatile long timestamp = -1;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -78,6 +78,8 @@ implements OnClickListener {
 		if(contentType == null) throw new IllegalStateException();
 		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
+		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
+		if(minTimestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
 		if(position == -1) throw new IllegalStateException();
 		String authorName = i.getStringExtra("briar.AUTHOR_NAME");
@@ -223,7 +225,7 @@ implements OnClickListener {
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("briar.GROUP_NAME", groupName);
 			i.putExtra("briar.PARENT_ID", messageId.getBytes());
-			i.putExtra("briar.TIMESTAMP", timestamp);
+			i.putExtra("briar.MIN_TIMESTAMP", minTimestamp);
 			startActivity(i);
 			setResult(RESULT_REPLY);
 			finish();
