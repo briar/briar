@@ -44,7 +44,11 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.TransportProperties;
 import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.util.StringUtils;
@@ -55,6 +59,7 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -74,6 +79,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 
 	@Inject private AndroidExecutor androidExecutor;
 	@Inject private PluginManager pluginManager;
+	@Inject private LifecycleManager lifecycleManager;
+	@Inject private DatabaseComponent db;
 	private ScrollView scroll = null;
 	private ListLoadingProgressBar progress = null;
 	private LinearLayout status = null;
@@ -176,6 +183,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		}.execute();
 	}
 
+	// FIXME: Load strings from resources if we're keeping this activity
 	private Map<String, String> getStatusMap() {
 		Map<String, String> statusMap = new LinkedHashMap<String, String>();
 
@@ -223,7 +231,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		// Is mobile data connected ?
 		boolean mobileConnected = mobile != null && mobile.isConnected();
 
-		// Strings aren't loaded from resources as this activity is temporary
 		String mobileStatus;
 		if(mobileAvailable) mobileStatus = "Available, ";
 		else mobileStatus = "Not available, ";
@@ -250,6 +257,18 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		else wifiStatus += "not enabled, ";
 		if(wifiConnected) wifiStatus += "connected";
 		else wifiStatus += "not connected";
+		if(wm != null) {
+			WifiInfo wifiInfo = wm.getConnectionInfo();
+			if(wifiInfo != null) {
+				int ip = wifiInfo.getIpAddress(); // Nice API, Google
+				int ip1 = ip & 0xFF;
+				int ip2 = (ip >> 8) & 0xFF;
+				int ip3 = (ip >> 16) & 0xFF;
+				int ip4 = (ip >> 24) & 0xFF;
+				String address = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+				wifiStatus += "\nAddress: " + address;
+			}
+		}
 		statusMap.put("Wi-Fi:", wifiStatus);
 
 		// Is Bluetooth available?
@@ -287,7 +306,19 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		else btStatus += "not connectable, ";
 		if(btDiscoverable) btStatus += "discoverable";
 		else btStatus += "not discoverable";
+		if(bt != null) btStatus += "\nAddress: " + bt.getAddress();
 		statusMap.put("Bluetooth:", btStatus);
+
+		Map<TransportId, TransportProperties> props = Collections.emptyMap();
+		try {
+			lifecycleManager.waitForDatabase();
+			props = db.getLocalProperties();
+		} catch(InterruptedException e) {
+			LOG.info("Interrupted while waiting for database");
+			Thread.currentThread().interrupt();
+		} catch(DbException e) {
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
 
 		Plugin torPlugin = pluginManager.getPlugin(new TransportId("tor"));
 		boolean torPluginEnabled = torPlugin != null;
@@ -298,6 +329,9 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		else torPluginStatus = "Not enabled, ";
 		if(torPluginRunning) torPluginStatus += "running";
 		else torPluginStatus += "not running";
+		TransportProperties torProps = props.get(new TransportId("tor"));
+		if(torProps != null)
+			torPluginStatus += "\nAddress: " + torProps.get("onion");
 		statusMap.put("Tor plugin:", torPluginStatus);
 
 		Plugin lanPlugin = pluginManager.getPlugin(new TransportId("lan"));
@@ -309,6 +343,9 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		else lanPluginStatus = "Not enabled, ";
 		if(lanPluginRunning) lanPluginStatus += "running";
 		else lanPluginStatus += "not running";
+		TransportProperties lanProps = props.get(new TransportId("lan"));
+		if(lanProps != null)
+			lanPluginStatus += "\nAddress: " + lanProps.get("address");
 		statusMap.put("LAN plugin:", lanPluginStatus);
 
 		Plugin btPlugin = pluginManager.getPlugin(new TransportId("bt"));
@@ -320,6 +357,9 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		else btPluginStatus = "Not enabled, ";
 		if(btPluginRunning) btPluginStatus += "running";
 		else btPluginStatus += "not running";
+		TransportProperties btProps = props.get(new TransportId("bt"));
+		if(btProps != null)
+			btPluginStatus += "\nAddress: " + btProps.get("address");
 		statusMap.put("Bluetooth plugin:", btPluginStatus);
 
 		// All log output from the current process
