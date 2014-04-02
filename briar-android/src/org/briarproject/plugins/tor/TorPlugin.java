@@ -603,7 +603,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	public void circuitStatus(String status, String id, String path) {
-		if(LOG.isLoggable(INFO)) LOG.info("Circuit " + id + " " + status);
+		if(LOG.isLoggable(INFO)) {
+			if(!"EXTENDED".equals(status))
+				LOG.info("Circuit " + id + " " + status);
+		}
 	}
 
 	public void streamStatus(String status, String id, String target) {
