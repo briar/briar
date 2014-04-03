@@ -3,6 +3,7 @@
     <style name="LightTheme" parent="android:Theme.Light">
         <item name="android:windowTitleStyle">@style/WindowTitle</item>
         <item name="android:windowTitleBackgroundStyle">@style/WindowTitleBackground</item>
+        <item name="android:windowBackground">@color/window_background</item>
     </style>
     <style name="WindowTitle">
         <item name="android:paddingLeft">5dp</item>
