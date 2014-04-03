@@ -7,10 +7,12 @@ class ConversationItem {
 
 	private final MessageHeader header;
 	private byte[] body;
+	private boolean delivered;
 
 	ConversationItem(MessageHeader header) {
 		this.header = header;
 		body = null;
+		delivered = header.isDelivered();
 	}
 
 	MessageHeader getHeader() {
@@ -23,5 +25,13 @@ class ConversationItem {
 
 	void setBody(byte[] body) {
 		this.body = body;
+	}
+
+	boolean isDelivered() {
+		return delivered;
+	}
+
+	void setDelivered(boolean delivered) {
+		this.delivered = delivered;
 	}
 }

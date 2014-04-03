@@ -12,11 +12,11 @@ public class MessageHeader {
 	private final Author.Status authorStatus;
 	private final String contentType;
 	private final long timestamp;
-	private final boolean local, read;
+	private final boolean local, read, delivered;
 
 	public MessageHeader(MessageId id, MessageId parent, GroupId groupId,
 			Author author, Author.Status authorStatus, String contentType,
-			long timestamp, boolean local, boolean read) {
+			long timestamp, boolean local, boolean read, boolean delivered) {
 		this.id = id;
 		this.parent = parent;
 		this.groupId = groupId;
@@ -26,6 +26,7 @@ public class MessageHeader {
 		this.timestamp = timestamp;
 		this.local = local;
 		this.read = read;
+		this.delivered = delivered;
 	}
 
 	/** Returns the message's unique identifier. */
@@ -78,5 +79,13 @@ public class MessageHeader {
 	/** Returns true if the message has been read. */
 	public boolean isRead() {
 		return read;
+	}
+
+	/**
+	 * Returns true if the message has been delivered. (This only applies to
+	 * locally generated private messages.)
+	 */
+	public boolean isDelivered() {
+		return delivered;
 	}
 }

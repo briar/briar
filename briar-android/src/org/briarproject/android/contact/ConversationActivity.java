@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -52,6 +54,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
+import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
@@ -381,7 +384,31 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		} else if(e instanceof MessageExpiredEvent) {
 			LOG.info("Message expired, reloading");
 			loadHeaders();
+		} else if(e instanceof MessagesAckedEvent) {
+			MessagesAckedEvent m = (MessagesAckedEvent) e;
+			if(m.getContactId().equals(contactId)) {
+				LOG.info("Messages acked");
+				markMessagesDelivered(m.getMessageIds());
+			}
 		}
+	}
+
+	private void markMessagesDelivered(final Collection<MessageId> acked) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Set<MessageId> ackedSet = new HashSet<MessageId>(acked);
+				boolean changed = false;
+				int count = adapter.getCount();
+				for(int i = 0; i < count; i++) {
+					ConversationItem item = adapter.getItem(i);
+					if(ackedSet.contains(item.getHeader().getId())) {
+						item.setDelivered(true);
+						changed = true;
+					}
+				}
+				if(changed) adapter.notifyDataSetChanged();
+			}
+		});
 	}
 
 	public void onClick(View view) {

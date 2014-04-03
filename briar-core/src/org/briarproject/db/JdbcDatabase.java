@@ -1482,14 +1482,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Author remoteAuthor = new Author(remoteId, remoteName, remoteKey);
 			if(rs.next()) throw new DbException();
 			// Get the message headers
-			sql = "SELECT messageId, parentId, m.groupId, contentType,"
-					+ " timestamp, local, read"
+			sql = "SELECT m.messageId, parentId, m.groupId, contentType,"
+					+ " timestamp, local, read, seen"
 					+ " FROM messages AS m"
 					+ " JOIN groups AS g"
 					+ " ON m.groupId = g.groupId"
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
-					+ " WHERE contactId = ?"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND gv.contactId = s.contactId"
+					+ " WHERE gv.contactId = ?"
 					+ " AND inbox = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1504,15 +1507,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				long timestamp = rs.getLong(5);
 				boolean local = rs.getBoolean(6);
 				boolean read = rs.getBoolean(7);
-				if(local) {
-					headers.add(new MessageHeader(id, parent, groupId,
-							localAuthor, VERIFIED, contentType, timestamp,
-							true, read));
-				} else {
-					headers.add(new MessageHeader(id, parent, groupId,
-							remoteAuthor, VERIFIED, contentType, timestamp,
-							false, read));
-				}
+				boolean seen = rs.getBoolean(8);
+				Author author = local ? localAuthor : remoteAuthor;
+				headers.add(new MessageHeader(id, parent, groupId, author,
+						VERIFIED, contentType, timestamp, local, read, seen));
 			}
 			rs.close();
 			ps.close();
@@ -1723,12 +1721,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean read = rs.getBoolean(9);
 				boolean isSelf = rs.getBoolean(10);
 				boolean isContact = rs.getBoolean(11);
-				Author.Status authorStatus;
-				if(author == null) authorStatus = ANONYMOUS;
-				else if(isSelf || isContact) authorStatus = VERIFIED;
-				else authorStatus = UNKNOWN;
-				headers.add(new MessageHeader(id, parent, g, author,
-						authorStatus, contentType, timestamp, local, read));
+				Author.Status status;
+				if(author == null) status = ANONYMOUS;
+				else if(isSelf || isContact) status = VERIFIED;
+				else status = UNKNOWN;
+				headers.add(new MessageHeader(id, parent, g, author, status,
+						contentType, timestamp, local, read, false));
 			}
 			rs.close();
 			ps.close();

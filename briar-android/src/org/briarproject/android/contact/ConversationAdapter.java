@@ -1,13 +1,16 @@
 package org.briarproject.android.contact;
 
+import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.LEFT;
-import static android.view.Gravity.RIGHT;
+import static android.view.View.INVISIBLE;
+import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.util.ArrayList;
 
 import org.briarproject.R;
+import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.util.StringUtils;
@@ -19,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -60,23 +64,45 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 			attachment.setImageResource(R.drawable.content_attachment);
 			content = attachment;
 		}
-		content.setId(2);
 		content.setLayoutParams(MATCH_WRAP);
 		content.setBackgroundColor(background);
 		content.setPadding(pad, pad, pad, 0);
 		layout.addView(content);
 
-		TextView date = new TextView(ctx);
-		date.setId(1);
-		date.setLayoutParams(MATCH_WRAP);
-		if(header.isLocal()) date.setGravity(RIGHT);
-		else date.setGravity(LEFT);
-		date.setTextColor(res.getColor(R.color.private_message_date));
-		date.setBackgroundColor(background);
-		date.setPadding(pad, 0, pad, pad);
-		long timestamp = header.getTimestamp();
-		date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
-		layout.addView(date);
+		if(header.isLocal()) {
+			LinearLayout footer = new LinearLayout(ctx);
+			footer.setLayoutParams(MATCH_WRAP);
+			footer.setOrientation(HORIZONTAL);
+			footer.setGravity(BOTTOM);
+			footer.setPadding(pad, 0, pad, pad);
+			footer.setBackgroundColor(background);
+
+			footer.addView(new ElasticHorizontalSpace(ctx));
+
+			ImageView delivered = new ImageView(ctx);
+			delivered.setPadding(0, 0, pad, 0);
+			delivered.setImageResource(R.drawable.message_delivered);
+			if(!item.isDelivered()) delivered.setVisibility(INVISIBLE);
+			footer.addView(delivered);
+
+			TextView date = new TextView(ctx);
+			date.setTextColor(res.getColor(R.color.private_message_date));
+			long timestamp = header.getTimestamp();
+			date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+			footer.addView(date);
+
+			layout.addView(footer);
+		} else {
+			TextView date = new TextView(ctx);
+			date.setLayoutParams(MATCH_WRAP);
+			date.setGravity(LEFT);
+			date.setTextColor(res.getColor(R.color.private_message_date));
+			date.setBackgroundColor(background);
+			date.setPadding(pad, 0, pad, pad);
+			long timestamp = header.getTimestamp();
+			date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+			layout.addView(date);
+		}
 
 		return layout;
 	}

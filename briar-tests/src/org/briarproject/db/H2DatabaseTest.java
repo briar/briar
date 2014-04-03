@@ -1531,7 +1531,9 @@ public class H2DatabaseTest extends BriarTestCase {
 				db.getInboxMessageHeaders(txn, contactId));
 
 		// Add a message to the inbox group - the header should be returned
-		db.addMessage(txn, message, true);
+		boolean local = true, seen = false;
+		db.addMessage(txn, message, local);
+		db.addStatus(txn, contactId, messageId, false, seen);
 		Collection<MessageHeader> headers =
 				db.getInboxMessageHeaders(txn, contactId);
 		assertEquals(1, headers.size());
@@ -1542,6 +1544,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(localAuthor, header.getAuthor());
 		assertEquals(contentType, header.getContentType());
 		assertEquals(timestamp, header.getTimestamp());
+		assertEquals(local, header.isLocal());
+		assertEquals(false, header.isRead());
+		assertEquals(seen, header.isDelivered());
 		assertFalse(header.isRead());
 
 		db.commitTransaction(txn);

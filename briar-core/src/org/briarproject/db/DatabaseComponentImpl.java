@@ -53,6 +53,7 @@ import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
+import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.RemoteRetentionTimeUpdatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
@@ -1329,6 +1330,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public void receiveAck(ContactId c, Ack a) throws DbException {
+		Collection<MessageId> acked = new ArrayList<MessageId>();
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -1338,8 +1340,10 @@ DatabaseCleaner.Callback {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
 					for(MessageId m : a.getMessageIds()) {
-						if(db.containsVisibleMessage(txn, c, m))
+						if(db.containsVisibleMessage(txn, c, m)) {
 							db.raiseSeenFlag(txn, c, m);
+							acked.add(m);
+						}
 					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1352,6 +1356,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		callListeners(new MessagesAckedEvent(c, acked));
 	}
 
 	public void receiveMessage(ContactId c, Message m) throws DbException {
