@@ -339,7 +339,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 		private void tryToClose(StreamConnection s) {
 			try {
-				s.close();
+				if(s != null) s.close();
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

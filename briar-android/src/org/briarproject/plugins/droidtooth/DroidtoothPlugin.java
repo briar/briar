@@ -209,6 +209,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 				tryToClose(socket);
 				return;
 			}
+			if(LOG.isLoggable(INFO)) {
+				String address = s.getRemoteDevice().getAddress();
+				LOG.info("Connection from " + address);
+			}
 			callback.incomingConnectionCreated(wrapSocket(s));
 		}
 	}

@@ -114,7 +114,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private void tryToClose(SerialPort port) {
 		try {
-			port.closePort();
+			if(port != null) port.closePort();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}

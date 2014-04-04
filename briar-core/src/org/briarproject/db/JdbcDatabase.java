@@ -404,16 +404,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private void tryToClose(ResultSet rs) {
-		if(rs != null) try {
-			rs.close();
+		try {
+			if(rs != null) rs.close();
 		} catch(SQLException e) {
 			if(LOG.isLoggable(WARNING))LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
 	private void tryToClose(Statement s) {
-		if(s != null) try {
-			s.close();
+		try {
+			if(s != null) s.close();
 		} catch(SQLException e) {
 			if(LOG.isLoggable(WARNING))LOG.log(WARNING, e.toString(), e);
 		}
