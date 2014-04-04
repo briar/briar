@@ -8,7 +8,6 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.logging.Logger;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.util.StringUtils;
 
 class WanTcpPlugin extends TcpPlugin {
 
@@ -47,23 +45,8 @@ class WanTcpPlugin extends TcpPlugin {
 	protected List<SocketAddress> getLocalSocketAddresses() {
 		// Use the same address and port as last time if available
 		TransportProperties p = callback.getLocalProperties();
-		String addressString = p.get("address");
-		String portString = p.get("port");
-		InetAddress oldAddress = null;
-		int oldPort = 0;
-		if(!StringUtils.isNullOrEmpty(addressString) &&
-				!StringUtils.isNullOrEmpty(portString)) {
-			try {
-				oldAddress = InetAddress.getByName(addressString);
-				oldPort = Integer.parseInt(portString);
-			} catch(NumberFormatException e) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Invalid port: " + portString);
-			} catch(UnknownHostException e) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Invalid address: " + addressString);
-			}
-		}
+		InetSocketAddress old = parseSocketAddress(p.get("address"),
+				p.get("port"));
 		// Get a list of the device's network interfaces
 		List<NetworkInterface> ifaces;
 		try {
@@ -72,8 +55,8 @@ class WanTcpPlugin extends TcpPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return Collections.emptyList();
 		}
-		List<SocketAddress> addresses = new LinkedList<SocketAddress>();
-		// Accept interfaces without link-local or site-local addresses
+		List<SocketAddress> addrs = new LinkedList<SocketAddress>();
+		// Accept interfaces without global IPv4 addresses
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
 				boolean ipv4 = a instanceof Inet4Address;
@@ -81,20 +64,21 @@ class WanTcpPlugin extends TcpPlugin {
 				boolean link = a.isLinkLocalAddress();
 				boolean site = a.isSiteLocalAddress();
 				if(ipv4 && !loop && !link && !site) {
-					if(a.equals(oldAddress))
-						addresses.add(0, new InetSocketAddress(a, oldPort));
-					addresses.add(new InetSocketAddress(a, 0));
+					// If this is the old address, try to use the same port
+					if(old != null && old.getAddress().equals(a))
+						addrs.add(0, new InetSocketAddress(a, old.getPort()));
+					addrs.add(new InetSocketAddress(a, 0));
 				}
 			}
 		}
 		// Accept interfaces with local addresses that can be port-mapped
-		if(oldPort == 0) oldPort = chooseEphemeralPort();
-		mappingResult = portMapper.map(oldPort);
+		int port = old == null ? chooseEphemeralPort() : old.getPort();
+		mappingResult = portMapper.map(port);
 		if(mappingResult != null && mappingResult.isUsable()) {
 			InetSocketAddress a = mappingResult.getInternal();
-			if(a.getAddress() instanceof Inet4Address) addresses.add(a);
+			if(a.getAddress() instanceof Inet4Address) addrs.add(a);
 		}
-		return addresses;
+		return addrs;
 	}
 
 	private int chooseEphemeralPort() {

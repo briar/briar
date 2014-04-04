@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportProperties;
@@ -26,6 +27,8 @@ import org.briarproject.util.StringUtils;
 
 abstract class TcpPlugin implements DuplexPlugin {
 
+	private static final Pattern DOTTED_QUAD =
+			Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 	private static final Logger LOG =
 			Logger.getLogger(TcpPlugin.class.getName());
 
@@ -81,7 +84,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 				break;
 			} catch(IOException e) {
 				if(LOG.isLoggable(INFO)) LOG.info("Failed to bind " + addr);
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				tryToClose(ss);
 				continue;
 			}
@@ -196,19 +198,23 @@ abstract class TcpPlugin implements DuplexPlugin {
 	private SocketAddress getRemoteSocketAddress(ContactId c) {
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
-		String addrString = p.get("address");
-		if(StringUtils.isNullOrEmpty(addrString)) return null;
-		String portString = p.get("port");
-		if(StringUtils.isNullOrEmpty(portString)) return null;
+		return parseSocketAddress(p.get("address"), p.get("port"));
+	}
+
+	protected InetSocketAddress parseSocketAddress(String addr, String port) {
+		if(StringUtils.isNullOrEmpty(addr)) return null;
+		if(StringUtils.isNullOrEmpty(port)) return null;
+		// Ensure getByName() won't perform a DNS lookup
+		if(!DOTTED_QUAD.matcher(addr).matches()) return null;
 		try {
-			InetAddress addr = InetAddress.getByName(addrString);
-			int port = Integer.parseInt(portString);
-			return new InetSocketAddress(addr, port);
-		} catch(NumberFormatException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
+			InetAddress a = InetAddress.getByName(addr);
+			int p = Integer.parseInt(port);
+			return new InetSocketAddress(a, p);
 		} catch(UnknownHostException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if(LOG.isLoggable(WARNING)) LOG.warning("Invalid address: " + addr);
+			return null;
+		} catch(NumberFormatException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning("Invalid port: " + port);
 			return null;
 		}
 	}
