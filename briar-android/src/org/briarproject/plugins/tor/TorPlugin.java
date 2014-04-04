@@ -1,5 +1,6 @@
 package org.briarproject.plugins.tor;
 
+import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
@@ -50,6 +51,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.FileObserver;
 
@@ -492,7 +495,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private void acceptContactConnections(ServerSocket ss) {
-		while(true) {
+		while(running) {
 			Socket s;
 			try {
 				s = ss.accept();
@@ -505,7 +508,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			LOG.info("Connection received");
 			TorTransportConnection conn = new TorTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
-			if(!running) return;
 		}
 	}
 
@@ -518,7 +520,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	public void stop() throws IOException {
 		running = false;
-		if(socket != null) tryToClose(socket);
+		tryToClose(socket);
 		if(networkStateReceiver != null)
 			appContext.unregisterReceiver(networkStateReceiver);
 		try {
@@ -552,7 +554,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	public void poll(Collection<ContactId> connected) {
-		if(!running) return;
+		if(!isRunning()) return;
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
 		for(final ContactId c : remote.keySet()) {
@@ -571,7 +573,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		if(!running) return null;
+		if(!isRunning()) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String onion = p.get("onion");
@@ -646,10 +648,17 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 		@Override
 		public void onReceive(Context ctx, Intent i) {
-			// Note: Some devices fail to set this extra
+			if(!running) return;
 			boolean online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
+			if(online) {
+				// Some devices fail to set EXTRA_NO_CONNECTIVITY, double check
+				Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
+				ConnectivityManager cm = (ConnectivityManager) o;
+				NetworkInfo net = cm.getActiveNetworkInfo();
+				if(net == null || !net.isConnected()) online = false;
+			}
 			String country = locationUtils.getCurrentCountry();
-			if(LOG.isLoggable(INFO)){
+			if(LOG.isLoggable(INFO)) {
 				LOG.info("Online: " + online);
 				if("".equals(country)) LOG.info("Country code unknown");
 				else LOG.info("Country code: " + country);
