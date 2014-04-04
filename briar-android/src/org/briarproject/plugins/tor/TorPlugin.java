@@ -139,9 +139,14 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			startProcess = true;
 		}
 		if(startProcess) {
-			// Install the binary, GeoIP database and config file if necessary
-			if(!isInstalled() && !install()) {
-				LOG.info("Could not install Tor");
+			// Install the binary, possibly overwriting an older version
+			if(!installBinary()) {
+				LOG.warning("Could not install Tor binary");
+				return false;
+			}
+			// Install the GeoIP database and config file if necessary
+			if(!isConfigInstalled() && !installConfig()) {
+				LOG.info("Could not install Tor config");
 				return false;
 			}
 			LOG.info("Starting Tor");
@@ -219,11 +224,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		return true;
 	}
 
-	private boolean isInstalled() {
-		return doneFile.exists();
-	}
-
-	private boolean install() {
+	private boolean installBinary() {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
@@ -231,6 +232,30 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			in = getTorInputStream();
 			out = new FileOutputStream(torFile);
 			copy(in, out);
+			// Make the Tor binary executable
+			if(!setExecutable(torFile)) {
+				LOG.warning("Could not make Tor executable");
+				return false;
+			}
+			// Create a file to indicate that installation succeeded
+			doneFile.createNewFile();
+			return true;
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			tryToClose(in);
+			tryToClose(out);
+			return false;
+		}
+	}
+
+	private boolean isConfigInstalled() {
+		return doneFile.exists();
+	}
+
+	private boolean installConfig() {
+		InputStream in = null;
+		OutputStream out = null;
+		try {
 			// Unzip the GeoIP database to the filesystem
 			in = getGeoIpInputStream();
 			out = new FileOutputStream(geoIpFile);
@@ -239,11 +264,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
 			copy(in, out);
-			// Make the Tor binary executable
-			if(!setExecutable(torFile)) {
-				LOG.warning("Could not make Tor executable");
-				return false;
-			}
 			// Create a file to indicate that installation succeeded
 			doneFile.createNewFile();
 			return true;
