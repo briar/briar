@@ -3,6 +3,8 @@ package org.briarproject.plugins.tcp;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -29,24 +31,25 @@ public class LanTcpPluginTest extends BriarTestCase {
 	@Test
 	public void testIncomingConnection() throws Exception {
 		Callback callback = new Callback();
-		callback.local.put("address", "127.0.0.1");
-		callback.local.put("port", "0");
 		Executor executor = Executors.newCachedThreadPool();
 		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
-		String host = callback.local.get("address");
-		assertNotNull(host);
-		assertEquals("127.0.0.1", host);
+		String addrString = callback.local.get("address");
+		assertNotNull(addrString);
+		InetAddress addr = InetAddress.getByName(addrString);
+		assertTrue(addr instanceof Inet4Address);
+		assertFalse(addr.isLoopbackAddress());
+		assertTrue(addr.isLinkLocalAddress() || addr.isSiteLocalAddress());
 		String portString = callback.local.get("port");
 		assertNotNull(portString);
 		int port = Integer.parseInt(portString);
 		assertTrue(port > 0 && port < 65536);
 		// The plugin should be listening on the port
-		InetSocketAddress addr = new InetSocketAddress(host, port);
+		InetSocketAddress socketAddr = new InetSocketAddress(addr, port);
 		Socket s = new Socket();
-		s.connect(addr, 100);
+		s.connect(socketAddr, 100);
 		assertTrue(callback.connectionsLatch.await(5, SECONDS));
 		s.close();
 		// Stop the plugin

@@ -2,15 +2,15 @@ package org.briarproject.plugins.tcp;
 
 import static java.util.logging.Level.WARNING;
 
-import java.net.Inet6Address;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -45,24 +45,23 @@ class WanTcpPlugin extends TcpPlugin {
 
 	@Override
 	protected List<SocketAddress> getLocalSocketAddresses() {
-		List<SocketAddress> addrs = new ArrayList<SocketAddress>();
-		// Prefer a previously used address and port if available
+		// Use the same address and port as last time if available
 		TransportProperties p = callback.getLocalProperties();
-		String addrString = p.get("address");
+		String addressString = p.get("address");
 		String portString = p.get("port");
-		InetAddress addr = null;
-		int port = 0;
-		if(!StringUtils.isNullOrEmpty(addrString) &&
+		InetAddress oldAddress = null;
+		int oldPort = 0;
+		if(!StringUtils.isNullOrEmpty(addressString) &&
 				!StringUtils.isNullOrEmpty(portString)) {
 			try {
-				addr = InetAddress.getByName(addrString);
-				port = Integer.parseInt(portString);
-				addrs.add(new InetSocketAddress(addr, port));
-				addrs.add(new InetSocketAddress(addr, 0));
+				oldAddress = InetAddress.getByName(addressString);
+				oldPort = Integer.parseInt(portString);
 			} catch(NumberFormatException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if(LOG.isLoggable(WARNING))
+					LOG.warning("Invalid port: " + portString);
 			} catch(UnknownHostException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if(LOG.isLoggable(WARNING))
+					LOG.warning("Invalid address: " + addressString);
 			}
 		}
 		// Get a list of the device's network interfaces
@@ -71,27 +70,31 @@ class WanTcpPlugin extends TcpPlugin {
 			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
 		} catch(SocketException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return addrs;
+			return Collections.emptyList();
 		}
+		List<SocketAddress> addresses = new LinkedList<SocketAddress>();
 		// Accept interfaces without link-local or site-local addresses
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
-				if(addr != null && a.equals(addr)) continue;
-				if(a instanceof Inet6Address) continue;
-				if(a.isLoopbackAddress()) continue;
+				boolean ipv4 = a instanceof Inet4Address;
+				boolean loop = a.isLoopbackAddress();
 				boolean link = a.isLinkLocalAddress();
 				boolean site = a.isSiteLocalAddress();
-				if(!link && !site) addrs.add(new InetSocketAddress(a, 0));
+				if(ipv4 && !loop && !link && !site) {
+					if(a.equals(oldAddress))
+						addresses.add(0, new InetSocketAddress(a, oldPort));
+					addresses.add(new InetSocketAddress(a, 0));
+				}
 			}
 		}
 		// Accept interfaces with local addresses that can be port-mapped
-		if(port == 0) port = chooseEphemeralPort();
-		mappingResult = portMapper.map(port);
+		if(oldPort == 0) oldPort = chooseEphemeralPort();
+		mappingResult = portMapper.map(oldPort);
 		if(mappingResult != null && mappingResult.isUsable()) {
 			InetSocketAddress a = mappingResult.getInternal();
-			if(!(a.getAddress() instanceof Inet6Address)) addrs.add(a);
+			if(a.getAddress() instanceof Inet4Address) addresses.add(a);
 		}
-		return addrs;
+		return addresses;
 	}
 
 	private int chooseEphemeralPort() {
