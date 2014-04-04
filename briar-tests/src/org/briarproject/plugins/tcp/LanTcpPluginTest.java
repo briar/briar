@@ -133,6 +133,8 @@ public class LanTcpPluginTest extends BriarTestCase {
 
 		public void showMessage(String... message) {}
 
+		public void pollNow() {}
+
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			connectionsLatch.countDown();
 		}

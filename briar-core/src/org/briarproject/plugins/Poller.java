@@ -6,9 +6,12 @@ import org.briarproject.api.plugins.Plugin;
 
 interface Poller {
 
-	/** Starts a new thread to poll the given collection of plugins. */
+	/** Starts a poller for the given collection of plugins. */
 	void start(Collection<Plugin> plugins);
 
-	/** Tells the poller thread to exit. */
+	/** Stops the poller. */
 	void stop();
+
+	/** Tells the poller to poll the given plugin immediately. */
+	void pollNow(Plugin p);
 }

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -80,6 +81,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final long maxLatency, pollingInterval;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, pidFile, hostnameFile;
+	private final AtomicBoolean firstCircuit;
 
 	private volatile boolean running = false, networkEnabled = false;
 	private volatile Process tor = null;
@@ -109,6 +111,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
 		pidFile = new File(torDirectory, ".tor/pid");
 		hostnameFile = new File(torDirectory, "hostname");
+		firstCircuit = new AtomicBoolean(true);
 	}
 
 	public TransportId getId() {
@@ -216,11 +219,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
 		appContext.registerReceiver(networkStateReceiver, filter);
 		// Bind a server socket to receive incoming hidden service connections
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				bind();
-			}
-		});
+		bind();
 		return true;
 	}
 
@@ -428,38 +427,43 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private void bind() {
-		// If there's already a port number stored in config, reuse it
-		String portString = callback.getConfig().get("port");
-		int port;
-		if(StringUtils.isNullOrEmpty(portString)) port = 0;
-		else port = Integer.parseInt(portString);
-		// Bind a server socket to receive connections from the Tor process
-		ServerSocket ss = null;
-		try {
-			ss = new ServerSocket();
-			ss.bind(new InetSocketAddress("127.0.0.1", port));
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(ss);
-		}
-		if(!running) {
-			tryToClose(ss);
-			return;
-		}
-		socket = ss;
-		// Store the port number
-		final String localPort = String.valueOf(ss.getLocalPort());
-		TransportConfig c  = new TransportConfig();
-		c.put("port", localPort);
-		callback.mergeConfig(c);
-		// Create a hidden service if necessary
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
-				publishHiddenService(localPort);
+				// If there's already a port number stored in config, reuse it
+				String portString = callback.getConfig().get("port");
+				int port;
+				if(StringUtils.isNullOrEmpty(portString)) port = 0;
+				else port = Integer.parseInt(portString);
+				// Bind a server socket to receive connections from Tor
+				ServerSocket ss = null;
+				try {
+					ss = new ServerSocket();
+					ss.bind(new InetSocketAddress("127.0.0.1", port));
+				} catch(IOException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					tryToClose(ss);
+				}
+				if(!running) {
+					tryToClose(ss);
+					return;
+				}
+				socket = ss;
+				// Store the port number
+				final String localPort = String.valueOf(ss.getLocalPort());
+				TransportConfig c  = new TransportConfig();
+				c.put("port", localPort);
+				callback.mergeConfig(c);
+				// Create a hidden service if necessary
+				pluginExecutor.execute(new Runnable() {
+					public void run() {
+						publishHiddenService(localPort);
+					}
+				});
+				// Accept incoming hidden service connections from Tor
+				acceptContactConnections(ss);
 			}
 		});
-		// Accept incoming hidden service connections from the Tor process
-		acceptContactConnections(ss);
 	}
 
 	private void tryToClose(ServerSocket ss) {
@@ -534,6 +538,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private void enableNetwork(boolean enable) throws IOException {
 		if(!running) return;
 		if(LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
+		if(!enable) firstCircuit.set(true);
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 		networkEnabled = enable;
 	}
@@ -628,6 +633,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		if(LOG.isLoggable(INFO)) {
 			if(!"EXTENDED".equals(status))
 				LOG.info("Circuit " + id + " " + status);
+		}
+		if("BUILT".equals(status) && firstCircuit.getAndSet(false)) {
+			LOG.info("First circuit built");
+			callback.pollNow();
 		}
 	}
 

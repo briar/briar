@@ -172,6 +172,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				}
 				LOG.info("Socket bound");
 				socket = ss;
+				callback.pollNow();
 				acceptContactConnections();
 			}
 		});

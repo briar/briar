@@ -363,6 +363,11 @@ class PluginManagerImpl implements PluginManager {
 		public void showMessage(String... message) {
 			uiCallback.showMessage(message);
 		}
+
+		public void pollNow() {
+			Plugin p = plugins.get(id);
+			if(p != null) poller.pollNow(p);
+		}
 	}
 
 	private class SimplexCallback extends PluginCallbackImpl

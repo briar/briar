@@ -99,6 +99,8 @@ public abstract class DuplexServerTest extends DuplexTest {
 
 		public void showMessage(String... message) {}
 
+		public void pollNow() {}
+
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			System.out.println("Connection received");
 			sendChallengeReceiveResponse(d);

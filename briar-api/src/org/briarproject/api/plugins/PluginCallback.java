@@ -49,4 +49,7 @@ public interface PluginCallback {
 	 * format string and arguments.
 	 */
 	void showMessage(String... message);
+
+	/** Schedules the plugin to be polled immediately. */
+	void pollNow();
 }

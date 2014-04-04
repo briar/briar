@@ -91,35 +91,37 @@ class BluetoothPlugin implements DuplexPlugin {
 		if(LOG.isLoggable(INFO))
 			LOG.info("Local address " + localDevice.getBluetoothAddress());
 		running = true;
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				bind();
-			}
-		});
+		bind();
 		return true;
 	}
 
 	private void bind() {
-		if(!running) return;
-		// Advertise the Bluetooth address to contacts
-		TransportProperties p = new TransportProperties();
-		p.put("address", localDevice.getBluetoothAddress());
-		callback.mergeLocalProperties(p);
-		// Bind a server socket to accept connections from contacts
-		String url = makeUrl("localhost", getUuid());
-		StreamConnectionNotifier ss;
-		try {
-			ss = (StreamConnectionNotifier) Connector.open(url);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return;
-		}
-		if(!running) {
-			tryToClose(ss);
-			return;
-		}
-		socket = ss;
-		acceptContactConnections(ss);
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				if(!running) return;
+				// Advertise the Bluetooth address to contacts
+				TransportProperties p = new TransportProperties();
+				p.put("address", localDevice.getBluetoothAddress());
+				callback.mergeLocalProperties(p);
+				// Bind a server socket to accept connections from contacts
+				String url = makeUrl("localhost", getUuid());
+				StreamConnectionNotifier ss;
+				try {
+					ss = (StreamConnectionNotifier) Connector.open(url);
+				} catch(IOException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					return;
+				}
+				if(!running) {
+					tryToClose(ss);
+					return;
+				}
+				socket = ss;
+				callback.pollNow();
+				acceptContactConnections(ss);
+			}
+		});
 	}
 
 	private String makeUrl(String address, String uuid) {
