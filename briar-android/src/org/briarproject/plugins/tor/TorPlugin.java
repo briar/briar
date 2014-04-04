@@ -21,7 +21,6 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -474,7 +473,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 	}
 
-	private void publishHiddenService(final String port) {
+	private void publishHiddenService(String port) {
 		if(!running) return;
 		if(!hostnameFile.exists()) {
 			LOG.info("Creating hidden service");
@@ -580,21 +579,17 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	public void poll(Collection<ContactId> connected) {
 		if(!isRunning()) return;
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		for(final ContactId c : remote.keySet()) {
-			if(connected.contains(c)) continue;
-			pluginExecutor.execute(new Runnable() {
-				public void run() {
-					connectAndCallBack(c);
-				}
-			});
-		}
+		for(ContactId c : callback.getRemoteProperties().keySet())
+			if(!connected.contains(c)) connectAndCallBack(c);
 	}
 
-	private void connectAndCallBack(ContactId c) {
-		DuplexTransportConnection d = createConnection(c);
-		if(d != null) callback.outgoingConnectionCreated(c, d);
+	private void connectAndCallBack(final ContactId c) {
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				DuplexTransportConnection d = createConnection(c);
+				if(d != null) callback.outgoingConnectionCreated(c, d);
+			}
+		});
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
