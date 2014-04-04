@@ -105,9 +105,13 @@ public class LanTcpPluginTest extends BriarTestCase {
 		Executor executor = Executors.newCachedThreadPool();
 		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
 		plugin.start();
-		// Listen on a local port
+		// The plugin should have bound a socket and stored the port number
+		assertTrue(callback.propertiesLatch.await(5, SECONDS));
+		String addr = callback.local.get("address");
+		assertNotNull(addr);
+		// Listen on the same interface as the plugin
 		final ServerSocket ss = new ServerSocket();
-		ss.bind(new InetSocketAddress("127.0.0.1", 0), 10);
+		ss.bind(new InetSocketAddress(addr, 0), 10);
 		int port = ss.getLocalPort();
 		final CountDownLatch latch = new CountDownLatch(1);
 		final AtomicBoolean error = new AtomicBoolean(false);
@@ -124,7 +128,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 		}.start();
 		// Tell the plugin about the port
 		TransportProperties p = new TransportProperties();
-		p.put("address", "127.0.0.1");
+		p.put("address", addr);
 		p.put("port", String.valueOf(port));
 		callback.remote.put(contactId, p);
 		// Connect to the port
