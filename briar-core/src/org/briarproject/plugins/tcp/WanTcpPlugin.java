@@ -56,14 +56,9 @@ class WanTcpPlugin extends TcpPlugin {
 			return Collections.emptyList();
 		}
 		List<SocketAddress> addrs = new LinkedList<SocketAddress>();
-		// Accept interfaces without global IPv4 addresses
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
-				boolean ipv4 = a instanceof Inet4Address;
-				boolean loop = a.isLoopbackAddress();
-				boolean link = a.isLinkLocalAddress();
-				boolean site = a.isSiteLocalAddress();
-				if(ipv4 && !loop && !link && !site) {
+				if(isAcceptableAddress(a)) {
 					// If this is the old address, try to use the same port
 					if(old != null && old.getAddress().equals(a))
 						addrs.add(0, new InetSocketAddress(a, old.getPort()));
@@ -81,8 +76,23 @@ class WanTcpPlugin extends TcpPlugin {
 		return addrs;
 	}
 
+	private boolean isAcceptableAddress(InetAddress a) {
+		// Accept global IPv4 addresses
+		boolean ipv4 = a instanceof Inet4Address;
+		boolean loop = a.isLoopbackAddress();
+		boolean link = a.isLinkLocalAddress();
+		boolean site = a.isSiteLocalAddress();
+		return ipv4 && !loop && !link && !site;
+	}
+
 	private int chooseEphemeralPort() {
 		return 32768 + (int) (Math.random() * 32768);
+	}
+
+	@Override
+	protected boolean isConnectable(InetSocketAddress remote) {
+		if(remote.getPort() == 0) return false;
+		return isAcceptableAddress(remote.getAddress());
 	}
 
 	@Override

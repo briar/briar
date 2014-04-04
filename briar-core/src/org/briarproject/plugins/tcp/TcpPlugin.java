@@ -12,7 +12,6 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -45,6 +44,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 	 * in order of preference. At most one of the addresses will be bound.
 	 */
 	protected abstract List<SocketAddress> getLocalSocketAddresses();
+
+	/** Returns true if connections to the given address can be attempted. */
+	protected abstract boolean isConnectable(InetSocketAddress remote);
 
 	protected TcpPlugin(Executor pluginExecutor, DuplexPluginCallback callback,
 			int maxFrameLength, long maxLatency, long pollingInterval) {
@@ -162,40 +164,40 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	public void poll(Collection<ContactId> connected) {
 		if(!isRunning()) return;
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		for(final ContactId c : remote.keySet()) {
-			if(connected.contains(c)) continue;
-			pluginExecutor.execute(new Runnable() {
-				public void run() {
-					connectAndCallBack(c);
-				}
-			});
-		}
+		for(ContactId c : callback.getRemoteProperties().keySet())
+			if(!connected.contains(c)) connectAndCallBack(c);
 	}
 
-	private void connectAndCallBack(ContactId c) {
-		DuplexTransportConnection d = createConnection(c);
-		if(d != null) callback.outgoingConnectionCreated(c, d);
+	private void connectAndCallBack(final ContactId c) {
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				DuplexTransportConnection d = createConnection(c);
+				if(d != null) callback.outgoingConnectionCreated(c, d);
+			}
+		});
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if(!isRunning()) return null;
-		SocketAddress addr = getRemoteSocketAddress(c);
-		if(addr == null) return null;
+		InetSocketAddress remote = getRemoteSocketAddress(c);
+		if(remote == null) return null;
+		if(!isConnectable(remote)) {
+			if(LOG.isLoggable(INFO)) LOG.info(remote + " is not connectable");
+			return null;
+		}
 		Socket s = new Socket();
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + addr);
-			s.connect(addr);
-			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + addr);
+			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
+			s.connect(remote);
+			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
 			return new TcpTransportConnection(this, s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.info("Could not connect to " + addr);
+			if(LOG.isLoggable(INFO)) LOG.info("Could not connect to " + remote);
 			return null;
 		}
 	}
 
-	private SocketAddress getRemoteSocketAddress(ContactId c) {
+	private InetSocketAddress getRemoteSocketAddress(ContactId c) {
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		return parseSocketAddress(p.get("address"), p.get("port"));

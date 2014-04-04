@@ -50,14 +50,9 @@ class LanTcpPlugin extends TcpPlugin {
 			return Collections.emptyList();
 		}
 		List<SocketAddress> addrs = new LinkedList<SocketAddress>();
-		// Accept interfaces with local IPv4 addresses
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
-				boolean ipv4 = a instanceof Inet4Address;
-				boolean loop = a.isLoopbackAddress();
-				boolean link = a.isLinkLocalAddress();
-				boolean site = a.isSiteLocalAddress();
-				if(ipv4 && !loop && (link || site)) {
+				if(isAcceptableAddress(a)) {
 					// If this is the old address, try to use the same port
 					if(old != null && old.getAddress().equals(a))
 						addrs.add(0, new InetSocketAddress(a, old.getPort()));
@@ -66,5 +61,39 @@ class LanTcpPlugin extends TcpPlugin {
 			}
 		}
 		return addrs;
+	}
+
+	private boolean isAcceptableAddress(InetAddress a) {
+		// Accept link-local and site-local IPv4 addresses
+		boolean ipv4 = a instanceof Inet4Address;
+		boolean loop = a.isLoopbackAddress();
+		boolean link = a.isLinkLocalAddress();
+		boolean site = a.isSiteLocalAddress();
+		return ipv4 && !loop && (link || site);
+	}
+
+	@Override
+	protected boolean isConnectable(InetSocketAddress remote) {
+		if(remote.getPort() == 0) return false;
+		if(!isAcceptableAddress(remote.getAddress())) return false;
+		// Try to determine whether the address is on the same LAN as us
+		if(socket == null) return true;
+		byte[] localIp = socket.getInetAddress().getAddress();
+		byte[] remoteIp = remote.getAddress().getAddress();
+		return addressesAreOnSameLan(localIp, remoteIp);
+	}
+
+	// Package access for testing
+	boolean addressesAreOnSameLan(byte[] localIp, byte[] remoteIp) {
+		// 10.0.0.0/8
+		if(localIp[0] == 10) return remoteIp[0] == 10;
+		// 172.16.0.0/12
+		if(localIp[0] == (byte) 172 && (localIp[1] & 0xF0) == 16)
+			return remoteIp[0] == (byte) 172 && (remoteIp[1] & 0xF0) == 16;
+		// 192.168.0.0/16
+		if(localIp[0] == (byte) 192 && localIp[1] == (byte) 168)
+			return remoteIp[0] == (byte) 192 && remoteIp[1] == (byte) 168;
+		// Unrecognised prefix - may be compatible
+		return true;
 	}
 }
