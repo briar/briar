@@ -38,7 +38,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected final long maxLatency, pollingInterval;
 
 	protected volatile boolean running = false;
-	private volatile ServerSocket socket = null;
+	protected volatile ServerSocket socket = null;
 
 	/**
 	 * Returns zero or more socket addresses on which the plugin should listen,
@@ -65,47 +65,47 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	public boolean start() {
 		running = true;
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				bind();
-			}
-		});
+		bind();
 		return true;
 	}
 
-	private void bind() {
-		ServerSocket ss = null;
-		boolean found = false;
-		for(SocketAddress addr : getLocalSocketAddresses()) {
-			try {
-				ss = new ServerSocket();
-				ss.bind(addr);
-				found = true;
-				break;
-			} catch(IOException e) {
-				if(LOG.isLoggable(INFO)) LOG.info("Failed to bind " + addr);
-				tryToClose(ss);
-				continue;
+	protected void bind() {
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				if(!running) return;
+				ServerSocket ss = null;
+				for(SocketAddress addr : getLocalSocketAddresses()) {
+					try {
+						ss = new ServerSocket();
+						ss.bind(addr);
+						break;
+					} catch(IOException e) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Failed to bind " + addr);
+						tryToClose(ss);
+						continue;
+					}
+				}
+				if(ss == null || !ss.isBound()) {
+					LOG.info("Could not bind server socket");
+					return;
+				}
+				if(!running) {
+					tryToClose(ss);
+					return;
+				}
+				socket = ss;
+				SocketAddress local = ss.getLocalSocketAddress();
+				setLocalSocketAddress((InetSocketAddress) local);
+				if(LOG.isLoggable(INFO)) LOG.info("Listening on " + local);
+				acceptContactConnections();
 			}
-		}
-		if(!found) {
-			LOG.info("Could not bind server socket");
-			return;
-		}
-		if(!running) {
-			tryToClose(ss);
-			return;
-		}
-		socket = ss;
-		if(LOG.isLoggable(INFO))
-			LOG.info("Listening on " + ss.getLocalSocketAddress());
-		setLocalSocketAddress((InetSocketAddress) ss.getLocalSocketAddress());
-		acceptContactConnections(ss);
+		});
 	}
 
 	protected void tryToClose(ServerSocket ss) {
 		try {
-			ss.close();
+			if(ss != null) ss.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
@@ -124,32 +124,31 @@ abstract class TcpPlugin implements DuplexPlugin {
 		callback.mergeLocalProperties(p);
 	}
 
-	private void acceptContactConnections(ServerSocket ss) {
-		while(true) {
+	private void acceptContactConnections() {
+		while(isRunning()) {
 			Socket s;
 			try {
-				s = ss.accept();
+				s = socket.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
-				tryToClose(ss);
+				tryToClose(socket);
 				return;
 			}
 			if(LOG.isLoggable(INFO))
 				LOG.info("Connection from " + s.getRemoteSocketAddress());
 			TcpTransportConnection conn = new TcpTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
-			if(!running) return;
 		}
 	}
 
 	public void stop() {
 		running = false;
-		if(socket != null) tryToClose(socket);
+		tryToClose(socket);
 	}
 
 	public boolean isRunning() {
-		return running && socket != null && socket.isBound();
+		return running && socket != null && !socket.isClosed();
 	}
 
 	public boolean shouldPoll() {
@@ -161,7 +160,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	public void poll(Collection<ContactId> connected) {
-		if(!running) return;
+		if(!isRunning()) return;
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
 		for(final ContactId c : remote.keySet()) {
@@ -180,7 +179,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		if(!running) return null;
+		if(!isRunning()) return null;
 		SocketAddress addr = getRemoteSocketAddress(c);
 		if(addr == null) return null;
 		Socket s = new Socket();

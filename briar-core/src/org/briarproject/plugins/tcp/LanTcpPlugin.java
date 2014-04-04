@@ -18,7 +18,6 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 
-/** A TCP plugin that supports exchanging invitations over a LAN. */
 class LanTcpPlugin extends TcpPlugin {
 
 	static final TransportId ID = new TransportId("lan");

@@ -15,7 +15,7 @@ import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.plugins.droidtooth.DroidtoothPluginFactory;
-import org.briarproject.plugins.tcp.LanTcpPluginFactory;
+import org.briarproject.plugins.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.plugins.tor.TorPluginFactory;
 
 import android.app.Application;
@@ -44,14 +44,15 @@ public class AndroidPluginsModule extends AbstractModule {
 			CryptoComponent crypto, LocationUtils locationUtils,
 			ShutdownManager shutdownManager) {
 		Context appContext = app.getApplicationContext();
-		DuplexPluginFactory droidtooth = new DroidtoothPluginFactory(
+		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(
 				pluginExecutor, androidExecutor, appContext,
 				crypto.getSecureRandom());
 		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
 				appContext, locationUtils, shutdownManager);
-		DuplexPluginFactory lan = new LanTcpPluginFactory(pluginExecutor);
+		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(
+				pluginExecutor, appContext);
 		final Collection<DuplexPluginFactory> factories =
-				Arrays.asList(droidtooth, tor, lan);
+				Arrays.asList(bluetooth, tor, lan);
 		return new DuplexPluginConfig() {
 			public Collection<DuplexPluginFactory> getFactories() {
 				return factories;
