@@ -1205,8 +1205,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<GroupStatus> groups = new ArrayList<GroupStatus>();
+			Set<GroupId> ids = new HashSet<GroupId>();
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
+				if(!ids.add(id)) throw new DbStateException();
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
 				Group group = new Group(id, name, salt);
@@ -1226,6 +1228,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
+				if(!ids.add(id)) throw new DbStateException();
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
 				Group group = new Group(id, name, salt);
@@ -2246,10 +2249,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(2, now);
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<Group>();
+			Set<GroupId> ids = new HashSet<GroupId>();
 			long version = 0;
 			int txCount = 0;
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
+				if(!ids.add(id)) throw new DbStateException();
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
 				groups.add(new Group(id, name, salt));
