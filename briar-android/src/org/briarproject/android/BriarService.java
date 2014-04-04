@@ -136,11 +136,11 @@ public class BriarService extends RoboService implements EventListener {
 		new Thread() {
 			@Override
 			public void run() {
-				androidExecutor.shutdown();
 				if(started) {
 					db.removeListener(BriarService.this);
 					lifecycleManager.stopServices();
 				}
+				androidExecutor.shutdown();
 			}
 		}.start();
 	}
