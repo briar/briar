@@ -235,8 +235,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				LOG.warning("Could not make Tor executable");
 				return false;
 			}
-			// Create a file to indicate that installation succeeded
-			doneFile.createNewFile();
 			return true;
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -247,7 +245,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private boolean isConfigInstalled() {
-		return doneFile.exists();
+		return geoIpFile.exists() && configFile.exists() && doneFile.exists();
 	}
 
 	private boolean installConfig() {
