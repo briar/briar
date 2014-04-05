@@ -12,7 +12,6 @@ import org.briarproject.android.util.LayoutUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,17 +61,19 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		else name.setText(contactName);
 		layout.addView(name);
 
-		TextView connected = new TextView(ctx);
-		connected.setPadding(0, pad, pad, pad);
-		if(item.isConnected()) {
-			connected.setText(R.string.contact_connected);
+		if(item.isEmpty()) {
+			TextView noMessages = new TextView(ctx);
+			noMessages.setPadding(pad, pad, pad, pad);
+			noMessages.setTextColor(res.getColor(R.color.no_private_messages));
+			noMessages.setText(R.string.no_private_messages);
+			layout.addView(noMessages);
 		} else {
-			String format = res.getString(R.string.format_last_connected);
-			long then = item.getLastConnected();
-			CharSequence ago = DateUtils.getRelativeTimeSpanString(then);
-			connected.setText(Html.fromHtml(String.format(format, ago)));
+			TextView date = new TextView(ctx);
+			date.setPadding(pad, pad, pad, pad);
+			long timestamp = item.getTimestamp();
+			date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+			layout.addView(date);
 		}
-		layout.addView(connected);
 
 		return layout;
 	}

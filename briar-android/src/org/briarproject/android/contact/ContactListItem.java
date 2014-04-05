@@ -11,18 +11,15 @@ class ContactListItem {
 
 	private final Contact contact;
 	private final GroupId inbox;
-	private boolean connected;
-	private long lastConnected;
-	private boolean empty;
+	private boolean connected, empty;
 	private long timestamp;
 	private int unread;
 
-	ContactListItem(Contact contact, boolean connected, long lastConnected,
-			GroupId inbox, Collection<MessageHeader> headers) {
+	ContactListItem(Contact contact, boolean connected, GroupId inbox,
+			Collection<MessageHeader> headers) {
 		this.contact = contact;
 		this.inbox = inbox;
 		this.connected = connected;
-		this.lastConnected = lastConnected;
 		setHeaders(headers);
 	}
 
@@ -44,14 +41,6 @@ class ContactListItem {
 
 	GroupId getInboxGroupId() {
 		return inbox;
-	}
-
-	long getLastConnected() {
-		return lastConnected;
-	}
-
-	void setLastConnected(long lastConnected) {
-		this.lastConnected = lastConnected;
 	}
 
 	boolean isConnected() {

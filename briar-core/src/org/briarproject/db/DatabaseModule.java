@@ -17,7 +17,6 @@ import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
-import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.FileUtils;
 import org.briarproject.system.SystemClock;
 
@@ -54,9 +53,8 @@ public class DatabaseModule extends AbstractModule {
 
 	@Provides @Singleton
 	DatabaseComponent getDatabaseComponent(Database<Connection> db,
-			DatabaseCleaner cleaner, ShutdownManager shutdown, Clock clock) {
-		return new DatabaseComponentImpl<Connection>(db, cleaner, shutdown,
-				clock);
+			DatabaseCleaner cleaner, ShutdownManager shutdown) {
+		return new DatabaseComponentImpl<Connection>(db, cleaner, shutdown);
 	}
 
 	@Provides @Singleton @DatabaseExecutor

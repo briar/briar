@@ -9,8 +9,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.db.DatabaseCleaner.Callback;
-import org.briarproject.system.SystemClock;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -75,7 +73,6 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 	private <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
 			Database<T> database, DatabaseCleaner cleaner,
 			ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<T>(database, cleaner, shutdown,
-				new SystemClock());
+		return new DatabaseComponentImpl<T>(database, cleaner, shutdown);
 	}
 }

@@ -77,7 +77,6 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.TemporarySecret;
 
@@ -119,7 +118,6 @@ DatabaseCleaner.Callback {
 	private final Database<T> db;
 	private final DatabaseCleaner cleaner;
 	private final ShutdownManager shutdown;
-	private final Clock clock;
 
 	private final Collection<EventListener> listeners =
 			new CopyOnWriteArrayList<EventListener>();
@@ -130,11 +128,10 @@ DatabaseCleaner.Callback {
 
 	@Inject
 	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner,
-			ShutdownManager shutdown, Clock clock) {
+			ShutdownManager shutdown) {
 		this.db = db;
 		this.cleaner = cleaner;
 		this.shutdown = shutdown;
-		this.clock = clock;
 	}
 
 	public boolean open() throws DbException, IOException {
@@ -965,23 +962,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<ContactId, Long> getLastConnected() throws DbException {
-		windowLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Map<ContactId, Long> times = db.getLastConnected(txn);
-				db.commitTransaction(txn);
-				return times;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			windowLock.readLock().unlock();
-		}
-	}
-
 	public LocalAuthor getLocalAuthor(AuthorId a) throws DbException {
 		identityLock.readLock().lock();
 		try {
@@ -1244,10 +1224,6 @@ DatabaseCleaner.Callback {
 							throw new NoSuchTransportException();
 						long counter = db.incrementConnectionCounter(txn, c, t,
 								period);
-						if(counter != -1) {
-							long now = clock.currentTimeMillis();
-							db.setLastConnected(txn, c, now);
-						}
 						db.commitTransaction(txn);
 						return counter;
 					} catch(DbException e) {
@@ -1802,7 +1778,6 @@ DatabaseCleaner.Callback {
 							throw new NoSuchTransportException();
 						db.setConnectionWindow(txn, c, t, period, centre,
 								bitmap);
-						db.setLastConnected(txn, c, clock.currentTimeMillis());
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);

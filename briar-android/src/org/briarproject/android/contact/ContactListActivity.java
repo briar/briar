@@ -12,7 +12,6 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -127,15 +126,12 @@ ConnectionListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Map<ContactId, Long> times = db.getLastConnected();
 					for(Contact c : db.getContacts()) {
-						Long lastConnected = times.get(c.getId());
-						if(lastConnected == null) continue;
 						try {
 							GroupId inbox = db.getInboxGroupId(c.getId());
 							Collection<MessageHeader> headers =
 									db.getInboxMessageHeaders(c.getId());
-							displayContact(c, lastConnected, inbox, headers);
+							displayContact(c, inbox, headers);
 						} catch(NoSuchContactException e) {
 							// Continue
 						}
@@ -164,7 +160,7 @@ ConnectionListener {
 		});
 	}
 
-	private void displayContact(final Contact c, final long lastConnected,
+	private void displayContact(final Contact c,
 			final GroupId inbox, final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -175,8 +171,7 @@ ConnectionListener {
 				ContactListItem item = findItem(c.getId());
 				if(item != null) adapter.remove(item);
 				// Add a new item
-				adapter.add(new ContactListItem(c, connected, lastConnected,
-						inbox, headers));
+				adapter.add(new ContactListItem(c, connected, inbox, headers));
 				adapter.sort(ContactListItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
@@ -308,12 +303,10 @@ ConnectionListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);
-				if(item == null) return;
-				if(LOG.isLoggable(INFO))
-					LOG.info("Setting connection status " + connected);
-				item.setConnected(connected);
-				item.setLastConnected(System.currentTimeMillis());
-				adapter.notifyDataSetChanged();
+				if(item != null) {
+					item.setConnected(connected);
+					adapter.notifyDataSetChanged();
+				}
 			}
 		});
 	}

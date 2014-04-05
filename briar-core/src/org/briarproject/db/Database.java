@@ -327,14 +327,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the time at which a connection to each contact was last opened
-	 * or closed.
-	 * <p>
-	 * Locking: window read.
-	 */
-	Map<ContactId, Long> getLastConnected(T txn) throws DbException;
-
-	/**
 	 * Returns the local pseudonym with the given ID.
 	 * <p>
 	 * Locking: identity read.
@@ -731,13 +723,6 @@ interface Database<T> {
 	 * Locking: subscription write.
 	 */
 	public void setInboxGroup(T txn, ContactId c, Group g) throws DbException;
-
-	/**
-	 * Sets the time at which a connection to the given contact was last made.
-	 * <p>
-	 * Locking: window write.
-	 */
-	void setLastConnected(T txn, ContactId c, long now) throws DbException;
 
 	/**
 	 * Marks a message as read or unread.

@@ -23,7 +23,6 @@
     <string name="contact_list_title">Contacts</string>
     <string name="no_contacts">No contacts</string>
     <string name="contact_connected">Connected</string>
-    <string name="format_last_connected">Last connected &lt;br /&gt; %s</string>
     <string name="add_contact_title">Add a Contact</string>
     <string name="your_nickname">Your nickname: </string>
     <string name="face_to_face">For security reasons you must be face-to-face with the person you want to add as a contact.\n\nThis will prevent anyone from impersonating you or reading your messages in future.</string>

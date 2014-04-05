@@ -62,7 +62,7 @@ import org.briarproject.api.transport.TemporarySecret;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 5;
+	private static final int SCHEMA_VERSION = 6;
 	private static final int MIN_SCHEMA_VERSION = 5;
 
 	private static final String CREATE_SETTINGS =
@@ -326,16 +326,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: window
-	private static final String CREATE_CONNECTION_TIMES =
-			"CREATE TABLE connectionTimes"
-					+ " (contactId INT NOT NULL,"
-					+ " lastConnected BIGINT NOT NULL,"
-					+ " PRIMARY KEY (contactId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
 	private static final Logger LOG =
 			Logger.getLogger(JdbcDatabase.class.getName());
 
@@ -445,7 +435,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_ENDPOINTS));
 			s.executeUpdate(insertTypeNames(CREATE_SECRETS));
-			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_TIMES));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -633,15 +622,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 				}
 				ps.close();
 			}
-			// Create a connection time row
-			sql = "INSERT INTO connectionTimes (contactId, lastConnected)"
-					+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, clock.currentTimeMillis());
-			affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
 			// Create a retention version row
 			sql = "INSERT INTO retentionVersions (contactId, retention,"
 					+ " localVersion, localAcked, remoteVersion, remoteAcked,"
@@ -1518,27 +1498,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(headers);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Map<ContactId, Long> getLastConnected(Connection txn)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT contactId, lastConnected FROM connectionTimes";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Map<ContactId, Long> times = new HashMap<ContactId, Long>();
-			while(rs.next())
-				times.put(new ContactId(rs.getInt(1)), rs.getLong(2));
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableMap(times);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -3080,24 +3039,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(4, g.getSalt());
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setLastConnected(Connection txn, ContactId c, long now)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE connectionTimes SET lastConnected = ?"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, now);
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
