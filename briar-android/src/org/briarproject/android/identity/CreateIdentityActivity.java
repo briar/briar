@@ -6,7 +6,6 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
@@ -37,7 +36,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -56,6 +54,7 @@ implements OnEditorActionListener, OnClickListener {
 	private EditText nicknameEntry = null;
 	private Button createButton = null;
 	private ProgressBar progress = null;
+	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
@@ -82,8 +81,7 @@ implements OnEditorActionListener, OnClickListener {
 			@Override
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
-				if(createButton != null)
-					createButton.setEnabled(getText().length() > 0);
+				enableOrDisableCreateButton();
 			}
 		};
 		nicknameEntry.setId(1);
@@ -92,6 +90,11 @@ implements OnEditorActionListener, OnClickListener {
 		nicknameEntry.setInputType(inputType);
 		nicknameEntry.setOnEditorActionListener(this);
 		layout.addView(nicknameEntry);
+
+		feedback = new TextView(this);
+		feedback.setGravity(CENTER);
+		feedback.setPadding(0, pad, 0, pad);
+		layout.addView(feedback);
 
 		createButton = new Button(this);
 		createButton.setLayoutParams(WRAP_WRAP);
@@ -109,29 +112,35 @@ implements OnEditorActionListener, OnClickListener {
 		setContentView(layout);
 	}
 
-	// FIXME: What is this for?
+	private void enableOrDisableCreateButton() {
+		if(progress == null) return; // Not created yet
+		createButton.setEnabled(validateNickname());
+	}
+
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		validateNickname();
+		hideSoftKeyboard();
 		return true;
 	}
 
 	private boolean validateNickname() {
-		if(nicknameEntry.getText().length() == 0) return false;
-		byte[] b = StringUtils.toUtf8(nicknameEntry.getText().toString());
-		if(b.length > MAX_AUTHOR_NAME_LENGTH) return false;
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
-		return true;
+		String nickname = nicknameEntry.getText().toString();
+		int length = StringUtils.toUtf8(nickname).length;
+		if(length > MAX_AUTHOR_NAME_LENGTH) {
+			feedback.setText(R.string.name_too_long);
+			return false;
+		}
+		feedback.setText("");
+		return length > 0;
 	}
 
 	public void onClick(View view) {
-		if(!validateNickname()) return; // FIXME: Show feedback
-		final String nickname = nicknameEntry.getText().toString();
+		hideSoftKeyboard();
+		if(!validateNickname()) return;
 		// Replace the button with a progress bar
 		createButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		// Create the identity in a background thread
+		final String nickname = nicknameEntry.getText().toString();
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				KeyPair keyPair = crypto.generateSignatureKeyPair();

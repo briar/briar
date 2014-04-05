@@ -121,8 +121,7 @@ public class PasswordActivity extends RoboActivity {
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
-		if(enterPassword == null || continueButton == null || progress == null)
-			return;
+		if(progress == null) return; // Not created yet
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);

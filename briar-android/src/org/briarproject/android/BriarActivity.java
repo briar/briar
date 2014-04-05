@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.inputmethod.InputMethodManager;
 
 public class BriarActivity extends RoboActivity {
 
@@ -129,5 +131,10 @@ public class BriarActivity extends RoboActivity {
 				finish();
 			}
 		});
+	}
+
+	protected void hideSoftKeyboard() {
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
 	}
 }

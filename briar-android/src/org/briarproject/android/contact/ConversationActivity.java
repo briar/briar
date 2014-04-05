@@ -6,7 +6,6 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -69,7 +68,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
@@ -419,9 +417,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		createMessage(StringUtils.toUtf8(message), timestamp);
 		Toast.makeText(this, R.string.message_sent_toast, LENGTH_SHORT).show();
 		content.setText("");
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		hideSoftKeyboard();
 	}
 
 	private long getMinTimestampForNewMessage() {

@@ -7,6 +7,7 @@
     <string name="choose_nickname">Choose your nickname:</string>
     <string name="choose_password">Choose your password:</string>
     <string name="confirm_password">Confirm your password:</string>
+    <string name="name_too_long">Name is too long</string>
     <string name="password_too_weak">Password is too weak</string>
     <string name="passwords_do_not_match">Passwords do not match</string>
     <string name="enter_password">Enter your password:</string>

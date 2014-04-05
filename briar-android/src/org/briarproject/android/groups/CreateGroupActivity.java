@@ -6,7 +6,6 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
@@ -39,7 +38,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -62,6 +60,7 @@ SelectContactsDialog.Listener {
 	private RadioButton visibleToAll = null, visibleToSome = null;
 	private Button createButton = null;
 	private ProgressBar progress = null;
+	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile GroupFactory groupFactory;
@@ -114,6 +113,11 @@ SelectContactsDialog.Listener {
 		radioGroup.addView(visibleToSome);
 		layout.addView(radioGroup);
 
+		feedback = new TextView(this);
+		feedback.setGravity(CENTER);
+		feedback.setPadding(0, pad, 0, pad);
+		layout.addView(feedback);
+
 		createButton = new Button(this);
 		createButton.setLayoutParams(WRAP_WRAP);
 		createButton.setText(R.string.create_button);
@@ -130,26 +134,25 @@ SelectContactsDialog.Listener {
 	}
 
 	private void enableOrDisableCreateButton() {
-		if(createButton == null) return; // Activity not created yet
-		boolean nameNotEmpty = nameEntry.getText().length() > 0;
+		if(progress == null) return; // Not created yet
+		boolean nameValid = validateName();
 		boolean visibilitySelected = radioGroup.getCheckedRadioButtonId() != -1;
-		createButton.setEnabled(nameNotEmpty && visibilitySelected);
+		createButton.setEnabled(nameValid && visibilitySelected);
 	}
 
-	// FIXME: What is this for?
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		validateName();
+		hideSoftKeyboard();
 		return true;
 	}
 
 	private boolean validateName() {
-		if(nameEntry.getText().length() == 0) return false;
-		byte[] b = StringUtils.toUtf8(nameEntry.getText().toString());
-		if(b.length > MAX_GROUP_NAME_LENGTH) return false;
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
-		return true;
+		int length = StringUtils.toUtf8(nameEntry.getText().toString()).length;
+		if(length > MAX_GROUP_NAME_LENGTH) {
+			feedback.setText(R.string.name_too_long);
+			return false;
+		}
+		feedback.setText("");
+		return length > 0;
 	}
 
 	public void onClick(View view) {
@@ -159,7 +162,8 @@ SelectContactsDialog.Listener {
 			if(contacts == null) loadContacts();
 			else displayContacts();
 		} else if(view == createButton) {
-			if(!validateName()) return; // FIXME: Show feedback
+			hideSoftKeyboard();
+			if(!validateName()) return;
 			createButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
 			String name = nameEntry.getText().toString();

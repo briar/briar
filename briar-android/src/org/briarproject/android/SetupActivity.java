@@ -13,6 +13,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 
 import java.util.Arrays;
@@ -170,11 +171,12 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 	}
 
 	private void enableOrDisableContinueButton() {
-		if(continueButton == null) return; // Not created yet
+		if(progress == null) return; // Not created yet
 		if(passwordEntry.getText().length() > 0)
 			strengthMeter.setVisibility(VISIBLE);
 		else strengthMeter.setVisibility(INVISIBLE);
-		boolean nicknameNotEmpty = nicknameEntry.getText().length() > 0;
+		String nickname = nicknameEntry.getText().toString();
+		int nicknameLength = StringUtils.toUtf8(nickname).length;
 		char[] firstPassword = getChars(passwordEntry.getText());
 		char[] secondPassword = getChars(passwordConfirmation.getText());
 		boolean passwordsMatch = Arrays.equals(firstPassword, secondPassword);
@@ -182,7 +184,9 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		for(int i = 0; i < firstPassword.length; i++) firstPassword[i] = 0;
 		for(int i = 0; i < secondPassword.length; i++) secondPassword[i] = 0;
 		strengthMeter.setStrength(strength);
-		if(firstPassword.length == 0) {
+		if(nicknameLength > MAX_AUTHOR_NAME_LENGTH) {
+			feedback.setText(R.string.name_too_long);
+		} else if(firstPassword.length == 0) {
 			feedback.setText("");
 		} else if(secondPassword.length == 0 || passwordsMatch) {
 			if(strength < PasswordStrengthEstimator.WEAK)
@@ -193,8 +197,9 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		} else {
 			feedback.setText("");
 		}
-		boolean valid = nicknameNotEmpty && passwordsMatch && strength >= WEAK;
-		continueButton.setEnabled(valid);
+		continueButton.setEnabled(nicknameLength > 0
+				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
+				&& passwordsMatch && strength >= WEAK);
 	}
 
 	private char[] getChars(Editable e) {
