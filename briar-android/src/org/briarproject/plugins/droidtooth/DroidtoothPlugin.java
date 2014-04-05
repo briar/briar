@@ -228,8 +228,18 @@ class DroidtoothPlugin implements DuplexPlugin {
 		tryToClose(socket);
 		// Disable Bluetooth if we enabled it and it's still enabled
 		if(wasDisabled && adapter.isEnabled()) {
-			if(adapter.disable()) LOG.info("Disabling Bluetooth");
-			else LOG.info("Could not disable Bluetooth");
+			// Try to disable the adapter and wait for the result
+			LOG.info("Disabling Bluetooth");
+			IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
+			DisableBluetoothReceiver receiver = new DisableBluetoothReceiver();
+			appContext.registerReceiver(receiver, filter);
+			if(adapter.disable()) {
+				LOG.info("Disabling Bluetooth");
+				receiver.waitForStateChange();
+			} else {
+				LOG.info("Could not disable Bluetooth");
+			}
+			appContext.unregisterReceiver(receiver);
 		}
 	}
 
@@ -378,6 +388,28 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.info("Scan mode: Connectable");
 			} else if(scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 				LOG.info("Scan mode: Discoverable");
+			}
+		}
+	}
+
+	private class DisableBluetoothReceiver extends BroadcastReceiver {
+
+		private final CountDownLatch latch = new CountDownLatch(1);
+
+		public void onReceive(Context ctx, Intent intent) {
+			int state = intent.getIntExtra(EXTRA_STATE, 0);
+			if(state == STATE_OFF) {
+				LOG.info("Bluetooth disabled");
+				latch.countDown();
+			}
+		}
+
+		private void waitForStateChange() {
+			try {
+				latch.await();
+			} catch(InterruptedException e) {
+				LOG.info("Interrupted while disabling Bluetooth");
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
