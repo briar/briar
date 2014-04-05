@@ -45,6 +45,7 @@ SelectContactsDialog.Listener {
 	private static final Logger LOG =
 			Logger.getLogger(ConfigureGroupActivity.class.getName());
 
+	private String groupName = null;
 	private CheckBox subscribeCheckBox = null;
 	private RadioGroup radioGroup = null;
 	private RadioButton visibleToAll = null, visibleToSome = null;
@@ -68,12 +69,12 @@ SelectContactsDialog.Listener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String name = i.getStringExtra("briar.GROUP_NAME");
-		if(name == null) throw new IllegalStateException();
-		setTitle(name);
+		groupName = i.getStringExtra("briar.GROUP_NAME");
+		if(groupName == null) throw new IllegalStateException();
+		setTitle(groupName);
 		b = i.getByteArrayExtra("briar.GROUP_SALT");
 		if(b == null) throw new IllegalStateException();
-		group = new Group(groupId, name, b);
+		group = new Group(groupId, groupName, b);
 		subscribed = i.getBooleanExtra("briar.SUBSCRIBED", false);
 		boolean all = i.getBooleanExtra("briar.VISIBLE_TO_ALL", false);
 
@@ -210,7 +211,21 @@ SelectContactsDialog.Listener {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
-				finishOnUiThread();
+				if(subscribe) showGroup();
+				else finishOnUiThread();
+			}
+		});
+	}
+
+	private void showGroup() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Intent i = new Intent(ConfigureGroupActivity.this,
+						GroupActivity.class);
+				i.putExtra("briar.GROUP_ID", groupId.getBytes());
+				i.putExtra("briar.GROUP_NAME", groupName);
+				startActivity(i);
+				finish();
 			}
 		});
 	}
