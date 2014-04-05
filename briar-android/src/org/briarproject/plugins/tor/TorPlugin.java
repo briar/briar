@@ -186,7 +186,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				// Wait for the auth cookie file to be created/updated
 				if(!latch.await(COOKIE_TIMEOUT, MILLISECONDS)) {
 					LOG.warning("Auth cookie not created");
-					listFiles(torDirectory);
+					if(LOG.isLoggable(INFO)) listFiles(torDirectory);
 					return false;
 				}
 			} catch(InterruptedException e1) {
@@ -337,8 +337,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private void listFiles(File f) {
-		if(f.isDirectory()) for(File f1 : f.listFiles()) listFiles(f1);
-		else if(LOG.isLoggable(INFO)) LOG.info(f.getAbsolutePath());
+		if(f.isDirectory()) for(File child : f.listFiles()) listFiles(child);
+		else LOG.info(f.getAbsolutePath());
 	}
 
 	private byte[] read(File f) throws IOException {
@@ -491,7 +491,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				// Wait for the hostname file to be created/updated
 				if(!latch.await(HOSTNAME_TIMEOUT, MILLISECONDS)) {
 					LOG.warning("Hidden service not created");
-					listFiles(torDirectory);
+					if(LOG.isLoggable(INFO)) listFiles(torDirectory);
 					return;
 				}
 				if(!running) return;
