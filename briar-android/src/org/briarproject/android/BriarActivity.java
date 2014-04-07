@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 
 import java.util.concurrent.Executor;
@@ -41,6 +42,7 @@ public class BriarActivity extends RoboActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		getWindow().setFlags(FLAG_SECURE, FLAG_SECURE);
 		if(databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 

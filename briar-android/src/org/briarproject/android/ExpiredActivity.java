@@ -1,6 +1,7 @@
 package org.briarproject.android;
 
 import static android.view.Gravity.CENTER;
+import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 import org.briarproject.R;
@@ -16,6 +17,8 @@ public class ExpiredActivity extends Activity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
+		getWindow().setFlags(FLAG_SECURE, FLAG_SECURE);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);

@@ -6,6 +6,7 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -54,6 +55,8 @@ public class PasswordActivity extends RoboActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
+		getWindow().setFlags(FLAG_SECURE, FLAG_SECURE);
 
 		SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
 		String hex = prefs.getString("key", null);
