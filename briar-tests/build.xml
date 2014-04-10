@@ -76,7 +76,7 @@
 		</javac>
 	</target>
 	<target name='test' depends='compile'>
-		<junit printsummary='on' fork='yes' forkmode='once'>
+		<junit printsummary='withOutAndErr' fork='yes' forkmode='once'>
 			<assertions>
 				<enable/>
 			</assertions>
