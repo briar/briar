@@ -145,6 +145,13 @@ public class BriarService extends RoboService implements EventListener {
 		}.start();
 	}
 
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		LOG.warning("Memory is low");
+		// FIXME: Work out what to do about it
+	}
+
 	public void eventOccurred(Event e) {
 		if(e instanceof MessageAddedEvent) {
 			MessageAddedEvent m = (MessageAddedEvent) e;

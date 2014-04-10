@@ -1,8 +1,5 @@
 package org.briarproject.system;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.FileUtils;
 import org.briarproject.api.system.SeedProvider;
@@ -18,10 +15,6 @@ public class DesktopSystemModule extends AbstractModule {
 		bind(Timer.class).to(SystemTimer.class);
 		if(OsUtils.isLinux())
 			bind(SeedProvider.class).to(LinuxSeedProvider.class);
-		bind(FileUtils.class).toInstance(new FileUtils() {
-			public long getFreeSpace(File f) throws IOException {
-				return f.getFreeSpace();
-			}
-		});
+		bind(FileUtils.class).to(DesktopFileUtils.class);
 	}
 }

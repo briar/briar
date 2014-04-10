@@ -51,8 +51,10 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.system.FileUtils;
 import org.briarproject.util.StringUtils;
 
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -86,6 +88,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	private LinearLayout status = null;
 	private ImageButton refresh = null, share = null;
 	private File temp = null;
+
+	@Inject private volatile FileUtils fileUtils;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -194,7 +198,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		String brand = Build.BRAND;
 		if(model.startsWith(manufacturer)) deviceType = capitalize(model);
 		else deviceType = capitalize(manufacturer) + " " + model;
-		if(!StringUtils.isNullOrEmpty(brand)) deviceType += " (" + brand + ")";
+		if(!StringUtils.isNullOrEmpty(brand))
+			deviceType += " (" + capitalize(brand) + ")";
 		statusMap.put("Device type:", deviceType);
 
 		// Android version
@@ -205,8 +210,52 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		// CPU architecture
 		statusMap.put("Architecture:", Build.CPU_ABI);
 
+		// System memory
+		Object o = getSystemService(ACTIVITY_SERVICE);
+		ActivityManager am = (ActivityManager) o;
+		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
+		am.getMemoryInfo(mem);
+		String systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
+				+ (mem.availMem / 1024 / 1204) + " MiB free, "
+				+ (mem.threshold / 1024 / 1024) + " MiB threshold";
+		statusMap.put("System memory:", systemMemory);
+
+		// Virtual machine memory
+		Runtime runtime = Runtime.getRuntime();
+		long heap = runtime.totalMemory();
+		long heapFree = runtime.freeMemory();
+		long heapMax = runtime.maxMemory();
+		String vmMemory = (heap / 1024 / 1024) + " MiB allocated, "
+				+ (heapFree / 1024 / 1024) + " MiB free, "
+				+ (heapMax / 1024 / 1024) + " MiB maximum";
+		statusMap.put("Virtual machine memory:", vmMemory);
+
+		// Internal storage
+		try {
+			File root = Environment.getRootDirectory();
+			long rootTotal = fileUtils.getTotalSpace(root);
+			long rootFree = fileUtils.getFreeSpace(root);
+			String internal = (rootTotal / 1024 / 1024) + " MiB total, "
+					+ (rootFree / 1024 / 1024) + " MiB free";
+			statusMap.put("Internal storage:", internal);
+		} catch(IOException e) {
+			statusMap.put("Internal storage:", "Unknown");
+		}
+
+		// External storage (SD card)
+		try {
+			File sd = Environment.getExternalStorageDirectory();
+			long sdTotal = fileUtils.getTotalSpace(sd);
+			long sdFree = fileUtils.getFreeSpace(sd);
+			String external = (sdTotal / 1024 / 1024) + " MiB total, "
+					+ (sdFree / 1024 / 1024) + " MiB free";
+			statusMap.put("External storage:", external);
+		} catch(IOException e) {
+			statusMap.put("External storage:", "Unknown");
+		}
+
 		// Is mobile data available?
-		Object o = getSystemService(CONNECTIVITY_SERVICE);
+		o = getSystemService(CONNECTIVITY_SERVICE);
 		ConnectivityManager cm = (ConnectivityManager) o;
 		NetworkInfo mobile = cm.getNetworkInfo(TYPE_MOBILE);
 		boolean mobileAvailable = mobile != null && mobile.isAvailable();
@@ -367,7 +416,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		try {
 			int pid = android.os.Process.myPid();
 			Pattern pattern = Pattern.compile(".*\\( *" + pid + "\\).*");
-			Runtime runtime = Runtime.getRuntime();
 			Process process = runtime.exec("logcat -d -v time *:I");
 			Scanner scanner = new Scanner(process.getInputStream());
 			while(scanner.hasNextLine()) {
@@ -382,22 +430,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		statusMap.put("Debugging log:", log.toString());
-
-		// TorPlugin log output for all processes
-		StringBuilder torLog = new StringBuilder();
-		try {
-			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec("logcat -d -v time -s TorPlugin");
-			Scanner scanner = new Scanner(process.getInputStream());
-			while(scanner.hasNextLine()) {
-				torLog.append(scanner.nextLine());
-				torLog.append('\n');
-			}
-			scanner.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-		statusMap.put("Tor debugging log:", torLog.toString());
 
 		return Collections.unmodifiableMap(statusMap);
 	}

@@ -1,11 +1,11 @@
-package org.briarproject;
+package org.briarproject.system;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.briarproject.api.system.FileUtils;
 
-public class TestFileUtils implements FileUtils {
+class DesktopFileUtils implements FileUtils {
 
 	public long getTotalSpace(File f) throws IOException {
 		return f.getTotalSpace(); // Requires Java 1.6
