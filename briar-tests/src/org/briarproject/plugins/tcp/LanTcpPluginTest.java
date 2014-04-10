@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -73,6 +75,10 @@ public class LanTcpPluginTest extends BriarTestCase {
 
 	@Test
 	public void testIncomingConnection() throws Exception {
+		if(!systemHasLocalIpv4Address()) {
+			System.err.println("WARNING: Skipping test, no local IPv4 address");
+			return;
+		}
 		Callback callback = new Callback();
 		Executor executor = Executors.newCachedThreadPool();
 		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
@@ -101,6 +107,10 @@ public class LanTcpPluginTest extends BriarTestCase {
 
 	@Test
 	public void testOutgoingConnection() throws Exception {
+		if(!systemHasLocalIpv4Address()) {
+			System.err.println("WARNING: Skipping test, no local IPv4 address");
+			return;
+		}
 		Callback callback = new Callback();
 		Executor executor = Executors.newCachedThreadPool();
 		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
@@ -141,6 +151,17 @@ public class LanTcpPluginTest extends BriarTestCase {
 		d.dispose(false, true);
 		ss.close();
 		plugin.stop();
+	}
+
+	private boolean systemHasLocalIpv4Address() throws Exception {
+		for(NetworkInterface i : Collections.list(
+				NetworkInterface.getNetworkInterfaces())) {
+			for(InetAddress a : Collections.list(i.getInetAddresses())) {
+				if(a instanceof Inet4Address)
+					return a.isLinkLocalAddress() || a.isSiteLocalAddress();
+			}
+		}
+		return false;
 	}
 
 	private static class Callback implements DuplexPluginCallback {
