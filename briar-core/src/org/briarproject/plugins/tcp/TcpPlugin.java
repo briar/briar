@@ -6,11 +6,15 @@ import static java.util.logging.Level.WARNING;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -182,7 +186,10 @@ abstract class TcpPlugin implements DuplexPlugin {
 		InetSocketAddress remote = getRemoteSocketAddress(c);
 		if(remote == null) return null;
 		if(!isConnectable(remote)) {
-			if(LOG.isLoggable(INFO)) LOG.info(remote + " is not connectable");
+			if(LOG.isLoggable(INFO)) {
+				SocketAddress local = socket.getLocalSocketAddress();
+				LOG.info(remote + " is not connectable from " + local);
+			}
 			return null;
 		}
 		Socket s = new Socket();
@@ -228,5 +235,19 @@ abstract class TcpPlugin implements DuplexPlugin {
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		throw new UnsupportedOperationException();
+	}
+
+	protected Collection<InetAddress> getLocalIpAddresses() {
+		List<NetworkInterface> ifaces;
+		try {
+			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+		} catch(SocketException e) {
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return Collections.emptyList();
+		}
+		List<InetAddress> addrs = new ArrayList<InetAddress>();
+		for(NetworkInterface iface : ifaces)
+			addrs.addAll(Collections.list(iface.getInetAddresses()));
+		return addrs;
 	}
 }
