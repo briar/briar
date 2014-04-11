@@ -33,8 +33,7 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
 		// Modify the ciphertext
 		int position = random.nextInt(ciphertext.length);
-		int value = random.nextInt(256);
-		ciphertext[position] = (byte) value;
+		ciphertext[position] = (byte) (ciphertext[position] ^ 0xFF);
 		byte[] output = crypto.decryptWithPassword(ciphertext, password);
 		assertNull(output);
 	}
