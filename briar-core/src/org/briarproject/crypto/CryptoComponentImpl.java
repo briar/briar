@@ -95,7 +95,14 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Inject
 	CryptoComponentImpl(SeedProvider r) {
 		if(!FortunaSecureRandom.selfTest()) throw new RuntimeException();
-		secureRandom = new FortunaSecureRandom(r.getSeed());
+		SecureRandom secureRandom1 = new SecureRandom();
+		if(LOG.isLoggable(INFO)) {
+			String provider = secureRandom1.getProvider().getName();
+			String algorithm = secureRandom1.getAlgorithm();
+			LOG.info("Default SecureRandom: " + provider + " " + algorithm);
+		}
+		SecureRandom secureRandom2 = new FortunaSecureRandom(r.getSeed());
+		secureRandom = new CombinedSecureRandom(secureRandom1, secureRandom2);
 		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
 				PARAMETERS, secureRandom);
 		agreementKeyPairGenerator = new ECKeyPairGenerator();
