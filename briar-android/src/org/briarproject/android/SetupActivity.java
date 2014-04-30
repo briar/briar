@@ -12,6 +12,7 @@ import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
+import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
@@ -75,7 +76,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		getWindow().setFlags(FLAG_SECURE, FLAG_SECURE);
+		if(PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);

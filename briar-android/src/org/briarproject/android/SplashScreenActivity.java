@@ -3,10 +3,11 @@ package org.briarproject.android;
 import static android.view.Gravity.CENTER;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static java.util.logging.Level.INFO;
+import static org.briarproject.android.TestingConstants.DEFAULT_LOG_LEVEL;
+import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.briarproject.R;
@@ -31,8 +32,6 @@ public class SplashScreenActivity extends RoboSplashActivity {
 
 	// This build expires on 10 May 2014
 	private static final long EXPIRY_DATE = 1399680000 * 1000L;
-	// Default log level - change this to OFF for release builds
-	private static final Level DEFAULT_LOG_LEVEL = INFO;
 
 	private long now = System.currentTimeMillis();
 
@@ -45,7 +44,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		getWindow().setFlags(FLAG_SECURE, FLAG_SECURE);
+		if(PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);

@@ -7,6 +7,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.TestingConstants.SHOW_TESTING_ACTIVITY;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
@@ -168,16 +169,18 @@ OnClickListener {
 
 		layout.addView(new HorizontalBorder(this));
 
-		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(MATCH_WRAP);
-		footer.setGravity(CENTER);
-		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		testingButton = new ImageButton(this);
-		testingButton.setBackgroundResource(0);
-		testingButton.setImageResource(R.drawable.action_about);
-		testingButton.setOnClickListener(this);
-		footer.addView(testingButton);
-		layout.addView(footer);
+		if(SHOW_TESTING_ACTIVITY) {
+			LinearLayout footer = new LinearLayout(this);
+			footer.setLayoutParams(MATCH_WRAP);
+			footer.setGravity(CENTER);
+			footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
+			testingButton = new ImageButton(this);
+			testingButton.setBackgroundResource(0);
+			testingButton.setImageResource(R.drawable.action_about);
+			testingButton.setOnClickListener(this);
+			footer.addView(testingButton);
+			layout.addView(footer);
+		}
 
 		setContentView(layout);
 	}
@@ -246,7 +249,7 @@ OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(testingButton == null) return; // Not created yet
+		if(progress == null) return; // Not created yet
 		if(view == testingButton) {
 			startActivity(new Intent(this, TestingActivity.class));
 			return;
