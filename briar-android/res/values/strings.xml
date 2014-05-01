@@ -19,10 +19,8 @@
     <string name="forums_button">Forums</string>
     <string name="settings_button">Settings</string>
     <string name="sign_out_button">Sign Out</string>
-    <string name="testing_button">Testing</string>
     <string name="contact_list_title">Contacts</string>
     <string name="no_contacts">No contacts</string>
-    <string name="contact_connected">Connected</string>
     <string name="add_contact_title">Add a Contact</string>
     <string name="your_nickname">Your nickname: </string>
     <string name="face_to_face">For security reasons you must be face-to-face with the person you want to add as a contact.\n\nThis will prevent anyone from impersonating you or reading your messages in future.</string>
