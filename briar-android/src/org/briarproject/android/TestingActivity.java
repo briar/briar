@@ -19,7 +19,6 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,9 +34,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
 import javax.inject.Inject;
-
 import org.briarproject.R;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
@@ -53,7 +50,7 @@ import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.system.FileUtils;
 import org.briarproject.util.StringUtils;
-
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -188,6 +185,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	}
 
 	// FIXME: Load strings from resources if we're keeping this activity
+	@SuppressLint("NewApi")
 	private Map<String, String> getStatusMap() {
 		Map<String, String> statusMap = new LinkedHashMap<String, String>();
 
@@ -215,9 +213,15 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		ActivityManager am = (ActivityManager) o;
 		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 		am.getMemoryInfo(mem);
-		String systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
-				+ (mem.availMem / 1024 / 1204) + " MiB free, "
-				+ (mem.threshold / 1024 / 1024) + " MiB threshold";
+		String systemMemory;
+		if(Build.VERSION.SDK_INT >= 16) {
+			systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
+					+ (mem.availMem / 1024 / 1204) + " MiB free, "
+					+ (mem.threshold / 1024 / 1024) + " MiB threshold";
+		} else {
+			systemMemory = (mem.availMem / 1024 / 1204) + " MiB free, "
+					+ (mem.threshold / 1024 / 1024) + " MiB threshold";
+		}
 		statusMap.put("System memory:", systemMemory);
 
 		// Virtual machine memory
