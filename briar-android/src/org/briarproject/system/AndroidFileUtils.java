@@ -7,7 +7,7 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.StatFs;
 
-class AndroidFileUtils implements FileUtils {
+public class AndroidFileUtils implements FileUtils {
 
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")

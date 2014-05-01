@@ -22,4 +22,10 @@ interface TestingConstants {
 	 * This should be false for release builds.
 	 */
 	boolean SHOW_TESTING_ACTIVITY = true;
+
+	/**
+	 * Whether to allow crash reports to be submitted by email. This should
+	 * be false for release builds.
+	 */
+	boolean SHARE_CRASH_REPORTS = true;
 }
