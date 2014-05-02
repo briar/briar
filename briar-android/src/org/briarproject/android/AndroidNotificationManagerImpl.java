@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_SOUND;
+import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
@@ -30,12 +31,13 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.messaging.GroupId;
+import org.briarproject.util.StringUtils;
 
 import android.app.Application;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -126,6 +128,10 @@ Service, EventListener {
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.private_message_notification_text, privateTotal,
 					privateTotal));
+			boolean sound = settings.getBoolean("notifySound", true);
+			String ringtoneUri = settings.get("notifyRingtoneUri");
+			if(sound && !StringUtils.isNullOrEmpty(ringtoneUri))
+				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
@@ -161,10 +167,12 @@ Service, EventListener {
 
 	private int getDefaults() {
 		int defaults = DEFAULT_LIGHTS;
-		if(settings.getBoolean("notifySound", true))
+		boolean sound = settings.getBoolean("notifySound", true);
+		String ringtoneUri = settings.get("notifyRingtoneUri");
+		if(sound && StringUtils.isNullOrEmpty(ringtoneUri))
 			defaults |= DEFAULT_SOUND;
 		if(settings.getBoolean("notifyVibration", true))
-			defaults |= Notification.DEFAULT_VIBRATE;
+			defaults |= DEFAULT_VIBRATE;
 		return defaults;
 	}
 
@@ -197,6 +205,9 @@ Service, EventListener {
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.group_post_notification_text, groupTotal,
 					groupTotal));
+			String ringtoneUri = settings.get("notifyRingtoneUri");
+			if(!StringUtils.isNullOrEmpty(ringtoneUri))
+				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);

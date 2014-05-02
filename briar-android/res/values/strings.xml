@@ -93,6 +93,7 @@
     <string name="notify_group_posts_setting">Show alerts for forum posts</string>
     <string name="notify_vibration_setting">Vibrate</string>
     <string name="notify_sound_setting">Sound</string>
-    <string name="notify_sound_setting_enabled">Default ringtone</string>
-    <string name="notify_sound_setting_disabled">No sound</string>
+    <string name="notify_sound_setting_default">Default ringtone</string>
+    <string name="notify_sound_setting_disabled">None</string>
+    <string name="choose_ringtone_title">Choose ringtone</string>
 </resources>
