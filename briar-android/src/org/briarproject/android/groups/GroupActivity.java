@@ -24,6 +24,7 @@ import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.Author;
@@ -67,11 +68,12 @@ OnClickListener, OnItemClickListener {
 	private GroupAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
+	private ImageButton composeButton = null, configureButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	private volatile GroupId groupId = null;
-	private volatile String groupName = null;
+	private volatile Group group = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -114,11 +116,21 @@ OnClickListener, OnItemClickListener {
 		footer.setGravity(CENTER);
 		Resources res = getResources();
 		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		ImageButton composeButton = new ImageButton(this);
+		footer.addView(new ElasticHorizontalSpace(this));
+
+		composeButton = new ImageButton(this);
 		composeButton.setBackgroundResource(0);
 		composeButton.setImageResource(R.drawable.content_new_email);
 		composeButton.setOnClickListener(this);
 		footer.addView(composeButton);
+		footer.addView(new ElasticHorizontalSpace(this));
+
+		configureButton = new ImageButton(this);
+		configureButton.setBackgroundResource(0);
+		configureButton.setImageResource(R.drawable.action_settings);
+		configureButton.setOnClickListener(this);
+		footer.addView(configureButton);
+		footer.addView(new ElasticHorizontalSpace(this));
 		layout.addView(footer);
 
 		setContentView(layout);
@@ -137,8 +149,7 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Group g = db.getGroup(groupId);
-					groupName = g.getName();
+					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading group " + duration + " ms");
@@ -156,7 +167,7 @@ OnClickListener, OnItemClickListener {
 	private void displayGroupName() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				setTitle(groupName);
+				setTitle(group.getName());
 			}
 		});
 	}
@@ -315,11 +326,20 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void onClick(View view) {
-		Intent i = new Intent(this, WriteGroupPostActivity.class);
-		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.GROUP_NAME", groupName);
-		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
-		startActivity(i);
+		if(view == composeButton) {
+			Intent i = new Intent(this, WriteGroupPostActivity.class);
+			i.putExtra("briar.GROUP_ID", groupId.getBytes());
+			i.putExtra("briar.GROUP_NAME", group.getName());
+			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
+			startActivity(i);
+		} else if(view == configureButton) {
+			Intent i = new Intent(this, ConfigureGroupActivity.class);
+			i.putExtra("briar.GROUP_ID", groupId.getBytes());
+			i.putExtra("briar.GROUP_NAME", group.getName());
+			i.putExtra("briar.GROUP_SALT", group.getSalt());
+			i.putExtra("briar.SUBSCRIBED", true);
+			startActivity(i);
+		}
 	}
 
 	private long getMinTimestampForNewMessage() {
@@ -342,7 +362,7 @@ OnClickListener, OnItemClickListener {
 		MessageHeader item = adapter.getItem(position).getHeader();
 		Intent i = new Intent(this, ReadGroupPostActivity.class);
 		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.GROUP_NAME", groupName);
+		i.putExtra("briar.GROUP_NAME", group.getName());
 		i.putExtra("briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
 		if(author != null) i.putExtra("briar.AUTHOR_NAME", author.getName());
