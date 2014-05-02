@@ -4,6 +4,8 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -24,6 +26,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.api.messaging.GroupId;
 
 import roboguice.service.RoboService;
@@ -87,11 +90,16 @@ public class BriarService extends RoboService implements EventListener {
 		new Thread() {
 			@Override
 			public void run() {
-				if(lifecycleManager.startServices()) {
+				StartResult result = lifecycleManager.startServices();
+				if(result == SUCCESS) {
 					db.addListener(BriarService.this);
 					started = true;
+				} else if(result == ALREADY_RUNNING) {
+					LOG.info("Already running");
+					stopSelf();
 				} else {
-					LOG.info("Startup failed");
+					if(LOG.isLoggable(WARNING))
+						LOG.warning("Startup failed: " + result);
 					showStartupFailureNotification();
 					stopSelf();
 				}

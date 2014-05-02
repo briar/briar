@@ -17,7 +17,7 @@ public class TestLifecycleModule extends AbstractModule {
 
 			public void registerForShutdown(ExecutorService e) {}
 
-			public boolean startServices() { return true; }
+			public StartResult startServices() { return StartResult.SUCCESS; }
 
 			public void stopServices() {}
 

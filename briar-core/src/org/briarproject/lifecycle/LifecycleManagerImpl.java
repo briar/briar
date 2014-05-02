@@ -2,12 +2,17 @@ package org.briarproject.lifecycle;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -27,6 +32,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private final DatabaseComponent db;
 	private final Collection<Service> services;
 	private final Collection<ExecutorService> executors;
+	private final Semaphore startStopSemaphore = new Semaphore(1);
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
@@ -51,12 +57,16 @@ class LifecycleManagerImpl implements LifecycleManager {
 		executors.add(e);
 	}
 
-	public boolean startServices() {
+	public StartResult startServices() {
+		if(!startStopSemaphore.tryAcquire()) {
+			LOG.info("Already starting or stopping");
+			return ALREADY_RUNNING;
+		}
 		try {
-			LOG.info("Starting");
-			long start = clock.currentTimeMillis();
+			LOG.info("Starting services");
+			long now = clock.currentTimeMillis();
 			boolean reopened = db.open();
-			long duration = clock.currentTimeMillis() - start;
+			long duration = clock.currentTimeMillis() - now;
 			if(LOG.isLoggable(INFO)) {
 				if(reopened)
 					LOG.info("Reopening database took " + duration + " ms");
@@ -64,15 +74,15 @@ class LifecycleManagerImpl implements LifecycleManager {
 			}
 			dbLatch.countDown();
 			for(Service s : services) {
-				start = clock.currentTimeMillis();
+				now = clock.currentTimeMillis();
 				boolean started = s.start();
-				duration = clock.currentTimeMillis() - start;
+				duration = clock.currentTimeMillis() - now;
 				if(!started) {
 					if(LOG.isLoggable(WARNING)) {
 						String name = s.getClass().getName();
 						LOG.warning(name + " did not start");
 					}
-					return false;
+					return SERVICE_ERROR;
 				}
 				if(LOG.isLoggable(INFO)) {
 					String name = s.getClass().getName();
@@ -80,19 +90,27 @@ class LifecycleManagerImpl implements LifecycleManager {
 				}
 			}
 			startupLatch.countDown();
-			return true;
+			return SUCCESS;
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return false;
+			return DB_ERROR;
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return false;
+			return DB_ERROR;
+		} finally {
+			startStopSemaphore.release();
 		}
 	}
 
 	public void stopServices() {
 		try {
-			LOG.info("Shutting down");
+			startStopSemaphore.acquire();
+		} catch(InterruptedException e) {
+			LOG.warning("Interrupted while waiting to stop services");
+			return;
+		}
+		try {
+			LOG.info("Stopping services");
 			for(Service s : services) {
 				boolean stopped = s.stop();
 				if(LOG.isLoggable(INFO)) {
@@ -111,6 +129,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			startStopSemaphore.release();
 		}
 	}
 
