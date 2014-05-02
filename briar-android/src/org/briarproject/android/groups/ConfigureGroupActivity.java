@@ -1,5 +1,6 @@
 package org.briarproject.android.groups;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -222,6 +223,7 @@ SelectContactsDialog.Listener {
 			public void run() {
 				Intent i = new Intent(ConfigureGroupActivity.this,
 						GroupActivity.class);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("briar.GROUP_ID", groupId.getBytes());
 				i.putExtra("briar.GROUP_NAME", groupName);
 				startActivity(i);
