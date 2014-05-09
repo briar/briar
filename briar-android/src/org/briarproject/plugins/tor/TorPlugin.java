@@ -376,9 +376,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	 * killed. ActivityManager.killBackgroundProcesses() doesn't seem to work
 	 * in this case, so we must parse the output of ps to get the PID.
 	 * <p>
-	 * On all tested devices, the output consists of a header line followed by
-	 * one line per process. The second column is the PID and the last column
-	 * is the process name, which includes the app's package name.
+	 * On all devices we've tested, the output consists of a header line
+	 * followed by one line per process. The second column is the PID and the
+	 * last column is the process name, which includes the app's package name.
+	 * On some devices tested by the Guardian Project, the first column is the
+	 * PID.
 	 */
 	private void killZombieProcess() {
 		String packageName = "/" + appContext.getPackageName() + "/";
@@ -388,12 +390,21 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			Scanner scanner = new Scanner(ps.getInputStream());
 			// Discard the header line
 			if(scanner.hasNextLine()) scanner.nextLine();
-			// Look for a Tor process with our package name
+			// Look for any Tor processes with our package name
 			boolean found = false;
 			while(scanner.hasNextLine()) {
 				String[] columns = scanner.nextLine().split("\\s+");
-				if(columns.length < 3) break;
-				int pid = Integer.parseInt(columns[1]);
+				if(columns.length < 3) continue;
+				int pid;
+				try {
+					pid = Integer.parseInt(columns[1]);
+				} catch(NumberFormatException e) {
+					try {
+						pid = Integer.parseInt(columns[0]);
+					} catch(NumberFormatException e1) {
+						continue;
+					}
+				}
 				String name = columns[columns.length - 1];
 				if(name.contains(packageName) && name.endsWith("/tor")) {
 					if(LOG.isLoggable(INFO))
