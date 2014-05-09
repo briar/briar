@@ -139,7 +139,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
-				tryToClose(socket);
 				return;
 			}
 			if(LOG.isLoggable(INFO))

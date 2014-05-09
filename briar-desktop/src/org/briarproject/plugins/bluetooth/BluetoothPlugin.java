@@ -157,7 +157,6 @@ class BluetoothPlugin implements DuplexPlugin {
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
-				tryToClose(ss);
 				return;
 			}
 			callback.incomingConnectionCreated(wrapSocket(s));

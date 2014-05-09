@@ -534,7 +534,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
-				tryToClose(ss);
 				return;
 			}
 			LOG.info("Connection received");
