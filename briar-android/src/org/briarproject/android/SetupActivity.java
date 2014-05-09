@@ -10,6 +10,7 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
+import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
@@ -43,16 +44,20 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
-public class SetupActivity extends RoboActivity implements OnClickListener {
+public class SetupActivity extends RoboActivity implements OnClickListener,
+OnEditorActionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(SetupActivity.class.getName());
@@ -142,6 +147,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		passwordConfirmation.setMaxLines(1);
 		inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
 		passwordConfirmation.setInputType(inputType);
+		passwordConfirmation.setOnEditorActionListener(this);
 		layout.addView(passwordConfirmation);
 
 		strengthMeter = new StrengthMeter(this);
@@ -211,6 +217,13 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		char[] c = new char[length];
 		e.getChars(0, length, c, 0);
 		return c;
+	}
+
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		// Hide the soft keyboard
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		return true;
 	}
 
 	public void onClick(View view) {
