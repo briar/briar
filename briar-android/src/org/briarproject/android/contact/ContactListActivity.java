@@ -2,9 +2,11 @@ package org.briarproject.android.contact;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.Menu.NONE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -41,19 +43,26 @@ import org.briarproject.api.transport.ConnectionRegistry;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ContactListActivity extends BriarActivity
-implements OnClickListener, OnItemClickListener, EventListener,
-ConnectionListener {
+implements OnClickListener, OnItemClickListener, OnCreateContextMenuListener,
+EventListener, ConnectionListener {
 
+	private static final int MENU_ITEM_DELETE = 1;
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
 
@@ -88,6 +97,7 @@ ConnectionListener {
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
+		list.setOnCreateContextMenuListener(this);
 		list.setVisibility(GONE);
 		layout.addView(list);
 
@@ -223,13 +233,45 @@ ConnectionListener {
 		startActivity(i);
 	}
 
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view,
+			ContextMenu.ContextMenuInfo info) {
+		String delete = getString(R.string.delete_contact);
+		menu.add(NONE, MENU_ITEM_DELETE, NONE, delete);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem menuItem) {
+		if(menuItem.getItemId() == MENU_ITEM_DELETE) {
+			ContextMenuInfo info = menuItem.getMenuInfo();
+			int position = ((AdapterContextMenuInfo) info).position;
+			ContactListItem item = adapter.getItem(position);
+			removeContact(item.getContact().getId());
+			String deleted = getString(R.string.contact_deleted_toast);
+			Toast.makeText(this, deleted, LENGTH_SHORT).show();
+		}
+		return true;
+	}
+
+	private void removeContact(final ContactId c) {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					db.removeContact(c);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
 	public void eventOccurred(Event e) {
 		if(e instanceof ContactAddedEvent) {
 			loadContacts();
 		} else if(e instanceof ContactRemovedEvent) {
-			// Reload the conversation, expecting NoSuchContactException
-			LOG.info("Contact removed, reloading");
-			reloadContact(((ContactRemovedEvent) e).getContactId());
+			LOG.info("Contact removed");
+			removeItem(((ContactRemovedEvent) e).getContactId());
 		} else if(e instanceof MessageAddedEvent) {
 			LOG.info("Message added, reloading");
 			ContactId source = ((MessageAddedEvent) e).getContactId();
