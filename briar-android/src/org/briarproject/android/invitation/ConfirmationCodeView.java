@@ -6,7 +6,6 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import org.briarproject.R;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,8 +49,8 @@ class ConfirmationCodeView extends AddContactView implements CodeEntryListener {
 		addView(code);
 
 		CodeEntryView codeEntry = new CodeEntryView(ctx);
-		Resources res = getResources();
-		codeEntry.init(this, res.getString(R.string.enter_confirmation_code));
+		String enter = container.getString(R.string.enter_confirmation_code);
+		codeEntry.init(this, enter);
 		addView(codeEntry);
 	}
 

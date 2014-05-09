@@ -39,7 +39,6 @@ import org.briarproject.api.messaging.MessageId;
 import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -168,8 +167,7 @@ implements OnClickListener {
 	private void displayLocalAuthor() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				Resources res = getResources();
-				String format = res.getString(R.string.format_from);
+				String format = getString(R.string.format_from);
 				String name = localAuthor.getName();
 				from.setText(String.format(format, name));
 				sendButton.setEnabled(true);

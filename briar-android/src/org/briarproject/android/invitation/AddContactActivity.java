@@ -139,7 +139,7 @@ implements InvitationListener {
 	}
 
 	private void showToastAndFinish() {
-		String format = getResources().getString(R.string.contact_added_toast);
+		String format = getString(R.string.contact_added_toast);
 		String text = String.format(format, contactName);
 		Toast.makeText(this, text, LENGTH_LONG).show();
 		finish();

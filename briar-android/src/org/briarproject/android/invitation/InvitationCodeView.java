@@ -5,7 +5,6 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import org.briarproject.R;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.widget.TextView;
 
 class InvitationCodeView extends AddContactView implements CodeEntryListener {
@@ -32,8 +31,8 @@ class InvitationCodeView extends AddContactView implements CodeEntryListener {
 		addView(code);
 
 		CodeEntryView codeEntry = new CodeEntryView(ctx);
-		Resources res = getResources();
-		codeEntry.init(this, res.getString(R.string.enter_invitation_code));
+		String enter = container.getString(R.string.enter_invitation_code);
+		codeEntry.init(this, enter);
 		addView(codeEntry);
 	}
 

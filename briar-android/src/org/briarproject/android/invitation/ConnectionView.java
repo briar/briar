@@ -44,7 +44,7 @@ class ConnectionView extends AddContactView {
 
 		TextView connecting = new TextView(ctx);
 		int remoteCode = container.getRemoteInvitationCode();
-		String format = ctx.getResources().getString(R.string.searching_format);
+		String format = container.getString(R.string.searching_format);
 		connecting.setText(String.format(format, remoteCode));
 		innerLayout.addView(connecting);
 
