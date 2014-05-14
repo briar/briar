@@ -61,7 +61,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	static final TransportId ID = new TransportId("tor");
 
 	private static final String[] EVENTS = { 
-		"CIRC", "STREAM", "ORCONN", "NOTICE", "WARN", "ERR"
+		"CIRC", "ORCONN", "NOTICE", "WARN", "ERR"
 	};
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
@@ -210,6 +210,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		// Open a control connection and authenticate using the cookie file
 		controlConnection = new TorControlConnection(controlSocket);
 		controlConnection.authenticate(read(cookieFile));
+		// Tell Tor to exit when the control connection is closed
+		controlConnection.takeOwnership();
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList(EVENTS));
@@ -632,10 +634,14 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		throw new UnsupportedOperationException();
 	}
 
-	public void circuitStatus(String status, String id, String path) {
+	public void circuitStatus(String status, String id, String path,
+			String flags, String purpose, String hsState) {
 		if(LOG.isLoggable(INFO)) {
-			if(!"EXTENDED".equals(status))
-				LOG.info("Circuit " + id + " " + status);
+			String msg = "Circuit " + id + " " + status;
+			if(flags.length() > 0) msg += ", flags: " + flags;
+			if(purpose.length() > 0) msg += ", purpose: " + purpose;
+			if(hsState.length() > 0) msg += ", state: " + hsState;
+			LOG.info(msg);
 		}
 		if("BUILT".equals(status) && firstCircuit.getAndSet(false)) {
 			LOG.info("First circuit built");
@@ -643,9 +649,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 	}
 
-	public void streamStatus(String status, String id, String target) {
-		if(LOG.isLoggable(INFO)) LOG.info("Stream " + id + " " + status);
-	}
+	public void streamStatus(String status, String id, String target) {}
 
 	public void orConnStatus(String status, String orName) {
 		if(LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
@@ -659,7 +663,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		if(LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);		
 	}
 
-	public void unrecognized(String type, String msg) {}
+	public void unrecognized(String type, String msg) {
+		if(LOG.isLoggable(INFO)) LOG.info(type + " " + msg);
+	}
 
 	private static class WriteObserver extends FileObserver {
 
