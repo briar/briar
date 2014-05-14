@@ -1,22 +1,38 @@
 diff -Bbur jtorctl/net/freehaven/tor/control/EventHandler.java jtorctl-briar/net/freehaven/tor/control/EventHandler.java
 --- jtorctl/net/freehaven/tor/control/EventHandler.java	2014-04-02 11:26:56.000000000 +0100
-+++ jtorctl-briar/net/freehaven/tor/control/EventHandler.java	2014-05-14 14:30:46.932545643 +0100
-@@ -20,10 +20,15 @@
++++ jtorctl-briar/net/freehaven/tor/control/EventHandler.java	2014-05-14 16:54:29.291301601 +0100
+@@ -2,6 +2,9 @@
+ // See LICENSE file for copying information
+ package net.freehaven.tor.control;
+ 
++import java.util.List;
++import java.util.Map;
++
+ /**
+  * Abstract interface whose methods are invoked when Tor sends us an event.
+  *
+@@ -20,10 +23,21 @@
       *   <li>"CLOSED"   :  circuit closed (was built)</li>
       *	</ul>
       * 
 -     * <b>circID</b> is the alphanumeric identifier of the affected circuit,
 -     * and <b>path</b> is a comma-separated list of alphanumeric ServerIDs.
 +     * <b>circID</b> is the alphanumeric identifier of the affected circuit.
-+     * <b>path</b> is a comma-separated list of alphanumeric ServerIDs.
-+     * <b>flags</b> is a comma-separated list of the circuit's build flags.
-+     * <b>purpose</b> describes the purpose of the circuit.
-+     * <b>hsState</b> describes the state of the circuit if it is a hidden
-+     * service circuit.
++     * <b>path</b> contains the alphanumeric ServerIDs of the circuit's routers.
++     * <b>info</b> may include some or all of the following entries:
++     * <ul>
++     *   <li>BUILD_FLAGS: a comma-separated list of the circuit's build
++     *   flags.</li>
++     *   <li>PURPOSE: the purpose of the circuit.</li>
++     *   <li>HS_STATE: the state of the circuit if it is a hidden service
++     *   circuit.</li>
++     *   <li>REND_QUERY: the hidden service address if the circuit is a
++     *   hidden service circuit.</li>
++     * </ul>
       */
 -    public void circuitStatus(String status, String circID, String path);
-+    public void circuitStatus(String status, String circID, String path,
-+                              String flags, String purpose, String hsState);
++    public void circuitStatus(String status, String circID, List<String> path,
++                              Map<String, String> info);
      /**
       * Invoked when a stream's status has changed.
       * Possible values for <b>status</b> are:
@@ -175,14 +191,22 @@ diff -Bbur jtorctl/net/freehaven/tor/control/examples/Main.java jtorctl-briar/ne
      }
 diff -Bbur jtorctl/net/freehaven/tor/control/NullEventHandler.java jtorctl-briar/net/freehaven/tor/control/NullEventHandler.java
 --- jtorctl/net/freehaven/tor/control/NullEventHandler.java	2014-04-02 11:26:56.000000000 +0100
-+++ jtorctl-briar/net/freehaven/tor/control/NullEventHandler.java	2014-05-14 14:33:04.821229388 +0100
-@@ -7,7 +7,8 @@
++++ jtorctl-briar/net/freehaven/tor/control/NullEventHandler.java	2014-05-14 16:54:43.219370671 +0100
+@@ -2,12 +2,16 @@
+ // See LICENSE file for copying information
+ package net.freehaven.tor.control;
+ 
++import java.util.List;
++import java.util.Map;
++
+ /**
+  * Implementation of EventHandler that ignores all events.  Useful
   * when you only want to override one method.
   */
  public class NullEventHandler implements EventHandler {
 -    public void circuitStatus(String status, String circID, String path) {}
-+    public void circuitStatus(String status, String circID, String path,
-+                              String flags, String purpose, String hsState) {}
++    public void circuitStatus(String status, String circID, List<String> path,
++                              Map<String, String> info) {}
      public void streamStatus(String status, String streamID, String target) {}
      public void orConnStatus(String status, String orName) {}
      public void bandwidthUsed(long read, long written) {}
@@ -241,8 +265,8 @@ diff -Bbur jtorctl/net/freehaven/tor/control/PasswordDigest.java jtorctl-briar/n
  
 diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java
 --- jtorctl/net/freehaven/tor/control/TorControlConnection.java	2014-04-02 11:26:56.000000000 +0100
-+++ jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java	2014-05-14 15:25:20.908780406 +0100
-@@ -2,96 +2,93 @@
++++ jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java	2014-05-14 16:59:18.428735366 +0100
+@@ -2,96 +2,94 @@
  // See LICENSE file for copying information
  package net.freehaven.tor.control;
  
@@ -261,6 +285,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
  import java.util.ArrayList;
 +import java.util.Arrays;
  import java.util.Collection;
++import java.util.Collections;
  import java.util.HashMap;
 -import java.util.Iterator;
  import java.util.LinkedList;
@@ -382,7 +407,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          StringTokenizer st = new StringTokenizer(s, "\n");
          while (st.hasMoreTokens()) {
              String line = st.nextToken();
-@@ -110,12 +107,11 @@
+@@ -110,12 +108,11 @@
              debugOutput.print(">> .\n");
      }
  
@@ -398,7 +423,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
                  case '\r':
                  case '\n':
                  case '\\':
-@@ -128,7 +124,7 @@
+@@ -128,7 +125,7 @@
          return sb.toString();
      }
  
@@ -407,7 +432,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          ArrayList<ReplyLine> reply = new ArrayList<ReplyLine>();
          char c;
          do {
-@@ -153,7 +149,7 @@
+@@ -153,7 +150,7 @@
              String msg = line.substring(4);
              String rest = null;
              if (c == '+') {
@@ -416,7 +441,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
                  while (true) {
                      line = input.readLine();
                      if (debugOutput != null)
-@@ -172,8 +168,9 @@
+@@ -172,8 +169,9 @@
          return reply;
      }
  
@@ -428,7 +453,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          checkThread();
          Waiter w = new Waiter();
          if (debugOutput != null)
-@@ -185,38 +182,55 @@
+@@ -185,38 +183,58 @@
              output.flush();
              waiters.addLast(w);
          }
@@ -466,31 +491,34 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
              String tp = line.msg.substring(0, idx).toUpperCase();
              String rest = line.msg.substring(idx+1);
              if (tp.equals("CIRC")) {
-+                String path = "", flags = "", purpose = "", hsState = "";
                  List<String> lst = Bytes.splitStr(null, rest);
 -                handler.circuitStatus(lst.get(1),
 -                                      lst.get(0),
 -                                      lst.get(1).equals("LAUNCHED")
 -                                          || lst.size() < 2 ? ""
 -                                          : lst.get(2));
-+                for(int i = 2; i < lst.size(); i++) {
-+                    String arg = lst.get(i);
-+                    idx = arg.indexOf('=');
-+                    if (idx == -1) {
-+                        path = arg;
-+                    } else {
-+                        String key = arg.substring(0, idx).toUpperCase();
-+                        String value = arg.substring(idx+1);
-+                        if (key.equals("BUILDFLAGS"))
-+                            flags = value;
-+                        else if (key.equals("PURPOSE"))
-+                            purpose = value;
-+                        else if (key.equals("HS_STATE"))
-+                            hsState = value;
++                int size = lst.size(), firstKeyValue;
++                List<String> path;
++                if (size < 3 || lst.get(1).equals("LAUNCHED")) {
++                    path = Collections.emptyList();
++                    firstKeyValue = 2;
++                } else {
++                    path = Arrays.asList(lst.get(2).split(","));
++                    path = Collections.unmodifiableList(path);
++                    firstKeyValue = 3;
++                }
++                Map<String, String> info = new HashMap<String, String>();
++                for (int i = firstKeyValue; i < size; i++) {
++                    String kv = lst.get(i);
++                    idx = kv.indexOf('=');
++                    if (idx >= 0) {
++                        String key = kv.substring(0, idx);
++                        String value = kv.substring(idx+1);
++                        info.put(key, value);
 +                    }
 +                }
-+                handler.circuitStatus(lst.get(1), lst.get(0), path, flags,
-+                                      purpose, hsState);
++                info = Collections.unmodifiableMap(info);
++                handler.circuitStatus(lst.get(1), lst.get(0), path, info);
              } else if (tp.equals("STREAM")) {
                  List<String> lst = Bytes.splitStr(null, rest);
 -                handler.streamStatus(lst.get(1),
@@ -500,7 +528,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
                  // XXXX circID.
              } else if (tp.equals("ORCONN")) {
                  List<String> lst = Bytes.splitStr(null, rest);
-@@ -240,23 +254,22 @@
+@@ -240,23 +258,22 @@
          }
      }
  
@@ -531,7 +559,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
      }
  
      /** Set the EventHandler object that will be notified of any
-@@ -271,50 +284,43 @@
+@@ -271,50 +288,43 @@
       * This is necessary to handle asynchronous events and synchronous
       * responses that arrive independantly over the same socket.
       */
@@ -591,7 +619,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
                  Waiter w;
                  synchronized (waiters) {
                      w = waiters.removeFirst();
-@@ -324,20 +330,16 @@
+@@ -324,20 +334,16 @@
          }
      }
  
@@ -616,7 +644,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          }
          setConf(lst);
      }
-@@ -345,34 +347,33 @@
+@@ -345,34 +351,33 @@
      /** Changes the values of the configuration options stored in
       * <b>kvList</b>.  Each list element in <b>kvList</b> is expected to be
       * String of the format "key value".
@@ -658,7 +686,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          }
          b.append("\r\n");
          sendAndWaitForResponse(b.toString(), null);
-@@ -384,9 +385,8 @@
+@@ -384,9 +389,8 @@
      public void resetConf(Collection<String> keys) throws IOException {
          if (keys.size() == 0)
              return;
@@ -670,7 +698,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
              b.append(" ").append(key);
          }
          b.append("\r\n");
-@@ -402,10 +402,10 @@
+@@ -402,10 +406,10 @@
  
      /** Requests the values of the configuration variables listed in <b>keys</b>.
       * Results are returned as a list of ConfigEntry objects.
@@ -683,7 +711,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
       * Some options are context-sensitive, and depend on other options with
       * different keywords.  These cannot be fetched directly.  Currently there
       * is only one such option: clients should use the "HiddenServiceOptions"
-@@ -413,61 +413,63 @@
+@@ -413,61 +417,63 @@
       * HiddenServiceNodes, and HiddenServiceExcludeNodes option settings.
       */
      public List<ConfigEntry> getConf(Collection<String> keys) throws IOException {
@@ -767,7 +795,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
       * To authenticate under this scheme, the controller sends Tor the original
       * secret that was used to generate the password.
       */
-@@ -505,9 +507,6 @@
+@@ -505,9 +511,6 @@
          Waiter w = new Waiter();
          if (debugOutput != null)
              debugOutput.print(">> "+s);
@@ -777,7 +805,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          synchronized (waiters) {
              output.write(s);
              output.flush();
-@@ -519,7 +518,7 @@
+@@ -519,7 +522,7 @@
       * addresses should be replaced with connections to the specified replacement
       * addresses.  Each element of <b>kvLines</b> is a String of the form
       * "old-address new-address".  This function returns the new address mapping.
@@ -786,7 +814,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
       * The client may decline to provide a body for the original address, and
       * instead send a special null address ("0.0.0.0" for IPv4, "::0" for IPv6, or
       * "." for hostname), signifying that the server should choose the original
-@@ -527,56 +526,52 @@
+@@ -527,56 +530,52 @@
       * should ensure that it returns an element of address space that is unlikely
       * to be in actual use.  If there is already an address mapped to the
       * destination address, the server may reuse that mapping.
@@ -856,7 +884,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
       * Recognized keys include:
       * <ul>
       * <li>"version" : The version of the server's software, including the name
-@@ -605,17 +600,16 @@
+@@ -605,17 +604,16 @@
       * </ul>
       */
      public Map<String,String> getInfo(Collection<String> keys) throws IOException {
@@ -879,7 +907,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
                  break;
              String k = line.msg.substring(0,idx);
              String v;
-@@ -629,13 +623,9 @@
+@@ -629,13 +627,9 @@
          return m;
      }
      
@@ -895,7 +923,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          return  m.get(key);
      }
  
-@@ -644,40 +634,39 @@
+@@ -644,40 +638,39 @@
       * to the specified path, or the <b>circID</b> is nonzero, in which case it is a
       * request for the server to extend an existing circuit with that ID according
       * to the specified <b>path</b>.
@@ -943,7 +971,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
       * The descriptor, when parsed, must contain a number of well-specified
       * fields, including fields for its nickname and identity.
       */
-@@ -685,12 +674,12 @@
+@@ -685,12 +678,12 @@
      // No need for return value?  control-spec.txt says reply is merely "250 OK" on success...
      public String postDescriptor(String desc) throws IOException {
          List<ReplyLine> lst = sendAndWaitForResponse("+POSTDESCRIPTOR\r\n", desc);
@@ -958,7 +986,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
       * To be sure that the modified address will be used, this event must be sent
       * after a new stream event is received, and before attaching this stream to
       * a circuit.
-@@ -720,8 +709,7 @@
+@@ -720,8 +713,7 @@
       *
       * Tor may hold the stream open for a while to flush any data that is pending.
       */
@@ -968,7 +996,7 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
          sendAndWaitForResponse("CLOSESTREAM "+streamID+" "+reason+"\r\n",null);
      }
  
-@@ -729,8 +717,15 @@
+@@ -729,8 +721,15 @@
       * If <b>ifUnused</b> is true, do not close the circuit unless it is unused.
       */
      public void closeCircuit(String circID, boolean ifUnused) throws IOException {
