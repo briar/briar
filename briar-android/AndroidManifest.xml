@@ -32,7 +32,8 @@
 		<activity
 			android:name=".android.CrashReportActivity"
 			android:logo="@drawable/logo"
-			android:label="@string/crash_report_title" >
+			android:label="@string/crash_report_title"
+			android:exported="false" >
 			<intent-filter>
 				<action android:name="org.briarproject.REPORT_CRASH" />
 				<category android:name="android.intent.category.DEFAULT" />
