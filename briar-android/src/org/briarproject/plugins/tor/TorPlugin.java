@@ -61,7 +61,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	static final TransportId ID = new TransportId("tor");
 
-	private static final String[] EVENTS = { 
+	private static final String[] EVENTS = {
 		"CIRC", "ORCONN", "NOTICE", "WARN", "ERR"
 	};
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
@@ -81,9 +81,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final long maxLatency, pollingInterval;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, pidFile, hostnameFile;
-	private final AtomicBoolean firstCircuit;
+	private final AtomicBoolean circuitBuilt;
 
 	private volatile boolean running = false, networkEnabled = false;
+	private volatile boolean bootstrapped = false;
 	private volatile Process tor = null;
 	private volatile int pid = -1;
 	private volatile ServerSocket socket = null;
@@ -111,7 +112,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
 		pidFile = new File(torDirectory, ".tor/pid");
 		hostnameFile = new File(torDirectory, "hostname");
-		firstCircuit = new AtomicBoolean(true);
+		circuitBuilt = new AtomicBoolean(false);
 	}
 
 	public TransportId getId() {
@@ -133,9 +134,12 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			LOG.info("Tor is already running");
 			if(readPidFile() == -1) {
+				LOG.info("Could not read PID of Tor process");
 				controlSocket.close();
 				killZombieProcess();
 				startProcess = true;
+			} else {
+				bootstrapped = true;
 			}
 		} catch(IOException e) {
 			LOG.info("Tor is not running");
@@ -548,9 +552,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private void enableNetwork(boolean enable) throws IOException {
 		if(!running) return;
 		if(LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
-		if(!enable) firstCircuit.set(true);
-		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
+		if(!enable) circuitBuilt.set(false);
 		networkEnabled = enable;
+		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 	}
 
 	public void stop() throws IOException {
@@ -577,7 +581,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	public boolean isRunning() {
-		return running && networkEnabled;
+		return running && networkEnabled && bootstrapped && circuitBuilt.get();
 	}
 
 	public boolean shouldPoll() {
@@ -648,9 +652,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			if(!path.isEmpty()) msg += ", path: " + shortenPath(path);
 			LOG.info(msg);
 		}
-		if("BUILT".equals(status) && firstCircuit.getAndSet(false)) {
+		if(status.equals("BUILT") && !circuitBuilt.getAndSet(true)) {
 			LOG.info("First circuit built");
-			callback.pollNow();
+			if(isRunning()) callback.pollNow();
 		}
 	}
 
@@ -674,7 +678,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	public void newDescriptors(List<String> orList) {}
 
 	public void message(String severity, String msg) {
-		if(LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);		
+		if(LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
+		if(severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
+			bootstrapped = true;
+			if(isRunning()) callback.pollNow();
+		}
 	}
 
 	public void unrecognized(String type, String msg) {
@@ -690,6 +698,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			this.latch = latch;
 		}
 
+		@Override
 		public void onEvent(int event, String path) {
 			stopWatching();
 			latch.countDown();
