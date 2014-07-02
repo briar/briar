@@ -138,8 +138,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				controlSocket.close();
 				killZombieProcess();
 				startProcess = true;
-			} else {
-				bootstrapped = true;
 			}
 		} catch(IOException e) {
 			LOG.info("Tor is not running");
@@ -220,6 +218,14 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList(EVENTS));
+		// If Tor was already running, find out whether it's bootstrapped
+		if(!startProcess) {
+			String phase = controlConnection.getInfo("status/bootstrap-phase");
+			if(phase != null && phase.contains("PROGRESS=100")) {
+				LOG.info("Tor has already bootstrapped");
+				bootstrapped = true;
+			}
+		}
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
 		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
