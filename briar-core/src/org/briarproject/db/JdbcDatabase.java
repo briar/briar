@@ -1077,8 +1077,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsVisibleGroup(Connection txn, ContactId c,
-			GroupId g) throws DbException {
+	public boolean containsVisibleGroup(Connection txn, ContactId c, GroupId g)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {

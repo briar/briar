@@ -1133,9 +1133,11 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		// FIXME: MessageAddedEvent should only be broadcast if msg is visible
-		if(visible) callListeners(new MessageToAckEvent(c));
-		if(!duplicate) callListeners(new MessageAddedEvent(m.getGroup(), c));
+		if(visible) {
+			if(!duplicate)
+				callListeners(new MessageAddedEvent(m.getGroup(), c));
+			callListeners(new MessageToAckEvent(c));
+		}
 	}
 
 	public void receiveOffer(ContactId c, Offer o) throws DbException {

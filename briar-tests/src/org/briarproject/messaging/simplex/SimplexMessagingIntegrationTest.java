@@ -25,7 +25,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.messaging.GroupFactory;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageVerifier;
@@ -59,7 +59,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
-	private final Group group;
 	private final TransportId transportId;
 	private final byte[] initialSecret;
 	private final long epoch;
@@ -67,8 +66,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private Injector alice, bob;
 
 	public SimplexMessagingIntegrationTest() throws Exception {
-		GroupId groupId = new GroupId(TestUtils.getRandomId());
-		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH]);
 		transportId = new TransportId("id");
 		// Create matching secrets for Alice and Bob
 		initialSecret = new byte[32];
@@ -77,6 +74,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		epoch = System.currentTimeMillis() - 2 * rotationPeriod;
 	}
 
+	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -88,7 +86,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		return Guice.createInjector(new TestDatabaseModule(dir),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new MessagingModule(),
-				new DuplexMessagingModule(), new SimplexMessagingModule(), 
+				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new SerialModule(), new TransportModule());
 	}
 
@@ -122,6 +120,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = db.addContact(bobAuthor, aliceId);
 		// Add the inbox group
+		GroupFactory gf = alice.getInstance(GroupFactory.class);
+		Group group = gf.createGroup("Group", new byte[GROUP_SALT_LENGTH]);
 		db.addGroup(group);
 		db.setInboxGroup(contactId, group);
 		// Add the transport and the endpoint
@@ -181,6 +181,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = db.addContact(aliceAuthor, bobId);
 		// Add the inbox group
+		GroupFactory gf = bob.getInstance(GroupFactory.class);
+		Group group = gf.createGroup("Group", new byte[GROUP_SALT_LENGTH]);
 		db.addGroup(group);
 		db.setInboxGroup(contactId, group);
 		// Add the transport and the endpoint
@@ -228,6 +230,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.close();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
@@ -235,7 +238,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private static class MessageListener implements EventListener {
 
-		private boolean messageAdded = false;
+		private volatile boolean messageAdded = false;
 
 		public void eventOccurred(Event e) {
 			if(e instanceof MessageAddedEvent) messageAdded = true;
