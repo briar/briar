@@ -276,7 +276,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveAck implements Runnable {
 
 		private final Ack ack;
@@ -315,7 +315,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveMessage implements Runnable {
 
 		private final Message message;
@@ -334,7 +334,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveOffer implements Runnable {
 
 		private final Offer offer;
@@ -353,7 +353,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveRequest implements Runnable {
 
 		private final Request request;
@@ -372,7 +372,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveRetentionAck implements Runnable {
 
 		private final RetentionAck ack;
@@ -391,7 +391,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveRetentionUpdate implements Runnable {
 
 		private final RetentionUpdate update;
@@ -410,7 +410,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveSubscriptionAck implements Runnable {
 
 		private final SubscriptionAck ack;
@@ -429,7 +429,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveSubscriptionUpdate implements Runnable {
 
 		private final SubscriptionUpdate update;
@@ -448,7 +448,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveTransportAck implements Runnable {
 
 		private final TransportAck ack;
@@ -467,7 +467,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class ReceiveTransportUpdate implements Runnable {
 
 		private final TransportUpdate update;
@@ -486,7 +486,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateAck implements Runnable {
 
 		public void run() {
@@ -525,7 +525,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateBatch implements Runnable {
 
 		public void run() {
@@ -564,7 +564,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateOffer implements Runnable {
 
 		public void run() {
@@ -603,7 +603,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateRequest implements Runnable {
 
 		public void run() {
@@ -642,7 +642,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateRetentionAck implements Runnable {
 
 		public void run() {
@@ -679,7 +679,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateRetentionUpdate implements Runnable {
 
 		public void run() {
@@ -717,7 +717,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateSubscriptionAck implements Runnable {
 
 		public void run() {
@@ -754,7 +754,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateSubscriptionUpdate implements Runnable {
 
 		public void run() {
@@ -792,7 +792,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateTransportAcks implements Runnable {
 
 		public void run() {
@@ -830,7 +830,7 @@ abstract class DuplexConnection implements EventListener {
 		}
 	}
 
-	// This task runs on a database thread
+	// This task runs on the database thread
 	private class GenerateTransportUpdates implements Runnable {
 
 		public void run() {
