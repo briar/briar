@@ -71,8 +71,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " value VARCHAR NOT NULL,"
 					+ " PRIMARY KEY (key))";
 
-	// Locking: identity
-	// Dependents: contact, message, retention, subscription, transport, window
 	private static final String CREATE_LOCAL_AUTHORS =
 			"CREATE TABLE localAuthors"
 					+ " (authorId HASH NOT NULL,"
@@ -82,8 +80,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " created BIGINT NOT NULL,"
 					+ " PRIMARY KEY (authorId))";
 
-	// Locking: contact
-	// Dependents: message, retention, subscription, transport, window
 	private static final String CREATE_CONTACTS =
 			"CREATE TABLE contacts"
 					+ " (contactId COUNTER,"
@@ -97,8 +93,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES localAuthors (authorId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: subscription
-	// Dependents: message
 	private static final String CREATE_GROUPS =
 			"CREATE TABLE groups"
 					+ " (groupId HASH NOT NULL,"
@@ -107,7 +101,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " visibleToAll BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
-	// Locking: subscription
 	private static final String CREATE_GROUP_VISIBILITIES =
 			"CREATE TABLE groupVisibilities"
 					+ " (contactId INT NOT NULL,"
@@ -121,7 +114,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES groups (groupId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: subscription
 	private static final String CREATE_CONTACT_GROUPS =
 			"CREATE TABLE contactGroups"
 					+ " (contactId INT NOT NULL,"
@@ -133,7 +125,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: subscription
 	private static final String CREATE_GROUP_VERSIONS =
 			"CREATE TABLE groupVersions"
 					+ " (contactId INT NOT NULL,"
@@ -148,7 +139,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: message
 	private static final String CREATE_MESSAGES =
 			"CREATE TABLE messages"
 					+ " (messageId HASH NOT NULL,"
@@ -182,7 +172,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: message
 	private static final String CREATE_STATUSES =
 			"CREATE TABLE statuses"
 					+ " (messageId HASH NOT NULL,"
@@ -206,7 +195,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_STATUSES_BY_CONTACT =
 			"CREATE INDEX statusesByContact ON statuses (contactId)";
 
-	// Locking: retention
 	private static final String CREATE_RETENTION_VERSIONS =
 			"CREATE TABLE retentionVersions"
 					+ " (contactId INT NOT NULL,"
@@ -222,15 +210,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: transport
-	// Dependents: window
 	private static final String CREATE_TRANSPORTS =
 			"CREATE TABLE transports"
 					+ " (transportId VARCHAR NOT NULL,"
 					+ " maxLatency BIGINT NOT NULL,"
 					+ " PRIMARY KEY (transportId))";
 
-	// Locking: transport
 	private static final String CREATE_TRANSPORT_CONFIGS =
 			"CREATE TABLE transportConfigs"
 					+ " (transportId VARCHAR NOT NULL,"
@@ -241,7 +226,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: transport
 	private static final String CREATE_TRANSPORT_PROPS =
 			"CREATE TABLE transportProperties"
 					+ " (transportId VARCHAR NOT NULL,"
@@ -252,7 +236,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: transport
 	private static final String CREATE_TRANSPORT_VERSIONS =
 			"CREATE TABLE transportVersions"
 					+ " (contactId INT NOT NULL,"
@@ -269,7 +252,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: transport
 	private static final String CREATE_CONTACT_TRANSPORT_PROPS =
 			"CREATE TABLE contactTransportProperties"
 					+ " (contactId INT NOT NULL,"
@@ -281,7 +263,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: transport
 	private static final String CREATE_CONTACT_TRANSPORT_VERSIONS =
 			"CREATE TABLE contactTransportVersions"
 					+ " (contactId INT NOT NULL,"
@@ -293,7 +274,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: window
 	private static final String CREATE_ENDPOINTS =
 			"CREATE TABLE endpoints"
 					+ " (contactId INT NOT NULL,"
@@ -308,7 +288,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: window
 	private static final String CREATE_SECRETS =
 			"CREATE TABLE secrets"
 					+ " (contactId INT NOT NULL,"
