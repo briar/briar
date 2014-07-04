@@ -5,14 +5,18 @@ import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
+
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+
 import javax.inject.Inject;
+
 import org.briarproject.android.BriarService.BriarBinder;
 import org.briarproject.android.BriarService.BriarServiceConnection;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+
 import roboguice.activity.RoboActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -35,7 +39,7 @@ public class BriarActivity extends RoboActivity {
 	private boolean bound = false;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
@@ -113,7 +117,7 @@ public class BriarActivity extends RoboActivity {
 	}
 
 	protected void runOnDbThread(final Runnable task) {
-		dbUiExecutor.execute(new Runnable() {
+		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();

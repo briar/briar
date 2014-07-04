@@ -18,9 +18,9 @@ import org.briarproject.R;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
@@ -56,7 +56,7 @@ public class BriarService extends RoboService implements EventListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile AndroidExecutor androidExecutor;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
 	@Inject private volatile DatabaseComponent db;
 	private volatile boolean started = false;
 
@@ -130,6 +130,7 @@ public class BriarService extends RoboService implements EventListener {
 		return START_NOT_STICKY; // Don't restart automatically if killed
 	}
 
+	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
 	}
@@ -170,7 +171,7 @@ public class BriarService extends RoboService implements EventListener {
 	}
 
 	private void showMessageNotification(final GroupId g, final ContactId c) {
-		dbUiExecutor.execute(new Runnable() {
+		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
