@@ -38,7 +38,6 @@ import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -64,6 +63,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private static final String[] EVENTS = {
 		"CIRC", "ORCONN", "NOTICE", "WARN", "ERR"
 	};
+	private static final String OWNER = "__OwningControllerProcess";
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
 	private static final int HOSTNAME_TIMEOUT = 30 * 1000; // Milliseconds
@@ -75,31 +75,26 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final Executor pluginExecutor;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
-	private final ShutdownManager shutdownManager;
 	private final DuplexPluginCallback callback;
 	private final int maxFrameLength;
 	private final long maxLatency, pollingInterval;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
-	private final File cookieFile, pidFile, hostnameFile;
+	private final File cookieFile, hostnameFile;
 	private final AtomicBoolean circuitBuilt;
 
 	private volatile boolean running = false, networkEnabled = false;
 	private volatile boolean bootstrapped = false;
-	private volatile Process tor = null;
-	private volatile int pid = -1;
 	private volatile ServerSocket socket = null;
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor pluginExecutor, Context appContext,
-			LocationUtils locationUtils, ShutdownManager shutdownManager,
-			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
-			long pollingInterval) {
+			LocationUtils locationUtils, DuplexPluginCallback callback,
+			int maxFrameLength, long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
-		this.shutdownManager = shutdownManager;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
@@ -110,7 +105,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		pidFile = new File(torDirectory, ".tor/pid");
 		hostnameFile = new File(torDirectory, "hostname");
 		circuitBuilt = new AtomicBoolean(false);
 	}
@@ -133,17 +127,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		try {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			LOG.info("Tor is already running");
-			if(readPidFile() == -1) {
-				LOG.info("Could not read PID of Tor process");
-				controlSocket.close();
-				killZombieProcess();
-				startProcess = true;
-			}
 		} catch(IOException e) {
 			LOG.info("Tor is not running");
 			startProcess = true;
-		}
-		if(startProcess) {
 			// Install the binary, possibly overwriting an older version
 			if(!installBinary()) {
 				LOG.warning("Could not install Tor binary");
@@ -164,23 +150,25 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			// Start a new Tor process
 			String torPath = torFile.getAbsolutePath();
 			String configPath = configFile.getAbsolutePath();
-			String[] cmd = { torPath, "-f", configPath };
+			String pid = String.valueOf(android.os.Process.myPid());
+			String[] cmd = { torPath, "-f", configPath, OWNER, pid };
 			String[] env = { "HOME=" + torDirectory.getAbsolutePath() };
+			Process torProcess;
 			try {
-				tor = Runtime.getRuntime().exec(cmd, env, torDirectory);
+				torProcess = Runtime.getRuntime().exec(cmd, env, torDirectory);
 			} catch(SecurityException e1) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e1.toString(), e1);
 				return false;
 			}
 			// Log the process's standard output until it detaches
 			if(LOG.isLoggable(INFO)) {
-				Scanner stdout = new Scanner(tor.getInputStream());
+				Scanner stdout = new Scanner(torProcess.getInputStream());
 				while(stdout.hasNextLine()) LOG.info(stdout.nextLine());
 				stdout.close();
 			}
 			try {
 				// Wait for the process to detach or exit
-				int exit = tor.waitFor();
+				int exit = torProcess.waitFor();
 				if(exit != 0) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Tor exited with value " + exit);
@@ -201,20 +189,12 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 		}
 		running = true;
-		// Read the PID of the Tor process so we can kill it if necessary
-		pid = readPidFile();
-		// Create a shutdown hook to ensure the Tor process is killed
-		shutdownManager.addShutdownHook(new Runnable() {
-			public void run() {
-				killTorProcess();
-				killZombieProcess();
-			}
-		});
 		// Open a control connection and authenticate using the cookie file
 		controlConnection = new TorControlConnection(controlSocket);
 		controlConnection.authenticate(read(cookieFile));
 		// Tell Tor to exit when the control connection is closed
 		controlConnection.takeOwnership();
+		controlConnection.resetConf(Arrays.asList(OWNER));
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList(EVENTS));
@@ -370,83 +350,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 	}
 
-	private int readPidFile() {
-		// Read the PID of the Tor process so we can kill it if necessary
-		try {
-			return Integer.parseInt(new String(read(pidFile), "UTF-8").trim());
-		} catch(IOException e) {
-			LOG.warning("Could not read PID file");
-		} catch(NumberFormatException e) {
-			LOG.warning("Could not parse PID file");
-		}
-		return -1;
-	}
-
-	/*
-	 * If the app crashes, leaving a Tor process running, and the user clears
-	 * the app's data, removing the PID file and auth cookie file, it's no
-	 * longer possible to communicate with the zombie process and it must be
-	 * killed. ActivityManager.killBackgroundProcesses() doesn't seem to work
-	 * in this case, so we must parse the output of ps to get the PID.
-	 * <p>
-	 * On all devices we've tested, the output consists of a header line
-	 * followed by one line per process. The second column is the PID and the
-	 * last column is the process name, which includes the app's package name.
-	 * On some devices tested by the Guardian Project, the first column is the
-	 * PID.
-	 */
-	private void killZombieProcess() {
-		String packageName = "/" + appContext.getPackageName() + "/";
-		try {
-			// Parse the output of ps
-			Process ps = Runtime.getRuntime().exec("ps");
-			Scanner scanner = new Scanner(ps.getInputStream());
-			// Discard the header line
-			if(scanner.hasNextLine()) scanner.nextLine();
-			// Look for any Tor processes with our package name
-			boolean found = false;
-			while(scanner.hasNextLine()) {
-				String[] columns = scanner.nextLine().split("\\s+");
-				if(columns.length < 3) continue;
-				int pid;
-				try {
-					pid = Integer.parseInt(columns[1]);
-				} catch(NumberFormatException e) {
-					try {
-						pid = Integer.parseInt(columns[0]);
-					} catch(NumberFormatException e1) {
-						continue;
-					}
-				}
-				String name = columns[columns.length - 1];
-				if(name.contains(packageName) && name.endsWith("/tor")) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Killing zombie process " + pid);
-					android.os.Process.killProcess(pid);
-					found = true;
-				}
-			}
-			if(!found) LOG.info("No zombies found");
-			scanner.close();
-		} catch(IOException e) {
-			LOG.warning("Could not parse ps output");
-		} catch(SecurityException e) {
-			LOG.warning("Could not execute ps");
-		}
-	}
-
-	private void killTorProcess() {
-		if(tor != null) {
-			LOG.info("Killing Tor via destroy()");
-			tor.destroy();
-		}
-		if(pid != -1) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Killing Tor via killProcess(" + pid + ")");
-			android.os.Process.killProcess(pid);
-		}
-	}
-
 	private void bind() {
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
@@ -581,8 +484,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			controlSocket.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			killTorProcess();
-			killZombieProcess();
 		}
 	}
 

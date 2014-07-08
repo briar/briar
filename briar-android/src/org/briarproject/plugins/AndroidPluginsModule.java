@@ -7,7 +7,6 @@ import java.util.concurrent.Executor;
 
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.plugins.PluginExecutor;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
@@ -26,6 +25,7 @@ import com.google.inject.Provides;
 
 public class AndroidPluginsModule extends AbstractModule {
 
+	@Override
 	protected void configure() {}
 
 	@Provides
@@ -41,14 +41,13 @@ public class AndroidPluginsModule extends AbstractModule {
 	DuplexPluginConfig getDuplexPluginConfig(
 			@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Application app,
-			CryptoComponent crypto, LocationUtils locationUtils,
-			ShutdownManager shutdownManager) {
+			CryptoComponent crypto, LocationUtils locationUtils) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(
 				pluginExecutor, androidExecutor, appContext,
 				crypto.getSecureRandom());
 		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
-				appContext, locationUtils, shutdownManager);
+				appContext, locationUtils);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(
 				pluginExecutor, appContext);
 		final Collection<DuplexPluginFactory> factories =
