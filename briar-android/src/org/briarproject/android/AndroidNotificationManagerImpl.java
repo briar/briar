@@ -23,8 +23,8 @@ import org.briarproject.android.groups.GroupListActivity;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.Settings;
 import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
@@ -51,7 +51,7 @@ Service, EventListener {
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final Executor dbUiExecutor;
+	private final Executor dbExecutor;
 	private final Context appContext;
 	private final Map<ContactId, Integer> contactCounts =
 			new HashMap<ContactId, Integer>(); // Locking: this
@@ -65,9 +65,9 @@ Service, EventListener {
 
 	@Inject
 	public AndroidNotificationManagerImpl(DatabaseComponent db,
-			@DatabaseUiExecutor Executor dbExecutor, Application app) {
+			@DatabaseExecutor Executor dbExecutor, Application app) {
 		this.db = db;
-		this.dbUiExecutor = dbExecutor;
+		this.dbExecutor = dbExecutor;
 		appContext = app.getApplicationContext();
 	}
 
@@ -78,7 +78,7 @@ Service, EventListener {
 	}
 
 	private void loadSettings() {
-		dbUiExecutor.execute(new Runnable() {
+		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					settings = db.getSettings();

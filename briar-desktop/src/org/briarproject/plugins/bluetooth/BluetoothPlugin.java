@@ -42,7 +42,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			Logger.getLogger(BluetoothPlugin.class.getName());
 	private static final int UUID_BYTES = 16;
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final Clock clock;
 	private final SecureRandom secureRandom;
 	private final DuplexPluginCallback callback;
@@ -54,10 +54,10 @@ class BluetoothPlugin implements DuplexPlugin {
 	private volatile StreamConnectionNotifier socket = null;
 	private volatile LocalDevice localDevice = null;
 
-	BluetoothPlugin(Executor pluginExecutor, Clock clock,
-			SecureRandom secureRandom, DuplexPluginCallback callback,
-			int maxFrameLength, long maxLatency, long pollingInterval) {
-		this.pluginExecutor = pluginExecutor;
+	BluetoothPlugin(Executor ioExecutor, Clock clock, SecureRandom secureRandom,
+			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
+			long pollingInterval) {
+		this.ioExecutor = ioExecutor;
 		this.clock = clock;
 		this.secureRandom = secureRandom;
 		this.callback = callback;
@@ -96,7 +96,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	private void bind() {
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				if(!running) return;
 				// Advertise the Bluetooth address to contacts
@@ -197,7 +197,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			if(StringUtils.isNullOrEmpty(address)) continue;
 			final String uuid = e.getValue().get("uuid");
 			if(StringUtils.isNullOrEmpty(uuid)) continue;
-			pluginExecutor.execute(new Runnable() {
+			ioExecutor.execute(new Runnable() {
 				public void run() {
 					if(!running) return;
 					StreamConnection s = connect(makeUrl(address, uuid));

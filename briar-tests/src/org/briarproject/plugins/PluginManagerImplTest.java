@@ -29,7 +29,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 	public void testStartAndStop() throws Exception {
 		Clock clock = new SystemClock();
 		Mockery context = new Mockery();
-		final Executor pluginExecutor = Executors.newCachedThreadPool();
+		final Executor ioExecutor = Executors.newCachedThreadPool();
 		final SimplexPluginConfig simplexPluginConfig =
 				context.mock(SimplexPluginConfig.class);
 		final DuplexPluginConfig duplexPluginConfig =
@@ -116,7 +116,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(simplexPlugin).stop();
 			oneOf(duplexPlugin).stop();
 		}});
-		PluginManagerImpl p = new PluginManagerImpl(pluginExecutor,
+		PluginManagerImpl p = new PluginManagerImpl(ioExecutor,
 				simplexPluginConfig, duplexPluginConfig, clock, db, poller,
 				dispatcher, uiCallback);
 		// Two plugins should be started and stopped

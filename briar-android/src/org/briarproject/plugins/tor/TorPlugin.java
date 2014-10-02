@@ -72,7 +72,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DuplexPluginCallback callback;
@@ -89,10 +89,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private volatile TorControlConnection controlConnection = null;
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
-	TorPlugin(Executor pluginExecutor, Context appContext,
+	TorPlugin(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils, DuplexPluginCallback callback,
 			int maxFrameLength, long maxLatency, long pollingInterval) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.callback = callback;
@@ -351,7 +351,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private void bind() {
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				// If there's already a port number stored in config, reuse it
 				String portString = callback.getConfig().get("port");
@@ -379,7 +379,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				c.put("port", localPort);
 				callback.mergeConfig(c);
 				// Create a hidden service if necessary
-				pluginExecutor.execute(new Runnable() {
+				ioExecutor.execute(new Runnable() {
 					public void run() {
 						publishHiddenService(localPort);
 					}
@@ -506,7 +506,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private void connectAndCallBack(final ContactId c) {
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
 				if(d != null) callback.outgoingConnectionCreated(c, d);

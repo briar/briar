@@ -30,8 +30,8 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	private static final Logger LOG =
 			Logger.getLogger(SplashScreenActivity.class.getName());
 
-	// This build expires on 12 July 2014
-	private static final long EXPIRY_DATE = 1405123200 * 1000L;
+	// This build expires on 8 October 2014
+	private static final long EXPIRY_DATE = 1412726400 * 1000L;
 
 	private long now = System.currentTimeMillis();
 

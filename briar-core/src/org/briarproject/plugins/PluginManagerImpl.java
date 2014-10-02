@@ -23,9 +23,9 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
-import org.briarproject.api.plugins.PluginExecutor;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -49,7 +49,7 @@ class PluginManagerImpl implements PluginManager {
 	private static final Logger LOG =
 			Logger.getLogger(PluginManagerImpl.class.getName());
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final SimplexPluginConfig simplexPluginConfig;
 	private final DuplexPluginConfig duplexPluginConfig;
 	private final Clock clock;
@@ -62,12 +62,12 @@ class PluginManagerImpl implements PluginManager {
 	private final List<DuplexPlugin> duplexPlugins;
 
 	@Inject
-	PluginManagerImpl(@PluginExecutor Executor pluginExecutor,
+	PluginManagerImpl(@IoExecutor Executor ioExecutor,
 			SimplexPluginConfig simplexPluginConfig, 
 			DuplexPluginConfig duplexPluginConfig, Clock clock,
 			DatabaseComponent db, Poller poller,
 			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.simplexPluginConfig = simplexPluginConfig;
 		this.duplexPluginConfig = duplexPluginConfig;
 		this.clock = clock;
@@ -87,14 +87,14 @@ class PluginManagerImpl implements PluginManager {
 				simplexPluginConfig.getFactories();
 		final CountDownLatch sLatch = new CountDownLatch(sFactories.size());
 		for(SimplexPluginFactory factory : sFactories)
-			pluginExecutor.execute(new SimplexPluginStarter(factory, sLatch));
+			ioExecutor.execute(new SimplexPluginStarter(factory, sLatch));
 		// Instantiate and start the duplex plugins
 		LOG.info("Starting duplex plugins");
 		Collection<DuplexPluginFactory> dFactories =
 				duplexPluginConfig.getFactories();
 		final CountDownLatch dLatch = new CountDownLatch(dFactories.size());
 		for(DuplexPluginFactory factory : dFactories)
-			pluginExecutor.execute(new DuplexPluginStarter(factory, dLatch));
+			ioExecutor.execute(new DuplexPluginStarter(factory, dLatch));
 		// Wait for the plugins to start
 		try {
 			sLatch.await();
@@ -119,11 +119,11 @@ class PluginManagerImpl implements PluginManager {
 		// Stop the simplex plugins
 		LOG.info("Stopping simplex plugins");
 		for(SimplexPlugin plugin : simplexPlugins)
-			pluginExecutor.execute(new PluginStopper(plugin, latch));
+			ioExecutor.execute(new PluginStopper(plugin, latch));
 		// Stop the duplex plugins
 		LOG.info("Stopping duplex plugins");
 		for(DuplexPlugin plugin : duplexPlugins)
-			pluginExecutor.execute(new PluginStopper(plugin, latch));
+			ioExecutor.execute(new PluginStopper(plugin, latch));
 		plugins.clear();
 		simplexPlugins.clear();
 		duplexPlugins.clear();

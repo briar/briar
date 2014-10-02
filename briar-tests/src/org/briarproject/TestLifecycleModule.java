@@ -1,7 +1,10 @@
 package org.briarproject;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ShutdownManager;
@@ -10,6 +13,7 @@ import com.google.inject.AbstractModule;
 
 public class TestLifecycleModule extends AbstractModule {
 
+	@Override
 	protected void configure() {
 		bind(LifecycleManager.class).toInstance(new LifecycleManager() {
 
@@ -37,5 +41,7 @@ public class TestLifecycleModule extends AbstractModule {
 				return true;
 			}
 		});
+		bind(Executor.class).annotatedWith(IoExecutor.class).toInstance(
+				Executors.newCachedThreadPool());
 	}
 }

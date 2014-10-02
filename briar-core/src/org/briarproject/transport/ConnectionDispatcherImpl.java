@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.messaging.duplex.DuplexConnectionFactory;
 import org.briarproject.api.messaging.simplex.SimplexConnectionFactory;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -22,31 +23,30 @@ import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
 import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.ConnectionDispatcher;
 import org.briarproject.api.transport.ConnectionRecogniser;
-import org.briarproject.api.transport.IncomingConnectionExecutor;
 
 class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConnectionDispatcherImpl.class.getName());
 
-	private final Executor connExecutor;
+	private final Executor ioExecutor;
 	private final ConnectionRecogniser recogniser;
 	private final SimplexConnectionFactory simplexConnFactory;
 	private final DuplexConnectionFactory duplexConnFactory;
 
 	@Inject
-	ConnectionDispatcherImpl(@IncomingConnectionExecutor Executor connExecutor,
+	ConnectionDispatcherImpl(@IoExecutor Executor ioExecutor,
 			ConnectionRecogniser recogniser,
 			SimplexConnectionFactory simplexConnFactory,
 			DuplexConnectionFactory duplexConnFactory) {
-		this.connExecutor = connExecutor;
+		this.ioExecutor = ioExecutor;
 		this.recogniser = recogniser;
 		this.simplexConnFactory = simplexConnFactory;
 		this.duplexConnFactory = duplexConnFactory;
 	}
 
 	public void dispatchReader(TransportId t, SimplexTransportReader r) {
-		connExecutor.execute(new DispatchSimplexConnection(t, r));
+		ioExecutor.execute(new DispatchSimplexConnection(t, r));
 	}
 
 	public void dispatchWriter(ContactId c, TransportId t,
@@ -56,7 +56,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	public void dispatchIncomingConnection(TransportId t,
 			DuplexTransportConnection d) {
-		connExecutor.execute(new DispatchDuplexConnection(t, d));
+		ioExecutor.execute(new DispatchDuplexConnection(t, d));
 	}
 
 	public void dispatchOutgoingConnection(ContactId c, TransportId t,

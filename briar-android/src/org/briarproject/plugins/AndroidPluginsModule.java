@@ -7,7 +7,7 @@ import java.util.concurrent.Executor;
 
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.plugins.PluginExecutor;
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
@@ -20,13 +20,9 @@ import org.briarproject.plugins.tor.TorPluginFactory;
 import android.app.Application;
 import android.content.Context;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-public class AndroidPluginsModule extends AbstractModule {
-
-	@Override
-	protected void configure() {}
+public class AndroidPluginsModule extends PluginsModule {
 
 	@Provides
 	SimplexPluginConfig getSimplexPluginConfig() {
@@ -38,18 +34,16 @@ public class AndroidPluginsModule extends AbstractModule {
 	}
 
 	@Provides
-	DuplexPluginConfig getDuplexPluginConfig(
-			@PluginExecutor Executor pluginExecutor,
+	DuplexPluginConfig getDuplexPluginConfig(@IoExecutor Executor ioExecutor,
 			AndroidExecutor androidExecutor, Application app,
 			CryptoComponent crypto, LocationUtils locationUtils) {
 		Context appContext = app.getApplicationContext();
-		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(
-				pluginExecutor, androidExecutor, appContext,
-				crypto.getSecureRandom());
-		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
-				appContext, locationUtils);
-		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(
-				pluginExecutor, appContext);
+		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
+				androidExecutor, appContext, crypto.getSecureRandom());
+		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
+				locationUtils);
+		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
+				appContext);
 		final Collection<DuplexPluginFactory> factories =
 				Arrays.asList(bluetooth, tor, lan);
 		return new DuplexPluginConfig() {

@@ -25,9 +25,6 @@ import com.google.inject.Provides;
 
 public class DatabaseModule extends AbstractModule {
 
-	/** The maximum number of executor threads. */
-	private static final int MAX_EXECUTOR_THREADS = 10;
-
 	private final ExecutorService databaseExecutor;
 
 	public DatabaseModule() {
@@ -36,9 +33,9 @@ public class DatabaseModule extends AbstractModule {
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =
 				new ThreadPoolExecutor.DiscardPolicy();
-		// Create a limited # of threads and keep them in the pool for 60 secs
-		databaseExecutor = new ThreadPoolExecutor(0, MAX_EXECUTOR_THREADS,
-				60, SECONDS, queue, policy);
+		// Use a single thread and keep it in the pool for 60 secs
+		databaseExecutor = new ThreadPoolExecutor(0, 1, 60, SECONDS, queue,
+				policy);
 	}
 
 	protected void configure() {

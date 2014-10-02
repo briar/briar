@@ -21,13 +21,13 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 
-	public TorPluginFactory(Executor pluginExecutor, Context appContext,
+	public TorPluginFactory(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 	}
@@ -42,7 +42,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 			LOG.info("Tor is not supported on this architecture");
 			return null;
 		}
-		return new TorPlugin(pluginExecutor,appContext, locationUtils,
-				callback, MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
+		return new TorPlugin(ioExecutor,appContext, locationUtils, callback,
+				MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

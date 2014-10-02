@@ -16,13 +16,13 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final Clock clock;
 
-	public BluetoothPluginFactory(Executor pluginExecutor,
+	public BluetoothPluginFactory(Executor ioExecutor,
 			SecureRandom secureRandom) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		clock = new SystemClock();
 	}
@@ -32,7 +32,7 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new BluetoothPlugin(pluginExecutor, clock, secureRandom,
-				callback, MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
+		return new BluetoothPlugin(ioExecutor, clock, secureRandom, callback,
+				MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

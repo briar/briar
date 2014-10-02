@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.Plugin;
-import org.briarproject.api.plugins.PluginExecutor;
 import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.ConnectionRegistry;
 
@@ -19,14 +19,14 @@ class PollerImpl implements Poller {
 	private static final Logger LOG =
 			Logger.getLogger(PollerImpl.class.getName());
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final ConnectionRegistry connRegistry;
 	private final Timer timer;
 
 	@Inject
-	PollerImpl(@PluginExecutor Executor pluginExecutor,
-			ConnectionRegistry connRegistry, Timer timer) {
-		this.pluginExecutor = pluginExecutor;
+	PollerImpl(@IoExecutor Executor ioExecutor, ConnectionRegistry connRegistry,
+			Timer timer) {
+		this.ioExecutor = ioExecutor;
 		this.connRegistry = connRegistry;
 		this.timer = timer;
 	}
@@ -49,7 +49,7 @@ class PollerImpl implements Poller {
 	}
 
 	public void pollNow(final Plugin p) {
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				if(LOG.isLoggable(INFO))
 					LOG.info("Polling " + p.getClass().getSimpleName());
@@ -66,6 +66,7 @@ class PollerImpl implements Poller {
 			this.plugin = plugin;
 		}
 
+		@Override
 		public void run() {
 			pollNow(plugin);
 			schedule(plugin, false);

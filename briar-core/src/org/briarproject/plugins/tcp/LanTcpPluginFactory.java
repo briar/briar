@@ -13,10 +13,10 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 60 * 1000; // 1 minute
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 
-	public LanTcpPluginFactory(Executor pluginExecutor) {
-		this.pluginExecutor = pluginExecutor;
+	public LanTcpPluginFactory(Executor ioExecutor) {
+		this.ioExecutor = ioExecutor;
 	}
 
 	public TransportId getId() {
@@ -24,7 +24,7 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new LanTcpPlugin(pluginExecutor, callback, MAX_FRAME_LENGTH,
+		return new LanTcpPlugin(ioExecutor, callback, MAX_FRAME_LENGTH,
 				MAX_LATENCY, POLLING_INTERVAL);
 	}
 }
