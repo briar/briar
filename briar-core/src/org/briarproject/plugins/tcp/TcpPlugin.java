@@ -35,7 +35,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(TcpPlugin.class.getName());
 
-	protected final Executor pluginExecutor;
+	protected final Executor ioExecutor;
 	protected final DuplexPluginCallback callback;
 	protected final int maxFrameLength;
 	protected final long maxLatency, pollingInterval;
@@ -52,9 +52,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 	/** Returns true if connections to the given address can be attempted. */
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
-	protected TcpPlugin(Executor pluginExecutor, DuplexPluginCallback callback,
+	protected TcpPlugin(Executor ioExecutor, DuplexPluginCallback callback,
 			int maxFrameLength, long maxLatency, long pollingInterval) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
@@ -76,7 +76,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	protected void bind() {
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				if(!running) return;
 				ServerSocket ss = null;
@@ -172,7 +172,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	private void connectAndCallBack(final ContactId c) {
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
 				if(d != null) callback.outgoingConnectionCreated(c, d);

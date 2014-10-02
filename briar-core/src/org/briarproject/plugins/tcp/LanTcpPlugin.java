@@ -16,9 +16,9 @@ class LanTcpPlugin extends TcpPlugin {
 
 	static final TransportId ID = new TransportId("lan");
 
-	LanTcpPlugin(Executor pluginExecutor, DuplexPluginCallback callback,
+	LanTcpPlugin(Executor ioExecutor, DuplexPluginCallback callback,
 			int maxFrameLength, long maxLatency, long pollingInterval) {
-		super(pluginExecutor, callback, maxFrameLength, maxLatency,
+		super(ioExecutor, callback, maxFrameLength, maxLatency,
 				pollingInterval);
 	}
 

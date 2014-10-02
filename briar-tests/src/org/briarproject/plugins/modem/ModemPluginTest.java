@@ -15,7 +15,6 @@ import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -194,8 +193,7 @@ public class ModemPluginTest extends BriarTestCase {
 
 	@Test
 	public void testPolling() throws Exception {
-		final ExecutorService pluginExecutor =
-				Executors.newSingleThreadExecutor();
+		final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
 		Mockery context = new Mockery();
 		final ModemFactory modemFactory = context.mock(ModemFactory.class);
 		final SerialPortList serialPortList =
@@ -203,7 +201,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
 		// Disable shuffling for this test, it confuses jMock
-		final ModemPlugin plugin = new ModemPlugin(pluginExecutor, modemFactory,
+		final ModemPlugin plugin = new ModemPlugin(ioExecutor, modemFactory,
 				serialPortList, callback, 0, 0, 0, false);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
@@ -265,7 +263,7 @@ public class ModemPluginTest extends BriarTestCase {
 		assertTrue(plugin.start());
 		plugin.poll(Collections.<ContactId>emptyList());
 		assertTrue(disposeAction.invoked.await(5, SECONDS));
-		pluginExecutor.shutdown();
+		ioExecutor.shutdown();
 		context.assertIsSatisfied();
 	}
 

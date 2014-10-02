@@ -1,4 +1,4 @@
-package org.briarproject.api.transport;
+package org.briarproject.api.lifecycle;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -10,10 +10,8 @@ import java.lang.annotation.Target;
 
 import com.google.inject.BindingAnnotation;
 
-/**
- * Annotation for injecting the executor for recognising incoming connections.
- */
+/** Annotation for injecting the executor used by long-lived IO tasks. */
 @BindingAnnotation
 @Target({ FIELD, METHOD, PARAMETER })
 @Retention(RUNTIME)
-public @interface IncomingConnectionExecutor {}
+public @interface IoExecutor {}

@@ -19,16 +19,16 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
 	private final Clock clock;
 
-	public DroidtoothPluginFactory(Executor pluginExecutor,
+	public DroidtoothPluginFactory(Executor ioExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			SecureRandom secureRandom) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
@@ -40,7 +40,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new DroidtoothPlugin(pluginExecutor, androidExecutor, appContext,
+		return new DroidtoothPlugin(ioExecutor, androidExecutor, appContext,
 				secureRandom, clock, callback, MAX_FRAME_LENGTH, MAX_LATENCY,
 				POLLING_INTERVAL);
 	}

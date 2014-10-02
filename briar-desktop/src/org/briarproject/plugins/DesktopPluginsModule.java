@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 
 import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.ShutdownManager;
-import org.briarproject.api.plugins.PluginExecutor;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
@@ -19,18 +19,15 @@ import org.briarproject.plugins.modem.ModemPluginFactory;
 import org.briarproject.plugins.tcp.LanTcpPluginFactory;
 import org.briarproject.plugins.tcp.WanTcpPluginFactory;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-public class DesktopPluginsModule extends AbstractModule {
-
-	public void configure() {}
+public class DesktopPluginsModule extends PluginsModule {
 
 	@Provides
-	SimplexPluginConfig getSimplexPluginConfig(
-			@PluginExecutor Executor pluginExecutor, FileUtils fileUtils) {
+	SimplexPluginConfig getSimplexPluginConfig(@IoExecutor Executor ioExecutor,
+			FileUtils fileUtils) {
 		SimplexPluginFactory removable =
-				new RemovableDrivePluginFactory(pluginExecutor, fileUtils);
+				new RemovableDrivePluginFactory(ioExecutor, fileUtils);
 		final Collection<SimplexPluginFactory> factories =
 				Arrays.asList(removable);
 		return new SimplexPluginConfig() {
@@ -41,16 +38,15 @@ public class DesktopPluginsModule extends AbstractModule {
 	}
 
 	@Provides
-	DuplexPluginConfig getDuplexPluginConfig(
-			@PluginExecutor Executor pluginExecutor,
+	DuplexPluginConfig getDuplexPluginConfig(@IoExecutor Executor ioExecutor,
 			CryptoComponent crypto, ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager) {
 		DuplexPluginFactory bluetooth = new BluetoothPluginFactory(
-				pluginExecutor, crypto.getSecureRandom());
-		DuplexPluginFactory modem = new ModemPluginFactory(pluginExecutor,
+				ioExecutor, crypto.getSecureRandom());
+		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
-		DuplexPluginFactory lan = new LanTcpPluginFactory(pluginExecutor);
-		DuplexPluginFactory wan = new WanTcpPluginFactory(pluginExecutor,
+		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor);
+		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor,
 				shutdownManager);
 		final Collection<DuplexPluginFactory> factories =
 				Arrays.asList(bluetooth, modem, lan, wan);

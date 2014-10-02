@@ -32,7 +32,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private static final Logger LOG =
 			Logger.getLogger(ModemPlugin.class.getName());
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
@@ -43,11 +43,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
-	ModemPlugin(Executor pluginExecutor, ModemFactory modemFactory,
+	ModemPlugin(Executor ioExecutor, ModemFactory modemFactory,
 			SerialPortList serialPortList, DuplexPluginCallback callback,
 			int maxFrameLength, long maxLatency, long pollingInterval,
 			boolean shuffle) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
@@ -112,7 +112,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public void poll(Collection<ContactId> connected) {
 		if(!connected.isEmpty()) return; // One at a time please
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				poll();
 			}

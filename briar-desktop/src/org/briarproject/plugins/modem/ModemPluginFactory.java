@@ -15,14 +15,14 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 60 * 60 * 1000; // 1 hour
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 
-	public ModemPluginFactory(Executor pluginExecutor,
+	public ModemPluginFactory(Executor ioExecutor,
 			ReliabilityLayerFactory reliabilityFactory) {
-		this.pluginExecutor = pluginExecutor;
-		modemFactory = new ModemFactoryImpl(pluginExecutor, reliabilityFactory);
+		this.ioExecutor = ioExecutor;
+		modemFactory = new ModemFactoryImpl(ioExecutor, reliabilityFactory);
 		serialPortList = new SerialPortListImpl();
 	}
 
@@ -34,7 +34,7 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 		// This plugin is not enabled by default
 		String enabled = callback.getConfig().get("enabled");
 		if(StringUtils.isNullOrEmpty(enabled)) return null;
-		return new ModemPlugin(pluginExecutor, modemFactory, serialPortList,
+		return new ModemPlugin(ioExecutor, modemFactory, serialPortList,
 				callback, MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL,
 				true);
 	}

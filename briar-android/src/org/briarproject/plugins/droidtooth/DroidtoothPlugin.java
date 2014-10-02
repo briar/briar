@@ -63,7 +63,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private static final String DISCOVERY_FINISHED =
 			"android.bluetooth.adapter.action.DISCOVERY_FINISHED";
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
@@ -80,11 +80,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 	// Non-null if the plugin started successfully
 	private volatile BluetoothAdapter adapter = null;
 
-	DroidtoothPlugin(Executor pluginExecutor, AndroidExecutor androidExecutor,
+	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Clock clock,
 			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
 			long pollingInterval) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
@@ -147,7 +147,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	private void bind() {
-		pluginExecutor.execute(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			public void run() {
 				if(!isRunning()) return;
 				if(LOG.isLoggable(INFO))
@@ -256,7 +256,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(StringUtils.isNullOrEmpty(address)) continue;
 			final String uuid = e.getValue().get("uuid");
 			if(StringUtils.isNullOrEmpty(uuid)) continue;
-			pluginExecutor.execute(new Runnable() {
+			ioExecutor.execute(new Runnable() {
 				public void run() {
 					if(!running) return;
 					BluetoothSocket s = connect(address, uuid);

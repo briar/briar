@@ -17,12 +17,12 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	private static final long MAX_LATENCY = 14 * 24 * 60 * 60 * 1000;
 	private static final long POLLING_INTERVAL = 10 * 1000; // 10 seconds
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final FileUtils fileUtils;
 
-	public RemovableDrivePluginFactory(Executor pluginExecutor,
+	public RemovableDrivePluginFactory(Executor ioExecutor,
 			FileUtils fileUtils) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.fileUtils = fileUtils;
 	}
 
@@ -42,16 +42,16 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 		} else if(OsUtils.isMac()) {
 			// JNotify requires OS X 10.5 or newer, so we have to poll
 			finder = new MacRemovableDriveFinder();
-			monitor = new PollingRemovableDriveMonitor(pluginExecutor, finder,
+			monitor = new PollingRemovableDriveMonitor(ioExecutor, finder,
 					POLLING_INTERVAL);
 		} else if(OsUtils.isWindows()) {
 			finder = new WindowsRemovableDriveFinder();
-			monitor = new PollingRemovableDriveMonitor(pluginExecutor, finder,
+			monitor = new PollingRemovableDriveMonitor(ioExecutor, finder,
 					POLLING_INTERVAL);
 		} else {
 			return null;
 		}
-		return new RemovableDrivePlugin(pluginExecutor, fileUtils, callback,
+		return new RemovableDrivePlugin(ioExecutor, fileUtils, callback,
 				finder, monitor, MAX_FRAME_LENGTH, MAX_LATENCY);
 	}
 }

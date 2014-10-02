@@ -11,7 +11,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	private static final Logger LOG =
 			Logger.getLogger(PollingRemovableDriveMonitor.class.getName());
 
-	private final Executor pluginExecutor;
+	private final Executor ioExecutor;
 	private final RemovableDriveFinder finder;
 	private final long pollingInterval;
 	private final Object pollingLock = new Object();
@@ -19,9 +19,9 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	private volatile boolean running = false;
 	private volatile Callback callback = null;
 
-	public PollingRemovableDriveMonitor(Executor pluginExecutor,
+	public PollingRemovableDriveMonitor(Executor ioExecutor,
 			RemovableDriveFinder finder, long pollingInterval) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.finder = finder;
 		this.pollingInterval = pollingInterval;
 	}
@@ -29,7 +29,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	public void start(Callback callback) throws IOException {
 		this.callback = callback;
 		running = true;
-		pluginExecutor.execute(this);
+		ioExecutor.execute(this);
 	}
 
 	public void stop() throws IOException {

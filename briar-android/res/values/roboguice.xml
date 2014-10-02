@@ -10,7 +10,6 @@
 		<item>org.briarproject.messaging.duplex.DuplexMessagingModule</item>
 		<item>org.briarproject.messaging.simplex.SimplexMessagingModule</item>
 		<item>org.briarproject.plugins.AndroidPluginsModule</item>
-		<item>org.briarproject.plugins.PluginsModule</item>
 		<item>org.briarproject.serial.SerialModule</item>
 		<item>org.briarproject.system.AndroidSystemModule</item>
 		<item>org.briarproject.transport.TransportModule</item>

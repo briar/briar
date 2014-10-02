@@ -25,7 +25,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(FilePlugin.class.getName());
 
-	protected final Executor pluginExecutor;
+	protected final Executor ioExecutor;
 	protected final FileUtils fileUtils;
 	protected final SimplexPluginCallback callback;
 	protected final int maxFrameLength;
@@ -38,10 +38,10 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	protected FilePlugin(Executor pluginExecutor, FileUtils fileUtils,
+	protected FilePlugin(Executor ioExecutor, FileUtils fileUtils,
 			SimplexPluginCallback callback, int maxFrameLength,
 			long maxLatency) {
-		this.pluginExecutor = pluginExecutor;
+		this.ioExecutor = ioExecutor;
 		this.fileUtils = fileUtils;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
@@ -100,7 +100,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 
 	protected void createReaderFromFile(final File f) {
 		if(!running) return;
-		pluginExecutor.execute(new ReaderCreator(f));
+		ioExecutor.execute(new ReaderCreator(f));
 	}
 
 	private class ReaderCreator implements Runnable {
