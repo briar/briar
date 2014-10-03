@@ -31,6 +31,8 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
+import org.briarproject.api.event.ContactConnectedEvent;
+import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -38,7 +40,6 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.transport.ConnectionListener;
 import org.briarproject.api.transport.ConnectionRegistry;
 
 import android.content.Intent;
@@ -61,7 +62,7 @@ import android.widget.Toast;
 
 public class ContactListActivity extends BriarActivity
 implements OnClickListener, OnItemClickListener, OnCreateContextMenuListener,
-EventListener, ConnectionListener {
+EventListener {
 
 	private static final int MENU_ITEM_DELETE = 1;
 	private static final Logger LOG =
@@ -128,7 +129,6 @@ EventListener, ConnectionListener {
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
-		connectionRegistry.addListener(this);
 		loadContacts();
 	}
 
@@ -213,7 +213,6 @@ EventListener, ConnectionListener {
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
-		connectionRegistry.removeListener(this);
 	}
 
 	public void onClick(View view) {
@@ -271,6 +270,10 @@ EventListener, ConnectionListener {
 	public void eventOccurred(Event e) {
 		if(e instanceof ContactAddedEvent) {
 			loadContacts();
+		} else if(e instanceof ContactConnectedEvent) {
+			setConnected(((ContactConnectedEvent) e).getContactId(), true);
+		} else if(e instanceof ContactDisconnectedEvent) {
+			setConnected(((ContactDisconnectedEvent) e).getContactId(), false);
 		} else if(e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed");
 			removeItem(((ContactRemovedEvent) e).getContactId());
@@ -333,14 +336,6 @@ EventListener, ConnectionListener {
 				}
 			}
 		});
-	}
-
-	public void contactConnected(ContactId c) {
-		setConnected(c, true);
-	}
-
-	public void contactDisconnected(ContactId c) {
-		setConnected(c, false);
 	}
 
 	private void setConnected(final ContactId c, final boolean connected) {

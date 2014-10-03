@@ -8,37 +8,33 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.transport.ConnectionListener;
+import org.briarproject.api.event.ContactConnectedEvent;
+import org.briarproject.api.event.ContactDisconnectedEvent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.transport.ConnectionRegistry;
+
+import com.google.inject.Inject;
 
 class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConnectionRegistryImpl.class.getName());
 
+	private final EventBus eventBus;
 	// Locking: this
 	private final Map<TransportId, Map<ContactId, Integer>> connections;
 	// Locking: this
 	private final Map<ContactId, Integer> contactCounts;
-	private final List<ConnectionListener> listeners;
 
-	ConnectionRegistryImpl() {
+	@Inject
+	ConnectionRegistryImpl(EventBus eventBus) {
+		this.eventBus = eventBus;
 		connections = new HashMap<TransportId, Map<ContactId, Integer>>();
 		contactCounts = new HashMap<ContactId, Integer>();
-		listeners = new CopyOnWriteArrayList<ConnectionListener>();
-	}
-
-	public void addListener(ConnectionListener c) {
-		listeners.add(c);
-	}
-
-	public void removeListener(ConnectionListener c) {
-		listeners.remove(c);
 	}
 
 	public void registerConnection(ContactId c, TransportId t) {
@@ -63,7 +59,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 		if(firstConnection) {
 			LOG.info("Contact connected");
-			for(ConnectionListener l : listeners) l.contactConnected(c);
+			eventBus.broadcast(new ContactConnectedEvent(c));
 		}
 	}
 
@@ -91,7 +87,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 		if(lastConnection) {
 			LOG.info("Contact disconnected");
-			for(ConnectionListener l : listeners) l.contactDisconnected(c);
+			eventBus.broadcast(new ContactDisconnectedEvent(c));
 		}
 	}
 

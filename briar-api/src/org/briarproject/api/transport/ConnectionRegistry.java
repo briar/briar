@@ -10,10 +10,6 @@ import org.briarproject.api.TransportId;
  */
 public interface ConnectionRegistry {
 
-	void addListener(ConnectionListener c);
-
-	void removeListener(ConnectionListener c);
-
 	void registerConnection(ContactId c, TransportId t);
 
 	void unregisterConnection(ContactId c, TransportId t);

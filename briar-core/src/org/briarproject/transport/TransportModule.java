@@ -22,9 +22,10 @@ public class TransportModule extends AbstractModule {
 				ConnectionReaderFactoryImpl.class);
 		bind(ConnectionRecogniser.class).to(
 				ConnectionRecogniserImpl.class).in(Singleton.class);
-		bind(ConnectionRegistry.class).toInstance(new ConnectionRegistryImpl());
-		bind(ConnectionWriterFactory.class).to(
-				ConnectionWriterFactoryImpl.class);
+		bind(ConnectionRegistry.class).to(
+				ConnectionRegistryImpl.class).in(Singleton.class);;
+				bind(ConnectionWriterFactory.class).to(
+						ConnectionWriterFactoryImpl.class);
 	}
 
 	@Provides @Singleton

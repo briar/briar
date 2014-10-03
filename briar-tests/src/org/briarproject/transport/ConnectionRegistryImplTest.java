@@ -7,7 +7,12 @@ import java.util.Collections;
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.event.ContactConnectedEvent;
+import org.briarproject.api.event.ContactDisconnectedEvent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.transport.ConnectionRegistry;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.junit.Test;
 
 public class ConnectionRegistryImplTest extends BriarTestCase {
@@ -24,13 +29,24 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 
 	@Test
 	public void testRegisterAndUnregister() {
-		ConnectionRegistry c = new ConnectionRegistryImpl();
+		Mockery context = new Mockery();
+		final EventBus eventBus = context.mock(EventBus.class);
+		context.checking(new Expectations() {{
+			exactly(3).of(eventBus).broadcast(with(any(
+					ContactConnectedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(
+					ContactDisconnectedEvent.class)));
+		}});
+
+		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
+
 		// The registry should be empty
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
-		// Check that a registered connection shows up
+		// Check that a registered connection shows up - this should
+		// broadcast a ContactConnectedEvent
 		c.registerConnection(contactId, transportId);
 		assertEquals(Arrays.asList(contactId),
 				c.getConnectedContacts(transportId));
@@ -48,7 +64,8 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
-		// Unregister the other connection - lookup should be affected
+		// Unregister the other connection - lookup should be affected -
+		// this should broadcast a ContactDisconnectedEvent
 		c.unregisterConnection(contactId, transportId);
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId));
@@ -59,7 +76,8 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 			c.unregisterConnection(contactId, transportId);
 			fail();
 		} catch(IllegalArgumentException expected) {}
-		// Register both contacts with one transport, one contact with both
+		// Register both contacts with one transport, one contact with both -
+		// this should broadcast two ContactConnectedEvents
 		c.registerConnection(contactId, transportId);
 		c.registerConnection(contactId1, transportId);
 		c.registerConnection(contactId1, transportId1);
@@ -69,5 +87,6 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		assertTrue(connected.contains(contactId1));
 		assertEquals(Arrays.asList(contactId1),
 				c.getConnectedContacts(transportId1));
+		context.assertIsSatisfied();
 	}
 }
