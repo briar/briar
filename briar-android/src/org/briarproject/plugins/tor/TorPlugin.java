@@ -21,7 +21,6 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -546,32 +545,12 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		throw new UnsupportedOperationException();
 	}
 
-	public void circuitStatus(String status, String id, List<String> path,
-			Map<String, String> info) {
-		if(LOG.isLoggable(INFO)) {
-			String msg = "Circuit " + id + " " + status;
-			String purpose = info.get("PURPOSE");
-			if(purpose != null) msg += ", purpose: " + purpose;
-			String hsState = info.get("HS_STATE");
-			if(hsState != null) msg += ", state: " + hsState;
-			String rendQuery = info.get("REND_QUERY");
-			if(rendQuery != null) msg += ", service: " + rendQuery;
-			if(!path.isEmpty()) msg += ", path: " + shortenPath(path);
-			LOG.info(msg);
-		}
+	public void circuitStatus(String status, String id, String path) {
+		if(LOG.isLoggable(INFO)) LOG.info("Circuit " + id + " " + status);
 		if(status.equals("BUILT") && !circuitBuilt.getAndSet(true)) {
 			LOG.info("First circuit built");
 			if(isRunning()) callback.pollNow();
 		}
-	}
-
-	private String shortenPath(List<String> path) {
-		StringBuilder s = new StringBuilder();
-		for(String id : path) {
-			if(s.length() > 0) s.append(',');
-			s.append(id.substring(1, 7));
-		}
-		return s.toString();
 	}
 
 	public void streamStatus(String status, String id, String target) {}
