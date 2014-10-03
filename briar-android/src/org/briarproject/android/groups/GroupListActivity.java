@@ -30,6 +30,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
@@ -70,6 +71,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -143,7 +145,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		db.addListener(this);
+		eventBus.addListener(this);
 		loadHeaders();
 	}
 
@@ -210,7 +212,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				adapter.sort(GroupListItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
-			} 
+			}
 		});
 	}
 
@@ -255,7 +257,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		db.removeListener(this);
+		eventBus.removeListener(this);
 	}
 
 	public void eventOccurred(Event e) {

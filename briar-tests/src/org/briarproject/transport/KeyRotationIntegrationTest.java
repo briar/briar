@@ -13,6 +13,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
@@ -73,17 +74,18 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -93,7 +95,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -108,6 +110,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 		final SecretKey k0 = context.mock(SecretKey.class, "k0");
@@ -117,7 +120,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -127,7 +130,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -215,7 +218,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -231,6 +234,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 		final SecretKey k0 = context.mock(SecretKey.class, "k0");
@@ -240,7 +244,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -250,7 +254,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -341,7 +345,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -365,6 +369,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 		final SecretKey k0 = context.mock(SecretKey.class, "k0");
@@ -374,7 +379,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -384,7 +389,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -483,7 +488,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -510,6 +515,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 		final SecretKey k0 = context.mock(SecretKey.class, "k0");
@@ -519,7 +525,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -529,7 +535,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -609,7 +615,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -624,6 +630,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
@@ -633,7 +640,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -645,7 +652,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -733,7 +740,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k3).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -748,6 +755,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
@@ -757,7 +765,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -770,7 +778,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -859,7 +867,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k4).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 

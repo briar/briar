@@ -35,6 +35,7 @@ import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
@@ -72,6 +73,7 @@ OnClickListener, OnItemClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 	private volatile GroupId groupId = null;
 	private volatile Group group = null;
 
@@ -139,7 +141,7 @@ OnClickListener, OnItemClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		db.addListener(this);
+		eventBus.addListener(this);
 		loadGroup();
 		loadHeaders();
 	}
@@ -272,7 +274,7 @@ OnClickListener, OnItemClickListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		db.removeListener(this);
+		eventBus.removeListener(this);
 		if(isFinishing()) markMessagesRead();
 	}
 

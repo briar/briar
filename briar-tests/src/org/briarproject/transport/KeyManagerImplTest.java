@@ -11,6 +11,7 @@ import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
@@ -56,17 +57,18 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -76,7 +78,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -92,13 +94,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -108,7 +111,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -133,7 +136,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(connectionRecogniser).addSecret(s1);
 			oneOf(connectionRecogniser).addSecret(s2);
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -150,13 +153,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -166,7 +170,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -194,7 +198,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -219,13 +223,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -235,7 +240,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -251,7 +256,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -267,13 +272,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -285,7 +291,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -309,7 +315,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -325,13 +331,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -344,7 +351,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -369,7 +376,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -385,13 +392,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -401,7 +409,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -423,7 +431,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -448,13 +456,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -466,7 +475,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -497,7 +506,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 2);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -522,13 +531,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		final ConnectionRecogniser connectionRecogniser =
 				context.mock(ConnectionRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				connectionRecogniser, clock, timer);
+				eventBus, connectionRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -541,7 +551,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(EventListener.class)));
+			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -574,7 +584,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 3);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(EventListener.class)));
+			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});

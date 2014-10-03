@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.concurrent.Executor;
 
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
@@ -21,15 +22,15 @@ class OutgoingDuplexConnection extends DuplexConnection {
 
 	OutgoingDuplexConnection(Executor dbExecutor, Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
-			ConnectionRegistry connRegistry,
+			EventBus eventBus, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			PacketReaderFactory packetReaderFactory,
 			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
 			DuplexTransportConnection transport) {
-		super(dbExecutor, cryptoExecutor, messageVerifier, db, connRegistry,
-				connReaderFactory, connWriterFactory, packetReaderFactory,
-				packetWriterFactory, ctx, transport);
+		super(dbExecutor, cryptoExecutor, messageVerifier, db, eventBus,
+				connRegistry, connReaderFactory, connWriterFactory,
+				packetReaderFactory, packetWriterFactory, ctx, transport);
 	}
 
 	@Override

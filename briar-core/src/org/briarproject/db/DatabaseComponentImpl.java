@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
@@ -42,8 +41,7 @@ import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalAuthorAddedEvent;
 import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
@@ -95,21 +93,21 @@ DatabaseCleaner.Callback {
 
 	private final Database<T> db;
 	private final DatabaseCleaner cleaner;
+	private final EventBus eventBus;
 	private final ShutdownManager shutdown;
 
 	private final ReentrantReadWriteLock lock =
 			new ReentrantReadWriteLock(true);
-	private final Collection<EventListener> listeners =
-			new CopyOnWriteArrayList<EventListener>();
 
 	private boolean open = false; // Locking: lock.writeLock
 	private int shutdownHandle = -1; // Locking: lock.writeLock
 
 	@Inject
 	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner,
-			ShutdownManager shutdown) {
+			EventBus eventBus, ShutdownManager shutdown) {
 		this.db = db;
 		this.cleaner = cleaner;
+		this.eventBus = eventBus;
 		this.shutdown = shutdown;
 	}
 
@@ -158,19 +156,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void addListener(EventListener l) {
-		listeners.add(l);
-	}
-
-	public void removeListener(EventListener l) {
-		listeners.remove(l);
-	}
-
-	/** Notifies all listeners of a database event. */
-	private void callListeners(Event e) {
-		for(EventListener l : listeners) l.eventOccurred(e);
-	}
-
 	public ContactId addContact(Author remote, AuthorId local)
 			throws DbException {
 		ContactId c;
@@ -191,7 +176,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		callListeners(new ContactAddedEvent(c));
+		eventBus.broadcast(new ContactAddedEvent(c));
 		return c;
 	}
 
@@ -231,7 +216,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(added) callListeners(new SubscriptionAddedEvent(g));
+		if(added) eventBus.broadcast(new SubscriptionAddedEvent(g));
 		return added;
 	}
 
@@ -251,18 +236,18 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		callListeners(new LocalAuthorAddedEvent(a.getId()));
+		eventBus.broadcast(new LocalAuthorAddedEvent(a.getId()));
 	}
 
 	public void addLocalMessage(Message m) throws DbException {
-		boolean duplicate;
+		boolean duplicate, subscribed;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
 				duplicate = db.containsMessage(txn, m.getId());
-				if(!duplicate && db.containsGroup(txn, m.getGroup().getId()))
-					addMessage(txn, m, null);
+				subscribed = db.containsGroup(txn, m.getGroup().getId());
+				if(!duplicate && subscribed) addMessage(txn, m, null);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -271,7 +256,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(!duplicate) callListeners(new MessageAddedEvent(m.getGroup(), null));
+		if(!duplicate && subscribed)
+			eventBus.broadcast(new MessageAddedEvent(m.getGroup(), null));
 	}
 
 	/**
@@ -344,7 +330,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(added) callListeners(new TransportAddedEvent(t, maxLatency));
+		if(added) eventBus.broadcast(new TransportAddedEvent(t, maxLatency));
 		return added;
 	}
 
@@ -1062,7 +1048,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(changed) callListeners(new LocalTransportsUpdatedEvent());
+		if(changed) eventBus.broadcast(new LocalTransportsUpdatedEvent());
 	}
 
 	public void mergeSettings(Settings s) throws DbException {
@@ -1083,7 +1069,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(changed) callListeners(new SettingsUpdatedEvent());
+		if(changed) eventBus.broadcast(new SettingsUpdatedEvent());
 	}
 
 	public void receiveAck(ContactId c, Ack a) throws DbException {
@@ -1108,7 +1094,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		callListeners(new MessagesAckedEvent(c, acked));
+		eventBus.broadcast(new MessagesAckedEvent(c, acked));
 	}
 
 	public void receiveMessage(ContactId c, Message m) throws DbException {
@@ -1135,8 +1121,8 @@ DatabaseCleaner.Callback {
 		}
 		if(visible) {
 			if(!duplicate)
-				callListeners(new MessageAddedEvent(m.getGroup(), c));
-			callListeners(new MessageToAckEvent(c));
+				eventBus.broadcast(new MessageAddedEvent(m.getGroup(), c));
+			eventBus.broadcast(new MessageToAckEvent(c));
 		}
 	}
 
@@ -1168,8 +1154,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(ack) callListeners(new MessageToAckEvent(c));
-		if(request) callListeners(new MessageToRequestEvent(c));
+		if(ack) eventBus.broadcast(new MessageToAckEvent(c));
+		if(request) eventBus.broadcast(new MessageToRequestEvent(c));
 	}
 
 	public void receiveRequest(ContactId c, Request r) throws DbException {
@@ -1195,7 +1181,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(requested) callListeners(new MessageRequestedEvent(c));
+		if(requested) eventBus.broadcast(new MessageRequestedEvent(c));
 	}
 
 	public void receiveRetentionAck(ContactId c, RetentionAck a)
@@ -1236,7 +1222,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(updated) callListeners(new RemoteRetentionTimeUpdatedEvent(c));
+		if(updated) eventBus.broadcast(new RemoteRetentionTimeUpdatedEvent(c));
 	}
 
 	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
@@ -1276,7 +1262,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if(updated) callListeners(new RemoteSubscriptionsUpdatedEvent(c));
+		if(updated) eventBus.broadcast(new RemoteSubscriptionsUpdatedEvent(c));
 	}
 
 	public void receiveTransportAck(ContactId c, TransportAck a)
@@ -1322,7 +1308,7 @@ DatabaseCleaner.Callback {
 			lock.writeLock().unlock();
 		}
 		if(updated)
-			callListeners(new RemoteTransportsUpdatedEvent(c, u.getId()));
+			eventBus.broadcast(new RemoteTransportsUpdatedEvent(c, u.getId()));
 	}
 
 	public void removeContact(ContactId c) throws DbException {
@@ -1343,7 +1329,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		callListeners(new ContactRemovedEvent(c));
+		eventBus.broadcast(new ContactRemovedEvent(c));
 	}
 
 	public void removeGroup(Group g) throws DbException {
@@ -1365,8 +1351,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		callListeners(new SubscriptionRemovedEvent(g));
-		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+		eventBus.broadcast(new SubscriptionRemovedEvent(g));
+		eventBus.broadcast(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
 	public void removeLocalAuthor(AuthorId a) throws DbException {
@@ -1391,8 +1377,9 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		for(ContactId c : affected) callListeners(new ContactRemovedEvent(c));
-		callListeners(new LocalAuthorRemovedEvent(a));
+		for(ContactId c : affected)
+			eventBus.broadcast(new ContactRemovedEvent(c));
+		eventBus.broadcast(new LocalAuthorRemovedEvent(a));
 	}
 
 	public void removeTransport(TransportId t) throws DbException {
@@ -1411,7 +1398,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		callListeners(new TransportRemovedEvent(t));
+		eventBus.broadcast(new TransportRemovedEvent(t));
 	}
 
 	public void setConnectionWindow(ContactId c, TransportId t, long period,
@@ -1526,7 +1513,7 @@ DatabaseCleaner.Callback {
 			lock.writeLock().unlock();
 		}
 		if(!affected.isEmpty())
-			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+			eventBus.broadcast(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
 	public void setVisibleToAll(GroupId g, boolean all) throws DbException {
@@ -1559,7 +1546,7 @@ DatabaseCleaner.Callback {
 			lock.writeLock().unlock();
 		}
 		if(!affected.isEmpty())
-			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+			eventBus.broadcast(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
 	public void checkFreeSpaceAndClean() throws DbException {
@@ -1603,7 +1590,7 @@ DatabaseCleaner.Callback {
 			lock.writeLock().unlock();
 		}
 		if(expired.isEmpty()) return false;
-		callListeners(new MessageExpiredEvent());
+		eventBus.broadcast(new MessageExpiredEvent());
 		return true;
 	}
 

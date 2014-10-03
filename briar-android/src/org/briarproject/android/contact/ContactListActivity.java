@@ -33,6 +33,7 @@ import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
@@ -75,6 +76,7 @@ EventListener, ConnectionListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -125,7 +127,7 @@ EventListener, ConnectionListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		db.addListener(this);
+		eventBus.addListener(this);
 		connectionRegistry.addListener(this);
 		loadContacts();
 	}
@@ -210,7 +212,7 @@ EventListener, ConnectionListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		db.removeListener(this);
+		eventBus.removeListener(this);
 		connectionRegistry.removeListener(this);
 	}
 

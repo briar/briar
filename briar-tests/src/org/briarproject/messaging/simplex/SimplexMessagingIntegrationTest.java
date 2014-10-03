@@ -22,6 +22,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.KeyManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.messaging.Group;
@@ -39,6 +40,7 @@ import org.briarproject.api.transport.ConnectionWriterFactory;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
+import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.plugins.ImmediateExecutor;
@@ -85,9 +87,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private Injector createInjector(File dir) {
 		return Guice.createInjector(new TestDatabaseModule(dir),
 				new TestLifecycleModule(), new TestSystemModule(),
-				new CryptoModule(), new DatabaseModule(), new MessagingModule(),
-				new DuplexMessagingModule(), new SimplexMessagingModule(),
-				new SerialModule(), new TransportModule());
+				new CryptoModule(), new DatabaseModule(), new EventModule(),
+				new MessagingModule(), new DuplexMessagingModule(),
+				new SimplexMessagingModule(), new SerialModule(),
+				new TransportModule());
 	}
 
 	@Test
@@ -190,9 +193,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
 		db.addEndpoint(ep);
 		km.endpointAdded(ep, LATENCY, initialSecret.clone());
-		// Set up a database listener
+		// Set up an event listener
 		MessageListener listener = new MessageListener();
-		db.addListener(listener);
+		bob.getInstance(EventBus.class).addListener(listener);
 		// Create a connection recogniser and recognise the connection
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		ConnectionRecogniser rec = bob.getInstance(ConnectionRecogniser.class);

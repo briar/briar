@@ -50,6 +50,7 @@ import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
@@ -96,6 +97,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile ContactId contactId = null;
 	private volatile String contactName = null;
@@ -188,7 +190,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		db.addListener(this);
+		eventBus.addListener(this);
 		loadContactAndGroup();
 		loadHeaders();
 	}
@@ -331,7 +333,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		db.removeListener(this);
+		eventBus.removeListener(this);
 		if(isFinishing()) markMessagesRead();
 	}
 

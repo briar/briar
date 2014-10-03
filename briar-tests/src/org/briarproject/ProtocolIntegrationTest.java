@@ -43,6 +43,7 @@ import org.briarproject.api.transport.ConnectionWriter;
 import org.briarproject.api.transport.ConnectionWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
+import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.messaging.simplex.SimplexMessagingModule;
@@ -79,9 +80,10 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new TestUiModule(), new CryptoModule(), new DatabaseModule(),
-				new MessagingModule(), new DuplexMessagingModule(),
-				new SimplexMessagingModule(), new ReliabilityModule(),
-				new SerialModule(), new TransportModule());
+				new EventModule(), new MessagingModule(),
+				new DuplexMessagingModule(), new SimplexMessagingModule(),
+				new ReliabilityModule(), new SerialModule(),
+				new TransportModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		packetReaderFactory = i.getInstance(PacketReaderFactory.class);

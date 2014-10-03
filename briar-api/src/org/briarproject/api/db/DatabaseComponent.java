@@ -13,7 +13,6 @@ import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
-import org.briarproject.api.event.EventListener;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
@@ -42,12 +41,6 @@ public interface DatabaseComponent {
 
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException, IOException;
-
-	/** Adds a listener to be notified when database events occur. */
-	void addListener(EventListener l);
-
-	/** Removes a listener. */
-	void removeListener(EventListener l);
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,

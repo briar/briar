@@ -23,6 +23,7 @@ import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -58,6 +59,7 @@ public class BriarService extends RoboService implements EventListener {
 	@Inject private volatile AndroidExecutor androidExecutor;
 	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 	private volatile boolean started = false;
 
 	@Override
@@ -92,7 +94,7 @@ public class BriarService extends RoboService implements EventListener {
 			public void run() {
 				StartResult result = lifecycleManager.startServices();
 				if(result == SUCCESS) {
-					db.addListener(BriarService.this);
+					eventBus.addListener(BriarService.this);
 					started = true;
 				} else if(result == ALREADY_RUNNING) {
 					LOG.info("Already running");
@@ -146,7 +148,7 @@ public class BriarService extends RoboService implements EventListener {
 			@Override
 			public void run() {
 				if(started) {
-					db.removeListener(BriarService.this);
+					eventBus.removeListener(BriarService.this);
 					lifecycleManager.stopServices();
 				}
 				androidExecutor.shutdown();

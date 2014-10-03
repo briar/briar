@@ -30,6 +30,7 @@ import org.briarproject.api.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
@@ -69,6 +70,7 @@ SelectContactsDialog.Listener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 	private volatile GroupId groupId = null;
 	private volatile Group group = null;
 	private volatile boolean subscribed = false;
@@ -171,7 +173,7 @@ SelectContactsDialog.Listener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		db.addListener(this);
+		eventBus.addListener(this);
 		loadSubscribers();
 	}
 
@@ -224,7 +226,7 @@ SelectContactsDialog.Listener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		db.removeListener(this);
+		eventBus.removeListener(this);
 	}
 
 	public void onClick(View view) {

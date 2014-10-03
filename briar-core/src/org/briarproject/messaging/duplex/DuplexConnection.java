@@ -22,6 +22,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
@@ -72,6 +73,7 @@ abstract class DuplexConnection implements EventListener {
 	};
 
 	protected final DatabaseComponent db;
+	protected final EventBus eventBus;
 	protected final ConnectionRegistry connRegistry;
 	protected final ConnectionReaderFactory connReaderFactory;
 	protected final ConnectionWriterFactory connWriterFactory;
@@ -92,7 +94,7 @@ abstract class DuplexConnection implements EventListener {
 
 	DuplexConnection(Executor dbExecutor, Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
-			ConnectionRegistry connRegistry,
+			EventBus eventBus, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			PacketReaderFactory packetReaderFactory,
@@ -102,6 +104,7 @@ abstract class DuplexConnection implements EventListener {
 		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
 		this.db = db;
+		this.eventBus = eventBus;
 		this.connRegistry = connRegistry;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
@@ -218,7 +221,7 @@ abstract class DuplexConnection implements EventListener {
 
 	void write() {
 		connRegistry.registerConnection(contactId, transportId);
-		db.addListener(this);
+		eventBus.addListener(this);
 		try {
 			OutputStream out = createConnectionWriter().getOutputStream();
 			writer = packetWriterFactory.createPacketWriter(out, true);
@@ -260,7 +263,7 @@ abstract class DuplexConnection implements EventListener {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			dispose(true, true);
 		}
-		db.removeListener(this);
+		eventBus.removeListener(this);
 		connRegistry.unregisterConnection(contactId, transportId);
 	}
 

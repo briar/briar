@@ -4,6 +4,7 @@
 		<item>org.briarproject.android.AndroidModule</item>
 		<item>org.briarproject.crypto.CryptoModule</item>
 		<item>org.briarproject.db.DatabaseModule</item>
+		<item>org.briarproject.event.EventModule</item>
 		<item>org.briarproject.invitation.InvitationModule</item>
 		<item>org.briarproject.lifecycle.LifecycleModule</item>
 		<item>org.briarproject.messaging.MessagingModule</item>

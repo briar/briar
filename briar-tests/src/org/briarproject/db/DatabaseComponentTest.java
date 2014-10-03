@@ -26,14 +26,16 @@ import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
-import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalAuthorAddedEvent;
 import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
+import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
+import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.lifecycle.ShutdownManager;
@@ -52,7 +54,6 @@ import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.TemporarySecret;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -109,7 +110,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
-			Database<T> database, DatabaseCleaner cleaner,
+			Database<T> database, DatabaseCleaner cleaner, EventBus eventBus,
 			ShutdownManager shutdown);
 
 	@Test
@@ -120,7 +121,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			exactly(11).of(database).startTransaction();
 			will(returnValue(txn));
@@ -137,8 +138,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
-			oneOf(listener).eventOccurred(with(any(
-					LocalAuthorAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
 			oneOf(database).containsContact(txn, authorId);
 			will(returnValue(false));
@@ -146,7 +146,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
-			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Arrays.asList(contact)));
@@ -158,8 +158,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).addGroup(txn, group);
 			will(returnValue(true));
-			oneOf(listener).eventOccurred(with(any(
-					SubscriptionAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(SubscriptionAddedEvent.class)));
 			// addGroup() again
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
@@ -177,9 +176,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeGroup(txn, groupId);
-			oneOf(listener).eventOccurred(with(any(
+			oneOf(eventBus).broadcast(with(any(
 					SubscriptionRemovedEvent.class)));
-			oneOf(listener).eventOccurred(with(any(
+			oneOf(eventBus).broadcast(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
 			// removeContact()
 			oneOf(database).containsContact(txn, contactId);
@@ -187,25 +186,23 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getInboxGroupId(txn, contactId);
 			will(returnValue(null));
 			oneOf(database).removeContact(txn, contactId);
-			oneOf(listener).eventOccurred(with(any(ContactRemovedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactRemovedEvent.class)));
 			// removeLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn, localAuthorId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeLocalAuthor(txn, localAuthorId);
-			oneOf(listener).eventOccurred(with(any(
-					LocalAuthorRemovedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(LocalAuthorRemovedEvent.class)));
 			// close()
 			oneOf(shutdown).removeShutdownHook(shutdownHandle);
 			oneOf(cleaner).stopCleaning();
 			oneOf(database).close();
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		assertFalse(db.open());
-		db.addListener(listener);
 		db.addLocalAuthor(localAuthor);
 		assertEquals(contactId, db.addContact(author, localAuthorId));
 		assertEquals(Arrays.asList(contact), db.getContacts());
@@ -218,7 +215,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		db.removeGroup(group);
 		db.removeContact(contactId);
 		db.removeLocalAuthor(localAuthorId);
-		db.removeListener(listener);
 		db.close();
 
 		context.assertIsSatisfied();
@@ -231,15 +227,18 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
+			oneOf(database).containsGroup(txn, groupId);
+			will(returnValue(true));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		db.addLocalMessage(message);
 
@@ -254,6 +253,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -264,7 +264,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		db.addLocalMessage(message);
 
@@ -278,7 +278,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -297,13 +297,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addStatus(txn, contactId, messageId, false, false);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(with(any(
-					MessageAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.addLocalMessage(message);
 
 		context.assertIsSatisfied();
@@ -317,6 +315,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
 			exactly(25).of(database).startTransaction();
@@ -326,7 +325,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			exactly(25).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		try {
 			db.addEndpoint(endpoint);
@@ -474,6 +473,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the pseudonym is in the DB (which it's not)
 			exactly(3).of(database).startTransaction();
@@ -486,7 +486,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(false));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		try {
 			db.addContact(author, localAuthorId);
@@ -514,6 +514,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the subscription is in the DB (which it's not)
 			exactly(5).of(database).startTransaction();
@@ -523,7 +524,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			exactly(5).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		try {
 			db.getGroup(groupId);
@@ -561,6 +562,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// addLocalAuthor()
 			oneOf(database).startTransaction();
@@ -569,6 +571,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
 			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -579,6 +582,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// Check whether the transport is in the DB (which it's not)
 			exactly(8).of(database).startTransaction();
 			will(returnValue(txn));
@@ -589,7 +593,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			exactly(8).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
+
 		db.addLocalAuthor(localAuthor);
 		assertEquals(contactId, db.addContact(author, localAuthorId));
 
@@ -645,6 +650,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -656,7 +662,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		Ack a = db.generateAck(contactId, 123);
 		assertEquals(messagesToAck, a.getMessageIds());
@@ -674,6 +680,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -693,7 +700,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		assertEquals(messages, db.generateBatch(contactId, size * 2,
 				Long.MAX_VALUE));
@@ -710,6 +717,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -724,7 +732,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		Offer o = db.generateOffer(contactId, 123, Long.MAX_VALUE);
 		assertEquals(ids, o.getMessageIds());
@@ -741,6 +749,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -752,7 +761,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		Request r = db.generateRequest(contactId, 123);
 		assertEquals(ids, r.getMessageIds());
@@ -770,6 +779,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -790,7 +800,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		assertEquals(messages, db.generateRequestedBatch(contactId, size * 2,
 				Long.MAX_VALUE));
@@ -805,6 +815,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -815,7 +826,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		assertNull(db.generateRetentionUpdate(contactId, Long.MAX_VALUE));
 
@@ -829,6 +840,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -839,7 +851,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		RetentionUpdate u = db.generateRetentionUpdate(contactId,
 				Long.MAX_VALUE);
@@ -856,6 +868,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -867,7 +880,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		assertNull(db.generateSubscriptionUpdate(contactId, Long.MAX_VALUE));
 
@@ -881,6 +894,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -892,7 +906,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId,
 				Long.MAX_VALUE);
@@ -909,6 +923,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -919,7 +934,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		assertNull(db.generateTransportUpdates(contactId, Long.MAX_VALUE));
 
@@ -933,6 +948,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -944,7 +960,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		Collection<TransportUpdate> updates =
 				db.generateTransportUpdates(contactId, Long.MAX_VALUE);
@@ -965,6 +981,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -974,9 +991,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(MessagesAckedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		db.receiveAck(contactId, new Ack(Arrays.asList(messageId)));
 
@@ -990,7 +1008,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1011,14 +1029,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			// The message was received and added
-			oneOf(listener).eventOccurred(with(any(
-					MessageToAckEvent.class)));
-			oneOf(listener).eventOccurred(with(any(MessageAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.receiveMessage(contactId, message);
 
 		context.assertIsSatisfied();
@@ -1031,7 +1047,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1045,13 +1061,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			// The message was received but not added
-			oneOf(listener).eventOccurred(with(any(
-					MessageToAckEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.receiveMessage(contactId, message);
 
 		context.assertIsSatisfied();
@@ -1064,6 +1078,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1076,7 +1091,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		db.receiveMessage(contactId, message);
 
@@ -1093,7 +1108,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1119,14 +1134,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsVisibleMessage(txn, contactId, messageId3);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(with(any(MessageToAckEvent.class)));
-			oneOf(listener).eventOccurred(with(any(
-					MessageToRequestEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessageToRequestEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		Offer o = new Offer(Arrays.asList(messageId, messageId1, messageId2,
 				messageId3));
 		db.receiveOffer(contactId, o);
@@ -1140,6 +1153,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1150,9 +1164,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).raiseRequestedFlag(txn, contactId, messageId);
 			oneOf(database).resetExpiryTime(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(MessageRequestedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		db.receiveRequest(contactId, new Request(Arrays.asList(messageId)));
 
@@ -1166,6 +1181,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1175,7 +1191,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		RetentionAck a = new RetentionAck(1);
 		db.receiveRetentionAck(contactId, a);
@@ -1190,6 +1206,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1199,7 +1216,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		SubscriptionAck a = new SubscriptionAck(1);
 		db.receiveSubscriptionAck(contactId, a);
@@ -1214,6 +1231,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1223,7 +1241,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		SubscriptionUpdate u = new SubscriptionUpdate(Arrays.asList(group), 1);
 		db.receiveSubscriptionUpdate(contactId, u);
@@ -1238,6 +1256,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1250,7 +1269,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		TransportAck a = new TransportAck(transportId, 1);
 		db.receiveTransportAck(contactId, a);
@@ -1265,6 +1284,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1275,7 +1295,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		TransportUpdate u = new TransportUpdate(transportId,
 				transportProperties, 1);
@@ -1294,7 +1314,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1304,13 +1324,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(new TransportProperties()));
 			oneOf(database).mergeLocalProperties(txn, transportId, properties);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(with(any(
+			oneOf(eventBus).broadcast(with(any(
 					LocalTransportsUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.mergeLocalProperties(transportId, properties);
 
 		context.assertIsSatisfied();
@@ -1326,7 +1345,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1337,9 +1356,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.mergeLocalProperties(transportId, properties);
 
 		context.assertIsSatisfied();
@@ -1354,7 +1372,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1367,13 +1385,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).removeVisibility(txn, contactId1, groupId);
 			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(with(any(
+			oneOf(eventBus).broadcast(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.setVisibility(groupId, Arrays.asList(contactId));
 
 		context.assertIsSatisfied();
@@ -1389,7 +1406,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1403,9 +1420,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.setVisibility(groupId, both);
 
 		context.assertIsSatisfied();
@@ -1421,7 +1437,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventListener listener = context.mock(EventListener.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// setVisibility()
 			oneOf(database).startTransaction();
@@ -1435,7 +1451,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addVisibility(txn, contactId, groupId);
 			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(with(any(
+			oneOf(eventBus).broadcast(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
 			// setVisibleToAll()
 			oneOf(database).startTransaction();
@@ -1449,13 +1465,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(both));
 			oneOf(database).addVisibility(txn, contactId1, groupId);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(with(any(
+			oneOf(eventBus).broadcast(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
-		db.addListener(listener);
 		db.setVisibility(groupId, Arrays.asList(contactId));
 		db.setVisibleToAll(groupId, true);
 
@@ -1469,6 +1484,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// addSecrets()
 			oneOf(database).startTransaction();
@@ -1487,7 +1503,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				eventBus, shutdown);
 
 		db.addSecrets(Arrays.asList(temporarySecret));
 		assertEquals(Arrays.asList(temporarySecret), db.getSecrets());

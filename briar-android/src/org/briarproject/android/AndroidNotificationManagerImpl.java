@@ -27,6 +27,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.lifecycle.Service;
@@ -52,6 +53,7 @@ Service, EventListener {
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
+	private final EventBus eventBus;
 	private final Context appContext;
 	private final Map<ContactId, Integer> contactCounts =
 			new HashMap<ContactId, Integer>(); // Locking: this
@@ -65,14 +67,16 @@ Service, EventListener {
 
 	@Inject
 	public AndroidNotificationManagerImpl(DatabaseComponent db,
-			@DatabaseExecutor Executor dbExecutor, Application app) {
+			@DatabaseExecutor Executor dbExecutor, EventBus eventBus,
+			Application app) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
+		this.eventBus = eventBus;
 		appContext = app.getApplicationContext();
 	}
 
 	public boolean start() {
-		db.addListener(this);
+		eventBus.addListener(this);
 		loadSettings();
 		return true;
 	}
@@ -91,7 +95,7 @@ Service, EventListener {
 	}
 
 	public boolean stop() {
-		db.removeListener(this);
+		eventBus.removeListener(this);
 		return true;
 	}
 

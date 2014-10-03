@@ -7,6 +7,7 @@ import java.util.Collections;
 
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.db.DatabaseCleaner.Callback;
 import org.jmock.Expectations;
@@ -26,11 +27,13 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
+		Callback db = createDatabaseComponentImpl(database, cleaner, eventBus,
+				shutdown);
 
 		db.checkFreeSpaceAndClean();
 
@@ -44,6 +47,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE - 1));
@@ -56,7 +60,8 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
+		Callback db = createDatabaseComponentImpl(database, cleaner, eventBus,
+				shutdown);
 
 		db.checkFreeSpaceAndClean();
 
@@ -65,14 +70,16 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 
 	@Override
 	protected <T> DatabaseComponent createDatabaseComponent(
-			Database<T> database, DatabaseCleaner cleaner,
+			Database<T> database, DatabaseCleaner cleaner, EventBus eventBus,
 			ShutdownManager shutdown) {
-		return createDatabaseComponentImpl(database, cleaner, shutdown);
+		return createDatabaseComponentImpl(database, cleaner, eventBus,
+				shutdown);
 	}
 
 	private <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
-			Database<T> database, DatabaseCleaner cleaner,
+			Database<T> database, DatabaseCleaner cleaner, EventBus eventBus,
 			ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<T>(database, cleaner, shutdown);
+		return new DatabaseComponentImpl<T>(database, cleaner, eventBus,
+				shutdown);
 	}
 }

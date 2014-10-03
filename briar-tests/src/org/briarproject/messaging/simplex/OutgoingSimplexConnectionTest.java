@@ -28,6 +28,7 @@ import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.ConnectionRegistry;
 import org.briarproject.api.transport.ConnectionWriterFactory;
 import org.briarproject.crypto.CryptoModule;
+import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.serial.SerialModule;
@@ -59,6 +60,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
 		Module testModule = new AbstractModule() {
+			@Override
 			public void configure() {
 				bind(DatabaseComponent.class).toInstance(db);
 				bind(Executor.class).annotatedWith(
@@ -68,7 +70,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		};
 		Injector i = Guice.createInjector(testModule,
 				new TestLifecycleModule(), new TestSystemModule(),
-				new CryptoModule(), new MessagingModule(),
+				new CryptoModule(), new EventModule(), new MessagingModule(),
 				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new SerialModule(), new TransportModule());
 		connRegistry = i.getInstance(ConnectionRegistry.class);

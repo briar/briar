@@ -23,6 +23,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportAddedEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
@@ -44,6 +45,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
+	private final EventBus eventBus;
 	private final ConnectionRecogniser connectionRecogniser;
 	private final Clock clock;
 	private final Timer timer;
@@ -56,10 +58,11 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
-			ConnectionRecogniser connectionRecogniser, Clock clock,
-			Timer timer) {
+			EventBus eventBus, ConnectionRecogniser connectionRecogniser,
+			Clock clock, Timer timer) {
 		this.crypto = crypto;
 		this.db = db;
+		this.eventBus = eventBus;
 		this.connectionRecogniser = connectionRecogniser;
 		this.clock = clock;
 		this.timer = timer;
@@ -70,7 +73,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	public synchronized boolean start() {
-		db.addListener(this);
+		eventBus.addListener(this);
 		// Load the temporary secrets and transport latencies from the database
 		Collection<TemporarySecret> secrets;
 		try {
@@ -213,7 +216,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	public synchronized boolean stop() {
-		db.removeListener(this);
+		eventBus.removeListener(this);
 		timer.cancel();
 		connectionRecogniser.removeSecrets();
 		maxLatencies.clear();
@@ -290,6 +293,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		connectionRecogniser.addSecret(s3);
 	}
 
+	@Override
 	public synchronized void run() {
 		// Rebuild the maps because we may be running a whole period late
 		Collection<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
@@ -399,6 +403,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			this.event = event;
 		}
 
+		@Override
 		public void run() {
 			ContactId c = event.getContactId();
 			connectionRecogniser.removeSecrets(c);
@@ -418,6 +423,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			this.event = event;
 		}
 
+		@Override
 		public void run() {
 			synchronized(KeyManagerImpl.this) {
 				maxLatencies.put(event.getTransportId(), event.getMaxLatency());
@@ -433,6 +439,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			this.event = event;
 		}
 
+		@Override
 		public void run() {
 			TransportId t = event.getTransportId();
 			connectionRecogniser.removeSecrets(t);

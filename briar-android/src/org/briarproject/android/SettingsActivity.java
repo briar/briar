@@ -35,6 +35,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.util.StringUtils;
@@ -72,6 +73,7 @@ OnClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 	private volatile Settings settings;
 	private volatile boolean bluetoothSetting = true;
 
@@ -201,7 +203,7 @@ OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		db.addListener(this);
+		eventBus.addListener(this);
 		loadSettings();
 	}
 
@@ -262,7 +264,7 @@ OnClickListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		db.removeListener(this);
+		eventBus.removeListener(this);
 	}
 
 	public void onClick(View view) {
