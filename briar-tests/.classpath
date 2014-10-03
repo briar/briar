@@ -12,6 +12,6 @@
 	<classpathentry kind="lib" path="libs/jmock-2.5.1.jar"/>
 	<classpathentry kind="lib" path="libs/junit-4.9b3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="/briar-core/libs/lcrypto-jdk15on-150.jar" sourcepath="/briar-core/libs/source/lcrypto-jdk15on-150-source.jar"/>
+	<classpathentry kind="lib" path="/briar-core/libs/lcrypto-jdk15on-151.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
