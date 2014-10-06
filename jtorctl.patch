@@ -1,7 +1,7 @@
 diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java
 --- jtorctl/net/freehaven/tor/control/TorControlConnection.java	2014-10-03 12:21:51.883098440 +0100
-+++ jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java	2014-10-03 12:17:07.429687913 +0100
-@@ -728,5 +728,12 @@
++++ jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java	2014-10-06 16:28:53.516851714 +0100
+@@ -728,5 +728,19 @@
          sendAndWaitForResponse("CLOSECIRCUIT "+circID+
                                 (ifUnused?" IFUNUSED":"")+"\r\n", null);
      }
@@ -11,6 +11,13 @@ diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-b
 +     */
 +    public void takeOwnership() throws IOException {
 +        sendAndWaitForResponse("TAKEOWNERSHIP\r\n", null);
++    }
++
++    /** Tells Tor to forget any cached client state relating to the hidden
++     * service with the given hostname (excluding the .onion extension).
++     */
++    public void forgetHiddenService(String hostname) throws IOException {
++        sendAndWaitForResponse("FORGETHS " + hostname + "\r\n", null);
 +    }
  }
  

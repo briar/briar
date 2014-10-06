@@ -1,0 +1,194 @@
+diff --git a/src/or/config.c b/src/or/config.c
+index 919dd27..c2d3caf 100644
+--- a/src/or/config.c
++++ b/src/or/config.c
+@@ -1039,6 +1039,8 @@ options_act_reversible(const or_options_t *old_options, char **msg)
+                  "non-control network connections. Shutting down all existing "
+                  "connections.");
+       connection_mark_all_noncontrol_connections();
++      /* We can't complete circuits until the network is re-enabled. */
++      can_complete_circuit = 0;
+     }
+   }
+ 
+diff --git a/src/or/control.c b/src/or/control.c
+index ae9dd69..0ead4c1 100644
+--- a/src/or/control.c
++++ b/src/or/control.c
+@@ -36,6 +36,8 @@
+ #include "nodelist.h"
+ #include "policies.h"
+ #include "reasons.h"
++#include "rendclient.h"
++#include "rendcommon.h"
+ #include "rephist.h"
+ #include "router.h"
+ #include "routerlist.h"
+@@ -197,6 +199,8 @@ static int handle_control_resolve(control_connection_t *conn, uint32_t len,
+ static int handle_control_usefeature(control_connection_t *conn,
+                                      uint32_t len,
+                                      const char *body);
++static int handle_control_forgeths(control_connection_t *conn, uint32_t len,
++                                   const char *body);
+ static int write_stream_target_to_buf(entry_connection_t *conn, char *buf,
+                                       size_t len);
+ static void orconn_target_get_name(char *buf, size_t len,
+@@ -3181,6 +3185,33 @@ handle_control_usefeature(control_connection_t *conn,
+   return 0;
+ }
+ 
++/** Called when we get a FORGETHS command: parse the hidden service's onion
++ * address and purge any cached state related to the service. */
++static int
++handle_control_forgeths(control_connection_t *conn, uint32_t len,
++                        const char *body)
++{
++  smartlist_t *args;
++  char *onion_address;
++
++  args = getargs_helper("FORGETHS", conn, body, 1, 1);
++  if (!args)
++    return -1;
++  onion_address = smartlist_get(args, 0);
++  smartlist_free(args);
++
++  if (!rend_valid_service_id(onion_address)) {
++    connection_write_str_to_buf("513 Invalid hidden service address\r\n", conn);
++    tor_free(onion_address);
++    return -1;
++  }
++
++  rend_client_purge_hidden_service(onion_address);
++  tor_free(onion_address);
++  send_control_done(conn);
++  return 0;
++}
++
+ /** Called when <b>conn</b> has no more bytes left on its outbuf. */
+ int
+ connection_control_finished_flushing(control_connection_t *conn)
+@@ -3480,6 +3511,9 @@ connection_control_process_inbuf(control_connection_t *conn)
+   } else if (!strcasecmp(conn->incoming_cmd, "AUTHCHALLENGE")) {
+     if (handle_control_authchallenge(conn, cmd_data_len, args))
+       return -1;
++  } else if (!strcasecmp(conn->incoming_cmd, "FORGETHS")) {
++    if (handle_control_forgeths(conn, cmd_data_len, args))
++      return -1;
+   } else {
+     connection_printf_to_buf(conn, "510 Unrecognized command \"%s\"\r\n",
+                              conn->incoming_cmd);
+diff --git a/src/or/rendclient.c b/src/or/rendclient.c
+index 7abbfd6..e550b65 100644
+--- a/src/or/rendclient.c
++++ b/src/or/rendclient.c
+@@ -29,6 +29,8 @@
+ static extend_info_t *rend_client_get_random_intro_impl(
+                           const rend_cache_entry_t *rend_query,
+                           const int strict, const int warnings);
++static void purge_hid_serv_from_last_hid_serv_requests(
++                          const char *onion_address);
+ 
+ /** Purge all potentially remotely-detectable state held in the hidden
+  * service client code.  Called on SIGNAL NEWNYM. */
+@@ -40,6 +42,16 @@ rend_client_purge_state(void)
+   rend_client_purge_last_hid_serv_requests();
+ }
+ 
++/** Purge all cached state relating to the given hidden service. */
++void
++rend_client_purge_hidden_service(const char *onion_address)
++{
++  tor_assert(rend_valid_service_id(onion_address));
++
++  rend_cache_remove_entry(onion_address);
++  purge_hid_serv_from_last_hid_serv_requests(onion_address);
++}
++
+ /** Called when we've established a circuit to an introduction point:
+  * send the introduction request. */
+ void
+diff --git a/src/or/rendclient.h b/src/or/rendclient.h
+index 1f731d0..7084aef 100644
+--- a/src/or/rendclient.h
++++ b/src/or/rendclient.h
+@@ -13,6 +13,7 @@
+ #define TOR_RENDCLIENT_H
+ 
+ void rend_client_purge_state(void);
++void rend_client_purge_hidden_service(const char *onion_address);
+ 
+ void rend_client_introcirc_has_opened(origin_circuit_t *circ);
+ void rend_client_rendcirc_has_opened(origin_circuit_t *circ);
+diff --git a/src/or/rendcommon.c b/src/or/rendcommon.c
+index d1b4941..3deb5fc 100644
+--- a/src/or/rendcommon.c
++++ b/src/or/rendcommon.c
+@@ -954,6 +954,34 @@ rend_cache_lookup_entry(const char *query, int version, rend_cache_entry_t **e)
+   return 1;
+ }
+ 
++/** Remove any cached descriptors for <b>service_id/b>. */
++void
++rend_cache_remove_entry(const char *service_id)
++{
++  char key[REND_SERVICE_ID_LEN_BASE32+2]; /* <version><service_id>\0 */
++  rend_cache_entry_t *removed;
++
++  tor_assert(rend_valid_service_id(service_id));
++  if (!rend_cache)
++    return;
++
++  tor_snprintf(key, sizeof(key), "2%s", service_id);
++  removed = (rend_cache_entry_t *)strmap_remove_lc(rend_cache, key);
++  if (removed) {
++    log_info(LD_REND, "Removed cached v2 descriptor for service %s.",
++               safe_str_client(service_id));
++    rend_cache_entry_free(removed);
++  }
++
++  tor_snprintf(key, sizeof(key), "0%s", service_id);
++  removed = (rend_cache_entry_t *)strmap_remove_lc(rend_cache, key);
++  if (removed) {
++    log_info(LD_REND, "Removed cached v0 descriptor for service %s.",
++               safe_str_client(service_id));
++    rend_cache_entry_free(removed);
++  }
++}
++
+ /** <b>query</b> is a base32'ed service id. If it's malformed, return -1.
+  * Else look it up.
+  *   - If it is found, point *desc to it, and write its length into
+diff --git a/src/or/rendcommon.h b/src/or/rendcommon.h
+index f476593..331784f 100644
+--- a/src/or/rendcommon.h
++++ b/src/or/rendcommon.h
+@@ -43,6 +43,7 @@ int rend_cache_lookup_desc(const char *query, int version, const char **desc,
+                            size_t *desc_len);
+ int rend_cache_lookup_entry(const char *query, int version,
+                             rend_cache_entry_t **entry_out);
++void rend_cache_remove_entry(const char *service_id);
+ int rend_cache_lookup_v2_desc_as_dir(const char *query, const char **desc);
+ int rend_cache_store(const char *desc, size_t desc_len, int published,
+                      const char *service_id);
+diff --git a/src/or/rendservice.c b/src/or/rendservice.c
+index 8a4a11e..35f5e18 100644
+--- a/src/or/rendservice.c
++++ b/src/or/rendservice.c
+@@ -15,6 +15,7 @@
+ #include "circuituse.h"
+ #include "config.h"
+ #include "directory.h"
++#include "main.h"
+ #include "networkstatus.h"
+ #include "nodelist.h"
+ #include "rendclient.h"
+@@ -3024,6 +3025,9 @@ rend_services_introduce(void)
+   time_t now;
+   const or_options_t *options = get_options();
+ 
++  if (!can_complete_circuit) 
++    return;
++
+   intro_nodes = smartlist_new();
+   now = time(NULL);
+ 

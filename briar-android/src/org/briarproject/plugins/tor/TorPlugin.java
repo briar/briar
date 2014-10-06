@@ -525,6 +525,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + onion);
+			controlConnection.forgetHiddenService(onion.substring(0, 16));
 			Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", SOCKS_PORT);
 			proxy.resolveAddrLocally(false);
 			Socket s = new SocksSocket(proxy, onion, 80);
@@ -546,7 +547,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	public void circuitStatus(String status, String id, String path) {
-		if(LOG.isLoggable(INFO)) LOG.info("Circuit " + id + " " + status);
 		if(status.equals("BUILT") && !circuitBuilt.getAndSet(true)) {
 			LOG.info("First circuit built");
 			if(isRunning()) callback.pollNow();
@@ -571,9 +571,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 	}
 
-	public void unrecognized(String type, String msg) {
-		if(LOG.isLoggable(INFO)) LOG.info(type + " " + msg);
-	}
+	public void unrecognized(String type, String msg) {}
 
 	private static class WriteObserver extends FileObserver {
 
