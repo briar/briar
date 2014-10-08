@@ -1,20 +1,19 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
+import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Collection;
 
 import org.briarproject.BriarTestCase;
-
 import org.junit.Test;
 
-public class ConnectionWindowTest extends BriarTestCase {
+public class ReorderingWindowTest extends BriarTestCase {
 
 	@Test
 	public void testWindowSliding() {
-		ConnectionWindow w = new ConnectionWindow();
+		ReorderingWindow w = new ReorderingWindow();
 		for(int i = 0; i < 100; i++) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -24,7 +23,7 @@ public class ConnectionWindowTest extends BriarTestCase {
 
 	@Test
 	public void testWindowJumping() {
-		ConnectionWindow w = new ConnectionWindow();
+		ReorderingWindow w = new ReorderingWindow();
 		for(int i = 0; i < 100; i += 13) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -34,7 +33,7 @@ public class ConnectionWindowTest extends BriarTestCase {
 
 	@Test
 	public void testWindowUpperLimit() {
-		ConnectionWindow w = new ConnectionWindow();
+		ReorderingWindow w = new ReorderingWindow();
 		// Centre is 0, highest value in window is 15
 		w.setSeen(15);
 		// Centre is 16, highest value in window is 31
@@ -45,8 +44,8 @@ public class ConnectionWindowTest extends BriarTestCase {
 			fail();
 		} catch(IllegalArgumentException expected) {}
 		// Centre is max - 1, highest value in window is max
-		byte[] bitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
-		w = new ConnectionWindow(MAX_32_BIT_UNSIGNED - 1, bitmap);
+		byte[] bitmap = new byte[REORDERING_WINDOW_SIZE / 8];
+		w = new ReorderingWindow(MAX_32_BIT_UNSIGNED - 1, bitmap);
 		assertFalse(w.isSeen(MAX_32_BIT_UNSIGNED - 1));
 		assertFalse(w.isSeen(MAX_32_BIT_UNSIGNED));
 		// Values greater than max should never be allowed
@@ -59,7 +58,7 @@ public class ConnectionWindowTest extends BriarTestCase {
 		// Centre should have moved to max + 1
 		assertEquals(MAX_32_BIT_UNSIGNED + 1, w.getCentre());
 		// The bit corresponding to max should be set
-		byte[] expectedBitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
+		byte[] expectedBitmap = new byte[REORDERING_WINDOW_SIZE / 8];
 		expectedBitmap[expectedBitmap.length / 2 - 1] = 1; // 00000001
 		assertArrayEquals(expectedBitmap, w.getBitmap());
 		// Values greater than max should never be allowed even if centre > max
@@ -71,7 +70,7 @@ public class ConnectionWindowTest extends BriarTestCase {
 
 	@Test
 	public void testWindowLowerLimit() {
-		ConnectionWindow w = new ConnectionWindow();
+		ReorderingWindow w = new ReorderingWindow();
 		// Centre is 0, negative values should never be allowed
 		try {
 			w.setSeen(-1);
@@ -100,7 +99,7 @@ public class ConnectionWindowTest extends BriarTestCase {
 		// Centre should still be 26
 		assertEquals(26, w.getCentre());
 		// The bits corresponding to 10, 15, 16 and 25 should be set
-		byte[] expectedBitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
+		byte[] expectedBitmap = new byte[REORDERING_WINDOW_SIZE / 8];
 		expectedBitmap[0] = (byte) 134; // 10000110
 		expectedBitmap[1] = 1; // 00000001
 		assertArrayEquals(expectedBitmap, w.getBitmap());
@@ -108,7 +107,7 @@ public class ConnectionWindowTest extends BriarTestCase {
 
 	@Test
 	public void testCannotSetSeenTwice() {
-		ConnectionWindow w = new ConnectionWindow();
+		ReorderingWindow w = new ReorderingWindow();
 		w.setSeen(15);
 		try {
 			w.setSeen(15);
@@ -117,8 +116,8 @@ public class ConnectionWindowTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetUnseenConnectionNumbers() {
-		ConnectionWindow w = new ConnectionWindow();
+	public void testGetUnseenStreamNumbers() {
+		ReorderingWindow w = new ReorderingWindow();
 		// Centre is 0; window should cover 0 to 15, inclusive, with none seen
 		Collection<Long> unseen = w.getUnseen();
 		assertEquals(16, unseen.size());

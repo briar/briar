@@ -6,7 +6,6 @@ import java.util.Random;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.SecretKey;
-
 import org.junit.Test;
 
 public class SecretKeyImplTest extends BriarTestCase {

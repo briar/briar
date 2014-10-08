@@ -4,11 +4,11 @@ import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.plugins.simplex.SimplexTransportReader;
 import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
-import org.briarproject.api.transport.ConnectionContext;
+import org.briarproject.api.transport.StreamContext;
 
 public interface SimplexConnectionFactory {
 
-	void createIncomingConnection(ConnectionContext ctx,
+	void createIncomingConnection(StreamContext ctx,
 			SimplexTransportReader r);
 
 	void createOutgoingConnection(ContactId c, TransportId t,

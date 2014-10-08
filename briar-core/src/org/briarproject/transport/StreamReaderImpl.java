@@ -6,16 +6,16 @@ import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.briarproject.api.transport.ConnectionReader;
+import org.briarproject.api.transport.StreamReader;
 
-class ConnectionReaderImpl extends InputStream implements ConnectionReader {
+class StreamReaderImpl extends InputStream implements StreamReader {
 
 	private final FrameReader in;
 	private final byte[] frame;
 
 	private int offset = 0, length = 0;
 
-	ConnectionReaderImpl(FrameReader in, int frameLength) {
+	StreamReaderImpl(FrameReader in, int frameLength) {
 		this.in = in;
 		frame = new byte[frameLength - MAC_LENGTH];
 	}

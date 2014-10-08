@@ -6,6 +6,7 @@ import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+
 import org.briarproject.util.ByteUtils;
 
 class FrameEncoder {

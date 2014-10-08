@@ -11,22 +11,22 @@ import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReader;
-import org.briarproject.api.transport.ConnectionReaderFactory;
 import org.briarproject.api.transport.ConnectionRegistry;
-import org.briarproject.api.transport.ConnectionWriter;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 class OutgoingDuplexConnection extends DuplexConnection {
 
 	OutgoingDuplexConnection(Executor dbExecutor, Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			EventBus eventBus, ConnectionRegistry connRegistry,
-			ConnectionReaderFactory connReaderFactory,
-			ConnectionWriterFactory connWriterFactory,
+			StreamReaderFactory connReaderFactory,
+			StreamWriterFactory connWriterFactory,
 			PacketReaderFactory packetReaderFactory,
-			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
+			PacketWriterFactory packetWriterFactory, StreamContext ctx,
 			DuplexTransportConnection transport) {
 		super(dbExecutor, cryptoExecutor, messageVerifier, db, eventBus,
 				connRegistry, connReaderFactory, connWriterFactory,
@@ -34,18 +34,18 @@ class OutgoingDuplexConnection extends DuplexConnection {
 	}
 
 	@Override
-	protected ConnectionReader createConnectionReader() throws IOException {
+	protected StreamReader createStreamReader() throws IOException {
 		InputStream in = transport.getInputStream();
 		int maxFrameLength = transport.getMaxFrameLength();
-		return connReaderFactory.createConnectionReader(in, maxFrameLength,
+		return connReaderFactory.createStreamReader(in, maxFrameLength,
 				ctx, false, false);
 	}
 
 	@Override
-	protected ConnectionWriter createConnectionWriter() throws IOException {
+	protected StreamWriter createStreamWriter() throws IOException {
 		OutputStream out = transport.getOutputStream();
 		int maxFrameLength = transport.getMaxFrameLength();
-		return connWriterFactory.createConnectionWriter(out, maxFrameLength,
+		return connWriterFactory.createStreamWriter(out, maxFrameLength,
 				Long.MAX_VALUE, ctx, false, true);
 	}
 }

@@ -51,9 +51,9 @@ import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.ConnectionDispatcher;
-import org.briarproject.api.transport.ConnectionReaderFactory;
-import org.briarproject.api.transport.ConnectionWriterFactory;
 import org.briarproject.api.transport.Endpoint;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 abstract class Connector extends Thread {
 
@@ -64,8 +64,8 @@ abstract class Connector extends Thread {
 	protected final DatabaseComponent db;
 	protected final ReaderFactory readerFactory;
 	protected final WriterFactory writerFactory;
-	protected final ConnectionReaderFactory connectionReaderFactory;
-	protected final ConnectionWriterFactory connectionWriterFactory;
+	protected final StreamReaderFactory streamReaderFactory;
+	protected final StreamWriterFactory streamWriterFactory;
 	protected final AuthorFactory authorFactory;
 	protected final GroupFactory groupFactory;
 	protected final KeyManager keyManager;
@@ -87,8 +87,8 @@ abstract class Connector extends Thread {
 
 	Connector(CryptoComponent crypto, DatabaseComponent db,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
-			ConnectionReaderFactory connectionReaderFactory,
-			ConnectionWriterFactory connectionWriterFactory,
+			StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
 			Clock clock, boolean reuseConnection, ConnectorGroup group,
@@ -100,8 +100,8 @@ abstract class Connector extends Thread {
 		this.db = db;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
-		this.connectionReaderFactory = connectionReaderFactory;
-		this.connectionWriterFactory = connectionWriterFactory;
+		this.streamReaderFactory = streamReaderFactory;
+		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;

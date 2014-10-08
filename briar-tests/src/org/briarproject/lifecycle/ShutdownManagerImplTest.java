@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.lifecycle.ShutdownManager;
-
 import org.junit.Test;
 
 public class ShutdownManagerImplTest extends BriarTestCase {

@@ -2,8 +2,8 @@ package org.briarproject.api.transport;
 
 import java.io.OutputStream;
 
-/** Encrypts and authenticates data to be sent over a connection. */
-public interface ConnectionWriter {
+/** Encrypts and authenticates data to be sent over an underlying transport. */
+public interface StreamWriter {
 
 	/**
 	 * Returns an output stream to which unencrypted, unauthenticated data can
@@ -11,6 +11,9 @@ public interface ConnectionWriter {
 	 */
 	OutputStream getOutputStream();
 
-	/** Returns the maximum number of bytes that can be written. */
+	/**
+	 * Returns the maximum number of bytes that can be written to the output
+	 * stream.
+	 */
 	long getRemainingCapacity();
 }

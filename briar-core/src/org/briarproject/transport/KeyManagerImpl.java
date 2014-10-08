@@ -29,9 +29,9 @@ import org.briarproject.api.event.TransportAddedEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionRecogniser;
 import org.briarproject.api.transport.Endpoint;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.api.transport.TemporarySecret;
 import org.briarproject.util.ByteUtils;
 
@@ -46,7 +46,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
-	private final ConnectionRecogniser connectionRecogniser;
+	private final TagRecogniser connectionRecogniser;
 	private final Clock clock;
 	private final Timer timer;
 
@@ -58,7 +58,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
-			EventBus eventBus, ConnectionRecogniser connectionRecogniser,
+			EventBus eventBus, TagRecogniser connectionRecogniser,
 			Clock clock, Timer timer) {
 		this.crypto = crypto;
 		this.db = db;
@@ -232,17 +232,17 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		m.clear();
 	}
 
-	public synchronized ConnectionContext getConnectionContext(ContactId c,
+	public synchronized StreamContext getStreamContext(ContactId c,
 			TransportId t) {
 		TemporarySecret s = currentSecrets.get(new EndpointKey(c, t));
 		if(s == null) {
 			LOG.info("No secret for endpoint");
 			return null;
 		}
-		long connection;
+		long streamNumber;
 		try {
-			connection = db.incrementConnectionCounter(c, t, s.getPeriod());
-			if(connection == -1) {
+			streamNumber = db.incrementStreamCounter(c, t, s.getPeriod());
+			if(streamNumber == -1) {
 				LOG.info("No counter for period");
 				return null;
 			}
@@ -252,7 +252,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 		// Clone the secret - the original will be erased
 		byte[] secret = s.getSecret().clone();
-		return new ConnectionContext(c, t, secret, connection, s.getAlice());
+		return new StreamContext(c, t, secret, streamNumber, s.getAlice());
 	}
 
 	public synchronized void endpointAdded(Endpoint ep, long maxLatency,

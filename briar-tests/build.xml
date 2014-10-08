@@ -125,16 +125,16 @@
 			<test name='org.briarproject.serial.ReaderImplTest'/>
 			<test name='org.briarproject.serial.WriterImplTest'/>
 			<test name='org.briarproject.system.LinuxSeedProviderTest'/>
-			<test name='org.briarproject.transport.ConnectionReaderImplTest'/>
 			<test name='org.briarproject.transport.ConnectionRegistryImplTest'/>
-			<test name='org.briarproject.transport.ConnectionWindowTest'/>
-			<test name='org.briarproject.transport.ConnectionWriterImplTest'/>
 			<test name='org.briarproject.transport.IncomingEncryptionLayerTest'/>
 			<test name='org.briarproject.transport.KeyManagerImplTest'/>
 			<test name='org.briarproject.transport.KeyRotationIntegrationTest'/>
 			<test name='org.briarproject.transport.OutgoingEncryptionLayerTest'/>
+			<test name='org.briarproject.transport.ReorderingWindowTest'/>
+			<test name='org.briarproject.transport.StreamReaderImplTest'/>
+			<test name='org.briarproject.transport.StreamWriterImplTest'/>
 			<test name='org.briarproject.transport.TransportIntegrationTest'/>
-			<test name='org.briarproject.transport.TransportConnectionRecogniserTest'/>
+			<test name='org.briarproject.transport.TransportTagRecogniserTest'/>
 			<test name='org.briarproject.util.ByteUtilsTest'/>
 			<test name='org.briarproject.util.StringUtilsTest'/>
 		</junit>

@@ -1,7 +1,6 @@
 package org.briarproject.crypto;
 
 import org.briarproject.api.crypto.PrivateKey;
-
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 
 class Sec1PrivateKey implements PrivateKey {

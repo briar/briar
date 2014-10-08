@@ -2,7 +2,7 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
@@ -19,9 +19,9 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionWriter;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 	private final int FRAME_LENGTH = 2048;
 
 	private final CryptoComponent crypto;
-	private final ConnectionWriterFactory connectionWriterFactory;
+	private final StreamWriterFactory streamWriterFactory;
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final AuthenticatedCipher frameCipher;
@@ -45,15 +45,16 @@ public class TransportIntegrationTest extends BriarTestCase {
 
 	public TransportIntegrationTest() {
 		Module testModule = new AbstractModule() {
+			@Override
 			public void configure() {
-				bind(ConnectionWriterFactory.class).to(
-						ConnectionWriterFactoryImpl.class);
+				bind(StreamWriterFactory.class).to(
+						StreamWriterFactoryImpl.class);
 			}
 		};
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new TestLifecycleModule(), new TestSystemModule());
 		crypto = i.getInstance(CryptoComponent.class);
-		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
+		streamWriterFactory = i.getInstance(StreamWriterFactory.class);
 		contactId = new ContactId(234);
 		transportId = new TransportId("id");
 		frameCipher = crypto.getFrameCipher();
@@ -86,7 +87,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FrameWriter encryptionOut = new OutgoingEncryptionLayer(out,
 				Long.MAX_VALUE, frameCipher, frameCopy, FRAME_LENGTH);
-		ConnectionWriterImpl writer = new ConnectionWriterImpl(encryptionOut,
+		StreamWriterImpl writer = new StreamWriterImpl(encryptionOut,
 				FRAME_LENGTH);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
@@ -99,7 +100,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(output);
 		FrameReader encryptionIn = new IncomingEncryptionLayer(in, frameCipher,
 				frameKey, FRAME_LENGTH);
-		ConnectionReaderImpl reader = new ConnectionReaderImpl(encryptionIn,
+		StreamReaderImpl reader = new StreamReaderImpl(encryptionIn,
 				FRAME_LENGTH);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];
@@ -127,42 +128,42 @@ public class TransportIntegrationTest extends BriarTestCase {
 	@Test
 	public void testOverheadWithTag() throws Exception {
 		ByteArrayOutputStream out =
-				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				new ByteArrayOutputStream(MIN_STREAM_LENGTH);
+		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret, 0, true);
-		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MAX_FRAME_LENGTH, MIN_CONNECTION_LENGTH, ctx, false, true);
+		StreamWriter w = streamWriterFactory.createStreamWriter(out,
+				MAX_FRAME_LENGTH, MIN_STREAM_LENGTH, ctx, false, true);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);
-		assertTrue(capacity < MIN_CONNECTION_LENGTH);
+		assertTrue(capacity < MIN_STREAM_LENGTH);
 		// Check that there really is room for a packet
 		byte[] payload = new byte[MAX_PACKET_LENGTH];
 		w.getOutputStream().write(payload);
 		w.getOutputStream().close();
 		long used = out.size();
 		assertTrue(used > MAX_PACKET_LENGTH);
-		assertTrue(used <= MIN_CONNECTION_LENGTH);
+		assertTrue(used <= MIN_STREAM_LENGTH);
 	}
 
 	@Test
 	public void testOverheadWithoutTag() throws Exception {
 		ByteArrayOutputStream out =
-				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				new ByteArrayOutputStream(MIN_STREAM_LENGTH);
+		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret, 0, true);
-		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MAX_FRAME_LENGTH, MIN_CONNECTION_LENGTH, ctx, false, false);
+		StreamWriter w = streamWriterFactory.createStreamWriter(out,
+				MAX_FRAME_LENGTH, MIN_STREAM_LENGTH, ctx, false, false);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);
-		assertTrue(capacity < MIN_CONNECTION_LENGTH);
+		assertTrue(capacity < MIN_STREAM_LENGTH);
 		// Check that there really is room for a packet
 		byte[] payload = new byte[MAX_PACKET_LENGTH];
 		w.getOutputStream().write(payload);
 		w.getOutputStream().close();
 		long used = out.size();
 		assertTrue(used > MAX_PACKET_LENGTH);
-		assertTrue(used <= MIN_CONNECTION_LENGTH);
+		assertTrue(used <= MIN_STREAM_LENGTH);
 	}
 }

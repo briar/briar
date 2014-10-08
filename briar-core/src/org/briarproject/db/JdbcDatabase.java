@@ -813,7 +813,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setString(2, s.getTransportId().getString());
 				ps.setLong(3, s.getPeriod());
 				ps.setBytes(4, s.getSecret());
-				ps.setLong(5, s.getOutgoingConnectionCounter());
+				ps.setLong(5, s.getOutgoingStreamCounter());
 				ps.setLong(6, s.getWindowCentre());
 				ps.setBytes(7, s.getWindowBitmap());
 				ps.addBatch();
@@ -2433,12 +2433,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public long incrementConnectionCounter(Connection txn, ContactId c,
+	public long incrementStreamCounter(Connection txn, ContactId c,
 			TransportId t, long period) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Get the current connection counter
+			// Get the current stream counter
 			String sql = "SELECT outgoing FROM secrets"
 					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
@@ -2451,11 +2451,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.close();
 				return -1;
 			}
-			long connection = rs.getLong(1);
+			long streamNumber = rs.getLong(1);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			// Increment the connection counter
+			// Increment the stream counter
 			sql = "UPDATE secrets SET outgoing = outgoing + 1"
 					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
@@ -2465,7 +2465,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
-			return connection;
+			return streamNumber;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(rs);
@@ -2907,7 +2907,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throw new DbException(e);
 		}
 	}
-	public void setConnectionWindow(Connection txn, ContactId c, TransportId t,
+	public void setReorderingWindow(Connection txn, ContactId c, TransportId t,
 			long period, long centre, byte[] bitmap) throws DbException {
 		PreparedStatement ps = null;
 		try {

@@ -1,7 +1,6 @@
 package org.briarproject.plugins.modem;
 
 import org.briarproject.BriarTestCase;
-
 import org.junit.Test;
 
 public class CountryCodesTest extends BriarTestCase {

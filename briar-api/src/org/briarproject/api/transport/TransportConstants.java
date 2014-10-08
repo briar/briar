@@ -2,7 +2,7 @@ package org.briarproject.api.transport;
 
 public interface TransportConstants {
 
-	/** The length of the connection tag in bytes. */
+	/** The length of the pseudo-random tag in bytes. */
 	int TAG_LENGTH = 16;
 
 	/** The maximum length of a frame in bytes, including the header and MAC. */
@@ -21,15 +21,15 @@ public interface TransportConstants {
 	int MAC_LENGTH = 16;
 
 	/**
-	 * The minimum connection length in bytes that all transport plugins must
-	 * support. Connections may be shorter than this length, but all transport
-	 * plugins must support connections of at least this length.
+	 * The minimum stream length in bytes that all transport plugins must
+	 * support. Streams may be shorter than this length, but all transport
+	 * plugins must support streams of at least this length.
 	 */
-	int MIN_CONNECTION_LENGTH = 1024 * 1024; // 2^20, 1 MiB
+	int MIN_STREAM_LENGTH = 1024 * 1024; // 2^20, 1 MiB
 
 	/** The maximum difference between two communicating devices' clocks. */
 	int MAX_CLOCK_DIFFERENCE = 60 * 60 * 1000; // 1 hour
 
-	/** The size of the connection reordering window. */
-	int CONNECTION_WINDOW_SIZE = 32;
+	/** The size of the reordering window. */
+	int REORDERING_WINDOW_SIZE = 32;
 }

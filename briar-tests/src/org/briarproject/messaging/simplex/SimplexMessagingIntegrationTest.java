@@ -32,12 +32,12 @@ import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReaderFactory;
-import org.briarproject.api.transport.ConnectionRecogniser;
 import org.briarproject.api.transport.ConnectionRegistry;
-import org.briarproject.api.transport.ConnectionWriterFactory;
 import org.briarproject.api.transport.Endpoint;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
@@ -144,13 +144,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionRegistry connRegistry =
 				alice.getInstance(ConnectionRegistry.class);
-		ConnectionWriterFactory connWriterFactory =
-				alice.getInstance(ConnectionWriterFactory.class);
+		StreamWriterFactory connWriterFactory =
+				alice.getInstance(StreamWriterFactory.class);
 		PacketWriterFactory packetWriterFactory =
 				alice.getInstance(PacketWriterFactory.class);
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, Long.MAX_VALUE, Long.MAX_VALUE);
-		ConnectionContext ctx = km.getConnectionContext(contactId, transportId);
+		StreamContext ctx = km.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
 		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
 				connRegistry, connWriterFactory, packetWriterFactory, ctx,
@@ -196,21 +196,21 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Set up an event listener
 		MessageListener listener = new MessageListener();
 		bob.getInstance(EventBus.class).addListener(listener);
-		// Create a connection recogniser and recognise the connection
+		// Create a tag recogniser and recognise the tag
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		ConnectionRecogniser rec = bob.getInstance(ConnectionRecogniser.class);
+		TagRecogniser rec = bob.getInstance(TagRecogniser.class);
 		byte[] tag = new byte[TAG_LENGTH];
 		int read = in.read(tag);
 		assertEquals(tag.length, read);
-		ConnectionContext ctx = rec.acceptConnection(transportId, tag);
+		StreamContext ctx = rec.recogniseTag(transportId, tag);
 		assertNotNull(ctx);
 		// Create an incoming simplex connection
 		MessageVerifier messageVerifier =
 				bob.getInstance(MessageVerifier.class);
 		ConnectionRegistry connRegistry =
 				bob.getInstance(ConnectionRegistry.class);
-		ConnectionReaderFactory connWriterFactory =
-				bob.getInstance(ConnectionReaderFactory.class);
+		StreamReaderFactory connWriterFactory =
+				bob.getInstance(StreamReaderFactory.class);
 		PacketReaderFactory packetWriterFactory =
 				bob.getInstance(PacketReaderFactory.class);
 		TestSimplexTransportReader transport =

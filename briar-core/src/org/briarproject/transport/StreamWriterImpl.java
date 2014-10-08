@@ -6,15 +6,16 @@ import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.briarproject.api.transport.ConnectionWriter;
+import org.briarproject.api.transport.StreamWriter;
 
 /**
- * A ConnectionWriter that buffers its input and writes a frame whenever there
- * is a full frame to write or the {@link #flush()} method is called.
+ * A {@link org.briarproject.api.transport.StreamWriter StreamWriter} that
+ * buffers its input and writes a frame whenever there is a full frame to write
+ * or the {@link #flush()} method is called.
  * <p>
  * This class is not thread-safe.
  */
-class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
+class StreamWriterImpl extends OutputStream implements StreamWriter {
 
 	private final FrameWriter out;
 	private final byte[] frame;
@@ -22,7 +23,7 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
 	private int length = 0;
 
-	ConnectionWriterImpl(FrameWriter out, int frameLength) {
+	StreamWriterImpl(FrameWriter out, int frameLength) {
 		this.out = out;
 		this.frameLength = frameLength;
 		frame = new byte[frameLength - MAC_LENGTH];

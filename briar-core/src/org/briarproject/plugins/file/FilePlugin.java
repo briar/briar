@@ -1,7 +1,7 @@
 package org.briarproject.plugins.file;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -88,7 +88,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 		File f = new File(dir, filename);
 		try {
 			long capacity = fileUtils.getFreeSpace(dir);
-			if(capacity < MIN_CONNECTION_LENGTH) return null;
+			if(capacity < MIN_STREAM_LENGTH) return null;
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {

@@ -1,7 +1,6 @@
 package org.briarproject.crypto;
 
 import org.briarproject.api.crypto.MessageDigest;
-
 import org.spongycastle.crypto.Digest;
 
 /**

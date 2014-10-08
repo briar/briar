@@ -2,13 +2,13 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import org.briarproject.BriarTestCase;
 
+import org.briarproject.BriarTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-public class ConnectionWriterImplTest extends BriarTestCase {
+public class StreamWriterImplTest extends BriarTestCase {
 
 	private static final int FRAME_LENGTH = 1024;
 	private static final int MAX_PAYLOAD_LENGTH =
@@ -25,8 +25,8 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 			// Flush the stream
 			oneOf(writer).flush();
 		}});
-		ConnectionWriterImpl c = new ConnectionWriterImpl(writer, FRAME_LENGTH);
-		c.close();
+		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
+		w.close();
 		context.assertIsSatisfied();
 	}
 
@@ -34,12 +34,12 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 	public void testFlushWithoutBufferedDataWritesFrame() throws Exception {
 		Mockery context = new Mockery();
 		final FrameWriter writer = context.mock(FrameWriter.class);
-		ConnectionWriterImpl c = new ConnectionWriterImpl(writer, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Flush the stream
 			oneOf(writer).flush();
 		}});
-		c.flush();
+		w.flush();
 		context.assertIsSatisfied();
 	}
 
@@ -48,7 +48,7 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		final FrameWriter writer = context.mock(FrameWriter.class);
-		ConnectionWriterImpl c = new ConnectionWriterImpl(writer, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write a non-final frame with one payload byte
 			oneOf(writer).writeFrame(with(any(byte[].class)), with(1),
@@ -56,8 +56,8 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 			// Flush the stream
 			oneOf(writer).flush();
 		}});
-		c.write(0);
-		c.flush();
+		w.write(0);
+		w.flush();
 		context.assertIsSatisfied();
 	}
 
@@ -65,14 +65,14 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 	public void testSingleByteWritesWriteFullFrame() throws Exception {
 		Mockery context = new Mockery();
 		final FrameWriter writer = context.mock(FrameWriter.class);
-		ConnectionWriterImpl c = new ConnectionWriterImpl(writer, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write a full non-final frame
 			oneOf(writer).writeFrame(with(any(byte[].class)),
 					with(MAX_PAYLOAD_LENGTH), with(false));
 		}});
 		for(int i = 0; i < MAX_PAYLOAD_LENGTH; i++) {
-			c.write(0);
+			w.write(0);
 		}
 		context.assertIsSatisfied();
 	}
@@ -81,7 +81,7 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 	public void testMultiByteWritesWriteFullFrames() throws Exception {
 		Mockery context = new Mockery();
 		final FrameWriter writer = context.mock(FrameWriter.class);
-		ConnectionWriterImpl c = new ConnectionWriterImpl(writer, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames
 			exactly(2).of(writer).writeFrame(with(any(byte[].class)),
@@ -91,10 +91,10 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 		assertEquals(0, MAX_PAYLOAD_LENGTH % 2);
 		// Write two full payloads using four multi-byte writes
 		byte[] b = new byte[MAX_PAYLOAD_LENGTH / 2];
-		c.write(b);
-		c.write(b);
-		c.write(b);
-		c.write(b);
+		w.write(b);
+		w.write(b);
+		w.write(b);
+		w.write(b);
 		context.assertIsSatisfied();
 	}
 
@@ -102,7 +102,7 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 	public void testLargeMultiByteWriteWritesFullFrames() throws Exception {
 		Mockery context = new Mockery();
 		final FrameWriter writer = context.mock(FrameWriter.class);
-		ConnectionWriterImpl c = new ConnectionWriterImpl(writer, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames
 			exactly(2).of(writer).writeFrame(with(any(byte[].class)),
@@ -115,9 +115,9 @@ public class ConnectionWriterImplTest extends BriarTestCase {
 		}});
 		// Write two full payloads using one large multi-byte write
 		byte[] b = new byte[MAX_PAYLOAD_LENGTH * 2 + 1];
-		c.write(b);
+		w.write(b);
 		// There should be one byte left in the buffer
-		c.close();
+		w.close();
 		context.assertIsSatisfied();
 	}
 }

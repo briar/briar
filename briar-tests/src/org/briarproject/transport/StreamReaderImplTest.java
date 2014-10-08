@@ -2,13 +2,13 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import org.briarproject.BriarTestCase;
 
+import org.briarproject.BriarTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-public class ConnectionReaderImplTest extends BriarTestCase {
+public class StreamReaderImplTest extends BriarTestCase {
 
 	private static final int FRAME_LENGTH = 1024;
 	private static final int MAX_PAYLOAD_LENGTH =
@@ -28,13 +28,13 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 			oneOf(reader).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		ConnectionReaderImpl c = new ConnectionReaderImpl(reader, FRAME_LENGTH);
-		assertEquals(0, c.read()); // Skip the first empty frame, read a byte
-		assertEquals(0, c.read()); // Read another byte
-		assertEquals(-1, c.read()); // Skip the second empty frame, reach EOF
-		assertEquals(-1, c.read()); // Still at EOF
+		StreamReaderImpl r = new StreamReaderImpl(reader, FRAME_LENGTH);
+		assertEquals(0, r.read()); // Skip the first empty frame, read a byte
+		assertEquals(0, r.read()); // Read another byte
+		assertEquals(-1, r.read()); // Skip the second empty frame, reach EOF
+		assertEquals(-1, r.read()); // Still at EOF
 		context.assertIsSatisfied();
-		c.close();
+		r.close();
 	}
 
 	@Test
@@ -51,16 +51,16 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 			oneOf(reader).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		ConnectionReaderImpl c = new ConnectionReaderImpl(reader, FRAME_LENGTH);
+		StreamReaderImpl r = new StreamReaderImpl(reader, FRAME_LENGTH);
 		byte[] buf = new byte[MAX_PAYLOAD_LENGTH];
 		// Skip the first empty frame, read the two payload bytes
-		assertEquals(2, c.read(buf));
+		assertEquals(2, r.read(buf));
 		// Skip the second empty frame, reach EOF
-		assertEquals(-1, c.read(buf));
+		assertEquals(-1, r.read(buf));
 		// Still at EOF
-		assertEquals(-1, c.read(buf));
+		assertEquals(-1, r.read(buf));
 		context.assertIsSatisfied();
-		c.close();
+		r.close();
 	}
 
 	@Test
@@ -73,16 +73,16 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 			oneOf(reader).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		ConnectionReaderImpl c = new ConnectionReaderImpl(reader, FRAME_LENGTH);
+		StreamReaderImpl r = new StreamReaderImpl(reader, FRAME_LENGTH);
 		byte[] buf = new byte[MAX_PAYLOAD_LENGTH / 2];
 		// Read the first half of the payload
-		assertEquals(MAX_PAYLOAD_LENGTH / 2, c.read(buf));
+		assertEquals(MAX_PAYLOAD_LENGTH / 2, r.read(buf));
 		// Read the second half of the payload
-		assertEquals(MAX_PAYLOAD_LENGTH / 2, c.read(buf));
+		assertEquals(MAX_PAYLOAD_LENGTH / 2, r.read(buf));
 		// Reach EOF
-		assertEquals(-1, c.read(buf, 0, buf.length));
+		assertEquals(-1, r.read(buf, 0, buf.length));
 		context.assertIsSatisfied();
-		c.close();
+		r.close();
 	}
 
 	@Test
@@ -95,17 +95,17 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 			oneOf(reader).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		ConnectionReaderImpl c = new ConnectionReaderImpl(reader, FRAME_LENGTH);
+		StreamReaderImpl r = new StreamReaderImpl(reader, FRAME_LENGTH);
 		byte[] buf = new byte[MAX_PAYLOAD_LENGTH];
 		// Read the first half of the payload
-		assertEquals(MAX_PAYLOAD_LENGTH / 2, c.read(buf, MAX_PAYLOAD_LENGTH / 2,
+		assertEquals(MAX_PAYLOAD_LENGTH / 2, r.read(buf, MAX_PAYLOAD_LENGTH / 2,
 				MAX_PAYLOAD_LENGTH / 2));
 		// Read the second half of the payload
-		assertEquals(MAX_PAYLOAD_LENGTH / 2, c.read(buf, 123,
+		assertEquals(MAX_PAYLOAD_LENGTH / 2, r.read(buf, 123,
 				MAX_PAYLOAD_LENGTH / 2));
 		// Reach EOF
-		assertEquals(-1, c.read(buf, 0, buf.length));
+		assertEquals(-1, r.read(buf, 0, buf.length));
 		context.assertIsSatisfied();
-		c.close();
+		r.close();
 	}
 }

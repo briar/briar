@@ -11,7 +11,6 @@ import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.serial.CopyingConsumer;
 import org.briarproject.api.serial.CountingConsumer;
 import org.briarproject.api.serial.DigestingConsumer;
-
 import org.junit.Test;
 
 public class ConsumersTest extends BriarTestCase {

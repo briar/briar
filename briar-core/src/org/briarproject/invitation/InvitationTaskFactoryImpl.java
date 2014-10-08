@@ -15,8 +15,8 @@ import org.briarproject.api.serial.ReaderFactory;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.ConnectionDispatcher;
-import org.briarproject.api.transport.ConnectionReaderFactory;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 
@@ -24,8 +24,8 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	private final DatabaseComponent db;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
-	private final ConnectionReaderFactory connectionReaderFactory;
-	private final ConnectionWriterFactory connectionWriterFactory;
+	private final StreamReaderFactory streamReaderFactory;
+	private final StreamWriterFactory streamWriterFactory;
 	private final AuthorFactory authorFactory;
 	private final GroupFactory groupFactory;
 	private final KeyManager keyManager;
@@ -36,8 +36,8 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	@Inject
 	InvitationTaskFactoryImpl(CryptoComponent crypto, DatabaseComponent db,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
-			ConnectionReaderFactory connectionReaderFactory,
-			ConnectionWriterFactory connectionWriterFactory,
+			StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
 			Clock clock, PluginManager pluginManager) {
@@ -45,8 +45,8 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.db = db;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
-		this.connectionReaderFactory = connectionReaderFactory;
-		this.connectionWriterFactory = connectionWriterFactory;
+		this.streamReaderFactory = streamReaderFactory;
+		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
@@ -58,7 +58,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	public InvitationTask createTask(AuthorId localAuthorId, int localCode,
 			int remoteCode, boolean reuseConnection) {
 		return new ConnectorGroup(crypto, db, readerFactory, writerFactory,
-				connectionReaderFactory, connectionWriterFactory,
+				streamReaderFactory, streamWriterFactory,
 				authorFactory, groupFactory, keyManager, connectionDispatcher,
 				clock, pluginManager, localAuthorId, localCode, remoteCode,
 				reuseConnection);

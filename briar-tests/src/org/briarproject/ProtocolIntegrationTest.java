@@ -36,11 +36,11 @@ import org.briarproject.api.messaging.Request;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReader;
-import org.briarproject.api.transport.ConnectionReaderFactory;
-import org.briarproject.api.transport.ConnectionWriter;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
@@ -57,8 +57,8 @@ import com.google.inject.Injector;
 
 public class ProtocolIntegrationTest extends BriarTestCase {
 
-	private final ConnectionReaderFactory connectionReaderFactory;
-	private final ConnectionWriterFactory connectionWriterFactory;
+	private final StreamReaderFactory streamReaderFactory;
+	private final StreamWriterFactory streamWriterFactory;
 	private final PacketReaderFactory packetReaderFactory;
 	private final PacketWriterFactory packetWriterFactory;
 	private final MessageVerifier messageVerifier;
@@ -84,8 +84,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new ReliabilityModule(), new SerialModule(),
 				new TransportModule());
-		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
-		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
+		streamReaderFactory = i.getInstance(StreamReaderFactory.class);
+		streamWriterFactory = i.getInstance(StreamWriterFactory.class);
 		packetReaderFactory = i.getInstance(PacketReaderFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		messageVerifier = i.getInstance(MessageVerifier.class);
@@ -123,9 +123,9 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret.clone(), 0, true);
-		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
+		StreamWriter conn = streamWriterFactory.createStreamWriter(
 				out, MAX_FRAME_LENGTH, Long.MAX_VALUE, ctx, false, true);
 		OutputStream out1 = conn.getOutputStream();
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out1,
@@ -156,9 +156,9 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		// FIXME: Check that the expected tag was received
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret.clone(), 0, false);
-		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
+		StreamReader conn = streamReaderFactory.createStreamReader(
 				in, MAX_FRAME_LENGTH, ctx, true, true);
 		InputStream in1 = conn.getInputStream();
 		PacketReader reader = packetReaderFactory.createPacketReader(in1);

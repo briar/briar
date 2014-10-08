@@ -3,7 +3,7 @@ package org.briarproject.messaging.simplex;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
@@ -24,9 +24,9 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.ConnectionRegistry;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
@@ -49,7 +49,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	private final Mockery context;
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionWriterFactory connWriterFactory;
+	private final StreamWriterFactory connWriterFactory;
 	private final PacketWriterFactory packetWriterFactory;
 	private final ContactId contactId;
 	private final MessageId messageId;
@@ -74,7 +74,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new SerialModule(), new TransportModule());
 		connRegistry = i.getInstance(ConnectionRegistry.class);
-		connWriterFactory = i.getInstance(ConnectionWriterFactory.class);
+		connWriterFactory = i.getInstance(StreamWriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());
@@ -88,7 +88,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, MAX_PACKET_LENGTH, Long.MAX_VALUE);
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connWriterFactory, packetWriterFactory, ctx,
@@ -105,8 +105,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE);
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				out, MIN_STREAM_LENGTH, Long.MAX_VALUE);
+		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connWriterFactory, packetWriterFactory, ctx,
@@ -154,8 +154,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE);
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				out, MIN_STREAM_LENGTH, Long.MAX_VALUE);
+		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connWriterFactory, packetWriterFactory, ctx,

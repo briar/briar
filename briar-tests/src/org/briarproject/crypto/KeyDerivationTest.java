@@ -59,7 +59,7 @@ public class KeyDerivationTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testConnectionNumberAffectsDerivation() {
+	public void testStreamNumberAffectsDerivation() {
 		List<byte[]> secrets = new ArrayList<byte[]>();
 		for(int i = 0; i < 20; i++) {
 			secrets.add(crypto.deriveNextSecret(secret.clone(), i));

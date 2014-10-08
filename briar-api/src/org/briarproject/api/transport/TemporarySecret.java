@@ -1,6 +1,7 @@
 package org.briarproject.api.transport;
 
-import static org.briarproject.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
+import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
+
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 
@@ -9,7 +10,7 @@ public class TemporarySecret extends Endpoint {
 	private final long period, outgoing, centre;
 	private final byte[] secret, bitmap;
 
-	/** Creates a temporary secret with the given connection window. */
+	/** Creates a temporary secret with the given reordering window. */
 	public TemporarySecret(ContactId contactId, TransportId transportId,
 			long epoch, boolean alice, long period, byte[] secret,
 			long outgoing, long centre, byte[] bitmap) {
@@ -21,11 +22,11 @@ public class TemporarySecret extends Endpoint {
 		this.bitmap = bitmap;
 	}
 
-	/** Creates a temporary secret with a new connection window. */
+	/** Creates a temporary secret with a new reordering window. */
 	public TemporarySecret(ContactId contactId, TransportId transportId,
 			long epoch, boolean alice, long period, byte[] secret) {
 		this(contactId, transportId, epoch, alice, period, secret, 0, 0,
-				new byte[CONNECTION_WINDOW_SIZE / 8]);
+				new byte[REORDERING_WINDOW_SIZE / 8]);
 	}
 
 	/** Creates a temporary secret derived from the given endpoint. */
@@ -42,7 +43,7 @@ public class TemporarySecret extends Endpoint {
 		return secret;
 	}
 
-	public long getOutgoingConnectionCounter() {
+	public long getOutgoingStreamCounter() {
 		return outgoing;
 	}
 

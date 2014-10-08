@@ -1,7 +1,7 @@
 package org.briarproject.plugins.file;
 
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +20,6 @@ import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
 import org.briarproject.api.system.FileUtils;
 import org.briarproject.plugins.ImmediateExecutor;
 import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -344,10 +343,10 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		File f = new File(testDir, "abcdefgh.dat");
 		OutputStream out = new FileOutputStream(f);
-		out.write(new byte[MIN_CONNECTION_LENGTH]);
+		out.write(new byte[MIN_STREAM_LENGTH]);
 		out.flush();
 		out.close();
-		assertEquals(MIN_CONNECTION_LENGTH, f.length());
+		assertEquals(MIN_STREAM_LENGTH, f.length());
 		plugin.driveInserted(testDir);
 
 		context.assertIsSatisfied();

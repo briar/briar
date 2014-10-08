@@ -29,10 +29,10 @@ import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.ConnectionDispatcher;
-import org.briarproject.api.transport.ConnectionReader;
-import org.briarproject.api.transport.ConnectionReaderFactory;
-import org.briarproject.api.transport.ConnectionWriter;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 /** A connection thread for the peer being Bob in the invitation protocol. */
 class BobConnector extends Connector {
@@ -42,16 +42,16 @@ class BobConnector extends Connector {
 
 	BobConnector(CryptoComponent crypto, DatabaseComponent db,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
-			ConnectionReaderFactory connectionReaderFactory,
-			ConnectionWriterFactory connectionWriterFactory,
+			StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
 			Clock clock, boolean reuseConnection, ConnectorGroup group,
 			DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
-		super(crypto, db, readerFactory, writerFactory, connectionReaderFactory,
-				connectionWriterFactory, authorFactory, groupFactory,
+		super(crypto, db, readerFactory, writerFactory, streamReaderFactory,
+				streamWriterFactory, authorFactory, groupFactory,
 				keyManager, connectionDispatcher, clock, reuseConnection, group,
 				plugin, localAuthor, localProps, random);
 	}
@@ -131,14 +131,14 @@ class BobConnector extends Connector {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
 		int maxFrameLength = conn.getMaxFrameLength();
-		ConnectionReader connectionReader =
-				connectionReaderFactory.createInvitationConnectionReader(in,
+		StreamReader streamReader =
+				streamReaderFactory.createInvitationStreamReader(in,
 						maxFrameLength, secret, true);
-		r = readerFactory.createReader(connectionReader.getInputStream());
-		ConnectionWriter connectionWriter =
-				connectionWriterFactory.createInvitationConnectionWriter(out,
+		r = readerFactory.createReader(streamReader.getInputStream());
+		StreamWriter streamWriter =
+				streamWriterFactory.createInvitationStreamWriter(out,
 						maxFrameLength, secret, false);
-		w = writerFactory.createWriter(connectionWriter.getOutputStream());
+		w = writerFactory.createWriter(streamWriter.getOutputStream());
 		// Derive the nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);
 		byte[] aliceNonce = nonces[0], bobNonce = nonces[1];
@@ -179,7 +179,7 @@ class BobConnector extends Connector {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " pseudonym exchange succeeded");
 		group.pseudonymExchangeSucceeded(remoteAuthor);
-		// Reuse the connection as an incoming BTP connection
+		// Reuse the connection as an incoming transport connection
 		if(reuseConnection) reuseConnection(conn, false);
 		else tryToClose(conn, false);
 	}

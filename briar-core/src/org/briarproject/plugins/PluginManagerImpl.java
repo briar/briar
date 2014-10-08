@@ -378,11 +378,11 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public void readerCreated(SimplexTransportReader r) {
-			dispatcher.dispatchReader(id, r);
+			dispatcher.dispatchIncomingConnection(id, r);
 		}
 
 		public void writerCreated(ContactId c, SimplexTransportWriter w) {
-			dispatcher.dispatchWriter(c, id, w);
+			dispatcher.dispatchOutgoingConnection(c, id, w);
 		}
 	}
 

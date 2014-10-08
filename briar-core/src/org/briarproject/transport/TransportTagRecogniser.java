@@ -14,12 +14,15 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.transport.ConnectionContext;
+import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.TemporarySecret;
 
 // FIXME: Don't make alien calls with a lock held
-/** A connection recogniser for a specific transport. */
-class TransportConnectionRecogniser {
+/**
+ * A {@link org.briarproject.api.transport.TagRecogniser TagRecogniser} for a
+ * specific transport.
+ */
+class TransportTagRecogniser {
 
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
@@ -27,7 +30,7 @@ class TransportConnectionRecogniser {
 	private final Map<Bytes, TagContext> tagMap; // Locking: this
 	private final Map<RemovalKey, RemovalContext> removalMap; // Locking: this
 
-	TransportConnectionRecogniser(CryptoComponent crypto, DatabaseComponent db,
+	TransportTagRecogniser(CryptoComponent crypto, DatabaseComponent db,
 			TransportId transportId) {
 		this.crypto = crypto;
 		this.db = db;
@@ -36,32 +39,31 @@ class TransportConnectionRecogniser {
 		removalMap = new HashMap<RemovalKey, RemovalContext>();
 	}
 
-	synchronized ConnectionContext acceptConnection(byte[] tag)
-			throws DbException {
+	synchronized StreamContext recogniseTag(byte[] tag) throws DbException {
 		TagContext t = tagMap.remove(new Bytes(tag));
 		if(t == null) return null; // The tag was not expected
-		// Update the connection window and the expected tags
+		// Update the reordering window and the expected tags
 		SecretKey key = crypto.deriveTagKey(t.secret, !t.alice);
-		for(long connection : t.window.setSeen(t.connection)) {
+		for(long streamNumber : t.window.setSeen(t.streamNumber)) {
 			byte[] tag1 = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag1, key, connection);
-			if(connection < t.connection) {
+			crypto.encodeTag(tag1, key, streamNumber);
+			if(streamNumber < t.streamNumber) {
 				TagContext removed = tagMap.remove(new Bytes(tag1));
 				assert removed != null;
 			} else {
-				TagContext added = new TagContext(t, connection);
+				TagContext added = new TagContext(t, streamNumber);
 				TagContext duplicate = tagMap.put(new Bytes(tag1), added);
 				assert duplicate == null;
 			}
 		}
 		key.erase();
-		// Store the updated connection window in the DB
-		db.setConnectionWindow(t.contactId, transportId, t.period,
+		// Store the updated reordering window in the DB
+		db.setReorderingWindow(t.contactId, transportId, t.period,
 				t.window.getCentre(), t.window.getBitmap());
 		// Clone the secret - the key manager will erase the original
 		byte[] secret = t.secret.clone();
-		return new ConnectionContext(t.contactId, transportId, secret,
-				t.connection, t.alice);
+		return new StreamContext(t.contactId, transportId, secret,
+				t.streamNumber, t.alice);
 	}
 
 	synchronized void addSecret(TemporarySecret s) {
@@ -71,14 +73,14 @@ class TransportConnectionRecogniser {
 		byte[] secret = s.getSecret();
 		long centre = s.getWindowCentre();
 		byte[] bitmap = s.getWindowBitmap();
-		// Create the connection window and the expected tags
+		// Create the reordering window and the expected tags
 		SecretKey key = crypto.deriveTagKey(secret, !alice);
-		ConnectionWindow window = new ConnectionWindow(centre, bitmap);
-		for(long connection : window.getUnseen()) {
+		ReorderingWindow window = new ReorderingWindow(centre, bitmap);
+		for(long streamNumber : window.getUnseen()) {
 			byte[] tag = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag, key, connection);
+			crypto.encodeTag(tag, key, streamNumber);
 			TagContext added = new TagContext(contactId, alice, period,
-					secret, window, connection);
+					secret, window, streamNumber);
 			TagContext duplicate = tagMap.put(new Bytes(tag), added);
 			assert duplicate == null;
 		}
@@ -100,8 +102,8 @@ class TransportConnectionRecogniser {
 		// Remove the expected tags
 		SecretKey key = crypto.deriveTagKey(r.secret, !r.alice);
 		byte[] tag = new byte[TAG_LENGTH];
-		for(long connection : r.window.getUnseen()) {
-			crypto.encodeTag(tag, key, connection);
+		for(long streamNumber : r.window.getUnseen()) {
+			crypto.encodeTag(tag, key, streamNumber);
 			TagContext removed = tagMap.remove(new Bytes(tag));
 			assert removed != null;
 		}
@@ -127,22 +129,22 @@ class TransportConnectionRecogniser {
 		private final boolean alice;
 		private final long period;
 		private final byte[] secret;
-		private final ConnectionWindow window;
-		private final long connection;
+		private final ReorderingWindow window;
+		private final long streamNumber;
 
 		private TagContext(ContactId contactId, boolean alice, long period,
-				byte[] secret, ConnectionWindow window, long connection) {
+				byte[] secret, ReorderingWindow window, long streamNumber) {
 			this.contactId = contactId;
 			this.alice = alice;
 			this.period = period;
 			this.secret = secret;
 			this.window = window;
-			this.connection = connection;
+			this.streamNumber = streamNumber;
 		}
 
-		private TagContext(TagContext t, long connection) {
+		private TagContext(TagContext t, long streamNumber) {
 			this(t.contactId, t.alice, t.period, t.secret, t.window,
-					connection);
+					streamNumber);
 		}
 	}
 
@@ -173,11 +175,11 @@ class TransportConnectionRecogniser {
 
 	private static class RemovalContext {
 
-		private final ConnectionWindow window;
+		private final ReorderingWindow window;
 		private final byte[] secret;
 		private final boolean alice;
 
-		private RemovalContext(ConnectionWindow window, byte[] secret,
+		private RemovalContext(ReorderingWindow window, byte[] secret,
 				boolean alice) {
 			this.window = window;
 			this.secret = secret;

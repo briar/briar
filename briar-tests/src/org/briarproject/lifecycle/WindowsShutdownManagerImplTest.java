@@ -1,7 +1,6 @@
 package org.briarproject.lifecycle;
 
 import org.briarproject.api.lifecycle.ShutdownManager;
-
 import org.junit.Test;
 
 public class WindowsShutdownManagerImplTest extends ShutdownManagerImplTest {

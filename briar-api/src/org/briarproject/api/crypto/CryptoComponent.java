@@ -71,21 +71,20 @@ public interface CryptoComponent {
 	SecretKey deriveTagKey(byte[] secret, boolean alice);
 
 	/**
-	 * Derives a frame key from the given temporary secret and connection
-	 * number.
+	 * Derives a frame key from the given temporary secret and stream number.
 	 * @param alice indicates whether the key is for a connection initiated by
 	 * Alice or Bob.
 	 * @param initiator indicates whether the key is for the initiator's or the
 	 * responder's side of the connection.
 	 */
-	SecretKey deriveFrameKey(byte[] secret, long connection, boolean alice,
+	SecretKey deriveFrameKey(byte[] secret, long streamNumber, boolean alice,
 			boolean initiator);
 
-	/** Returns a cipher for encrypting and authenticating connections. */
+	/** Returns a cipher for encrypting and authenticating frames. */
 	AuthenticatedCipher getFrameCipher();
 
-	/** Encodes the pseudo-random tag that is used to recognise a connection. */
-	void encodeTag(byte[] tag, SecretKey tagKey, long connection);
+	/** Encodes the pseudo-random tag that is used to recognise a stream. */
+	void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber);
 
 	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to

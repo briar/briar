@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
-
 import org.junit.Test;
 
 public class PollingRemovableDriveMonitorTest extends BriarTestCase {

@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
+
 import org.briarproject.api.reliability.ReliabilityLayer;
 import org.briarproject.api.reliability.ReliabilityLayerFactory;
 import org.briarproject.api.reliability.WriteHandler;

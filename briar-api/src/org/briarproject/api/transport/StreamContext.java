@@ -3,20 +3,20 @@ package org.briarproject.api.transport;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 
-public class ConnectionContext {
+public class StreamContext {
 
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final byte[] secret;
-	private final long connection;
+	private final long streamNumber;
 	private final boolean alice;
 
-	public ConnectionContext(ContactId contactId, TransportId transportId,
-			byte[] secret, long connection, boolean alice) {
+	public StreamContext(ContactId contactId, TransportId transportId,
+			byte[] secret, long streamNumber, boolean alice) {
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.secret = secret;
-		this.connection = connection;
+		this.streamNumber = streamNumber;
 		this.alice = alice;
 	}
 
@@ -32,8 +32,8 @@ public class ConnectionContext {
 		return secret;
 	}
 
-	public long getConnectionNumber() {
-		return connection;
+	public long getStreamNumber() {
+		return streamNumber;
 	}
 
 	public boolean getAlice() {

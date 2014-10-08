@@ -542,14 +542,14 @@ interface Database<T> {
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Increments the outgoing connection counter for the given endpoint
-	 * in the given rotation period and returns the old value, or -1 if the
-	 * counter does not exist.
+	 * Increments the outgoing stream counter for the given endpoint in the
+	 * given rotation period and returns the old value, or -1 if the counter
+	 * does not exist.
 	 * <p>
 	 * Locking: write.
 	 */
-	long incrementConnectionCounter(T txn, ContactId c, TransportId t,
-			long period) throws DbException;
+	long incrementStreamCounter(T txn, ContactId c, TransportId t, long period)
+			throws DbException;
 
 	/**
 	 * Increments the retention time versions for all contacts to indicate that
@@ -694,12 +694,12 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Sets the connection reordering window for the given endpoint in the
-	 * given rotation period.
+	 * Sets the reordering window for the given endpoint in the given rotation
+	 * period.
 	 * <p>
 	 * Locking: write.
 	 */
-	void setConnectionWindow(T txn, ContactId c, TransportId t, long period,
+	void setReorderingWindow(T txn, ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
 
 	/**

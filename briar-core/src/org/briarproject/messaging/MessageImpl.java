@@ -1,6 +1,7 @@
 package org.briarproject.messaging;
 
 import static org.briarproject.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
+
 import org.briarproject.api.Author;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.Message;

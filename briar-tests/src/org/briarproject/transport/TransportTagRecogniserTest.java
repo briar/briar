@@ -11,7 +11,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.transport.ConnectionContext;
+import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.TemporarySecret;
 import org.briarproject.util.ByteUtils;
 import org.hamcrest.Description;
@@ -21,7 +21,7 @@ import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.junit.Test;
 
-public class TransportConnectionRecogniserTest extends BriarTestCase {
+public class TransportTagRecogniserTest extends BriarTestCase {
 
 	private final ContactId contactId = new ContactId(234);
 	private final TransportId transportId = new TransportId("id");
@@ -57,15 +57,15 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 		}});
 		TemporarySecret s = new TemporarySecret(contactId, transportId, 123,
 				alice, 0, secret, 0, 0, new byte[4]);
-		TransportConnectionRecogniser recogniser =
-				new TransportConnectionRecogniser(crypto, db, transportId);
+		TransportTagRecogniser recogniser =
+				new TransportTagRecogniser(crypto, db, transportId);
 		recogniser.addSecret(s);
 		recogniser.removeSecret(contactId, 0);
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testAcceptConnection() throws Exception {
+	public void testRecogniseTag() throws Exception {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final byte[] secret = new byte[32];
@@ -83,33 +83,35 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 				will(new EncodeTagAction());
 			}
 			oneOf(tagKey).erase();
-			// Accept connection 0
+			// Recognise tag 0
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
-			// The window should slide to include connection 16
+			// The window should slide to include tag 16
 			oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
 					with(16L));
 			will(new EncodeTagAction());
 			// The updated window should be stored
-			oneOf(db).setConnectionWindow(contactId, transportId, 0, 1,
+			oneOf(db).setReorderingWindow(contactId, transportId, 0, 1,
 					new byte[] {0, 1, 0, 0});
 			oneOf(tagKey).erase();
-			// Accept connection again - no expectations
+			// Recognise tag again - no expectations
 		}});
 		TemporarySecret s = new TemporarySecret(contactId, transportId, 123,
 				alice, 0, secret, 0, 0, new byte[4]);
-		TransportConnectionRecogniser recogniser =
-				new TransportConnectionRecogniser(crypto, db, transportId);
+		TransportTagRecogniser recogniser =
+				new TransportTagRecogniser(crypto, db, transportId);
 		recogniser.addSecret(s);
-		// Connection 0 should be expected
+		// Tag 0 should be expected
 		byte[] tag = new byte[TAG_LENGTH];
-		ConnectionContext ctx = recogniser.acceptConnection(tag);
+		StreamContext ctx = recogniser.recogniseTag(tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret, ctx.getSecret());
-		assertEquals(0, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getStreamNumber());
 		assertEquals(alice, ctx.getAlice());
+		// Tag 0 should not be expected again
+		assertNull(recogniser.recogniseTag(tag));
 		context.assertIsSatisfied();
 	}
 
@@ -121,9 +123,9 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 
 		public Object invoke(Invocation invocation) throws Throwable {
 			byte[] tag = (byte[]) invocation.getParameter(0);
-			long connection = (Long) invocation.getParameter(2);
-			// Encode a fake tag based on the connection number
-			ByteUtils.writeUint32(connection, tag, 0);
+			long streamNumber = (Long) invocation.getParameter(2);
+			// Encode a fake tag based on the stream number
+			ByteUtils.writeUint32(streamNumber, tag, 0);
 			return null;
 		}
 	}

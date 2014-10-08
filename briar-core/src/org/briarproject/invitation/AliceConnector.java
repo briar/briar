@@ -29,10 +29,10 @@ import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.ConnectionDispatcher;
-import org.briarproject.api.transport.ConnectionReader;
-import org.briarproject.api.transport.ConnectionReaderFactory;
-import org.briarproject.api.transport.ConnectionWriter;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 /** A connection thread for the peer being Alice in the invitation protocol. */
 class AliceConnector extends Connector {
@@ -42,16 +42,16 @@ class AliceConnector extends Connector {
 
 	AliceConnector(CryptoComponent crypto, DatabaseComponent db,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
-			ConnectionReaderFactory connectionReaderFactory,
-			ConnectionWriterFactory connectionWriterFactory,
+			StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
 			Clock clock, boolean reuseConnection, ConnectorGroup group,
 			DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
-		super(crypto, db, readerFactory, writerFactory, connectionReaderFactory,
-				connectionWriterFactory, authorFactory, groupFactory,
+		super(crypto, db, readerFactory, writerFactory, streamReaderFactory,
+				streamWriterFactory, authorFactory, groupFactory,
 				keyManager, connectionDispatcher, clock, reuseConnection, group,
 				plugin, localAuthor, localProps, random);
 	}
@@ -131,14 +131,14 @@ class AliceConnector extends Connector {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
 		int maxFrameLength = conn.getMaxFrameLength();
-		ConnectionReader connectionReader =
-				connectionReaderFactory.createInvitationConnectionReader(in,
+		StreamReader streamReader =
+				streamReaderFactory.createInvitationStreamReader(in,
 						maxFrameLength, secret, false);
-		r = readerFactory.createReader(connectionReader.getInputStream());
-		ConnectionWriter connectionWriter =
-				connectionWriterFactory.createInvitationConnectionWriter(out,
+		r = readerFactory.createReader(streamReader.getInputStream());
+		StreamWriter streamWriter =
+				streamWriterFactory.createInvitationStreamWriter(out,
 						maxFrameLength, secret, true);
-		w = writerFactory.createWriter(connectionWriter.getOutputStream());
+		w = writerFactory.createWriter(streamWriter.getOutputStream());
 		// Derive the invitation nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);
 		byte[] aliceNonce = nonces[0], bobNonce = nonces[1];
@@ -179,7 +179,7 @@ class AliceConnector extends Connector {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " pseudonym exchange succeeded");
 		group.pseudonymExchangeSucceeded(remoteAuthor);
-		// Reuse the connection as an outgoing BTP connection
+		// Reuse the connection as an outgoing transport connection
 		if(reuseConnection) reuseConnection(conn, true);
 		else tryToClose(conn, false);
 	}

@@ -23,10 +23,10 @@ import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
-import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.ConnectionRegistry;
-import org.briarproject.api.transport.ConnectionWriter;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.util.ByteUtils;
 
 class OutgoingSimplexConnection {
@@ -36,9 +36,9 @@ class OutgoingSimplexConnection {
 
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionWriterFactory connWriterFactory;
+	private final StreamWriterFactory connWriterFactory;
 	private final PacketWriterFactory packetWriterFactory;
-	private final ConnectionContext ctx;
+	private final StreamContext ctx;
 	private final SimplexTransportWriter transport;
 	private final ContactId contactId;
 	private final TransportId transportId;
@@ -46,8 +46,8 @@ class OutgoingSimplexConnection {
 
 	OutgoingSimplexConnection(DatabaseComponent db,
 			ConnectionRegistry connRegistry,
-			ConnectionWriterFactory connWriterFactory,
-			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
+			StreamWriterFactory connWriterFactory,
+			PacketWriterFactory packetWriterFactory, StreamContext ctx,
 			SimplexTransportWriter transport) {
 		this.db = db;
 		this.connRegistry = connRegistry;
@@ -66,7 +66,7 @@ class OutgoingSimplexConnection {
 			OutputStream out = transport.getOutputStream();
 			long capacity = transport.getCapacity();
 			int maxFrameLength = transport.getMaxFrameLength();
-			ConnectionWriter conn = connWriterFactory.createConnectionWriter(
+			StreamWriter conn = connWriterFactory.createStreamWriter(
 					out, maxFrameLength, capacity, ctx, false, true);
 			out = conn.getOutputStream();
 			if(conn.getRemainingCapacity() < MAX_PACKET_LENGTH)
@@ -114,7 +114,7 @@ class OutgoingSimplexConnection {
 		connRegistry.unregisterConnection(contactId, transportId);
 	}
 
-	private boolean writeTransportAcks(ConnectionWriter conn,
+	private boolean writeTransportAcks(StreamWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 		Collection<TransportAck> acks = db.generateTransportAcks(contactId);
@@ -126,7 +126,7 @@ class OutgoingSimplexConnection {
 		return true;
 	}
 
-	private boolean writeTransportUpdates(ConnectionWriter conn,
+	private boolean writeTransportUpdates(StreamWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 		Collection<TransportUpdate> updates =
@@ -139,7 +139,7 @@ class OutgoingSimplexConnection {
 		return true;
 	}
 
-	private boolean writeSubscriptionAck(ConnectionWriter conn,
+	private boolean writeSubscriptionAck(StreamWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 		SubscriptionAck a = db.generateSubscriptionAck(contactId);
@@ -148,7 +148,7 @@ class OutgoingSimplexConnection {
 		return conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 	}
 
-	private boolean writeSubscriptionUpdate(ConnectionWriter conn,
+	private boolean writeSubscriptionUpdate(StreamWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 		SubscriptionUpdate u =
@@ -158,7 +158,7 @@ class OutgoingSimplexConnection {
 		return conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 	}
 
-	private boolean writeRetentionAck(ConnectionWriter conn,
+	private boolean writeRetentionAck(StreamWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 		RetentionAck a = db.generateRetentionAck(contactId);
@@ -167,7 +167,7 @@ class OutgoingSimplexConnection {
 		return conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 	}
 
-	private boolean writeRetentionUpdate(ConnectionWriter conn,
+	private boolean writeRetentionUpdate(StreamWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 		RetentionUpdate u = db.generateRetentionUpdate(contactId, maxLatency);

@@ -6,38 +6,38 @@ import javax.inject.Inject;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReader;
-import org.briarproject.api.transport.ConnectionReaderFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
 
-class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
+class StreamReaderFactoryImpl implements StreamReaderFactory {
 
 	private final CryptoComponent crypto;
 
 	@Inject
-	ConnectionReaderFactoryImpl(CryptoComponent crypto) {
+	StreamReaderFactoryImpl(CryptoComponent crypto) {
 		this.crypto = crypto;
 	}
 
-	public ConnectionReader createConnectionReader(InputStream in,
-			int maxFrameLength, ConnectionContext ctx, boolean incoming,
+	public StreamReader createStreamReader(InputStream in,
+			int maxFrameLength, StreamContext ctx, boolean incoming,
 			boolean initiator) {
 		byte[] secret = ctx.getSecret();
-		long connection = ctx.getConnectionNumber();
+		long streamNumber = ctx.getStreamNumber();
 		boolean weAreAlice = ctx.getAlice();
 		boolean initiatorIsAlice = incoming ? !weAreAlice : weAreAlice;
-		SecretKey frameKey = crypto.deriveFrameKey(secret, connection,
+		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber,
 				initiatorIsAlice, initiator);
 		FrameReader encryption = new IncomingEncryptionLayer(in,
 				crypto.getFrameCipher(), frameKey, maxFrameLength);
-		return new ConnectionReaderImpl(encryption, maxFrameLength);
+		return new StreamReaderImpl(encryption, maxFrameLength);
 	}
 
-	public ConnectionReader createInvitationConnectionReader(InputStream in,
+	public StreamReader createInvitationStreamReader(InputStream in,
 			int maxFrameLength, byte[] secret, boolean alice) {
 		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
 		FrameReader encryption = new IncomingEncryptionLayer(in,
 				crypto.getFrameCipher(), frameKey, maxFrameLength);
-		return new ConnectionReaderImpl(encryption, maxFrameLength);
+		return new StreamReaderImpl(encryption, maxFrameLength);
 	}
 }

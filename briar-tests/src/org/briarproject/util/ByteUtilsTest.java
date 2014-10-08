@@ -1,7 +1,6 @@
 package org.briarproject.util;
 
 import org.briarproject.BriarTestCase;
-
 import org.junit.Test;
 
 public class ByteUtilsTest extends BriarTestCase {

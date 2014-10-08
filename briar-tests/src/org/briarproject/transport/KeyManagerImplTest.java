@@ -15,9 +15,9 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionRecogniser;
 import org.briarproject.api.transport.Endpoint;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.api.transport.TemporarySecret;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -58,8 +58,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -95,8 +95,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -154,8 +154,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -195,7 +195,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(connectionRecogniser).addSecret(s1);
 			oneOf(connectionRecogniser).addSecret(s2);
 			// getConnectionContext()
-			oneOf(db).incrementConnectionCounter(contactId, transportId, 1);
+			oneOf(db).incrementStreamCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
@@ -205,13 +205,13 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		assertTrue(keyManager.start());
 		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
-		ConnectionContext ctx =
-				keyManager.getConnectionContext(contactId, transportId);
+		StreamContext ctx =
+				keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret1, ctx.getSecret());
-		assertEquals(0, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getStreamNumber());
 		assertEquals(true, ctx.getAlice());
 		keyManager.stop();
 
@@ -224,8 +224,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -273,8 +273,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -332,8 +332,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -393,8 +393,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -428,7 +428,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH + 1));
 			// getConnectionContext()
-			oneOf(db).incrementConnectionCounter(contactId, transportId, 1);
+			oneOf(db).incrementStreamCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
@@ -438,13 +438,13 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		assertTrue(keyManager.start());
 		keyManager.run();
-		ConnectionContext ctx =
-				keyManager.getConnectionContext(contactId, transportId);
+		StreamContext ctx =
+				keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret1, ctx.getSecret());
-		assertEquals(0, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getStreamNumber());
 		assertEquals(true, ctx.getAlice());
 		keyManager.stop();
 
@@ -457,8 +457,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -503,7 +503,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).addSecrets(Arrays.asList(s3));
 			oneOf(connectionRecogniser).addSecret(s3);
 			// getConnectionContext()
-			oneOf(db).incrementConnectionCounter(contactId, transportId, 2);
+			oneOf(db).incrementStreamCounter(contactId, transportId, 2);
 			will(returnValue(0L));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
@@ -513,13 +513,13 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		assertTrue(keyManager.start());
 		keyManager.run();
-		ConnectionContext ctx =
-				keyManager.getConnectionContext(contactId, transportId);
+		StreamContext ctx =
+				keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret2, ctx.getSecret());
-		assertEquals(0, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getStreamNumber());
 		assertEquals(true, ctx.getAlice());
 		keyManager.stop();
 
@@ -532,8 +532,8 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final ConnectionRecogniser connectionRecogniser =
-				context.mock(ConnectionRecogniser.class);
+		final TagRecogniser connectionRecogniser =
+				context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
@@ -581,7 +581,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(connectionRecogniser).addSecret(s3);
 			oneOf(connectionRecogniser).addSecret(s4);
 			// getConnectionContext()
-			oneOf(db).incrementConnectionCounter(contactId, transportId, 3);
+			oneOf(db).incrementStreamCounter(contactId, transportId, 3);
 			will(returnValue(0L));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
@@ -591,13 +591,13 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		assertTrue(keyManager.start());
 		keyManager.run();
-		ConnectionContext ctx =
-				keyManager.getConnectionContext(contactId, transportId);
+		StreamContext ctx =
+				keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret3, ctx.getSecret());
-		assertEquals(0, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getStreamNumber());
 		assertEquals(true, ctx.getAlice());
 		keyManager.stop();
 

@@ -2,6 +2,7 @@ package org.briarproject.system;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 

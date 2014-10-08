@@ -17,9 +17,9 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionRecogniser;
 import org.briarproject.api.transport.Endpoint;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.api.transport.TemporarySecret;
 import org.briarproject.util.ByteUtils;
 import org.hamcrest.Description;
@@ -78,8 +78,8 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
-		final ConnectionRecogniser connectionRecogniser =
-				new ConnectionRecogniserImpl(crypto, db);
+		final TagRecogniser connectionRecogniser =
+				new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
 				eventBus, connectionRecogniser, clock, timer);
 
@@ -117,8 +117,8 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final ConnectionRecogniser connectionRecogniser =
-				new ConnectionRecogniserImpl(crypto, db);
+		final TagRecogniser connectionRecogniser =
+				new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
 				eventBus, connectionRecogniser, clock, timer);
 
@@ -241,8 +241,8 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final ConnectionRecogniser connectionRecogniser =
-				new ConnectionRecogniserImpl(crypto, db);
+		final TagRecogniser connectionRecogniser =
+				new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
 				eventBus, connectionRecogniser, clock, timer);
 
@@ -308,7 +308,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// getConnectionContext()
-			oneOf(db).incrementConnectionCounter(contactId, transportId, 1);
+			oneOf(db).incrementStreamCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
 			// The recogniser should derive the tags for period 0
@@ -351,13 +351,13 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		assertTrue(keyManager.start());
 		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
-		ConnectionContext ctx =
-				keyManager.getConnectionContext(contactId, transportId);
+		StreamContext ctx =
+				keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret1, ctx.getSecret());
-		assertEquals(0, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getStreamNumber());
 		assertEquals(true, ctx.getAlice());
 		keyManager.stop();
 
@@ -376,10 +376,10 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final ConnectionRecogniser connectionRecogniser =
-				new ConnectionRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser =
+				new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -450,7 +450,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			will(new EncodeTagAction());
 			oneOf(k2).getEncoded();
 			will(returnValue(key2));
-			oneOf(db).setConnectionWindow(contactId, transportId, 2, 1,
+			oneOf(db).setReorderingWindow(contactId, transportId, 2, 1,
 					new byte[] {0, 1, 0, 0});
 			oneOf(k2).erase();
 			// stop()
@@ -497,13 +497,12 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		// Recognise the tag for connection 0 in period 2
 		byte[] tag = new byte[TAG_LENGTH];
 		encodeTag(tag, key2, 0);
-		ConnectionContext ctx =
-				connectionRecogniser.acceptConnection(transportId, tag);
+		StreamContext ctx = tagRecogniser.recogniseTag(transportId, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret2, ctx.getSecret());
-		assertEquals(0, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getStreamNumber());
 		assertEquals(true, ctx.getAlice());
 		keyManager.stop();
 
@@ -522,8 +521,8 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final ConnectionRecogniser connectionRecogniser =
-				new ConnectionRecogniserImpl(crypto, db);
+		final TagRecogniser connectionRecogniser =
+				new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
 				eventBus, connectionRecogniser, clock, timer);
 
@@ -637,8 +636,8 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 		final SecretKey k3 = context.mock(SecretKey.class, "k3");
 
-		final ConnectionRecogniser connectionRecogniser =
-				new ConnectionRecogniserImpl(crypto, db);
+		final TagRecogniser connectionRecogniser =
+				new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
 				eventBus, connectionRecogniser, clock, timer);
 
@@ -762,8 +761,8 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k3 = context.mock(SecretKey.class, "k3");
 		final SecretKey k4 = context.mock(SecretKey.class, "k4");
 
-		final ConnectionRecogniser connectionRecogniser =
-				new ConnectionRecogniserImpl(crypto, db);
+		final TagRecogniser connectionRecogniser =
+				new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
 				eventBus, connectionRecogniser, clock, timer);
 
@@ -877,10 +876,10 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
-	private void encodeTag(byte[] tag, byte[] rawKey, long connection) {
-		// Encode a fake tag based on the key and connection number
+	private void encodeTag(byte[] tag, byte[] rawKey, long streamNumber) {
+		// Encode a fake tag based on the key and stream number
 		System.arraycopy(rawKey, 0, tag, 0, tag.length);
-		ByteUtils.writeUint32(connection, tag, 0);
+		ByteUtils.writeUint32(streamNumber, tag, 0);
 	}
 
 	private class EncodeTagAction implements Action {
@@ -892,8 +891,8 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		public Object invoke(Invocation invocation) throws Throwable {
 			byte[] tag = (byte[]) invocation.getParameter(0);
 			SecretKey key = (SecretKey) invocation.getParameter(1);
-			long connection = (Long) invocation.getParameter(2);
-			encodeTag(tag, key.getEncoded(), connection);
+			long streamNumber = (Long) invocation.getParameter(2);
+			encodeTag(tag, key.getEncoded(), streamNumber);
 			return null;
 		}
 	}

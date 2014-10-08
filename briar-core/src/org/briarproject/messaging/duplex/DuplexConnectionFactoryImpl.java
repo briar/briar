@@ -17,10 +17,10 @@ import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.messaging.duplex.DuplexConnectionFactory;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReaderFactory;
 import org.briarproject.api.transport.ConnectionRegistry;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 
@@ -33,8 +33,8 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 	private final EventBus eventBus;
 	private final KeyManager keyManager;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionReaderFactory connReaderFactory;
-	private final ConnectionWriterFactory connWriterFactory;
+	private final StreamReaderFactory connReaderFactory;
+	private final StreamWriterFactory connWriterFactory;
 	private final PacketReaderFactory packetReaderFactory;
 	private final PacketWriterFactory packetWriterFactory;
 
@@ -44,8 +44,8 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			EventBus eventBus, KeyManager keyManager,
 			ConnectionRegistry connRegistry,
-			ConnectionReaderFactory connReaderFactory,
-			ConnectionWriterFactory connWriterFactory,
+			StreamReaderFactory connReaderFactory,
+			StreamWriterFactory connWriterFactory,
 			PacketReaderFactory packetReaderFactory,
 			PacketWriterFactory packetWriterFactory) {
 		this.dbExecutor = dbExecutor;
@@ -61,7 +61,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 		this.packetWriterFactory = packetWriterFactory;
 	}
 
-	public void createIncomingConnection(ConnectionContext ctx,
+	public void createIncomingConnection(StreamContext ctx,
 			DuplexTransportConnection transport) {
 		final DuplexConnection conn = new IncomingDuplexConnection(dbExecutor,
 				cryptoExecutor, messageVerifier, db, eventBus, connRegistry,
@@ -83,9 +83,9 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 
 	public void createOutgoingConnection(ContactId c, TransportId t,
 			DuplexTransportConnection transport) {
-		ConnectionContext ctx = keyManager.getConnectionContext(c, t);
+		StreamContext ctx = keyManager.getStreamContext(c, t);
 		if(ctx == null) {
-			LOG.warning("Could not create outgoing connection context");
+			LOG.warning("Could not create outgoing stream context");
 			return;
 		}
 		final DuplexConnection conn = new OutgoingDuplexConnection(dbExecutor,

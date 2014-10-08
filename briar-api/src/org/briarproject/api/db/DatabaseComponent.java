@@ -237,11 +237,11 @@ public interface DatabaseComponent {
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
 
 	/**
-	 * Increments the outgoing connection counter for the given endpoint
-	 * in the given rotation period and returns the old value, or -1 if the
-	 * counter does not exist.
+	 * Increments the outgoing stream counter for the given endpoint in the
+	 * given rotation period and returns the old value, or -1 if the counter
+	 * does not exist.
 	 */
-	long incrementConnectionCounter(ContactId c, TransportId t, long period)
+	long incrementStreamCounter(ContactId c, TransportId t, long period)
 			throws DbException;
 
 	/**
@@ -315,10 +315,10 @@ public interface DatabaseComponent {
 	void removeTransport(TransportId t) throws DbException;
 
 	/**
-	 * Sets the connection reordering window for the given endpoint in the
-	 * given rotation period.
+	 * Sets the reordering window for the given endpoint in the given rotation
+	 * period.
 	 */
-	void setConnectionWindow(ContactId c, TransportId t, long period,
+	void setReorderingWindow(ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
 
 	/**

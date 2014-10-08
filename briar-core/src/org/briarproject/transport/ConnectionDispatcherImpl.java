@@ -20,9 +20,9 @@ import org.briarproject.api.messaging.simplex.SimplexConnectionFactory;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.plugins.simplex.SimplexTransportReader;
 import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
-import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.ConnectionDispatcher;
-import org.briarproject.api.transport.ConnectionRecogniser;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.TagRecogniser;
 
 class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
@@ -30,33 +30,34 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			Logger.getLogger(ConnectionDispatcherImpl.class.getName());
 
 	private final Executor ioExecutor;
-	private final ConnectionRecogniser recogniser;
+	private final TagRecogniser tagRecogniser;
 	private final SimplexConnectionFactory simplexConnFactory;
 	private final DuplexConnectionFactory duplexConnFactory;
 
 	@Inject
 	ConnectionDispatcherImpl(@IoExecutor Executor ioExecutor,
-			ConnectionRecogniser recogniser,
+			TagRecogniser tagRecogniser,
 			SimplexConnectionFactory simplexConnFactory,
 			DuplexConnectionFactory duplexConnFactory) {
 		this.ioExecutor = ioExecutor;
-		this.recogniser = recogniser;
+		this.tagRecogniser = tagRecogniser;
 		this.simplexConnFactory = simplexConnFactory;
 		this.duplexConnFactory = duplexConnFactory;
 	}
 
-	public void dispatchReader(TransportId t, SimplexTransportReader r) {
+	public void dispatchIncomingConnection(TransportId t,
+			SimplexTransportReader r) {
 		ioExecutor.execute(new DispatchSimplexConnection(t, r));
-	}
-
-	public void dispatchWriter(ContactId c, TransportId t,
-			SimplexTransportWriter w) {
-		simplexConnFactory.createOutgoingConnection(c, t, w);
 	}
 
 	public void dispatchIncomingConnection(TransportId t,
 			DuplexTransportConnection d) {
 		ioExecutor.execute(new DispatchDuplexConnection(t, d));
+	}
+
+	public void dispatchOutgoingConnection(ContactId c, TransportId t,
+			SimplexTransportWriter w) {
+		simplexConnFactory.createOutgoingConnection(c, t, w);
 	}
 
 	public void dispatchOutgoingConnection(ContactId c, TransportId t,
@@ -89,7 +90,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		public void run() {
 			try {
 				byte[] tag = readTag(transport.getInputStream());
-				ConnectionContext ctx = recogniser.acceptConnection(transportId,
+				StreamContext ctx = tagRecogniser.recogniseTag(transportId,
 						tag);
 				if(ctx == null) {
 					transport.dispose(false, false);
@@ -137,9 +138,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				dispose(true, false);
 				return;
 			}
-			ConnectionContext ctx = null;
+			StreamContext ctx = null;
 			try {
-				ctx = recogniser.acceptConnection(transportId, tag);
+				ctx = tagRecogniser.recogniseTag(transportId, tag);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				dispose(true, false);

@@ -986,7 +986,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public long incrementConnectionCounter(ContactId c, TransportId t,
+	public long incrementStreamCounter(ContactId c, TransportId t,
 			long period) throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -996,7 +996,7 @@ DatabaseCleaner.Callback {
 					throw new NoSuchContactException();
 				if(!db.containsTransport(txn, t))
 					throw new NoSuchTransportException();
-				long counter = db.incrementConnectionCounter(txn, c, t, period);
+				long counter = db.incrementStreamCounter(txn, c, t, period);
 				db.commitTransaction(txn);
 				return counter;
 			} catch(DbException e) {
@@ -1401,7 +1401,7 @@ DatabaseCleaner.Callback {
 		eventBus.broadcast(new TransportRemovedEvent(t));
 	}
 
-	public void setConnectionWindow(ContactId c, TransportId t, long period,
+	public void setReorderingWindow(ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -1411,7 +1411,7 @@ DatabaseCleaner.Callback {
 					throw new NoSuchContactException();
 				if(!db.containsTransport(txn, t))
 					throw new NoSuchTransportException();
-				db.setConnectionWindow(txn, c, t, period, centre, bitmap);
+				db.setReorderingWindow(txn, c, t, period, centre, bitmap);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);

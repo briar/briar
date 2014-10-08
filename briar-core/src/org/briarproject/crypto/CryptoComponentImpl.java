@@ -287,20 +287,20 @@ class CryptoComponentImpl implements CryptoComponent {
 		else return deriveKey(secret, B_TAG, 0);
 	}
 
-	public SecretKey deriveFrameKey(byte[] secret, long connection,
+	public SecretKey deriveFrameKey(byte[] secret, long streamNumber,
 			boolean alice, boolean initiator) {
 		if(secret.length != CIPHER_KEY_BYTES)
 			throw new IllegalArgumentException();
 		if(Arrays.equals(secret, BLANK_SECRET))
 			throw new IllegalArgumentException();
-		if(connection < 0 || connection > MAX_32_BIT_UNSIGNED)
+		if(streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		if(alice) {
-			if(initiator) return deriveKey(secret, A_FRAME_A, connection);
-			else return deriveKey(secret, A_FRAME_B, connection);
+			if(initiator) return deriveKey(secret, A_FRAME_A, streamNumber);
+			else return deriveKey(secret, A_FRAME_B, streamNumber);
 		} else {
-			if(initiator) return deriveKey(secret, B_FRAME_A, connection);
-			else return deriveKey(secret, B_FRAME_B, connection);
+			if(initiator) return deriveKey(secret, B_FRAME_A, streamNumber);
+			else return deriveKey(secret, B_FRAME_B, streamNumber);
 		}
 	}
 
@@ -318,12 +318,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new AuthenticatedCipherImpl(a, MAC_BYTES);
 	}
 
-	public void encodeTag(byte[] tag, SecretKey tagKey, long connection) {
+	public void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber) {
 		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
-		if(connection < 0 || connection > MAX_32_BIT_UNSIGNED)
+		if(streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
-		ByteUtils.writeUint32(connection, tag, 0);
+		ByteUtils.writeUint32(streamNumber, tag, 0);
 		BlockCipher cipher = new AESLightEngine();
 		assert cipher.getBlockSize() == TAG_LENGTH;
 		KeyParameter k = new KeyParameter(tagKey.getEncoded());

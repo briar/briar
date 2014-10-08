@@ -10,10 +10,9 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.briarproject.api.lifecycle.ShutdownManager;
-
 import org.bitlet.weupnp.GatewayDevice;
 import org.bitlet.weupnp.GatewayDiscover;
+import org.briarproject.api.lifecycle.ShutdownManager;
 import org.xml.sax.SAXException;
 
 class PortMapperImpl implements PortMapper {

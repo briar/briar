@@ -16,7 +16,6 @@ import org.briarproject.api.serial.SerialComponent;
 import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.serial.SerialModule;
-
 import org.junit.Test;
 
 import com.google.inject.Guice;

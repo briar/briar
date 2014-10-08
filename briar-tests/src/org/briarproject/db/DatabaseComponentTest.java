@@ -388,7 +388,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.incrementConnectionCounter(contactId, transportId, 0);
+			db.incrementStreamCounter(contactId, transportId, 0);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -453,7 +453,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.setConnectionWindow(contactId, transportId, 0, 0, new byte[4]);
+			db.setReorderingWindow(contactId, transportId, 0, 0, new byte[4]);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -624,7 +624,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchTransportException expected) {}
 
 		try {
-			db.incrementConnectionCounter(contactId, transportId, 0);
+			db.incrementStreamCounter(contactId, transportId, 0);
 			fail();
 		} catch(NoSuchTransportException expected) {}
 
@@ -634,7 +634,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchTransportException expected) {}
 
 		try {
-			db.setConnectionWindow(contactId, transportId, 0, 0, new byte[4]);
+			db.setReorderingWindow(contactId, transportId, 0, 0, new byte[4]);
 			fail();
 		} catch(NoSuchTransportException expected) {}
 

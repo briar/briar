@@ -1,15 +1,15 @@
 package org.briarproject.api.messaging;
 
-import static org.briarproject.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 
 public interface MessagingConstants {
 
 	/**
 	 * The maximum length of a serialised packet in bytes. To allow for future
-	 * changes in the protocol, this is smaller than the minimum connection
-	 * length minus the maximum encryption and authentication overhead.
+	 * changes in the protocol, this is smaller than the minimum stream length
+	 * minus the maximum encryption and authentication overhead.
 	 */
-	int MAX_PACKET_LENGTH = MIN_CONNECTION_LENGTH / 2;
+	int MAX_PACKET_LENGTH = MIN_STREAM_LENGTH / 2;
 
 	/** The maximum number of public groups a user may subscribe to. */
 	int MAX_SUBSCRIPTIONS = 3000;

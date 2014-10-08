@@ -1,8 +1,8 @@
 package org.briarproject.util;
 
 import static org.junit.Assert.assertArrayEquals;
-import org.briarproject.BriarTestCase;
 
+import org.briarproject.BriarTestCase;
 import org.junit.Test;
 
 public class StringUtilsTest extends BriarTestCase {

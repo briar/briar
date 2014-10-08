@@ -51,12 +51,12 @@ import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReader;
-import org.briarproject.api.transport.ConnectionReaderFactory;
 import org.briarproject.api.transport.ConnectionRegistry;
-import org.briarproject.api.transport.ConnectionWriter;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.util.ByteUtils;
 
 abstract class DuplexConnection implements EventListener {
@@ -75,11 +75,11 @@ abstract class DuplexConnection implements EventListener {
 	protected final DatabaseComponent db;
 	protected final EventBus eventBus;
 	protected final ConnectionRegistry connRegistry;
-	protected final ConnectionReaderFactory connReaderFactory;
-	protected final ConnectionWriterFactory connWriterFactory;
+	protected final StreamReaderFactory connReaderFactory;
+	protected final StreamWriterFactory connWriterFactory;
 	protected final PacketReaderFactory packetReaderFactory;
 	protected final PacketWriterFactory packetWriterFactory;
-	protected final ConnectionContext ctx;
+	protected final StreamContext ctx;
 	protected final DuplexTransportConnection transport;
 	protected final ContactId contactId;
 	protected final TransportId transportId;
@@ -95,10 +95,10 @@ abstract class DuplexConnection implements EventListener {
 	DuplexConnection(Executor dbExecutor, Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			EventBus eventBus, ConnectionRegistry connRegistry,
-			ConnectionReaderFactory connReaderFactory,
-			ConnectionWriterFactory connWriterFactory,
+			StreamReaderFactory connReaderFactory,
+			StreamWriterFactory connWriterFactory,
 			PacketReaderFactory packetReaderFactory,
-			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
+			PacketWriterFactory packetWriterFactory, StreamContext ctx,
 			DuplexTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
@@ -119,11 +119,9 @@ abstract class DuplexConnection implements EventListener {
 		writerTasks = new LinkedBlockingQueue<Runnable>();
 	}
 
-	protected abstract ConnectionReader createConnectionReader()
-			throws IOException;
+	protected abstract StreamReader createStreamReader() throws IOException;
 
-	protected abstract ConnectionWriter createConnectionWriter()
-			throws IOException;
+	protected abstract StreamWriter createStreamWriter() throws IOException;
 
 	public void eventOccurred(Event e) {
 		if(e instanceof ContactRemovedEvent) {
@@ -163,7 +161,7 @@ abstract class DuplexConnection implements EventListener {
 
 	void read() {
 		try {
-			InputStream in = createConnectionReader().getInputStream();
+			InputStream in = createStreamReader().getInputStream();
 			PacketReader reader = packetReaderFactory.createPacketReader(in);
 			LOG.info("Starting to read");
 			while(!reader.eof()) {
@@ -223,7 +221,7 @@ abstract class DuplexConnection implements EventListener {
 		connRegistry.registerConnection(contactId, transportId);
 		eventBus.addListener(this);
 		try {
-			OutputStream out = createConnectionWriter().getOutputStream();
+			OutputStream out = createStreamWriter().getOutputStream();
 			writer = packetWriterFactory.createPacketWriter(out, true);
 			LOG.info("Starting to write");
 			// Ensure the tag is sent

@@ -1,7 +1,6 @@
 package org.briarproject.plugins.file;
 
 import org.briarproject.BriarTestCase;
-
 import org.junit.Test;
 
 public class MacRemovableDriveFinderTest extends BriarTestCase {

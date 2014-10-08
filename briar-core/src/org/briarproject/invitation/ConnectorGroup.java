@@ -33,8 +33,8 @@ import org.briarproject.api.serial.ReaderFactory;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.ConnectionDispatcher;
-import org.briarproject.api.transport.ConnectionReaderFactory;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 /** A task consisting of one or more parallel connection attempts. */
 class ConnectorGroup extends Thread implements InvitationTask {
@@ -46,8 +46,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final DatabaseComponent db;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
-	private final ConnectionReaderFactory connectionReaderFactory;
-	private final ConnectionWriterFactory connectionWriterFactory;
+	private final StreamReaderFactory streamReaderFactory;
+	private final StreamWriterFactory streamWriterFactory;
 	private final AuthorFactory authorFactory;
 	private final GroupFactory groupFactory;
 	private final KeyManager keyManager;
@@ -64,8 +64,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	/*
 	 * All of the following require locking: this. We don't want to call the
 	 * listeners with a lock held, but we need to avoid a race condition in
-	 * addListener(), so the state that's accessed there after calling
-	 * listeners.add() must be guarded by a lock.
+	 * addListener(), so the state that's accessed in addListener() after
+	 * calling listeners.add() must be guarded by a lock.
 	 */
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
 	private boolean connectionFailed = false;
@@ -75,8 +75,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 
 	ConnectorGroup(CryptoComponent crypto, DatabaseComponent db,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
-			ConnectionReaderFactory connectionReaderFactory,
-			ConnectionWriterFactory connectionWriterFactory,
+			StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
 			Clock clock, PluginManager pluginManager, AuthorId localAuthorId,
@@ -87,8 +87,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		this.db = db;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
-		this.connectionReaderFactory = connectionReaderFactory;
-		this.connectionWriterFactory = connectionWriterFactory;
+		this.streamReaderFactory = streamReaderFactory;
+		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
@@ -176,7 +176,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		PseudoRandom random = crypto.getPseudoRandom(localInvitationCode,
 				remoteInvitationCode);
 		return new AliceConnector(crypto, db, readerFactory, writerFactory,
-				connectionReaderFactory, connectionWriterFactory, authorFactory,
+				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionDispatcher, clock,
 				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}
@@ -187,7 +187,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		PseudoRandom random = crypto.getPseudoRandom(remoteInvitationCode,
 				localInvitationCode);
 		return new BobConnector(crypto, db, readerFactory, writerFactory,
-				connectionReaderFactory, connectionWriterFactory, authorFactory,
+				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionDispatcher, clock,
 				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}

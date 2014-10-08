@@ -88,6 +88,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		contactId = new ContactId(1);
 	}
 
+	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -465,6 +466,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
 		Thread close = new Thread() {
+			@Override
 			public void run() {
 				try {
 					closing.countDown();
@@ -501,6 +503,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
 		Thread close = new Thread() {
+			@Override
 			public void run() {
 				try {
 					closing.countDown();
@@ -1160,19 +1163,19 @@ public class H2DatabaseTest extends BriarTestCase {
 			assertEquals(alice, s.getAlice());
 			if(s.getPeriod() == 0) {
 				assertArrayEquals(secret1, s.getSecret());
-				assertEquals(outgoing1, s.getOutgoingConnectionCounter());
+				assertEquals(outgoing1, s.getOutgoingStreamCounter());
 				assertEquals(centre1, s.getWindowCentre());
 				assertArrayEquals(bitmap1, s.getWindowBitmap());
 				foundFirst = true;
 			} else if(s.getPeriod() == 1) {
 				assertArrayEquals(secret2, s.getSecret());
-				assertEquals(outgoing2, s.getOutgoingConnectionCounter());
+				assertEquals(outgoing2, s.getOutgoingStreamCounter());
 				assertEquals(centre2, s.getWindowCentre());
 				assertArrayEquals(bitmap2, s.getWindowBitmap());
 				foundSecond = true;
 			} else if(s.getPeriod() == 2) {
 				assertArrayEquals(secret3, s.getSecret());
-				assertEquals(outgoing3, s.getOutgoingConnectionCounter());
+				assertEquals(outgoing3, s.getOutgoingStreamCounter());
 				assertEquals(centre3, s.getWindowCentre());
 				assertArrayEquals(bitmap3, s.getWindowBitmap());
 				foundThird = true;
@@ -1197,19 +1200,19 @@ public class H2DatabaseTest extends BriarTestCase {
 			assertEquals(alice, s.getAlice());
 			if(s.getPeriod() == 1) {
 				assertArrayEquals(secret2, s.getSecret());
-				assertEquals(outgoing2, s.getOutgoingConnectionCounter());
+				assertEquals(outgoing2, s.getOutgoingStreamCounter());
 				assertEquals(centre2, s.getWindowCentre());
 				assertArrayEquals(bitmap2, s.getWindowBitmap());
 				foundSecond = true;
 			} else if(s.getPeriod() == 2) {
 				assertArrayEquals(secret3, s.getSecret());
-				assertEquals(outgoing3, s.getOutgoingConnectionCounter());
+				assertEquals(outgoing3, s.getOutgoingStreamCounter());
 				assertEquals(centre3, s.getWindowCentre());
 				assertArrayEquals(bitmap3, s.getWindowBitmap());
 				foundThird = true;
 			} else if(s.getPeriod() == 3) {
 				assertArrayEquals(secret4, s.getSecret());
-				assertEquals(outgoing4, s.getOutgoingConnectionCounter());
+				assertEquals(outgoing4, s.getOutgoingStreamCounter());
 				assertEquals(centre4, s.getWindowCentre());
 				assertArrayEquals(bitmap4, s.getWindowBitmap());
 				foundFourth = true;
@@ -1230,7 +1233,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testIncrementConnectionCounter() throws Exception {
+	public void testIncrementStreamCounter() throws Exception {
 		// Create an endpoint and a temporary secret
 		long epoch = 123, latency = 234;
 		boolean alice = false;
@@ -1245,7 +1248,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact, the transport, the endpoint and the temporary secret
+		// Add the contact, transport, endpoint and temporary secret
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addTransport(txn, transportId, latency);
@@ -1260,14 +1263,14 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(transportId, s.getTransportId());
 		assertEquals(period, s.getPeriod());
 		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingConnectionCounter());
+		assertEquals(outgoing, s.getOutgoingStreamCounter());
 		assertEquals(centre, s.getWindowCentre());
 		assertArrayEquals(bitmap, s.getWindowBitmap());
 
-		// Increment the connection counter twice and retrieve the secret again
-		assertEquals(outgoing, db.incrementConnectionCounter(txn,
+		// Increment the stream counter twice and retrieve the secret again
+		assertEquals(outgoing, db.incrementStreamCounter(txn,
 				s.getContactId(), s.getTransportId(), s.getPeriod()));
-		assertEquals(outgoing + 1, db.incrementConnectionCounter(txn,
+		assertEquals(outgoing + 1, db.incrementStreamCounter(txn,
 				s.getContactId(), s.getTransportId(), s.getPeriod()));
 		secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
@@ -1276,7 +1279,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(transportId, s.getTransportId());
 		assertEquals(period, s.getPeriod());
 		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing + 2, s.getOutgoingConnectionCounter());
+		assertEquals(outgoing + 2, s.getOutgoingStreamCounter());
 		assertEquals(centre, s.getWindowCentre());
 		assertArrayEquals(bitmap, s.getWindowBitmap());
 
@@ -1285,7 +1288,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSetConnectionWindow() throws Exception {
+	public void testSetReorderingWindow() throws Exception {
 		// Create an endpoint and a temporary secret
 		long epoch = 123, latency = 234;
 		boolean alice = false;
@@ -1300,7 +1303,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact, the transport, the endpoint and the temporary secret
+		// Add the contact, transport, endpoint and temporary secret
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addTransport(txn, transportId, latency);
@@ -1315,13 +1318,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(transportId, s.getTransportId());
 		assertEquals(period, s.getPeriod());
 		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingConnectionCounter());
+		assertEquals(outgoing, s.getOutgoingStreamCounter());
 		assertEquals(centre, s.getWindowCentre());
 		assertArrayEquals(bitmap, s.getWindowBitmap());
 
-		// Update the connection window and retrieve the secret again
+		// Update the reordering window and retrieve the secret again
 		random.nextBytes(bitmap);
-		db.setConnectionWindow(txn, contactId, transportId, period, centre,
+		db.setReorderingWindow(txn, contactId, transportId, period, centre,
 				bitmap);
 		secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
@@ -1330,12 +1333,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(transportId, s.getTransportId());
 		assertEquals(period, s.getPeriod());
 		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingConnectionCounter());
+		assertEquals(outgoing, s.getOutgoingStreamCounter());
 		assertEquals(centre, s.getWindowCentre());
 		assertArrayEquals(bitmap, s.getWindowBitmap());
 
 		// Updating a nonexistent window should not throw an exception
-		db.setConnectionWindow(txn, contactId, transportId, period + 1, 1,
+		db.setReorderingWindow(txn, contactId, transportId, period + 1, 1,
 				bitmap);
 		// The nonexistent window should not have been created
 		secrets = db.getSecrets(txn);
@@ -1345,7 +1348,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(transportId, s.getTransportId());
 		assertEquals(period, s.getPeriod());
 		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingConnectionCounter());
+		assertEquals(outgoing, s.getOutgoingStreamCounter());
 		assertEquals(centre, s.getWindowCentre());
 		assertArrayEquals(bitmap, s.getWindowBitmap());
 
@@ -1354,7 +1357,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testContactTransports() throws Exception {
+	public void testEndpoints() throws Exception {
 		// Create some endpoints
 		long epoch1 = 123, latency1 = 234;
 		long epoch2 = 345, latency2 = 456;
@@ -1378,7 +1381,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addEndpoint(txn, ep1);
 		db.addEndpoint(txn, ep2);
 
-		// Retrieve the contact transports
+		// Retrieve the endpoints
 		Collection<Endpoint> endpoints = db.getEndpoints(txn);
 		assertEquals(2, endpoints.size());
 		boolean foundFirst = false, foundSecond = false;
@@ -1399,7 +1402,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(foundFirst);
 		assertTrue(foundSecond);
 
-		// Removing the contact should remove the contact transports
+		// Removing the contact should remove the endpoints
 		db.removeContact(txn, contactId);
 		assertEquals(Collections.emptyList(), db.getEndpoints(txn));
 
@@ -1646,6 +1649,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		return db;
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);

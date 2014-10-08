@@ -17,10 +17,10 @@ import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.messaging.simplex.SimplexConnectionFactory;
 import org.briarproject.api.plugins.simplex.SimplexTransportReader;
 import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReaderFactory;
 import org.briarproject.api.transport.ConnectionRegistry;
-import org.briarproject.api.transport.ConnectionWriterFactory;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 
@@ -32,8 +32,8 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionReaderFactory connReaderFactory;
-	private final ConnectionWriterFactory connWriterFactory;
+	private final StreamReaderFactory connReaderFactory;
+	private final StreamWriterFactory connWriterFactory;
 	private final PacketReaderFactory packetReaderFactory;
 	private final PacketWriterFactory packetWriterFactory;
 
@@ -42,8 +42,8 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 			@CryptoExecutor Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			KeyManager keyManager, ConnectionRegistry connRegistry,
-			ConnectionReaderFactory connReaderFactory,
-			ConnectionWriterFactory connWriterFactory,
+			StreamReaderFactory connReaderFactory,
+			StreamWriterFactory connWriterFactory,
 			PacketReaderFactory packetReaderFactory,
 			PacketWriterFactory packetWriterFactory) {
 		this.dbExecutor = dbExecutor;
@@ -58,7 +58,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 		this.packetWriterFactory = packetWriterFactory;
 	}
 
-	public void createIncomingConnection(ConnectionContext ctx,
+	public void createIncomingConnection(StreamContext ctx,
 			SimplexTransportReader r) {
 		final IncomingSimplexConnection conn = new IncomingSimplexConnection(
 				dbExecutor, cryptoExecutor, messageVerifier, db, connRegistry,
@@ -73,7 +73,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 
 	public void createOutgoingConnection(ContactId c, TransportId t,
 			SimplexTransportWriter w) {
-		ConnectionContext ctx = keyManager.getConnectionContext(c, t);
+		StreamContext ctx = keyManager.getStreamContext(c, t);
 		if(ctx == null) {
 			LOG.warning("Could not create outgoing connection context");
 			return;

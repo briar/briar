@@ -26,10 +26,10 @@ import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
 import org.briarproject.api.plugins.simplex.SimplexTransportReader;
-import org.briarproject.api.transport.ConnectionContext;
-import org.briarproject.api.transport.ConnectionReader;
-import org.briarproject.api.transport.ConnectionReaderFactory;
 import org.briarproject.api.transport.ConnectionRegistry;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.util.ByteUtils;
 
 class IncomingSimplexConnection {
@@ -41,9 +41,9 @@ class IncomingSimplexConnection {
 	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionReaderFactory connReaderFactory;
+	private final StreamReaderFactory connReaderFactory;
 	private final PacketReaderFactory packetReaderFactory;
-	private final ConnectionContext ctx;
+	private final StreamContext ctx;
 	private final SimplexTransportReader transport;
 	private final ContactId contactId;
 	private final TransportId transportId;
@@ -51,8 +51,8 @@ class IncomingSimplexConnection {
 	IncomingSimplexConnection(Executor dbExecutor, Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			ConnectionRegistry connRegistry,
-			ConnectionReaderFactory connReaderFactory,
-			PacketReaderFactory packetReaderFactory, ConnectionContext ctx,
+			StreamReaderFactory connReaderFactory,
+			PacketReaderFactory packetReaderFactory, StreamContext ctx,
 			SimplexTransportReader transport) {
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
@@ -72,7 +72,7 @@ class IncomingSimplexConnection {
 		try {
 			InputStream in = transport.getInputStream();
 			int maxFrameLength = transport.getMaxFrameLength();
-			ConnectionReader conn = connReaderFactory.createConnectionReader(in,
+			StreamReader conn = connReaderFactory.createStreamReader(in,
 					maxFrameLength, ctx, true, true);
 			in = conn.getInputStream();
 			PacketReader reader = packetReaderFactory.createPacketReader(in);

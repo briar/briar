@@ -11,7 +11,6 @@ import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
-
 import org.junit.Test;
 
 public class KeyEncodingAndParsingTest extends BriarTestCase {

@@ -1,7 +1,6 @@
 package org.briarproject.db;
 
 import org.briarproject.BriarTestCase;
-
 import org.junit.Test;
 
 public class ExponentialBackoffTest extends BriarTestCase {
