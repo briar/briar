@@ -279,6 +279,7 @@ OnClickListener {
 				else adapter.disable();
 			}
 			storeBluetoothSetting();
+			displaySettings();
 			return;
 		} else if(view == notifyPrivateMessages) {
 			Settings s = new Settings();
