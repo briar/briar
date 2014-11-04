@@ -100,7 +100,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 			StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 					out, maxFrameLength, ctx);
 			out = streamWriter.getOutputStream();
-			packetWriter = packetWriterFactory.createPacketWriter(out, true);
+			packetWriter = packetWriterFactory.createPacketWriter(out);
 			// Start a query for each type of packet, in order of urgency
 			dbExecutor.execute(new GenerateTransportAcks());
 			dbExecutor.execute(new GenerateTransportUpdates());
@@ -118,8 +118,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 					ThrowingRunnable<IOException> task = writerTasks.take();
 					if(task == CLOSE) break;
 					task.run();
+					if(writerTasks.isEmpty()) out.flush();
 				}
-				out.flush();
 				out.close();
 			} catch(InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");

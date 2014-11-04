@@ -179,7 +179,7 @@ public class ConstantsTest extends BriarTestCase {
 		TransportUpdate u = new TransportUpdate(id, p, Long.MAX_VALUE);
 		// Serialise the update
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
+		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		writer.writeTransportUpdate(u);
 		// Check the size of the serialised transport update
 		assertTrue(out.size() <= MAX_PACKET_LENGTH);
@@ -197,7 +197,7 @@ public class ConstantsTest extends BriarTestCase {
 		SubscriptionUpdate u = new SubscriptionUpdate(groups, Long.MAX_VALUE);
 		// Serialise the update
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
+		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		writer.writeSubscriptionUpdate(u);
 		// Check the size of the serialised subscription update
 		assertTrue(out.size() <= MAX_PACKET_LENGTH);
@@ -206,7 +206,7 @@ public class ConstantsTest extends BriarTestCase {
 	private void testMessageIdsFitIntoAck(int length) throws Exception {
 		// Create an ack with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
+		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		int maxMessages = writer.getMaxMessagesForAck(length);
 		Collection<MessageId> ids = new ArrayList<MessageId>();
 		for(int i = 0; i < maxMessages; i++)
@@ -219,7 +219,7 @@ public class ConstantsTest extends BriarTestCase {
 	private void testMessageIdsFitIntoRequest(int length) throws Exception {
 		// Create a request with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
+		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		int maxMessages = writer.getMaxMessagesForRequest(length);
 		Collection<MessageId> ids = new ArrayList<MessageId>();
 		for(int i = 0; i < maxMessages; i++)
@@ -232,7 +232,7 @@ public class ConstantsTest extends BriarTestCase {
 	private void testMessageIdsFitIntoOffer(int length) throws Exception {
 		// Create an offer with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
+		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		int maxMessages = writer.getMaxMessagesForOffer(length);
 		Collection<MessageId> ids = new ArrayList<MessageId>();
 		for(int i = 0; i < maxMessages; i++)

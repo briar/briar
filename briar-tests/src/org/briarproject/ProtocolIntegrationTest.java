@@ -125,8 +125,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
 				MAX_FRAME_LENGTH, ctx);
 		OutputStream out1 = streamWriter.getOutputStream();
-		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(out1,
-				false);
+		PacketWriter packetWriter =
+				packetWriterFactory.createPacketWriter(out1);
 
 		packetWriter.writeAck(new Ack(messageIds));
 
@@ -144,7 +144,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				transportProperties, 1);
 		packetWriter.writeTransportUpdate(tu);
 
-		packetWriter.flush();
+		out1.flush();
 		return out.toByteArray();
 	}
 

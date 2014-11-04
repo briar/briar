@@ -83,7 +83,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 		streamWriter = streamWriterFactory.createStreamWriter(out,
 				maxFrameLength, ctx);
 		out = streamWriter.getOutputStream();
-		packetWriter = packetWriterFactory.createPacketWriter(out, false);
+		packetWriter = packetWriterFactory.createPacketWriter(out);
 		// Start a query for each type of packet, in order of urgency
 		dbExecutor.execute(new GenerateTransportAcks());
 		dbExecutor.execute(new GenerateTransportUpdates());

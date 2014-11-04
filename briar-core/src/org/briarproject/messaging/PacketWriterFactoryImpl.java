@@ -21,7 +21,7 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 		this.writerFactory = writerFactory;
 	}
 
-	public PacketWriter createPacketWriter(OutputStream out, boolean flush) {
-		return new PacketWriterImpl(serial, writerFactory, out, flush);
+	public PacketWriter createPacketWriter(OutputStream out) {
+		return new PacketWriterImpl(serial, writerFactory, out);
 	}
 }

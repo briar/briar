@@ -36,14 +36,12 @@ class PacketWriterImpl implements PacketWriter {
 
 	private final SerialComponent serial;
 	private final OutputStream out;
-	private final boolean flush;
 	private final Writer w;
 
 	PacketWriterImpl(SerialComponent serial, WriterFactory writerFactory,
-			OutputStream out, boolean flush) {
+			OutputStream out) {
 		this.serial = serial;
 		this.out = out;
-		this.flush = flush;
 		w = writerFactory.createWriter(out);
 	}
 
@@ -75,12 +73,10 @@ class PacketWriterImpl implements PacketWriter {
 		for(MessageId m : a.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeMessage(byte[] raw) throws IOException {
 		out.write(raw);
-		if(flush) out.flush();
 	}
 
 	public void writeOffer(Offer o) throws IOException {
@@ -89,7 +85,6 @@ class PacketWriterImpl implements PacketWriter {
 		for(MessageId m : o.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeRequest(Request r) throws IOException {
@@ -98,14 +93,12 @@ class PacketWriterImpl implements PacketWriter {
 		for(MessageId m : r.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeRetentionAck(RetentionAck a) throws IOException {
 		w.writeStructStart(RETENTION_ACK);
 		w.writeInteger(a.getVersion());
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeRetentionUpdate(RetentionUpdate u) throws IOException {
@@ -113,14 +106,12 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeInteger(u.getRetentionTime());
 		w.writeInteger(u.getVersion());
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
 		w.writeStructStart(SUBSCRIPTION_ACK);
 		w.writeInteger(a.getVersion());
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeSubscriptionUpdate(SubscriptionUpdate u)
@@ -136,7 +127,6 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeListEnd();
 		w.writeInteger(u.getVersion());
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeTransportAck(TransportAck a) throws IOException {
@@ -144,7 +134,6 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeString(a.getId().getString());
 		w.writeInteger(a.getVersion());
 		w.writeStructEnd();
-		if(flush) out.flush();
 	}
 
 	public void writeTransportUpdate(TransportUpdate u) throws IOException {
@@ -153,14 +142,5 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeMap(u.getProperties());
 		w.writeInteger(u.getVersion());
 		w.writeStructEnd();
-		if(flush) out.flush();
-	}
-
-	public void flush() throws IOException {
-		out.flush();
-	}
-
-	public void close() throws IOException {
-		out.close();
 	}
 }

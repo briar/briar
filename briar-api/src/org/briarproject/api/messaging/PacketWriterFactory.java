@@ -4,5 +4,5 @@ import java.io.OutputStream;
 
 public interface PacketWriterFactory {
 
-	PacketWriter createPacketWriter(OutputStream out, boolean flush);
+	PacketWriter createPacketWriter(OutputStream out);
 }
