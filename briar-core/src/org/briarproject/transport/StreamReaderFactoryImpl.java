@@ -20,24 +20,21 @@ class StreamReaderFactoryImpl implements StreamReaderFactory {
 	}
 
 	public StreamReader createStreamReader(InputStream in,
-			int maxFrameLength, StreamContext ctx, boolean incoming,
-			boolean initiator) {
+			int maxFrameLength, StreamContext ctx) {
 		byte[] secret = ctx.getSecret();
 		long streamNumber = ctx.getStreamNumber();
-		boolean weAreAlice = ctx.getAlice();
-		boolean initiatorIsAlice = incoming ? !weAreAlice : weAreAlice;
-		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber,
-				initiatorIsAlice, initiator);
-		FrameReader encryption = new IncomingEncryptionLayer(in,
+		boolean alice = !ctx.getAlice();
+		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
+		FrameReader frameReader = new IncomingEncryptionLayer(in,
 				crypto.getFrameCipher(), frameKey, maxFrameLength);
-		return new StreamReaderImpl(encryption, maxFrameLength);
+		return new StreamReaderImpl(frameReader, maxFrameLength);
 	}
 
 	public StreamReader createInvitationStreamReader(InputStream in,
 			int maxFrameLength, byte[] secret, boolean alice) {
-		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
-		FrameReader encryption = new IncomingEncryptionLayer(in,
+		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
+		FrameReader frameReader = new IncomingEncryptionLayer(in,
 				crypto.getFrameCipher(), frameKey, maxFrameLength);
-		return new StreamReaderImpl(encryption, maxFrameLength);
+		return new StreamReaderImpl(frameReader, maxFrameLength);
 	}
 }

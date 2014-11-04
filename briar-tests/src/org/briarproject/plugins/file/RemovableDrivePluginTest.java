@@ -15,8 +15,8 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.TestFileUtils;
 import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
 import org.briarproject.api.system.FileUtils;
 import org.briarproject.plugins.ImmediateExecutor;
 import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
@@ -32,6 +32,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 	private final ContactId contactId = new ContactId(234);
 	private final FileUtils fileUtils = new TestFileUtils();
 
+	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -253,7 +254,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
-		SimplexTransportWriter writer = plugin.createWriter(contactId);
+		TransportConnectionWriter writer = plugin.createWriter(contactId);
 		assertNotNull(writer);
 		// The output file should exist and should be empty
 		File[] files = drive1.listFiles();
@@ -352,6 +353,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);

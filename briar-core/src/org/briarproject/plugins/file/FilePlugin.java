@@ -14,10 +14,10 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.api.plugins.simplex.SimplexTransportReader;
-import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
 import org.briarproject.api.system.FileUtils;
 
 public abstract class FilePlugin implements SimplexPlugin {
@@ -60,11 +60,11 @@ public abstract class FilePlugin implements SimplexPlugin {
 		return running;
 	}
 
-	public SimplexTransportReader createReader(ContactId c) {
+	public TransportConnectionReader createReader(ContactId c) {
 		return null;
 	}
 
-	public SimplexTransportWriter createWriter(ContactId c) {
+	public TransportConnectionWriter createWriter(ContactId c) {
 		if(!running) return null;
 		return createWriter(createConnectionFilename());
 	}
@@ -81,7 +81,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 		return filename.toLowerCase(Locale.US).matches("[a-z]{8}\\.dat");
 	}
 
-	private SimplexTransportWriter createWriter(String filename) {
+	private TransportConnectionWriter createWriter(String filename) {
 		if(!running) return null;
 		File dir = chooseOutputDirectory();
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;

@@ -6,8 +6,7 @@ public interface StreamWriterFactory {
 
 	/** Creates a {@link StreamWriter} for a transport connection. */
 	StreamWriter createStreamWriter(OutputStream out, int maxFrameLength,
-			long capacity, StreamContext ctx, boolean incoming,
-			boolean initiator);
+			StreamContext ctx);
 
 	/** Creates a {@link StreamWriter} for an invitation connection. */
 	StreamWriter createInvitationStreamWriter(OutputStream out,

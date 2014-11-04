@@ -14,12 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -102,6 +105,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return running;
 	}
 
+	// FIXME: Don't poll this plugin
 	public boolean shouldPoll() {
 		return true;
 	}
@@ -164,7 +168,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 	}
 
-	private boolean resetModem() {
+	boolean resetModem() {
 		if(!running) return false;
 		for(String portName : serialPortList.getPortNames()) {
 			if(LOG.isLoggable(INFO))
@@ -227,25 +231,21 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private class ModemTransportConnection
 	implements DuplexTransportConnection {
 
-		private final CountDownLatch finished = new CountDownLatch(1);
+		private final AtomicBoolean halfClosed = new AtomicBoolean(false);
+		private final AtomicBoolean closed = new AtomicBoolean(false);
+		private final CountDownLatch disposalFinished = new CountDownLatch(1);
+		private final Reader reader = new Reader();
+		private final Writer writer = new Writer();
 
-		public int getMaxFrameLength() {
-			return maxFrameLength;
+		public TransportConnectionReader getReader() {
+			return reader;
 		}
 
-		public long getMaxLatency() {
-			return maxLatency;
+		public TransportConnectionWriter getWriter() {
+			return writer;
 		}
 
-		public InputStream getInputStream() throws IOException {
-			return modem.getInputStream();
-		}
-
-		public OutputStream getOutputStream() throws IOException {
-			return modem.getOutputStream();
-		}
-
-		public void dispose(boolean exception, boolean recognised) {
+		private void hangUp(boolean exception) {
 			LOG.info("Call disconnected");
 			try {
 				modem.hangUp();
@@ -254,11 +254,55 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				exception = true;
 			}
 			if(exception) resetModem();
-			finished.countDown();
+			disposalFinished.countDown();
 		}
 
 		private void waitForDisposal() throws InterruptedException {
-			finished.await();
+			disposalFinished.await();
+		}
+
+		private class Reader implements TransportConnectionReader {
+
+			public int getMaxFrameLength() {
+				return maxFrameLength;
+			}
+
+			public long getMaxLatency() {
+				return maxLatency;
+			}
+
+			public InputStream getInputStream() throws IOException {
+				return modem.getInputStream();
+			}
+
+			public void dispose(boolean exception, boolean recognised) {
+				if(halfClosed.getAndSet(true) || exception)
+					if(!closed.getAndSet(true)) hangUp(exception);
+			}
+		}
+
+		private class Writer implements TransportConnectionWriter {
+
+			public int getMaxFrameLength() {
+				return maxFrameLength;
+			}
+
+			public long getMaxLatency() {
+				return maxLatency;
+			}
+
+			public long getCapacity() {
+				return Long.MAX_VALUE;
+			}
+
+			public OutputStream getOutputStream() throws IOException {
+				return modem.getOutputStream();
+			}
+
+			public void dispose(boolean exception) {
+				if(halfClosed.getAndSet(true) || exception)
+					if(!closed.getAndSet(true)) hangUp(exception);
+			}
 		}
 	}
 }

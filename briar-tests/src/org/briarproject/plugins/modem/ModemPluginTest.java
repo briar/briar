@@ -278,7 +278,8 @@ public class ModemPluginTest extends BriarTestCase {
 		public Object invoke(Invocation invocation) throws Throwable {
 			DuplexTransportConnection conn =
 					(DuplexTransportConnection) invocation.getParameter(1);
-			conn.dispose(false, true);
+			conn.getReader().dispose(false, true);
+			conn.getWriter().dispose(false);
 			invoked.countDown();
 			return null;
 		}

@@ -2,6 +2,8 @@ package org.briarproject.api.plugins.simplex;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.plugins.PluginCallback;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 
 /**
  * An interface for handling readers and writers created by a simplex transport
@@ -9,7 +11,7 @@ import org.briarproject.api.plugins.PluginCallback;
  */
 public interface SimplexPluginCallback extends PluginCallback {
 
-	void readerCreated(SimplexTransportReader r);
+	void readerCreated(TransportConnectionReader r);
 
-	void writerCreated(ContactId c, SimplexTransportWriter w);
+	void writerCreated(ContactId c, TransportConnectionWriter w);
 }

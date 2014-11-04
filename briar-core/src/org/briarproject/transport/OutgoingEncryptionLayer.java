@@ -19,45 +19,23 @@ class OutgoingEncryptionLayer implements FrameWriter {
 	private final AuthenticatedCipher frameCipher;
 	private final SecretKey frameKey;
 	private final byte[] tag, iv, aad, ciphertext;
-	private final int frameLength, maxPayloadLength;
+	private final int frameLength;
 
-	private long capacity, frameNumber;
+	private long frameNumber;
 	private boolean writeTag;
 
-	/** Constructor for the initiator's side of a connection. */
-	OutgoingEncryptionLayer(OutputStream out, long capacity,
-			AuthenticatedCipher frameCipher, SecretKey frameKey,
-			int frameLength, byte[] tag) {
+	OutgoingEncryptionLayer(OutputStream out, AuthenticatedCipher frameCipher,
+			SecretKey frameKey, int frameLength, byte[] tag) {
 		this.out = out;
-		this.capacity = capacity;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
 		this.frameLength = frameLength;
 		this.tag = tag;
-		maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
 		ciphertext = new byte[frameLength];
 		frameNumber = 0;
 		writeTag = true;
-	}
-
-	/** Constructor for the responder's side of a connection. */
-	OutgoingEncryptionLayer(OutputStream out, long capacity,
-			AuthenticatedCipher frameCipher, SecretKey frameKey,
-			int frameLength) {
-		this.out = out;
-		this.capacity = capacity;
-		this.frameCipher = frameCipher;
-		this.frameKey = frameKey;
-		this.frameLength = frameLength;
-		tag = null;
-		maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
-		iv = new byte[IV_LENGTH];
-		aad = new byte[AAD_LENGTH];
-		ciphertext = new byte[frameLength];
-		frameNumber = 0;
-		writeTag = false;
 	}
 
 	public void writeFrame(byte[] frame, int payloadLength, boolean finalFrame)
@@ -71,7 +49,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 				frameKey.erase();
 				throw e;
 			}
-			capacity -= tag.length;
 			writeTag = false;
 		}
 		// Encode the header
@@ -107,7 +84,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			frameKey.erase();
 			throw e;
 		}
-		capacity -= ciphertextLength;
 		frameNumber++;
 	}
 
@@ -120,33 +96,8 @@ class OutgoingEncryptionLayer implements FrameWriter {
 				frameKey.erase();
 				throw e;
 			}
-			capacity -= tag.length;
 			writeTag = false;
 		}
 		out.flush();
-	}
-
-	public long getRemainingCapacity() {
-		// How many frame numbers can we use?
-		long frameNumbers = MAX_32_BIT_UNSIGNED - frameNumber + 1;
-		// How many full frames do we have space for?
-		long bytes = writeTag ? capacity - tag.length : capacity;
-		long fullFrames = bytes / frameLength;
-		// Are we limited by frame numbers or space?
-		if(frameNumbers > fullFrames) {
-			// Can we send a partial frame after the full frames?
-			int partialFrame = (int) (bytes - fullFrames * frameLength);
-			if(partialFrame > HEADER_LENGTH + MAC_LENGTH) {
-				// Send full frames and a partial frame, limited by space
-				int partialPayload = partialFrame - HEADER_LENGTH - MAC_LENGTH;
-				return maxPayloadLength * fullFrames + partialPayload;
-			} else {
-				// Send full frames only, limited by space
-				return maxPayloadLength * fullFrames;
-			}
-		} else {
-			// Send full frames only, limited by frame numbers
-			return maxPayloadLength * frameNumbers;
-		}
 	}
 }

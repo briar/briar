@@ -1,4 +1,4 @@
-package org.briarproject.messaging.simplex;
+package org.briarproject.messaging;
 
 import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
@@ -30,9 +30,9 @@ import org.briarproject.api.messaging.GroupFactory;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageVerifier;
+import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.transport.ConnectionRegistry;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
@@ -41,8 +41,6 @@ import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.plugins.ImmediateExecutor;
 import org.briarproject.serial.SerialModule;
 import org.briarproject.transport.TransportModule;
@@ -88,8 +86,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		return Guice.createInjector(new TestDatabaseModule(dir),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new EventModule(),
-				new MessagingModule(), new DuplexMessagingModule(),
-				new SimplexMessagingModule(), new SerialModule(),
+				new MessagingModule(), new SerialModule(),
 				new TransportModule());
 	}
 
@@ -140,29 +137,26 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Message message = messageFactory.createAnonymousMessage(null, group,
 				contentType, timestamp, body);
 		db.addLocalMessage(message);
-		// Create an outgoing simplex connection
+		// Create an outgoing messaging session
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionRegistry connRegistry =
-				alice.getInstance(ConnectionRegistry.class);
-		StreamWriterFactory connWriterFactory =
+		StreamWriterFactory streamWriterFactory =
 				alice.getInstance(StreamWriterFactory.class);
 		PacketWriterFactory packetWriterFactory =
 				alice.getInstance(PacketWriterFactory.class);
-		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, Long.MAX_VALUE, Long.MAX_VALUE);
+		TestTransportConnectionWriter transport =
+				new TestTransportConnectionWriter(out);
 		StreamContext ctx = km.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
-		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
-				connRegistry, connWriterFactory, packetWriterFactory, ctx,
-				transport);
+		MessagingSession session = new SinglePassOutgoingSession(db,
+				new ImmediateExecutor(), streamWriterFactory,
+				packetWriterFactory, ctx, transport);
 		// Write whatever needs to be written
-		simplex.write();
-		assertTrue(transport.getDisposed());
-		assertFalse(transport.getException());
+		session.run();
+		transport.dispose(false);
 		// Clean up
 		km.stop();
 		db.close();
-		// Return the contents of the simplex connection
+		// Return the contents of the stream
 		return out.toByteArray();
 	}
 
@@ -204,28 +198,24 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		assertEquals(tag.length, read);
 		StreamContext ctx = rec.recogniseTag(transportId, tag);
 		assertNotNull(ctx);
-		// Create an incoming simplex connection
+		// Create an incoming messaging session
 		MessageVerifier messageVerifier =
 				bob.getInstance(MessageVerifier.class);
-		ConnectionRegistry connRegistry =
-				bob.getInstance(ConnectionRegistry.class);
-		StreamReaderFactory connWriterFactory =
+		StreamReaderFactory streamReaderFactory =
 				bob.getInstance(StreamReaderFactory.class);
-		PacketReaderFactory packetWriterFactory =
+		PacketReaderFactory packetReaderFactory =
 				bob.getInstance(PacketReaderFactory.class);
-		TestSimplexTransportReader transport =
-				new TestSimplexTransportReader(in);
-		IncomingSimplexConnection simplex = new IncomingSimplexConnection(
+		TestTransportConnectionReader transport =
+				new TestTransportConnectionReader(in);
+		MessagingSession session = new IncomingSession(db,
 				new ImmediateExecutor(), new ImmediateExecutor(),
-				messageVerifier, db, connRegistry, connWriterFactory,
-				packetWriterFactory, ctx, transport);
+				messageVerifier, streamReaderFactory, packetReaderFactory,
+				ctx, transport);
 		// No messages should have been added yet
 		assertFalse(listener.messageAdded);
 		// Read whatever needs to be read
-		simplex.read();
-		assertTrue(transport.getDisposed());
-		assertFalse(transport.getException());
-		assertTrue(transport.getRecognised());
+		session.run();
+		transport.dispose(false, true);
 		// The private message from Alice should have been added
 		assertTrue(listener.messageAdded);
 		// Clean up

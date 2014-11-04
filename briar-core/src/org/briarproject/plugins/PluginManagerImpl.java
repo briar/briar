@@ -27,6 +27,8 @@ import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
@@ -36,8 +38,6 @@ import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
-import org.briarproject.api.plugins.simplex.SimplexTransportReader;
-import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.ConnectionDispatcher;
 import org.briarproject.api.ui.UiCallback;
@@ -377,11 +377,11 @@ class PluginManagerImpl implements PluginManager {
 			super(id);
 		}
 
-		public void readerCreated(SimplexTransportReader r) {
+		public void readerCreated(TransportConnectionReader r) {
 			dispatcher.dispatchIncomingConnection(id, r);
 		}
 
-		public void writerCreated(ContactId c, SimplexTransportWriter w) {
+		public void writerCreated(ContactId c, TransportConnectionWriter w) {
 			dispatcher.dispatchOutgoingConnection(c, id, w);
 		}
 	}

@@ -1,4 +1,4 @@
-package org.briarproject.messaging.simplex;
+package org.briarproject.messaging;
 
 import static java.util.logging.Level.WARNING;
 
@@ -10,12 +10,12 @@ import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.FormatException;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageVerifier;
+import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.PacketReader;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.RetentionAck;
@@ -25,103 +25,91 @@ import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.plugins.simplex.SimplexTransportReader;
-import org.briarproject.api.transport.ConnectionRegistry;
+import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReader;
 import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.util.ByteUtils;
 
-class IncomingSimplexConnection {
+/**
+ * An incoming {@link org.briarproject.api.messaging.MessagingSession
+ * MessagingSession}.
+ */
+class IncomingSession implements MessagingSession {
 
 	private static final Logger LOG =
-			Logger.getLogger(IncomingSimplexConnection.class.getName());
+			Logger.getLogger(IncomingSession.class.getName());
 
+	private final DatabaseComponent db;
 	private final Executor dbExecutor, cryptoExecutor;
 	private final MessageVerifier messageVerifier;
-	private final DatabaseComponent db;
-	private final ConnectionRegistry connRegistry;
-	private final StreamReaderFactory connReaderFactory;
+	private final StreamReaderFactory streamReaderFactory;
 	private final PacketReaderFactory packetReaderFactory;
 	private final StreamContext ctx;
-	private final SimplexTransportReader transport;
+	private final TransportConnectionReader transportReader;
 	private final ContactId contactId;
-	private final TransportId transportId;
 
-	IncomingSimplexConnection(Executor dbExecutor, Executor cryptoExecutor,
-			MessageVerifier messageVerifier, DatabaseComponent db,
-			ConnectionRegistry connRegistry,
-			StreamReaderFactory connReaderFactory,
+	private volatile boolean interrupted = false;
+
+	IncomingSession(DatabaseComponent db, Executor dbExecutor,
+			Executor cryptoExecutor, MessageVerifier messageVerifier,
+			StreamReaderFactory streamReaderFactory,
 			PacketReaderFactory packetReaderFactory, StreamContext ctx,
-			SimplexTransportReader transport) {
+			TransportConnectionReader transportReader) {
+		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
-		this.db = db;
-		this.connRegistry = connRegistry;
-		this.connReaderFactory = connReaderFactory;
+		this.streamReaderFactory = streamReaderFactory;
 		this.packetReaderFactory = packetReaderFactory;
 		this.ctx = ctx;
-		this.transport = transport;
+		this.transportReader = transportReader;
 		contactId = ctx.getContactId();
-		transportId = ctx.getTransportId();
 	}
 
-	void read() {
-		connRegistry.registerConnection(contactId, transportId);
-		try {
-			InputStream in = transport.getInputStream();
-			int maxFrameLength = transport.getMaxFrameLength();
-			StreamReader conn = connReaderFactory.createStreamReader(in,
-					maxFrameLength, ctx, true, true);
-			in = conn.getInputStream();
-			PacketReader reader = packetReaderFactory.createPacketReader(in);
-			// Read packets until EOF
-			while(!reader.eof()) {
-				if(reader.hasAck()) {
-					Ack a = reader.readAck();
-					dbExecutor.execute(new ReceiveAck(a));
-				} else if(reader.hasMessage()) {
-					UnverifiedMessage m = reader.readMessage();
-					cryptoExecutor.execute(new VerifyMessage(m));
-				} else if(reader.hasRetentionAck()) {
-					RetentionAck a = reader.readRetentionAck();
-					dbExecutor.execute(new ReceiveRetentionAck(a));
-				} else if(reader.hasRetentionUpdate()) {
-					RetentionUpdate u = reader.readRetentionUpdate();
-					dbExecutor.execute(new ReceiveRetentionUpdate(u));
-				} else if(reader.hasSubscriptionAck()) {
-					SubscriptionAck a = reader.readSubscriptionAck();
-					dbExecutor.execute(new ReceiveSubscriptionAck(a));
-				} else if(reader.hasSubscriptionUpdate()) {
-					SubscriptionUpdate u = reader.readSubscriptionUpdate();
-					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
-				} else if(reader.hasTransportAck()) {
-					TransportAck a = reader.readTransportAck();
-					dbExecutor.execute(new ReceiveTransportAck(a));
-				} else if(reader.hasTransportUpdate()) {
-					TransportUpdate u = reader.readTransportUpdate();
-					dbExecutor.execute(new ReceiveTransportUpdate(u));
-				} else {
-					throw new FormatException();
-				}
+	public void run() throws IOException {
+		InputStream in = transportReader.getInputStream();
+		int maxFrameLength = transportReader.getMaxFrameLength();
+		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
+				maxFrameLength, ctx);
+		in = streamReader.getInputStream();
+		PacketReader packetReader = packetReaderFactory.createPacketReader(in);
+		// Read packets until interrupted or EOF
+		while(!interrupted && !packetReader.eof()) {
+			if(packetReader.hasAck()) {
+				Ack a = packetReader.readAck();
+				dbExecutor.execute(new ReceiveAck(a));
+			} else if(packetReader.hasMessage()) {
+				UnverifiedMessage m = packetReader.readMessage();
+				cryptoExecutor.execute(new VerifyMessage(m));
+			} else if(packetReader.hasRetentionAck()) {
+				RetentionAck a = packetReader.readRetentionAck();
+				dbExecutor.execute(new ReceiveRetentionAck(a));
+			} else if(packetReader.hasRetentionUpdate()) {
+				RetentionUpdate u = packetReader.readRetentionUpdate();
+				dbExecutor.execute(new ReceiveRetentionUpdate(u));
+			} else if(packetReader.hasSubscriptionAck()) {
+				SubscriptionAck a = packetReader.readSubscriptionAck();
+				dbExecutor.execute(new ReceiveSubscriptionAck(a));
+			} else if(packetReader.hasSubscriptionUpdate()) {
+				SubscriptionUpdate u = packetReader.readSubscriptionUpdate();
+				dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
+			} else if(packetReader.hasTransportAck()) {
+				TransportAck a = packetReader.readTransportAck();
+				dbExecutor.execute(new ReceiveTransportAck(a));
+			} else if(packetReader.hasTransportUpdate()) {
+				TransportUpdate u = packetReader.readTransportUpdate();
+				dbExecutor.execute(new ReceiveTransportUpdate(u));
+			} else {
+				throw new FormatException();
 			}
-			dispose(false, true);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			dispose(true, true);
-		} finally {
-			connRegistry.unregisterConnection(contactId, transportId);
 		}
+		in.close();
 	}
 
-	private void dispose(boolean exception, boolean recognised) {
-		ByteUtils.erase(ctx.getSecret());
-		try {
-			transport.dispose(exception, recognised);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
+	public void interrupt() {
+		// This won't interrupt a blocking read, but the read will throw an
+		// exception when the transport connection is closed
+		interrupted = true;
 	}
 
 	private class ReceiveAck implements Runnable {

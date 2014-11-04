@@ -45,8 +45,6 @@ import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
-import org.briarproject.messaging.duplex.DuplexMessagingModule;
-import org.briarproject.messaging.simplex.SimplexMessagingModule;
 import org.briarproject.reliability.ReliabilityModule;
 import org.briarproject.serial.SerialModule;
 import org.briarproject.transport.TransportModule;
@@ -81,7 +79,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				new TestLifecycleModule(), new TestSystemModule(),
 				new TestUiModule(), new CryptoModule(), new DatabaseModule(),
 				new EventModule(), new MessagingModule(),
-				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new ReliabilityModule(), new SerialModule(),
 				new TransportModule());
 		streamReaderFactory = i.getInstance(StreamReaderFactory.class);
@@ -125,29 +122,29 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret.clone(), 0, true);
-		StreamWriter conn = streamWriterFactory.createStreamWriter(
-				out, MAX_FRAME_LENGTH, Long.MAX_VALUE, ctx, false, true);
-		OutputStream out1 = conn.getOutputStream();
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out1,
+		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
+				MAX_FRAME_LENGTH, ctx);
+		OutputStream out1 = streamWriter.getOutputStream();
+		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(out1,
 				false);
 
-		writer.writeAck(new Ack(messageIds));
+		packetWriter.writeAck(new Ack(messageIds));
 
-		writer.writeMessage(message.getSerialised());
-		writer.writeMessage(message1.getSerialised());
+		packetWriter.writeMessage(message.getSerialised());
+		packetWriter.writeMessage(message1.getSerialised());
 
-		writer.writeOffer(new Offer(messageIds));
+		packetWriter.writeOffer(new Offer(messageIds));
 
-		writer.writeRequest(new Request(messageIds));
+		packetWriter.writeRequest(new Request(messageIds));
 
 		SubscriptionUpdate su = new SubscriptionUpdate(Arrays.asList(group), 1);
-		writer.writeSubscriptionUpdate(su);
+		packetWriter.writeSubscriptionUpdate(su);
 
 		TransportUpdate tu = new TransportUpdate(transportId,
 				transportProperties, 1);
-		writer.writeTransportUpdate(tu);
+		packetWriter.writeTransportUpdate(tu);
 
-		writer.flush();
+		packetWriter.flush();
 		return out.toByteArray();
 	}
 
@@ -158,44 +155,44 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// FIXME: Check that the expected tag was received
 		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret.clone(), 0, false);
-		StreamReader conn = streamReaderFactory.createStreamReader(
-				in, MAX_FRAME_LENGTH, ctx, true, true);
-		InputStream in1 = conn.getInputStream();
-		PacketReader reader = packetReaderFactory.createPacketReader(in1);
+		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
+				MAX_FRAME_LENGTH, ctx);
+		InputStream in1 = streamReader.getInputStream();
+		PacketReader packetReader = packetReaderFactory.createPacketReader(in1);
 
 		// Read the ack
-		assertTrue(reader.hasAck());
-		Ack a = reader.readAck();
+		assertTrue(packetReader.hasAck());
+		Ack a = packetReader.readAck();
 		assertEquals(messageIds, a.getMessageIds());
 
 		// Read and verify the messages
-		assertTrue(reader.hasMessage());
-		UnverifiedMessage m = reader.readMessage();
+		assertTrue(packetReader.hasMessage());
+		UnverifiedMessage m = packetReader.readMessage();
 		checkMessageEquality(message, messageVerifier.verifyMessage(m));
-		assertTrue(reader.hasMessage());
-		m = reader.readMessage();
+		assertTrue(packetReader.hasMessage());
+		m = packetReader.readMessage();
 		checkMessageEquality(message1, messageVerifier.verifyMessage(m));
-		assertFalse(reader.hasMessage());
+		assertFalse(packetReader.hasMessage());
 
 		// Read the offer
-		assertTrue(reader.hasOffer());
-		Offer o = reader.readOffer();
+		assertTrue(packetReader.hasOffer());
+		Offer o = packetReader.readOffer();
 		assertEquals(messageIds, o.getMessageIds());
 
 		// Read the request
-		assertTrue(reader.hasRequest());
-		Request req = reader.readRequest();
+		assertTrue(packetReader.hasRequest());
+		Request req = packetReader.readRequest();
 		assertEquals(messageIds, req.getMessageIds());
 
 		// Read the subscription update
-		assertTrue(reader.hasSubscriptionUpdate());
-		SubscriptionUpdate su = reader.readSubscriptionUpdate();
+		assertTrue(packetReader.hasSubscriptionUpdate());
+		SubscriptionUpdate su = packetReader.readSubscriptionUpdate();
 		assertEquals(Arrays.asList(group), su.getGroups());
 		assertEquals(1, su.getVersion());
 
 		// Read the transport update
-		assertTrue(reader.hasTransportUpdate());
-		TransportUpdate tu = reader.readTransportUpdate();
+		assertTrue(packetReader.hasTransportUpdate());
+		TransportUpdate tu = packetReader.readTransportUpdate();
 		assertEquals(transportId, tu.getId());
 		assertEquals(transportProperties, tu.getProperties());
 		assertEquals(1, tu.getVersion());

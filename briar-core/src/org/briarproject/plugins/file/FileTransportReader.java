@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
-import org.briarproject.api.plugins.simplex.SimplexTransportReader;
+import org.briarproject.api.plugins.TransportConnectionReader;
 
-class FileTransportReader implements SimplexTransportReader {
+class FileTransportReader implements TransportConnectionReader {
 
 	private static final Logger LOG =
 			Logger.getLogger(FileTransportReader.class.getName());
@@ -26,6 +26,10 @@ class FileTransportReader implements SimplexTransportReader {
 
 	public int getMaxFrameLength() {
 		return plugin.getMaxFrameLength();
+	}
+
+	public long getMaxLatency() {
+		return plugin.getMaxLatency();
 	}
 
 	public InputStream getInputStream() {

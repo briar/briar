@@ -8,9 +8,6 @@ interface FrameWriter {
 	void writeFrame(byte[] frame, int payloadLength, boolean finalFrame)
 			throws IOException;
 
-	/** Flushes the stack. */
+	/** Flushes the stream. */
 	void flush() throws IOException;
-
-	/** Returns the maximum number of bytes that can be written. */
-	long getRemainingCapacity();
 }

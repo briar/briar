@@ -10,10 +10,4 @@ public interface StreamWriter {
 	 * be written.
 	 */
 	OutputStream getOutputStream();
-
-	/**
-	 * Returns the maximum number of bytes that can be written to the output
-	 * stream.
-	 */
-	long getRemainingCapacity();
 }

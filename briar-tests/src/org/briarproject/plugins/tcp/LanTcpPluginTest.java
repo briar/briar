@@ -148,7 +148,8 @@ public class LanTcpPluginTest extends BriarTestCase {
 		assertTrue(latch.await(5, SECONDS));
 		assertFalse(error.get());
 		// Clean up
-		d.dispose(false, true);
+		d.getReader().dispose(false, true);
+		d.getWriter().dispose(false);
 		ss.close();
 		plugin.stop();
 	}

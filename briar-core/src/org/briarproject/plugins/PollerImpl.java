@@ -20,14 +20,14 @@ class PollerImpl implements Poller {
 			Logger.getLogger(PollerImpl.class.getName());
 
 	private final Executor ioExecutor;
-	private final ConnectionRegistry connRegistry;
+	private final ConnectionRegistry connectionRegistry;
 	private final Timer timer;
 
 	@Inject
-	PollerImpl(@IoExecutor Executor ioExecutor, ConnectionRegistry connRegistry,
-			Timer timer) {
+	PollerImpl(@IoExecutor Executor ioExecutor,
+			ConnectionRegistry connectionRegistry, Timer timer) {
 		this.ioExecutor = ioExecutor;
-		this.connRegistry = connRegistry;
+		this.connectionRegistry = connectionRegistry;
 		this.timer = timer;
 	}
 
@@ -53,7 +53,7 @@ class PollerImpl implements Poller {
 			public void run() {
 				if(LOG.isLoggable(INFO))
 					LOG.info("Polling " + p.getClass().getSimpleName());
-				p.poll(connRegistry.getConnectedContacts(p.getId()));
+				p.poll(connectionRegistry.getConnectedContacts(p.getId()));
 			}
 		});
 	}

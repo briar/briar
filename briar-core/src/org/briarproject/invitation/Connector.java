@@ -311,7 +311,8 @@ abstract class Connector extends Thread {
 			boolean exception) {
 		try {
 			LOG.info("Closing connection");
-			conn.dispose(exception, true);
+			conn.getReader().dispose(exception, true);
+			conn.getWriter().dispose(exception);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}

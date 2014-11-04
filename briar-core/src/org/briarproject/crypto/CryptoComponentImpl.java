@@ -76,14 +76,10 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Labels for key derivation
 	private static final byte[] A_TAG = { 'A', '_', 'T', 'A', 'G', '\0' };
 	private static final byte[] B_TAG = { 'B', '_', 'T', 'A', 'G', '\0' };
-	private static final byte[] A_FRAME_A =
-		{ 'A', '_', 'F', 'R', 'A', 'M', 'E', '_', 'A', '\0' };
-	private static final byte[] A_FRAME_B =
-		{ 'A', '_', 'F', 'R', 'A', 'M', 'E', '_', 'B', '\0' };
-	private static final byte[] B_FRAME_A =
-		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '_', 'A', '\0' };
-	private static final byte[] B_FRAME_B =
-		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '_', 'B', '\0' };
+	private static final byte[] A_FRAME =
+		{ 'A', '_', 'F', 'R', 'A', 'M', 'E', '\0' };
+	private static final byte[] B_FRAME =
+		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '\0' };
 	// Blank secret for argument validation
 	private static final byte[] BLANK_SECRET = new byte[CIPHER_KEY_BYTES];
 
@@ -288,20 +284,15 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public SecretKey deriveFrameKey(byte[] secret, long streamNumber,
-			boolean alice, boolean initiator) {
+			boolean alice) {
 		if(secret.length != CIPHER_KEY_BYTES)
 			throw new IllegalArgumentException();
 		if(Arrays.equals(secret, BLANK_SECRET))
 			throw new IllegalArgumentException();
 		if(streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		if(alice) {
-			if(initiator) return deriveKey(secret, A_FRAME_A, streamNumber);
-			else return deriveKey(secret, A_FRAME_B, streamNumber);
-		} else {
-			if(initiator) return deriveKey(secret, B_FRAME_A, streamNumber);
-			else return deriveKey(secret, B_FRAME_B, streamNumber);
-		}
+		if(alice) return deriveKey(secret, A_FRAME, streamNumber);
+		else return deriveKey(secret, B_FRAME, streamNumber);
 	}
 
 	private SecretKey deriveKey(byte[] secret, byte[] label, long context) {

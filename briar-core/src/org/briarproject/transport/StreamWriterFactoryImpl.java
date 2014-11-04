@@ -22,35 +22,29 @@ class StreamWriterFactoryImpl implements StreamWriterFactory {
 	}
 
 	public StreamWriter createStreamWriter(OutputStream out,
-			int maxFrameLength, long capacity, StreamContext ctx,
-			boolean incoming, boolean initiator) {
+			int maxFrameLength, StreamContext ctx) {
 		byte[] secret = ctx.getSecret();
 		long streamNumber = ctx.getStreamNumber();
-		boolean weAreAlice = ctx.getAlice();
-		boolean initiatorIsAlice = incoming ? !weAreAlice : weAreAlice;
-		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber,
-				initiatorIsAlice, initiator);
-		FrameWriter encryption;
-		if(initiator) {
-			byte[] tag = new byte[TAG_LENGTH];
-			SecretKey tagKey = crypto.deriveTagKey(secret, initiatorIsAlice);
-			crypto.encodeTag(tag, tagKey, streamNumber);
-			tagKey.erase();
-			encryption = new OutgoingEncryptionLayer(out, capacity,
-					crypto.getFrameCipher(), frameKey, maxFrameLength, tag);
-		} else {
-			encryption = new OutgoingEncryptionLayer(out, capacity,
-					crypto.getFrameCipher(), frameKey, maxFrameLength);
-		}
-		return new StreamWriterImpl(encryption, maxFrameLength);
+		boolean alice = ctx.getAlice();
+		byte[] tag = new byte[TAG_LENGTH];
+		SecretKey tagKey = crypto.deriveTagKey(secret, alice);
+		crypto.encodeTag(tag, tagKey, streamNumber);
+		tagKey.erase();
+		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
+		FrameWriter frameWriter = new OutgoingEncryptionLayer(out,
+				crypto.getFrameCipher(), frameKey, maxFrameLength, tag);
+		return new StreamWriterImpl(frameWriter, maxFrameLength);
 	}
 
 	public StreamWriter createInvitationStreamWriter(OutputStream out,
 			int maxFrameLength, byte[] secret, boolean alice) {
-		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
-		FrameWriter encryption = new OutgoingEncryptionLayer(out,
-				Long.MAX_VALUE, crypto.getFrameCipher(), frameKey,
-				maxFrameLength);
-		return new StreamWriterImpl(encryption, maxFrameLength);
+		byte[] tag = new byte[TAG_LENGTH];
+		SecretKey tagKey = crypto.deriveTagKey(secret, alice);
+		crypto.encodeTag(tag, tagKey, 0);
+		tagKey.erase();
+		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
+		FrameWriter frameWriter = new OutgoingEncryptionLayer(out,
+				crypto.getFrameCipher(), frameKey, maxFrameLength, tag);
+		return new StreamWriterImpl(frameWriter, maxFrameLength);
 	}
 }

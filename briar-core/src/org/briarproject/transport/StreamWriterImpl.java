@@ -33,10 +33,6 @@ class StreamWriterImpl extends OutputStream implements StreamWriter {
 		return this;
 	}
 
-	public long getRemainingCapacity() {
-		return out.getRemainingCapacity();
-	}
-
 	@Override
 	public void close() throws IOException {
 		writeFrame(true);

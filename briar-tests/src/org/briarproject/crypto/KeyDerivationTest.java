@@ -25,10 +25,8 @@ public class KeyDerivationTest extends BriarTestCase {
 	@Test
 	public void testKeysAreDistinct() {
 		List<SecretKey> keys = new ArrayList<SecretKey>();
-		keys.add(crypto.deriveFrameKey(secret, 0, false, false));
-		keys.add(crypto.deriveFrameKey(secret, 0, false, true));
-		keys.add(crypto.deriveFrameKey(secret, 0, true, false));
-		keys.add(crypto.deriveFrameKey(secret, 0, true, true));
+		keys.add(crypto.deriveFrameKey(secret, 0, true));
+		keys.add(crypto.deriveFrameKey(secret, 0, false));
 		keys.add(crypto.deriveTagKey(secret, true));
 		keys.add(crypto.deriveTagKey(secret, false));
 		for(int i = 0; i < 4; i++) {

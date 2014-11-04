@@ -72,13 +72,10 @@ public interface CryptoComponent {
 
 	/**
 	 * Derives a frame key from the given temporary secret and stream number.
-	 * @param alice indicates whether the key is for a connection initiated by
+	 * @param alice indicates whether the key is for a stream initiated by
 	 * Alice or Bob.
-	 * @param initiator indicates whether the key is for the initiator's or the
-	 * responder's side of the connection.
 	 */
-	SecretKey deriveFrameKey(byte[] secret, long streamNumber, boolean alice,
-			boolean initiator);
+	SecretKey deriveFrameKey(byte[] secret, long streamNumber, boolean alice);
 
 	/** Returns a cipher for encrypting and authenticating frames. */
 	AuthenticatedCipher getFrameCipher();

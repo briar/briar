@@ -69,8 +69,8 @@ class BobConnector extends Connector {
 		Writer w;
 		byte[] secret;
 		try {
-			in = conn.getInputStream();
-			out = conn.getOutputStream();
+			in = conn.getReader().getInputStream();
+			out = conn.getWriter().getOutputStream();
 			r = readerFactory.createReader(in);
 			w = writerFactory.createWriter(out);
 			// Alice goes first
@@ -130,7 +130,7 @@ class BobConnector extends Connector {
 		// Confirmation succeeded - upgrade to a secure connection
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
-		int maxFrameLength = conn.getMaxFrameLength();
+		int maxFrameLength = conn.getReader().getMaxFrameLength();
 		StreamReader streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
 						maxFrameLength, secret, true);

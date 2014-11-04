@@ -4,38 +4,80 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.briarproject.api.plugins.Plugin;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 
 class TcpTransportConnection implements DuplexTransportConnection {
 
 	private final Plugin plugin;
 	private final Socket socket;
+	private final Reader reader;
+	private final Writer writer;
+	private final AtomicBoolean halfClosed, closed;
 
 	TcpTransportConnection(Plugin plugin, Socket socket) {
 		this.plugin = plugin;
 		this.socket = socket;
+		reader = new Reader();
+		writer = new Writer();
+		halfClosed = new AtomicBoolean(false);
+		closed = new AtomicBoolean(false);
 	}
 
-	public int getMaxFrameLength() {
-		return plugin.getMaxFrameLength();
+	public TransportConnectionReader getReader() {
+		return reader;
 	}
 
-	public long getMaxLatency() {
-		return plugin.getMaxLatency();
+	public TransportConnectionWriter getWriter() {
+		return writer;
 	}
 
-	public InputStream getInputStream() throws IOException {
-		return socket.getInputStream();
+	private class Reader implements TransportConnectionReader {
+
+		public int getMaxFrameLength() {
+			return plugin.getMaxFrameLength();
+		}
+
+		public long getMaxLatency() {
+			return plugin.getMaxLatency();
+		}
+
+		public InputStream getInputStream() throws IOException {
+			return socket.getInputStream();
+		}
+
+		public void dispose(boolean exception, boolean recognised)
+				throws IOException {
+			if(halfClosed.getAndSet(true) || exception)
+				if(!closed.getAndSet(true)) socket.close();
+		}
 	}
 
-	public OutputStream getOutputStream() throws IOException {
-		return socket.getOutputStream();
-	}
+	private class Writer implements TransportConnectionWriter {
 
-	public void dispose(boolean exception, boolean recognised)
-			throws IOException {
-		socket.close();
+		public int getMaxFrameLength() {
+			return plugin.getMaxFrameLength();
+		}
+
+		public long getMaxLatency() {
+			return plugin.getMaxLatency();
+		}
+
+		public long getCapacity() {
+			return Long.MAX_VALUE;
+		}
+
+		public OutputStream getOutputStream() throws IOException {
+			return socket.getOutputStream();
+		}
+
+		public void dispose(boolean exception) throws IOException {
+			if(halfClosed.getAndSet(true) || exception)
+				if(!closed.getAndSet(true)) socket.close();
+		}
 	}
 }

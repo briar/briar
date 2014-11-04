@@ -111,8 +111,8 @@
 			<test name='org.briarproject.messaging.ConstantsTest'/>
 			<test name='org.briarproject.messaging.ConsumersTest'/>
 			<test name='org.briarproject.messaging.PacketReaderImplTest'/>
-			<test name='org.briarproject.messaging.simplex.OutgoingSimplexConnectionTest'/>
-			<test name='org.briarproject.messaging.simplex.SimplexMessagingIntegrationTest'/>
+			<test name='org.briarproject.messaging.SimplexMessagingIntegrationTest'/>
+			<test name='org.briarproject.messaging.SinglePassOutgoingSessionTest'/>
 			<test name='org.briarproject.plugins.PluginManagerImplTest'/>
 			<test name='org.briarproject.plugins.file.LinuxRemovableDriveFinderTest'/>
 			<test name='org.briarproject.plugins.file.MacRemovableDriveFinderTest'/>

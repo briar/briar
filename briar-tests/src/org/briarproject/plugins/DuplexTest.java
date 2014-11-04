@@ -7,6 +7,8 @@ import java.util.Scanner;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 
@@ -21,12 +23,14 @@ abstract class DuplexTest {
 
 	protected void sendChallengeReceiveResponse(DuplexTransportConnection d) {
 		assert plugin != null;
+		TransportConnectionReader r = d.getReader();
+		TransportConnectionWriter w = d.getWriter();
 		try {
-			PrintStream out = new PrintStream(d.getOutputStream());
+			PrintStream out = new PrintStream(w.getOutputStream());
 			out.println(CHALLENGE);
 			out.flush();
 			System.out.println("Sent challenge: " + CHALLENGE);
-			Scanner in = new Scanner(d.getInputStream());
+			Scanner in = new Scanner(r.getInputStream());
 			if(in.hasNextLine()) {
 				String response = in.nextLine();
 				System.out.println("Received response: " + response);
@@ -38,11 +42,13 @@ abstract class DuplexTest {
 			} else {
 				System.out.println("No response");
 			}
-			d.dispose(false, true);
+			r.dispose(false, true);
+			w.dispose(false);
 		} catch(IOException e) {
 			e.printStackTrace();
 			try {
-				d.dispose(true, true);
+				r.dispose(true, true);
+				w.dispose(true);
 			} catch(IOException e1) {
 				e1.printStackTrace();
 			}
@@ -51,13 +57,16 @@ abstract class DuplexTest {
 
 	protected void receiveChallengeSendResponse(DuplexTransportConnection d) {
 		assert plugin != null;
+		TransportConnectionReader r = d.getReader();
+		TransportConnectionWriter w = d.getWriter();
 		try {
-			Scanner in = new Scanner(d.getInputStream());
+			Scanner in = new Scanner(r.getInputStream());
 			if(in.hasNextLine()) {
 				String challenge = in.nextLine();
 				System.out.println("Received challenge: " + challenge);
 				if(CHALLENGE.equals(challenge)) {
-					PrintStream out = new PrintStream(d.getOutputStream());
+
+					PrintStream out = new PrintStream(w.getOutputStream());
 					out.println(RESPONSE);
 					out.flush();
 					System.out.println("Sent response: " + RESPONSE);
@@ -67,11 +76,13 @@ abstract class DuplexTest {
 			} else {
 				System.out.println("No challenge");
 			}
-			d.dispose(false, true);
+			r.dispose(false, true);
+			w.dispose(false);
 		} catch(IOException e) {
 			e.printStackTrace();
 			try {
-				d.dispose(true, true);
+				r.dispose(true, true);
+				w.dispose(true);
 			} catch(IOException e1) {
 				e1.printStackTrace();
 			}

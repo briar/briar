@@ -1,5 +1,7 @@
 package org.briarproject.messaging;
 
+import javax.inject.Singleton;
+
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -9,6 +11,7 @@ import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
+import org.briarproject.api.messaging.MessagingSessionFactory;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
 import org.briarproject.api.serial.StructReader;
@@ -18,6 +21,7 @@ import com.google.inject.Provides;
 
 public class MessagingModule extends AbstractModule {
 
+	@Override
 	protected void configure() {
 		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
@@ -25,6 +29,8 @@ public class MessagingModule extends AbstractModule {
 		bind(MessageVerifier.class).to(MessageVerifierImpl.class);
 		bind(PacketReaderFactory.class).to(PacketReaderFactoryImpl.class);
 		bind(PacketWriterFactory.class).to(PacketWriterFactoryImpl.class);
+		bind(MessagingSessionFactory.class).to(
+				MessagingSessionFactoryImpl.class).in(Singleton.class);
 	}
 
 	@Provides

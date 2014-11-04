@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
 
-import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
+import org.briarproject.api.plugins.TransportConnectionWriter;
 
-class FileTransportWriter implements SimplexTransportWriter {
+class FileTransportWriter implements TransportConnectionWriter {
 
 	private static final Logger LOG =
 			Logger.getLogger(FileTransportWriter.class.getName());
@@ -27,16 +27,16 @@ class FileTransportWriter implements SimplexTransportWriter {
 		this.plugin = plugin;
 	}
 
-	public long getCapacity() {
-		return capacity;
-	}
-
 	public int getMaxFrameLength() {
 		return plugin.getMaxFrameLength();
 	}
 
 	public long getMaxLatency() {
 		return plugin.getMaxLatency();
+	}
+
+	public long getCapacity() {
+		return capacity;
 	}
 
 	public OutputStream getOutputStream() {

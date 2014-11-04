@@ -1,9 +1,7 @@
-package org.briarproject.messaging.simplex;
+package org.briarproject.messaging;
 
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
@@ -23,14 +21,12 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.transport.ConnectionRegistry;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.event.EventModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.serial.SerialModule;
 import org.briarproject.transport.TransportModule;
 import org.jmock.Expectations;
@@ -42,39 +38,37 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-public class OutgoingSimplexConnectionTest extends BriarTestCase {
+public class SinglePassOutgoingSessionTest extends BriarTestCase {
 
 	// FIXME: This is an integration test, not a unit test
 
 	private final Mockery context;
 	private final DatabaseComponent db;
-	private final ConnectionRegistry connRegistry;
-	private final StreamWriterFactory connWriterFactory;
+	private final Executor dbExecutor;
+	private final StreamWriterFactory streamWriterFactory;
 	private final PacketWriterFactory packetWriterFactory;
 	private final ContactId contactId;
 	private final MessageId messageId;
 	private final TransportId transportId;
 	private final byte[] secret;
 
-	public OutgoingSimplexConnectionTest() {
+	public SinglePassOutgoingSessionTest() {
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
+		dbExecutor = Executors.newSingleThreadExecutor();
 		Module testModule = new AbstractModule() {
 			@Override
 			public void configure() {
 				bind(DatabaseComponent.class).toInstance(db);
 				bind(Executor.class).annotatedWith(
-						DatabaseExecutor.class).toInstance(
-								Executors.newCachedThreadPool());
+						DatabaseExecutor.class).toInstance(dbExecutor);
 			}
 		};
 		Injector i = Guice.createInjector(testModule,
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new EventModule(), new MessagingModule(),
-				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new SerialModule(), new TransportModule());
-		connRegistry = i.getInstance(ConnectionRegistry.class);
-		connWriterFactory = i.getInstance(StreamWriterFactory.class);
+		streamWriterFactory = i.getInstance(StreamWriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());
@@ -84,33 +78,14 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testConnectionTooShort() throws Exception {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MAX_PACKET_LENGTH, Long.MAX_VALUE);
-		StreamContext ctx = new StreamContext(contactId, transportId,
-				secret, 0, true);
-		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connWriterFactory, packetWriterFactory, ctx,
-				transport);
-		connection.write();
-		// Nothing should have been written
-		assertEquals(0, out.size());
-		// The transport should have been disposed with exception == true
-		assertTrue(transport.getDisposed());
-		assertTrue(transport.getException());
-	}
-
-	@Test
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_STREAM_LENGTH, Long.MAX_VALUE);
+		TestTransportConnectionWriter writer =
+				new TestTransportConnectionWriter(out);
 		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret, 0, true);
-		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connWriterFactory, packetWriterFactory, ctx,
-				transport);
+		MessagingSession session = new SinglePassOutgoingSession(db, dbExecutor,
+				streamWriterFactory, packetWriterFactory, ctx, writer);
 		context.checking(new Expectations() {{
 			// No transport acks to send
 			oneOf(db).generateTransportAcks(contactId);
@@ -141,25 +116,22 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 					with(any(long.class)));
 			will(returnValue(null));
 		}});
-		connection.write();
+		session.run();
 		// Only the tag and an empty final frame should have been written
 		assertEquals(TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH, out.size());
-		// The transport should have been disposed with exception == false
-		assertTrue(transport.getDisposed());
-		assertFalse(transport.getException());
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_STREAM_LENGTH, Long.MAX_VALUE);
+		TestTransportConnectionWriter writer =
+				new TestTransportConnectionWriter(out);
 		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret, 0, true);
-		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connWriterFactory, packetWriterFactory, ctx,
-				transport);
+		MessagingSession session = new SinglePassOutgoingSession(db, dbExecutor,
+				streamWriterFactory, packetWriterFactory,
+				ctx, writer);
 		final byte[] raw = new byte[1234];
 		context.checking(new Expectations() {{
 			// No transport acks to send
@@ -198,13 +170,10 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 					with(any(long.class)));
 			will(returnValue(null));
 		}});
-		connection.write();
+		session.run();
 		// Something should have been written
 		int overhead = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
 		assertTrue(out.size() > overhead + UniqueId.LENGTH + raw.length);
-		// The transport should have been disposed with exception == false
-		assertTrue(transport.getDisposed());
-		assertFalse(transport.getException());
 		context.assertIsSatisfied();
 	}
 }
