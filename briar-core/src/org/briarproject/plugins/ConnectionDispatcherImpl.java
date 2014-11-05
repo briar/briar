@@ -1,4 +1,4 @@
-package org.briarproject.transport;
+package org.briarproject.plugins;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
@@ -19,11 +19,11 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.MessagingSessionFactory;
+import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.transport.ConnectionDispatcher;
-import org.briarproject.api.transport.ConnectionRegistry;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReader;
 import org.briarproject.api.transport.StreamReaderFactory;

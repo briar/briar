@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.api.lifecycle.IoExecutor;
+import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.system.Timer;
-import org.briarproject.api.transport.ConnectionRegistry;
 
 class PollerImpl implements Poller {
 

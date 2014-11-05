@@ -1,4 +1,4 @@
-package org.briarproject.transport;
+package org.briarproject.plugins;
 
 import static java.util.logging.Level.INFO;
 
@@ -15,7 +15,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.transport.ConnectionRegistry;
+import org.briarproject.api.plugins.ConnectionRegistry;
 
 import com.google.inject.Inject;
 

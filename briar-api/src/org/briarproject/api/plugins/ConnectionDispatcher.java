@@ -1,9 +1,7 @@
-package org.briarproject.api.transport;
+package org.briarproject.api.plugins;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 
 public interface ConnectionDispatcher {

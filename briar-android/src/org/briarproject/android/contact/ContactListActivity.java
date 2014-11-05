@@ -40,7 +40,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.transport.ConnectionRegistry;
+import org.briarproject.api.plugins.ConnectionRegistry;
 
 import android.content.Intent;
 import android.content.res.Resources;

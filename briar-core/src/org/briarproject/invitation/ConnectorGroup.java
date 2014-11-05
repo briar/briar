@@ -27,12 +27,12 @@ import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.messaging.GroupFactory;
+import org.briarproject.api.plugins.ConnectionDispatcher;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.serial.ReaderFactory;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.ConnectionDispatcher;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 

@@ -24,6 +24,7 @@ import org.briarproject.api.TransportProperties;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.IoExecutor;
+import org.briarproject.api.plugins.ConnectionDispatcher;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
 import org.briarproject.api.plugins.PluginManager;
@@ -39,7 +40,6 @@ import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.ConnectionDispatcher;
 import org.briarproject.api.ui.UiCallback;
 
 // FIXME: Don't make alien calls with a lock held (that includes waiting on a

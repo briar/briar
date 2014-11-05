@@ -7,7 +7,6 @@ import static org.junit.Assert.assertArrayEquals;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +44,6 @@ import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
-import org.briarproject.reliability.ReliabilityModule;
 import org.briarproject.serial.SerialModule;
 import org.briarproject.transport.TransportModule;
 import org.junit.Test;
@@ -77,9 +75,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	public ProtocolIntegrationTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
-				new TestUiModule(), new CryptoModule(), new DatabaseModule(),
-				new EventModule(), new MessagingModule(),
-				new ReliabilityModule(), new SerialModule(),
+				new CryptoModule(), new DatabaseModule(), new EventModule(),
+				new MessagingModule(), new SerialModule(),
 				new TransportModule());
 		streamReaderFactory = i.getInstance(StreamReaderFactory.class);
 		streamWriterFactory = i.getInstance(StreamWriterFactory.class);
@@ -124,9 +121,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				secret.clone(), 0, true);
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
 				MAX_FRAME_LENGTH, ctx);
-		OutputStream out1 = streamWriter.getOutputStream();
-		PacketWriter packetWriter =
-				packetWriterFactory.createPacketWriter(out1);
+		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
+				streamWriter.getOutputStream());
 
 		packetWriter.writeAck(new Ack(messageIds));
 
@@ -144,7 +140,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				transportProperties, 1);
 		packetWriter.writeTransportUpdate(tu);
 
-		out1.flush();
+		streamWriter.getOutputStream().flush();
 		return out.toByteArray();
 	}
 
@@ -157,8 +153,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				secret.clone(), 0, false);
 		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
 				MAX_FRAME_LENGTH, ctx);
-		InputStream in1 = streamReader.getInputStream();
-		PacketReader packetReader = packetReaderFactory.createPacketReader(in1);
+		PacketReader packetReader = packetReaderFactory.createPacketReader(
+				streamReader.getInputStream());
 
 		// Read the ack
 		assertTrue(packetReader.hasAck());

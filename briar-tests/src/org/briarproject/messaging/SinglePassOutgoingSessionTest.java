@@ -21,7 +21,6 @@ import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.serial.SerialModule;
-import org.briarproject.transport.TransportModule;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -58,7 +57,7 @@ public class SinglePassOutgoingSessionTest extends BriarTestCase {
 		Injector i = Guice.createInjector(testModule,
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new EventModule(), new MessagingModule(),
-				new SerialModule(), new TransportModule());
+				new SerialModule());
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());

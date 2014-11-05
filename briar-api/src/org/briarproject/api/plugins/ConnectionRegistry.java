@@ -1,4 +1,4 @@
-package org.briarproject.api.transport;
+package org.briarproject.api.plugins;
 
 import java.util.Collection;
 

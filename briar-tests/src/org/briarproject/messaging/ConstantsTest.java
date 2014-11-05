@@ -47,7 +47,6 @@ import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.serial.SerialModule;
-import org.briarproject.transport.TransportModule;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -65,8 +64,7 @@ public class ConstantsTest extends BriarTestCase {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new EventModule(),
-				new MessagingModule(), new SerialModule(),
-				new TransportModule());
+				new MessagingModule(), new SerialModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);
