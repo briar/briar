@@ -24,7 +24,7 @@ import org.briarproject.api.TransportProperties;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.IoExecutor;
-import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
 import org.briarproject.api.plugins.PluginManager;
@@ -55,7 +55,7 @@ class PluginManagerImpl implements PluginManager {
 	private final Clock clock;
 	private final DatabaseComponent db;
 	private final Poller poller;
-	private final ConnectionDispatcher dispatcher;
+	private final ConnectionManager connectionManager;
 	private final UiCallback uiCallback;
 	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
@@ -66,14 +66,14 @@ class PluginManagerImpl implements PluginManager {
 			SimplexPluginConfig simplexPluginConfig, 
 			DuplexPluginConfig duplexPluginConfig, Clock clock,
 			DatabaseComponent db, Poller poller,
-			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
+			ConnectionManager connectionManager, UiCallback uiCallback) {
 		this.ioExecutor = ioExecutor;
 		this.simplexPluginConfig = simplexPluginConfig;
 		this.duplexPluginConfig = duplexPluginConfig;
 		this.clock = clock;
 		this.db = db;
 		this.poller = poller;
-		this.dispatcher = dispatcher;
+		this.connectionManager = connectionManager;
 		this.uiCallback = uiCallback;
 		plugins = new ConcurrentHashMap<TransportId, Plugin>();
 		simplexPlugins = new CopyOnWriteArrayList<SimplexPlugin>();
@@ -378,11 +378,11 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public void readerCreated(TransportConnectionReader r) {
-			dispatcher.dispatchIncomingConnection(id, r);
+			connectionManager.manageIncomingConnection(id, r);
 		}
 
 		public void writerCreated(ContactId c, TransportConnectionWriter w) {
-			dispatcher.dispatchOutgoingConnection(c, id, w);
+			connectionManager.manageOutgoingConnection(c, id, w);
 		}
 	}
 
@@ -394,12 +394,12 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
-			dispatcher.dispatchIncomingConnection(id, d);
+			connectionManager.manageIncomingConnection(id, d);
 		}
 
 		public void outgoingConnectionCreated(ContactId c,
 				DuplexTransportConnection d) {
-			dispatcher.dispatchOutgoingConnection(c, id, d);
+			connectionManager.manageOutgoingConnection(c, id, d);
 		}
 	}
 }

@@ -43,7 +43,7 @@ import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.invitation.InvitationConstants;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupFactory;
-import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.serial.Reader;
@@ -69,7 +69,7 @@ abstract class Connector extends Thread {
 	protected final AuthorFactory authorFactory;
 	protected final GroupFactory groupFactory;
 	protected final KeyManager keyManager;
-	protected final ConnectionDispatcher connectionDispatcher;
+	protected final ConnectionManager connectionManager;
 	protected final Clock clock;
 	protected final boolean reuseConnection;
 	protected final ConnectorGroup group;
@@ -90,7 +90,7 @@ abstract class Connector extends Thread {
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
+			KeyManager keyManager, ConnectionManager connectionManager,
 			Clock clock, boolean reuseConnection, ConnectorGroup group,
 			DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
@@ -105,7 +105,7 @@ abstract class Connector extends Thread {
 		this.authorFactory = authorFactory;
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
-		this.connectionDispatcher = connectionDispatcher;
+		this.connectionManager = connectionManager;
 		this.clock = clock;
 		this.reuseConnection = reuseConnection;
 		this.group = group;
@@ -323,8 +323,8 @@ abstract class Connector extends Thread {
 		if(contactId == null) throw new IllegalStateException();
 		TransportId t = plugin.getId();
 		if(alice)
-			connectionDispatcher.dispatchOutgoingConnection(contactId, t, conn);
-		else connectionDispatcher.dispatchIncomingConnection(t, conn);
+			connectionManager.manageOutgoingConnection(contactId, t, conn);
+		else connectionManager.manageIncomingConnection(t, conn);
 	}
 
 	private static class TransportIdComparator

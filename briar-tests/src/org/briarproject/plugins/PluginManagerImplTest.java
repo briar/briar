@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
@@ -36,8 +36,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 				context.mock(DuplexPluginConfig.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Poller poller = context.mock(Poller.class);
-		final ConnectionDispatcher dispatcher =
-				context.mock(ConnectionDispatcher.class);
+		final ConnectionManager dispatcher =
+				context.mock(ConnectionManager.class);
 		final UiCallback uiCallback = context.mock(UiCallback.class);
 		// Two simplex plugin factories: both create plugins, one fails to start
 		final SimplexPluginFactory simplexFactory =

@@ -10,7 +10,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.messaging.GroupFactory;
-import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.serial.ReaderFactory;
 import org.briarproject.api.serial.WriterFactory;
@@ -29,7 +29,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	private final AuthorFactory authorFactory;
 	private final GroupFactory groupFactory;
 	private final KeyManager keyManager;
-	private final ConnectionDispatcher connectionDispatcher;
+	private final ConnectionManager connectionManager;
 	private final Clock clock;
 	private final PluginManager pluginManager;
 
@@ -39,7 +39,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
+			KeyManager keyManager, ConnectionManager connectionManager,
 			Clock clock, PluginManager pluginManager) {
 		this.crypto = crypto;
 		this.db = db;
@@ -50,7 +50,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.authorFactory = authorFactory;
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
-		this.connectionDispatcher = connectionDispatcher;
+		this.connectionManager = connectionManager;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
 	}
@@ -58,9 +58,9 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	public InvitationTask createTask(AuthorId localAuthorId, int localCode,
 			int remoteCode, boolean reuseConnection) {
 		return new ConnectorGroup(crypto, db, readerFactory, writerFactory,
-				streamReaderFactory, streamWriterFactory,
-				authorFactory, groupFactory, keyManager, connectionDispatcher,
-				clock, pluginManager, localAuthorId, localCode, remoteCode,
+				streamReaderFactory, streamWriterFactory, authorFactory,
+				groupFactory, keyManager, connectionManager, clock,
+				pluginManager, localAuthorId, localCode, remoteCode,
 				reuseConnection);
 	}
 }

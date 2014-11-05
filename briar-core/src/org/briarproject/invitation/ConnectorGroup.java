@@ -27,7 +27,7 @@ import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.messaging.GroupFactory;
-import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.serial.ReaderFactory;
@@ -51,7 +51,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final AuthorFactory authorFactory;
 	private final GroupFactory groupFactory;
 	private final KeyManager keyManager;
-	private final ConnectionDispatcher connectionDispatcher;
+	private final ConnectionManager connectionManager;
 	private final Clock clock;
 	private final PluginManager pluginManager;
 	private final AuthorId localAuthorId;
@@ -78,7 +78,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
+			KeyManager keyManager, ConnectionManager connectionManager,
 			Clock clock, PluginManager pluginManager, AuthorId localAuthorId,
 			int localInvitationCode, int remoteInvitationCode,
 			boolean reuseConnection) {
@@ -92,7 +92,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		this.authorFactory = authorFactory;
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
-		this.connectionDispatcher = connectionDispatcher;
+		this.connectionManager = connectionManager;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
 		this.localAuthorId = localAuthorId;
@@ -177,7 +177,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 				remoteInvitationCode);
 		return new AliceConnector(crypto, db, readerFactory, writerFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
-				groupFactory, keyManager, connectionDispatcher, clock,
+				groupFactory, keyManager, connectionManager, clock,
 				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}
 
@@ -188,7 +188,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 				localInvitationCode);
 		return new BobConnector(crypto, db, readerFactory, writerFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
-				groupFactory, keyManager, connectionDispatcher, clock,
+				groupFactory, keyManager, connectionManager, clock,
 				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}
 

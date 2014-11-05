@@ -21,7 +21,7 @@ import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.GroupFactory;
-import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.serial.Reader;
@@ -45,14 +45,14 @@ class BobConnector extends Connector {
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
+			KeyManager keyManager, ConnectionManager connectionManager,
 			Clock clock, boolean reuseConnection, ConnectorGroup group,
 			DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super(crypto, db, readerFactory, writerFactory, streamReaderFactory,
 				streamWriterFactory, authorFactory, groupFactory,
-				keyManager, connectionDispatcher, clock, reuseConnection, group,
+				keyManager, connectionManager, clock, reuseConnection, group,
 				plugin, localAuthor, localProps, random);
 	}
 

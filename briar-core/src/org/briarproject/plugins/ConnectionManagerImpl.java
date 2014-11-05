@@ -19,7 +19,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.MessagingSessionFactory;
-import org.briarproject.api.plugins.ConnectionDispatcher;
+import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
@@ -31,10 +31,10 @@ import org.briarproject.api.transport.StreamWriter;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.api.transport.TagRecogniser;
 
-class ConnectionDispatcherImpl implements ConnectionDispatcher {
+class ConnectionManagerImpl implements ConnectionManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(ConnectionDispatcherImpl.class.getName());
+			Logger.getLogger(ConnectionManagerImpl.class.getName());
 
 	private final Executor ioExecutor;
 	private final KeyManager keyManager;
@@ -45,7 +45,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 	private final ConnectionRegistry connectionRegistry;
 
 	@Inject
-	ConnectionDispatcherImpl(@IoExecutor Executor ioExecutor,
+	ConnectionManagerImpl(@IoExecutor Executor ioExecutor,
 			KeyManager keyManager, TagRecogniser tagRecogniser,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
@@ -60,22 +60,22 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		this.connectionRegistry = connectionRegistry;
 	}
 
-	public void dispatchIncomingConnection(TransportId t,
+	public void manageIncomingConnection(TransportId t,
 			TransportConnectionReader r) {
 		ioExecutor.execute(new DispatchIncomingSimplexConnection(t, r));
 	}
 
-	public void dispatchIncomingConnection(TransportId t,
+	public void manageIncomingConnection(TransportId t,
 			DuplexTransportConnection d) {
 		ioExecutor.execute(new DispatchIncomingDuplexConnection(t, d));
 	}
 
-	public void dispatchOutgoingConnection(ContactId c, TransportId t,
+	public void manageOutgoingConnection(ContactId c, TransportId t,
 			TransportConnectionWriter w) {
 		ioExecutor.execute(new DispatchOutgoingSimplexConnection(c, t, w));
 	}
 
-	public void dispatchOutgoingConnection(ContactId c, TransportId t,
+	public void manageOutgoingConnection(ContactId c, TransportId t,
 			DuplexTransportConnection d) {
 		ioExecutor.execute(new DispatchOutgoingDuplexConnection(c, t, d));
 	}
