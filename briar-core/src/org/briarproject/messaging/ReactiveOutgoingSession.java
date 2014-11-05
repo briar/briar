@@ -165,12 +165,22 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 			if(((MessageToRequestEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateRequest());
 		} else if(e instanceof RemoteRetentionTimeUpdatedEvent) {
-			dbExecutor.execute(new GenerateRetentionAck());
+			RemoteRetentionTimeUpdatedEvent r =
+					(RemoteRetentionTimeUpdatedEvent) e;
+			if(r.getContactId().equals(contactId))
+				dbExecutor.execute(new GenerateRetentionAck());
 		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
-			dbExecutor.execute(new GenerateSubscriptionAck());
-			dbExecutor.execute(new GenerateOffer());
+			RemoteSubscriptionsUpdatedEvent r =
+					(RemoteSubscriptionsUpdatedEvent) e;
+			if(r.getContactId().equals(contactId)) {
+				dbExecutor.execute(new GenerateSubscriptionAck());
+				dbExecutor.execute(new GenerateOffer());
+			}
 		} else if(e instanceof RemoteTransportsUpdatedEvent) {
-			dbExecutor.execute(new GenerateTransportAcks());
+			RemoteTransportsUpdatedEvent r =
+					(RemoteTransportsUpdatedEvent) e;
+			if(r.getContactId().equals(contactId))
+				dbExecutor.execute(new GenerateTransportAcks());
 		} else if(e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
 			if(ctx.getTransportId().equals(t.getTransportId())) {
@@ -184,6 +194,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateAck implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
 				Ack a = db.generateAck(contactId, maxMessages);
@@ -217,6 +228,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateBatch implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				Collection<byte[]> b = db.generateRequestedBatch(contactId,
 						MAX_PACKET_LENGTH, maxLatency);
@@ -250,6 +262,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateOffer implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForOffer(
 					Long.MAX_VALUE);
 			try {
@@ -284,6 +297,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRequest implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForRequest(
 					Long.MAX_VALUE);
 			try {
@@ -318,6 +332,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRetentionAck implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				RetentionAck a = db.generateRetentionAck(contactId);
 				if(LOG.isLoggable(INFO))
@@ -351,6 +366,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRetentionUpdate implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				RetentionUpdate u =
 						db.generateRetentionUpdate(contactId, maxLatency);
@@ -385,6 +401,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateSubscriptionAck implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				SubscriptionAck a = db.generateSubscriptionAck(contactId);
 				if(LOG.isLoggable(INFO))
@@ -418,6 +435,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateSubscriptionUpdate implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				SubscriptionUpdate u =
 						db.generateSubscriptionUpdate(contactId, maxLatency);
@@ -452,6 +470,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateTransportAcks implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				Collection<TransportAck> acks =
 						db.generateTransportAcks(contactId);
@@ -485,6 +504,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateTransportUpdates implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				Collection<TransportUpdate> t =
 						db.generateTransportUpdates(contactId, maxLatency);

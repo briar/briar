@@ -121,6 +121,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateAck implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
 				Ack a = db.generateAck(contactId, maxMessages);
@@ -155,6 +156,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateBatch implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				Collection<byte[]> b = db.generateBatch(contactId,
 						MAX_PACKET_LENGTH, maxLatency);
@@ -189,6 +191,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateRetentionAck implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				RetentionAck a = db.generateRetentionAck(contactId);
 				if(LOG.isLoggable(INFO))
@@ -223,6 +226,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateRetentionUpdate implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				RetentionUpdate u =
 						db.generateRetentionUpdate(contactId, maxLatency);
@@ -258,6 +262,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateSubscriptionAck implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				SubscriptionAck a = db.generateSubscriptionAck(contactId);
 				if(LOG.isLoggable(INFO))
@@ -292,6 +297,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateSubscriptionUpdate implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				SubscriptionUpdate u =
 						db.generateSubscriptionUpdate(contactId, maxLatency);
@@ -327,6 +333,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateTransportAcks implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				Collection<TransportAck> acks =
 						db.generateTransportAcks(contactId);
@@ -361,6 +368,7 @@ class SinglePassOutgoingSession implements MessagingSession {
 	private class GenerateTransportUpdates implements Runnable {
 
 		public void run() {
+			if(interrupted) return;
 			try {
 				Collection<TransportUpdate> t =
 						db.generateTransportUpdates(contactId, maxLatency);
