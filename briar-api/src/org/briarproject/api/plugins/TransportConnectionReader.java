@@ -25,8 +25,8 @@ public interface TransportConnectionReader {
 	 * the connection has been marked as closed.
 	 * @param exception true if the connection is being closed because of an
 	 * exception. This may affect how resources are disposed of.
-	 * @param recognised true if the pseudo-random tag was recognised. This may
-	 * affect how resources are disposed of.
+	 * @param recognised true if the connection is definitely a Briar transport
+	 * connection. This may affect how resources are disposed of.
 	 */
 	void dispose(boolean exception, boolean recognised) throws IOException;
 }
