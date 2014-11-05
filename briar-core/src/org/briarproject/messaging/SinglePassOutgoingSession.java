@@ -26,10 +26,6 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamWriter;
-import org.briarproject.api.transport.StreamWriterFactory;
 
 /**
  * An outgoing {@link org.briarproject.api.messaging.MessagingSession
@@ -48,41 +44,30 @@ class SinglePassOutgoingSession implements MessagingSession {
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
-	private final StreamWriterFactory streamWriterFactory;
 	private final PacketWriterFactory packetWriterFactory;
-	private final StreamContext ctx;
-	private final TransportConnectionWriter transportWriter;
 	private final ContactId contactId;
 	private final long maxLatency;
+	private final OutputStream out;
 	private final AtomicInteger outstandingQueries;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
-	private volatile StreamWriter streamWriter = null;
 	private volatile PacketWriter packetWriter = null;
 	private volatile boolean interrupted = false;
 
 	SinglePassOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			StreamWriterFactory streamWriterFactory,
-			PacketWriterFactory packetWriterFactory, StreamContext ctx,
-			TransportConnectionWriter transportWriter) {
+			PacketWriterFactory packetWriterFactory, ContactId contactId,
+			long maxLatency, OutputStream out) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
-		this.streamWriterFactory = streamWriterFactory;
 		this.packetWriterFactory = packetWriterFactory;
-		this.ctx = ctx;
-		this.transportWriter = transportWriter;
-		contactId = ctx.getContactId();
-		maxLatency = transportWriter.getMaxLatency();
+		this.contactId = contactId;
+		this.maxLatency = maxLatency;
+		this.out = out;
 		outstandingQueries = new AtomicInteger(8); // One per type of packet
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
 	public void run() throws IOException {
-		OutputStream out = transportWriter.getOutputStream();
-		int maxFrameLength = transportWriter.getMaxFrameLength();
-		streamWriter = streamWriterFactory.createStreamWriter(out,
-				maxFrameLength, ctx);
-		out = streamWriter.getOutputStream();
 		packetWriter = packetWriterFactory.createPacketWriter(out);
 		// Start a query for each type of packet, in order of urgency
 		dbExecutor.execute(new GenerateTransportAcks());

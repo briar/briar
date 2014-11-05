@@ -1,14 +1,15 @@
 package org.briarproject.api.messaging;
 
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.transport.StreamContext;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportId;
 
 public interface MessagingSessionFactory {
 
-	MessagingSession createIncomingSession(StreamContext ctx,
-			TransportConnectionReader r);
+	MessagingSession createIncomingSession(ContactId c, InputStream in);
 
-	MessagingSession createOutgoingSession(StreamContext ctx,
-			TransportConnectionWriter w, boolean duplex);
+	MessagingSession createOutgoingSession(ContactId c, TransportId t,
+			long maxLatency, OutputStream out, boolean duplex);
 }

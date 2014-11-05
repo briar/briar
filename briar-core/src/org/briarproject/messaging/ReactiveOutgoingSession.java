@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.ContactRemovedEvent;
@@ -42,10 +43,6 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamWriter;
-import org.briarproject.api.transport.StreamWriterFactory;
 
 /**
  * An outgoing {@link org.briarproject.api.messaging.MessagingSession
@@ -65,41 +62,34 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
-	private final StreamWriterFactory streamWriterFactory;
 	private final PacketWriterFactory packetWriterFactory;
-	private final StreamContext ctx;
-	private final TransportConnectionWriter transportWriter;
 	private final ContactId contactId;
+	private final TransportId transportId;
 	private final long maxLatency;
+	private final OutputStream out;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
 	private volatile PacketWriter packetWriter = null;
 	private volatile boolean interrupted = false;
 
 	ReactiveOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, StreamWriterFactory streamWriterFactory,
-			PacketWriterFactory packetWriterFactory, StreamContext ctx,
-			TransportConnectionWriter transportWriter) {
+			EventBus eventBus, PacketWriterFactory packetWriterFactory,
+			ContactId contactId, TransportId transportId, long maxLatency,
+			OutputStream out) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
-		this.streamWriterFactory = streamWriterFactory;
 		this.packetWriterFactory = packetWriterFactory;
-		this.ctx = ctx;
-		this.transportWriter = transportWriter;
-		contactId = ctx.getContactId();
-		maxLatency = transportWriter.getMaxLatency();
+		this.contactId = contactId;
+		this.transportId = transportId;
+		this.maxLatency = maxLatency;
+		this.out = out;
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			OutputStream out = transportWriter.getOutputStream();
-			int maxFrameLength = transportWriter.getMaxFrameLength();
-			StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
-					out, maxFrameLength, ctx);
-			out = streamWriter.getOutputStream();
 			packetWriter = packetWriterFactory.createPacketWriter(out);
 			// Start a query for each type of packet, in order of urgency
 			dbExecutor.execute(new GenerateTransportAcks());
@@ -183,7 +173,7 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 				dbExecutor.execute(new GenerateTransportAcks());
 		} else if(e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if(ctx.getTransportId().equals(t.getTransportId())) {
+			if(t.getTransportId().equals(transportId)) {
 				LOG.info("Transport removed, closing");
 				interrupt();
 			}

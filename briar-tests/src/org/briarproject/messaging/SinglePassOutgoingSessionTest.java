@@ -1,9 +1,5 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Random;
@@ -15,7 +11,6 @@ import org.briarproject.TestLifecycleModule;
 import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -23,8 +18,6 @@ import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.serial.SerialModule;
@@ -45,11 +38,9 @@ public class SinglePassOutgoingSessionTest extends BriarTestCase {
 	private final Mockery context;
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
-	private final StreamWriterFactory streamWriterFactory;
 	private final PacketWriterFactory packetWriterFactory;
 	private final ContactId contactId;
 	private final MessageId messageId;
-	private final TransportId transportId;
 	private final byte[] secret;
 
 	public SinglePassOutgoingSessionTest() {
@@ -68,11 +59,9 @@ public class SinglePassOutgoingSessionTest extends BriarTestCase {
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new EventModule(), new MessagingModule(),
 				new SerialModule(), new TransportModule());
-		streamWriterFactory = i.getInstance(StreamWriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());
-		transportId = new TransportId("id");
 		secret = new byte[32];
 		new Random().nextBytes(secret);
 	}
@@ -80,12 +69,8 @@ public class SinglePassOutgoingSessionTest extends BriarTestCase {
 	@Test
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestTransportConnectionWriter writer =
-				new TestTransportConnectionWriter(out);
-		StreamContext ctx = new StreamContext(contactId, transportId,
-				secret, 0, true);
 		MessagingSession session = new SinglePassOutgoingSession(db, dbExecutor,
-				streamWriterFactory, packetWriterFactory, ctx, writer);
+				packetWriterFactory, contactId, Long.MAX_VALUE, out);
 		context.checking(new Expectations() {{
 			// No transport acks to send
 			oneOf(db).generateTransportAcks(contactId);
@@ -117,21 +102,16 @@ public class SinglePassOutgoingSessionTest extends BriarTestCase {
 			will(returnValue(null));
 		}});
 		session.run();
-		// Only the tag and an empty final frame should have been written
-		assertEquals(TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH, out.size());
+		// Nothing should have been written
+		assertEquals(0, out.size());
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestTransportConnectionWriter writer =
-				new TestTransportConnectionWriter(out);
-		StreamContext ctx = new StreamContext(contactId, transportId,
-				secret, 0, true);
 		MessagingSession session = new SinglePassOutgoingSession(db, dbExecutor,
-				streamWriterFactory, packetWriterFactory,
-				ctx, writer);
+				packetWriterFactory, contactId, Long.MAX_VALUE, out);
 		final byte[] raw = new byte[1234];
 		context.checking(new Expectations() {{
 			// No transport acks to send
@@ -172,8 +152,7 @@ public class SinglePassOutgoingSessionTest extends BriarTestCase {
 		}});
 		session.run();
 		// Something should have been written
-		int overhead = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
-		assertTrue(out.size() > overhead + UniqueId.LENGTH + raw.length);
+		assertTrue(out.size() > UniqueId.LENGTH + raw.length);
 		context.assertIsSatisfied();
 	}
 }

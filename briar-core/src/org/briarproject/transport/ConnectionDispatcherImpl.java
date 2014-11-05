@@ -6,6 +6,7 @@ import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -24,6 +25,10 @@ import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.transport.ConnectionDispatcher;
 import org.briarproject.api.transport.ConnectionRegistry;
 import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriter;
+import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.api.transport.TagRecogniser;
 
 class ConnectionDispatcherImpl implements ConnectionDispatcher {
@@ -34,17 +39,23 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 	private final Executor ioExecutor;
 	private final KeyManager keyManager;
 	private final TagRecogniser tagRecogniser;
+	private final StreamReaderFactory streamReaderFactory;
+	private final StreamWriterFactory streamWriterFactory;
 	private final MessagingSessionFactory messagingSessionFactory;
 	private final ConnectionRegistry connectionRegistry;
 
 	@Inject
 	ConnectionDispatcherImpl(@IoExecutor Executor ioExecutor,
 			KeyManager keyManager, TagRecogniser tagRecogniser,
+			StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory,
 			MessagingSessionFactory messagingSessionFactory,
 			ConnectionRegistry connectionRegistry) {
 		this.ioExecutor = ioExecutor;
 		this.keyManager = keyManager;
 		this.tagRecogniser = tagRecogniser;
+		this.streamReaderFactory = streamReaderFactory;
+		this.streamWriterFactory = streamWriterFactory;
 		this.messagingSessionFactory = messagingSessionFactory;
 		this.connectionRegistry = connectionRegistry;
 	}
@@ -83,6 +94,25 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		return tag;
 	}
 
+	private MessagingSession createIncomingSession(StreamContext ctx,
+			TransportConnectionReader r) throws IOException {
+		InputStream in = r.getInputStream();
+		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
+				r.getMaxFrameLength(), ctx);
+		return messagingSessionFactory.createIncomingSession(ctx.getContactId(),
+				streamReader.getInputStream());
+	}
+
+	private MessagingSession createOutgoingSession(StreamContext ctx,
+			TransportConnectionWriter w, boolean duplex) throws IOException {
+		OutputStream out = w.getOutputStream();
+		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
+				w.getMaxFrameLength(), ctx);
+		return messagingSessionFactory.createOutgoingSession(ctx.getContactId(),
+				ctx.getTransportId(), w.getMaxLatency(),
+				streamWriter.getOutputStream(), duplex);
+	}
+
 	private class DispatchIncomingSimplexConnection implements Runnable {
 
 		private final TransportId transportId;
@@ -116,11 +146,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			}
 			ContactId contactId = ctx.getContactId();
 			connectionRegistry.registerConnection(contactId, transportId);
-			// Run the incoming session
-			MessagingSession incomingSession =
-					messagingSessionFactory.createIncomingSession(ctx, reader);
 			try {
-				incomingSession.run();
+				// Create and run the incoming session
+				createIncomingSession(ctx, reader).run();
 				disposeReader(false, true);
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -162,12 +190,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				return;
 			}
 			connectionRegistry.registerConnection(contactId, transportId);
-			// Run the outgoing session
-			MessagingSession outgoingSession =
-					messagingSessionFactory.createOutgoingSession(ctx,
-							writer, false);
 			try {
-				outgoingSession.run();
+				// Create and run the outgoing session
+				createOutgoingSession(ctx, writer, false).run();
 				disposeWriter(false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -231,10 +256,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 					runOutgoingSession();
 				}
 			});
-			// Run the incoming session
-			incomingSession = messagingSessionFactory.createIncomingSession(ctx,
-					reader);
 			try {
+				// Create and run the incoming session
+				incomingSession = createIncomingSession(ctx, reader);
 				incomingSession.run();
 				disposeReader(false, true);
 			} catch(IOException e) {
@@ -254,10 +278,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				disposeWriter(true);
 				return;
 			}
-			// Run the outgoing session
-			outgoingSession = messagingSessionFactory.createOutgoingSession(ctx,
-					writer, true);
 			try {
+				// Create and run the outgoing session
+				outgoingSession = createOutgoingSession(ctx, writer, true);
 				outgoingSession.run();
 				disposeWriter(false);
 			} catch(IOException e) {
@@ -321,10 +344,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 					runIncomingSession();
 				}
 			});
-			// Run the outgoing session
-			outgoingSession = messagingSessionFactory.createOutgoingSession(ctx,
-					writer, true);
 			try {
+				// Create and run the outgoing session
+				outgoingSession = createOutgoingSession(ctx, writer, true);
 				outgoingSession.run();
 				disposeWriter(false);
 			} catch(IOException e) {
@@ -362,10 +384,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				disposeReader(true, true);
 				return;
 			}
-			// Run the incoming session
-			incomingSession = messagingSessionFactory.createIncomingSession(ctx,
-					reader);
 			try {
+				// Create and run the incoming session
+				incomingSession = createIncomingSession(ctx, reader);
 				incomingSession.run();
 				disposeReader(false, true);
 			} catch(IOException e) {

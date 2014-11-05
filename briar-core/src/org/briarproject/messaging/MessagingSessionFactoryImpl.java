@@ -1,23 +1,22 @@
 package org.briarproject.messaging;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.MessagingSession;
+import org.briarproject.api.messaging.MessagingSessionFactory;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.messaging.MessagingSessionFactory;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
 
 class MessagingSessionFactoryImpl implements MessagingSessionFactory {
 
@@ -25,8 +24,6 @@ class MessagingSessionFactoryImpl implements MessagingSessionFactory {
 	private final Executor dbExecutor, cryptoExecutor;
 	private final MessageVerifier messageVerifier;
 	private final EventBus eventBus;
-	private final StreamReaderFactory streamReaderFactory;
-	private final StreamWriterFactory streamWriterFactory;
 	private final PacketReaderFactory packetReaderFactory;
 	private final PacketWriterFactory packetWriterFactory;
 
@@ -35,8 +32,6 @@ class MessagingSessionFactoryImpl implements MessagingSessionFactory {
 			@DatabaseExecutor Executor dbExecutor,
 			@CryptoExecutor Executor cryptoExecutor,
 			MessageVerifier messageVerifier, EventBus eventBus,
-			StreamReaderFactory streamReaderFactory,
-			StreamWriterFactory streamWriterFactory,
 			PacketReaderFactory packetReaderFactory,
 			PacketWriterFactory packetWriterFactory) {
 		this.db = db;
@@ -44,24 +39,20 @@ class MessagingSessionFactoryImpl implements MessagingSessionFactory {
 		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
 		this.eventBus = eventBus;
-		this.streamReaderFactory = streamReaderFactory;
-		this.streamWriterFactory = streamWriterFactory;
 		this.packetReaderFactory = packetReaderFactory;
 		this.packetWriterFactory = packetWriterFactory;
 	}
 
-	public MessagingSession createIncomingSession(StreamContext ctx,
-			TransportConnectionReader r) {
+	public MessagingSession createIncomingSession(ContactId c, InputStream in) {
 		return new IncomingSession(db, dbExecutor, cryptoExecutor,
-				messageVerifier, streamReaderFactory, packetReaderFactory,
-				ctx, r);
+				messageVerifier, packetReaderFactory, c, in);
 	}
 
-	public MessagingSession createOutgoingSession(StreamContext ctx,
-			TransportConnectionWriter w, boolean duplex) {
+	public MessagingSession createOutgoingSession(ContactId c, TransportId t,
+			long maxLatency, OutputStream out, boolean duplex) {
 		if(duplex) return new ReactiveOutgoingSession(db, dbExecutor, eventBus,
-				streamWriterFactory, packetWriterFactory, ctx, w);
+				packetWriterFactory, c, t, maxLatency, out);
 		else return new SinglePassOutgoingSession(db, dbExecutor,
-				streamWriterFactory, packetWriterFactory, ctx, w);
+				packetWriterFactory, c, maxLatency, out);
 	}
 }

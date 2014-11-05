@@ -25,10 +25,6 @@ import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReader;
-import org.briarproject.api.transport.StreamReaderFactory;
 
 /**
  * An incoming {@link org.briarproject.api.messaging.MessagingSession
@@ -42,36 +38,26 @@ class IncomingSession implements MessagingSession {
 	private final DatabaseComponent db;
 	private final Executor dbExecutor, cryptoExecutor;
 	private final MessageVerifier messageVerifier;
-	private final StreamReaderFactory streamReaderFactory;
 	private final PacketReaderFactory packetReaderFactory;
-	private final StreamContext ctx;
-	private final TransportConnectionReader transportReader;
 	private final ContactId contactId;
+	private final InputStream in;
 
 	private volatile boolean interrupted = false;
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
 			Executor cryptoExecutor, MessageVerifier messageVerifier,
-			StreamReaderFactory streamReaderFactory,
-			PacketReaderFactory packetReaderFactory, StreamContext ctx,
-			TransportConnectionReader transportReader) {
+			PacketReaderFactory packetReaderFactory, ContactId contactId,
+			InputStream in) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
-		this.streamReaderFactory = streamReaderFactory;
 		this.packetReaderFactory = packetReaderFactory;
-		this.ctx = ctx;
-		this.transportReader = transportReader;
-		contactId = ctx.getContactId();
+		this.contactId = contactId;
+		this.in = in;
 	}
 
 	public void run() throws IOException {
-		InputStream in = transportReader.getInputStream();
-		int maxFrameLength = transportReader.getMaxFrameLength();
-		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
-				maxFrameLength, ctx);
-		in = streamReader.getInputStream();
 		PacketReader packetReader = packetReaderFactory.createPacketReader(in);
 		// Read packets until interrupted or EOF
 		while(!interrupted && !packetReader.eof()) {
