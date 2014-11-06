@@ -112,7 +112,7 @@
 			<test name='org.briarproject.messaging.ConsumersTest'/>
 			<test name='org.briarproject.messaging.PacketReaderImplTest'/>
 			<test name='org.briarproject.messaging.SimplexMessagingIntegrationTest'/>
-			<test name='org.briarproject.messaging.SinglePassOutgoingSessionTest'/>
+			<test name='org.briarproject.messaging.SimplexOutgoingSessionTest'/>
 			<test name='org.briarproject.plugins.ConnectionRegistryImplTest'/>
 			<test name='org.briarproject.plugins.PluginManagerImplTest'/>
 			<test name='org.briarproject.plugins.file.LinuxRemovableDriveFinderTest'/>

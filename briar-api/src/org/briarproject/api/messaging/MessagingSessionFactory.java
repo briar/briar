@@ -8,8 +8,9 @@ import org.briarproject.api.TransportId;
 
 public interface MessagingSessionFactory {
 
-	MessagingSession createIncomingSession(ContactId c, InputStream in);
+	MessagingSession createIncomingSession(ContactId c, TransportId t,
+			InputStream in);
 
 	MessagingSession createOutgoingSession(ContactId c, TransportId t,
-			long maxLatency, OutputStream out, boolean duplex);
+			long maxLatency, boolean duplex, OutputStream out);
 }

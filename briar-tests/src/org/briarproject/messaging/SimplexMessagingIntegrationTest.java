@@ -149,11 +149,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
 				MAX_FRAME_LENGTH, ctx);
 		// Create an outgoing messaging session
+		EventBus eventBus = alice.getInstance(EventBus.class);
 		PacketWriterFactory packetWriterFactory =
 				alice.getInstance(PacketWriterFactory.class);
-		MessagingSession session = new SinglePassOutgoingSession(db,
-				new ImmediateExecutor(), packetWriterFactory, contactId,
-				Long.MAX_VALUE, streamWriter.getOutputStream());
+		MessagingSession session = new SimplexOutgoingSession(db,
+				new ImmediateExecutor(), eventBus, packetWriterFactory,
+				contactId, transportId, Long.MAX_VALUE,
+				streamWriter.getOutputStream());
 		// Write whatever needs to be written
 		session.run();
 		// Clean up
@@ -207,13 +209,14 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
 				MAX_FRAME_LENGTH, ctx);
 		// Create an incoming messaging session
+		EventBus eventBus = bob.getInstance(EventBus.class);
 		MessageVerifier messageVerifier =
 				bob.getInstance(MessageVerifier.class);
 		PacketReaderFactory packetReaderFactory =
 				bob.getInstance(PacketReaderFactory.class);
 		MessagingSession session = new IncomingSession(db,
-				new ImmediateExecutor(), new ImmediateExecutor(),
-				messageVerifier, packetReaderFactory, contactId,
+				new ImmediateExecutor(), new ImmediateExecutor(), eventBus,
+				messageVerifier, packetReaderFactory, contactId, transportId,
 				streamReader.getInputStream());
 		// No messages should have been added yet
 		assertFalse(listener.messageAdded);

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
@@ -20,23 +21,11 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.LocalTransportsUpdatedEvent;
-import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
-import org.briarproject.api.event.MessageRequestedEvent;
-import org.briarproject.api.event.MessageToAckEvent;
-import org.briarproject.api.event.MessageToRequestEvent;
-import org.briarproject.api.event.RemoteRetentionTimeUpdatedEvent;
-import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessagingSession;
-import org.briarproject.api.messaging.Offer;
 import org.briarproject.api.messaging.PacketWriter;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.messaging.Request;
 import org.briarproject.api.messaging.RetentionAck;
 import org.briarproject.api.messaging.RetentionUpdate;
 import org.briarproject.api.messaging.SubscriptionAck;
@@ -46,13 +35,14 @@ import org.briarproject.api.messaging.TransportUpdate;
 
 /**
  * An outgoing {@link org.briarproject.api.messaging.MessagingSession
- * MessagingSession} that keeps its output stream open and reacts to events
- * that make packets available to send.
+ * MessagingSession} suitable for simplex transports. The session sends
+ * messages without offering them, and closes its output stream when there are
+ * no more packets to send.
  */
-class ReactiveOutgoingSession implements MessagingSession, EventListener {
+class SimplexOutgoingSession implements MessagingSession, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(ReactiveOutgoingSession.class.getName());
+			Logger.getLogger(SimplexOutgoingSession.class.getName());
 
 	private static final ThrowingRunnable<IOException> CLOSE =
 			new ThrowingRunnable<IOException>() {
@@ -62,35 +52,35 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
-	private final PacketWriterFactory packetWriterFactory;
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final long maxLatency;
 	private final OutputStream out;
+	private final PacketWriter packetWriter;
+	private final AtomicInteger outstandingQueries;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
-	private volatile PacketWriter packetWriter = null;
 	private volatile boolean interrupted = false;
 
-	ReactiveOutgoingSession(DatabaseComponent db, Executor dbExecutor,
+	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, PacketWriterFactory packetWriterFactory,
 			ContactId contactId, TransportId transportId, long maxLatency,
 			OutputStream out) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
-		this.packetWriterFactory = packetWriterFactory;
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.out = out;
+		packetWriter = packetWriterFactory.createPacketWriter(out);
+		outstandingQueries = new AtomicInteger(8); // One per type of packet
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			packetWriter = packetWriterFactory.createPacketWriter(out);
 			// Start a query for each type of packet, in order of urgency
 			dbExecutor.execute(new GenerateTransportAcks());
 			dbExecutor.execute(new GenerateTransportUpdates());
@@ -100,16 +90,14 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 			dbExecutor.execute(new GenerateRetentionUpdate());
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
-			dbExecutor.execute(new GenerateOffer());
-			dbExecutor.execute(new GenerateRequest());
-			// Write packets until interrupted
+			// Write packets until interrupted or no more packets to write
 			try {
 				while(!interrupted) {
 					ThrowingRunnable<IOException> task = writerTasks.take();
 					if(task == CLOSE) break;
 					task.run();
-					if(writerTasks.isEmpty()) out.flush();
 				}
+				out.flush();
 				out.close();
 			} catch(InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
@@ -125,58 +113,17 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 		writerTasks.add(CLOSE);
 	}
 
+	private void decrementOutstandingQueries() {
+		if(outstandingQueries.decrementAndGet() == 0) writerTasks.add(CLOSE);
+	}
+
 	public void eventOccurred(Event e) {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
-			if(contactId.equals(c.getContactId())) {
-				LOG.info("Contact removed, closing");
-				interrupt();
-			}
-		} else if(e instanceof MessageAddedEvent) {
-			dbExecutor.execute(new GenerateOffer());
-		} else if(e instanceof MessageExpiredEvent) {
-			dbExecutor.execute(new GenerateRetentionUpdate());
-		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
-			LocalSubscriptionsUpdatedEvent l =
-					(LocalSubscriptionsUpdatedEvent) e;
-			if(l.getAffectedContacts().contains(contactId)) {
-				dbExecutor.execute(new GenerateSubscriptionUpdate());
-				dbExecutor.execute(new GenerateOffer());
-			}
-		} else if(e instanceof LocalTransportsUpdatedEvent) {
-			dbExecutor.execute(new GenerateTransportUpdates());
-		} else if(e instanceof MessageRequestedEvent) {
-			if(((MessageRequestedEvent) e).getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateBatch());
-		} else if(e instanceof MessageToAckEvent) {
-			if(((MessageToAckEvent) e).getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateAck());
-		} else if(e instanceof MessageToRequestEvent) {
-			if(((MessageToRequestEvent) e).getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateRequest());
-		} else if(e instanceof RemoteRetentionTimeUpdatedEvent) {
-			RemoteRetentionTimeUpdatedEvent r =
-					(RemoteRetentionTimeUpdatedEvent) e;
-			if(r.getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateRetentionAck());
-		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
-			RemoteSubscriptionsUpdatedEvent r =
-					(RemoteSubscriptionsUpdatedEvent) e;
-			if(r.getContactId().equals(contactId)) {
-				dbExecutor.execute(new GenerateSubscriptionAck());
-				dbExecutor.execute(new GenerateOffer());
-			}
-		} else if(e instanceof RemoteTransportsUpdatedEvent) {
-			RemoteTransportsUpdatedEvent r =
-					(RemoteTransportsUpdatedEvent) e;
-			if(r.getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateTransportAcks());
+			if(c.getContactId().equals(contactId)) interrupt();
 		} else if(e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if(t.getTransportId().equals(transportId)) {
-				LOG.info("Transport removed, closing");
-				interrupt();
-			}
+			if(t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 
@@ -190,7 +137,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 				Ack a = db.generateAck(contactId, maxMessages);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
-				if(a != null) writerTasks.add(new WriteAck(a));
+				if(a == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteAck(a));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -220,11 +168,12 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 		public void run() {
 			if(interrupted) return;
 			try {
-				Collection<byte[]> b = db.generateRequestedBatch(contactId,
+				Collection<byte[]> b = db.generateBatch(contactId,
 						MAX_PACKET_LENGTH, maxLatency);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
-				if(b != null) writerTasks.add(new WriteBatch(b));
+				if(b == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteBatch(b));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -249,76 +198,6 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 	}
 
 	// This task runs on the database thread
-	private class GenerateOffer implements Runnable {
-
-		public void run() {
-			if(interrupted) return;
-			int maxMessages = packetWriter.getMaxMessagesForOffer(
-					Long.MAX_VALUE);
-			try {
-				Offer o = db.generateOffer(contactId, maxMessages, maxLatency);
-				if(LOG.isLoggable(INFO))
-					LOG.info("Generated offer: " + (o != null));
-				if(o != null) writerTasks.add(new WriteOffer(o));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteOffer implements ThrowingRunnable<IOException> {
-
-		private final Offer offer;
-
-		private WriteOffer(Offer offer) {
-			this.offer = offer;
-		}
-
-		public void run() throws IOException {
-			packetWriter.writeOffer(offer);
-			LOG.info("Sent offer");
-			dbExecutor.execute(new GenerateOffer());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateRequest implements Runnable {
-
-		public void run() {
-			if(interrupted) return;
-			int maxMessages = packetWriter.getMaxMessagesForRequest(
-					Long.MAX_VALUE);
-			try {
-				Request r = db.generateRequest(contactId, maxMessages);
-				if(LOG.isLoggable(INFO))
-					LOG.info("Generated request: " + (r != null));
-				if(r != null) writerTasks.add(new WriteRequest(r));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteRequest implements ThrowingRunnable<IOException> {
-
-		private final Request request;
-
-		private WriteRequest(Request request) {
-			this.request = request;
-		}
-
-		public void run() throws IOException {
-			packetWriter.writeRequest(request);
-			LOG.info("Sent request");
-			dbExecutor.execute(new GenerateRequest());
-		}
-	}
-
-	// This task runs on the database thread
 	private class GenerateRetentionAck implements Runnable {
 
 		public void run() {
@@ -327,7 +206,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 				RetentionAck a = db.generateRetentionAck(contactId);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated retention ack: " + (a != null));
-				if(a != null) writerTasks.add(new WriteRetentionAck(a));
+				if(a == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteRetentionAck(a));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -362,7 +242,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 						db.generateRetentionUpdate(contactId, maxLatency);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated retention update: " + (u != null));
-				if(u != null) writerTasks.add(new WriteRetentionUpdate(u));
+				if(u == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteRetentionUpdate(u));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -396,7 +277,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 				SubscriptionAck a = db.generateSubscriptionAck(contactId);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated subscription ack: " + (a != null));
-				if(a != null) writerTasks.add(new WriteSubscriptionAck(a));
+				if(a == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteSubscriptionAck(a));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -431,7 +313,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 						db.generateSubscriptionUpdate(contactId, maxLatency);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated subscription update: " + (u != null));
-				if(u != null) writerTasks.add(new WriteSubscriptionUpdate(u));
+				if(u == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteSubscriptionUpdate(u));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -466,7 +349,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 						db.generateTransportAcks(contactId);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated transport acks: " + (acks != null));
-				if(acks != null) writerTasks.add(new WriteTransportAcks(acks));
+				if(acks == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteTransportAcks(acks));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -500,7 +384,8 @@ class ReactiveOutgoingSession implements MessagingSession, EventListener {
 						db.generateTransportUpdates(contactId, maxLatency);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated transport updates: " + (t != null));
-				if(t != null) writerTasks.add(new WriteTransportUpdates(t));
+				if(t == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteTransportUpdates(t));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();

@@ -10,8 +10,14 @@ import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.FormatException;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageVerifier;
@@ -30,72 +36,91 @@ import org.briarproject.api.messaging.UnverifiedMessage;
  * An incoming {@link org.briarproject.api.messaging.MessagingSession
  * MessagingSession}.
  */
-class IncomingSession implements MessagingSession {
+class IncomingSession implements MessagingSession, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(IncomingSession.class.getName());
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor, cryptoExecutor;
+	private final EventBus eventBus;
 	private final MessageVerifier messageVerifier;
-	private final PacketReaderFactory packetReaderFactory;
 	private final ContactId contactId;
+	private final TransportId transportId;
 	private final InputStream in;
+	private final PacketReader packetReader;
 
 	private volatile boolean interrupted = false;
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
-			Executor cryptoExecutor, MessageVerifier messageVerifier,
+			Executor cryptoExecutor, EventBus eventBus,
+			MessageVerifier messageVerifier,
 			PacketReaderFactory packetReaderFactory, ContactId contactId,
-			InputStream in) {
+			TransportId transportId, InputStream in) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
+		this.eventBus = eventBus;
 		this.messageVerifier = messageVerifier;
-		this.packetReaderFactory = packetReaderFactory;
 		this.contactId = contactId;
+		this.transportId = transportId;
 		this.in = in;
+		packetReader = packetReaderFactory.createPacketReader(in);
 	}
 
 	public void run() throws IOException {
-		PacketReader packetReader = packetReaderFactory.createPacketReader(in);
-		// Read packets until interrupted or EOF
-		while(!interrupted && !packetReader.eof()) {
-			if(packetReader.hasAck()) {
-				Ack a = packetReader.readAck();
-				dbExecutor.execute(new ReceiveAck(a));
-			} else if(packetReader.hasMessage()) {
-				UnverifiedMessage m = packetReader.readMessage();
-				cryptoExecutor.execute(new VerifyMessage(m));
-			} else if(packetReader.hasRetentionAck()) {
-				RetentionAck a = packetReader.readRetentionAck();
-				dbExecutor.execute(new ReceiveRetentionAck(a));
-			} else if(packetReader.hasRetentionUpdate()) {
-				RetentionUpdate u = packetReader.readRetentionUpdate();
-				dbExecutor.execute(new ReceiveRetentionUpdate(u));
-			} else if(packetReader.hasSubscriptionAck()) {
-				SubscriptionAck a = packetReader.readSubscriptionAck();
-				dbExecutor.execute(new ReceiveSubscriptionAck(a));
-			} else if(packetReader.hasSubscriptionUpdate()) {
-				SubscriptionUpdate u = packetReader.readSubscriptionUpdate();
-				dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
-			} else if(packetReader.hasTransportAck()) {
-				TransportAck a = packetReader.readTransportAck();
-				dbExecutor.execute(new ReceiveTransportAck(a));
-			} else if(packetReader.hasTransportUpdate()) {
-				TransportUpdate u = packetReader.readTransportUpdate();
-				dbExecutor.execute(new ReceiveTransportUpdate(u));
-			} else {
-				throw new FormatException();
+		eventBus.addListener(this);
+		try {
+			// Read packets until interrupted or EOF
+			while(!interrupted && !packetReader.eof()) {
+				if(packetReader.hasAck()) {
+					Ack a = packetReader.readAck();
+					dbExecutor.execute(new ReceiveAck(a));
+				} else if(packetReader.hasMessage()) {
+					UnverifiedMessage m = packetReader.readMessage();
+					cryptoExecutor.execute(new VerifyMessage(m));
+				} else if(packetReader.hasRetentionAck()) {
+					RetentionAck a = packetReader.readRetentionAck();
+					dbExecutor.execute(new ReceiveRetentionAck(a));
+				} else if(packetReader.hasRetentionUpdate()) {
+					RetentionUpdate u = packetReader.readRetentionUpdate();
+					dbExecutor.execute(new ReceiveRetentionUpdate(u));
+				} else if(packetReader.hasSubscriptionAck()) {
+					SubscriptionAck a = packetReader.readSubscriptionAck();
+					dbExecutor.execute(new ReceiveSubscriptionAck(a));
+				} else if(packetReader.hasSubscriptionUpdate()) {
+					SubscriptionUpdate u = packetReader.readSubscriptionUpdate();
+					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
+				} else if(packetReader.hasTransportAck()) {
+					TransportAck a = packetReader.readTransportAck();
+					dbExecutor.execute(new ReceiveTransportAck(a));
+				} else if(packetReader.hasTransportUpdate()) {
+					TransportUpdate u = packetReader.readTransportUpdate();
+					dbExecutor.execute(new ReceiveTransportUpdate(u));
+				} else {
+					throw new FormatException();
+				}
 			}
+			in.close();
+		} finally {
+			eventBus.removeListener(this);
 		}
-		in.close();
 	}
 
 	public void interrupt() {
 		// This won't interrupt a blocking read, but the read will throw an
 		// exception when the transport connection is closed
 		interrupted = true;
+	}
+
+	public void eventOccurred(Event e) {
+		if(e instanceof ContactRemovedEvent) {
+			ContactRemovedEvent c = (ContactRemovedEvent) e;
+			if(c.getContactId().equals(contactId)) interrupt();
+		} else if(e instanceof TransportRemovedEvent) {
+			TransportRemovedEvent t = (TransportRemovedEvent) e;
+			if(t.getTransportId().equals(transportId)) interrupt();
+		}
 	}
 
 	private class ReceiveAck implements Runnable {

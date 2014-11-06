@@ -43,16 +43,17 @@ class MessagingSessionFactoryImpl implements MessagingSessionFactory {
 		this.packetWriterFactory = packetWriterFactory;
 	}
 
-	public MessagingSession createIncomingSession(ContactId c, InputStream in) {
-		return new IncomingSession(db, dbExecutor, cryptoExecutor,
-				messageVerifier, packetReaderFactory, c, in);
+	public MessagingSession createIncomingSession(ContactId c, TransportId t,
+			InputStream in) {
+		return new IncomingSession(db, dbExecutor, cryptoExecutor, eventBus,
+				messageVerifier, packetReaderFactory, c, t, in);
 	}
 
 	public MessagingSession createOutgoingSession(ContactId c, TransportId t,
-			long maxLatency, OutputStream out, boolean duplex) {
-		if(duplex) return new ReactiveOutgoingSession(db, dbExecutor, eventBus,
+			long maxLatency, boolean duplex, OutputStream out) {
+		if(duplex) return new DuplexOutgoingSession(db, dbExecutor, eventBus,
 				packetWriterFactory, c, t, maxLatency, out);
-		else return new SinglePassOutgoingSession(db, dbExecutor,
-				packetWriterFactory, c, maxLatency, out);
+		else return new SimplexOutgoingSession(db, dbExecutor, eventBus,
+				packetWriterFactory, c, t, maxLatency, out);
 	}
 }

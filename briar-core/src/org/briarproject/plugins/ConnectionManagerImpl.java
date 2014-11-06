@@ -100,7 +100,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
 				r.getMaxFrameLength(), ctx);
 		return messagingSessionFactory.createIncomingSession(ctx.getContactId(),
-				streamReader.getInputStream());
+				ctx.getTransportId(), streamReader.getInputStream());
 	}
 
 	private MessagingSession createOutgoingSession(StreamContext ctx,
@@ -110,7 +110,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				w.getMaxFrameLength(), ctx);
 		return messagingSessionFactory.createOutgoingSession(ctx.getContactId(),
 				ctx.getTransportId(), w.getMaxLatency(),
-				streamWriter.getOutputStream(), duplex);
+				duplex, streamWriter.getOutputStream());
 	}
 
 	private class DispatchIncomingSimplexConnection implements Runnable {
