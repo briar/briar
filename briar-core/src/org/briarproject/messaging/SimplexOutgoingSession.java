@@ -99,7 +99,6 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 					task.run();
 				}
 				out.flush();
-				out.close();
 			} catch(InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
 				Thread.currentThread().interrupt();
@@ -159,6 +158,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeAck(ack);
 			LOG.info("Sent ack");
 			dbExecutor.execute(new GenerateAck());
@@ -194,6 +194,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			for(byte[] raw : batch) packetWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
@@ -229,6 +230,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeRetentionAck(ack);
 			LOG.info("Sent retention ack");
 			dbExecutor.execute(new GenerateRetentionAck());
@@ -265,6 +267,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeRetentionUpdate(update);
 			LOG.info("Sent retention update");
 			dbExecutor.execute(new GenerateRetentionUpdate());
@@ -300,6 +303,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeSubscriptionAck(ack);
 			LOG.info("Sent subscription ack");
 			dbExecutor.execute(new GenerateSubscriptionAck());
@@ -336,6 +340,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeSubscriptionUpdate(update);
 			LOG.info("Sent subscription update");
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
@@ -371,6 +376,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			for(TransportAck a : acks) packetWriter.writeTransportAck(a);
 			LOG.info("Sent transport acks");
 			dbExecutor.execute(new GenerateTransportAcks());
@@ -407,6 +413,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			for(TransportUpdate u : updates)
 				packetWriter.writeTransportUpdate(u);
 			LOG.info("Sent transport updates");

@@ -109,10 +109,10 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 					ThrowingRunnable<IOException> task = writerTasks.take();
 					if(task == CLOSE) break;
 					task.run();
+					// Flush the stream if it's going to be idle
 					if(writerTasks.isEmpty()) out.flush();
 				}
 				out.flush();
-				out.close();
 			} catch(InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
 				Thread.currentThread().interrupt();
@@ -206,6 +206,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeAck(ack);
 			LOG.info("Sent ack");
 			dbExecutor.execute(new GenerateAck());
@@ -240,6 +241,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			for(byte[] raw : batch) packetWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
@@ -275,6 +277,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeOffer(offer);
 			LOG.info("Sent offer");
 			dbExecutor.execute(new GenerateOffer());
@@ -310,6 +313,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeRequest(request);
 			LOG.info("Sent request");
 			dbExecutor.execute(new GenerateRequest());
@@ -344,6 +348,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeRetentionAck(ack);
 			LOG.info("Sent retention ack");
 			dbExecutor.execute(new GenerateRetentionAck());
@@ -379,6 +384,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeRetentionUpdate(update);
 			LOG.info("Sent retention update");
 			dbExecutor.execute(new GenerateRetentionUpdate());
@@ -413,6 +419,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeSubscriptionAck(ack);
 			LOG.info("Sent subscription ack");
 			dbExecutor.execute(new GenerateSubscriptionAck());
@@ -448,6 +455,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			packetWriter.writeSubscriptionUpdate(update);
 			LOG.info("Sent subscription update");
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
@@ -482,6 +490,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			for(TransportAck a : acks) packetWriter.writeTransportAck(a);
 			LOG.info("Sent transport acks");
 			dbExecutor.execute(new GenerateTransportAcks());
@@ -517,6 +526,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
+			if(interrupted) return;
 			for(TransportUpdate u : updates)
 				packetWriter.writeTransportUpdate(u);
 			LOG.info("Sent transport updates");

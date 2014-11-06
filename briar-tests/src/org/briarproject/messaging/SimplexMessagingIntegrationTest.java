@@ -94,13 +94,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testInjection() {
-		DatabaseComponent aliceDb = alice.getInstance(DatabaseComponent.class);
-		DatabaseComponent bobDb = bob.getInstance(DatabaseComponent.class);
-		assertFalse(aliceDb == bobDb);
-	}
-
-	@Test
 	public void testWriteAndRead() throws Exception {
 		read(write());
 	}
@@ -110,8 +103,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		DatabaseComponent db = alice.getInstance(DatabaseComponent.class);
 		assertFalse(db.open());
 		// Start Alice's key manager
-		KeyManager km = alice.getInstance(KeyManager.class);
-		km.start();
+		KeyManager keyManager = alice.getInstance(KeyManager.class);
+		keyManager.start();
 		// Add a local pseudonym for Alice
 		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
@@ -131,7 +124,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, true);
 		db.addEndpoint(ep);
-		km.endpointAdded(ep, LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, LATENCY, initialSecret.clone());
 		// Send Bob a message
 		String contentType = "text/plain";
 		long timestamp = System.currentTimeMillis();
@@ -144,7 +137,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamWriterFactory streamWriterFactory =
 				alice.getInstance(StreamWriterFactory.class);
-		StreamContext ctx = km.getStreamContext(contactId, transportId);
+		StreamContext ctx = keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
 				MAX_FRAME_LENGTH, ctx);
@@ -158,8 +151,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				streamWriter.getOutputStream());
 		// Write whatever needs to be written
 		session.run();
+		streamWriter.getOutputStream().close();
 		// Clean up
-		km.stop();
+		keyManager.stop();
 		db.close();
 		// Return the contents of the stream
 		return out.toByteArray();
@@ -170,8 +164,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		DatabaseComponent db = bob.getInstance(DatabaseComponent.class);
 		assertFalse(db.open());
 		// Start Bob's key manager
-		KeyManager km = bob.getInstance(KeyManager.class);
-		km.start();
+		KeyManager keyManager = bob.getInstance(KeyManager.class);
+		keyManager.start();
 		// Add a local pseudonym for Bob
 		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
@@ -191,7 +185,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
 		db.addEndpoint(ep);
-		km.endpointAdded(ep, LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, LATENCY, initialSecret.clone());
 		// Set up an event listener
 		MessageListener listener = new MessageListener();
 		bob.getInstance(EventBus.class).addListener(listener);
@@ -222,10 +216,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		assertFalse(listener.messageAdded);
 		// Read whatever needs to be read
 		session.run();
+		streamReader.getInputStream().close();
 		// The private message from Alice should have been added
 		assertTrue(listener.messageAdded);
 		// Clean up
-		km.stop();
+		keyManager.stop();
 		db.close();
 	}
 

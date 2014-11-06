@@ -48,7 +48,6 @@ class IncomingSession implements MessagingSession, EventListener {
 	private final MessageVerifier messageVerifier;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final InputStream in;
 	private final PacketReader packetReader;
 
 	private volatile boolean interrupted = false;
@@ -65,7 +64,6 @@ class IncomingSession implements MessagingSession, EventListener {
 		this.messageVerifier = messageVerifier;
 		this.contactId = contactId;
 		this.transportId = transportId;
-		this.in = in;
 		packetReader = packetReaderFactory.createPacketReader(in);
 	}
 
@@ -102,7 +100,6 @@ class IncomingSession implements MessagingSession, EventListener {
 					throw new FormatException();
 				}
 			}
-			in.close();
 		} finally {
 			eventBus.removeListener(this);
 		}
