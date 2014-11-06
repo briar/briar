@@ -19,6 +19,8 @@ import javax.inject.Inject;
 
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.system.Clock;
@@ -30,6 +32,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 
 	private final Clock clock;
 	private final DatabaseComponent db;
+	private final EventBus eventBus;
 	private final Collection<Service> services;
 	private final Collection<ExecutorService> executors;
 	private final Semaphore startStopSemaphore = new Semaphore(1);
@@ -38,9 +41,10 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 	@Inject
-	LifecycleManagerImpl(Clock clock, DatabaseComponent db) {
+	LifecycleManagerImpl(Clock clock, DatabaseComponent db, EventBus eventBus) {
 		this.clock = clock;
 		this.db = db;
+		this.eventBus = eventBus;
 		services = new CopyOnWriteArrayList<Service>();
 		executors = new CopyOnWriteArrayList<ExecutorService>();
 	}
@@ -111,6 +115,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 		}
 		try {
 			LOG.info("Stopping services");
+			eventBus.broadcast(new ShutdownEvent());
 			for(Service s : services) {
 				boolean stopped = s.stop();
 				if(LOG.isLoggable(INFO)) {

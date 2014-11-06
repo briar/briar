@@ -21,6 +21,7 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessagingSession;
@@ -121,6 +122,8 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(c.getContactId().equals(contactId)) interrupt();
+		} else if(e instanceof ShutdownEvent) {
+			interrupt();
 		} else if(e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
 			if(t.getTransportId().equals(transportId)) interrupt();

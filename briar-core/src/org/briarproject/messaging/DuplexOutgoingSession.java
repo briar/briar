@@ -30,6 +30,7 @@ import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.RemoteRetentionTimeUpdatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
+import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessagingSession;
@@ -169,6 +170,8 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 					(RemoteTransportsUpdatedEvent) e;
 			if(r.getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateTransportAcks());
+		} else if(e instanceof ShutdownEvent) {
+			interrupt();
 		} else if(e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
 			if(t.getTransportId().equals(transportId)) interrupt();
