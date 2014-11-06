@@ -46,7 +46,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
-	private final TagRecogniser connectionRecogniser;
+	private final TagRecogniser tagRecogniser;
 	private final Clock clock;
 	private final Timer timer;
 
@@ -58,12 +58,12 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
-			EventBus eventBus, TagRecogniser connectionRecogniser,
-			Clock clock, Timer timer) {
+			EventBus eventBus, TagRecogniser tagRecogniser, Clock clock,
+			Timer timer) {
 		this.crypto = crypto;
 		this.db = db;
 		this.eventBus = eventBus;
-		this.connectionRecogniser = connectionRecogniser;
+		this.tagRecogniser = tagRecogniser;
 		this.clock = clock;
 		this.timer = timer;
 		maxLatencies = new HashMap<TransportId, Long>();
@@ -99,11 +99,11 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 		// Pass the old, current and new secrets to the recogniser
 		for(TemporarySecret s : oldSecrets.values())
-			connectionRecogniser.addSecret(s);
+			tagRecogniser.addSecret(s);
 		for(TemporarySecret s : currentSecrets.values())
-			connectionRecogniser.addSecret(s);
+			tagRecogniser.addSecret(s);
 		for(TemporarySecret s : newSecrets.values())
-			connectionRecogniser.addSecret(s);
+			tagRecogniser.addSecret(s);
 		// Schedule periodic key rotation
 		timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
 		return true;
@@ -218,7 +218,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	public synchronized boolean stop() {
 		eventBus.removeListener(this);
 		timer.cancel();
-		connectionRecogniser.removeSecrets();
+		tagRecogniser.removeSecrets();
 		maxLatencies.clear();
 		removeAndEraseSecrets(oldSecrets);
 		removeAndEraseSecrets(currentSecrets);
@@ -288,9 +288,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			return;
 		}
 		// Pass the new secrets to the recogniser
-		connectionRecogniser.addSecret(s1);
-		connectionRecogniser.addSecret(s2);
-		connectionRecogniser.addSecret(s3);
+		tagRecogniser.addSecret(s1);
+		tagRecogniser.addSecret(s2);
+		tagRecogniser.addSecret(s3);
 	}
 
 	@Override
@@ -311,7 +311,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			ContactId c = s.getContactId();
 			TransportId t = s.getTransportId();
 			long period = s.getPeriod();
-			connectionRecogniser.removeSecret(c, t, period);
+			tagRecogniser.removeSecret(c, t, period);
 		}
 		// Replace any dead secrets
 		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
@@ -323,7 +323,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 			// Pass any secrets that have been created to the recogniser
-			for(TemporarySecret s : created) connectionRecogniser.addSecret(s);
+			for(TemporarySecret s : created) tagRecogniser.addSecret(s);
 		}
 	}
 
@@ -406,7 +406,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		@Override
 		public void run() {
 			ContactId c = event.getContactId();
-			connectionRecogniser.removeSecrets(c);
+			tagRecogniser.removeSecrets(c);
 			synchronized(KeyManagerImpl.this) {
 				removeAndEraseSecrets(c, oldSecrets);
 				removeAndEraseSecrets(c, currentSecrets);
@@ -442,7 +442,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		@Override
 		public void run() {
 			TransportId t = event.getTransportId();
-			connectionRecogniser.removeSecrets(t);
+			tagRecogniser.removeSecrets(t);
 			synchronized(KeyManagerImpl.this) {
 				maxLatencies.remove(t);
 				removeAndEraseSecrets(t, oldSecrets);

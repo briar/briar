@@ -78,10 +78,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
-		final TagRecogniser connectionRecogniser =
-				new TagRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -117,10 +116,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final TagRecogniser connectionRecogniser =
-				new TagRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -241,10 +239,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final TagRecogniser connectionRecogniser =
-				new TagRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -376,8 +373,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final TagRecogniser tagRecogniser =
-				new TagRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
 				eventBus, tagRecogniser, clock, timer);
 
@@ -521,10 +517,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k1 = context.mock(SecretKey.class, "k1");
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
-		final TagRecogniser connectionRecogniser =
-				new TagRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -636,10 +631,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 		final SecretKey k3 = context.mock(SecretKey.class, "k3");
 
-		final TagRecogniser connectionRecogniser =
-				new TagRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -761,10 +755,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final SecretKey k3 = context.mock(SecretKey.class, "k3");
 		final SecretKey k4 = context.mock(SecretKey.class, "k4");
 
-		final TagRecogniser connectionRecogniser =
-				new TagRecogniserImpl(crypto, db);
+		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);

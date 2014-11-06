@@ -58,13 +58,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -80,7 +79,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -95,13 +94,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -132,13 +130,13 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(secret2.clone()));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The secrets for periods 0 - 2 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s0);
-			oneOf(connectionRecogniser).addSecret(s1);
-			oneOf(connectionRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s0);
+			oneOf(tagRecogniser).addSecret(s1);
+			oneOf(tagRecogniser).addSecret(s2);
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -154,13 +152,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -191,16 +188,16 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(secret2.clone()));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The secrets for periods 0 - 2 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s0);
-			oneOf(connectionRecogniser).addSecret(s1);
-			oneOf(connectionRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s0);
+			oneOf(tagRecogniser).addSecret(s1);
+			oneOf(tagRecogniser).addSecret(s2);
 			// getConnectionContext()
 			oneOf(db).incrementStreamCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -224,13 +221,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -250,15 +246,15 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			// The secrets for periods 0 - 2 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s0);
-			oneOf(connectionRecogniser).addSecret(s1);
-			oneOf(connectionRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s0);
+			oneOf(tagRecogniser).addSecret(s1);
+			oneOf(tagRecogniser).addSecret(s2);
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -273,13 +269,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -309,15 +304,15 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(secret3.clone()));
 			oneOf(db).addSecrets(Arrays.asList(s3));
 			// The secrets for periods 1 - 3 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s1);
-			oneOf(connectionRecogniser).addSecret(s2);
-			oneOf(connectionRecogniser).addSecret(s3);
+			oneOf(tagRecogniser).addSecret(s1);
+			oneOf(tagRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s3);
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -332,13 +327,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -370,15 +364,15 @@ public class KeyManagerImplTest extends BriarTestCase {
 			// The new secrets should be stored
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));
 			// The secrets for periods 2 - 4 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s2);
-			oneOf(connectionRecogniser).addSecret(s3);
-			oneOf(connectionRecogniser).addSecret(s4);
+			oneOf(tagRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s3);
+			oneOf(tagRecogniser).addSecret(s4);
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -393,13 +387,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -419,9 +412,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			// The secrets for periods 0 - 2 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s0);
-			oneOf(connectionRecogniser).addSecret(s1);
-			oneOf(connectionRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s0);
+			oneOf(tagRecogniser).addSecret(s1);
+			oneOf(tagRecogniser).addSecret(s2);
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// run() during period 1: the secrets should not be affected
@@ -433,7 +426,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -457,13 +450,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -485,9 +477,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			// The secrets for periods 0 - 2 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s0);
-			oneOf(connectionRecogniser).addSecret(s1);
-			oneOf(connectionRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s0);
+			oneOf(tagRecogniser).addSecret(s1);
+			oneOf(tagRecogniser).addSecret(s2);
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// run() during period 2: the secrets should be rotated
@@ -499,16 +491,16 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(secret2.clone()));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
 			will(returnValue(secret3.clone()));
-			oneOf(connectionRecogniser).removeSecret(contactId, transportId, 0);
+			oneOf(tagRecogniser).removeSecret(contactId, transportId, 0);
 			oneOf(db).addSecrets(Arrays.asList(s3));
-			oneOf(connectionRecogniser).addSecret(s3);
+			oneOf(tagRecogniser).addSecret(s3);
 			// getConnectionContext()
 			oneOf(db).incrementStreamCounter(contactId, transportId, 2);
 			will(returnValue(0L));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
@@ -532,13 +524,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final EventBus eventBus = context.mock(EventBus.class);
-		final TagRecogniser connectionRecogniser =
-				context.mock(TagRecogniser.class);
+		final TagRecogniser tagRecogniser = context.mock(TagRecogniser.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
 
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
-				eventBus, connectionRecogniser, clock, timer);
+				eventBus, tagRecogniser, clock, timer);
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
@@ -561,9 +552,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			// The secrets for periods 0 - 2 should be added to the recogniser
-			oneOf(connectionRecogniser).addSecret(s0);
-			oneOf(connectionRecogniser).addSecret(s1);
-			oneOf(connectionRecogniser).addSecret(s2);
+			oneOf(tagRecogniser).addSecret(s0);
+			oneOf(tagRecogniser).addSecret(s1);
+			oneOf(tagRecogniser).addSecret(s2);
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// run() during period 3 (late): the secrets should be rotated
@@ -575,18 +566,18 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(secret3.clone()));
 			oneOf(crypto).deriveNextSecret(secret3, 4);
 			will(returnValue(secret4.clone()));
-			oneOf(connectionRecogniser).removeSecret(contactId, transportId, 0);
-			oneOf(connectionRecogniser).removeSecret(contactId, transportId, 1);
+			oneOf(tagRecogniser).removeSecret(contactId, transportId, 0);
+			oneOf(tagRecogniser).removeSecret(contactId, transportId, 1);
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));
-			oneOf(connectionRecogniser).addSecret(s3);
-			oneOf(connectionRecogniser).addSecret(s4);
+			oneOf(tagRecogniser).addSecret(s3);
+			oneOf(tagRecogniser).addSecret(s4);
 			// getConnectionContext()
 			oneOf(db).incrementStreamCounter(contactId, transportId, 3);
 			will(returnValue(0L));
 			// stop()
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
-			oneOf(connectionRecogniser).removeSecrets();
+			oneOf(tagRecogniser).removeSecrets();
 		}});
 
 		assertTrue(keyManager.start());
