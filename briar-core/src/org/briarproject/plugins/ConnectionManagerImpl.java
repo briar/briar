@@ -6,7 +6,6 @@ import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -30,6 +29,7 @@ import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriter;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.api.transport.TagRecogniser;
+import org.briarproject.util.ByteUtils;
 
 class ConnectionManagerImpl implements ConnectionManager {
 
@@ -96,21 +96,28 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 	private MessagingSession createIncomingSession(StreamContext ctx,
 			TransportConnectionReader r) throws IOException {
-		InputStream in = r.getInputStream();
-		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
-				r.getMaxFrameLength(), ctx);
-		return messagingSessionFactory.createIncomingSession(ctx.getContactId(),
-				ctx.getTransportId(), streamReader.getInputStream());
+		try {
+			StreamReader streamReader = streamReaderFactory.createStreamReader(
+					r.getInputStream(), r.getMaxFrameLength(), ctx);
+			return messagingSessionFactory.createIncomingSession(
+					ctx.getContactId(), ctx.getTransportId(),
+					streamReader.getInputStream());
+		} finally {
+			ByteUtils.erase(ctx.getSecret());
+		}
 	}
 
 	private MessagingSession createOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w, boolean duplex) throws IOException {
-		OutputStream out = w.getOutputStream();
-		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
-				w.getMaxFrameLength(), ctx);
-		return messagingSessionFactory.createOutgoingSession(ctx.getContactId(),
-				ctx.getTransportId(), w.getMaxLatency(),
-				duplex, streamWriter.getOutputStream());
+		try {
+			StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
+					w.getOutputStream(), w.getMaxFrameLength(), ctx);
+			return messagingSessionFactory.createOutgoingSession(
+					ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
+					duplex, streamWriter.getOutputStream());
+		} finally {
+			ByteUtils.erase(ctx.getSecret());
+		}
 	}
 
 	private class DispatchIncomingSimplexConnection implements Runnable {
