@@ -62,22 +62,22 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 	public void manageIncomingConnection(TransportId t,
 			TransportConnectionReader r) {
-		ioExecutor.execute(new DispatchIncomingSimplexConnection(t, r));
+		ioExecutor.execute(new ManageIncomingSimplexConnection(t, r));
 	}
 
 	public void manageIncomingConnection(TransportId t,
 			DuplexTransportConnection d) {
-		ioExecutor.execute(new DispatchIncomingDuplexConnection(t, d));
+		ioExecutor.execute(new ManageIncomingDuplexConnection(t, d));
 	}
 
 	public void manageOutgoingConnection(ContactId c, TransportId t,
 			TransportConnectionWriter w) {
-		ioExecutor.execute(new DispatchOutgoingSimplexConnection(c, t, w));
+		ioExecutor.execute(new ManageOutgoingSimplexConnection(c, t, w));
 	}
 
 	public void manageOutgoingConnection(ContactId c, TransportId t,
 			DuplexTransportConnection d) {
-		ioExecutor.execute(new DispatchOutgoingDuplexConnection(c, t, d));
+		ioExecutor.execute(new ManageOutgoingDuplexConnection(c, t, d));
 	}
 
 	private byte[] readTag(TransportId t, TransportConnectionReader r)
@@ -120,12 +120,12 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 	}
 
-	private class DispatchIncomingSimplexConnection implements Runnable {
+	private class ManageIncomingSimplexConnection implements Runnable {
 
 		private final TransportId transportId;
 		private final TransportConnectionReader reader;
 
-		private DispatchIncomingSimplexConnection(TransportId transportId,
+		private ManageIncomingSimplexConnection(TransportId transportId,
 				TransportConnectionReader reader) {
 			this.transportId = transportId;
 			this.reader = reader;
@@ -174,13 +174,13 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 	}
 
-	private class DispatchOutgoingSimplexConnection implements Runnable {
+	private class ManageOutgoingSimplexConnection implements Runnable {
 
 		private final ContactId contactId;
 		private final TransportId transportId;
 		private final TransportConnectionWriter writer;
 
-		private DispatchOutgoingSimplexConnection(ContactId contactId,
+		private ManageOutgoingSimplexConnection(ContactId contactId,
 				TransportId transportId, TransportConnectionWriter writer) {
 			this.contactId = contactId;
 			this.transportId = transportId;
@@ -218,7 +218,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 	}
 
-	private class DispatchIncomingDuplexConnection implements Runnable {
+	private class ManageIncomingDuplexConnection implements Runnable {
 
 		private final TransportId transportId;
 		private final TransportConnectionReader reader;
@@ -228,7 +228,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private volatile MessagingSession incomingSession = null;
 		private volatile MessagingSession outgoingSession = null;
 
-		private DispatchIncomingDuplexConnection(TransportId transportId,
+		private ManageIncomingDuplexConnection(TransportId transportId,
 				DuplexTransportConnection transport) {
 			this.transportId = transportId;
 			reader = transport.getReader();
@@ -317,7 +317,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 	}
 
-	private class DispatchOutgoingDuplexConnection implements Runnable {
+	private class ManageOutgoingDuplexConnection implements Runnable {
 
 		private final ContactId contactId;
 		private final TransportId transportId;
@@ -327,7 +327,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private volatile MessagingSession incomingSession = null;
 		private volatile MessagingSession outgoingSession = null;
 
-		private DispatchOutgoingDuplexConnection(ContactId contactId,
+		private ManageOutgoingDuplexConnection(ContactId contactId,
 				TransportId transportId, DuplexTransportConnection transport) {
 			this.contactId = contactId;
 			this.transportId = transportId;
