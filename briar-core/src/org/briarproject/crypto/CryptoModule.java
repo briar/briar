@@ -28,7 +28,7 @@ public class CryptoModule extends AbstractModule {
 	private final ExecutorService cryptoExecutor;
 
 	public CryptoModule() {
-		// The queue is unbounded, so tasks can be dependent
+		// Use an unbounded queue
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =
@@ -38,6 +38,7 @@ public class CryptoModule extends AbstractModule {
 				60, SECONDS, queue, policy);
 	}
 
+	@Override
 	protected void configure() {
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);

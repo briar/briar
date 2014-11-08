@@ -29,7 +29,7 @@ public class DatabaseModule extends AbstractModule {
 	private final ExecutorService databaseExecutor;
 
 	public DatabaseModule() {
-		// The queue is unbounded, so tasks can be dependent
+		// Use an unbounded queue
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =

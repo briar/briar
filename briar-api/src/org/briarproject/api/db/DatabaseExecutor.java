@@ -10,7 +10,13 @@ import java.lang.annotation.Target;
 
 import com.google.inject.BindingAnnotation;
 
-/** Annotation for injecting the executor for database tasks. */
+/**
+ * Annotation for injecting the executor for database tasks.
+ * <p>
+ * The contract of this executor is that tasks are executed in the order
+ * they're submitted, tasks are not executed concurrently, and submitting a
+ * task will never block.
+ */
 @BindingAnnotation
 @Target({ FIELD, METHOD, PARAMETER })
 @Retention(RUNTIME)
