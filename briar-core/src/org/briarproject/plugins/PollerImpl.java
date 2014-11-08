@@ -2,7 +2,6 @@ package org.briarproject.plugins;
 
 import static java.util.logging.Level.INFO;
 
-import java.util.Collection;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -31,21 +30,19 @@ class PollerImpl implements Poller {
 		this.timer = timer;
 	}
 
-	public void start(Collection<Plugin> plugins) {
-		for(Plugin plugin : plugins) schedule(plugin, true);
+	public void stop() {
+		timer.cancel();
+	}
+
+	public void addPlugin(Plugin p) {
+		schedule(p, true);
 	}
 
 	private void schedule(Plugin plugin, boolean randomise) {
-		if(plugin.shouldPoll()) {
-			long interval = plugin.getPollingInterval();
-			// Randomise intervals at startup to spread out connection attempts
-			if(randomise) interval = (long) (interval * Math.random());
-			timer.schedule(new PollTask(plugin), interval);
-		}
-	}
-
-	public void stop() {
-		timer.cancel();
+		long interval = plugin.getPollingInterval();
+		// Randomise intervals at startup to spread out connection attempts
+		if(randomise) interval = (long) (interval * Math.random());
+		timer.schedule(new PollTask(plugin), interval);
 	}
 
 	public void pollNow(final Plugin p) {

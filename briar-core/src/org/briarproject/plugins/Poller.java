@@ -1,17 +1,15 @@
 package org.briarproject.plugins;
 
-import java.util.Collection;
-
 import org.briarproject.api.plugins.Plugin;
 
 interface Poller {
 
-	/** Starts a poller for the given collection of plugins. */
-	void start(Collection<Plugin> plugins);
-
-	/** Stops the poller. */
-	void stop();
+	/** Adds the given plugin to the collection of plugins to be polled. */
+	void addPlugin(Plugin p);
 
 	/** Tells the poller to poll the given plugin immediately. */
 	void pollNow(Plugin p);
+
+	/** Stops the poller. */
+	void stop();
 }

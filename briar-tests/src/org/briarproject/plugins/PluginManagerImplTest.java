@@ -76,6 +76,9 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(simplexPlugin).start();
 			will(returnValue(true)); // Started
+			oneOf(simplexPlugin).shouldPoll();
+			will(returnValue(true));
+			oneOf(poller).addPlugin(simplexPlugin);
 			// Second simplex plugin
 			oneOf(simplexFailFactory).getId();
 			will(returnValue(simplexFailId));
@@ -102,14 +105,14 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(duplexPlugin).start();
 			will(returnValue(true)); // Started
+			oneOf(duplexPlugin).shouldPoll();
+			will(returnValue(false));
 			// Second duplex plugin
 			oneOf(duplexFailFactory).getId();
 			will(returnValue(duplexFailId));
 			oneOf(duplexFailFactory).createPlugin(with(any(
 					DuplexPluginCallback.class)));
 			will(returnValue(null)); // Failed to create a plugin
-			// Start the poller
-			oneOf(poller).start(Arrays.asList(simplexPlugin, duplexPlugin));
 			// Stop the poller
 			oneOf(poller).stop();
 			// Stop the plugins

@@ -42,8 +42,6 @@ import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 
-// FIXME: Don't make alien calls with a lock held (that includes waiting on a
-// latch that depends on an alien call)
 class PluginManagerImpl implements PluginManager {
 
 	private static final Logger LOG =
@@ -63,7 +61,7 @@ class PluginManagerImpl implements PluginManager {
 
 	@Inject
 	PluginManagerImpl(@IoExecutor Executor ioExecutor,
-			SimplexPluginConfig simplexPluginConfig, 
+			SimplexPluginConfig simplexPluginConfig,
 			DuplexPluginConfig duplexPluginConfig, Clock clock,
 			DatabaseComponent db, Poller poller,
 			ConnectionManager connectionManager, UiCallback uiCallback) {
@@ -80,7 +78,7 @@ class PluginManagerImpl implements PluginManager {
 		duplexPlugins = new CopyOnWriteArrayList<DuplexPlugin>();
 	}
 
-	public synchronized boolean start() {
+	public boolean start() {
 		// Instantiate and start the simplex plugins
 		LOG.info("Starting simplex plugins");
 		Collection<SimplexPluginFactory> sFactories =
@@ -104,14 +102,10 @@ class PluginManagerImpl implements PluginManager {
 			Thread.currentThread().interrupt();
 			return false;
 		}
-		// Start the poller
-		LOG.info("Starting poller");
-		List<Plugin> start = new ArrayList<Plugin>(plugins.values());
-		poller.start(Collections.unmodifiableList(start));
 		return true;
 	}
 
-	public synchronized boolean stop() {
+	public boolean stop() {
 		// Stop the poller
 		LOG.info("Stopping poller");
 		poller.stop();
@@ -190,6 +184,7 @@ class PluginManagerImpl implements PluginManager {
 					if(started) {
 						plugins.put(id, plugin);
 						simplexPlugins.add(plugin);
+						if(plugin.shouldPoll()) poller.addPlugin(plugin);
 						if(LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.info("Starting " + name + " took " +
@@ -252,6 +247,7 @@ class PluginManagerImpl implements PluginManager {
 					if(started) {
 						plugins.put(id, plugin);
 						duplexPlugins.add(plugin);
+						if(plugin.shouldPoll()) poller.addPlugin(plugin);
 						if(LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.info("Starting " + name + " took " +
