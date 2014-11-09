@@ -23,8 +23,10 @@ import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.MessagingSession;
+import org.briarproject.api.messaging.Offer;
 import org.briarproject.api.messaging.PacketReader;
 import org.briarproject.api.messaging.PacketReaderFactory;
+import org.briarproject.api.messaging.Request;
 import org.briarproject.api.messaging.RetentionAck;
 import org.briarproject.api.messaging.RetentionUpdate;
 import org.briarproject.api.messaging.SubscriptionAck;
@@ -78,6 +80,12 @@ class IncomingSession implements MessagingSession, EventListener {
 				} else if(packetReader.hasMessage()) {
 					UnverifiedMessage m = packetReader.readMessage();
 					cryptoExecutor.execute(new VerifyMessage(m));
+				} else if(packetReader.hasOffer()) {
+					Offer o = packetReader.readOffer();
+					dbExecutor.execute(new ReceiveOffer(o));
+				} else if(packetReader.hasRequest()) {
+					Request r = packetReader.readRequest();
+					dbExecutor.execute(new ReceiveRequest(r));
 				} else if(packetReader.hasRetentionAck()) {
 					RetentionAck a = packetReader.readRetentionAck();
 					dbExecutor.execute(new ReceiveRetentionAck(a));
@@ -135,6 +143,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveAck(contactId, ack);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -153,6 +162,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				dbExecutor.execute(new ReceiveMessage(m));
 			} catch(GeneralSecurityException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -170,6 +180,43 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveMessage(contactId, message);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
+			}
+		}
+	}
+
+	private class ReceiveOffer implements Runnable {
+
+		private final Offer offer;
+
+		private ReceiveOffer(Offer offer) {
+			this.offer = offer;
+		}
+
+		public void run() {
+			try {
+				db.receiveOffer(contactId, offer);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
+			}
+		}
+	}
+
+	private class ReceiveRequest implements Runnable {
+
+		private final Request request;
+
+		private ReceiveRequest(Request request) {
+			this.request = request;
+		}
+
+		public void run() {
+			try {
+				db.receiveRequest(contactId, request);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -187,6 +234,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveRetentionAck(contactId, ack);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -204,6 +252,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveRetentionUpdate(contactId, update);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -221,6 +270,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveSubscriptionAck(contactId, ack);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -238,6 +288,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveSubscriptionUpdate(contactId, update);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -255,6 +306,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveTransportAck(contactId, ack);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
@@ -272,6 +324,7 @@ class IncomingSession implements MessagingSession, EventListener {
 				db.receiveTransportUpdate(contactId, update);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				interrupt();
 			}
 		}
 	}
