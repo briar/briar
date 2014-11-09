@@ -8,8 +8,6 @@
 		<item>org.briarproject.invitation.InvitationModule</item>
 		<item>org.briarproject.lifecycle.LifecycleModule</item>
 		<item>org.briarproject.messaging.MessagingModule</item>
-		<item>org.briarproject.messaging.duplex.DuplexMessagingModule</item>
-		<item>org.briarproject.messaging.simplex.SimplexMessagingModule</item>
 		<item>org.briarproject.plugins.AndroidPluginsModule</item>
 		<item>org.briarproject.serial.SerialModule</item>
 		<item>org.briarproject.system.AndroidSystemModule</item>
