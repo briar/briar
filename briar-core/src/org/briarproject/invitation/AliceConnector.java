@@ -133,11 +133,11 @@ class AliceConnector extends Connector {
 		int maxFrameLength = conn.getReader().getMaxFrameLength();
 		StreamReader streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
-						maxFrameLength, secret, false);
+						maxFrameLength, secret, false); // Bob's stream
 		r = readerFactory.createReader(streamReader.getInputStream());
 		StreamWriter streamWriter =
 				streamWriterFactory.createInvitationStreamWriter(out,
-						maxFrameLength, secret, true);
+						maxFrameLength, secret, true); // Alice's stream
 		w = writerFactory.createWriter(streamWriter.getOutputStream());
 		// Derive the invitation nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);

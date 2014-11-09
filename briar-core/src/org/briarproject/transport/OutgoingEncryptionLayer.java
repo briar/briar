@@ -35,7 +35,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		aad = new byte[AAD_LENGTH];
 		ciphertext = new byte[frameLength];
 		frameNumber = 0;
-		writeTag = true;
+		writeTag = (tag != null);
 	}
 
 	public void writeFrame(byte[] frame, int payloadLength, boolean finalFrame)

@@ -38,13 +38,9 @@ class StreamWriterFactoryImpl implements StreamWriterFactory {
 
 	public StreamWriter createInvitationStreamWriter(OutputStream out,
 			int maxFrameLength, byte[] secret, boolean alice) {
-		byte[] tag = new byte[TAG_LENGTH];
-		SecretKey tagKey = crypto.deriveTagKey(secret, alice);
-		crypto.encodeTag(tag, tagKey, 0);
-		tagKey.erase();
 		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
 		FrameWriter frameWriter = new OutgoingEncryptionLayer(out,
-				crypto.getFrameCipher(), frameKey, maxFrameLength, tag);
+				crypto.getFrameCipher(), frameKey, maxFrameLength, null);
 		return new StreamWriterImpl(frameWriter, maxFrameLength);
 	}
 }

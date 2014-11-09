@@ -133,11 +133,11 @@ class BobConnector extends Connector {
 		int maxFrameLength = conn.getReader().getMaxFrameLength();
 		StreamReader streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
-						maxFrameLength, secret, true);
+						maxFrameLength, secret, true); // Alice's stream
 		r = readerFactory.createReader(streamReader.getInputStream());
 		StreamWriter streamWriter =
 				streamWriterFactory.createInvitationStreamWriter(out,
-						maxFrameLength, secret, false);
+						maxFrameLength, secret, false); // Bob's stream
 		w = writerFactory.createWriter(streamWriter.getOutputStream());
 		// Derive the nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);
