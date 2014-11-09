@@ -296,10 +296,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	private SecretKey deriveKey(byte[] secret, byte[] label, long context) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
-			throw new IllegalArgumentException();
 		byte[] key = counterModeKdf(secret, label, context);
 		return new SecretKeyImpl(key);
 	}
