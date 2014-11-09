@@ -106,11 +106,11 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 			// Write packets until interrupted
 			try {
 				while(!interrupted) {
+					// Flush the stream if it's going to be idle
+					if(writerTasks.isEmpty()) out.flush();
 					ThrowingRunnable<IOException> task = writerTasks.take();
 					if(task == CLOSE) break;
 					task.run();
-					// Flush the stream if it's going to be idle
-					if(writerTasks.isEmpty()) out.flush();
 				}
 				out.flush();
 			} catch(InterruptedException e) {
