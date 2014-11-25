@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(dir: '../briar-api/libs', include: '*.jar')
+    compile project(':briar-api')
+    compile fileTree(dir: '../briar-core/libs', include: '*.jar')
+    compile project(':briar-core')
+    compile fileTree(dir: '../briar-desktop/libs', include: '*.jar')
+    compile project(':briar-desktop')
+    compile fileTree(dir: 'libs', include: '*.jar')
+}
+
+sourceSets {
+    main.java.srcDirs = ['src']
+    main.resources.srcDirs = ['src']
+    test.java.srcDirs = ['src']
+    test.resources.srcDirs = ['src']
+}
+
+tasks.withType(Test) {
+    systemProperty 'java.library.path', '../briar-desktop/libs'
+}

@@ -1,0 +1,5 @@
+include ':briar-api'
+include ':briar-core'
+include ':briar-desktop'
+include ':briar-tests'
+include ':briar-android'
