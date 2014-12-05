@@ -8,19 +8,19 @@ import org.briarproject.system.SystemClock;
 
 class ModemFactoryImpl implements ModemFactory {
 
-	private final Executor executor;
+	private final Executor ioExecutor;
 	private final ReliabilityLayerFactory reliabilityFactory;
 	private final Clock clock;
 
-	ModemFactoryImpl(Executor executor,
+	ModemFactoryImpl(Executor ioExecutor,
 			ReliabilityLayerFactory reliabilityFactory) {
-		this.executor = executor;
+		this.ioExecutor = ioExecutor;
 		this.reliabilityFactory = reliabilityFactory;
 		clock = new SystemClock();
 	}
 
 	public Modem createModem(Modem.Callback callback, String portName) {
-		return new ModemImpl(executor, reliabilityFactory, clock, callback,
+		return new ModemImpl(ioExecutor, reliabilityFactory, clock, callback,
 				new SerialPortImpl(portName));
 	}
 }

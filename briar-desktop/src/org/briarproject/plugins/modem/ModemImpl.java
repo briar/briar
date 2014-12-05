@@ -32,7 +32,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private static final int CONNECT_TIMEOUT = 2 * 60 * 1000; // Milliseconds
 	private static final int ESCAPE_SEQUENCE_GUARD_TIME = 1000; // Milliseconds
 
-	private final Executor executor;
+	private final Executor ioExecutor;
 	private final ReliabilityLayerFactory reliabilityFactory;
 	private final Clock clock;
 	private final Callback callback;
@@ -45,9 +45,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private ReliabilityLayer reliability = null; // Locking: this
 	private boolean initialised = false, connected = false; // Locking: this
 
-	ModemImpl(Executor executor, ReliabilityLayerFactory reliabilityFactory,
+	ModemImpl(Executor ioExecutor, ReliabilityLayerFactory reliabilityFactory,
 			Clock clock, Callback callback, SerialPort port) {
-		this.executor = executor;
+		this.ioExecutor = ioExecutor;
 		this.reliabilityFactory = reliabilityFactory;
 		this.clock = clock;
 		this.callback = callback;
@@ -333,7 +333,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						notifyAll();
 					}
 				} else if(s.equals("RING")) {
-					executor.execute(new Runnable() {
+					ioExecutor.execute(new Runnable() {
 						public void run() {
 							try {
 								answer();

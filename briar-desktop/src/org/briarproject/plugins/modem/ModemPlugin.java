@@ -6,14 +6,8 @@ import static java.util.logging.Level.WARNING;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -35,29 +29,24 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private static final Logger LOG =
 			Logger.getLogger(ModemPlugin.class.getName());
 
-	private final Executor ioExecutor;
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
 	private final int maxFrameLength;
 	private final long maxLatency, pollingInterval;
-	private final boolean shuffle; // Used to disable shuffling for testing
 
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
-	ModemPlugin(Executor ioExecutor, ModemFactory modemFactory,
-			SerialPortList serialPortList, DuplexPluginCallback callback,
-			int maxFrameLength, long maxLatency, long pollingInterval,
-			boolean shuffle) {
-		this.ioExecutor = ioExecutor;
+	ModemPlugin(ModemFactory modemFactory, SerialPortList serialPortList,
+			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
+			long pollingInterval) {
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
-		this.shuffle = shuffle;
 	}
 
 	public TransportId getId() {
@@ -105,9 +94,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return running;
 	}
 
-	// FIXME: Don't poll this plugin
 	public boolean shouldPoll() {
-		return true;
+		return false;
 	}
 
 	public long getPollingInterval() {
@@ -115,57 +103,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	public void poll(Collection<ContactId> connected) {
-		if(!connected.isEmpty()) return; // One at a time please
-		ioExecutor.execute(new Runnable() {
-			public void run() {
-				poll();
-			}
-		});
-	}
-
-	private void poll() {
-		if(!running) return;
-		// Get the ISO 3166 code for the caller's country
-		String callerIso = callback.getLocalProperties().get("iso3166");
-		if(StringUtils.isNullOrEmpty(callerIso)) return;
-		// Call contacts one at a time in a random order
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		List<ContactId> contacts = new ArrayList<ContactId>(remote.keySet());
-		if(shuffle) Collections.shuffle(contacts);
-		Iterator<ContactId> it = contacts.iterator();
-		while(it.hasNext() && running) {
-			ContactId c = it.next();
-			// Get the ISO 3166 code for the callee's country
-			TransportProperties properties = remote.get(c);
-			if(properties == null) continue;
-			String calleeIso = properties.get("iso3166");
-			if(StringUtils.isNullOrEmpty(calleeIso)) continue;
-			// Get the callee's phone number
-			String number = properties.get("number");
-			if(StringUtils.isNullOrEmpty(number)) continue;
-			// Convert the number into direct dialling form
-			number = CountryCodes.translate(number, callerIso, calleeIso);
-			if(number == null) continue;
-			// Dial the number
-			try {
-				if(!modem.dial(number)) continue;
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				if(resetModem()) continue;
-				break;
-			}
-			LOG.info("Outgoing call connected");
-			ModemTransportConnection conn = new ModemTransportConnection();
-			callback.outgoingConnectionCreated(c, conn);
-			try {
-				conn.waitForDisposal();
-			} catch(InterruptedException e) {
-				LOG.warning("Interrupted while polling");
-				Thread.currentThread().interrupt();
-				break;
-			}
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	boolean resetModem() {
@@ -255,10 +193,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			}
 			if(exception) resetModem();
 			disposalFinished.countDown();
-		}
-
-		private void waitForDisposal() throws InterruptedException {
-			disposalFinished.await();
 		}
 
 		private class Reader implements TransportConnectionReader {
