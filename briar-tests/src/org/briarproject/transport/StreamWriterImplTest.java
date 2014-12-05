@@ -31,7 +31,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testFlushWithoutBufferedDataWritesFrame() throws Exception {
+	public void testFlushWithoutBufferedDataOnlyFlushes() throws Exception {
 		Mockery context = new Mockery();
 		final FrameWriter writer = context.mock(FrameWriter.class);
 		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
@@ -40,6 +40,16 @@ public class StreamWriterImplTest extends BriarTestCase {
 			oneOf(writer).flush();
 		}});
 		w.flush();
+		context.assertIsSatisfied();
+
+		// Clean up
+		context.checking(new Expectations() {{
+			// Closing the writer writes a final frame and flushes again
+			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+					with(true));
+			oneOf(writer).flush();
+		}});
+		w.close();
 		context.assertIsSatisfied();
 	}
 
@@ -59,6 +69,16 @@ public class StreamWriterImplTest extends BriarTestCase {
 		w.write(0);
 		w.flush();
 		context.assertIsSatisfied();
+
+		// Clean up
+		context.checking(new Expectations() {{
+			// Closing the writer writes a final frame and flushes again
+			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+					with(true));
+			oneOf(writer).flush();
+		}});
+		w.close();
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -74,6 +94,16 @@ public class StreamWriterImplTest extends BriarTestCase {
 		for(int i = 0; i < MAX_PAYLOAD_LENGTH; i++) {
 			w.write(0);
 		}
+		context.assertIsSatisfied();
+
+		// Clean up
+		context.checking(new Expectations() {{
+			// Closing the writer writes a final frame and flushes again
+			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+					with(true));
+			oneOf(writer).flush();
+		}});
+		w.close();
 		context.assertIsSatisfied();
 	}
 
@@ -95,6 +125,16 @@ public class StreamWriterImplTest extends BriarTestCase {
 		w.write(b);
 		w.write(b);
 		w.write(b);
+		context.assertIsSatisfied();
+
+		// Clean up
+		context.checking(new Expectations() {{
+			// Closing the writer writes a final frame and flushes again
+			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+					with(true));
+			oneOf(writer).flush();
+		}});
+		w.close();
 		context.assertIsSatisfied();
 	}
 
