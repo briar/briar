@@ -1,10 +1,7 @@
 package org.briarproject.system;
 
-import static android.content.Context.LOCATION_SERVICE;
 import static android.content.Context.TELEPHONY_SERVICE;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
@@ -13,10 +10,6 @@ import org.briarproject.api.system.LocationUtils;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
@@ -79,47 +72,5 @@ class AndroidLocationUtils implements LocationUtils {
 		Object o = appContext.getSystemService(TELEPHONY_SERVICE);
 		TelephonyManager tm = (TelephonyManager) o;
 		return tm.getSimCountryIso();
-	}
-
-	// TODO: this is not currently used, because it involves a network call
-	// it should be possible to determine country just from the long/lat, but
-	// this would involve something like tzdata for countries.
-	private String getCountryFromLocation() {
-		Location location = getLastKnownLocation();
-		if(location == null) return null;
-		Geocoder code = new Geocoder(appContext);
-		try {
-			double lat = location.getLatitude();
-			double lon = location.getLongitude();
-			List<Address> addresses = code.getFromLocation(lat, lon, 1);
-			if(addresses.isEmpty()) return null;
-			return addresses.get(0).getCountryCode();
-		} catch(IOException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * Returns the last location from all location providers, or null if there
-	 * is no such location. Since we're only checking the country, we don't
-	 * care about the accuracy. If we ever need the accuracy, we can do
-	 * something like <a href="https://code.google.com/p/android-protips-location/source/browse/trunk/src/com/radioactiveyak/location_best_practices/utils/GingerbreadLastLocationFinder.java">
-	 * this</a>.
-	 */
-	private Location getLastKnownLocation() {
-		Object o = appContext.getSystemService(LOCATION_SERVICE);
-		LocationManager locationManager = (LocationManager) o;
-		Location bestResult = null;
-		long bestTime = Long.MIN_VALUE;
-		for(String provider : locationManager.getAllProviders()) {
-			Location location = locationManager.getLastKnownLocation(provider);
-			if(location == null) continue;
-			long time = location.getTime();
-			if(time > bestTime) {
-				bestResult = location;
-				bestTime = time;
-			}
-		}
-		return bestResult;
 	}
 }
