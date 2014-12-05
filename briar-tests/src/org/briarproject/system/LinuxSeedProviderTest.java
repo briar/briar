@@ -12,6 +12,7 @@ import java.util.Set;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.Bytes;
+import org.briarproject.util.OsUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 
+	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -27,6 +29,10 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 
 	@Test
 	public void testSeedAppearsSane() {
+		if(!(OsUtils.isLinux())) {
+			System.err.println("WARNING: Skipping test, can't run on this OS");
+			return;
+		}
 		Set<Bytes> seeds = new HashSet<Bytes>();
 		LinuxSeedProvider p = new LinuxSeedProvider();
 		for(int i = 0; i < 1000; i++) {
@@ -38,6 +44,10 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 
 	@Test
 	public void testEntropyIsWrittenToPool() throws Exception {
+		if(!(OsUtils.isLinux())) {
+			System.err.println("WARNING: Skipping test, can't run on this OS");
+			return;
+		}
 		// Redirect the provider's entropy to a file
 		File urandom = new File(testDir, "urandom");
 		urandom.delete();
@@ -52,6 +62,10 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 
 	@Test
 	public void testSeedIsReadFromPool() throws Exception {
+		if(!(OsUtils.isLinux())) {
+			System.err.println("WARNING: Skipping test, can't run on this OS");
+			return;
+		}
 		// Generate a seed
 		byte[] seed = new byte[SEED_BYTES];
 		new Random().nextBytes(seed);
@@ -70,6 +84,7 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 		assertArrayEquals(seed, p.getSeed());
 	}
 
+	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
