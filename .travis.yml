@@ -1,0 +1,12 @@
+language: android
+android:
+  components:
+    - build-tools-19.0.2
+    - android-10
+  licenses:
+    - 'android-sdk-.*'
+    - '.*intel.+'
+script:
+  - gradle build
+notifications:
+  - email: false
