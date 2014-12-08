@@ -9,4 +9,5 @@ android:
 script:
   - ./gradlew build
 notifications:
-  - email: false
+  email
+    - akiggund@thoughtworks.com
