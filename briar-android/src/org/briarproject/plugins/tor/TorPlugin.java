@@ -75,8 +75,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength;
-	private final long maxLatency, pollingInterval;
+	private final int maxFrameLength, socketTimeout;
+	private final long maxLatency, maxIdleTime, pollingInterval;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, hostnameFile;
 	private final AtomicBoolean circuitBuilt;
@@ -90,14 +90,19 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	TorPlugin(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils, DuplexPluginCallback callback,
-			int maxFrameLength, long maxLatency, long pollingInterval) {
+			int maxFrameLength, long maxLatency, long maxIdleTime,
+			long pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
+		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
+		if(2 * maxIdleTime > Integer.MAX_VALUE)
+			socketTimeout = Integer.MAX_VALUE;
+		else socketTimeout = (int) (2 * maxIdleTime);
 		torDirectory = appContext.getDir("tor", MODE_PRIVATE);
 		torFile = new File(torDirectory, "tor");
 		geoIpFile = new File(torDirectory, "geoip");
@@ -118,6 +123,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	public long getMaxLatency() {
 		return maxLatency;
+	}
+
+	public long getMaxIdleTime() {
+		return maxIdleTime;
 	}
 
 	public boolean start() throws IOException {
@@ -446,6 +455,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			Socket s;
 			try {
 				s = ss.accept();
+				s.setSoTimeout(socketTimeout);
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
@@ -529,6 +539,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", SOCKS_PORT);
 			proxy.resolveAddrLocally(false);
 			Socket s = new SocksSocket(proxy, onion, 80);
+			s.setSoTimeout(socketTimeout);
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + onion);
 			return new TorTransportConnection(this, s);
 		} catch(IOException e) {

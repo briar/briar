@@ -7,6 +7,9 @@ import org.briarproject.api.plugins.Plugin;
 /** An interface for transport plugins that support duplex communication. */
 public interface DuplexPlugin extends Plugin {
 
+	/** Returns the transport's maximum idle time in milliseconds. */
+	long getMaxIdleTime();
+
 	/**
 	 * Attempts to create and return a connection to the given contact using
 	 * the current transport and configuration properties. Returns null if a

@@ -1,5 +1,6 @@
 package org.briarproject.messaging;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
@@ -54,6 +55,7 @@ import org.briarproject.api.messaging.TransportUpdate;
  */
 class DuplexOutgoingSession implements MessagingSession, EventListener {
 
+	private static final int MAX_IDLE_TIME = 30 * 1000; // Milliseconds
 	private static final Logger LOG =
 			Logger.getLogger(DuplexOutgoingSession.class.getName());
 
@@ -108,7 +110,12 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 				while(!interrupted) {
 					// Flush the stream if it's going to be idle
 					if(writerTasks.isEmpty()) out.flush();
-					ThrowingRunnable<IOException> task = writerTasks.take();
+					ThrowingRunnable<IOException> task = writerTasks.poll(
+							MAX_IDLE_TIME, MILLISECONDS);
+					if(task == null) {
+						LOG.info("Idle timeout");
+						continue; // Flush and wait again
+					}
 					if(task == CLOSE) break;
 					task.run();
 				}

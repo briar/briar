@@ -107,6 +107,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return maxLatency;
 	}
 
+	public long getMaxIdleTime() {
+		// Bluetooth detects dead connections so we don't need keepalives
+		return Long.MAX_VALUE;
+	}
+
 	public boolean start() throws IOException {
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
@@ -361,6 +366,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
 
+		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
 			if(state == STATE_ON) {

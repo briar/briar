@@ -32,7 +32,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 
 	@Test
 	public void testAddressesAreOnSameLan() {
-		LanTcpPlugin plugin = new LanTcpPlugin(null, null, 0, 0, 0);
+		LanTcpPlugin plugin = new LanTcpPlugin(null, null, 0, 0, 0, 0);
 		// Local and remote in 10.0.0.0/8 should return true
 		assertTrue(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
 				makeAddress(10, 255, 255, 255)));
@@ -81,7 +81,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 		}
 		Callback callback = new Callback();
 		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
+		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -113,7 +113,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 		}
 		Callback callback = new Callback();
 		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
+		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));

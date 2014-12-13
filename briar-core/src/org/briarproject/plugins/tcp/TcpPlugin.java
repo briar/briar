@@ -37,8 +37,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected final Executor ioExecutor;
 	protected final DuplexPluginCallback callback;
-	protected final int maxFrameLength;
-	protected final long maxLatency, pollingInterval;
+	protected final int maxFrameLength, socketTimeout;
+	protected final long maxLatency, maxIdleTime, pollingInterval;
 
 	protected volatile boolean running = false;
 	protected volatile ServerSocket socket = null;
@@ -53,12 +53,17 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
 	protected TcpPlugin(Executor ioExecutor, DuplexPluginCallback callback,
-			int maxFrameLength, long maxLatency, long pollingInterval) {
+			int maxFrameLength, long maxLatency, long maxIdleTime,
+			long pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
+		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
+		if(2 * maxIdleTime > Integer.MAX_VALUE)
+			socketTimeout = Integer.MAX_VALUE;
+		else socketTimeout = (int) (2 * maxIdleTime);
 	}
 
 	public int getMaxFrameLength() {
@@ -67,6 +72,10 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	public long getMaxLatency() {
 		return maxLatency;
+	}
+
+	public long getMaxIdleTime() {
+		return maxIdleTime;
 	}
 
 	public boolean start() {
@@ -136,6 +145,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			Socket s;
 			try {
 				s = socket.accept();
+				s.setSoTimeout(socketTimeout);
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
@@ -195,6 +205,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
 			s.connect(remote);
+			s.setSoTimeout(socketTimeout);
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
 			return new TcpTransportConnection(this, s);
 		} catch(IOException e) {

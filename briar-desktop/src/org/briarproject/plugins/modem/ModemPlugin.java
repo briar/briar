@@ -61,6 +61,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return maxLatency;
 	}
 
+	public long getMaxIdleTime() {
+		// FIXME: Do we need keepalives for this transport?
+		return Long.MAX_VALUE;
+	}
+
 	public boolean start() {
 		for(String portName : serialPortList.getPortNames()) {
 			if(LOG.isLoggable(INFO))

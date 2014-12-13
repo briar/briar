@@ -31,11 +31,15 @@ public class StreamWriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testFlushWithoutBufferedDataOnlyFlushes() throws Exception {
+	public void testFlushWithoutBufferedDataWritesFrameAndFlushes()
+			throws Exception {
 		Mockery context = new Mockery();
 		final FrameWriter writer = context.mock(FrameWriter.class);
 		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
 		context.checking(new Expectations() {{
+			// Write a non-final frame with an empty payload
+			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+					with(false));
 			// Flush the stream
 			oneOf(writer).flush();
 		}});

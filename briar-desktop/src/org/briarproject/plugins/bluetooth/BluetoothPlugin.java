@@ -78,6 +78,11 @@ class BluetoothPlugin implements DuplexPlugin {
 		return maxLatency;
 	}
 
+	public long getMaxIdleTime() {
+		// Bluetooth detects dead connections so we don't need keepalives
+		return Long.MAX_VALUE;
+	}
+
 	public boolean start() throws IOException {
 		// Initialise the Bluetooth stack
 		try {

@@ -42,7 +42,7 @@ class StreamWriterImpl extends OutputStream implements StreamWriter {
 
 	@Override
 	public void flush() throws IOException {
-		if(length > 0) writeFrame(false);
+		writeFrame(false);
 		out.flush();
 	}
 

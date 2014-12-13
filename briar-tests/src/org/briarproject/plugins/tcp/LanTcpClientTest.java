@@ -15,6 +15,11 @@ import org.briarproject.plugins.DuplexClientTest;
 // is running on another machine
 public class LanTcpClientTest extends DuplexClientTest {
 
+	private static final int MAX_FRAME_LENGTH = 1024;
+	private static final int MAX_LATENCY = 60 * 1000;
+	private static final int MAX_IDLE_TIME = 30 * 1000;
+	private static final int POLLING_INTERVAL = 60 * 1000;
+
 	private LanTcpClientTest(Executor executor, String serverAddress,
 			String serverPort) {
 		// Store the server's internal address and port
@@ -22,11 +27,12 @@ public class LanTcpClientTest extends DuplexClientTest {
 		p.put("address", serverAddress);
 		p.put("port", serverPort);
 		Map<ContactId, TransportProperties> remote =
-			Collections.singletonMap(contactId, p);
+				Collections.singletonMap(contactId, p);
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
+		plugin = new LanTcpPlugin(executor, callback, MAX_FRAME_LENGTH,
+				MAX_LATENCY, MAX_IDLE_TIME, POLLING_INTERVAL);
 	}
 
 	public static void main(String[] args) throws Exception {

@@ -12,6 +12,7 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_FRAME_LENGTH = 1024;
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
+	private static final long MAX_IDLE_TIME = 30 * 1000; // 30 seconds
 	private static final long POLLING_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 	private final Executor ioExecutor;
@@ -29,7 +30,7 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		return new WanTcpPlugin(ioExecutor, callback, MAX_FRAME_LENGTH,
-				MAX_LATENCY, POLLING_INTERVAL,
+				MAX_LATENCY, MAX_IDLE_TIME, POLLING_INTERVAL,
 				new PortMapperImpl(shutdownManager));
 	}
 }
