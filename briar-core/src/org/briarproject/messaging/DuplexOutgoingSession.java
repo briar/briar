@@ -55,7 +55,6 @@ import org.briarproject.api.messaging.TransportUpdate;
  */
 class DuplexOutgoingSession implements MessagingSession, EventListener {
 
-	private static final int MAX_IDLE_TIME = 30 * 1000; // Milliseconds
 	private static final Logger LOG =
 			Logger.getLogger(DuplexOutgoingSession.class.getName());
 
@@ -69,7 +68,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final long maxLatency;
+	private final long maxLatency, maxIdleTime;
 	private final OutputStream out;
 	private final PacketWriter packetWriter;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
@@ -79,13 +78,14 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, PacketWriterFactory packetWriterFactory,
 			ContactId contactId, TransportId transportId, long maxLatency,
-			OutputStream out) {
+			long maxIdleTime, OutputStream out) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
+		this.maxIdleTime = maxIdleTime;
 		this.out = out;
 		packetWriter = packetWriterFactory.createPacketWriter(out);
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
@@ -110,8 +110,8 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 				while(!interrupted) {
 					// Flush the stream if it's going to be idle
 					if(writerTasks.isEmpty()) out.flush();
-					ThrowingRunnable<IOException> task = writerTasks.poll(
-							MAX_IDLE_TIME, MILLISECONDS);
+					ThrowingRunnable<IOException> task =
+							writerTasks.poll(maxIdleTime, MILLISECONDS);
 					if(task == null) {
 						LOG.info("Idle timeout");
 						continue; // Flush and wait again

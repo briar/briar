@@ -35,6 +35,10 @@ class FileTransportWriter implements TransportConnectionWriter {
 		return plugin.getMaxLatency();
 	}
 
+	public long getMaxIdleTime() {
+		return plugin.getMaxIdleTime();
+	}
+
 	public long getCapacity() {
 		return capacity;
 	}

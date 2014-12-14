@@ -17,6 +17,9 @@ public interface Plugin {
 	/** Returns the transport's maximum latency in milliseconds. */
 	long getMaxLatency();
 
+	/** Returns the transport's maximum idle time in milliseconds. */
+	long getMaxIdleTime();
+
 	/** Starts the plugin and returns true if it started successfully. */
 	boolean start() throws IOException;
 

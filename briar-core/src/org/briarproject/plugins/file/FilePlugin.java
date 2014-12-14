@@ -56,6 +56,10 @@ public abstract class FilePlugin implements SimplexPlugin {
 		return maxLatency;
 	}
 
+	public long getMaxIdleTime() {
+		return Long.MAX_VALUE; // We don't need keepalives
+	}
+
 	public boolean isRunning() {
 		return running;
 	}

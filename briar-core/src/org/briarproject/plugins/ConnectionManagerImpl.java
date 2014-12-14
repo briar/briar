@@ -107,14 +107,27 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 	}
 
-	private MessagingSession createOutgoingSession(StreamContext ctx,
-			TransportConnectionWriter w, boolean duplex) throws IOException {
+	private MessagingSession createSimplexOutgoingSession(StreamContext ctx,
+			TransportConnectionWriter w) throws IOException {
 		try {
 			StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 					w.getOutputStream(), w.getMaxFrameLength(), ctx);
-			return messagingSessionFactory.createOutgoingSession(
+			return messagingSessionFactory.createSimplexOutgoingSession(
 					ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
-					duplex, streamWriter.getOutputStream());
+					streamWriter.getOutputStream());
+		} finally {
+			ByteUtils.erase(ctx.getSecret());
+		}
+	}
+
+	private MessagingSession createDuplexOutgoingSession(StreamContext ctx,
+			TransportConnectionWriter w) throws IOException {
+		try {
+			StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
+					w.getOutputStream(), w.getMaxFrameLength(), ctx);
+			return messagingSessionFactory.createDuplexOutgoingSession(
+					ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
+					w.getMaxIdleTime(), streamWriter.getOutputStream());
 		} finally {
 			ByteUtils.erase(ctx.getSecret());
 		}
@@ -199,7 +212,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			connectionRegistry.registerConnection(contactId, transportId);
 			try {
 				// Create and run the outgoing session
-				createOutgoingSession(ctx, writer, false).run();
+				createSimplexOutgoingSession(ctx, writer).run();
 				disposeWriter(false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -287,7 +300,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			}
 			try {
 				// Create and run the outgoing session
-				outgoingSession = createOutgoingSession(ctx, writer, true);
+				outgoingSession = createDuplexOutgoingSession(ctx, writer);
 				outgoingSession.run();
 				disposeWriter(false);
 			} catch(IOException e) {
@@ -353,7 +366,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			});
 			try {
 				// Create and run the outgoing session
-				outgoingSession = createOutgoingSession(ctx, writer, true);
+				outgoingSession = createDuplexOutgoingSession(ctx, writer);
 				outgoingSession.run();
 				disposeWriter(false);
 			} catch(IOException e) {

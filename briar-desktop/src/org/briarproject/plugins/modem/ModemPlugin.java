@@ -223,11 +223,15 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		private class Writer implements TransportConnectionWriter {
 
 			public int getMaxFrameLength() {
-				return maxFrameLength;
+				return getMaxFrameLength();
 			}
 
 			public long getMaxLatency() {
-				return maxLatency;
+				return getMaxLatency();
+			}
+
+			public long getMaxIdleTime() {
+				return getMaxIdleTime();
 			}
 
 			public long getCapacity() {

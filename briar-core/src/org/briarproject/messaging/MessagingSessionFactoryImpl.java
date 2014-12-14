@@ -49,11 +49,16 @@ class MessagingSessionFactoryImpl implements MessagingSessionFactory {
 				messageVerifier, packetReaderFactory, c, t, in);
 	}
 
-	public MessagingSession createOutgoingSession(ContactId c, TransportId t,
-			long maxLatency, boolean duplex, OutputStream out) {
-		if(duplex) return new DuplexOutgoingSession(db, dbExecutor, eventBus,
+	public MessagingSession createSimplexOutgoingSession(ContactId c,
+			TransportId t, long maxLatency, OutputStream out) {
+		return new SimplexOutgoingSession(db, dbExecutor, eventBus,
 				packetWriterFactory, c, t, maxLatency, out);
-		else return new SimplexOutgoingSession(db, dbExecutor, eventBus,
-				packetWriterFactory, c, t, maxLatency, out);
+	}
+
+	public MessagingSession createDuplexOutgoingSession(ContactId c,
+			TransportId t, long maxLatency, long maxIdleTime,
+			OutputStream out) {
+		return new DuplexOutgoingSession(db, dbExecutor, eventBus,
+				packetWriterFactory, c, t, maxLatency, maxIdleTime, out);
 	}
 }

@@ -67,6 +67,10 @@ class TcpTransportConnection implements DuplexTransportConnection {
 			return plugin.getMaxLatency();
 		}
 
+		public long getMaxIdleTime() {
+			return plugin.getMaxIdleTime();
+		}
+
 		public long getCapacity() {
 			return Long.MAX_VALUE;
 		}
