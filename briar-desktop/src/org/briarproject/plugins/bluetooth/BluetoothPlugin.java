@@ -46,8 +46,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	private final Clock clock;
 	private final SecureRandom secureRandom;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength;
-	private final long maxLatency, pollingInterval;
+	private final int maxFrameLength, maxLatency, pollingInterval;
 	private final Semaphore discoverySemaphore = new Semaphore(1);
 
 	private volatile boolean running = false;
@@ -55,8 +54,8 @@ class BluetoothPlugin implements DuplexPlugin {
 	private volatile LocalDevice localDevice = null;
 
 	BluetoothPlugin(Executor ioExecutor, Clock clock, SecureRandom secureRandom,
-			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
-			long pollingInterval) {
+			DuplexPluginCallback callback, int maxFrameLength, int maxLatency,
+			int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.clock = clock;
 		this.secureRandom = secureRandom;
@@ -74,13 +73,13 @@ class BluetoothPlugin implements DuplexPlugin {
 		return maxFrameLength;
 	}
 
-	public long getMaxLatency() {
+	public int getMaxLatency() {
 		return maxLatency;
 	}
 
-	public long getMaxIdleTime() {
+	public int getMaxIdleTime() {
 		// Bluetooth detects dead connections so we don't need keepalives
-		return Long.MAX_VALUE;
+		return Integer.MAX_VALUE;
 	}
 
 	public boolean start() throws IOException {
@@ -186,7 +185,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		return true;
 	}
 
-	public long getPollingInterval() {
+	public int getPollingInterval() {
 		return pollingInterval;
 	}
 

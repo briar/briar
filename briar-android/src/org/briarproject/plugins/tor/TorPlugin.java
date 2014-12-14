@@ -75,8 +75,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength, socketTimeout;
-	private final long maxLatency, maxIdleTime, pollingInterval;
+	private final int maxFrameLength, maxLatency, maxIdleTime, pollingInterval;
+	private final int socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, hostnameFile;
 	private final AtomicBoolean circuitBuilt;
@@ -90,8 +90,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	TorPlugin(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils, DuplexPluginCallback callback,
-			int maxFrameLength, long maxLatency, long maxIdleTime,
-			long pollingInterval) {
+			int maxFrameLength, int maxLatency, int maxIdleTime,
+			int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
@@ -100,9 +100,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
-		if(2 * maxIdleTime > Integer.MAX_VALUE)
+		if(maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
-		else socketTimeout = (int) (2 * maxIdleTime);
+		else socketTimeout = maxIdleTime * 2;
 		torDirectory = appContext.getDir("tor", MODE_PRIVATE);
 		torFile = new File(torDirectory, "tor");
 		geoIpFile = new File(torDirectory, "geoip");
@@ -121,11 +121,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		return maxFrameLength;
 	}
 
-	public long getMaxLatency() {
+	public int getMaxLatency() {
 		return maxLatency;
 	}
 
-	public long getMaxIdleTime() {
+	public int getMaxIdleTime() {
 		return maxIdleTime;
 	}
 
@@ -504,7 +504,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		return true;
 	}
 
-	public long getPollingInterval() {
+	public int getPollingInterval() {
 		return pollingInterval;
 	}
 

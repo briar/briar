@@ -28,8 +28,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected final Executor ioExecutor;
 	protected final FileUtils fileUtils;
 	protected final SimplexPluginCallback callback;
-	protected final int maxFrameLength;
-	protected final long maxLatency;
+	protected final int maxFrameLength, maxLatency;
 
 	protected volatile boolean running = false;
 
@@ -40,7 +39,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 
 	protected FilePlugin(Executor ioExecutor, FileUtils fileUtils,
 			SimplexPluginCallback callback, int maxFrameLength,
-			long maxLatency) {
+			int maxLatency) {
 		this.ioExecutor = ioExecutor;
 		this.fileUtils = fileUtils;
 		this.callback = callback;
@@ -52,12 +51,12 @@ public abstract class FilePlugin implements SimplexPlugin {
 		return maxFrameLength;
 	}
 
-	public long getMaxLatency() {
+	public int getMaxLatency() {
 		return maxLatency;
 	}
 
-	public long getMaxIdleTime() {
-		return Long.MAX_VALUE; // We don't need keepalives
+	public int getMaxIdleTime() {
+		return Integer.MAX_VALUE; // We don't need keepalives
 	}
 
 	public boolean isRunning() {

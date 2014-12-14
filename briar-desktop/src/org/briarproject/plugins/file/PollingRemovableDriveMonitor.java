@@ -13,14 +13,14 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	private final Executor ioExecutor;
 	private final RemovableDriveFinder finder;
-	private final long pollingInterval;
+	private final int pollingInterval;
 	private final Object pollingLock = new Object();
 
 	private volatile boolean running = false;
 	private volatile Callback callback = null;
 
 	public PollingRemovableDriveMonitor(Executor ioExecutor,
-			RemovableDriveFinder finder, long pollingInterval) {
+			RemovableDriveFinder finder, int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.finder = finder;
 		this.pollingInterval = pollingInterval;

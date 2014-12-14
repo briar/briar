@@ -32,21 +32,18 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength;
-	private final long maxLatency, pollingInterval;
+	private final int maxFrameLength, maxLatency;
 
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
 	ModemPlugin(ModemFactory modemFactory, SerialPortList serialPortList,
-			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
-			long pollingInterval) {
+			DuplexPluginCallback callback, int maxFrameLength, int maxLatency) {
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
-		this.pollingInterval = pollingInterval;
 	}
 
 	public TransportId getId() {
@@ -57,13 +54,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return maxFrameLength;
 	}
 
-	public long getMaxLatency() {
+	public int getMaxLatency() {
 		return maxLatency;
 	}
 
-	public long getMaxIdleTime() {
+	public int getMaxIdleTime() {
 		// FIXME: Do we need keepalives for this transport?
-		return Long.MAX_VALUE;
+		return Integer.MAX_VALUE;
 	}
 
 	public boolean start() {
@@ -103,8 +100,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return false;
 	}
 
-	public long getPollingInterval() {
-		return pollingInterval;
+	public int getPollingInterval() {
+		throw new UnsupportedOperationException();
 	}
 
 	public void poll(Collection<ContactId> connected) {
@@ -226,11 +223,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				return getMaxFrameLength();
 			}
 
-			public long getMaxLatency() {
+			public int getMaxLatency() {
 				return getMaxLatency();
 			}
 
-			public long getMaxIdleTime() {
+			public int getMaxIdleTime() {
 				return getMaxIdleTime();
 			}
 

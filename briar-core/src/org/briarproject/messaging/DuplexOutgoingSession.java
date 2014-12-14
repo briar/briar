@@ -6,7 +6,6 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -37,7 +36,6 @@ import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.Offer;
 import org.briarproject.api.messaging.PacketWriter;
-import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.messaging.Request;
 import org.briarproject.api.messaging.RetentionAck;
 import org.briarproject.api.messaging.RetentionUpdate;
@@ -45,16 +43,18 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
+import org.briarproject.api.system.Clock;
 
 /**
  * An outgoing {@link org.briarproject.api.messaging.MessagingSession
  * MessagingSession} suitable for duplex transports. The session offers
  * messages before sending them, keeps its output stream open when there are no
- * more packets to send, and reacts to events that make packets available to
- * send.
+ * packets to send, and reacts to events that make packets available to send.
  */
 class DuplexOutgoingSession implements MessagingSession, EventListener {
 
+	// Check for retransmittable packets once every 60 seconds
+	private static final int RETX_QUERY_INTERVAL = 60 * 1000;
 	private static final Logger LOG =
 			Logger.getLogger(DuplexOutgoingSession.class.getName());
 
@@ -66,28 +66,32 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
+	private final Clock clock;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final long maxLatency, maxIdleTime;
-	private final OutputStream out;
+	private final int maxLatency, maxIdleTime;
 	private final PacketWriter packetWriter;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
+
+	// The following must only be accessed on the writer thread
+	private long nextKeepalive = 0, nextRetxQuery = 0;
+	private boolean dataToFlush = true;
 
 	private volatile boolean interrupted = false;
 
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, PacketWriterFactory packetWriterFactory,
-			ContactId contactId, TransportId transportId, long maxLatency,
-			long maxIdleTime, OutputStream out) {
+			EventBus eventBus, Clock clock, ContactId contactId,
+			TransportId transportId, int maxLatency, int maxIdleTime,
+			PacketWriter packetWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
+		this.clock = clock;
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
-		this.out = out;
-		packetWriter = packetWriterFactory.createPacketWriter(out);
+		this.packetWriter = packetWriter;
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
@@ -105,21 +109,50 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 			dbExecutor.execute(new GenerateBatch());
 			dbExecutor.execute(new GenerateOffer());
 			dbExecutor.execute(new GenerateRequest());
+			long now = clock.currentTimeMillis();
+			nextKeepalive = now + maxIdleTime;
+			nextRetxQuery = now + RETX_QUERY_INTERVAL;
 			// Write packets until interrupted
 			try {
 				while(!interrupted) {
-					// Flush the stream if it's going to be idle
-					if(writerTasks.isEmpty()) out.flush();
-					ThrowingRunnable<IOException> task =
-							writerTasks.poll(maxIdleTime, MILLISECONDS);
-					if(task == null) {
-						LOG.info("Idle timeout");
-						continue; // Flush and wait again
+					// Work out how long we should wait for a packet
+					now = clock.currentTimeMillis();
+					long wait = Math.min(nextKeepalive, nextRetxQuery) - now;
+					if(wait < 0) wait = 0;
+					// Flush any unflushed data if we're going to wait
+					if(wait > 0 && dataToFlush && writerTasks.isEmpty()) {
+						packetWriter.flush();
+						dataToFlush = false;
+						nextKeepalive = now + maxIdleTime;
 					}
-					if(task == CLOSE) break;
-					task.run();
+					// Wait for a packet
+					ThrowingRunnable<IOException> task = writerTasks.poll(wait,
+							MILLISECONDS);
+					if(task == null) {
+						now = clock.currentTimeMillis();
+						if(now >= nextRetxQuery) {
+							// Check for retransmittable packets
+							dbExecutor.execute(new GenerateTransportUpdates());
+							dbExecutor.execute(new GenerateSubscriptionUpdate());
+							dbExecutor.execute(new GenerateRetentionUpdate());
+							dbExecutor.execute(new GenerateBatch());
+							dbExecutor.execute(new GenerateOffer());
+							nextRetxQuery = now + RETX_QUERY_INTERVAL;
+						}
+						if(now >= nextKeepalive) {
+							// Flush the stream to keep it alive
+							packetWriter.flush();
+							dataToFlush = false;
+							nextKeepalive = now + maxIdleTime;
+						}
+					} else if(task == CLOSE) {
+						break;
+					} else {
+						task.run();
+						dataToFlush = true;
+					}
 				}
-				out.flush();
+				if(dataToFlush) packetWriter.flush();
 			} catch(InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
 				Thread.currentThread().interrupt();

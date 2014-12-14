@@ -32,9 +32,9 @@ import org.junit.Test;
 public class KeyRotationIntegrationTest extends BriarTestCase {
 
 	private static final long EPOCH = 1000L * 1000L * 1000L * 1000L;
-	private static final long MAX_LATENCY = 2 * 60 * 1000; // 2 minutes
-	private static final long ROTATION_PERIOD_LENGTH =
-			MAX_LATENCY + MAX_CLOCK_DIFFERENCE;
+	private static final int MAX_LATENCY = 2 * 60 * 1000; // 2 minutes
+	private static final int ROTATION_PERIOD =
+			MAX_CLOCK_DIFFERENCE + MAX_LATENCY;
 
 	private final ContactId contactId;
 	private final TransportId transportId;
@@ -653,7 +653,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 					MAX_LATENCY)));
 			// The current time is the start of period 2
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(EPOCH + ROTATION_PERIOD_LENGTH));
+			will(returnValue(EPOCH + ROTATION_PERIOD));
 			// The secret for period 3 should be derived and stored
 			oneOf(crypto).deriveNextSecret(secret0, 1);
 			will(returnValue(secret1.clone()));
@@ -778,7 +778,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 					MAX_LATENCY)));
 			// The current time is the end of period 3
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(EPOCH + 3 * ROTATION_PERIOD_LENGTH - 1));
+			will(returnValue(EPOCH + 3 * ROTATION_PERIOD - 1));
 			// The secrets for periods 3 and 4 should be derived from secret 1
 			oneOf(crypto).deriveNextSecret(secret1, 2);
 			will(returnValue(secret2.clone()));

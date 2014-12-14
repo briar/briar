@@ -14,8 +14,8 @@ import org.briarproject.util.OsUtils;
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 
 	// Maximum latency 14 days (Royal Mail or lackadaisical carrier pigeon)
-	private static final long MAX_LATENCY = 14 * 24 * 60 * 60 * 1000;
-	private static final long POLLING_INTERVAL = 10 * 1000; // 10 seconds
+	private static final int MAX_LATENCY = 14 * 24 * 60 * 60 * 1000;
+	private static final int POLLING_INTERVAL = 10 * 1000; // 10 seconds
 
 	private final Executor ioExecutor;
 	private final FileUtils fileUtils;

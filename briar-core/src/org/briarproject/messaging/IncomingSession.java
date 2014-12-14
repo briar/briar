@@ -3,7 +3,6 @@ package org.briarproject.messaging;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -25,7 +24,6 @@ import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.Offer;
 import org.briarproject.api.messaging.PacketReader;
-import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.Request;
 import org.briarproject.api.messaging.RetentionAck;
 import org.briarproject.api.messaging.RetentionUpdate;
@@ -56,9 +54,8 @@ class IncomingSession implements MessagingSession, EventListener {
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
 			Executor cryptoExecutor, EventBus eventBus,
-			MessageVerifier messageVerifier,
-			PacketReaderFactory packetReaderFactory, ContactId contactId,
-			TransportId transportId, InputStream in) {
+			MessageVerifier messageVerifier, ContactId contactId,
+			TransportId transportId, PacketReader packetReader) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
@@ -66,7 +63,7 @@ class IncomingSession implements MessagingSession, EventListener {
 		this.messageVerifier = messageVerifier;
 		this.contactId = contactId;
 		this.transportId = transportId;
-		packetReader = packetReaderFactory.createPacketReader(in);
+		this.packetReader = packetReader;
 	}
 
 	public void run() throws IOException {

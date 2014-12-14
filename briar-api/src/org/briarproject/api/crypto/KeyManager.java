@@ -20,5 +20,5 @@ public interface KeyManager extends Service {
 	 * Called whenever an endpoint has been added. The initial secret is erased
 	 * before returning.
 	 */
-	void endpointAdded(Endpoint ep, long maxLatency, byte[] initialSecret);
+	void endpointAdded(Endpoint ep, int maxLatency, byte[] initialSecret);
 }

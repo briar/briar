@@ -62,8 +62,8 @@ import org.briarproject.api.transport.TemporarySecret;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 6;
-	private static final int MIN_SCHEMA_VERSION = 5;
+	private static final int SCHEMA_VERSION = 7;
+	private static final int MIN_SCHEMA_VERSION = 7;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -213,7 +213,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_TRANSPORTS =
 			"CREATE TABLE transports"
 					+ " (transportId VARCHAR NOT NULL,"
-					+ " maxLatency BIGINT NOT NULL,"
+					+ " maxLatency INT NOT NULL,"
 					+ " PRIMARY KEY (transportId))";
 
 	private static final String CREATE_TRANSPORT_CONFIGS =
@@ -866,7 +866,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addTransport(Connection txn, TransportId t, long maxLatency)
+	public boolean addTransport(Connection txn, TransportId t, int maxLatency)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2024,7 +2024,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public RetentionUpdate getRetentionUpdate(Connection txn, ContactId c,
-			long maxLatency) throws DbException {
+			int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2202,7 +2202,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public SubscriptionUpdate getSubscriptionUpdate(Connection txn, ContactId c,
-			long maxLatency) throws DbException {
+			int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2296,7 +2296,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<TransportId, Long> getTransportLatencies(Connection txn)
+	public Map<TransportId, Integer> getTransportLatencies(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2304,10 +2304,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT transportId, maxLatency FROM transports";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Map<TransportId, Long> latencies = new HashMap<TransportId, Long>();
+			Map<TransportId, Integer> latencies =
+					new HashMap<TransportId, Integer>();
 			while(rs.next()){
 				TransportId id = new TransportId(rs.getString(1));
-				latencies.put(id, rs.getLong(2));
+				latencies.put(id, rs.getInt(2));
 			}
 			rs.close();
 			ps.close();
@@ -2320,7 +2321,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<TransportUpdate> getTransportUpdates(Connection txn,
-			ContactId c, long maxLatency) throws DbException {
+			ContactId c, int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -3301,7 +3302,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void updateExpiryTime(Connection txn, ContactId c, MessageId m,
-			long maxLatency) throws DbException {
+			int maxLatency) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {

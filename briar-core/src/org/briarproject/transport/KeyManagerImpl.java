@@ -51,7 +51,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	private final Timer timer;
 
 	// All of the following are locking: this
-	private final Map<TransportId, Long> maxLatencies;
+	private final Map<TransportId, Integer> maxLatencies;
 	private final Map<EndpointKey, TemporarySecret> oldSecrets;
 	private final Map<EndpointKey, TemporarySecret> currentSecrets;
 	private final Map<EndpointKey, TemporarySecret> newSecrets;
@@ -66,7 +66,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		this.tagRecogniser = tagRecogniser;
 		this.clock = clock;
 		this.timer = timer;
-		maxLatencies = new HashMap<TransportId, Long>();
+		maxLatencies = new HashMap<TransportId, Integer>();
 		oldSecrets = new HashMap<EndpointKey, TemporarySecret>();
 		currentSecrets = new HashMap<EndpointKey, TemporarySecret>();
 		newSecrets = new HashMap<EndpointKey, TemporarySecret>();
@@ -116,7 +116,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : secrets) {
 			// Discard the secret if the transport has been removed
-			Long maxLatency = maxLatencies.get(s.getTransportId());
+			Integer maxLatency = maxLatencies.get(s.getTransportId());
 			if(maxLatency == null) {
 				LOG.info("Discarding obsolete secret");
 				ByteUtils.erase(s.getSecret());
@@ -168,7 +168,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
 		for(Entry<EndpointKey, TemporarySecret> e : newest.entrySet()) {
 			TemporarySecret s = e.getValue();
-			Long maxLatency = maxLatencies.get(s.getTransportId());
+			Integer maxLatency = maxLatencies.get(s.getTransportId());
 			if(maxLatency == null) throw new IllegalStateException();
 			// Work out which rotation period we're in
 			long elapsed = now - s.getEpoch();
@@ -255,7 +255,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		return new StreamContext(c, t, secret, streamNumber, s.getAlice());
 	}
 
-	public synchronized void endpointAdded(Endpoint ep, long maxLatency,
+	public synchronized void endpointAdded(Endpoint ep, int maxLatency,
 			byte[] initialSecret) {
 		maxLatencies.put(ep.getTransportId(), maxLatency);
 		// Work out which rotation period we're in

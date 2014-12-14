@@ -73,7 +73,7 @@ public interface DatabaseComponent {
 	 * Stores a transport and returns true if the transport was not previously
 	 * in the database.
 	 */
-	boolean addTransport(TransportId t, long maxLatency) throws DbException;
+	boolean addTransport(TransportId t, int maxLatency) throws DbException;
 
 	/**
 	 * Returns an acknowledgement for the given contact, or null if there are
@@ -88,14 +88,14 @@ public interface DatabaseComponent {
 	 * sendable messages that fit in the given length.
 	 */
 	Collection<byte[]> generateBatch(ContactId c, int maxLength,
-			long maxLatency) throws DbException;
+			int maxLatency) throws DbException;
 
 	/**
 	 * Returns an offer for the given contact for transmission over a
 	 * transport with the given maximum latency, or null if there are no
 	 * messages to offer.
 	 */
-	Offer generateOffer(ContactId c, int maxMessages, long maxLatency)
+	Offer generateOffer(ContactId c, int maxMessages, int maxLatency)
 			throws DbException;
 
 	/**
@@ -112,7 +112,7 @@ public interface DatabaseComponent {
 	 * sendable messages that fit in the given length.
 	 */
 	Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
-			long maxLatency) throws DbException;
+			int maxLatency) throws DbException;
 
 	/**
 	 * Returns a retention ack for the given contact, or null if no retention
@@ -125,7 +125,7 @@ public interface DatabaseComponent {
 	 * over a transport with the given latency. Returns null if no update is
 	 * due.
 	 */
-	RetentionUpdate generateRetentionUpdate(ContactId c, long maxLatency)
+	RetentionUpdate generateRetentionUpdate(ContactId c, int maxLatency)
 			throws DbException;
 
 	/**
@@ -139,7 +139,7 @@ public interface DatabaseComponent {
 	 * over a transport with the given latency. Returns null if no update is
 	 * due.
 	 */
-	SubscriptionUpdate generateSubscriptionUpdate(ContactId c, long maxLatency)
+	SubscriptionUpdate generateSubscriptionUpdate(ContactId c, int maxLatency)
 			throws DbException;
 
 	/**
@@ -155,7 +155,7 @@ public interface DatabaseComponent {
 	 * updates are due.
 	 */
 	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
-			long maxLatency) throws DbException;
+			int maxLatency) throws DbException;
 
 	/**
 	 * Returns the status of all groups to which the user subscribes or can
@@ -227,8 +227,8 @@ public interface DatabaseComponent {
 	/** Returns all contacts who subscribe to the given group. */
 	Collection<Contact> getSubscribers(GroupId g) throws DbException;
 
-	/** Returns the maximum latencies of all local transports. */
-	Map<TransportId, Long> getTransportLatencies() throws DbException;
+	/** Returns the maximum latencies of all supported transports. */
+	Map<TransportId, Integer> getTransportLatencies() throws DbException;
 
 	/** Returns the number of unread messages in each subscribed group. */
 	Map<GroupId, Integer> getUnreadMessageCounts() throws DbException;

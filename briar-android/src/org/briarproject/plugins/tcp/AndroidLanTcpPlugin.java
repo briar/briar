@@ -26,8 +26,8 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	AndroidLanTcpPlugin(Executor ioExecutor, Context appContext,
-			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
-			long maxIdleTime, long pollingInterval) {
+			DuplexPluginCallback callback, int maxFrameLength, int maxLatency,
+			int maxIdleTime, int pollingInterval) {
 		super(ioExecutor, callback, maxFrameLength, maxLatency, maxIdleTime,
 				pollingInterval);
 		this.appContext = appContext;

@@ -69,8 +69,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final SecureRandom secureRandom;
 	private final Clock clock;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength;
-	private final long maxLatency, pollingInterval;
+	private final int maxFrameLength, maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
 	private volatile boolean wasDisabled = false;
@@ -82,8 +81,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Clock clock,
-			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
-			long pollingInterval) {
+			DuplexPluginCallback callback, int maxFrameLength, int maxLatency,
+			int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
@@ -103,13 +102,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return maxFrameLength;
 	}
 
-	public long getMaxLatency() {
+	public int getMaxLatency() {
 		return maxLatency;
 	}
 
-	public long getMaxIdleTime() {
+	public int getMaxIdleTime() {
 		// Bluetooth detects dead connections so we don't need keepalives
-		return Long.MAX_VALUE;
+		return Integer.MAX_VALUE;
 	}
 
 	public boolean start() throws IOException {
@@ -245,7 +244,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return true;
 	}
 
-	public long getPollingInterval() {
+	public int getPollingInterval() {
 		return pollingInterval;
 	}
 

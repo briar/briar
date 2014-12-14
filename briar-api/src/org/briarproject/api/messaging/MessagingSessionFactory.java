@@ -12,8 +12,8 @@ public interface MessagingSessionFactory {
 			InputStream in);
 
 	MessagingSession createSimplexOutgoingSession(ContactId c, TransportId t,
-			long maxLatency, OutputStream out);
+			int maxLatency, OutputStream out);
 
 	MessagingSession createDuplexOutgoingSession(ContactId c, TransportId t,
-			long maxLatency, long maxIdleTime, OutputStream out);
+			int maxLatency, int maxIdleTime, OutputStream out);
 }

@@ -13,10 +13,10 @@ public interface TransportConnectionWriter {
 	int getMaxFrameLength();
 
 	/** Returns the maximum latency of the transport in milliseconds. */
-	long getMaxLatency();
+	int getMaxLatency();
 
 	/** Returns the maximum idle time of the transport in milliseconds. */
-	long getMaxIdleTime();
+	int getMaxIdleTime();
 
 	/** Returns the capacity of the transport connection in bytes. */
 	long getCapacity();

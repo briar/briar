@@ -63,11 +63,11 @@ class TorTransportConnection implements DuplexTransportConnection {
 			return plugin.getMaxFrameLength();
 		}
 
-		public long getMaxLatency() {
+		public int getMaxLatency() {
 			return plugin.getMaxLatency();
 		}
 
-		public long getMaxIdleTime() {
+		public int getMaxIdleTime() {
 			return plugin.getMaxIdleTime();
 		}
 

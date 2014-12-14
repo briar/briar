@@ -29,7 +29,7 @@ implements RemovableDriveMonitor.Callback {
 
 	RemovableDrivePlugin(Executor ioExecutor, FileUtils fileUtils,
 			SimplexPluginCallback callback, RemovableDriveFinder finder,
-			RemovableDriveMonitor monitor, int maxFrameLength, long maxLatency) {
+			RemovableDriveMonitor monitor, int maxFrameLength, int maxLatency) {
 		super(ioExecutor, fileUtils, callback, maxFrameLength, maxLatency);
 		this.finder = finder;
 		this.monitor = monitor;
@@ -54,7 +54,7 @@ implements RemovableDriveMonitor.Callback {
 		return false;
 	}
 
-	public long getPollingInterval() {
+	public int getPollingInterval() {
 		throw new UnsupportedOperationException();
 	}
 

@@ -314,7 +314,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public boolean addTransport(TransportId t, long maxLatency)
+	public boolean addTransport(TransportId t, int maxLatency)
 			throws DbException {
 		boolean added;
 		lock.writeLock().lock();
@@ -357,7 +357,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public Collection<byte[]> generateBatch(ContactId c, int maxLength,
-			long maxLatency) throws DbException {
+			int maxLatency) throws DbException {
 		Collection<MessageId> ids;
 		List<byte[]> messages = new ArrayList<byte[]>();
 		lock.writeLock().lock();
@@ -384,7 +384,7 @@ DatabaseCleaner.Callback {
 		return Collections.unmodifiableList(messages);
 	}
 
-	public Offer generateOffer(ContactId c, int maxMessages, long maxLatency)
+	public Offer generateOffer(ContactId c, int maxMessages, int maxLatency)
 			throws DbException {
 		Collection<MessageId> ids;
 		lock.writeLock().lock();
@@ -432,7 +432,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
-			long maxLatency) throws DbException {
+			int maxLatency) throws DbException {
 		Collection<MessageId> ids;
 		List<byte[]> messages = new ArrayList<byte[]>();
 		lock.writeLock().lock();
@@ -478,7 +478,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public RetentionUpdate generateRetentionUpdate(ContactId c, long maxLatency)
+	public RetentionUpdate generateRetentionUpdate(ContactId c, int maxLatency)
 			throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -519,7 +519,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c,
-			long maxLatency) throws DbException {
+			int maxLatency) throws DbException {
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
@@ -560,7 +560,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public Collection<TransportUpdate> generateTransportUpdates(ContactId c,
-			long maxLatency) throws DbException {
+			int maxLatency) throws DbException {
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
@@ -932,12 +932,13 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<TransportId, Long> getTransportLatencies() throws DbException {
+	public Map<TransportId, Integer> getTransportLatencies()
+			throws DbException {
 		lock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<TransportId, Long> latencies =
+				Map<TransportId, Integer> latencies =
 						db.getTransportLatencies(txn);
 				db.commitTransaction(txn);
 				return latencies;

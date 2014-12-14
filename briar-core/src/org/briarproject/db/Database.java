@@ -152,7 +152,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	boolean addTransport(T txn, TransportId t, long maxLatency)
+	boolean addTransport(T txn, TransportId t, int maxLatency)
 			throws DbException;
 
 	/**
@@ -460,7 +460,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	RetentionUpdate getRetentionUpdate(T txn, ContactId c, long maxLatency)
+	RetentionUpdate getRetentionUpdate(T txn, ContactId c, int maxLatency)
 			throws DbException;
 
 	/**
@@ -499,7 +499,7 @@ interface Database<T> {
 	 * Locking: write.
 	 */
 	SubscriptionUpdate getSubscriptionUpdate(T txn, ContactId c,
-			long maxLatency) throws DbException;
+			int maxLatency) throws DbException;
 
 	/**
 	 * Returns a collection of transport acks for the given contact, or null if
@@ -511,11 +511,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the maximum latencies of all local transports.
+	 * Returns the maximum latencies of all supported transports.
 	 * <p>
 	 * Locking: read.
 	 */
-	Map<TransportId, Long> getTransportLatencies(T txn) throws DbException;
+	Map<TransportId, Integer> getTransportLatencies(T txn) throws DbException;
 
 	/**
 	 * Returns a collection of transport updates for the given contact and
@@ -525,7 +525,7 @@ interface Database<T> {
 	 * Locking: write.
 	 */
 	Collection<TransportUpdate> getTransportUpdates(T txn, ContactId c,
-			long maxLatency) throws DbException;
+			int maxLatency) throws DbException;
 
 	/**
 	 * Returns the number of unread messages in each subscribed group.
@@ -798,6 +798,6 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	void updateExpiryTime(T txn, ContactId c, MessageId m, long maxLatency)
+	void updateExpiryTime(T txn, ContactId c, MessageId m, int maxLatency)
 			throws DbException;
 }

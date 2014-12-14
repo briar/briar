@@ -5,7 +5,6 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -26,7 +25,6 @@ import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessagingSession;
 import org.briarproject.api.messaging.PacketWriter;
-import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.messaging.RetentionAck;
 import org.briarproject.api.messaging.RetentionUpdate;
 import org.briarproject.api.messaging.SubscriptionAck;
@@ -55,8 +53,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final long maxLatency;
-	private final OutputStream out;
+	private final int maxLatency;
 	private final PacketWriter packetWriter;
 	private final AtomicInteger outstandingQueries;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
@@ -64,17 +61,15 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private volatile boolean interrupted = false;
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, PacketWriterFactory packetWriterFactory,
-			ContactId contactId, TransportId transportId, long maxLatency,
-			OutputStream out) {
+			EventBus eventBus, ContactId contactId, TransportId transportId,
+			int maxLatency, PacketWriter packetWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
-		this.out = out;
-		packetWriter = packetWriterFactory.createPacketWriter(out);
+		this.packetWriter = packetWriter;
 		outstandingQueries = new AtomicInteger(8); // One per type of packet
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
@@ -98,7 +93,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 					if(task == CLOSE) break;
 					task.run();
 				}
-				out.flush();
+				packetWriter.flush();
 			} catch(InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
 				Thread.currentThread().interrupt();

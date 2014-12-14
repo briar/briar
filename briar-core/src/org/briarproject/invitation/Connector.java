@@ -285,7 +285,7 @@ abstract class Connector extends Thread {
 		db.setRemoteProperties(contactId, remoteProps);
 		// Create an endpoint for each transport shared with the contact
 		List<TransportId> ids = new ArrayList<TransportId>();
-		Map<TransportId, Long> latencies = db.getTransportLatencies();
+		Map<TransportId, Integer> latencies = db.getTransportLatencies();
 		for(TransportId id : localProps.keySet()) {
 			if(latencies.containsKey(id) && remoteProps.containsKey(id))
 				ids.add(id);
@@ -296,7 +296,7 @@ abstract class Connector extends Thread {
 		for(int i = 0; i < size; i++) {
 			TransportId id = ids.get(i);
 			Endpoint ep = new Endpoint(contactId, id, epoch, alice);
-			long maxLatency = latencies.get(id);
+			int maxLatency = latencies.get(id);
 			try {
 				db.addEndpoint(ep);
 			} catch(NoSuchTransportException e) {

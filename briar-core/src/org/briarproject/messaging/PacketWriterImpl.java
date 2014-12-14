@@ -143,4 +143,8 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeInteger(u.getVersion());
 		w.writeStructEnd();
 	}
+
+	public void flush() throws IOException {
+		out.flush();
+	}
 }

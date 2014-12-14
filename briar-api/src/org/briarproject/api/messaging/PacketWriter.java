@@ -29,4 +29,6 @@ public interface PacketWriter {
 	void writeTransportAck(TransportAck a) throws IOException;
 
 	void writeTransportUpdate(TransportUpdate u) throws IOException;
+
+	void flush() throws IOException;
 }
