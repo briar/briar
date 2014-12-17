@@ -93,8 +93,8 @@
     </plurals>
     <string name="settings_title">Settings</string>
     <string name="bluetooth_setting_title">BLUETOOTH</string>
-    <string name="bluetooth_setting">Turn on Bluetooth</string>
-    <string name="bluetooth_setting_enabled">While signed in</string>
+    <string name="bluetooth_setting">Connect via Bluetooth</string>
+    <string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
     <string name="bluetooth_setting_disabled">Only when adding contacts</string>
     <string name="notification_settings_title">NOTIFICATIONS</string>
     <string name="notify_private_messages_setting">Show alerts for private messages</string>
