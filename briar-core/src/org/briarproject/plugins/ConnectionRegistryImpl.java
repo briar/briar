@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
@@ -29,6 +31,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	private final Map<TransportId, Map<ContactId, Integer>> connections;
 	// Locking: this
 	private final Map<ContactId, Integer> contactCounts;
+	
+	private final Lock synchLock = new ReentrantLock();
 
 	@Inject
 	ConnectionRegistryImpl(EventBus eventBus) {
@@ -40,7 +44,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public void registerConnection(ContactId c, TransportId t) {
 		LOG.info("Connection registered");
 		boolean firstConnection = false;
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if(m == null) {
 				m = new HashMap<ContactId, Integer>();
@@ -57,6 +62,10 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 				contactCounts.put(c, count + 1);
 			}
 		}
+		finally{
+			synchLock.unlock();
+		}
+
 		if(firstConnection) {
 			LOG.info("Contact connected");
 			eventBus.broadcast(new ContactConnectedEvent(c));
@@ -66,7 +75,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public void unregisterConnection(ContactId c, TransportId t) {
 		LOG.info("Connection unregistered");
 		boolean lastConnection = false;
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if(m == null) throw new IllegalArgumentException();
 			Integer count = m.remove(c);
@@ -85,22 +95,40 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 				contactCounts.put(c, count - 1);
 			}
 		}
+		finally{
+			synchLock.unlock();
+		}
+
 		if(lastConnection) {
 			LOG.info("Contact disconnected");
 			eventBus.broadcast(new ContactDisconnectedEvent(c));
 		}
 	}
 
-	public synchronized Collection<ContactId> getConnectedContacts(
+	public Collection<ContactId> getConnectedContacts(
 			TransportId t) {
-		Map<ContactId, Integer> m = connections.get(t);
-		if(m == null) return Collections.emptyList();
-		List<ContactId> ids = new ArrayList<ContactId>(m.keySet());
-		if(LOG.isLoggable(INFO)) LOG.info(ids.size() + " contacts connected");
-		return Collections.unmodifiableList(ids);
+		synchLock.lock();
+		try{
+			Map<ContactId, Integer> m = connections.get(t);
+			if(m == null) return Collections.emptyList();
+			List<ContactId> ids = new ArrayList<ContactId>(m.keySet());
+			if(LOG.isLoggable(INFO)) LOG.info(ids.size() + " contacts connected");
+			return Collections.unmodifiableList(ids);
+		}
+		finally{
+			synchLock.unlock();
+		}
+
 	}
 
-	public synchronized boolean isConnected(ContactId c) {
-		return contactCounts.containsKey(c);
+	public boolean isConnected(ContactId c) {
+		synchLock.lock();
+		try{
+			return contactCounts.containsKey(c);
+		}
+		finally{
+			synchLock.unlock();
+		}
+
 	}
 }

@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import org.briarproject.api.Author;
@@ -322,6 +325,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 	protected abstract void flushBuffersToDisk(Statement s) throws SQLException;
+	
+	private final Lock connectionsLock = new ReentrantLock();
+	private final Condition connectionsChanged = connectionsLock.newCondition();
 
 	JdbcDatabase(String hashType, String binaryType, String counterType,
 			String secretType, Clock clock) {
@@ -431,18 +437,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public Connection startTransaction() throws DbException {
 		Connection txn = null;
-		synchronized(connections) {
+		connectionsLock.lock();
+		try {
 			if(closed) throw new DbClosedException();
 			txn = connections.poll();
 		}
+		finally{
+			connectionsLock.unlock();
+		}
+		
 		try {
 			if(txn == null) {
 				// Open a new connection
 				txn = createConnection();
 				if(txn == null) throw new DbException();
 				txn.setAutoCommit(false);
-				synchronized(connections) {
+				connectionsLock.lock();
+				try {
 					openConnections++;
+				}
+				finally{
+					connectionsLock.unlock();
 				}
 			}
 		} catch(SQLException e) {
@@ -455,9 +470,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void abortTransaction(Connection txn) {
 		try {
 			txn.rollback();
-			synchronized(connections) {
+			connectionsLock.lock();
+			try {
 				connections.add(txn);
-				connections.notifyAll();
+				connectionsChanged.signalAll();
+			}
+			finally{
+				connectionsLock.unlock();
 			}
 		} catch(SQLException e) {
 			// Try to close the connection
@@ -468,11 +487,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e1.toString(), e1);
 			}
 			// Whatever happens, allow the database to close
-			synchronized(connections) {
+			connectionsLock.lock();
+			try {
 				openConnections--;
-				connections.notifyAll();
+				connectionsChanged.signalAll();
 			}
-		}
+			finally{
+				connectionsLock.unlock();
+			}		}
 	}
 
 	public void commitTransaction(Connection txn) throws DbException {
@@ -486,9 +508,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(s);
 			throw new DbException(e);
 		}
-		synchronized(connections) {
+		connectionsLock.lock();
+		try{
 			connections.add(txn);
-			connections.notifyAll();
+			connectionsChanged.signalAll();
+		}
+		finally{
+			connectionsLock.unlock();
 		}
 	}
 
@@ -502,14 +528,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected void closeAllConnections() throws SQLException {
 		boolean interrupted = false;
-		synchronized(connections) {
+		connectionsLock.lock();
+		try{
 			closed = true;
 			for(Connection c : connections) c.close();
 			openConnections -= connections.size();
 			connections.clear();
 			while(openConnections > 0) {
 				try {
-					connections.wait();
+					connectionsChanged.await();
 				} catch(InterruptedException e) {
 					LOG.warning("Interrupted while closing connections");
 					interrupted = true;
@@ -519,6 +546,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				connections.clear();
 			}
 		}
+		finally{
+			connectionsLock.unlock();
+		}
+		
 		if(interrupted) Thread.currentThread().interrupt();
 	}
 

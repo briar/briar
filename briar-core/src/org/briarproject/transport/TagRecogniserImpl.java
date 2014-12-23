@@ -2,6 +2,8 @@ package org.briarproject.transport;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 
@@ -20,6 +22,9 @@ class TagRecogniserImpl implements TagRecogniser {
 	private final DatabaseComponent db;
 	// Locking: this
 	private final Map<TransportId, TransportTagRecogniser> recognisers;
+	
+	private final Lock synchLock = new ReentrantLock();
+
 
 	@Inject
 	TagRecogniserImpl(CryptoComponent crypto, DatabaseComponent db) {
@@ -31,8 +36,12 @@ class TagRecogniserImpl implements TagRecogniser {
 	public StreamContext recogniseTag(TransportId t, byte[] tag)
 			throws DbException {
 		TransportTagRecogniser r;
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			r = recognisers.get(t);
+		}
+		finally{
+			synchLock.unlock();
 		}
 		if(r == null) return null;
 		return r.recogniseTag(tag);
@@ -41,35 +50,63 @@ class TagRecogniserImpl implements TagRecogniser {
 	public void addSecret(TemporarySecret s) {
 		TransportId t = s.getTransportId();
 		TransportTagRecogniser r;
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			r = recognisers.get(t);
 			if(r == null) {
 				r = new TransportTagRecogniser(crypto, db, t);
 				recognisers.put(t, r);
 			}
 		}
+		finally{
+			synchLock.unlock();
+		}
 		r.addSecret(s);
 	}
 
 	public void removeSecret(ContactId c, TransportId t, long period) {
 		TransportTagRecogniser r;
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			r = recognisers.get(t);
+		}
+		finally{
+			synchLock.unlock();
 		}
 		if(r != null) r.removeSecret(c, period);
 	}
 
-	public synchronized void removeSecrets(ContactId c) {
-		for(TransportTagRecogniser r : recognisers.values())
-			r.removeSecrets(c);
+	public void removeSecrets(ContactId c) {
+		synchLock.lock();
+		try{
+			for(TransportTagRecogniser r : recognisers.values())
+				r.removeSecrets(c);
+		}
+		finally{
+			synchLock.unlock();
+		}
 	}
 
-	public synchronized void removeSecrets(TransportId t) {
-		recognisers.remove(t);
+	public void removeSecrets(TransportId t) {
+		synchLock.lock();
+		try{
+			recognisers.remove(t);
+		}
+		finally{
+			synchLock.unlock();
+		}
+
 	}
 
-	public synchronized void removeSecrets() {
-		for(TransportTagRecogniser r : recognisers.values())
-			r.removeSecrets();
+	public void removeSecrets() {
+		synchLock.lock();
+		try{
+			for(TransportTagRecogniser r : recognisers.values())
+				r.removeSecrets();
+		}
+		finally{
+			synchLock.unlock();
+		}
+
 	}
 }

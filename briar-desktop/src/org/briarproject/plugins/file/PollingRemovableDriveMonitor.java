@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
@@ -14,10 +18,13 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	private final Executor ioExecutor;
 	private final RemovableDriveFinder finder;
 	private final long pollingInterval;
-	private final Object pollingLock = new Object();
 
 	private volatile boolean running = false;
 	private volatile Callback callback = null;
+
+	private final Lock synchLock = new ReentrantLock();
+	private final Condition stopPolling = synchLock.newCondition();
+
 
 	public PollingRemovableDriveMonitor(Executor ioExecutor,
 			RemovableDriveFinder finder, long pollingInterval) {
@@ -34,8 +41,12 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	public void stop() throws IOException {
 		running = false;
-		synchronized(pollingLock) {
-			pollingLock.notifyAll();
+		synchLock.lock();
+		try {
+			stopPolling.signalAll();
+		} 
+		finally {
+			synchLock.unlock();
 		}
 	}
 
@@ -43,8 +54,12 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 		try {
 			Collection<File> drives = finder.findRemovableDrives();
 			while(running) {
-				synchronized(pollingLock) {
-					pollingLock.wait(pollingInterval);
+				synchLock.lock();
+				try {
+					stopPolling.await(pollingInterval, TimeUnit.MILLISECONDS);
+				} 
+				finally{
+					synchLock.unlock();
 				}
 				if(!running) return;
 				Collection<File> newDrives = finder.findRemovableDrives();
