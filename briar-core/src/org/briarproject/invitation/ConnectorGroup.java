@@ -65,10 +65,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	
 	private final Lock synchLock = new ReentrantLock();
 
-	/*
-	 * All of the following require locking: this. We don't want to call the
-	 * listeners with a lock held, but we need to avoid a race condition in
-	 * addListener(), so the state that's accessed in addListener() after
+	/*The state that's accessed in addListener() after
 	 * calling listeners.add() must be guarded by a lock.
 	 */
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;

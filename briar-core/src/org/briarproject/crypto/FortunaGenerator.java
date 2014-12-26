@@ -19,7 +19,6 @@ class FortunaGenerator {
 	private static final int KEY_BYTES = 32;
 	private static final int BLOCK_BYTES = 16;
 
-	// All of the following are locking: this
 	private final MessageDigest digest = new DoubleDigest(new SHA256Digest());
 	private final BlockCipher cipher = new AESLightEngine();
 	private final byte[] key = new byte[KEY_BYTES];

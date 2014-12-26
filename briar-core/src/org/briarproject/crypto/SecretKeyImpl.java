@@ -10,7 +10,7 @@ class SecretKeyImpl implements SecretKey {
 
 	private final byte[] key;
 
-	private boolean erased = false; // Locking: this
+	private boolean erased = false;
 	
 	private final Lock synchLock = new ReentrantLock();
 

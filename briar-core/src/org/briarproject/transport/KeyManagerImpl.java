@@ -52,7 +52,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	private final Clock clock;
 	private final Timer timer;
 
-	// All of the following are locking: this
 	private final Map<TransportId, Long> maxLatencies;
 	private final Map<EndpointKey, TemporarySecret> oldSecrets;
 	private final Map<EndpointKey, TemporarySecret> currentSecrets;
@@ -120,7 +119,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	// Assigns secrets to the appropriate maps and returns any dead secrets
-	// Locking: this
 	private Collection<TemporarySecret> assignSecretsToMaps(long now,
 			Collection<TemporarySecret> secrets) {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
@@ -154,7 +152,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	// Replaces and erases the given secrets and returns any secrets created
-	// Locking: this
 	private Collection<TemporarySecret> replaceDeadSecrets(long now,
 			Collection<TemporarySecret> dead) {
 		// If there are several dead secrets for an endpoint, use the newest
@@ -242,7 +239,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void removeAndEraseSecrets(Map<?, TemporarySecret> m) {
 		for(TemporarySecret s : m.values()) ByteUtils.erase(s.getSecret());
 		m.clear();
@@ -374,7 +370,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void removeAndEraseSecrets(ContactId c, Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();
 		while(it.hasNext()) {
@@ -386,7 +381,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void removeAndEraseSecrets(TransportId t,
 			Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();

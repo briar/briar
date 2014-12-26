@@ -58,12 +58,12 @@ Service, EventListener {
 	private final EventBus eventBus;
 	private final Context appContext;
 	private final Map<ContactId, Integer> contactCounts =
-			new HashMap<ContactId, Integer>(); // Locking: this
+			new HashMap<ContactId, Integer>(); 
 	private final Map<GroupId, Integer> groupCounts =
-			new HashMap<GroupId, Integer>(); // Locking: this
+			new HashMap<GroupId, Integer>(); 
 
-	private int privateTotal = 0, groupTotal = 0; // Locking: this
-	private int nextRequestId = 0; // Locking: this
+	private int privateTotal = 0, groupTotal = 0;
+	private int nextRequestId = 0;
 
 	private volatile Settings settings = new Settings();
 	
@@ -134,7 +134,6 @@ Service, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void updatePrivateMessageNotification() {
 		if(privateTotal == 0) {
 			clearPrivateMessageNotification();
@@ -178,7 +177,6 @@ Service, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void clearPrivateMessageNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
@@ -223,7 +221,6 @@ Service, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void updateGroupPostNotification() {
 		if(groupTotal == 0) {
 			clearGroupPostNotification();

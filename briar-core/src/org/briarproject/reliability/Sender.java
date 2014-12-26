@@ -25,9 +25,8 @@ class Sender {
 
 	private final Clock clock;
 	private final WriteHandler writeHandler;
-	private final LinkedList<Outstanding> outstanding; // Locking: this
+	private final LinkedList<Outstanding> outstanding;
 
-	// All of the following are locking: this
 	private int outstandingBytes = 0;
 	private int windowSize = Data.MAX_PAYLOAD_LENGTH;
 	private int rtt = INITIAL_RTT, rttVar = INITIAL_RTT_VAR;

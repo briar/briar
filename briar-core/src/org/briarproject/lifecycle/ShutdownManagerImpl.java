@@ -9,9 +9,9 @@ import org.briarproject.api.lifecycle.ShutdownManager;
 
 class ShutdownManagerImpl implements ShutdownManager {
 
-	protected final Map<Integer, Thread> hooks; // Locking: this
+	protected final Map<Integer, Thread> hooks;
 
-	private int nextHandle = 0; // Locking: this
+	private int nextHandle = 0;
 	
 	private final Lock synchLock = new ReentrantLock();
 

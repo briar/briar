@@ -18,7 +18,7 @@ class ReferenceManagerImpl implements ReferenceManager {
 	private final Map<Class<?>, Map<Long, Object>> outerMap =
 			new HashMap<Class<?>, Map<Long, Object>>();
 
-	private long nextHandle = 0; // Locking: this
+	private long nextHandle = 0;
 
 	private final Lock synchLock = new ReentrantLock();
 

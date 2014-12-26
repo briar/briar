@@ -39,7 +39,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	private final Map<String, Object> options;
 
-	private boolean initialised = false; // Locking: this
+	private boolean initialised = false;
 	
 	private final Lock synchLock = new ReentrantLock();
 
@@ -69,7 +69,6 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		return new StartOnce(r);
 	}
 
-	// Locking: this
 	private void initialise() {
 		if(OsUtils.isWindows()) {
 			new EventLoop().start();

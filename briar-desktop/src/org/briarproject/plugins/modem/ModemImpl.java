@@ -46,8 +46,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private int lineLen = 0;
 
-	private ReliabilityLayer reliability = null; // Locking: this
-	private boolean initialised = false, connected = false; // Locking: this
+	private ReliabilityLayer reliability = null;
+	private boolean initialised = false, connected = false;
 	
 	private final Lock synchLock = new ReentrantLock();
 	private final Condition connectedStateChanged = synchLock.newCondition();
@@ -163,7 +163,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 	}
 
-	// Locking: stateChange
 	private void hangUpInner() throws IOException {
 		ReliabilityLayer reliability;
 		synchLock.lock();

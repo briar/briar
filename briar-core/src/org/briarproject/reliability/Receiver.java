@@ -20,9 +20,9 @@ class Receiver implements ReadHandler {
 
 	private final Clock clock;
 	private final Sender sender;
-	private final SortedSet<Data> dataFrames; // Locking: this
+	private final SortedSet<Data> dataFrames;
 
-	private int windowSize = MAX_WINDOW_SIZE; // Locking: this
+	private int windowSize = MAX_WINDOW_SIZE;
 	private long finalSequenceNumber = Long.MAX_VALUE;
 	private long nextSequenceNumber = 1;
 

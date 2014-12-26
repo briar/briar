@@ -14,14 +14,13 @@ import net.contentobjects.jnotify.JNotifyListener;
 abstract class UnixRemovableDriveMonitor implements RemovableDriveMonitor,
 JNotifyListener {
 
-	private static boolean triedLoad = false; // Locking: class
-	private static Throwable loadError = null; // Locking: class
+	private static boolean triedLoad = false;
+	private static Throwable loadError = null;
 
-	// Locking: this
 	private final List<Integer> watches = new ArrayList<Integer>();
 
-	private boolean started = false; // Locking: this
-	private Callback callback = null; // Locking: this
+	private boolean started = false;
+	private Callback callback = null;
 
 	protected abstract String[] getPathsToWatch();
 	
