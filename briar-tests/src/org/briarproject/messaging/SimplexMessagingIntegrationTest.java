@@ -127,7 +127,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, MAX_LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, true);
 		db.addEndpoint(ep);
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		// Send Bob a message
 		String contentType = "text/plain";
 		long timestamp = System.currentTimeMillis();
@@ -190,7 +190,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, MAX_LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
 		db.addEndpoint(ep);
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		// Set up an event listener
 		MessageListener listener = new MessageListener();
 		bob.getInstance(EventBus.class).addListener(listener);

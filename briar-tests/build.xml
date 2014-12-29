@@ -100,8 +100,7 @@
 			<test name='org.briarproject.crypto.KeyDerivationTest'/>
 			<test name='org.briarproject.crypto.KeyEncodingAndParsingTest'/>
 			<test name="org.briarproject.crypto.PasswordBasedKdfTest"/>
-			<test name="org.briarproject.crypto.PasswordStrengthEstimatorTest"/>
-			<test name='org.briarproject.crypto.SecretKeyImplTest'/>
+			<test name="org.briarproject.crypto.PasswordStrengthEstimatorImplTest"/>
 			<test name='org.briarproject.crypto.StreamDecrypterImplTest'/>
 			<test name='org.briarproject.crypto.StreamEncrypterImplTest'/>
 			<test name='org.briarproject.db.BasicH2Test'/>

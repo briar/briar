@@ -18,7 +18,7 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 		Random random = new Random();
 		byte[] input = new byte[1234];
 		random.nextBytes(input);
-		char[] password = "password".toCharArray();
+		String password = "password";
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
 		byte[] output = crypto.decryptWithPassword(ciphertext, password);
 		assertArrayEquals(input, output);
@@ -29,7 +29,7 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 		Random random = new Random();
 		byte[] input = new byte[1234];
 		random.nextBytes(input);
-		char[] password = "password".toCharArray();
+		String password = "password";
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
 		// Modify the ciphertext
 		int position = random.nextInt(ciphertext.length);

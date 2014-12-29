@@ -1,21 +1,15 @@
 package org.briarproject.api.crypto;
 
 /** A secret key used for encryption and/or authentication. */
-public interface SecretKey {
+public class SecretKey {
 
-	/** Returns the encoded representation of this key. */
-	byte[] getEncoded();
+	private final byte[] key;
 
-	/**
-	 * Returns a copy of this key - erasing this key will erase the copy and
-	 * vice versa.
-	 */
-	SecretKey copy();
+	public SecretKey(byte[] key) {
+		this.key = key;
+	}
 
-	/**
-	 * Erases this key from memory. Any copies derived from this key via the
-	 * {@link #copy()} method, and any keys from which this key was derived via
-	 * the {@link #copy()} method, are also erased.
-	 */
-	void erase();
+	public byte[] getBytes() {
+		return key;
+	}
 }

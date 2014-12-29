@@ -33,7 +33,6 @@ import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.api.transport.TemporarySecret;
-import org.briarproject.util.ByteUtils;
 
 // FIXME: Don't make alien calls with a lock held
 class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
@@ -119,7 +118,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			Integer maxLatency = maxLatencies.get(s.getTransportId());
 			if(maxLatency == null) {
 				LOG.info("Discarding obsolete secret");
-				ByteUtils.erase(s.getSecret());
 				continue;
 			}
 			long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
@@ -143,7 +141,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		return dead;
 	}
 
-	// Replaces and erases the given secrets and returns any secrets created
+	// Replaces the given secrets and returns any secrets created
 	// Locking: this
 	private Collection<TemporarySecret> replaceDeadSecrets(long now,
 			Collection<TemporarySecret> dead) {
@@ -157,12 +155,10 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 				// There's no other secret for this endpoint
 				newest.put(k, s);
 			} else if(exists.getPeriod() < s.getPeriod()) {
-				// There's an older secret - erase it and use this one instead
-				ByteUtils.erase(exists.getSecret());
+				// There's an older secret - use this one instead
 				newest.put(k, s);
 			} else {
-				// There's a newer secret - erase this one
-				ByteUtils.erase(s.getSecret());
+				// There's a newer secret - keep using it
 			}
 		}
 		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
@@ -179,34 +175,23 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 				throw new IllegalStateException();
 			// Derive the old, current and new secrets
 			byte[] b1 = s.getSecret();
-			for(long p = s.getPeriod() + 1; p < period; p++) {
-				byte[] temp = crypto.deriveNextSecret(b1, p);
-				ByteUtils.erase(b1);
-				b1 = temp;
-			}
+			for(long p = s.getPeriod() + 1; p < period; p++)
+				b1 = crypto.deriveNextSecret(b1, p);
 			byte[] b2 = crypto.deriveNextSecret(b1, period);
 			byte[] b3 = crypto.deriveNextSecret(b2, period + 1);
-			// Add the secrets to their respective maps - copies may already
-			// exist, in which case erase the new copies (the old copies are
-			// referenced by the connection recogniser)
+			// Add the secrets to their respective maps if not already present
 			EndpointKey k = e.getKey();
-			if(oldSecrets.containsKey(k)) {
-				ByteUtils.erase(b1);
-			} else {
+			if(!oldSecrets.containsKey(k)) {
 				TemporarySecret s1 = new TemporarySecret(s, period - 1, b1);
 				oldSecrets.put(k, s1);
 				created.add(s1);
 			}
-			if(currentSecrets.containsKey(k)) {
-				ByteUtils.erase(b2);
-			} else {
+			if(!currentSecrets.containsKey(k)) {
 				TemporarySecret s2 = new TemporarySecret(s, period, b2);
 				currentSecrets.put(k, s2);
 				created.add(s2);
 			}
-			if(newSecrets.containsKey(k)) {
-				ByteUtils.erase(b3);
-			} else {
+			if(!newSecrets.containsKey(k)) {
 				TemporarySecret s3 = new TemporarySecret(s, period + 1, b3);
 				newSecrets.put(k, s3);
 				created.add(s3);
@@ -220,16 +205,10 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		timer.cancel();
 		tagRecogniser.removeSecrets();
 		maxLatencies.clear();
-		removeAndEraseSecrets(oldSecrets);
-		removeAndEraseSecrets(currentSecrets);
-		removeAndEraseSecrets(newSecrets);
+		oldSecrets.clear();
+		currentSecrets.clear();
+		newSecrets.clear();
 		return true;
-	}
-
-	// Locking: this
-	private void removeAndEraseSecrets(Map<?, TemporarySecret> m) {
-		for(TemporarySecret s : m.values()) ByteUtils.erase(s.getSecret());
-		m.clear();
 	}
 
 	public synchronized StreamContext getStreamContext(ContactId c,
@@ -250,8 +229,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
-		// Clone the secret - the original will be erased
-		byte[] secret = s.getSecret().clone();
+		byte[] secret = s.getSecret();
 		return new StreamContext(c, t, secret, streamNumber, s.getAlice());
 	}
 
@@ -265,11 +243,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		if(period < 1) throw new IllegalStateException();
 		// Derive the old, current and new secrets
 		byte[] b1 = initialSecret;
-		for(long p = 0; p < period; p++) {
-			byte[] temp = crypto.deriveNextSecret(b1, p);
-			ByteUtils.erase(b1);
-			b1 = temp;
-		}
+		for(long p = 0; p < period; p++)
+			b1 = crypto.deriveNextSecret(b1, p);
 		byte[] b2 = crypto.deriveNextSecret(b1, period);
 		byte[] b3 = crypto.deriveNextSecret(b2, period + 1);
 		TemporarySecret s1 = new TemporarySecret(ep, period - 1, b1);
@@ -341,28 +316,17 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	// Locking: this
-	private void removeAndEraseSecrets(ContactId c, Map<?, TemporarySecret> m) {
+	private void removeSecrets(ContactId c, Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();
-		while(it.hasNext()) {
-			TemporarySecret s = it.next();
-			if(s.getContactId().equals(c)) {
-				ByteUtils.erase(s.getSecret());
-				it.remove();
-			}
-		}
+		while(it.hasNext())
+			if(it.next().getContactId().equals(c)) it.remove();
 	}
 
 	// Locking: this
-	private void removeAndEraseSecrets(TransportId t,
-			Map<?, TemporarySecret> m) {
+	private void removeSecrets(TransportId t, Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();
-		while(it.hasNext()) {
-			TemporarySecret s = it.next();
-			if(s.getTransportId().equals(t)) {
-				ByteUtils.erase(s.getSecret());
-				it.remove();
-			}
-		}
+		while(it.hasNext())
+			if(it.next().getTransportId().equals(t)) it.remove();
 	}
 
 	private static class EndpointKey {
@@ -408,9 +372,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			ContactId c = event.getContactId();
 			tagRecogniser.removeSecrets(c);
 			synchronized(KeyManagerImpl.this) {
-				removeAndEraseSecrets(c, oldSecrets);
-				removeAndEraseSecrets(c, currentSecrets);
-				removeAndEraseSecrets(c, newSecrets);
+				removeSecrets(c, oldSecrets);
+				removeSecrets(c, currentSecrets);
+				removeSecrets(c, newSecrets);
 			}
 		}
 	}
@@ -445,9 +409,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			tagRecogniser.removeSecrets(t);
 			synchronized(KeyManagerImpl.this) {
 				maxLatencies.remove(t);
-				removeAndEraseSecrets(t, oldSecrets);
-				removeAndEraseSecrets(t, currentSecrets);
-				removeAndEraseSecrets(t, newSecrets);
+				removeSecrets(t, oldSecrets);
+				removeSecrets(t, currentSecrets);
+				removeSecrets(t, newSecrets);
 			}
 		}
 	}

@@ -13,9 +13,10 @@ class PasswordStrengthEstimatorImpl implements PasswordStrengthEstimator {
 	private static final double STRONG = Math.log(Math.pow(LOWER + UPPER +
 			DIGIT + OTHER, 10));
 
-	public float estimateStrength(char[] password) {
+	public float estimateStrength(String password) {
 		HashSet<Character> unique = new HashSet<Character>();
-		for(char c : password) unique.add(c);
+		int length = password.length();
+		for(int i = 0; i < length; i++) unique.add(password.charAt(i));
 		boolean lower = false, upper = false, digit = false, other = false;
 		for(char c : unique) {
 			if(Character.isLowerCase(c)) lower = true;

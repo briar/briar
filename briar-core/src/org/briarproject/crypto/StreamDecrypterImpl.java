@@ -44,16 +44,11 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		if(finalFrame) return -1;
 		// Read the frame
 		int ciphertextLength = 0;
-		try {
-			while(ciphertextLength < frameLength) {
-				int read = in.read(ciphertext, ciphertextLength,
-						frameLength - ciphertextLength);
-				if(read == -1) break; // We'll check the length later
-				ciphertextLength += read;
-			}
-		} catch(IOException e) {
-			frameKey.erase();
-			throw e;
+		while(ciphertextLength < frameLength) {
+			int read = in.read(ciphertext, ciphertextLength,
+					frameLength - ciphertextLength);
+			if(read == -1) break; // We'll check the length later
+			ciphertextLength += read;
 		}
 		int plaintextLength = ciphertextLength - MAC_LENGTH;
 		if(plaintextLength < HEADER_LENGTH) throw new EOFException();

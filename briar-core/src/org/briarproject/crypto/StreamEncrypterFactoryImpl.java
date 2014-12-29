@@ -30,7 +30,6 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		byte[] tag = new byte[TAG_LENGTH];
 		SecretKey tagKey = crypto.deriveTagKey(secret, alice);
 		crypto.encodeTag(tag, tagKey, streamNumber);
-		tagKey.erase();
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
 		// Create the encrypter

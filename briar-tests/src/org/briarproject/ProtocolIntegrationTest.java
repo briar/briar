@@ -116,8 +116,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamContext ctx = new StreamContext(contactId, transportId,
-				secret.clone(), 0, true);
+		StreamContext ctx = new StreamContext(contactId, transportId, secret,
+				0, true);
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(out,
 				MAX_FRAME_LENGTH, ctx);
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
@@ -148,8 +148,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		// FIXME: Check that the expected tag was received
-		StreamContext ctx = new StreamContext(contactId, transportId,
-				secret.clone(), 0, false);
+		StreamContext ctx = new StreamContext(contactId, transportId, secret,
+				0, false);
 		InputStream streamReader = streamReaderFactory.createStreamReader(in,
 				MAX_FRAME_LENGTH, ctx);
 		PacketReader packetReader = packetReaderFactory.createPacketReader(

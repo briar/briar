@@ -103,9 +103,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -123,11 +123,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			oneOf(crypto).deriveNextSecret(initialSecret, 0);
-			will(returnValue(secret0.clone()));
+			will(returnValue(secret0));
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The secrets for periods 0 - 2 should be added to the recogniser
 			oneOf(tagRecogniser).addSecret(s0);
@@ -140,7 +140,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		keyManager.stop();
 
 		context.assertIsSatisfied();
@@ -161,9 +161,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -181,11 +181,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			oneOf(crypto).deriveNextSecret(initialSecret, 0);
-			will(returnValue(secret0.clone()));
+			will(returnValue(secret0));
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The secrets for periods 0 - 2 should be added to the recogniser
 			oneOf(tagRecogniser).addSecret(s0);
@@ -201,7 +201,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		StreamContext ctx =
 				keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
@@ -230,9 +230,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -278,11 +278,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 		// The secret for period 3 should be derived and stored
-		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3.clone());
+		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -297,11 +297,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(EPOCH + ROTATION_PERIOD));
 			// The secret for period 3 should be derived and stored
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
+			will(returnValue(secret3));
 			oneOf(db).addSecrets(Arrays.asList(s3));
 			// The secrets for periods 1 - 3 should be added to the recogniser
 			oneOf(tagRecogniser).addSecret(s1);
@@ -336,12 +336,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 		// The secrets for periods 3 and 4 should be derived and stored
-		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3.clone());
-		final TemporarySecret s4 = new TemporarySecret(ep, 4, secret4.clone());
+		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3);
+		final TemporarySecret s4 = new TemporarySecret(ep, 4, secret4);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -356,11 +356,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(EPOCH + 3 * ROTATION_PERIOD - 1));
 			// The secrets for periods 3 and 4 should be derived from secret 1
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
+			will(returnValue(secret3));
 			oneOf(crypto).deriveNextSecret(secret3, 4);
-			will(returnValue(secret4.clone()));
+			will(returnValue(secret4));
 			// The new secrets should be stored
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));
 			// The secrets for periods 2 - 4 should be added to the recogniser
@@ -396,9 +396,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -459,11 +459,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 		// The secret for period 3 should be derived and stored
-		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3.clone());
+		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -486,11 +486,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH + ROTATION_PERIOD + 1));
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
+			will(returnValue(secret3));
 			oneOf(tagRecogniser).removeSecret(contactId, transportId, 0);
 			oneOf(db).addSecrets(Arrays.asList(s3));
 			oneOf(tagRecogniser).addSecret(s3);
@@ -533,12 +533,12 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 		// The secrets for periods 3 and 4 should be derived and stored
-		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3.clone());
-		final TemporarySecret s4 = new TemporarySecret(ep, 4, secret4.clone());
+		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3);
+		final TemporarySecret s4 = new TemporarySecret(ep, 4, secret4);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -561,11 +561,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH + 2 * ROTATION_PERIOD + 1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
+			will(returnValue(secret3));
 			oneOf(crypto).deriveNextSecret(secret3, 4);
-			will(returnValue(secret4.clone()));
+			will(returnValue(secret4));
 			oneOf(tagRecogniser).removeSecret(contactId, transportId, 0);
 			oneOf(tagRecogniser).removeSecret(contactId, transportId, 1);
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));

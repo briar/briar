@@ -6,24 +6,23 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.junit.Test;
 
-public class PasswordStrengthEstimatorTest extends BriarTestCase {
+public class PasswordStrengthEstimatorImplTest extends BriarTestCase {
 
 	@Test
 	public void testWeakPasswords() {
 		PasswordStrengthEstimator e = new PasswordStrengthEstimatorImpl();
-		assertTrue(e.estimateStrength("".toCharArray()) < QUITE_STRONG);
-		assertTrue(e.estimateStrength("password".toCharArray()) < QUITE_STRONG);
-		assertTrue(e.estimateStrength("letmein".toCharArray()) < QUITE_STRONG);
-		assertTrue(e.estimateStrength("123456".toCharArray()) < QUITE_STRONG);
+		assertTrue(e.estimateStrength("") < QUITE_STRONG);
+		assertTrue(e.estimateStrength("password") < QUITE_STRONG);
+		assertTrue(e.estimateStrength("letmein") < QUITE_STRONG);
+		assertTrue(e.estimateStrength("123456") < QUITE_STRONG);
 	}
 
 	@Test
 	public void testStrongPasswords() {
 		PasswordStrengthEstimator e = new PasswordStrengthEstimatorImpl();
 		// Industry standard
-		assertTrue(e.estimateStrength("Tr0ub4dor&3".toCharArray())
-				> QUITE_STRONG);
-		assertTrue(e.estimateStrength("correcthorsebatterystaple".toCharArray())
+		assertTrue(e.estimateStrength("Tr0ub4dor&3") > QUITE_STRONG);
+		assertTrue(e.estimateStrength("correcthorsebatterystaple")
 				> QUITE_STRONG);
 	}
 }

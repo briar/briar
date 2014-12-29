@@ -133,10 +133,7 @@ public class PasswordActivity extends RoboActivity {
 		continueButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		// Decrypt the database key in a background thread
-		int length = e.length();
-		final char[] password = new char[length];
-		e.getChars(0, length, password, 0);
-		e.delete(0, length);
+		final String password = e.toString();
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				byte[] key = crypto.decryptWithPassword(encrypted, password);

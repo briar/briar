@@ -28,7 +28,6 @@ import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.api.transport.TagRecogniser;
-import org.briarproject.util.ByteUtils;
 
 class ConnectionManagerImpl implements ConnectionManager {
 
@@ -95,40 +94,28 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 	private MessagingSession createIncomingSession(StreamContext ctx,
 			TransportConnectionReader r) throws IOException {
-		try {
-			InputStream streamReader = streamReaderFactory.createStreamReader(
-					r.getInputStream(), r.getMaxFrameLength(), ctx);
-			return messagingSessionFactory.createIncomingSession(
-					ctx.getContactId(), ctx.getTransportId(), streamReader);
-		} finally {
-			ByteUtils.erase(ctx.getSecret());
-		}
+		InputStream streamReader = streamReaderFactory.createStreamReader(
+				r.getInputStream(), r.getMaxFrameLength(), ctx);
+		return messagingSessionFactory.createIncomingSession(
+				ctx.getContactId(), ctx.getTransportId(), streamReader);
 	}
 
 	private MessagingSession createSimplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
-		try {
-			OutputStream streamWriter = streamWriterFactory.createStreamWriter(
-					w.getOutputStream(), w.getMaxFrameLength(), ctx);
-			return messagingSessionFactory.createSimplexOutgoingSession(
-					ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
-					streamWriter);
-		} finally {
-			ByteUtils.erase(ctx.getSecret());
-		}
+		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
+				w.getOutputStream(), w.getMaxFrameLength(), ctx);
+		return messagingSessionFactory.createSimplexOutgoingSession(
+				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
+				streamWriter);
 	}
 
 	private MessagingSession createDuplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
-		try {
-			OutputStream streamWriter = streamWriterFactory.createStreamWriter(
-					w.getOutputStream(), w.getMaxFrameLength(), ctx);
-			return messagingSessionFactory.createDuplexOutgoingSession(
-					ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
-					w.getMaxIdleTime(), streamWriter);
-		} finally {
-			ByteUtils.erase(ctx.getSecret());
-		}
+		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
+				w.getOutputStream(), w.getMaxFrameLength(), ctx);
+		return messagingSessionFactory.createDuplexOutgoingSession(
+				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
+				w.getMaxIdleTime(), streamWriter);
 	}
 
 	private class ManageIncomingSimplexConnection implements Runnable {

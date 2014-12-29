@@ -7,8 +7,6 @@ import static org.briarproject.crypto.EllipticCurveConstants.P;
 import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.system.SeedProvider;
 import org.briarproject.util.ByteUtils;
+import org.briarproject.util.StringUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
@@ -48,7 +47,6 @@ import org.spongycastle.crypto.params.ECKeyGenerationParameters;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.KeyParameter;
-import org.spongycastle.util.Strings;
 
 class CryptoComponentImpl implements CryptoComponent {
 
@@ -114,7 +112,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	public SecretKey generateSecretKey() {
 		byte[] b = new byte[CIPHER_KEY_BYTES];
 		secureRandom.nextBytes(b);
-		return new SecretKeyImpl(b);
+		return new SecretKey(b);
 	}
 
 	public MessageDigest getMessageDigest() {
@@ -188,8 +186,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		int[] codes = new int[2];
 		codes[0] = ByteUtils.readUint(alice, CODE_BITS);
 		codes[1] = ByteUtils.readUint(bob, CODE_BITS);
-		ByteUtils.erase(alice);
-		ByteUtils.erase(bob);
 		return codes;
 	}
 
@@ -223,9 +219,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] raw = deriveSharedSecret(ourPriv, theirPub);
 		// Derive the cooked secret from the raw secret using the
 		// concatenation KDF
-		byte[] cooked = concatenationKdf(raw, MASTER, aliceInfo, bobInfo);
-		ByteUtils.erase(raw);
-		return cooked;
+		return concatenationKdf(raw, MASTER, aliceInfo, bobInfo);
 	}
 
 	// Package access for testing
@@ -296,8 +290,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	private SecretKey deriveKey(byte[] secret, byte[] label, long context) {
-		byte[] key = counterModeKdf(secret, label, context);
-		return new SecretKeyImpl(key);
+		return new SecretKey(counterModeKdf(secret, label, context));
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
@@ -313,21 +306,19 @@ class CryptoComponentImpl implements CryptoComponent {
 		ByteUtils.writeUint32(streamNumber, tag, 0);
 		BlockCipher cipher = new AESLightEngine();
 		assert cipher.getBlockSize() == TAG_LENGTH;
-		KeyParameter k = new KeyParameter(tagKey.getEncoded());
+		KeyParameter k = new KeyParameter(tagKey.getBytes());
 		cipher.init(true, k);
 		cipher.processBlock(tag, 0, tag, 0);
-		ByteUtils.erase(k.getKey());
 	}
 
-	public byte[] encryptWithPassword(byte[] input, char[] password) {
+	public byte[] encryptWithPassword(byte[] input, String password) {
 		// Generate a random salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		secureRandom.nextBytes(salt);
 		// Calibrate the KDF
 		int iterations = chooseIterationCount(PBKDF_TARGET_MILLIS);
 		// Derive the key from the password
-		byte[] keyBytes = pbkdf2(password, salt, iterations);
-		SecretKey key = new SecretKeyImpl(keyBytes);
+		SecretKey key = new SecretKey(pbkdf2(password, salt, iterations));
 		// Generate a random IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
@@ -348,12 +339,10 @@ class CryptoComponentImpl implements CryptoComponent {
 			return output;
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
-		} finally {
-			key.erase();
 		}
 	}
 
-	public byte[] decryptWithPassword(byte[] input, char[] password) {
+	public byte[] decryptWithPassword(byte[] input, String password) {
 		// The input contains the salt, iterations, IV, ciphertext and MAC
 		if(input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + MAC_BYTES)
 			return null; // Invalid
@@ -365,8 +354,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		System.arraycopy(input, salt.length + 4, iv, 0, iv.length);
 		// Derive the key from the password
-		byte[] keyBytes = pbkdf2(password, salt, (int) iterations);
-		SecretKey key = new SecretKeyImpl(keyBytes);
+		SecretKey key = new SecretKey(pbkdf2(password, salt, (int) iterations));
 		// Initialise the cipher
 		AuthenticatedCipher cipher;
 		try {
@@ -374,7 +362,6 @@ class CryptoComponentImpl implements CryptoComponent {
 			cipher = new AuthenticatedCipherImpl(a, MAC_BYTES);
 			cipher.init(false, key, iv, null);
 		} catch(GeneralSecurityException e) {
-			key.erase();
 			throw new RuntimeException(e);
 		}
 		// Try to decrypt the ciphertext (may be invalid)
@@ -385,9 +372,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			cipher.doFinal(input, inputOff, inputLen, output, 0);
 			return output;
 		} catch(GeneralSecurityException e) {
-			return null; // Invalid
-		} finally {
-			key.erase();
+			return null; // Invalid ciphertext
 		}
 	}
 
@@ -417,7 +402,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		// The secret is the first CIPHER_KEY_BYTES bytes of the hash
 		byte[] output = new byte[CIPHER_KEY_BYTES];
 		System.arraycopy(hash, 0, output, 0, output.length);
-		ByteUtils.erase(hash);
 		return output;
 	}
 
@@ -447,20 +431,17 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.update((byte) CIPHER_KEY_BYTES); // Output length
 		prf.doFinal(mac, 0);
 		System.arraycopy(mac, 0, output, 0, output.length);
-		ByteUtils.erase(mac);
-		ByteUtils.erase(k.getKey());
 		return output;
 	}
 
 	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
-	private byte[] pbkdf2(char[] password, byte[] salt, int iterations) {
-		byte[] utf8 = toUtf8ByteArray(password);
+	private byte[] pbkdf2(String password, byte[] salt, int iterations) {
+		byte[] utf8 = StringUtils.toUtf8(password);
 		Digest digest = new SHA384Digest();
 		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
 		gen.init(utf8, salt, iterations);
 		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
 		CipherParameters p = gen.generateDerivedParameters(keyLengthInBits);
-		ByteUtils.erase(utf8);
 		return ((KeyParameter) p).getKey();
 	}
 
@@ -511,19 +492,5 @@ class CryptoComponentImpl implements CryptoComponent {
 		Collections.sort(list);
 		if(size % 2 == 1) return list.get(size / 2);
 		return list.get(size / 2 - 1) + list.get(size / 2) / 2;
-	}
-
-	private byte[] toUtf8ByteArray(char[] c) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			Strings.toUTF8ByteArray(c, out);
-			byte[] utf8 = out.toByteArray();
-			// Erase the output stream's buffer
-			out.reset();
-			out.write(new byte[utf8.length]);
-			return utf8;
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 }

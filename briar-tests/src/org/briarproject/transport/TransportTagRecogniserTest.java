@@ -25,6 +25,7 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 
 	private final ContactId contactId = new ContactId(234);
 	private final TransportId transportId = new TransportId("id");
+	private final SecretKey tagKey = new SecretKey(new byte[32]);
 
 	@Test
 	public void testAddAndRemoveSecret() {
@@ -33,7 +34,6 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 		final byte[] secret = new byte[32];
 		new Random().nextBytes(secret);
 		final boolean alice = false;
-		final SecretKey tagKey = context.mock(SecretKey.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			// Add secret
@@ -44,7 +44,6 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 						with((long) i));
 				will(new EncodeTagAction());
 			}
-			oneOf(tagKey).erase();
 			// Remove secret
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
@@ -53,7 +52,6 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 						with((long) i));
 				will(new EncodeTagAction());
 			}
-			oneOf(tagKey).erase();
 		}});
 		TemporarySecret s = new TemporarySecret(contactId, transportId, 123,
 				alice, 0, secret, 0, 0, new byte[4]);
@@ -71,7 +69,6 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 		final byte[] secret = new byte[32];
 		new Random().nextBytes(secret);
 		final boolean alice = false;
-		final SecretKey tagKey = context.mock(SecretKey.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			// Add secret
@@ -82,7 +79,6 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 						with((long) i));
 				will(new EncodeTagAction());
 			}
-			oneOf(tagKey).erase();
 			// Recognise tag 0
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
@@ -93,7 +89,6 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 			// The updated window should be stored
 			oneOf(db).setReorderingWindow(contactId, transportId, 0, 1,
 					new byte[] {0, 1, 0, 0});
-			oneOf(tagKey).erase();
 			// Recognise tag again - no expectations
 		}});
 		TemporarySecret s = new TemporarySecret(contactId, transportId, 123,

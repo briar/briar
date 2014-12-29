@@ -89,7 +89,7 @@ public interface CryptoComponent {
 	 * given password. The ciphertext will be decryptable using the same
 	 * password after the app restarts.
 	 */
-	byte[] encryptWithPassword(byte[] plaintext, char[] password);
+	byte[] encryptWithPassword(byte[] plaintext, String password);
 
 	/**
 	 * Decrypts and authenticates the given ciphertext that has been read from
@@ -97,5 +97,5 @@ public interface CryptoComponent {
 	 * given password. Returns null if the ciphertext cannot be decrypted and
 	 * authenticated (for example, if the password is wrong).
 	 */
-	byte[] decryptWithPassword(byte[] ciphertext, char[] password);
+	byte[] decryptWithPassword(byte[] ciphertext, String password);
 }

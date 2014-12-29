@@ -30,9 +30,9 @@ public class KeyDerivationTest extends BriarTestCase {
 		keys.add(crypto.deriveTagKey(secret, true));
 		keys.add(crypto.deriveTagKey(secret, false));
 		for(int i = 0; i < 4; i++) {
-			byte[] keyI = keys.get(i).getEncoded();
+			byte[] keyI = keys.get(i).getBytes();
 			for(int j = 0; j < 4; j++) {
-				byte[] keyJ = keys.get(j).getEncoded();
+				byte[] keyJ = keys.get(j).getBytes();
 				assertEquals(i == j, Arrays.equals(keyI, keyJ));
 			}
 		}
@@ -59,9 +59,8 @@ public class KeyDerivationTest extends BriarTestCase {
 	@Test
 	public void testStreamNumberAffectsDerivation() {
 		List<byte[]> secrets = new ArrayList<byte[]>();
-		for(int i = 0; i < 20; i++) {
-			secrets.add(crypto.deriveNextSecret(secret.clone(), i));
-		}
+		for(int i = 0; i < 20; i++)
+			secrets.add(crypto.deriveNextSecret(secret, i));
 		for(int i = 0; i < 20; i++) {
 			byte[] secretI = secrets.get(i);
 			for(int j = 0; j < 20; j++) {

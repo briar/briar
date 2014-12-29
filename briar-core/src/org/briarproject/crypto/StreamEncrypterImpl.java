@@ -45,12 +45,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		// Write the tag if required
 		if(writeTag) {
-			try {
-				out.write(tag, 0, tag.length);
-			} catch(IOException e) {
-				frameKey.erase();
-				throw e;
-			}
+			out.write(tag, 0, tag.length);
 			writeTag = false;
 		}
 		// Don't pad the final frame
@@ -81,24 +76,14 @@ class StreamEncrypterImpl implements StreamEncrypter {
 			throw new RuntimeException(badCipher);
 		}
 		// Write the frame
-		try {
-			out.write(ciphertext, 0, ciphertextLength);
-		} catch(IOException e) {
-			frameKey.erase();
-			throw e;
-		}
+		out.write(ciphertext, 0, ciphertextLength);
 		frameNumber++;
 	}
 
 	public void flush() throws IOException {
 		// Write the tag if required
 		if(writeTag) {
-			try {
-				out.write(tag, 0, tag.length);
-			} catch(IOException e) {
-				frameKey.erase();
-				throw e;
-			}
+			out.write(tag, 0, tag.length);
 			writeTag = false;
 		}
 		out.flush();

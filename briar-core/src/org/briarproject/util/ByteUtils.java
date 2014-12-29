@@ -48,10 +48,6 @@ public class ByteUtils {
 				| ((b[offset + 2] & 0xFFL) << 8) | (b[offset + 3] & 0xFFL);
 	}
 
-	public static void erase(byte[] b) {
-		for(int i = 0; i < b.length; i++) b[i] = 0;
-	}
-
 	public static int readUint(byte[] b, int bits) {
 		if(b.length << 3 < bits) throw new IllegalArgumentException();
 		int result = 0;
