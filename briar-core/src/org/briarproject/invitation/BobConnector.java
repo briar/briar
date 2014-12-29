@@ -29,9 +29,7 @@ import org.briarproject.api.serial.ReaderFactory;
 import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.StreamReader;
 import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriter;
 import org.briarproject.api.transport.StreamWriterFactory;
 
 /** A connection thread for the peer being Bob in the invitation protocol. */
@@ -51,9 +49,9 @@ class BobConnector extends Connector {
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super(crypto, db, readerFactory, writerFactory, streamReaderFactory,
-				streamWriterFactory, authorFactory, groupFactory,
-				keyManager, connectionManager, clock, reuseConnection, group,
-				plugin, localAuthor, localProps, random);
+				streamWriterFactory, authorFactory, groupFactory, keyManager,
+				connectionManager, clock, reuseConnection, group, plugin,
+				localAuthor, localProps, random);
 	}
 
 	@Override
@@ -131,14 +129,16 @@ class BobConnector extends Connector {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
 		int maxFrameLength = conn.getReader().getMaxFrameLength();
-		StreamReader streamReader =
+		// Create the readers
+		InputStream streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
 						maxFrameLength, secret, true); // Alice's stream
-		r = readerFactory.createReader(streamReader.getInputStream());
-		StreamWriter streamWriter =
+		r = readerFactory.createReader(streamReader);
+		// Create the writers
+		OutputStream streamWriter =
 				streamWriterFactory.createInvitationStreamWriter(out,
 						maxFrameLength, secret, false); // Bob's stream
-		w = writerFactory.createWriter(streamWriter.getOutputStream());
+		w = writerFactory.createWriter(streamWriter);
 		// Derive the nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);
 		byte[] aliceNonce = nonces[0], bobNonce = nonces[1];

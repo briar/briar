@@ -6,6 +6,7 @@ import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -24,9 +25,7 @@ import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReader;
 import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriter;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.util.ByteUtils;
@@ -97,11 +96,10 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private MessagingSession createIncomingSession(StreamContext ctx,
 			TransportConnectionReader r) throws IOException {
 		try {
-			StreamReader streamReader = streamReaderFactory.createStreamReader(
+			InputStream streamReader = streamReaderFactory.createStreamReader(
 					r.getInputStream(), r.getMaxFrameLength(), ctx);
 			return messagingSessionFactory.createIncomingSession(
-					ctx.getContactId(), ctx.getTransportId(),
-					streamReader.getInputStream());
+					ctx.getContactId(), ctx.getTransportId(), streamReader);
 		} finally {
 			ByteUtils.erase(ctx.getSecret());
 		}
@@ -110,11 +108,11 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private MessagingSession createSimplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
 		try {
-			StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
+			OutputStream streamWriter = streamWriterFactory.createStreamWriter(
 					w.getOutputStream(), w.getMaxFrameLength(), ctx);
 			return messagingSessionFactory.createSimplexOutgoingSession(
 					ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
-					streamWriter.getOutputStream());
+					streamWriter);
 		} finally {
 			ByteUtils.erase(ctx.getSecret());
 		}
@@ -123,11 +121,11 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private MessagingSession createDuplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
 		try {
-			StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
+			OutputStream streamWriter = streamWriterFactory.createStreamWriter(
 					w.getOutputStream(), w.getMaxFrameLength(), ctx);
 			return messagingSessionFactory.createDuplexOutgoingSession(
 					ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
-					w.getMaxIdleTime(), streamWriter.getOutputStream());
+					w.getMaxIdleTime(), streamWriter);
 		} finally {
 			ByteUtils.erase(ctx.getSecret());
 		}

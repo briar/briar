@@ -6,22 +6,18 @@ import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.briarproject.api.transport.StreamReader;
+import org.briarproject.api.crypto.StreamDecrypter;
 
-class StreamReaderImpl extends InputStream implements StreamReader {
+class StreamReaderImpl extends InputStream {
 
-	private final FrameReader in;
-	private final byte[] frame;
+	private final StreamDecrypter decrypter;
+	private final byte[] payload;
 
 	private int offset = 0, length = 0;
 
-	StreamReaderImpl(FrameReader in, int frameLength) {
-		this.in = in;
-		frame = new byte[frameLength - MAC_LENGTH];
-	}
-
-	public InputStream getInputStream() {
-		return this;
+	StreamReaderImpl(StreamDecrypter decrypter, int frameLength) {
+		this.decrypter = decrypter;
+		payload = new byte[frameLength - HEADER_LENGTH - MAC_LENGTH];
 	}
 
 	@Override
@@ -30,7 +26,7 @@ class StreamReaderImpl extends InputStream implements StreamReader {
 			if(length == -1) return -1;
 			readFrame();
 		}
-		int b = frame[offset] & 0xff;
+		int b = payload[offset] & 0xff;
 		offset++;
 		length--;
 		return b;
@@ -48,7 +44,7 @@ class StreamReaderImpl extends InputStream implements StreamReader {
 			readFrame();
 		}
 		len = Math.min(len, length);
-		System.arraycopy(frame, offset, b, off, len);
+		System.arraycopy(payload, offset, b, off, len);
 		offset += len;
 		length -= len;
 		return len;
@@ -56,7 +52,7 @@ class StreamReaderImpl extends InputStream implements StreamReader {
 
 	private void readFrame() throws IOException {
 		assert length == 0;
-		offset = HEADER_LENGTH;
-		length = in.readFrame(frame);
+		offset = 0;
+		length = decrypter.readFrame(payload);
 	}
 }

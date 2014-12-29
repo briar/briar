@@ -1,4 +1,4 @@
-package org.briarproject.transport;
+package org.briarproject.crypto;
 
 import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;

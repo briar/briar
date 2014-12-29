@@ -1,4 +1,4 @@
-package org.briarproject.transport;
+package org.briarproject.crypto;
 
 import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
@@ -14,13 +14,12 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.crypto.CryptoModule;
 import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class IncomingEncryptionLayerTest extends BriarTestCase {
+public class StreamDecrypterImplTest extends BriarTestCase {
 
 	// FIXME: This is an integration test, not a unit test
 
@@ -32,7 +31,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	private final AuthenticatedCipher frameCipher;
 	private final SecretKey frameKey;
 
-	public IncomingEncryptionLayerTest() {
+	public StreamDecrypterImplTest() {
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new TestLifecycleModule(), new TestSystemModule());
 		crypto = i.getInstance(CryptoComponent.class);
@@ -51,11 +50,11 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		System.arraycopy(frame1, 0, valid, FRAME_LENGTH, FRAME_LENGTH);
 		// Read the frames
 		ByteArrayInputStream in = new ByteArrayInputStream(valid);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
-		byte[] buf = new byte[FRAME_LENGTH - MAC_LENGTH];
-		assertEquals(123, i.readFrame(buf));
-		assertEquals(123, i.readFrame(buf));
+		byte[] payload = new byte[MAX_PAYLOAD_LENGTH];
+		assertEquals(123, i.readFrame(payload));
+		assertEquals(123, i.readFrame(payload));
 	}
 
 	@Test
@@ -67,10 +66,10 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		System.arraycopy(frame, 0, truncated, 0, FRAME_LENGTH - 1);
 		// Try to read the frame, which should fail due to truncation
 		ByteArrayInputStream in = new ByteArrayInputStream(truncated);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
 		try {
-			i.readFrame(new byte[FRAME_LENGTH - MAC_LENGTH]);
+			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
 		} catch(FormatException expected) {}
 	}
@@ -83,10 +82,10 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		frame[(int) (Math.random() * FRAME_LENGTH)] ^= 1;
 		// Try to read the frame, which should fail due to modification
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
 		try {
-			i.readFrame(new byte[FRAME_LENGTH - MAC_LENGTH]);
+			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
 		} catch(FormatException expected) {}
 	}
@@ -97,10 +96,10 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		byte[] frame = generateFrame(0, FRAME_LENGTH - 1, 123, false, false);
 		// Try to read the frame, which should fail due to invalid length
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
 		try {
-			i.readFrame(new byte[FRAME_LENGTH - MAC_LENGTH]);
+			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
 		} catch(FormatException expected) {}
 	}
@@ -111,9 +110,9 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		byte[] frame = generateFrame(0, FRAME_LENGTH - 1, 123, true, false);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
-		int length = i.readFrame(new byte[FRAME_LENGTH - MAC_LENGTH]);
+		int length = i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 		assertEquals(123, length);
 	}
 
@@ -124,10 +123,10 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 				false, false);
 		// Try to read the frame, which should fail due to invalid length
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
 		try {
-			i.readFrame(new byte[FRAME_LENGTH - MAC_LENGTH]);
+			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
 		} catch(FormatException expected) {}
 	}
@@ -138,10 +137,10 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, true);
 		// Try to read the frame, which should fail due to bad padding
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
 		try {
-			i.readFrame(new byte[FRAME_LENGTH - MAC_LENGTH]);
+			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
 		} catch(FormatException expected) {}
 	}
@@ -158,12 +157,12 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		System.arraycopy(frame1, 0, extraFrame, FRAME_LENGTH, FRAME_LENGTH);
 		// Read the final frame, which should first read the tag
 		ByteArrayInputStream in = new ByteArrayInputStream(extraFrame);
-		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
+		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
 				frameKey, FRAME_LENGTH);
-		byte[] buf = new byte[FRAME_LENGTH - MAC_LENGTH];
-		assertEquals(MAX_PAYLOAD_LENGTH, i.readFrame(buf));
+		byte[] payload = new byte[MAX_PAYLOAD_LENGTH];
+		assertEquals(MAX_PAYLOAD_LENGTH, i.readFrame(payload));
 		// The frame after the final frame should not be read
-		assertEquals(-1, i.readFrame(buf));
+		assertEquals(-1, i.readFrame(payload));
 	}
 
 	private byte[] generateFrame(long frameNumber, int frameLength,

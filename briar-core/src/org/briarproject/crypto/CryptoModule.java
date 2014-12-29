@@ -14,6 +14,8 @@ import javax.inject.Singleton;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.api.crypto.StreamDecrypterFactory;
+import org.briarproject.api.crypto.StreamEncrypterFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
 import com.google.inject.AbstractModule;
@@ -44,6 +46,8 @@ public class CryptoModule extends AbstractModule {
 				CryptoComponentImpl.class).in(Singleton.class);
 		bind(PasswordStrengthEstimator.class).to(
 				PasswordStrengthEstimatorImpl.class);
+		bind(StreamDecrypterFactory.class).to(StreamDecrypterFactoryImpl.class);
+		bind(StreamEncrypterFactory.class).to(StreamEncrypterFactoryImpl.class);
 	}
 
 	@Provides @Singleton @CryptoExecutor

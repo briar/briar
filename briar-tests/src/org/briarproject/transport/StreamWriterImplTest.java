@@ -4,6 +4,7 @@ import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.api.crypto.StreamEncrypter;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -17,15 +18,15 @@ public class StreamWriterImplTest extends BriarTestCase {
 	@Test
 	public void testCloseWithoutWritingWritesFinalFrame() throws Exception {
 		Mockery context = new Mockery();
-		final FrameWriter writer = context.mock(FrameWriter.class);
+		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		context.checking(new Expectations() {{
 			// Write an empty final frame
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
 					with(true));
 			// Flush the stream
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
-		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
 		w.close();
 		context.assertIsSatisfied();
 	}
@@ -34,14 +35,14 @@ public class StreamWriterImplTest extends BriarTestCase {
 	public void testFlushWithoutBufferedDataWritesFrameAndFlushes()
 			throws Exception {
 		Mockery context = new Mockery();
-		final FrameWriter writer = context.mock(FrameWriter.class);
-		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
+		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write a non-final frame with an empty payload
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
 					with(false));
 			// Flush the stream
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
 		w.flush();
 		context.assertIsSatisfied();
@@ -49,9 +50,9 @@ public class StreamWriterImplTest extends BriarTestCase {
 		// Clean up
 		context.checking(new Expectations() {{
 			// Closing the writer writes a final frame and flushes again
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
 					with(true));
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
 		w.close();
 		context.assertIsSatisfied();
@@ -61,14 +62,14 @@ public class StreamWriterImplTest extends BriarTestCase {
 	public void testFlushWithBufferedDataWritesFrameAndFlushes()
 			throws Exception {
 		Mockery context = new Mockery();
-		final FrameWriter writer = context.mock(FrameWriter.class);
-		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
+		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write a non-final frame with one payload byte
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(1),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(1),
 					with(false));
 			// Flush the stream
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
 		w.write(0);
 		w.flush();
@@ -77,9 +78,9 @@ public class StreamWriterImplTest extends BriarTestCase {
 		// Clean up
 		context.checking(new Expectations() {{
 			// Closing the writer writes a final frame and flushes again
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
 					with(true));
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
 		w.close();
 		context.assertIsSatisfied();
@@ -88,11 +89,11 @@ public class StreamWriterImplTest extends BriarTestCase {
 	@Test
 	public void testSingleByteWritesWriteFullFrame() throws Exception {
 		Mockery context = new Mockery();
-		final FrameWriter writer = context.mock(FrameWriter.class);
-		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
+		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write a full non-final frame
-			oneOf(writer).writeFrame(with(any(byte[].class)),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)),
 					with(MAX_PAYLOAD_LENGTH), with(false));
 		}});
 		for(int i = 0; i < MAX_PAYLOAD_LENGTH; i++) {
@@ -103,9 +104,9 @@ public class StreamWriterImplTest extends BriarTestCase {
 		// Clean up
 		context.checking(new Expectations() {{
 			// Closing the writer writes a final frame and flushes again
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
 					with(true));
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
 		w.close();
 		context.assertIsSatisfied();
@@ -114,11 +115,11 @@ public class StreamWriterImplTest extends BriarTestCase {
 	@Test
 	public void testMultiByteWritesWriteFullFrames() throws Exception {
 		Mockery context = new Mockery();
-		final FrameWriter writer = context.mock(FrameWriter.class);
-		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
+		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames
-			exactly(2).of(writer).writeFrame(with(any(byte[].class)),
+			exactly(2).of(encrypter).writeFrame(with(any(byte[].class)),
 					with(MAX_PAYLOAD_LENGTH), with(false));
 		}});
 		// Sanity check
@@ -134,9 +135,9 @@ public class StreamWriterImplTest extends BriarTestCase {
 		// Clean up
 		context.checking(new Expectations() {{
 			// Closing the writer writes a final frame and flushes again
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(0),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
 					with(true));
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
 		w.close();
 		context.assertIsSatisfied();
@@ -145,17 +146,17 @@ public class StreamWriterImplTest extends BriarTestCase {
 	@Test
 	public void testLargeMultiByteWriteWritesFullFrames() throws Exception {
 		Mockery context = new Mockery();
-		final FrameWriter writer = context.mock(FrameWriter.class);
-		StreamWriterImpl w = new StreamWriterImpl(writer, FRAME_LENGTH);
+		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames
-			exactly(2).of(writer).writeFrame(with(any(byte[].class)),
+			exactly(2).of(encrypter).writeFrame(with(any(byte[].class)),
 					with(MAX_PAYLOAD_LENGTH), with(false));
 			// Write a final frame with a one-byte payload
-			oneOf(writer).writeFrame(with(any(byte[].class)), with(1),
+			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(1),
 					with(true));
 			// Flush the stream
-			oneOf(writer).flush();
+			oneOf(encrypter).flush();
 		}});
 		// Write two full payloads using one large multi-byte write
 		byte[] b = new byte[MAX_PAYLOAD_LENGTH * 2 + 1];

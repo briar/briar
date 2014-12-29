@@ -1,4 +1,4 @@
-package org.briarproject.transport;
+package org.briarproject.crypto;
 
 import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
@@ -12,19 +12,20 @@ import java.security.GeneralSecurityException;
 
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.crypto.StreamEncrypter;
 
-class OutgoingEncryptionLayer implements FrameWriter {
+class StreamEncrypterImpl implements StreamEncrypter {
 
 	private final OutputStream out;
 	private final AuthenticatedCipher frameCipher;
 	private final SecretKey frameKey;
-	private final byte[] tag, iv, aad, ciphertext;
+	private final byte[] tag, iv, aad, plaintext, ciphertext;
 	private final int frameLength;
 
 	private long frameNumber;
 	private boolean writeTag;
 
-	OutgoingEncryptionLayer(OutputStream out, AuthenticatedCipher frameCipher,
+	StreamEncrypterImpl(OutputStream out, AuthenticatedCipher frameCipher,
 			SecretKey frameKey, int frameLength, byte[] tag) {
 		this.out = out;
 		this.frameCipher = frameCipher;
@@ -33,13 +34,14 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		this.tag = tag;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
+		plaintext = new byte[frameLength - MAC_LENGTH];
 		ciphertext = new byte[frameLength];
 		frameNumber = 0;
 		writeTag = (tag != null);
 	}
 
-	public void writeFrame(byte[] frame, int payloadLength, boolean finalFrame)
-			throws IOException {
+	public void writeFrame(byte[] payload, int payloadLength,
+			boolean finalFrame) throws IOException {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		// Write the tag if required
 		if(writeTag) {
@@ -51,8 +53,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			}
 			writeTag = false;
 		}
-		// Encode the header
-		FrameEncoder.encodeHeader(frame, finalFrame, payloadLength);
 		// Don't pad the final frame
 		int plaintextLength, ciphertextLength;
 		if(finalFrame) {
@@ -62,16 +62,19 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			plaintextLength = frameLength - MAC_LENGTH;
 			ciphertextLength = frameLength;
 		}
+		// Encode the header
+		FrameEncoder.encodeHeader(plaintext, finalFrame, payloadLength);
+		// Copy the payload
+		System.arraycopy(payload, 0, plaintext, HEADER_LENGTH, payloadLength);
 		// If there's any padding it must all be zeroes
-		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++) {
-			frame[i] = 0;
-		}
+		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++)
+			plaintext[i] = 0;
 		// Encrypt and authenticate the frame
 		FrameEncoder.encodeIv(iv, frameNumber);
 		FrameEncoder.encodeAad(aad, frameNumber, plaintextLength);
 		try {
 			frameCipher.init(true, frameKey, iv, aad);
-			int encrypted = frameCipher.doFinal(frame, 0, plaintextLength,
+			int encrypted = frameCipher.doFinal(plaintext, 0, plaintextLength,
 					ciphertext, 0);
 			if(encrypted != ciphertextLength) throw new RuntimeException();
 		} catch(GeneralSecurityException badCipher) {

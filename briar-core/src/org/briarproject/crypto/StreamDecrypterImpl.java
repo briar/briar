@@ -1,4 +1,4 @@
-package org.briarproject.transport;
+package org.briarproject.crypto;
 
 import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
@@ -13,19 +13,20 @@ import java.security.GeneralSecurityException;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.crypto.StreamDecrypter;
 
-class IncomingEncryptionLayer implements FrameReader {
+class StreamDecrypterImpl implements StreamDecrypter {
 
 	private final InputStream in;
 	private final AuthenticatedCipher frameCipher;
 	private final SecretKey frameKey;
-	private final byte[] iv, aad, ciphertext;
+	private final byte[] iv, aad, plaintext, ciphertext;
 	private final int frameLength;
 
 	private long frameNumber;
 	private boolean finalFrame;
 
-	IncomingEncryptionLayer(InputStream in, AuthenticatedCipher frameCipher,
+	StreamDecrypterImpl(InputStream in, AuthenticatedCipher frameCipher,
 			SecretKey frameKey, int frameLength) {
 		this.in = in;
 		this.frameCipher = frameCipher;
@@ -33,12 +34,13 @@ class IncomingEncryptionLayer implements FrameReader {
 		this.frameLength = frameLength;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
+		plaintext = new byte[frameLength - MAC_LENGTH];
 		ciphertext = new byte[frameLength];
 		frameNumber = 0;
 		finalFrame = false;
 	}
 
-	public int readFrame(byte[] frame) throws IOException {
+	public int readFrame(byte[] payload) throws IOException {
 		if(finalFrame) return -1;
 		// Read the frame
 		int ciphertextLength = 0;
@@ -61,23 +63,25 @@ class IncomingEncryptionLayer implements FrameReader {
 		try {
 			frameCipher.init(false, frameKey, iv, aad);
 			int decrypted = frameCipher.doFinal(ciphertext, 0, ciphertextLength,
-					frame, 0);
+					plaintext, 0);
 			if(decrypted != plaintextLength) throw new RuntimeException();
 		} catch(GeneralSecurityException e) {
 			throw new FormatException();
 		}
 		// Decode and validate the header
-		finalFrame = FrameEncoder.isFinalFrame(frame);
+		finalFrame = FrameEncoder.isFinalFrame(plaintext);
 		if(!finalFrame && ciphertextLength < frameLength)
 			throw new FormatException();
-		int payloadLength = FrameEncoder.getPayloadLength(frame);
+		int payloadLength = FrameEncoder.getPayloadLength(plaintext);
 		if(payloadLength > plaintextLength - HEADER_LENGTH)
 			throw new FormatException();
 		// If there's any padding it must be all zeroes
 		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++) {
-			if(frame[i] != 0) throw new FormatException();
+			if(plaintext[i] != 0) throw new FormatException();
 		}
 		frameNumber++;
+		// Copy the payload
+		System.arraycopy(plaintext, HEADER_LENGTH, payload, 0, payloadLength);
 		return payloadLength;
 	}
 }

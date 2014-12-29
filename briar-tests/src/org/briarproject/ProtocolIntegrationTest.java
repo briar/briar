@@ -7,6 +7,7 @@ import static org.junit.Assert.assertArrayEquals;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,9 +37,7 @@ import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReader;
 import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriter;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
@@ -119,10 +118,10 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret.clone(), 0, true);
-		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
+		OutputStream streamWriter = streamWriterFactory.createStreamWriter(out,
 				MAX_FRAME_LENGTH, ctx);
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
-				streamWriter.getOutputStream());
+				streamWriter);
 
 		packetWriter.writeAck(new Ack(messageIds));
 
@@ -140,7 +139,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				transportProperties, 1);
 		packetWriter.writeTransportUpdate(tu);
 
-		streamWriter.getOutputStream().flush();
+		streamWriter.flush();
 		return out.toByteArray();
 	}
 
@@ -151,10 +150,10 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// FIXME: Check that the expected tag was received
 		StreamContext ctx = new StreamContext(contactId, transportId,
 				secret.clone(), 0, false);
-		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
+		InputStream streamReader = streamReaderFactory.createStreamReader(in,
 				MAX_FRAME_LENGTH, ctx);
 		PacketReader packetReader = packetReaderFactory.createPacketReader(
-				streamReader.getInputStream());
+				streamReader);
 
 		// Read the ack
 		assertTrue(packetReader.hasAck());
