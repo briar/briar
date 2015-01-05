@@ -1,8 +1,6 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.StreamDecrypter;
@@ -11,9 +9,6 @@ import org.jmock.Mockery;
 import org.junit.Test;
 
 public class StreamReaderImplTest extends BriarTestCase {
-
-	private static final int MAX_PAYLOAD_LENGTH =
-			MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
 
 	@Test
 	public void testEmptyFramesAreSkipped() throws Exception {

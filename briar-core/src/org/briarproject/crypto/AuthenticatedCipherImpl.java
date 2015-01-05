@@ -20,7 +20,7 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 		this.macLength = macLength;
 	}
 
-	public int doFinal(byte[] input, int inputOff, int len, byte[] output,
+	public int process(byte[] input, int inputOff, int len, byte[] output,
 			int outputOff) throws GeneralSecurityException {
 		int processed = 0;
 		if(len != 0) {

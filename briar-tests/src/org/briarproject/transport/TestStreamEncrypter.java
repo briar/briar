@@ -24,7 +24,7 @@ class TestStreamEncrypter implements StreamEncrypter {
 	}
 
 	public void writeFrame(byte[] payload, int payloadLength,
-			boolean finalFrame) throws IOException {
+			int paddingLength, boolean finalFrame) throws IOException {
 		if(writeTag) {
 			out.write(tag);
 			writeTag = false;

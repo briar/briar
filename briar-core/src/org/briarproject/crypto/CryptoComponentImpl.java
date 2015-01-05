@@ -335,7 +335,7 @@ class CryptoComponentImpl implements CryptoComponent {
 					MAC_BYTES);
 			cipher.init(true, key, iv, null);
 			int outputOff = salt.length + 4 + iv.length;
-			cipher.doFinal(input, 0, input.length, output, outputOff);
+			cipher.process(input, 0, input.length, output, outputOff);
 			return output;
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -369,7 +369,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			int inputOff = salt.length + 4 + iv.length;
 			int inputLen = input.length - inputOff;
 			byte[] output = new byte[inputLen - MAC_BYTES];
-			cipher.doFinal(input, inputOff, inputLen, output, 0);
+			cipher.process(input, inputOff, inputLen, output, 0);
 			return output;
 		} catch(GeneralSecurityException e) {
 			return null; // Invalid ciphertext

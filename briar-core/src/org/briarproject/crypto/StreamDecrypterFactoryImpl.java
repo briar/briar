@@ -21,10 +21,10 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 
 	public StreamDecrypter createStreamDecrypter(InputStream in,
 			StreamContext ctx) {
+		// Derive the frame key
 		byte[] secret = ctx.getSecret();
 		long streamNumber = ctx.getStreamNumber();
 		boolean alice = !ctx.getAlice();
-		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
 		// Create the decrypter
 		return new StreamDecrypterImpl(in, crypto.getFrameCipher(), frameKey);

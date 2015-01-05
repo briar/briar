@@ -1,5 +1,6 @@
 package org.briarproject.api.transport;
 
+
 public interface TransportConstants {
 
 	/** The length of the pseudo-random tag in bytes. */
@@ -8,17 +9,17 @@ public interface TransportConstants {
 	/** The maximum length of a frame in bytes, including the header and MAC. */
 	int MAX_FRAME_LENGTH = 1024;
 
-	/** The length of the initalisation vector (IV) in bytes. */
-	int IV_LENGTH = 12;
-
-	/** The length of the additional authenticated data (AAD) in bytes. */
-	int AAD_LENGTH = 6;
-
-	/** The length of the frame header in bytes. */
-	int HEADER_LENGTH = 2;
-
 	/** The length of the message authentication code (MAC) in bytes. */
 	int MAC_LENGTH = 16;
+
+	/** The length of the frame header in bytes. */
+	int HEADER_LENGTH = 4 + MAC_LENGTH;
+
+	/** The maximum total length of the frame payload and padding in bytes. */
+	int MAX_PAYLOAD_LENGTH = MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
+
+	/** The length of the initalisation vector (IV) in bytes. */
+	int IV_LENGTH = 12;
 
 	/**
 	 * The minimum stream length in bytes that all transport plugins must

@@ -13,10 +13,10 @@ public interface AuthenticatedCipher {
 			throws GeneralSecurityException;
 
 	/** Encrypts or decrypts data in a single-part operation. */
-	int doFinal(byte[] input, int inputOff, int len, byte[] output,
+	int process(byte[] input, int inputOff, int len, byte[] output,
 			int outputOff) throws GeneralSecurityException;
 
-	/** Returns the length of the message authenticated code (MAC) in bytes. */
+	/** Returns the length of the message authentication code (MAC) in bytes. */
 	int getMacLength();
 
 	/** Returns the block size of the cipher in bytes. */
