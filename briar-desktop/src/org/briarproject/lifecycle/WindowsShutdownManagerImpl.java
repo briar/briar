@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import org.briarproject.util.OsUtils;
@@ -37,7 +39,10 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	private final Map<String, Object> options;
 
-	private boolean initialised = false; // Locking: this
+	private boolean initialised = false;
+	
+	private final Lock synchLock = new ReentrantLock();
+
 
 	WindowsShutdownManagerImpl() {
 		// Use the Unicode versions of Win32 API calls
@@ -48,9 +53,15 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	}
 
 	@Override
-	public synchronized int addShutdownHook(Runnable r) {
-		if(!initialised) initialise();
-		return super.addShutdownHook(r);
+	public int addShutdownHook(Runnable r) {
+		synchLock.lock();
+		try {
+			if(!initialised) initialise();
+			return super.addShutdownHook(r);
+		} 
+		finally{
+			synchLock.unlock();
+		}
 	}
 
 	@Override
@@ -58,7 +69,6 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		return new StartOnce(r);
 	}
 
-	// Locking: this
 	private void initialise() {
 		if(OsUtils.isWindows()) {
 			new EventLoop().start();
@@ -69,20 +79,26 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	}
 
 	// Package access for testing
-	synchronized void runShutdownHooks() {
-		boolean interrupted = false;
-		// Start each hook in its own thread
-		for(Thread hook : hooks.values()) hook.start();
-		// Wait for all the hooks to finish
-		for(Thread hook : hooks.values()) {
-			try {
-				hook.join();
-			} catch(InterruptedException e) {
-				LOG.warning("Interrupted while running shutdown hooks");
-				interrupted = true;
+	void runShutdownHooks() {
+		synchLock.lock();
+		try {
+			boolean interrupted = false;
+			// Start each hook in its own thread
+			for(Thread hook : hooks.values()) hook.start();
+			// Wait for all the hooks to finish
+			for(Thread hook : hooks.values()) {
+				try {
+					hook.join();
+				} catch(InterruptedException e) {
+					LOG.warning("Interrupted while running shutdown hooks");
+					interrupted = true;
+				}
 			}
+			if(interrupted) Thread.currentThread().interrupt();
+		} 
+		finally{
+			synchLock.unlock();
 		}
-		if(interrupted) Thread.currentThread().interrupt();
 	}
 
 	private class EventLoop extends Thread {

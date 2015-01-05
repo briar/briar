@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.briarproject.api.reliability.WriteHandler;
 import org.briarproject.api.system.Clock;
@@ -21,15 +25,17 @@ class Sender {
 
 	private final Clock clock;
 	private final WriteHandler writeHandler;
-	private final LinkedList<Outstanding> outstanding; // Locking: this
+	private final LinkedList<Outstanding> outstanding;
 
-	// All of the following are locking: this
 	private int outstandingBytes = 0;
 	private int windowSize = Data.MAX_PAYLOAD_LENGTH;
 	private int rtt = INITIAL_RTT, rttVar = INITIAL_RTT_VAR;
 	private int rto = rtt + (rttVar << 2);
 	private long lastWindowUpdateOrProbe = Long.MAX_VALUE;
 	private boolean dataWaiting = false;
+
+	private Lock synchLock = new ReentrantLock();
+	private Condition sendWindowAvailable = synchLock.newCondition();
 
 	Sender(Clock clock, WriteHandler writeHandler) {
 		this.clock = clock;
@@ -58,7 +64,8 @@ class Sender {
 		long sequenceNumber = a.getSequenceNumber();
 		long now = clock.currentTimeMillis();
 		Outstanding fastRetransmit = null;
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			// Remove the acked data frame if it's outstanding
 			int foundIndex = -1;
 			Iterator<Outstanding> it = outstanding.iterator();
@@ -96,6 +103,9 @@ class Sender {
 			// If space has become available, notify any waiting writers
 			if(windowSize > oldWindowSize || foundIndex != -1) notifyAll();
 		}
+		finally{
+			synchLock.unlock();
+		}
 		// Fast retransmission
 		if(fastRetransmit != null)
 			writeHandler.handleWrite(fastRetransmit.data.getBuffer());
@@ -105,7 +115,8 @@ class Sender {
 		long now = clock.currentTimeMillis();
 		List<Outstanding> retransmit = null;
 		boolean sendProbe = false;
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			if(outstanding.isEmpty()) {
 				if(dataWaiting && now - lastWindowUpdateOrProbe > rto) {
 					sendProbe = true;
@@ -135,6 +146,9 @@ class Sender {
 				}
 			}
 		}
+		finally{
+			synchLock.unlock();
+		}
 		// Send a window probe if necessary
 		if(sendProbe) {
 			byte[] buf = new byte[Data.MIN_LENGTH];
@@ -151,12 +165,13 @@ class Sender {
 
 	void write(Data d) throws IOException, InterruptedException {
 		int payloadLength = d.getPayloadLength();
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			// Wait for space in the window
 			long now = clock.currentTimeMillis(), end = now + WRITE_TIMEOUT;
 			while(now < end && outstandingBytes + payloadLength >= windowSize) {
 				dataWaiting = true;
-				wait(end - now);
+				sendWindowAvailable.await(end - now, TimeUnit.MILLISECONDS);
 				now = clock.currentTimeMillis();
 			}
 			if(outstandingBytes + payloadLength >= windowSize)
@@ -165,11 +180,20 @@ class Sender {
 			outstandingBytes += payloadLength;
 			dataWaiting = false;
 		}
+		finally{
+			synchLock.unlock();
+		}
 		writeHandler.handleWrite(d.getBuffer());
 	}
 
-	synchronized void flush() throws IOException, InterruptedException {
-		while(dataWaiting || !outstanding.isEmpty()) wait();
+	void flush() throws IOException, InterruptedException {
+		synchLock.lock();
+		try{
+			while(dataWaiting || !outstanding.isEmpty()) sendWindowAvailable.await();
+		}
+		finally{
+			synchLock.unlock();
+		}
 	}
 
 	private static class Outstanding {

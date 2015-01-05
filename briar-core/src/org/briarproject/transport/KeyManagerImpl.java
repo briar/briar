@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -50,11 +52,12 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	private final Clock clock;
 	private final Timer timer;
 
-	// All of the following are locking: this
 	private final Map<TransportId, Long> maxLatencies;
 	private final Map<EndpointKey, TemporarySecret> oldSecrets;
 	private final Map<EndpointKey, TemporarySecret> currentSecrets;
 	private final Map<EndpointKey, TemporarySecret> newSecrets;
+
+	private final Lock synchLock = new ReentrantLock();
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
@@ -72,45 +75,50 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		newSecrets = new HashMap<EndpointKey, TemporarySecret>();
 	}
 
-	public synchronized boolean start() {
-		eventBus.addListener(this);
-		// Load the temporary secrets and transport latencies from the database
-		Collection<TemporarySecret> secrets;
+	public boolean start() {
+		synchLock.lock();
 		try {
-			secrets = db.getSecrets();
-			maxLatencies.putAll(db.getTransportLatencies());
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return false;
-		}
-		// Work out what phase of its lifecycle each secret is in
-		long now = clock.currentTimeMillis();
-		Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
-		// Replace any dead secrets
-		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
-		if(!created.isEmpty()) {
-			// Store any secrets that have been created, removing any dead ones
+			eventBus.addListener(this);
+			// Load the temporary secrets and transport latencies from the database
+			Collection<TemporarySecret> secrets;
 			try {
-				db.addSecrets(created);
+				secrets = db.getSecrets();
+				maxLatencies.putAll(db.getTransportLatencies());
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return false;
 			}
+			// Work out what phase of its lifecycle each secret is in
+			long now = clock.currentTimeMillis();
+			Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
+			// Replace any dead secrets
+			Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
+			if(!created.isEmpty()) {
+				// Store any secrets that have been created, removing any dead ones
+				try {
+					db.addSecrets(created);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+					return false;
+				}
+			}
+			// Pass the old, current and new secrets to the recogniser
+			for(TemporarySecret s : oldSecrets.values())
+				tagRecogniser.addSecret(s);
+			for(TemporarySecret s : currentSecrets.values())
+				tagRecogniser.addSecret(s);
+			for(TemporarySecret s : newSecrets.values())
+				tagRecogniser.addSecret(s);
+			// Schedule periodic key rotation
+			timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
+			return true;
 		}
-		// Pass the old, current and new secrets to the recogniser
-		for(TemporarySecret s : oldSecrets.values())
-			tagRecogniser.addSecret(s);
-		for(TemporarySecret s : currentSecrets.values())
-			tagRecogniser.addSecret(s);
-		for(TemporarySecret s : newSecrets.values())
-			tagRecogniser.addSecret(s);
-		// Schedule periodic key rotation
-		timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
-		return true;
+		finally{
+			synchLock.unlock();
+		}
 	}
 
 	// Assigns secrets to the appropriate maps and returns any dead secrets
-	// Locking: this
 	private Collection<TemporarySecret> assignSecretsToMaps(long now,
 			Collection<TemporarySecret> secrets) {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
@@ -144,7 +152,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	// Replaces and erases the given secrets and returns any secrets created
-	// Locking: this
 	private Collection<TemporarySecret> replaceDeadSecrets(long now,
 			Collection<TemporarySecret> dead) {
 		// If there are several dead secrets for an endpoint, use the newest
@@ -215,115 +222,138 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		return created;
 	}
 
-	public synchronized boolean stop() {
-		eventBus.removeListener(this);
-		timer.cancel();
-		tagRecogniser.removeSecrets();
-		maxLatencies.clear();
-		removeAndEraseSecrets(oldSecrets);
-		removeAndEraseSecrets(currentSecrets);
-		removeAndEraseSecrets(newSecrets);
-		return true;
+	public boolean stop() {
+		synchLock.lock();
+		try{
+			eventBus.removeListener(this);
+			timer.cancel();
+			tagRecogniser.removeSecrets();
+			maxLatencies.clear();
+			removeAndEraseSecrets(oldSecrets);
+			removeAndEraseSecrets(currentSecrets);
+			removeAndEraseSecrets(newSecrets);
+			return true;
+		}
+		finally{
+			synchLock.unlock();
+		}
 	}
 
-	// Locking: this
 	private void removeAndEraseSecrets(Map<?, TemporarySecret> m) {
 		for(TemporarySecret s : m.values()) ByteUtils.erase(s.getSecret());
 		m.clear();
 	}
 
-	public synchronized StreamContext getStreamContext(ContactId c,
+	public StreamContext getStreamContext(ContactId c,
 			TransportId t) {
-		TemporarySecret s = currentSecrets.get(new EndpointKey(c, t));
-		if(s == null) {
-			LOG.info("No secret for endpoint");
-			return null;
-		}
-		long streamNumber;
-		try {
-			streamNumber = db.incrementStreamCounter(c, t, s.getPeriod());
-			if(streamNumber == -1) {
-				LOG.info("No counter for period");
+		synchLock.lock();
+		try{
+			TemporarySecret s = currentSecrets.get(new EndpointKey(c, t));
+			if(s == null) {
+				LOG.info("No secret for endpoint");
 				return null;
 			}
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
+			long streamNumber;
+			try {
+				streamNumber = db.incrementStreamCounter(c, t, s.getPeriod());
+				if(streamNumber == -1) {
+					LOG.info("No counter for period");
+					return null;
+				}
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				return null;
+			}
+			// Clone the secret - the original will be erased
+			byte[] secret = s.getSecret().clone();
+			return new StreamContext(c, t, secret, streamNumber, s.getAlice());
 		}
-		// Clone the secret - the original will be erased
-		byte[] secret = s.getSecret().clone();
-		return new StreamContext(c, t, secret, streamNumber, s.getAlice());
+		finally{
+			synchLock.unlock();
+		}
 	}
 
-	public synchronized void endpointAdded(Endpoint ep, long maxLatency,
+	public void endpointAdded(Endpoint ep, long maxLatency,
 			byte[] initialSecret) {
-		maxLatencies.put(ep.getTransportId(), maxLatency);
-		// Work out which rotation period we're in
-		long elapsed = clock.currentTimeMillis() - ep.getEpoch();
-		long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
-		long period = (elapsed / rotation) + 1;
-		if(period < 1) throw new IllegalStateException();
-		// Derive the old, current and new secrets
-		byte[] b1 = initialSecret;
-		for(long p = 0; p < period; p++) {
-			byte[] temp = crypto.deriveNextSecret(b1, p);
-			ByteUtils.erase(b1);
-			b1 = temp;
+		synchLock.lock();
+		try{
+			maxLatencies.put(ep.getTransportId(), maxLatency);
+			// Work out which rotation period we're in
+			long elapsed = clock.currentTimeMillis() - ep.getEpoch();
+			long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
+			long period = (elapsed / rotation) + 1;
+			if(period < 1) throw new IllegalStateException();
+			// Derive the old, current and new secrets
+			byte[] b1 = initialSecret;
+			for(long p = 0; p < period; p++) {
+				byte[] temp = crypto.deriveNextSecret(b1, p);
+				ByteUtils.erase(b1);
+				b1 = temp;
+			}
+			byte[] b2 = crypto.deriveNextSecret(b1, period);
+			byte[] b3 = crypto.deriveNextSecret(b2, period + 1);
+			TemporarySecret s1 = new TemporarySecret(ep, period - 1, b1);
+			TemporarySecret s2 = new TemporarySecret(ep, period, b2);
+			TemporarySecret s3 = new TemporarySecret(ep, period + 1, b3);
+			// Add the incoming secrets to their respective maps
+			EndpointKey k = new EndpointKey(ep);
+			oldSecrets.put(k, s1);
+			currentSecrets.put(k, s2);
+			newSecrets.put(k, s3);
+			// Store the new secrets
+			try {
+				db.addSecrets(Arrays.asList(s1, s2, s3));
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				return;
+			}
+			// Pass the new secrets to the recogniser
+			tagRecogniser.addSecret(s1);
+			tagRecogniser.addSecret(s2);
+			tagRecogniser.addSecret(s3);
 		}
-		byte[] b2 = crypto.deriveNextSecret(b1, period);
-		byte[] b3 = crypto.deriveNextSecret(b2, period + 1);
-		TemporarySecret s1 = new TemporarySecret(ep, period - 1, b1);
-		TemporarySecret s2 = new TemporarySecret(ep, period, b2);
-		TemporarySecret s3 = new TemporarySecret(ep, period + 1, b3);
-		// Add the incoming secrets to their respective maps
-		EndpointKey k = new EndpointKey(ep);
-		oldSecrets.put(k, s1);
-		currentSecrets.put(k, s2);
-		newSecrets.put(k, s3);
-		// Store the new secrets
-		try {
-			db.addSecrets(Arrays.asList(s1, s2, s3));
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return;
+		finally{
+			synchLock.unlock();
 		}
-		// Pass the new secrets to the recogniser
-		tagRecogniser.addSecret(s1);
-		tagRecogniser.addSecret(s2);
-		tagRecogniser.addSecret(s3);
 	}
 
 	@Override
-	public synchronized void run() {
+	public void run() {
+		synchLock.lock();
+		try{
 		// Rebuild the maps because we may be running a whole period late
-		Collection<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
-		secrets.addAll(oldSecrets.values());
-		secrets.addAll(currentSecrets.values());
-		secrets.addAll(newSecrets.values());
-		oldSecrets.clear();
-		currentSecrets.clear();
-		newSecrets.clear();
-		// Work out what phase of its lifecycle each secret is in
-		long now = clock.currentTimeMillis();
-		Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
-		// Remove any dead secrets from the recogniser
-		for(TemporarySecret s : dead) {
-			ContactId c = s.getContactId();
-			TransportId t = s.getTransportId();
-			long period = s.getPeriod();
-			tagRecogniser.removeSecret(c, t, period);
-		}
-		// Replace any dead secrets
-		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
-		if(!created.isEmpty()) {
-			// Store any secrets that have been created
-			try {
-				db.addSecrets(created);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			Collection<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
+			secrets.addAll(oldSecrets.values());
+			secrets.addAll(currentSecrets.values());
+			secrets.addAll(newSecrets.values());
+			oldSecrets.clear();
+			currentSecrets.clear();
+			newSecrets.clear();
+			// Work out what phase of its lifecycle each secret is in
+			long now = clock.currentTimeMillis();
+			Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
+			// Remove any dead secrets from the recogniser
+			for(TemporarySecret s : dead) {
+				ContactId c = s.getContactId();
+				TransportId t = s.getTransportId();
+				long period = s.getPeriod();
+				tagRecogniser.removeSecret(c, t, period);
 			}
-			// Pass any secrets that have been created to the recogniser
-			for(TemporarySecret s : created) tagRecogniser.addSecret(s);
+			// Replace any dead secrets
+			Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
+			if(!created.isEmpty()) {
+				// Store any secrets that have been created
+				try {
+					db.addSecrets(created);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				}
+				// Pass any secrets that have been created to the recogniser
+				for(TemporarySecret s : created) tagRecogniser.addSecret(s);
+			}
+		}
+		finally{
+			synchLock.unlock();
 		}
 	}
 
@@ -340,7 +370,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void removeAndEraseSecrets(ContactId c, Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();
 		while(it.hasNext()) {
@@ -352,7 +381,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 	}
 
-	// Locking: this
 	private void removeAndEraseSecrets(TransportId t,
 			Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();
@@ -407,10 +435,14 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		public void run() {
 			ContactId c = event.getContactId();
 			tagRecogniser.removeSecrets(c);
-			synchronized(KeyManagerImpl.this) {
+			synchLock.lock();
+			try {
 				removeAndEraseSecrets(c, oldSecrets);
 				removeAndEraseSecrets(c, currentSecrets);
 				removeAndEraseSecrets(c, newSecrets);
+			}
+			finally{
+				synchLock.unlock();
 			}
 		}
 	}
@@ -425,8 +457,12 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 
 		@Override
 		public void run() {
-			synchronized(KeyManagerImpl.this) {
+			synchLock.lock();
+			try {
 				maxLatencies.put(event.getTransportId(), event.getMaxLatency());
+			}
+			finally{
+				synchLock.unlock();
 			}
 		}
 	}
@@ -443,11 +479,15 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		public void run() {
 			TransportId t = event.getTransportId();
 			tagRecogniser.removeSecrets(t);
-			synchronized(KeyManagerImpl.this) {
+			synchLock.lock();
+			try {
 				maxLatencies.remove(t);
 				removeAndEraseSecrets(t, oldSecrets);
 				removeAndEraseSecrets(t, currentSecrets);
 				removeAndEraseSecrets(t, newSecrets);
+			}
+			finally{
+				synchLock.unlock();
 			}
 		}
 	}
