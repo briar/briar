@@ -39,10 +39,6 @@ class DroidtoothTransportConnection implements DuplexTransportConnection {
 
 	private class Reader implements TransportConnectionReader {
 
-		public int getMaxFrameLength() {
-			return plugin.getMaxFrameLength();
-		}
-
 		public long getMaxLatency() {
 			return plugin.getMaxLatency();
 		}
@@ -59,10 +55,6 @@ class DroidtoothTransportConnection implements DuplexTransportConnection {
 	}
 
 	private class Writer implements TransportConnectionWriter {
-
-		public int getMaxFrameLength() {
-			return plugin.getMaxFrameLength();
-		}
 
 		public int getMaxLatency() {
 			return plugin.getMaxLatency();

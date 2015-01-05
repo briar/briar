@@ -17,7 +17,6 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private static final Logger LOG =
 			Logger.getLogger(TorPluginFactory.class.getName());
 
-	private static final int MAX_FRAME_LENGTH = 1024;
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
 	private static final int POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
@@ -44,6 +43,6 @@ public class TorPluginFactory implements DuplexPluginFactory {
 			return null;
 		}
 		return new TorPlugin(ioExecutor,appContext, locationUtils, callback,
-				MAX_FRAME_LENGTH, MAX_LATENCY, MAX_IDLE_TIME, POLLING_INTERVAL);
+				MAX_LATENCY, MAX_IDLE_TIME, POLLING_INTERVAL);
 	}
 }

@@ -1,5 +1,6 @@
 package org.briarproject.transport;
 
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -16,8 +17,6 @@ import org.briarproject.api.crypto.StreamEncrypter;
 import org.junit.Test;
 
 public class TransportIntegrationTest extends BriarTestCase {
-
-	private final int FRAME_LENGTH = 2048;
 
 	private final Random random;
 
@@ -40,31 +39,28 @@ public class TransportIntegrationTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		random.nextBytes(tag);
 		// Generate two frames with random payloads
-		byte[] payload1 = new byte[1234];
+		byte[] payload1 = new byte[123];
 		random.nextBytes(payload1);
 		byte[] payload2 = new byte[321];
 		random.nextBytes(payload2);
 		// Write the tag and the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypter encrypter = new TestStreamEncrypter(out, FRAME_LENGTH,
-				tag);
-		OutputStream streamWriter = new StreamWriterImpl(encrypter,
-				FRAME_LENGTH);
+		StreamEncrypter encrypter = new TestStreamEncrypter(out, tag);
+		OutputStream streamWriter = new StreamWriterImpl(encrypter);
 		streamWriter.write(payload1);
 		streamWriter.flush();
 		streamWriter.write(payload2);
 		streamWriter.flush();
 		byte[] output = out.toByteArray();
-		assertEquals(TAG_LENGTH + FRAME_LENGTH * 2, output.length);
+		assertEquals(TAG_LENGTH + MAX_FRAME_LENGTH * 2, output.length);
 		// Read the tag back
 		ByteArrayInputStream in = new ByteArrayInputStream(output);
 		byte[] recoveredTag = new byte[tag.length];
 		read(in, recoveredTag);
 		assertArrayEquals(tag, recoveredTag);
 		// Read the frames back
-		StreamDecrypter decrypter = new TestStreamDecrypter(in, FRAME_LENGTH);
-		InputStream streamReader = new StreamReaderImpl(decrypter,
-				FRAME_LENGTH);
+		StreamDecrypter decrypter = new TestStreamDecrypter(in);
+		InputStream streamReader = new StreamReaderImpl(decrypter);
 		byte[] recoveredPayload1 = new byte[payload1.length];
 		read(streamReader, recoveredPayload1);
 		assertArrayEquals(payload1, recoveredPayload1);

@@ -37,8 +37,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected final Executor ioExecutor;
 	protected final DuplexPluginCallback callback;
-	protected final int maxFrameLength, maxLatency, maxIdleTime;
-	protected final int pollingInterval, socketTimeout;
+	protected final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
 
 	protected volatile boolean running = false;
 	protected volatile ServerSocket socket = null;
@@ -53,21 +52,15 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
 	protected TcpPlugin(Executor ioExecutor, DuplexPluginCallback callback,
-			int maxFrameLength, int maxLatency, int maxIdleTime,
-			int pollingInterval) {
+			int maxLatency, int maxIdleTime, int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
 		if(maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
-	}
-
-	public int getMaxFrameLength() {
-		return maxFrameLength;
 	}
 
 	public int getMaxLatency() {

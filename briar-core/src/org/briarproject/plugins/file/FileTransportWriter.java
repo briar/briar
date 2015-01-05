@@ -27,10 +27,6 @@ class FileTransportWriter implements TransportConnectionWriter {
 		this.plugin = plugin;
 	}
 
-	public int getMaxFrameLength() {
-		return plugin.getMaxFrameLength();
-	}
-
 	public int getMaxLatency() {
 		return plugin.getMaxLatency();
 	}

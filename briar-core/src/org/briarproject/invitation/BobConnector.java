@@ -128,16 +128,15 @@ class BobConnector extends Connector {
 		// Confirmation succeeded - upgrade to a secure connection
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
-		int maxFrameLength = conn.getReader().getMaxFrameLength();
 		// Create the readers
 		InputStream streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
-						maxFrameLength, secret, true); // Alice's stream
+						secret, true); // Alice's stream
 		r = readerFactory.createReader(streamReader);
 		// Create the writers
 		OutputStream streamWriter =
 				streamWriterFactory.createInvitationStreamWriter(out,
-						maxFrameLength, secret, false); // Bob's stream
+						secret, false); // Bob's stream
 		w = writerFactory.createWriter(streamWriter);
 		// Derive the nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);

@@ -28,7 +28,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected final Executor ioExecutor;
 	protected final FileUtils fileUtils;
 	protected final SimplexPluginCallback callback;
-	protected final int maxFrameLength, maxLatency;
+	protected final int maxLatency;
 
 	protected volatile boolean running = false;
 
@@ -38,17 +38,11 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected abstract void readerFinished(File f);
 
 	protected FilePlugin(Executor ioExecutor, FileUtils fileUtils,
-			SimplexPluginCallback callback, int maxFrameLength,
-			int maxLatency) {
+			SimplexPluginCallback callback, int maxLatency) {
 		this.ioExecutor = ioExecutor;
 		this.fileUtils = fileUtils;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
-	}
-
-	public int getMaxFrameLength() {
-		return maxFrameLength;
 	}
 
 	public int getMaxLatency() {

@@ -128,16 +128,15 @@ class AliceConnector extends Connector {
 		// Confirmation succeeded - upgrade to a secure connection
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
-		int maxFrameLength = conn.getReader().getMaxFrameLength();
 		// Create the readers
 		InputStream streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
-						maxFrameLength, secret, false); // Bob's stream
+						secret, false); // Bob's stream
 		r = readerFactory.createReader(streamReader);
 		// Create the writers
 		OutputStream streamWriter =
 				streamWriterFactory.createInvitationStreamWriter(out,
-						maxFrameLength, secret, true); // Alice's stream
+						secret, true); // Alice's stream
 		w = writerFactory.createWriter(streamWriter);
 		// Derive the invitation nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);

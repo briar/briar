@@ -20,23 +20,21 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 	}
 
 	public StreamDecrypter createStreamDecrypter(InputStream in,
-			int maxFrameLength, StreamContext ctx) {
+			StreamContext ctx) {
 		byte[] secret = ctx.getSecret();
 		long streamNumber = ctx.getStreamNumber();
 		boolean alice = !ctx.getAlice();
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
 		// Create the decrypter
-		return new StreamDecrypterImpl(in, crypto.getFrameCipher(), frameKey,
-				maxFrameLength);
+		return new StreamDecrypterImpl(in, crypto.getFrameCipher(), frameKey);
 	}
 
 	public StreamDecrypter createInvitationStreamDecrypter(InputStream in,
-			int maxFrameLength, byte[] secret, boolean alice) {
+			byte[] secret, boolean alice) {
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
 		// Create the decrypter
-		return new StreamDecrypterImpl(in, crypto.getFrameCipher(), frameKey,
-				maxFrameLength);
+		return new StreamDecrypterImpl(in, crypto.getFrameCipher(), frameKey);
 	}
 }

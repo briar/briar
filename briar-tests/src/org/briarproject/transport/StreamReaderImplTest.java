@@ -2,6 +2,7 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.StreamDecrypter;
@@ -11,9 +12,8 @@ import org.junit.Test;
 
 public class StreamReaderImplTest extends BriarTestCase {
 
-	private static final int FRAME_LENGTH = 1024;
 	private static final int MAX_PAYLOAD_LENGTH =
-			FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
+			MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
 
 	@Test
 	public void testEmptyFramesAreSkipped() throws Exception {
@@ -29,7 +29,7 @@ public class StreamReaderImplTest extends BriarTestCase {
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		StreamReaderImpl r = new StreamReaderImpl(decrypter, FRAME_LENGTH);
+		StreamReaderImpl r = new StreamReaderImpl(decrypter);
 		assertEquals(0, r.read()); // Skip the first empty frame, read a byte
 		assertEquals(0, r.read()); // Read another byte
 		assertEquals(-1, r.read()); // Skip the second empty frame, reach EOF
@@ -52,7 +52,7 @@ public class StreamReaderImplTest extends BriarTestCase {
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		StreamReaderImpl r = new StreamReaderImpl(decrypter, FRAME_LENGTH);
+		StreamReaderImpl r = new StreamReaderImpl(decrypter);
 		byte[] buf = new byte[MAX_PAYLOAD_LENGTH];
 		// Skip the first empty frame, read the two payload bytes
 		assertEquals(2, r.read(buf));
@@ -74,7 +74,7 @@ public class StreamReaderImplTest extends BriarTestCase {
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		StreamReaderImpl r = new StreamReaderImpl(decrypter, FRAME_LENGTH);
+		StreamReaderImpl r = new StreamReaderImpl(decrypter);
 		byte[] buf = new byte[MAX_PAYLOAD_LENGTH / 2];
 		// Read the first half of the payload
 		assertEquals(MAX_PAYLOAD_LENGTH / 2, r.read(buf));
@@ -96,7 +96,7 @@ public class StreamReaderImplTest extends BriarTestCase {
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(-1)); // No more frames
 		}});
-		StreamReaderImpl r = new StreamReaderImpl(decrypter, FRAME_LENGTH);
+		StreamReaderImpl r = new StreamReaderImpl(decrypter);
 		byte[] buf = new byte[MAX_PAYLOAD_LENGTH];
 		// Read the first half of the payload
 		assertEquals(MAX_PAYLOAD_LENGTH / 2, r.read(buf, MAX_PAYLOAD_LENGTH / 2,

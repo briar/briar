@@ -3,7 +3,6 @@ package org.briarproject.messaging;
 import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayInputStream;
@@ -143,8 +142,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamWriterFactory streamWriterFactory =
 				alice.getInstance(StreamWriterFactory.class);
-		OutputStream streamWriter = streamWriterFactory.createStreamWriter(out,
-				MAX_FRAME_LENGTH, ctx);
+		OutputStream streamWriter =
+				streamWriterFactory.createStreamWriter(out, ctx);
 		// Create an outgoing messaging session
 		EventBus eventBus = alice.getInstance(EventBus.class);
 		PacketWriterFactory packetWriterFactory =
@@ -205,8 +204,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Create a stream reader
 		StreamReaderFactory streamReaderFactory =
 				bob.getInstance(StreamReaderFactory.class);
-		InputStream streamReader = streamReaderFactory.createStreamReader(in,
-				MAX_FRAME_LENGTH, ctx);
+		InputStream streamReader =
+				streamReaderFactory.createStreamReader(in, ctx);
 		// Create an incoming messaging session
 		EventBus eventBus = bob.getInstance(EventBus.class);
 		MessageVerifier messageVerifier =

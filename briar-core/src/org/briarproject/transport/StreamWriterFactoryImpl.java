@@ -4,7 +4,6 @@ import java.io.OutputStream;
 
 import javax.inject.Inject;
 
-import org.briarproject.api.crypto.StreamEncrypter;
 import org.briarproject.api.crypto.StreamEncrypterFactory;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamWriterFactory;
@@ -18,18 +17,16 @@ class StreamWriterFactoryImpl implements StreamWriterFactory {
 		this.streamEncrypterFactory = streamEncrypterFactory;
 	}
 
-	public OutputStream createStreamWriter(OutputStream out, int maxFrameLength,
+	public OutputStream createStreamWriter(OutputStream out,
 			StreamContext ctx) {
-		StreamEncrypter s = streamEncrypterFactory.createStreamEncrypter(out,
-				maxFrameLength, ctx);
-		return new StreamWriterImpl(s, maxFrameLength);
+		return new StreamWriterImpl(
+				streamEncrypterFactory.createStreamEncrypter(out, ctx));
 	}
 
 	public OutputStream createInvitationStreamWriter(OutputStream out,
-			int maxFrameLength, byte[] secret, boolean alice) {
-		StreamEncrypter s =
+			byte[] secret, boolean alice) {
+		return new StreamWriterImpl(
 				streamEncrypterFactory.createInvitationStreamEncrypter(out,
-						maxFrameLength, secret, alice);
-		return new StreamWriterImpl(s, maxFrameLength);
+						secret, alice));
 	}
 }

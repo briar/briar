@@ -46,7 +46,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	private final Clock clock;
 	private final SecureRandom secureRandom;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength, maxLatency, pollingInterval;
+	private final int maxLatency, pollingInterval;
 	private final Semaphore discoverySemaphore = new Semaphore(1);
 
 	private volatile boolean running = false;
@@ -54,23 +54,18 @@ class BluetoothPlugin implements DuplexPlugin {
 	private volatile LocalDevice localDevice = null;
 
 	BluetoothPlugin(Executor ioExecutor, Clock clock, SecureRandom secureRandom,
-			DuplexPluginCallback callback, int maxFrameLength, int maxLatency,
+			DuplexPluginCallback callback, int maxLatency,
 			int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.clock = clock;
 		this.secureRandom = secureRandom;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 	}
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public int getMaxFrameLength() {
-		return maxFrameLength;
 	}
 
 	public int getMaxLatency() {

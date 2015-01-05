@@ -2,6 +2,7 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,10 +17,10 @@ class TestStreamEncrypter implements StreamEncrypter {
 
 	private boolean writeTag = true;
 
-	TestStreamEncrypter(OutputStream out, int frameLength, byte[] tag) {
+	TestStreamEncrypter(OutputStream out, byte[] tag) {
 		this.out = out;
 		this.tag = tag;
-		frame = new byte[frameLength];
+		frame = new byte[MAX_FRAME_LENGTH];
 	}
 
 	public void writeFrame(byte[] payload, int payloadLength,

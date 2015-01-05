@@ -4,6 +4,7 @@ import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
@@ -24,8 +25,6 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 	// FIXME: This is an integration test, not a unit test
 
-	private static final int FRAME_LENGTH = 1024;
-
 	private final CryptoComponent crypto;
 	private final AuthenticatedCipher frameCipher;
 
@@ -40,8 +39,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	public void testEncryptionWithoutTag() throws Exception {
 		int payloadLength = 123;
 		byte[] iv = new byte[IV_LENGTH], aad = new byte[AAD_LENGTH];
-		byte[] plaintext = new byte[FRAME_LENGTH - MAC_LENGTH];
-		byte[] ciphertext = new byte[FRAME_LENGTH];
+		byte[] plaintext = new byte[MAX_FRAME_LENGTH - MAC_LENGTH];
+		byte[] ciphertext = new byte[MAX_FRAME_LENGTH];
 		SecretKey frameKey = crypto.generateSecretKey();
 		// Calculate the expected ciphertext
 		FrameEncoder.encodeIv(iv, 0);
@@ -51,12 +50,12 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
 		// Check that the actual ciphertext matches what's expected
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl o = new StreamEncrypterImpl(out,
-				frameCipher, frameKey, FRAME_LENGTH, null);
+		StreamEncrypterImpl o = new StreamEncrypterImpl(out, frameCipher,
+				frameKey, null);
 		o.writeFrame(new byte[payloadLength], payloadLength, false);
 		byte[] actual = out.toByteArray();
-		assertEquals(FRAME_LENGTH, actual.length);
-		for(int i = 0; i < FRAME_LENGTH; i++)
+		assertEquals(MAX_FRAME_LENGTH, actual.length);
+		for(int i = 0; i < MAX_FRAME_LENGTH; i++)
 			assertEquals(ciphertext[i], actual[i]);
 	}
 
@@ -66,8 +65,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		new Random().nextBytes(tag);
 		int payloadLength = 123;
 		byte[] iv = new byte[IV_LENGTH], aad = new byte[AAD_LENGTH];
-		byte[] plaintext = new byte[FRAME_LENGTH - MAC_LENGTH];
-		byte[] ciphertext = new byte[FRAME_LENGTH];
+		byte[] plaintext = new byte[MAX_FRAME_LENGTH - MAC_LENGTH];
+		byte[] ciphertext = new byte[MAX_FRAME_LENGTH];
 		SecretKey frameKey = crypto.generateSecretKey();
 		// Calculate the expected ciphertext
 		FrameEncoder.encodeIv(iv, 0);
@@ -77,13 +76,13 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
 		// Check that the actual tag and ciphertext match what's expected
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl o = new StreamEncrypterImpl(out,
-				frameCipher, frameKey, FRAME_LENGTH, tag);
+		StreamEncrypterImpl o = new StreamEncrypterImpl(out, frameCipher,
+				frameKey, tag);
 		o.writeFrame(new byte[payloadLength], payloadLength, false);
 		byte[] actual = out.toByteArray();
-		assertEquals(TAG_LENGTH + FRAME_LENGTH, actual.length);
+		assertEquals(TAG_LENGTH + MAX_FRAME_LENGTH, actual.length);
 		for(int i = 0; i < TAG_LENGTH; i++) assertEquals(tag[i], actual[i]);
-		for(int i = 0; i < FRAME_LENGTH; i++)
+		for(int i = 0; i < MAX_FRAME_LENGTH; i++)
 			assertEquals(ciphertext[i], actual[TAG_LENGTH + i]);
 	}
 
@@ -93,10 +92,10 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		new Random().nextBytes(tag);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Initiator's constructor
-		StreamEncrypterImpl o = new StreamEncrypterImpl(out,
-				frameCipher, crypto.generateSecretKey(), FRAME_LENGTH, tag);
+		StreamEncrypterImpl o = new StreamEncrypterImpl(out, frameCipher,
+				crypto.generateSecretKey(), tag);
 		// Write an empty final frame without having written any other frames
-		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], 0, true);
+		o.writeFrame(new byte[MAX_FRAME_LENGTH - MAC_LENGTH], 0, true);
 		// The tag and the empty frame should be written to the output stream
 		assertEquals(TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH, out.size());
 	}

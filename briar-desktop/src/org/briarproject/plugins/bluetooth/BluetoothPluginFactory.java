@@ -12,7 +12,6 @@ import org.briarproject.system.SystemClock;
 
 public class BluetoothPluginFactory implements DuplexPluginFactory {
 
-	private static final int MAX_FRAME_LENGTH = 1024;
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
@@ -33,6 +32,6 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		return new BluetoothPlugin(ioExecutor, clock, secureRandom, callback,
-				MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
+				MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

@@ -11,9 +11,6 @@ public interface Plugin {
 	/** Returns the plugin's transport identifier. */
 	TransportId getId();
 
-	/** Returns the transport's maximum frame length in bytes. */
-	int getMaxFrameLength();
-
 	/** Returns the transport's maximum latency in milliseconds. */
 	int getMaxLatency();
 

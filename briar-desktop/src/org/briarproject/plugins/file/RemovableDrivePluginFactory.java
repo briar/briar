@@ -1,7 +1,5 @@
 package org.briarproject.plugins.file;
 
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
-
 import java.util.concurrent.Executor;
 
 import org.briarproject.api.TransportId;
@@ -52,6 +50,6 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 			return null;
 		}
 		return new RemovableDrivePlugin(ioExecutor, fileUtils, callback,
-				finder, monitor, MAX_FRAME_LENGTH, MAX_LATENCY);
+				finder, monitor, MAX_LATENCY);
 	}
 }

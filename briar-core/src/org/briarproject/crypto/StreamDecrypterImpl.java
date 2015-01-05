@@ -4,6 +4,7 @@ import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -21,21 +22,19 @@ class StreamDecrypterImpl implements StreamDecrypter {
 	private final AuthenticatedCipher frameCipher;
 	private final SecretKey frameKey;
 	private final byte[] iv, aad, plaintext, ciphertext;
-	private final int frameLength;
 
 	private long frameNumber;
 	private boolean finalFrame;
 
 	StreamDecrypterImpl(InputStream in, AuthenticatedCipher frameCipher,
-			SecretKey frameKey, int frameLength) {
+			SecretKey frameKey) {
 		this.in = in;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		this.frameLength = frameLength;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
-		plaintext = new byte[frameLength - MAC_LENGTH];
-		ciphertext = new byte[frameLength];
+		plaintext = new byte[MAX_FRAME_LENGTH - MAC_LENGTH];
+		ciphertext = new byte[MAX_FRAME_LENGTH];
 		frameNumber = 0;
 		finalFrame = false;
 	}
@@ -44,9 +43,9 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		if(finalFrame) return -1;
 		// Read the frame
 		int ciphertextLength = 0;
-		while(ciphertextLength < frameLength) {
+		while(ciphertextLength < MAX_FRAME_LENGTH) {
 			int read = in.read(ciphertext, ciphertextLength,
-					frameLength - ciphertextLength);
+					MAX_FRAME_LENGTH - ciphertextLength);
 			if(read == -1) break; // We'll check the length later
 			ciphertextLength += read;
 		}
@@ -65,7 +64,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		}
 		// Decode and validate the header
 		finalFrame = FrameEncoder.isFinalFrame(plaintext);
-		if(!finalFrame && ciphertextLength < frameLength)
+		if(!finalFrame && ciphertextLength < MAX_FRAME_LENGTH)
 			throw new FormatException();
 		int payloadLength = FrameEncoder.getPayloadLength(plaintext);
 		if(payloadLength > plaintextLength - HEADER_LENGTH)

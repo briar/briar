@@ -29,8 +29,8 @@ implements RemovableDriveMonitor.Callback {
 
 	RemovableDrivePlugin(Executor ioExecutor, FileUtils fileUtils,
 			SimplexPluginCallback callback, RemovableDriveFinder finder,
-			RemovableDriveMonitor monitor, int maxFrameLength, int maxLatency) {
-		super(ioExecutor, fileUtils, callback, maxFrameLength, maxLatency);
+			RemovableDriveMonitor monitor, int maxLatency) {
+		super(ioExecutor, fileUtils, callback, maxLatency);
 		this.finder = finder;
 		this.monitor = monitor;
 	}

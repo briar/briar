@@ -4,6 +4,7 @@ import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.ByteArrayInputStream;
 
@@ -14,6 +15,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.util.ByteUtils;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -23,9 +25,8 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 	// FIXME: This is an integration test, not a unit test
 
-	private static final int FRAME_LENGTH = 1024;
 	private static final int MAX_PAYLOAD_LENGTH =
-			FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
+			MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
 
 	private final CryptoComponent crypto;
 	private final AuthenticatedCipher frameCipher;
@@ -42,16 +43,16 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testReadValidFrames() throws Exception {
 		// Generate two valid frames
-		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, false);
-		byte[] frame1 = generateFrame(1, FRAME_LENGTH, 123, false, false);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH, 123, false, false);
+		byte[] frame1 = generateFrame(1, MAX_FRAME_LENGTH, 123, false, false);
 		// Concatenate the frames
-		byte[] valid = new byte[FRAME_LENGTH * 2];
-		System.arraycopy(frame, 0, valid, 0, FRAME_LENGTH);
-		System.arraycopy(frame1, 0, valid, FRAME_LENGTH, FRAME_LENGTH);
+		byte[] valid = new byte[MAX_FRAME_LENGTH * 2];
+		System.arraycopy(frame, 0, valid, 0, MAX_FRAME_LENGTH);
+		System.arraycopy(frame1, 0, valid, MAX_FRAME_LENGTH, MAX_FRAME_LENGTH);
 		// Read the frames
 		ByteArrayInputStream in = new ByteArrayInputStream(valid);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		byte[] payload = new byte[MAX_PAYLOAD_LENGTH];
 		assertEquals(123, i.readFrame(payload));
 		assertEquals(123, i.readFrame(payload));
@@ -60,14 +61,14 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testTruncatedFrameThrowsException() throws Exception {
 		// Generate a valid frame
-		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, false);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH, 123, false, false);
 		// Chop off the last byte
-		byte[] truncated = new byte[FRAME_LENGTH - 1];
-		System.arraycopy(frame, 0, truncated, 0, FRAME_LENGTH - 1);
+		byte[] truncated = new byte[MAX_FRAME_LENGTH - 1];
+		System.arraycopy(frame, 0, truncated, 0, MAX_FRAME_LENGTH - 1);
 		// Try to read the frame, which should fail due to truncation
 		ByteArrayInputStream in = new ByteArrayInputStream(truncated);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		try {
 			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
@@ -77,13 +78,13 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testModifiedFrameThrowsException() throws Exception {
 		// Generate a valid frame
-		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, false);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH, 123, false, false);
 		// Modify a randomly chosen byte of the frame
-		frame[(int) (Math.random() * FRAME_LENGTH)] ^= 1;
+		frame[(int) (Math.random() * MAX_FRAME_LENGTH)] ^= 1;
 		// Try to read the frame, which should fail due to modification
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		try {
 			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
@@ -93,11 +94,12 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testShortNonFinalFrameThrowsException() throws Exception {
 		// Generate a short non-final frame
-		byte[] frame = generateFrame(0, FRAME_LENGTH - 1, 123, false, false);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH - 1, 123, false,
+				false);
 		// Try to read the frame, which should fail due to invalid length
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		try {
 			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
@@ -107,11 +109,11 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testShortFinalFrameDoesNotThrowException() throws Exception {
 		// Generate a short final frame
-		byte[] frame = generateFrame(0, FRAME_LENGTH - 1, 123, true, false);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH - 1, 123, true, false);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		int length = i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 		assertEquals(123, length);
 	}
@@ -119,12 +121,12 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testInvalidPayloadLengthThrowsException() throws Exception {
 		// Generate a frame with an invalid payload length
-		byte[] frame = generateFrame(0, FRAME_LENGTH, MAX_PAYLOAD_LENGTH + 1,
-				false, false);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH, 123, false, false);
+		ByteUtils.writeUint16(MAX_PAYLOAD_LENGTH + 1, frame, 0);
 		// Try to read the frame, which should fail due to invalid length
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		try {
 			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
@@ -134,11 +136,11 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testNonZeroPaddingThrowsException() throws Exception {
 		// Generate a frame with bad padding
-		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, true);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH, 123, false, true);
 		// Try to read the frame, which should fail due to bad padding
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		try {
 			i.readFrame(new byte[MAX_PAYLOAD_LENGTH]);
 			fail();
@@ -148,17 +150,18 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testCannotReadBeyondFinalFrame() throws Exception {
 		// Generate a valid final frame and another valid final frame after it
-		byte[] frame = generateFrame(0, FRAME_LENGTH, MAX_PAYLOAD_LENGTH, true,
-				false);
-		byte[] frame1 = generateFrame(1, FRAME_LENGTH, 123, true, false);
+		byte[] frame = generateFrame(0, MAX_FRAME_LENGTH, MAX_PAYLOAD_LENGTH,
+				true, false);
+		byte[] frame1 = generateFrame(1, MAX_FRAME_LENGTH, 123, true, false);
 		// Concatenate the frames
-		byte[] extraFrame = new byte[FRAME_LENGTH * 2];
-		System.arraycopy(frame, 0, extraFrame, 0, FRAME_LENGTH);
-		System.arraycopy(frame1, 0, extraFrame, FRAME_LENGTH, FRAME_LENGTH);
+		byte[] extraFrame = new byte[MAX_FRAME_LENGTH * 2];
+		System.arraycopy(frame, 0, extraFrame, 0, MAX_FRAME_LENGTH);
+		System.arraycopy(frame1, 0, extraFrame, MAX_FRAME_LENGTH,
+				MAX_FRAME_LENGTH);
 		// Read the final frame, which should first read the tag
 		ByteArrayInputStream in = new ByteArrayInputStream(extraFrame);
 		StreamDecrypterImpl i = new StreamDecrypterImpl(in, frameCipher,
-				frameKey, FRAME_LENGTH);
+				frameKey);
 		byte[] payload = new byte[MAX_PAYLOAD_LENGTH];
 		assertEquals(MAX_PAYLOAD_LENGTH, i.readFrame(payload));
 		// The frame after the final frame should not be read

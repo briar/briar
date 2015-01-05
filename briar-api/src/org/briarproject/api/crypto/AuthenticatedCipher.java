@@ -2,7 +2,7 @@ package org.briarproject.api.crypto;
 
 import java.security.GeneralSecurityException;
 
-/** An authenticated cipher that support additional authenticated data. */
+/** An authenticated cipher that supports additional authenticated data. */
 public interface AuthenticatedCipher {
 
 	/**

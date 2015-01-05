@@ -95,7 +95,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private MessagingSession createIncomingSession(StreamContext ctx,
 			TransportConnectionReader r) throws IOException {
 		InputStream streamReader = streamReaderFactory.createStreamReader(
-				r.getInputStream(), r.getMaxFrameLength(), ctx);
+				r.getInputStream(), ctx);
 		return messagingSessionFactory.createIncomingSession(
 				ctx.getContactId(), ctx.getTransportId(), streamReader);
 	}
@@ -103,7 +103,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private MessagingSession createSimplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
-				w.getOutputStream(), w.getMaxFrameLength(), ctx);
+				w.getOutputStream(), ctx);
 		return messagingSessionFactory.createSimplexOutgoingSession(
 				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
 				streamWriter);
@@ -112,7 +112,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private MessagingSession createDuplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
-				w.getOutputStream(), w.getMaxFrameLength(), ctx);
+				w.getOutputStream(), ctx);
 		return messagingSessionFactory.createDuplexOutgoingSession(
 				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
 				w.getMaxIdleTime(), streamWriter);

@@ -2,6 +2,7 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,9 +16,9 @@ class StreamReaderImpl extends InputStream {
 
 	private int offset = 0, length = 0;
 
-	StreamReaderImpl(StreamDecrypter decrypter, int frameLength) {
+	StreamReaderImpl(StreamDecrypter decrypter) {
 		this.decrypter = decrypter;
-		payload = new byte[frameLength - HEADER_LENGTH - MAC_LENGTH];
+		payload = new byte[MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH];
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package org.briarproject;
 
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -118,8 +117,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamContext ctx = new StreamContext(contactId, transportId, secret,
 				0, true);
-		OutputStream streamWriter = streamWriterFactory.createStreamWriter(out,
-				MAX_FRAME_LENGTH, ctx);
+		OutputStream streamWriter =
+				streamWriterFactory.createStreamWriter(out, ctx);
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
 				streamWriter);
 
@@ -150,8 +149,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// FIXME: Check that the expected tag was received
 		StreamContext ctx = new StreamContext(contactId, transportId, secret,
 				0, false);
-		InputStream streamReader = streamReaderFactory.createStreamReader(in,
-				MAX_FRAME_LENGTH, ctx);
+		InputStream streamReader =
+				streamReaderFactory.createStreamReader(in, ctx);
 		PacketReader packetReader = packetReaderFactory.createPacketReader(
 				streamReader);
 

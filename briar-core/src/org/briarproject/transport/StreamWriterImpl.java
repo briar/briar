@@ -2,6 +2,7 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,9 +23,9 @@ class StreamWriterImpl extends OutputStream {
 
 	private int length = 0;
 
-	StreamWriterImpl(StreamEncrypter encrypter, int maxFrameLength) {
+	StreamWriterImpl(StreamEncrypter encrypter) {
 		this.encrypter = encrypter;
-		payload = new byte[maxFrameLength - HEADER_LENGTH - MAC_LENGTH];
+		payload = new byte[MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH];
 	}
 
 	@Override

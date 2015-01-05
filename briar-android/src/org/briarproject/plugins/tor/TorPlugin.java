@@ -75,8 +75,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength, maxLatency, maxIdleTime, pollingInterval;
-	private final int socketTimeout;
+	private final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, hostnameFile;
 	private final AtomicBoolean circuitBuilt;
@@ -90,13 +89,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	TorPlugin(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils, DuplexPluginCallback callback,
-			int maxFrameLength, int maxLatency, int maxIdleTime,
-			int pollingInterval) {
+			int maxLatency, int maxIdleTime, int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
@@ -115,10 +112,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public int getMaxFrameLength() {
-		return maxFrameLength;
 	}
 
 	public int getMaxLatency() {

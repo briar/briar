@@ -2,6 +2,7 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -16,9 +17,9 @@ class TestStreamDecrypter implements StreamDecrypter {
 	private final InputStream in;
 	private final byte[] frame;
 
-	TestStreamDecrypter(InputStream in, int frameLength) {
+	TestStreamDecrypter(InputStream in) {
 		this.in = in;
-		frame = new byte[frameLength];
+		frame = new byte[MAX_FRAME_LENGTH];
 	}
 
 	public int readFrame(byte[] payload) throws IOException {

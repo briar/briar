@@ -22,7 +22,7 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 	}
 
 	public StreamEncrypter createStreamEncrypter(OutputStream out,
-			int maxFrameLength, StreamContext ctx) {
+			StreamContext ctx) {
 		byte[] secret = ctx.getSecret();
 		long streamNumber = ctx.getStreamNumber();
 		boolean alice = ctx.getAlice();
@@ -34,15 +34,15 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
 		// Create the encrypter
 		return new StreamEncrypterImpl(out, crypto.getFrameCipher(), frameKey,
-				maxFrameLength, tag);
+				tag);
 	}
 
 	public StreamEncrypter createInvitationStreamEncrypter(OutputStream out,
-			int maxFrameLength, byte[] secret, boolean alice) {
+			byte[] secret, boolean alice) {
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
 		// Create the encrypter
 		return new StreamEncrypterImpl(out, crypto.getFrameCipher(), frameKey,
-				maxFrameLength, null);
+				null);
 	}
 }

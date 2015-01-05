@@ -6,7 +6,7 @@ public interface TransportConstants {
 	int TAG_LENGTH = 16;
 
 	/** The maximum length of a frame in bytes, including the header and MAC. */
-	int MAX_FRAME_LENGTH = 32768; // 2^15, 32 KiB
+	int MAX_FRAME_LENGTH = 1024;
 
 	/** The length of the initalisation vector (IV) in bytes. */
 	int IV_LENGTH = 12;

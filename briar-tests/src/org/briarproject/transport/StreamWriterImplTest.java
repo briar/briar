@@ -2,6 +2,7 @@ package org.briarproject.transport;
 
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.StreamEncrypter;
@@ -11,9 +12,8 @@ import org.junit.Test;
 
 public class StreamWriterImplTest extends BriarTestCase {
 
-	private static final int FRAME_LENGTH = 1024;
 	private static final int MAX_PAYLOAD_LENGTH =
-			FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
+			MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
 
 	@Test
 	public void testCloseWithoutWritingWritesFinalFrame() throws Exception {
@@ -26,7 +26,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 			// Flush the stream
 			oneOf(encrypter).flush();
 		}});
-		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		w.close();
 		context.assertIsSatisfied();
 	}
@@ -36,7 +36,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
-		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write a non-final frame with an empty payload
 			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
@@ -63,7 +63,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
-		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write a non-final frame with one payload byte
 			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(1),
@@ -90,7 +90,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 	public void testSingleByteWritesWriteFullFrame() throws Exception {
 		Mockery context = new Mockery();
 		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
-		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write a full non-final frame
 			oneOf(encrypter).writeFrame(with(any(byte[].class)),
@@ -116,7 +116,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 	public void testMultiByteWritesWriteFullFrames() throws Exception {
 		Mockery context = new Mockery();
 		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
-		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames
 			exactly(2).of(encrypter).writeFrame(with(any(byte[].class)),
@@ -147,7 +147,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 	public void testLargeMultiByteWriteWritesFullFrames() throws Exception {
 		Mockery context = new Mockery();
 		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
-		StreamWriterImpl w = new StreamWriterImpl(encrypter, FRAME_LENGTH);
+		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames
 			exactly(2).of(encrypter).writeFrame(with(any(byte[].class)),

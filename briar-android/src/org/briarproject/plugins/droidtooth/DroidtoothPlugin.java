@@ -69,7 +69,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final SecureRandom secureRandom;
 	private final Clock clock;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength, maxLatency, pollingInterval;
+	private final int maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
 	private volatile boolean wasDisabled = false;
@@ -81,7 +81,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Clock clock,
-			DuplexPluginCallback callback, int maxFrameLength, int maxLatency,
+			DuplexPluginCallback callback, int maxLatency,
 			int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
@@ -89,17 +89,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 		this.secureRandom = secureRandom;
 		this.clock = clock;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 	}
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public int getMaxFrameLength() {
-		return maxFrameLength;
 	}
 
 	public int getMaxLatency() {

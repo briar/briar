@@ -32,26 +32,21 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength, maxLatency;
+	private final int maxLatency;
 
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
 	ModemPlugin(ModemFactory modemFactory, SerialPortList serialPortList,
-			DuplexPluginCallback callback, int maxFrameLength, int maxLatency) {
+			DuplexPluginCallback callback, int maxLatency) {
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 	}
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public int getMaxFrameLength() {
-		return maxFrameLength;
 	}
 
 	public int getMaxLatency() {
@@ -199,10 +194,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private class Reader implements TransportConnectionReader {
 
-			public int getMaxFrameLength() {
-				return maxFrameLength;
-			}
-
 			public long getMaxLatency() {
 				return maxLatency;
 			}
@@ -218,10 +209,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 
 		private class Writer implements TransportConnectionWriter {
-
-			public int getMaxFrameLength() {
-				return getMaxFrameLength();
-			}
 
 			public int getMaxLatency() {
 				return getMaxLatency();
