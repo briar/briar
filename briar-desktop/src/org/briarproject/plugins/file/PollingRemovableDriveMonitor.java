@@ -22,8 +22,8 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	private volatile boolean running = false;
 	private volatile Callback callback = null;
 
-	private final Lock synchLock = new ReentrantLock();
-	private final Condition stopPolling = synchLock.newCondition();
+	private final Lock pollingLock = new ReentrantLock();
+	private final Condition stopPolling = pollingLock.newCondition();
 
 
 	public PollingRemovableDriveMonitor(Executor ioExecutor,
@@ -41,12 +41,12 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	public void stop() throws IOException {
 		running = false;
-		synchLock.lock();
+		pollingLock.lock();
 		try {
 			stopPolling.signalAll();
 		} 
 		finally {
-			synchLock.unlock();
+			pollingLock.unlock();
 		}
 	}
 
@@ -54,12 +54,12 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 		try {
 			Collection<File> drives = finder.findRemovableDrives();
 			while(running) {
-				synchLock.lock();
+				pollingLock.lock();
 				try {
 					stopPolling.await(pollingInterval, TimeUnit.MILLISECONDS);
 				} 
 				finally{
-					synchLock.unlock();
+					pollingLock.unlock();
 				}
 				if(!running) return;
 				Collection<File> newDrives = finder.findRemovableDrives();
