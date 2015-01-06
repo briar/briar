@@ -101,7 +101,7 @@ class Sender {
 			// Don't accept an unreasonably large window size
 			windowSize = Math.min(a.getWindowSize(), MAX_WINDOW_SIZE);
 			// If space has become available, notify any waiting writers
-			if(windowSize > oldWindowSize || foundIndex != -1) notifyAll();
+			if(windowSize > oldWindowSize || foundIndex != -1) sendWindowAvailable.signalAll();
 		}
 		finally{
 			synchLock.unlock();
