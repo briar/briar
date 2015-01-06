@@ -43,6 +43,7 @@ import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.macs.HMac;
 import org.spongycastle.crypto.modes.AEADBlockCipher;
 import org.spongycastle.crypto.modes.GCMBlockCipher;
+import org.spongycastle.crypto.modes.gcm.BasicGCMMultiplier;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
@@ -294,7 +295,12 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
-		AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine());
+		return getAuthenticatedCipher();
+	}
+
+	private AuthenticatedCipher getAuthenticatedCipher() {
+		AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine(),
+				new BasicGCMMultiplier());
 		return new AuthenticatedCipherImpl(a, MAC_BYTES);
 	}
 
@@ -329,10 +335,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		ByteUtils.writeUint32(iterations, output, salt.length);
 		System.arraycopy(iv, 0, output, salt.length + 4, iv.length);
 		// Initialise the cipher and encrypt the plaintext
+		AuthenticatedCipher cipher = getAuthenticatedCipher();
 		try {
-			AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine());
-			AuthenticatedCipher cipher = new AuthenticatedCipherImpl(a,
-					MAC_BYTES);
 			cipher.init(true, key, iv, null);
 			int outputOff = salt.length + 4 + iv.length;
 			cipher.process(input, 0, input.length, output, outputOff);
@@ -356,10 +360,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Derive the key from the password
 		SecretKey key = new SecretKey(pbkdf2(password, salt, (int) iterations));
 		// Initialise the cipher
-		AuthenticatedCipher cipher;
+		AuthenticatedCipher cipher = getAuthenticatedCipher();
 		try {
-			AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine());
-			cipher = new AuthenticatedCipherImpl(a, MAC_BYTES);
 			cipher.init(false, key, iv, null);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);

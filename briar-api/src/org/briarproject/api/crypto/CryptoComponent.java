@@ -65,7 +65,7 @@ public interface CryptoComponent {
 
 	/**
 	 * Derives a tag key from the given temporary secret.
-	 * @param alice indicates whether the key is for connections initiated by
+	 * @param alice indicates whether the key is for streams initiated by
 	 * Alice or Bob.
 	 */
 	SecretKey deriveTagKey(byte[] secret, boolean alice);
