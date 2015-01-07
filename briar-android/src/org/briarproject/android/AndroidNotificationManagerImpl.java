@@ -143,6 +143,7 @@ Service, EventListener {
 				Intent i = new Intent(appContext, ConversationActivity.class);
 				ContactId c = contactCounts.keySet().iterator().next();
 				i.putExtra("briar.CONTACT_ID", c.getInt());
+				i.setData(Uri.parse(String.format("content://contact/%s", c.getInt())));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ConversationActivity.class);
@@ -219,6 +220,8 @@ Service, EventListener {
 				Intent i = new Intent(appContext, GroupActivity.class);
 				GroupId g = groupCounts.keySet().iterator().next();
 				i.putExtra("briar.GROUP_ID", g.getBytes());
+				String groupIdString = new String(g.getBytes());
+				i.setData(Uri.parse(String.format("content://org.brairproject.group/%s", groupIdString)));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(GroupActivity.class);
