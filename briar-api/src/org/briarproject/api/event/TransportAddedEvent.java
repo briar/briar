@@ -6,9 +6,9 @@ import org.briarproject.api.TransportId;
 public class TransportAddedEvent extends Event {
 
 	private final TransportId transportId;
-	private final long maxLatency;
+	private final int maxLatency;
 
-	public TransportAddedEvent(TransportId transportId, long maxLatency) {
+	public TransportAddedEvent(TransportId transportId, int maxLatency) {
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 	}
@@ -17,7 +17,7 @@ public class TransportAddedEvent extends Event {
 		return transportId;
 	}
 
-	public long getMaxLatency() {
+	public int getMaxLatency() {
 		return maxLatency;
 	}
 }

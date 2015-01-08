@@ -4,11 +4,16 @@ import java.io.InputStream;
 
 public interface StreamReaderFactory {
 
-	/** Creates a {@link StreamReader} for a transport connection. */
-	StreamReader createStreamReader(InputStream in, int maxFrameLength,
-			StreamContext ctx);
+	/**
+	 * Creates an {@link java.io.InputStream InputStream} for reading from a
+	 * transport stream.
+	 */
+	InputStream createStreamReader(InputStream in, StreamContext ctx);
 
-	/** Creates a {@link StreamReader} for an invitation connection. */
-	StreamReader createInvitationStreamReader(InputStream in,
-			int maxFrameLength, byte[] secret, boolean alice);
+	/**
+	 * Creates an {@link java.io.InputStream InputStream} for reading from an
+	 * invitation stream.
+	 */
+	InputStream createInvitationStreamReader(InputStream in,
+			byte[] secret, boolean alice);
 }

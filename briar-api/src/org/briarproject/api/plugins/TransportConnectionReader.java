@@ -9,9 +9,6 @@ import java.io.InputStream;
  */
 public interface TransportConnectionReader {
 
-	/** Returns the maximum frame length of the transport in bytes. */
-	int getMaxFrameLength();
-
 	/** Returns the maximum latency of the transport in milliseconds. */
 	long getMaxLatency();
 

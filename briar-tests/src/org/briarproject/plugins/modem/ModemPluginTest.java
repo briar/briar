@@ -24,7 +24,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final SerialPortList serialPortList =
 				context.mock(SerialPortList.class);
 		final ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, null, 0, 0, 0);
+				serialPortList, null, 0);
 		final Modem modem = context.mock(Modem.class);
 		context.checking(new Expectations() {{
 			oneOf(serialPortList).getPortNames();
@@ -58,7 +58,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
 		final ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, callback, 0, 0, 0);
+				serialPortList, callback, 0);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
@@ -99,7 +99,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
 		final ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, callback, 0, 0, 0);
+				serialPortList, callback, 0);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
@@ -140,7 +140,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
 		final ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, callback, 0, 0, 0);
+				serialPortList, callback, 0);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);

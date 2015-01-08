@@ -23,12 +23,12 @@ public class BluetoothClientTest extends DuplexClientTest {
 		p.put("address", serverAddress);
 		p.put("uuid", BluetoothTest.EMPTY_UUID);
 		Map<ContactId, TransportProperties> remote =
-			Collections.singletonMap(contactId, p);
+				Collections.singletonMap(contactId, p);
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
 		plugin = new BluetoothPlugin(executor, new SystemClock(),
-				new SecureRandom(), callback, 0, 0, 0);
+				new SecureRandom(), callback, 0, 0);
 	}
 
 	public static void main(String[] args) throws Exception {

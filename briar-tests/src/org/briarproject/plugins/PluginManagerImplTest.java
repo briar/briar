@@ -44,19 +44,19 @@ public class PluginManagerImplTest extends BriarTestCase {
 				context.mock(SimplexPluginFactory.class);
 		final SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
 		final TransportId simplexId = new TransportId("simplex");
-		final long simplexLatency = 12345;
+		final int simplexLatency = 12345;
 		final SimplexPluginFactory simplexFailFactory =
 				context.mock(SimplexPluginFactory.class, "simplexFailFactory");
 		final SimplexPlugin simplexFailPlugin =
 				context.mock(SimplexPlugin.class, "simplexFailPlugin");
 		final TransportId simplexFailId = new TransportId("simplex1");
-		final long simplexFailLatency = 23456;
+		final int simplexFailLatency = 23456;
 		// Two duplex plugin factories: one creates a plugin, the other fails
 		final DuplexPluginFactory duplexFactory =
 				context.mock(DuplexPluginFactory.class);
 		final DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
 		final TransportId duplexId = new TransportId("duplex");
-		final long duplexLatency = 34567;
+		final int duplexLatency = 34567;
 		final DuplexPluginFactory duplexFailFactory =
 				context.mock(DuplexPluginFactory.class, "duplexFailFactory");
 		final TransportId duplexFailId = new TransportId("duplex1");

@@ -16,9 +16,6 @@ public interface KeyManager extends Service {
 	 */
 	StreamContext getStreamContext(ContactId c, TransportId t);
 
-	/**
-	 * Called whenever an endpoint has been added. The initial secret is erased
-	 * before returning.
-	 */
-	void endpointAdded(Endpoint ep, long maxLatency, byte[] initialSecret);
+	/** Called whenever an endpoint has been added. */
+	void endpointAdded(Endpoint ep, int maxLatency, byte[] initialSecret);
 }

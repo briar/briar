@@ -32,33 +32,30 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength;
-	private final long maxLatency, pollingInterval;
+	private final int maxLatency;
 
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
 	ModemPlugin(ModemFactory modemFactory, SerialPortList serialPortList,
-			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
-			long pollingInterval) {
+			DuplexPluginCallback callback, int maxLatency) {
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
-		this.pollingInterval = pollingInterval;
 	}
 
 	public TransportId getId() {
 		return ID;
 	}
 
-	public int getMaxFrameLength() {
-		return maxFrameLength;
+	public int getMaxLatency() {
+		return maxLatency;
 	}
 
-	public long getMaxLatency() {
-		return maxLatency;
+	public int getMaxIdleTime() {
+		// FIXME: Do we need keepalives for this transport?
+		return Integer.MAX_VALUE;
 	}
 
 	public boolean start() {
@@ -98,8 +95,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return false;
 	}
 
-	public long getPollingInterval() {
-		return pollingInterval;
+	public int getPollingInterval() {
+		throw new UnsupportedOperationException();
 	}
 
 	public void poll(Collection<ContactId> connected) {
@@ -197,10 +194,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private class Reader implements TransportConnectionReader {
 
-			public int getMaxFrameLength() {
-				return maxFrameLength;
-			}
-
 			public long getMaxLatency() {
 				return maxLatency;
 			}
@@ -217,12 +210,12 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private class Writer implements TransportConnectionWriter {
 
-			public int getMaxFrameLength() {
-				return maxFrameLength;
+			public int getMaxLatency() {
+				return getMaxLatency();
 			}
 
-			public long getMaxLatency() {
-				return maxLatency;
+			public int getMaxIdleTime() {
+				return getMaxIdleTime();
 			}
 
 			public long getCapacity() {

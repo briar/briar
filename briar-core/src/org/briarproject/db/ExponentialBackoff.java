@@ -11,13 +11,12 @@ class ExponentialBackoff {
 	 * transmissions increases exponentially. If the expiry time would
 	 * be greater than Long.MAX_VALUE, Long.MAX_VALUE is returned.
 	 */
-	static long calculateExpiry(long now, long maxLatency, int txCount) {
+	static long calculateExpiry(long now, int maxLatency, int txCount) {
 		if(now < 0) throw new IllegalArgumentException();
 		if(maxLatency <= 0) throw new IllegalArgumentException();
 		if(txCount < 0) throw new IllegalArgumentException();
 		// The maximum round-trip time is twice the maximum latency
-		long roundTrip = maxLatency * 2;
-		if(roundTrip < 0) return Long.MAX_VALUE;
+		long roundTrip = maxLatency * 2L;
 		// The interval between transmissions is roundTrip * 2 ^ txCount
 		for(int i = 0; i < txCount; i++) {
 			roundTrip <<= 1;

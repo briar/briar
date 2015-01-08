@@ -24,10 +24,6 @@ class FileTransportReader implements TransportConnectionReader {
 		this.plugin = plugin;
 	}
 
-	public int getMaxFrameLength() {
-		return plugin.getMaxFrameLength();
-	}
-
 	public long getMaxLatency() {
 		return plugin.getMaxLatency();
 	}

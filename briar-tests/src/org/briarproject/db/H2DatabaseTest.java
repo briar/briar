@@ -381,7 +381,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		db.updateExpiryTime(txn, contactId, messageId, Long.MAX_VALUE);
+		db.updateExpiryTime(txn, contactId, messageId, Integer.MAX_VALUE);
 
 		// The message should no longer be sendable
 		it = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE).iterator();
@@ -1109,7 +1109,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testTemporarySecrets() throws Exception {
 		// Create an endpoint and four consecutive temporary secrets
-		long epoch = 123, latency = 234;
+		long epoch = 123;
+		int latency = 234;
 		boolean alice = false;
 		long outgoing1 = 345, centre1 = 456;
 		long outgoing2 = 567, centre2 = 678;
@@ -1235,7 +1236,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testIncrementStreamCounter() throws Exception {
 		// Create an endpoint and a temporary secret
-		long epoch = 123, latency = 234;
+		long epoch = 123;
+		int latency = 234;
 		boolean alice = false;
 		long period = 345, outgoing = 456, centre = 567;
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, alice);
@@ -1290,7 +1292,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testSetReorderingWindow() throws Exception {
 		// Create an endpoint and a temporary secret
-		long epoch = 123, latency = 234;
+		long epoch = 123;
+		int latency = 234;
 		boolean alice = false;
 		long period = 345, outgoing = 456, centre = 567;
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, alice);
@@ -1359,8 +1362,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testEndpoints() throws Exception {
 		// Create some endpoints
-		long epoch1 = 123, latency1 = 234;
-		long epoch2 = 345, latency2 = 456;
+		long epoch1 = 123, epoch2 = 234;
+		int latency1 = 345, latency2 = 456;
 		boolean alice1 = true, alice2 = false;
 		TransportId transportId1 = new TransportId("bar");
 		TransportId transportId2 = new TransportId("baz");

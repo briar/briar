@@ -23,7 +23,7 @@ public class BluetoothServerTest extends DuplexServerTest {
 		callback = new ServerCallback(new TransportConfig(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
 		plugin = new BluetoothPlugin(executor, new SystemClock(),
-				new SecureRandom(), callback, 0, 0, 0);
+				new SecureRandom(), callback, 0, 0);
 	}
 
 	public static void main(String[] args) throws Exception {

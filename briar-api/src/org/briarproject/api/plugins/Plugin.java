@@ -11,11 +11,11 @@ public interface Plugin {
 	/** Returns the plugin's transport identifier. */
 	TransportId getId();
 
-	/** Returns the transport's maximum frame length in bytes. */
-	int getMaxFrameLength();
-
 	/** Returns the transport's maximum latency in milliseconds. */
-	long getMaxLatency();
+	int getMaxLatency();
+
+	/** Returns the transport's maximum idle time in milliseconds. */
+	int getMaxIdleTime();
 
 	/** Starts the plugin and returns true if it started successfully. */
 	boolean start() throws IOException;
@@ -36,7 +36,7 @@ public interface Plugin {
 	 * Returns the desired interval in milliseconds between calls to the
 	 * plugin's {@link #poll(Collection)} method.
 	 */
-	long getPollingInterval();
+	int getPollingInterval();
 
 	/**
 	 * Attempts to establish connections to contacts, passing any created

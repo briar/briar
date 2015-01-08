@@ -11,9 +11,9 @@ import android.content.Context;
 
 public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 
-	private static final int MAX_FRAME_LENGTH = 1024;
-	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
-	private static final long POLLING_INTERVAL = 60 * 1000; // 1 minute
+	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
+	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
+	private static final int POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
 	private final Executor ioExecutor;
 	private final Context appContext;
@@ -29,6 +29,6 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		return new AndroidLanTcpPlugin(ioExecutor, appContext, callback,
-				MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
+				MAX_LATENCY, MAX_IDLE_TIME, POLLING_INTERVAL);
 	}
 }

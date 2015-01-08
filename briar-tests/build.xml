@@ -100,8 +100,9 @@
 			<test name='org.briarproject.crypto.KeyDerivationTest'/>
 			<test name='org.briarproject.crypto.KeyEncodingAndParsingTest'/>
 			<test name="org.briarproject.crypto.PasswordBasedKdfTest"/>
-			<test name="org.briarproject.crypto.PasswordStrengthEstimatorTest"/>
-			<test name='org.briarproject.crypto.SecretKeyImplTest'/>
+			<test name="org.briarproject.crypto.PasswordStrengthEstimatorImplTest"/>
+			<test name='org.briarproject.crypto.StreamDecrypterImplTest'/>
+			<test name='org.briarproject.crypto.StreamEncrypterImplTest'/>
 			<test name='org.briarproject.db.BasicH2Test'/>
 			<test name='org.briarproject.db.DatabaseCleanerImplTest'/>
 			<test name='org.briarproject.db.DatabaseComponentImplTest'/>
@@ -126,10 +127,8 @@
 			<test name='org.briarproject.serial.ReaderImplTest'/>
 			<test name='org.briarproject.serial.WriterImplTest'/>
 			<test name='org.briarproject.system.LinuxSeedProviderTest'/>
-			<test name='org.briarproject.transport.IncomingEncryptionLayerTest'/>
 			<test name='org.briarproject.transport.KeyManagerImplTest'/>
 			<test name='org.briarproject.transport.KeyRotationIntegrationTest'/>
-			<test name='org.briarproject.transport.OutgoingEncryptionLayerTest'/>
 			<test name='org.briarproject.transport.ReorderingWindowTest'/>
 			<test name='org.briarproject.transport.StreamReaderImplTest'/>
 			<test name='org.briarproject.transport.StreamWriterImplTest'/>

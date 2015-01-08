@@ -37,8 +37,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected final Executor ioExecutor;
 	protected final DuplexPluginCallback callback;
-	protected final int maxFrameLength;
-	protected final long maxLatency, pollingInterval;
+	protected final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
 
 	protected volatile boolean running = false;
 	protected volatile ServerSocket socket = null;
@@ -53,20 +52,23 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
 	protected TcpPlugin(Executor ioExecutor, DuplexPluginCallback callback,
-			int maxFrameLength, long maxLatency, long pollingInterval) {
+			int maxLatency, int maxIdleTime, int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
+		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
+		if(maxIdleTime > Integer.MAX_VALUE / 2)
+			socketTimeout = Integer.MAX_VALUE;
+		else socketTimeout = maxIdleTime * 2;
 	}
 
-	public int getMaxFrameLength() {
-		return maxFrameLength;
-	}
-
-	public long getMaxLatency() {
+	public int getMaxLatency() {
 		return maxLatency;
+	}
+
+	public int getMaxIdleTime() {
+		return maxIdleTime;
 	}
 
 	public boolean start() {
@@ -136,6 +138,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			Socket s;
 			try {
 				s = socket.accept();
+				s.setSoTimeout(socketTimeout);
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
@@ -161,7 +164,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		return true;
 	}
 
-	public long getPollingInterval() {
+	public int getPollingInterval() {
 		return pollingInterval;
 	}
 
@@ -195,6 +198,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
 			s.connect(remote);
+			s.setSoTimeout(socketTimeout);
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
 			return new TcpTransportConnection(this, s);
 		} catch(IOException e) {

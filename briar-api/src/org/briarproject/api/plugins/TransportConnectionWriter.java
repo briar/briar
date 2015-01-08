@@ -9,11 +9,11 @@ import java.io.OutputStream;
  */
 public interface TransportConnectionWriter {
 
-	/** Returns the maximum frame length of the transport in bytes. */
-	int getMaxFrameLength();
-
 	/** Returns the maximum latency of the transport in milliseconds. */
-	long getMaxLatency();
+	int getMaxLatency();
+
+	/** Returns the maximum idle time of the transport in milliseconds. */
+	int getMaxIdleTime();
 
 	/** Returns the capacity of the transport connection in bytes. */
 	long getCapacity();

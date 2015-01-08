@@ -81,34 +81,18 @@ class H2Database extends JdbcDatabase {
 		}
 	}
 
+	@Override
 	protected Connection createConnection() throws SQLException {
 		byte[] key = config.getEncryptionKey();
 		if(key == null) throw new IllegalStateException();
-		char[] password = encodePassword(key);
 		Properties props = new Properties();
 		props.setProperty("user", "user");
-		props.put("password", password);
-		try {
-			return DriverManager.getConnection(url, props);
-		} finally {
-			for(int i = 0; i < password.length; i++) password[i] = 0;
-		}
+		// Separate the file password from the user password with a space
+		props.put("password", StringUtils.toHexString(key) + " password");
+		return DriverManager.getConnection(url, props);
 	}
 
-	private char[] encodePassword(byte[] key) {
-		// The database password is the hex-encoded key
-		char[] hex = StringUtils.toHexChars(key);
-		// Separate the database password from the user password with a space
-		char[] user = "password".toCharArray();
-		char[] combined = new char[hex.length + 1 + user.length];
-		System.arraycopy(hex, 0, combined, 0, hex.length);
-		combined[hex.length] = ' ';
-		System.arraycopy(user, 0, combined, hex.length + 1, user.length);
-		// Erase the hex-encoded key
-		for(int i = 0; i < hex.length; i++) hex[i] = 0;
-		return combined;
-	}
-
+	@Override
 	protected void flushBuffersToDisk(Statement s) throws SQLException {
 		// FIXME: Remove this after implementing BTPv2?
 		s.execute("CHECKPOINT SYNC");

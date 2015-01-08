@@ -69,8 +69,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final SecureRandom secureRandom;
 	private final Clock clock;
 	private final DuplexPluginCallback callback;
-	private final int maxFrameLength;
-	private final long maxLatency, pollingInterval;
+	private final int maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
 	private volatile boolean wasDisabled = false;
@@ -82,15 +81,14 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Clock clock,
-			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
-			long pollingInterval) {
+			DuplexPluginCallback callback, int maxLatency,
+			int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
 		this.clock = clock;
 		this.callback = callback;
-		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 	}
@@ -99,12 +97,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return ID;
 	}
 
-	public int getMaxFrameLength() {
-		return maxFrameLength;
+	public int getMaxLatency() {
+		return maxLatency;
 	}
 
-	public long getMaxLatency() {
-		return maxLatency;
+	public int getMaxIdleTime() {
+		// Bluetooth detects dead connections so we don't need keepalives
+		return Integer.MAX_VALUE;
 	}
 
 	public boolean start() throws IOException {
@@ -240,7 +239,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return true;
 	}
 
-	public long getPollingInterval() {
+	public int getPollingInterval() {
 		return pollingInterval;
 	}
 
@@ -361,6 +360,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
 
+		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
 			if(state == STATE_ON) {

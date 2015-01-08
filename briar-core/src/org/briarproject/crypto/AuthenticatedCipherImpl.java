@@ -20,7 +20,7 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 		this.macLength = macLength;
 	}
 
-	public int doFinal(byte[] input, int inputOff, int len, byte[] output,
+	public int process(byte[] input, int inputOff, int len, byte[] output,
 			int outputOff) throws GeneralSecurityException {
 		int processed = 0;
 		if(len != 0) {
@@ -38,7 +38,7 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 
 	public void init(boolean encrypt, SecretKey key, byte[] iv, byte[] aad)
 			throws GeneralSecurityException {
-		KeyParameter k = new KeyParameter(key.getEncoded());
+		KeyParameter k = new KeyParameter(key.getBytes());
 		AEADParameters params = new AEADParameters(k, macLength * 8, iv, aad);
 		try {
 			cipher.init(encrypt, params);

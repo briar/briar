@@ -62,13 +62,10 @@ class TransportTagRecogniser {
 					assert duplicate == null;
 				}
 			}
-			key.erase();
 			// Store the updated reordering window in the DB
 			db.setReorderingWindow(t.contactId, transportId, t.period,
 					t.window.getCentre(), t.window.getBitmap());
-			// Clone the secret - the key manager will erase the original
-			byte[] secret = t.secret.clone();
-			return new StreamContext(t.contactId, transportId, secret,
+		return new StreamContext(t.contactId, transportId, t.secret,
 					t.streamNumber, t.alice);
 		}
 		finally{
@@ -96,7 +93,6 @@ class TransportTagRecogniser {
 				TagContext duplicate = tagMap.put(new Bytes(tag), added);
 				assert duplicate == null;
 			}
-			key.erase();
 			// Create a removal context to remove the window and the tags later
 			RemovalContext r = new RemovalContext(window, secret, alice);
 			removalMap.put(new RemovalKey(contactId, period), r);
@@ -128,7 +124,6 @@ class TransportTagRecogniser {
 			TagContext removed = tagMap.remove(new Bytes(tag));
 			assert removed != null;
 		}
-		key.erase();
 	}
 
 	void removeSecrets(ContactId c) {

@@ -32,14 +32,15 @@ import org.junit.Test;
 public class KeyRotationIntegrationTest extends BriarTestCase {
 
 	private static final long EPOCH = 1000L * 1000L * 1000L * 1000L;
-	private static final long MAX_LATENCY = 2 * 60 * 1000; // 2 minutes
-	private static final long ROTATION_PERIOD_LENGTH =
-			MAX_LATENCY + MAX_CLOCK_DIFFERENCE;
+	private static final int MAX_LATENCY = 2 * 60 * 1000; // 2 minutes
+	private static final int ROTATION_PERIOD =
+			MAX_CLOCK_DIFFERENCE + MAX_LATENCY;
 
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final byte[] secret0, secret1, secret2, secret3, secret4;
 	private final byte[] key0, key1, key2, key3, key4;
+	private final SecretKey k0, k1, k2, k3, k4;
 	private final byte[] initialSecret;
 
 	public KeyRotationIntegrationTest() {
@@ -60,6 +61,11 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		key2 = new byte[32];
 		key3 = new byte[32];
 		key4 = new byte[32];
+		k0 = new SecretKey(key0);
+		k1 = new SecretKey(key1);
+		k2 = new SecretKey(key2);
+		k3 = new SecretKey(key3);
+		k4 = new SecretKey(key4);
 		for(int i = 0; i < key0.length; i++) key0[i] = 1;
 		for(int i = 0; i < key1.length; i++) key1[i] = 2;
 		for(int i = 0; i < key2.length; i++) key2[i] = 3;
@@ -112,9 +118,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final SecretKey k0 = context.mock(SecretKey.class, "k0");
-		final SecretKey k1 = context.mock(SecretKey.class, "k1");
-		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
@@ -122,9 +125,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -142,11 +145,11 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			oneOf(crypto).deriveNextSecret(initialSecret, 0);
-			will(returnValue(secret0.clone()));
+			will(returnValue(secret0));
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The recogniser should derive the tags for period 0
 			oneOf(crypto).deriveTagKey(secret0, false);
@@ -155,10 +158,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -166,10 +166,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -177,10 +174,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// stop()
 			// The recogniser should derive the tags for period 0
 			oneOf(crypto).deriveTagKey(secret0, false);
@@ -189,10 +183,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -200,10 +191,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -211,17 +199,14 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// Remove the listener and stop the timer
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		keyManager.stop();
 
 		context.assertIsSatisfied();
@@ -235,9 +220,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final SecretKey k0 = context.mock(SecretKey.class, "k0");
-		final SecretKey k1 = context.mock(SecretKey.class, "k1");
-		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
@@ -245,9 +227,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -265,11 +247,11 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			oneOf(crypto).deriveNextSecret(initialSecret, 0);
-			will(returnValue(secret0.clone()));
+			will(returnValue(secret0));
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The recogniser should derive the tags for period 0
 			oneOf(crypto).deriveTagKey(secret0, false);
@@ -278,10 +260,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -289,10 +268,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -300,10 +276,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// getConnectionContext()
 			oneOf(db).incrementStreamCounter(contactId, transportId, 1);
 			will(returnValue(0L));
@@ -315,10 +288,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -326,10 +296,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -337,17 +304,14 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// Remove the listener and stop the timer
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		StreamContext ctx =
 				keyManager.getStreamContext(contactId, transportId);
 		assertNotNull(ctx);
@@ -369,9 +333,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final SecretKey k0 = context.mock(SecretKey.class, "k0");
-		final SecretKey k1 = context.mock(SecretKey.class, "k1");
-		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
@@ -379,9 +340,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		// The secrets for periods 0 - 2 should be derived
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -399,11 +360,11 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			oneOf(crypto).deriveNextSecret(initialSecret, 0);
-			will(returnValue(secret0.clone()));
+			will(returnValue(secret0));
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The recogniser should derive the tags for period 0
 			oneOf(crypto).deriveTagKey(secret0, false);
@@ -412,10 +373,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -423,10 +381,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -434,21 +389,15 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// acceptConnection()
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
-			oneOf(crypto).encodeTag(with(any(byte[].class)),
-					with(k2), with(16L));
+			oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+					with(16L));
 			will(new EncodeTagAction());
-			oneOf(k2).getEncoded();
-			will(returnValue(key2));
 			oneOf(db).setReorderingWindow(contactId, transportId, 2, 1,
 					new byte[] {0, 1, 0, 0});
-			oneOf(k2).erase();
 			// stop()
 			// The recogniser should derive the tags for period 0
 			oneOf(crypto).deriveTagKey(secret0, false);
@@ -457,10 +406,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -468,10 +414,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the updated tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -479,17 +422,14 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// Remove the listener and stop the timer
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		// Recognise the tag for connection 0 in period 2
 		byte[] tag = new byte[TAG_LENGTH];
 		encodeTag(tag, key2, 0);
@@ -513,9 +453,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final SecretKey k0 = context.mock(SecretKey.class, "k0");
-		final SecretKey k1 = context.mock(SecretKey.class, "k1");
-		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
@@ -523,9 +460,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -545,10 +482,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -556,10 +490,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -567,10 +498,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// Start the timer
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
@@ -582,10 +510,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k0).getEncoded();
-				will(returnValue(key0));
 			}
-			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
@@ -593,10 +518,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -604,10 +526,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// Remove the listener and stop the timer
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
@@ -627,9 +546,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final SecretKey k1 = context.mock(SecretKey.class, "k1");
-		final SecretKey k2 = context.mock(SecretKey.class, "k2");
-		final SecretKey k3 = context.mock(SecretKey.class, "k3");
 
 		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
@@ -637,11 +553,11 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 		// The secret for period 3 should be derived and stored
-		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3.clone());
+		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -653,14 +569,14 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 					MAX_LATENCY)));
 			// The current time is the start of period 2
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(EPOCH + ROTATION_PERIOD_LENGTH));
+			will(returnValue(EPOCH + ROTATION_PERIOD));
 			// The secret for period 3 should be derived and stored
 			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
+			will(returnValue(secret1));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
+			will(returnValue(secret3));
 			oneOf(db).addSecrets(Arrays.asList(s3));
 			// The recogniser should derive the tags for period 1
 			oneOf(crypto).deriveTagKey(secret1, false);
@@ -669,10 +585,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -680,10 +593,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// The recogniser should derive the tags for period 3
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
@@ -691,10 +601,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k3).getEncoded();
-				will(returnValue(key3));
 			}
-			oneOf(k3).erase();
 			// Start the timer
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
@@ -706,10 +613,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k1).getEncoded();
-				will(returnValue(key1));
 			}
-			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
@@ -717,10 +621,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// The recogniser should remove the tags for period 3
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
@@ -728,10 +629,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k3).getEncoded();
-				will(returnValue(key3));
 			}
-			oneOf(k3).erase();
 			// Remove the listener and stop the timer
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
@@ -751,9 +649,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final SecretKey k2 = context.mock(SecretKey.class, "k2");
-		final SecretKey k3 = context.mock(SecretKey.class, "k3");
-		final SecretKey k4 = context.mock(SecretKey.class, "k4");
 
 		final TagRecogniser tagRecogniser = new TagRecogniserImpl(crypto, db);
 		final KeyManagerImpl keyManager = new KeyManagerImpl(crypto, db,
@@ -761,12 +656,12 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		// The DB contains the secrets for periods 0 - 2
 		Endpoint ep = new Endpoint(contactId, transportId, EPOCH, true);
-		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0.clone());
-		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1.clone());
-		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2.clone());
+		final TemporarySecret s0 = new TemporarySecret(ep, 0, secret0);
+		final TemporarySecret s1 = new TemporarySecret(ep, 1, secret1);
+		final TemporarySecret s2 = new TemporarySecret(ep, 2, secret2);
 		// The secrets for periods 3 and 4 should be derived and stored
-		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3.clone());
-		final TemporarySecret s4 = new TemporarySecret(ep, 4, secret4.clone());
+		final TemporarySecret s3 = new TemporarySecret(ep, 3, secret3);
+		final TemporarySecret s4 = new TemporarySecret(ep, 4, secret4);
 
 		context.checking(new Expectations() {{
 			// start()
@@ -778,14 +673,14 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 					MAX_LATENCY)));
 			// The current time is the end of period 3
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(EPOCH + 3 * ROTATION_PERIOD_LENGTH - 1));
+			will(returnValue(EPOCH + 3 * ROTATION_PERIOD - 1));
 			// The secrets for periods 3 and 4 should be derived from secret 1
 			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
+			will(returnValue(secret2));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
+			will(returnValue(secret3));
 			oneOf(crypto).deriveNextSecret(secret3, 4);
-			will(returnValue(secret4.clone()));
+			will(returnValue(secret4));
 			// The new secrets should be stored
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));
 			// The recogniser should derive the tags for period 2
@@ -795,10 +690,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// The recogniser should derive the tags for period 3
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
@@ -806,10 +698,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k3).getEncoded();
-				will(returnValue(key3));
 			}
-			oneOf(k3).erase();
 			// The recogniser should derive the tags for period 4
 			oneOf(crypto).deriveTagKey(secret4, false);
 			will(returnValue(k4));
@@ -817,10 +706,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k4),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k4).getEncoded();
-				will(returnValue(key4));
 			}
-			oneOf(k4).erase();
 			// Start the timer
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
@@ -832,10 +718,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k2).getEncoded();
-				will(returnValue(key2));
 			}
-			oneOf(k2).erase();
 			// The recogniser should remove the tags for period 3
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
@@ -843,10 +726,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k3).getEncoded();
-				will(returnValue(key3));
 			}
-			oneOf(k3).erase();
 			// The recogniser should derive the tags for period 4
 			oneOf(crypto).deriveTagKey(secret4, false);
 			will(returnValue(k4));
@@ -854,10 +734,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k4),
 						with((long) i));
 				will(new EncodeTagAction());
-				oneOf(k4).getEncoded();
-				will(returnValue(key4));
 			}
-			oneOf(k4).erase();
 			// Remove the listener and stop the timer
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
@@ -885,7 +762,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			byte[] tag = (byte[]) invocation.getParameter(0);
 			SecretKey key = (SecretKey) invocation.getParameter(1);
 			long streamNumber = (Long) invocation.getParameter(2);
-			encodeTag(tag, key.getEncoded(), streamNumber);
+			encodeTag(tag, key.getBytes(), streamNumber);
 			return null;
 		}
 	}

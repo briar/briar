@@ -75,6 +75,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	protected final Message message, message1;
 	protected final TransportId transportId;
 	protected final TransportProperties transportProperties;
+	protected final int maxLatency;
 	protected final ContactId contactId;
 	protected final Contact contact;
 	protected final Endpoint endpoint;
@@ -102,6 +103,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		transportId = new TransportId("id");
 		transportProperties = new TransportProperties(Collections.singletonMap(
 				"bar", "baz"));
+		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthorId);
 		endpoint = new Endpoint(contactId, transportId, 123, true);
@@ -691,11 +693,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getRawMessage(txn, messageId);
 			will(returnValue(raw));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId,
-					Long.MAX_VALUE);
+					maxLatency);
 			oneOf(database).getRawMessage(txn, messageId1);
 			will(returnValue(raw1));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
-					Long.MAX_VALUE);
+					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -703,7 +705,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				eventBus, shutdown);
 
 		assertEquals(messages, db.generateBatch(contactId, size * 2,
-				Long.MAX_VALUE));
+				maxLatency));
 
 		context.assertIsSatisfied();
 	}
@@ -726,15 +728,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getMessagesToOffer(txn, contactId, 123);
 			will(returnValue(ids));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId,
-					Long.MAX_VALUE);
+					maxLatency);
 			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
-					Long.MAX_VALUE);
+					maxLatency);
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		Offer o = db.generateOffer(contactId, 123, Long.MAX_VALUE);
+		Offer o = db.generateOffer(contactId, 123, maxLatency);
 		assertEquals(ids, o.getMessageIds());
 
 		context.assertIsSatisfied();
@@ -791,11 +793,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getRawMessage(txn, messageId);
 			will(returnValue(raw));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId,
-					Long.MAX_VALUE);
+					maxLatency);
 			oneOf(database).getRawMessage(txn, messageId1);
 			will(returnValue(raw1));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
-					Long.MAX_VALUE);
+					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -803,7 +805,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				eventBus, shutdown);
 
 		assertEquals(messages, db.generateRequestedBatch(contactId, size * 2,
-				Long.MAX_VALUE));
+				maxLatency));
 
 		context.assertIsSatisfied();
 	}
@@ -821,14 +823,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getRetentionUpdate(txn, contactId, Long.MAX_VALUE);
+			oneOf(database).getRetentionUpdate(txn, contactId, maxLatency);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		assertNull(db.generateRetentionUpdate(contactId, Long.MAX_VALUE));
+		assertNull(db.generateRetentionUpdate(contactId, maxLatency));
 
 		context.assertIsSatisfied();
 	}
@@ -846,15 +848,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getRetentionUpdate(txn, contactId, Long.MAX_VALUE);
+			oneOf(database).getRetentionUpdate(txn, contactId, maxLatency);
 			will(returnValue(new RetentionUpdate(0, 1)));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		RetentionUpdate u = db.generateRetentionUpdate(contactId,
-				Long.MAX_VALUE);
+		RetentionUpdate u = db.generateRetentionUpdate(contactId, maxLatency);
 		assertEquals(0, u.getRetentionTime());
 		assertEquals(1, u.getVersion());
 
@@ -874,15 +875,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId,
-					Long.MAX_VALUE);
+			oneOf(database).getSubscriptionUpdate(txn, contactId, maxLatency);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		assertNull(db.generateSubscriptionUpdate(contactId, Long.MAX_VALUE));
+		assertNull(db.generateSubscriptionUpdate(contactId, maxLatency));
 
 		context.assertIsSatisfied();
 	}
@@ -900,8 +900,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId,
-					Long.MAX_VALUE);
+			oneOf(database).getSubscriptionUpdate(txn, contactId, maxLatency);
 			will(returnValue(new SubscriptionUpdate(Arrays.asList(group), 1)));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -909,7 +908,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				eventBus, shutdown);
 
 		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId,
-				Long.MAX_VALUE);
+				maxLatency);
 		assertEquals(Arrays.asList(group), u.getGroups());
 		assertEquals(1, u.getVersion());
 
@@ -929,14 +928,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getTransportUpdates(txn, contactId, Long.MAX_VALUE);
+			oneOf(database).getTransportUpdates(txn, contactId, maxLatency);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		assertNull(db.generateTransportUpdates(contactId, Long.MAX_VALUE));
+		assertNull(db.generateTransportUpdates(contactId, maxLatency));
 
 		context.assertIsSatisfied();
 	}
@@ -954,7 +953,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getTransportUpdates(txn, contactId, Long.MAX_VALUE);
+			oneOf(database).getTransportUpdates(txn, contactId, maxLatency);
 			will(returnValue(Arrays.asList(new TransportUpdate(transportId,
 					transportProperties, 1))));
 			oneOf(database).commitTransaction(txn);
@@ -963,7 +962,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				eventBus, shutdown);
 
 		Collection<TransportUpdate> updates =
-				db.generateTransportUpdates(contactId, Long.MAX_VALUE);
+				db.generateTransportUpdates(contactId, maxLatency);
 		assertNotNull(updates);
 		assertEquals(1, updates.size());
 		TransportUpdate u = updates.iterator().next();

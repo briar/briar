@@ -19,7 +19,6 @@ import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 
-import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -43,7 +42,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.text.Editable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -187,18 +185,16 @@ OnEditorActionListener {
 		else strengthMeter.setVisibility(INVISIBLE);
 		String nickname = nicknameEntry.getText().toString();
 		int nicknameLength = StringUtils.toUtf8(nickname).length;
-		char[] firstPassword = getChars(passwordEntry.getText());
-		char[] secondPassword = getChars(passwordConfirmation.getText());
-		boolean passwordsMatch = Arrays.equals(firstPassword, secondPassword);
+		String firstPassword = passwordEntry.getText().toString();
+		String secondPassword = passwordConfirmation.getText().toString();
+		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength = strengthEstimator.estimateStrength(firstPassword);
-		for(int i = 0; i < firstPassword.length; i++) firstPassword[i] = 0;
-		for(int i = 0; i < secondPassword.length; i++) secondPassword[i] = 0;
 		strengthMeter.setStrength(strength);
 		if(nicknameLength > MAX_AUTHOR_NAME_LENGTH) {
 			feedback.setText(R.string.name_too_long);
-		} else if(firstPassword.length == 0) {
+		} else if(firstPassword.length() == 0) {
 			feedback.setText("");
-		} else if(secondPassword.length == 0 || passwordsMatch) {
+		} else if(secondPassword.length() == 0 || passwordsMatch) {
 			if(strength < PasswordStrengthEstimator.WEAK)
 				feedback.setText(R.string.password_too_weak);
 			else feedback.setText("");
@@ -210,13 +206,6 @@ OnEditorActionListener {
 		continueButton.setEnabled(nicknameLength > 0
 				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
 				&& passwordsMatch && strength >= WEAK);
-	}
-
-	private char[] getChars(Editable e) {
-		int length = e.length();
-		char[] c = new char[length];
-		e.getChars(0, length, c, 0);
-		return c;
 	}
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -231,28 +220,20 @@ OnEditorActionListener {
 		feedback.setVisibility(GONE);
 		continueButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
-		// Copy the passwords and erase the originals
 		final String nickname = nicknameEntry.getText().toString();
-		final char[] password = getChars(passwordEntry.getText());
-		delete(passwordEntry.getText());
-		delete(passwordConfirmation.getText());
+		final String password = passwordEntry.getText().toString();
 		// Store the DB key and create the identity in a background thread
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
-				byte[] key = crypto.generateSecretKey().getEncoded();
+				byte[] key = crypto.generateSecretKey().getBytes();
 				databaseConfig.setEncryptionKey(key);
 				byte[] encrypted = encryptDatabaseKey(key, password);
-				for(int i = 0; i < password.length; i++) password[i] = 0;
 				storeEncryptedDatabaseKey(encrypted);
 				LocalAuthor localAuthor = createLocalAuthor(nickname);
 				showDashboard(referenceManager.putReference(localAuthor,
 						LocalAuthor.class));
 			}
 		});
-	}
-
-	private void delete(Editable e) {
-		e.delete(0, e.length());
 	}
 
 	private void storeEncryptedDatabaseKey(final byte[] encrypted) {
@@ -266,7 +247,7 @@ OnEditorActionListener {
 			LOG.info("Key storage took " + duration + " ms");
 	}
 
-	private byte[] encryptDatabaseKey(byte[] key, char[] password) {
+	private byte[] encryptDatabaseKey(byte[] key, String password) {
 		long now = System.currentTimeMillis();
 		byte[] encrypted = crypto.encryptWithPassword(key, password);
 		long duration = System.currentTimeMillis() - now;

@@ -2,12 +2,14 @@ package org.briarproject.messaging;
 
 import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Random;
 
 import org.briarproject.BriarTestCase;
@@ -32,13 +34,13 @@ import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageVerifier;
 import org.briarproject.api.messaging.MessagingSession;
+import org.briarproject.api.messaging.PacketReader;
 import org.briarproject.api.messaging.PacketReaderFactory;
+import org.briarproject.api.messaging.PacketWriter;
 import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReader;
 import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriter;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.crypto.CryptoModule;
@@ -56,8 +58,9 @@ import com.google.inject.Injector;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
-	private static final long CLOCK_DIFFERENCE = 60 * 1000;
-	private static final long LATENCY = 60 * 1000;
+	private static final int MAX_LATENCY = 2 * 60 * 1000; // 2 minutes
+	private static final int ROTATION_PERIOD =
+			MAX_CLOCK_DIFFERENCE + MAX_LATENCY;
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
@@ -73,8 +76,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Create matching secrets for Alice and Bob
 		initialSecret = new byte[32];
 		new Random().nextBytes(initialSecret);
-		long rotationPeriod = 2 * CLOCK_DIFFERENCE + LATENCY;
-		epoch = System.currentTimeMillis() - 2 * rotationPeriod;
+		epoch = System.currentTimeMillis() - 2 * ROTATION_PERIOD;
 	}
 
 	@Override
@@ -121,10 +123,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addGroup(group);
 		db.setInboxGroup(contactId, group);
 		// Add the transport and the endpoint
-		db.addTransport(transportId, LATENCY);
+		db.addTransport(transportId, MAX_LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, true);
 		db.addEndpoint(ep);
-		keyManager.endpointAdded(ep, LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		// Send Bob a message
 		String contentType = "text/plain";
 		long timestamp = System.currentTimeMillis();
@@ -133,25 +135,27 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Message message = messageFactory.createAnonymousMessage(null, group,
 				contentType, timestamp, body);
 		db.addLocalMessage(message);
+		// Get a stream context
+		StreamContext ctx = keyManager.getStreamContext(contactId, transportId);
+		assertNotNull(ctx);
 		// Create a stream writer
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamWriterFactory streamWriterFactory =
 				alice.getInstance(StreamWriterFactory.class);
-		StreamContext ctx = keyManager.getStreamContext(contactId, transportId);
-		assertNotNull(ctx);
-		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
-				MAX_FRAME_LENGTH, ctx);
+		OutputStream streamWriter =
+				streamWriterFactory.createStreamWriter(out, ctx);
 		// Create an outgoing messaging session
 		EventBus eventBus = alice.getInstance(EventBus.class);
 		PacketWriterFactory packetWriterFactory =
 				alice.getInstance(PacketWriterFactory.class);
+		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
+				streamWriter);
 		MessagingSession session = new SimplexOutgoingSession(db,
-				new ImmediateExecutor(), eventBus, packetWriterFactory,
-				contactId, transportId, Long.MAX_VALUE,
-				streamWriter.getOutputStream());
+				new ImmediateExecutor(), eventBus, contactId, transportId,
+				MAX_LATENCY, packetWriter);
 		// Write whatever needs to be written
 		session.run();
-		streamWriter.getOutputStream().close();
+		streamWriter.close();
 		// Clean up
 		keyManager.stop();
 		db.close();
@@ -182,10 +186,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addGroup(group);
 		db.setInboxGroup(contactId, group);
 		// Add the transport and the endpoint
-		db.addTransport(transportId, LATENCY);
+		db.addTransport(transportId, MAX_LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
 		db.addEndpoint(ep);
-		keyManager.endpointAdded(ep, LATENCY, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
 		// Set up an event listener
 		MessageListener listener = new MessageListener();
 		bob.getInstance(EventBus.class).addListener(listener);
@@ -200,23 +204,24 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Create a stream reader
 		StreamReaderFactory streamReaderFactory =
 				bob.getInstance(StreamReaderFactory.class);
-		StreamReader streamReader = streamReaderFactory.createStreamReader(in,
-				MAX_FRAME_LENGTH, ctx);
+		InputStream streamReader =
+				streamReaderFactory.createStreamReader(in, ctx);
 		// Create an incoming messaging session
 		EventBus eventBus = bob.getInstance(EventBus.class);
 		MessageVerifier messageVerifier =
 				bob.getInstance(MessageVerifier.class);
 		PacketReaderFactory packetReaderFactory =
 				bob.getInstance(PacketReaderFactory.class);
+		PacketReader packetReader = packetReaderFactory.createPacketReader(
+				streamReader);
 		MessagingSession session = new IncomingSession(db,
 				new ImmediateExecutor(), new ImmediateExecutor(), eventBus,
-				messageVerifier, packetReaderFactory, contactId, transportId,
-				streamReader.getInputStream());
+				messageVerifier, contactId, transportId, packetReader);
 		// No messages should have been added yet
 		assertFalse(listener.messageAdded);
 		// Read whatever needs to be read
 		session.run();
-		streamReader.getInputStream().close();
+		streamReader.close();
 		// The private message from Alice should have been added
 		assertTrue(listener.messageAdded);
 		// Clean up

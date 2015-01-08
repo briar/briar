@@ -13,11 +13,16 @@ import org.briarproject.plugins.DuplexServerTest;
 // is running on another machine
 public class LanTcpServerTest extends DuplexServerTest {
 
+	private static final int MAX_LATENCY = 60 * 1000;
+	private static final int MAX_IDLE_TIME = 30 * 1000;
+	private static final int POLLING_INTERVAL = 60 * 1000;
+
 	private LanTcpServerTest(Executor executor) {
 		callback = new ServerCallback(new TransportConfig(),
 				new TransportProperties(),
 				Collections.singletonMap(contactId, new TransportProperties()));
-		plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
+		plugin = new LanTcpPlugin(executor, callback, MAX_LATENCY,
+				MAX_IDLE_TIME, POLLING_INTERVAL);
 	}
 
 	public static void main(String[] args) throws Exception {

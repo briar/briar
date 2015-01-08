@@ -1,7 +1,5 @@
 package org.briarproject.plugins.file;
 
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
-
 import java.util.concurrent.Executor;
 
 import org.briarproject.api.TransportId;
@@ -14,8 +12,8 @@ import org.briarproject.util.OsUtils;
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 
 	// Maximum latency 14 days (Royal Mail or lackadaisical carrier pigeon)
-	private static final long MAX_LATENCY = 14 * 24 * 60 * 60 * 1000;
-	private static final long POLLING_INTERVAL = 10 * 1000; // 10 seconds
+	private static final int MAX_LATENCY = 14 * 24 * 60 * 60 * 1000;
+	private static final int POLLING_INTERVAL = 10 * 1000; // 10 seconds
 
 	private final Executor ioExecutor;
 	private final FileUtils fileUtils;
@@ -52,6 +50,6 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 			return null;
 		}
 		return new RemovableDrivePlugin(ioExecutor, fileUtils, callback,
-				finder, monitor, MAX_FRAME_LENGTH, MAX_LATENCY);
+				finder, monitor, MAX_LATENCY);
 	}
 }

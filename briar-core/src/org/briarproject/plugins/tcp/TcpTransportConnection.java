@@ -38,10 +38,6 @@ class TcpTransportConnection implements DuplexTransportConnection {
 
 	private class Reader implements TransportConnectionReader {
 
-		public int getMaxFrameLength() {
-			return plugin.getMaxFrameLength();
-		}
-
 		public long getMaxLatency() {
 			return plugin.getMaxLatency();
 		}
@@ -59,12 +55,12 @@ class TcpTransportConnection implements DuplexTransportConnection {
 
 	private class Writer implements TransportConnectionWriter {
 
-		public int getMaxFrameLength() {
-			return plugin.getMaxFrameLength();
+		public int getMaxLatency() {
+			return plugin.getMaxLatency();
 		}
 
-		public long getMaxLatency() {
-			return plugin.getMaxLatency();
+		public int getMaxIdleTime() {
+			return plugin.getMaxIdleTime();
 		}
 
 		public long getCapacity() {

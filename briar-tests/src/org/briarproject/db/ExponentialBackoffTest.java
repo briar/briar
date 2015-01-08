@@ -33,31 +33,29 @@ public class ExponentialBackoffTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testRoundTripTimeOverflow() {
-		long maxLatency = Long.MAX_VALUE / 2 + 1; // RTT will overflow
-		long expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 0);
-		assertEquals(Long.MAX_VALUE, expiry); // Overflow caught
-	}
-
-	@Test
 	public void testTransmissionCountOverflow() {
-		long maxLatency = (Long.MAX_VALUE - 1) / 2; // RTT will not overflow
+		int maxLatency = Integer.MAX_VALUE; // RTT will not overflow
 		long expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 0);
-		assertEquals(Long.MAX_VALUE - 1, expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 1);
+		assertEquals(Integer.MAX_VALUE * 2L, expiry); // No overflow
+		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 31);
+		assertEquals(Integer.MAX_VALUE * (2L << 31), expiry); // No overflow
+		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 32);
 		assertEquals(Long.MAX_VALUE, expiry); // Overflow caught
-		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 2);
+		expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 33);
 		assertEquals(Long.MAX_VALUE, expiry); // Overflow caught
 	}
 
 	@Test
 	public void testCurrentTimeOverflow() {
-		long maxLatency = (Long.MAX_VALUE - 1) / 2; // RTT will not overflow
-		long expiry = ExponentialBackoff.calculateExpiry(0, maxLatency, 0);
+		int maxLatency = Integer.MAX_VALUE; // RTT will not overflow
+		long now = Long.MAX_VALUE - (Integer.MAX_VALUE * (2L << 31));
+		long expiry = ExponentialBackoff.calculateExpiry(now, maxLatency, 0);
+		assertEquals(now + Integer.MAX_VALUE * 2L, expiry); // No overflow
+		expiry = ExponentialBackoff.calculateExpiry(now - 1, maxLatency, 31);
 		assertEquals(Long.MAX_VALUE - 1, expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(1, maxLatency, 0);
+		expiry = ExponentialBackoff.calculateExpiry(now, maxLatency, 31);
 		assertEquals(Long.MAX_VALUE, expiry); // No overflow
-		expiry = ExponentialBackoff.calculateExpiry(2, maxLatency, 0);
+		expiry = ExponentialBackoff.calculateExpiry(now + 1, maxLatency, 32);
 		assertEquals(Long.MAX_VALUE, expiry); // Overflow caught
 	}
 }
