@@ -27,7 +27,8 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 		boolean alice = !ctx.getAlice();
 		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
 		// Create the decrypter
-		return new StreamDecrypterImpl(in, crypto.getFrameCipher(), frameKey);
+		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		return new StreamDecrypterImpl(in, cipher, frameKey);
 	}
 
 	public StreamDecrypter createInvitationStreamDecrypter(InputStream in,
@@ -35,6 +36,7 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
 		// Create the decrypter
-		return new StreamDecrypterImpl(in, crypto.getFrameCipher(), frameKey);
+		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		return new StreamDecrypterImpl(in, cipher, frameKey);
 	}
 }

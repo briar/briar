@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
-import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.crypto.StreamEncrypter;
 

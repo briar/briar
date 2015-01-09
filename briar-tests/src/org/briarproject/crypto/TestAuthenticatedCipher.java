@@ -4,12 +4,9 @@ import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 
 import java.security.GeneralSecurityException;
 
-import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.SecretKey;
 
 class TestAuthenticatedCipher implements AuthenticatedCipher {
-
-	private static final int BLOCK_BYTES = 16;
 
 	private boolean encrypt = false;
 
@@ -37,9 +34,5 @@ class TestAuthenticatedCipher implements AuthenticatedCipher {
 
 	public int getMacBytes() {
 		return MAC_LENGTH;
-	}
-
-	public int getBlockBytes() {
-		return BLOCK_BYTES;
 	}
 }

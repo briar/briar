@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
@@ -290,14 +289,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new SecretKey(counterModeKdf(secret, label, context));
 	}
 
-	public AuthenticatedCipher getFrameCipher() {
-		return getAuthenticatedCipher();
-	}
-
-	private AuthenticatedCipher getAuthenticatedCipher() {
-		return new AuthenticatedCipherImpl();
-	}
-
 	public void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber) {
 		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
 		if(streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
@@ -312,7 +303,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] encryptWithPassword(byte[] input, String password) {
-		AuthenticatedCipher cipher = getAuthenticatedCipher();
+		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
 		int macBytes = cipher.getMacBytes();
 		// Generate a random salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
@@ -342,7 +333,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] decryptWithPassword(byte[] input, String password) {
-		AuthenticatedCipher cipher = getAuthenticatedCipher();
+		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
 		int macBytes = cipher.getMacBytes();
 		// The input contains the salt, iterations, IV, ciphertext and MAC
 		if(input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + macBytes)

@@ -77,9 +77,6 @@ public interface CryptoComponent {
 	 */
 	SecretKey deriveFrameKey(byte[] secret, long streamNumber, boolean alice);
 
-	/** Returns a cipher for encrypting and authenticating frames. */
-	AuthenticatedCipher getFrameCipher();
-
 	/** Encodes the pseudo-random tag that is used to recognise a stream. */
 	void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber);
 

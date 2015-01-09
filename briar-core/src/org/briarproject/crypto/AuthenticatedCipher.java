@@ -1,11 +1,14 @@
-package org.briarproject.api.crypto;
+package org.briarproject.crypto;
 
 import java.security.GeneralSecurityException;
 
-public interface AuthenticatedCipher {
+import org.briarproject.api.crypto.SecretKey;
+
+interface AuthenticatedCipher {
 
 	/**
-	 * Initializes this cipher with a key and an initialisation vector (IV).
+	 * Initializes this cipher for encryption or decryption with a key and an
+	 * initialisation vector (IV).
 	 */
 	void init(boolean encrypt, SecretKey key, byte[] iv)
 			throws GeneralSecurityException;
@@ -16,7 +19,4 @@ public interface AuthenticatedCipher {
 
 	/** Returns the length of the message authentication code (MAC) in bytes. */
 	int getMacBytes();
-
-	/** Returns the block size of the cipher in bytes. */
-	int getBlockBytes();
 }

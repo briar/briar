@@ -33,8 +33,8 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
 		// Create the encrypter
-		return new StreamEncrypterImpl(out, crypto.getFrameCipher(), frameKey,
-				tag);
+		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		return new StreamEncrypterImpl(out, cipher, frameKey, tag);
 	}
 
 	public StreamEncrypter createInvitationStreamEncrypter(OutputStream out,
@@ -42,7 +42,7 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
 		// Create the encrypter
-		return new StreamEncrypterImpl(out, crypto.getFrameCipher(), frameKey,
-				null);
+		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		return new StreamEncrypterImpl(out, cipher, frameKey, null);
 	}
 }
