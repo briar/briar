@@ -1,10 +1,6 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.crypto.EllipticCurveConstants.CURVE;
-import static org.briarproject.crypto.EllipticCurveConstants.G;
-import static org.briarproject.crypto.EllipticCurveConstants.H;
 import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
-import static org.briarproject.crypto.EllipticCurveConstants.Q;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -27,24 +23,22 @@ public class EllipticCurveMultiplicationTest extends BriarTestCase {
 
 	@Test
 	public void testMultiplierProducesSameResultsAsDefault() throws Exception {
-		// Instantiate the built-in implementation of the curve, which uses
-		// the default multiplier
+		// Instantiate the default implementation of the curve
 		X9ECParameters defaultX9Parameters =
-				TeleTrusTNamedCurves.getByName("brainpoolp384r1");
+				TeleTrusTNamedCurves.getByName("brainpoolp256r1");
 		ECCurve defaultCurve = defaultX9Parameters.getCurve();
 		ECPoint defaultG = defaultX9Parameters.getG();
-		BigInteger defaultQ = defaultX9Parameters.getN();
+		BigInteger defaultN = defaultX9Parameters.getN();
 		BigInteger defaultH = defaultX9Parameters.getH();
-		// Check that the built-in parameters are equal to our parameters,
-		// which use the Montgomery ladder multiplier
-		assertEquals(CURVE, defaultCurve);
-		assertEquals(G, defaultG);
-		assertEquals(Q, defaultQ);
-		assertEquals(H, defaultH);
+		// Check that the default parameters are equal to our parameters
+		assertEquals(PARAMETERS.getCurve(), defaultCurve);
+		assertEquals(PARAMETERS.getG(), defaultG);
+		assertEquals(PARAMETERS.getN(), defaultN);
+		assertEquals(PARAMETERS.getH(), defaultH);
 		// ECDomainParameters doesn't have an equals() method, but it's just a
 		// container for the parameters
 		ECDomainParameters defaultParameters = new ECDomainParameters(
-				defaultCurve, defaultG, defaultQ, defaultH);
+				defaultCurve, defaultG, defaultN, defaultH);
 		// Generate two key pairs with each set of parameters, using the same
 		// deterministic PRNG for both sets of parameters
 		byte[] seed = new byte[32];

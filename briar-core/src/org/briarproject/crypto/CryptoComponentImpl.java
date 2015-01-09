@@ -3,7 +3,6 @@ package org.briarproject.crypto;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.api.invitation.InvitationConstants.CODE_BITS;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-import static org.briarproject.crypto.EllipticCurveConstants.P;
 import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
@@ -35,7 +34,7 @@ import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.Mac;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
-import org.spongycastle.crypto.digests.SHA384Digest;
+import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -51,8 +50,8 @@ class CryptoComponentImpl implements CryptoComponent {
 			Logger.getLogger(CryptoComponentImpl.class.getName());
 
 	private static final int CIPHER_KEY_BYTES = 32; // 256 bits
-	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
-	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
+	private static final int AGREEMENT_KEY_PAIR_BITS = 256;
+	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
 	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
 	private static final int PBKDF_TARGET_MILLIS = 500;
@@ -99,9 +98,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		agreementKeyPairGenerator.init(params);
 		signatureKeyPairGenerator = new ECKeyPairGenerator();
 		signatureKeyPairGenerator.init(params);
-		agreementKeyParser = new Sec1KeyParser(PARAMETERS, P,
+		agreementKeyParser = new Sec1KeyParser(PARAMETERS,
 				AGREEMENT_KEY_PAIR_BITS);
-		signatureKeyParser = new Sec1KeyParser(PARAMETERS, P,
+		signatureKeyParser = new Sec1KeyParser(PARAMETERS,
 				SIGNATURE_KEY_PAIR_BITS);
 	}
 
@@ -112,7 +111,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public MessageDigest getMessageDigest() {
-		return new DoubleDigest(new SHA384Digest());
+		return new DoubleDigest(new SHA256Digest());
 	}
 
 	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
@@ -405,7 +404,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		if(label[label.length - 1] != '\0')
 			throw new IllegalArgumentException();
 		// Initialise the PRF
-		Mac prf = new HMac(new SHA384Digest());
+		Mac prf = new HMac(new SHA256Digest());
 		KeyParameter k = new KeyParameter(secret);
 		prf.init(k);
 		int macLength = prf.getMacSize();
@@ -426,7 +425,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
 	private byte[] pbkdf2(String password, byte[] salt, int iterations) {
 		byte[] utf8 = StringUtils.toUtf8(password);
-		Digest digest = new SHA384Digest();
+		Digest digest = new SHA256Digest();
 		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
 		gen.init(utf8, salt, iterations);
 		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
@@ -468,7 +467,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
 		long start = System.nanoTime();
-		Digest digest = new SHA384Digest();
+		Digest digest = new SHA256Digest();
 		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
 		gen.init(password, salt, iterations);
 		gen.generateDerivedParameters(keyLengthInBits);

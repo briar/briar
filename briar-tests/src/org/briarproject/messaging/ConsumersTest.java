@@ -63,7 +63,7 @@ public class ConsumersTest extends BriarTestCase {
 		private final java.security.MessageDigest delegate;
 
 		private TestMessageDigest() throws GeneralSecurityException {
-			delegate = java.security.MessageDigest.getInstance("SHA-384");
+			delegate = java.security.MessageDigest.getInstance("SHA-256");
 		}
 
 		public byte[] digest() {
@@ -99,6 +99,6 @@ public class ConsumersTest extends BriarTestCase {
 
 		public void update(byte[] input, int offset, int len) {
 			delegate.update(input, offset, len);
-		}		
+		}
 	}
 }

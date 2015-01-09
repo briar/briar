@@ -11,9 +11,9 @@ public interface AuthorConstants {
 	 * Public keys use SEC1 format: 0x04 x y, where x and y are unsigned
 	 * big-endian integers.
 	 * <p>
-	 * For a 384-bit elliptic curve, the maximum length is 2 * (384/8) + 1.
+	 * For a 256-bit elliptic curve, the maximum length is 2 * 256 / 8 + 1.
 	 */
-	int MAX_PUBLIC_KEY_LENGTH = 97;
+	int MAX_PUBLIC_KEY_LENGTH = 65;
 
 	/**
 	 * The maximum length of a signature in bytes.
@@ -24,8 +24,8 @@ public interface AuthorConstants {
 	 * length, len3 is len(s) as a DER length, and r and s are signed
 	 * big-endian integers of minimal length.
 	 * <p>
-	 * For a 384-bit elliptic curve, the lengths are one byte each, so the
-	 * maximum length is 2 * (384/8) + 8.
+	 * For a 256-bit elliptic curve, the lengths are one byte each, so the
+	 * maximum length is 2 * 256 / 8 + 8.
 	 */
-	int MAX_SIGNATURE_LENGTH = 104;
+	int MAX_SIGNATURE_LENGTH = 72;
 }

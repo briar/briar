@@ -29,10 +29,10 @@ class Sec1KeyParser implements KeyParser {
 	private final BigInteger modulus;
 	private final int keyBits, bytesPerInt, publicKeyBytes, privateKeyBytes;
 
-	Sec1KeyParser(ECDomainParameters params, BigInteger modulus, int keyBits) {
+	Sec1KeyParser(ECDomainParameters params, int keyBits) {
 		this.params = params;
-		this.modulus = modulus;
 		this.keyBits = keyBits;
+		modulus = ((ECCurve.Fp) params.getCurve()).getQ();
 		bytesPerInt = (keyBits + 7) / 8;
 		publicKeyBytes = 1 + 2 * bytesPerInt;
 		privateKeyBytes = bytesPerInt;

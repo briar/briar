@@ -5,7 +5,7 @@ import java.util.Arrays;
 public abstract class UniqueId {
 
 	/** The length of a unique identifier in bytes. */
-	public static final int LENGTH = 48;
+	public static final int LENGTH = 32;
 
 	protected final byte[] id;
 
