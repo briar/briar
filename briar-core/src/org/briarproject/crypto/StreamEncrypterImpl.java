@@ -20,7 +20,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	private final OutputStream out;
 	private final AuthenticatedCipher frameCipher;
 	private final SecretKey frameKey;
-	private final byte[] tag, iv, aad, plaintext, ciphertext;
+	private final byte[] tag, iv, plaintext, ciphertext;
 
 	private long frameNumber;
 	private boolean writeTag;
@@ -32,7 +32,6 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		this.frameKey = frameKey;
 		this.tag = tag;
 		iv = new byte[IV_LENGTH];
-		aad = new byte[IV_LENGTH];
 		plaintext = new byte[HEADER_LENGTH + MAX_PAYLOAD_LENGTH];
 		ciphertext = new byte[MAX_FRAME_LENGTH];
 		frameNumber = 0;
@@ -55,9 +54,8 @@ class StreamEncrypterImpl implements StreamEncrypter {
 				paddingLength);
 		// Encrypt and authenticate the header
 		FrameEncoder.encodeIv(iv, frameNumber, true);
-		FrameEncoder.encodeIv(aad, frameNumber, true);
 		try {
-			frameCipher.init(true, frameKey, iv, aad);
+			frameCipher.init(true, frameKey, iv);
 			int encrypted = frameCipher.process(plaintext, 0,
 					HEADER_LENGTH - MAC_LENGTH, ciphertext, 0);
 			if(encrypted != HEADER_LENGTH) throw new RuntimeException();
@@ -70,9 +68,8 @@ class StreamEncrypterImpl implements StreamEncrypter {
 			plaintext[HEADER_LENGTH + payloadLength + i] = 0;
 		// Encrypt and authenticate the payload and padding
 		FrameEncoder.encodeIv(iv, frameNumber, false);
-		FrameEncoder.encodeIv(aad, frameNumber, false);
 		try {
-			frameCipher.init(true, frameKey, iv, aad);
+			frameCipher.init(true, frameKey, iv);
 			int encrypted = frameCipher.process(plaintext, HEADER_LENGTH,
 					payloadLength + paddingLength, ciphertext, HEADER_LENGTH);
 			if(encrypted != payloadLength + paddingLength + MAC_LENGTH)

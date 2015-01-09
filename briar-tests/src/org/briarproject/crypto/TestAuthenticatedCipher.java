@@ -13,7 +13,7 @@ class TestAuthenticatedCipher implements AuthenticatedCipher {
 
 	private boolean encrypt = false;
 
-	public void init(boolean encrypt, SecretKey key, byte[] iv, byte[] aad)
+	public void init(boolean encrypt, SecretKey key, byte[] iv)
 			throws GeneralSecurityException {
 		this.encrypt = encrypt;
 	}
@@ -35,11 +35,11 @@ class TestAuthenticatedCipher implements AuthenticatedCipher {
 		}
 	}
 
-	public int getMacLength() {
+	public int getMacBytes() {
 		return MAC_LENGTH;
 	}
 
-	public int getBlockSize() {
+	public int getBlockBytes() {
 		return BLOCK_BYTES;
 	}
 }

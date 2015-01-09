@@ -41,9 +41,6 @@ import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.macs.HMac;
-import org.spongycastle.crypto.modes.AEADBlockCipher;
-import org.spongycastle.crypto.modes.GCMBlockCipher;
-import org.spongycastle.crypto.modes.gcm.BasicGCMMultiplier;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
@@ -57,7 +54,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int CIPHER_KEY_BYTES = 32; // 256 bits
 	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
-	private static final int MAC_BYTES = 16; // 128 bits
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
 	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
 	private static final int PBKDF_TARGET_MILLIS = 500;
@@ -299,9 +295,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	private AuthenticatedCipher getAuthenticatedCipher() {
-		AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine(),
-				new BasicGCMMultiplier());
-		return new AuthenticatedCipherImpl(a, MAC_BYTES);
+		return new AuthenticatedCipherImpl();
 	}
 
 	public void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber) {
@@ -318,6 +312,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] encryptWithPassword(byte[] input, String password) {
+		AuthenticatedCipher cipher = getAuthenticatedCipher();
+		int macBytes = cipher.getMacBytes();
 		// Generate a random salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		secureRandom.nextBytes(salt);
@@ -329,15 +325,14 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
 		// The output contains the salt, iterations, IV, ciphertext and MAC
-		int outputLen = salt.length + 4 + iv.length + input.length + MAC_BYTES;
+		int outputLen = salt.length + 4 + iv.length + input.length + macBytes;
 		byte[] output = new byte[outputLen];
 		System.arraycopy(salt, 0, output, 0, salt.length);
 		ByteUtils.writeUint32(iterations, output, salt.length);
 		System.arraycopy(iv, 0, output, salt.length + 4, iv.length);
 		// Initialise the cipher and encrypt the plaintext
-		AuthenticatedCipher cipher = getAuthenticatedCipher();
 		try {
-			cipher.init(true, key, iv, null);
+			cipher.init(true, key, iv);
 			int outputOff = salt.length + 4 + iv.length;
 			cipher.process(input, 0, input.length, output, outputOff);
 			return output;
@@ -347,22 +342,23 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] decryptWithPassword(byte[] input, String password) {
+		AuthenticatedCipher cipher = getAuthenticatedCipher();
+		int macBytes = cipher.getMacBytes();
 		// The input contains the salt, iterations, IV, ciphertext and MAC
-		if(input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + MAC_BYTES)
+		if(input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + macBytes)
 			return null; // Invalid
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		System.arraycopy(input, 0, salt, 0, salt.length);
 		long iterations = ByteUtils.readUint32(input, salt.length);
 		if(iterations < 0 || iterations > Integer.MAX_VALUE)
-			return null; // Invalid
+			return null; // Invalid iteration count
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		System.arraycopy(input, salt.length + 4, iv, 0, iv.length);
 		// Derive the key from the password
 		SecretKey key = new SecretKey(pbkdf2(password, salt, (int) iterations));
 		// Initialise the cipher
-		AuthenticatedCipher cipher = getAuthenticatedCipher();
 		try {
-			cipher.init(false, key, iv, null);
+			cipher.init(false, key, iv);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -370,7 +366,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		try {
 			int inputOff = salt.length + 4 + iv.length;
 			int inputLen = input.length - inputOff;
-			byte[] output = new byte[inputLen - MAC_BYTES];
+			byte[] output = new byte[inputLen - macBytes];
 			cipher.process(input, inputOff, inputLen, output, 0);
 			return output;
 		} catch(GeneralSecurityException e) {

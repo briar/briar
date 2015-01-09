@@ -21,7 +21,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 	private final InputStream in;
 	private final AuthenticatedCipher frameCipher;
 	private final SecretKey frameKey;
-	private final byte[] iv, aad, header, ciphertext;
+	private final byte[] iv, header, ciphertext;
 
 	private long frameNumber;
 	private boolean finalFrame;
@@ -32,7 +32,6 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
 		iv = new byte[IV_LENGTH];
-		aad = new byte[IV_LENGTH];
 		header = new byte[HEADER_LENGTH];
 		ciphertext = new byte[MAX_FRAME_LENGTH];
 		frameNumber = 0;
@@ -52,9 +51,8 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		}
 		// Decrypt and authenticate the header
 		FrameEncoder.encodeIv(iv, frameNumber, true);
-		FrameEncoder.encodeIv(aad, frameNumber, true);
 		try {
-			frameCipher.init(false, frameKey, iv, aad);
+			frameCipher.init(false, frameKey, iv);
 			int decrypted = frameCipher.process(ciphertext, 0, HEADER_LENGTH,
 					header, 0);
 			if(decrypted != HEADER_LENGTH - MAC_LENGTH)
@@ -78,9 +76,8 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		}
 		// Decrypt and authenticate the payload and padding
 		FrameEncoder.encodeIv(iv, frameNumber, false);
-		FrameEncoder.encodeIv(aad, frameNumber, false);
 		try {
-			frameCipher.init(false, frameKey, iv, aad);
+			frameCipher.init(false, frameKey, iv);
 			int decrypted = frameCipher.process(ciphertext, HEADER_LENGTH,
 					payloadLength + paddingLength + MAC_LENGTH, payload, 0);
 			if(decrypted != payloadLength + paddingLength)
