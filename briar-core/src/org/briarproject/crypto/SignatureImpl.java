@@ -1,7 +1,10 @@
 package org.briarproject.crypto;
 
+import static java.util.logging.Level.INFO;
+
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.logging.Logger;
 
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
@@ -17,6 +20,9 @@ import org.spongycastle.crypto.signers.ECDSASigner;
 import org.spongycastle.crypto.signers.HMacDSAKCalculator;
 
 class SignatureImpl implements Signature {
+
+	private static final Logger LOG =
+			Logger.getLogger(SignatureImpl.class.getName());
 
 	private final SecureRandom secureRandom;
 	private final DSADigestSigner signer;
@@ -53,10 +59,20 @@ class SignatureImpl implements Signature {
 	}
 
 	public byte[] sign() {
-		return signer.generateSignature();
+		long now = System.currentTimeMillis();
+		byte[] signature = signer.generateSignature();
+		long duration = System.currentTimeMillis() - now;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Generating signature took " + duration + " ms");
+		return signature;
 	}
 
 	public boolean verify(byte[] signature) {
-		return signer.verifySignature(signature);
+		long now = System.currentTimeMillis();
+		boolean valid = signer.verifySignature(signature);
+		long duration = System.currentTimeMillis() - now;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Verifying signature took " + duration + " ms");
+		return valid;
 	}
 }
