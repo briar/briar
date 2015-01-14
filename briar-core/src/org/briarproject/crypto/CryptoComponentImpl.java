@@ -336,7 +336,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		int macBytes = cipher.getMacBytes();
 		// The input contains the salt, iterations, IV, ciphertext and MAC
 		if(input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + macBytes)
-			return null; // Invalid
+			return null; // Invalid input
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		System.arraycopy(input, 0, salt, 0, salt.length);
 		long iterations = ByteUtils.readUint32(input, salt.length);
@@ -366,28 +366,21 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Key derivation function based on a hash function - see NIST SP 800-56A,
 	// section 5.8
-	private byte[] concatenationKdf(byte[] rawSecret, byte[] label,
-			byte[] initiatorInfo, byte[] responderInfo) {
+	private byte[] concatenationKdf(byte[]... args) {
 		// The output of the hash function must be long enough to use as a key
 		MessageDigest messageDigest = getMessageDigest();
 		if(messageDigest.getDigestLength() < CIPHER_KEY_BYTES)
 			throw new RuntimeException();
-		// The length of every field must fit in an unsigned 8-bit integer
-		if(rawSecret.length > 255) throw new IllegalArgumentException();
-		if(label.length > 255) throw new IllegalArgumentException();
-		if(initiatorInfo.length > 255) throw new IllegalArgumentException();
-		if(responderInfo.length > 255) throw new IllegalArgumentException();
-		// All fields are length-prefixed
-		messageDigest.update((byte) rawSecret.length);
-		messageDigest.update(rawSecret);
-		messageDigest.update((byte) label.length);
-		messageDigest.update(label);
-		messageDigest.update((byte) initiatorInfo.length);
-		messageDigest.update(initiatorInfo);
-		messageDigest.update((byte) responderInfo.length);
-		messageDigest.update(responderInfo);
+		// Each argument is length-prefixed - the length must fit in an
+		// unsigned 8-bit integer
+		for(byte[] arg : args) {
+			if(arg.length > 255) throw new IllegalArgumentException();
+			messageDigest.update((byte) arg.length);
+			messageDigest.update(arg);
+		}
 		byte[] hash = messageDigest.digest();
-		// The secret is the first CIPHER_KEY_BYTES bytes of the hash
+		// The output is the first CIPHER_KEY_BYTES bytes of the hash
+		if(hash.length == CIPHER_KEY_BYTES) return hash;
 		byte[] output = new byte[CIPHER_KEY_BYTES];
 		System.arraycopy(hash, 0, output, 0, output.length);
 		return output;
@@ -410,7 +403,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		int macLength = prf.getMacSize();
 		// The output of the PRF must be long enough to use as a key
 		if(macLength < CIPHER_KEY_BYTES) throw new RuntimeException();
-		byte[] mac = new byte[macLength], output = new byte[CIPHER_KEY_BYTES];
+		byte[] mac = new byte[macLength];
 		prf.update((byte) 0); // Counter
 		prf.update(label, 0, label.length); // Null-terminated
 		byte[] contextBytes = new byte[4];
@@ -418,6 +411,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.update(contextBytes, 0, contextBytes.length);
 		prf.update((byte) CIPHER_KEY_BYTES); // Output length
 		prf.doFinal(mac, 0);
+		// The output is the first CIPHER_KEY_BYTES bytes of the MAC
+		if(mac.length == CIPHER_KEY_BYTES) return mac;
+		byte[] output = new byte[CIPHER_KEY_BYTES];
 		System.arraycopy(mac, 0, output, 0, output.length);
 		return output;
 	}

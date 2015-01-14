@@ -3,6 +3,7 @@ package org.briarproject.crypto;
 import java.io.InputStream;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
@@ -13,10 +14,13 @@ import org.briarproject.api.transport.StreamContext;
 class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 
 	private final CryptoComponent crypto;
+	private final Provider<AuthenticatedCipher> cipherProvider;
 
 	@Inject
-	StreamDecrypterFactoryImpl(CryptoComponent crypto) {
+	StreamDecrypterFactoryImpl(CryptoComponent crypto,
+			Provider<AuthenticatedCipher> cipherProvider) {
 		this.crypto = crypto;
+		this.cipherProvider = cipherProvider;
 	}
 
 	public StreamDecrypter createStreamDecrypter(InputStream in,
@@ -27,7 +31,7 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 		boolean alice = !ctx.getAlice();
 		SecretKey frameKey = crypto.deriveFrameKey(secret, streamNumber, alice);
 		// Create the decrypter
-		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		AuthenticatedCipher cipher = cipherProvider.get();
 		return new StreamDecrypterImpl(in, cipher, frameKey);
 	}
 
@@ -36,7 +40,7 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 		// Derive the frame key
 		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, alice);
 		// Create the decrypter
-		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		AuthenticatedCipher cipher = cipherProvider.get();
 		return new StreamDecrypterImpl(in, cipher, frameKey);
 	}
 }

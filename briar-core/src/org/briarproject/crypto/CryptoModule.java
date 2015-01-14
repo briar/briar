@@ -42,6 +42,7 @@ public class CryptoModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(AuthenticatedCipher.class).to(AuthenticatedCipherImpl.class);
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);
 		bind(PasswordStrengthEstimator.class).to(
