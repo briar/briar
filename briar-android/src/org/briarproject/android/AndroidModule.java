@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.android.ReferenceManager;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.ui.UiCallback;
@@ -54,7 +55,7 @@ public class AndroidModule extends AbstractModule {
 		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		return new DatabaseConfig() {
 
-			private volatile byte[] key = null;
+			private volatile SecretKey key = null;
 
 			public boolean databaseExists() {
 				return dir.isDirectory() && dir.listFiles().length > 0;
@@ -64,11 +65,11 @@ public class AndroidModule extends AbstractModule {
 				return dir;
 			}
 
-			public void setEncryptionKey(byte[] key) {
+			public void setEncryptionKey(SecretKey key) {
 				this.key = key;
 			}
 
-			public byte[] getEncryptionKey() {
+			public SecretKey getEncryptionKey() {
 				return key;
 			}
 

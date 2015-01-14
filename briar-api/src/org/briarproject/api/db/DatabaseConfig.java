@@ -2,15 +2,17 @@ package org.briarproject.api.db;
 
 import java.io.File;
 
+import org.briarproject.api.crypto.SecretKey;
+
 public interface DatabaseConfig {
 
 	boolean databaseExists();
 
 	File getDatabaseDirectory();
 
-	void setEncryptionKey(byte[] key);
+	void setEncryptionKey(SecretKey key);
 
-	byte[] getEncryptionKey();
+	SecretKey getEncryptionKey();
 
 	long getMaxSize();
 }

@@ -23,6 +23,7 @@ import org.briarproject.android.util.FixedVerticalSpace;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.StringUtils;
 
@@ -140,7 +141,7 @@ public class PasswordActivity extends RoboActivity {
 				if(key == null) {
 					tryAgain();
 				} else {
-					databaseConfig.setEncryptionKey(key);
+					databaseConfig.setEncryptionKey(new SecretKey(key));
 					setResultAndFinish();
 				}
 			}

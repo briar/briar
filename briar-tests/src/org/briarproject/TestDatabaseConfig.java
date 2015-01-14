@@ -2,13 +2,14 @@ package org.briarproject;
 
 import java.io.File;
 
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 
 public class TestDatabaseConfig implements DatabaseConfig {
 
 	private final File dir;
 	private final long maxSize;
-	private volatile byte[] key = new byte[] { 'f', 'o', 'o' };
+	private volatile SecretKey key = new SecretKey(new byte[SecretKey.LENGTH]);
 
 	public TestDatabaseConfig(File dir, long maxSize) {
 		this.dir = dir;
@@ -23,11 +24,11 @@ public class TestDatabaseConfig implements DatabaseConfig {
 		return dir;
 	}
 
-	public void setEncryptionKey(byte[] key) {
+	public void setEncryptionKey(SecretKey key) {
 		this.key = key;
 	}
 
-	public byte[] getEncryptionKey() {
+	public SecretKey getEncryptionKey() {
 		return key;
 	}
 

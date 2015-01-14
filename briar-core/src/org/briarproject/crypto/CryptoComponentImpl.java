@@ -9,7 +9,6 @@ import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -49,7 +48,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final Logger LOG =
 			Logger.getLogger(CryptoComponentImpl.class.getName());
 
-	private static final int CIPHER_KEY_BYTES = 32; // 256 bits
 	private static final int AGREEMENT_KEY_PAIR_BITS = 256;
 	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
@@ -73,8 +71,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		{ 'A', '_', 'F', 'R', 'A', 'M', 'E', '\0' };
 	private static final byte[] B_FRAME =
 		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '\0' };
-	// Blank secret for argument validation
-	private static final byte[] BLANK_SECRET = new byte[CIPHER_KEY_BYTES];
 
 	private final SecureRandom secureRandom;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
@@ -105,7 +101,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public SecretKey generateSecretKey() {
-		byte[] b = new byte[CIPHER_KEY_BYTES];
+		byte[] b = new byte[SecretKey.LENGTH];
 		secureRandom.nextBytes(b);
 		return new SecretKey(b);
 	}
@@ -115,7 +111,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
-		return new PseudoRandomImpl(getMessageDigest(), seed1, seed2);
+		return new PseudoRandomImpl(seed1, seed2);
 	}
 
 	public SecureRandom getSecureRandom() {
@@ -172,9 +168,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public int[] deriveConfirmationCodes(byte[] secret) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		byte[] alice = counterModeKdf(secret, CODE, 0);
 		byte[] bob = counterModeKdf(secret, CODE, 1);
@@ -185,9 +179,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[][] deriveInvitationNonces(byte[] secret) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		byte[] alice = counterModeKdf(secret, NONCE, 0);
 		byte[] bob = counterModeKdf(secret, NONCE, 1);
@@ -237,26 +229,20 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] deriveGroupSalt(byte[] secret) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		return counterModeKdf(secret, SALT, 0);
 	}
 
 	public byte[] deriveInitialSecret(byte[] secret, int transportIndex) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		if(transportIndex < 0) throw new IllegalArgumentException();
 		return counterModeKdf(secret, FIRST, transportIndex);
 	}
 
 	public byte[] deriveNextSecret(byte[] secret, long period) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		if(period < 0 || period > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
@@ -264,9 +250,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public SecretKey deriveTagKey(byte[] secret, boolean alice) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		if(alice) return deriveKey(secret, A_TAG, 0);
 		else return deriveKey(secret, B_TAG, 0);
@@ -274,9 +258,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public SecretKey deriveFrameKey(byte[] secret, long streamNumber,
 			boolean alice) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		if(streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
@@ -366,32 +348,30 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Key derivation function based on a hash function - see NIST SP 800-56A,
 	// section 5.8
-	private byte[] concatenationKdf(byte[]... args) {
+	private byte[] concatenationKdf(byte[]... inputs) {
 		// The output of the hash function must be long enough to use as a key
 		MessageDigest messageDigest = getMessageDigest();
-		if(messageDigest.getDigestLength() < CIPHER_KEY_BYTES)
+		if(messageDigest.getDigestLength() < SecretKey.LENGTH)
 			throw new RuntimeException();
-		// Each argument is length-prefixed - the length must fit in an
+		// Each input is length-prefixed - the length must fit in an
 		// unsigned 8-bit integer
-		for(byte[] arg : args) {
-			if(arg.length > 255) throw new IllegalArgumentException();
-			messageDigest.update((byte) arg.length);
-			messageDigest.update(arg);
+		for(byte[] input : inputs) {
+			if(input.length > 255) throw new IllegalArgumentException();
+			messageDigest.update((byte) input.length);
+			messageDigest.update(input);
 		}
 		byte[] hash = messageDigest.digest();
-		// The output is the first CIPHER_KEY_BYTES bytes of the hash
-		if(hash.length == CIPHER_KEY_BYTES) return hash;
-		byte[] output = new byte[CIPHER_KEY_BYTES];
-		System.arraycopy(hash, 0, output, 0, output.length);
-		return output;
+		// The output is the first SecretKey.LENGTH bytes of the hash
+		if(hash.length == SecretKey.LENGTH) return hash;
+		byte[] truncated = new byte[SecretKey.LENGTH];
+		System.arraycopy(hash, 0, truncated, 0, truncated.length);
+		return truncated;
 	}
 
 	// Key derivation function based on a PRF in counter mode - see
 	// NIST SP 800-108, section 5.1
 	private byte[] counterModeKdf(byte[] secret, byte[] label, long context) {
-		if(secret.length != CIPHER_KEY_BYTES)
-			throw new IllegalArgumentException();
-		if(Arrays.equals(secret, BLANK_SECRET))
+		if(secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		// The label must be null-terminated
 		if(label[label.length - 1] != '\0')
@@ -402,20 +382,20 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.init(k);
 		int macLength = prf.getMacSize();
 		// The output of the PRF must be long enough to use as a key
-		if(macLength < CIPHER_KEY_BYTES) throw new RuntimeException();
+		if(macLength < SecretKey.LENGTH) throw new RuntimeException();
 		byte[] mac = new byte[macLength];
 		prf.update((byte) 0); // Counter
 		prf.update(label, 0, label.length); // Null-terminated
 		byte[] contextBytes = new byte[4];
 		ByteUtils.writeUint32(context, contextBytes, 0);
 		prf.update(contextBytes, 0, contextBytes.length);
-		prf.update((byte) CIPHER_KEY_BYTES); // Output length
+		prf.update((byte) SecretKey.LENGTH); // Output length
 		prf.doFinal(mac, 0);
-		// The output is the first CIPHER_KEY_BYTES bytes of the MAC
-		if(mac.length == CIPHER_KEY_BYTES) return mac;
-		byte[] output = new byte[CIPHER_KEY_BYTES];
-		System.arraycopy(mac, 0, output, 0, output.length);
-		return output;
+		// The output is the first SecretKey.LENGTH bytes of the MAC
+		if(mac.length == SecretKey.LENGTH) return mac;
+		byte[] truncated = new byte[SecretKey.LENGTH];
+		System.arraycopy(mac, 0, truncated, 0, truncated.length);
+		return truncated;
 	}
 
 	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
@@ -424,7 +404,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		Digest digest = new SHA256Digest();
 		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
 		gen.init(utf8, salt, iterations);
-		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
+		int keyLengthInBits = SecretKey.LENGTH * 8;
 		CipherParameters p = gen.generateDerivedParameters(keyLengthInBits);
 		return ((KeyParameter) p).getKey();
 	}
@@ -461,7 +441,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private long sampleRunningTime(int iterations) {
 		byte[] password = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
-		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
+		int keyLengthInBits = SecretKey.LENGTH * 8;
 		long start = System.nanoTime();
 		Digest digest = new SHA256Digest();
 		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);

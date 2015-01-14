@@ -34,6 +34,7 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.StringUtils;
 
@@ -225,7 +226,7 @@ OnEditorActionListener {
 		// Store the DB key and create the identity in a background thread
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
-				byte[] key = crypto.generateSecretKey().getBytes();
+				SecretKey key = crypto.generateSecretKey();
 				databaseConfig.setEncryptionKey(key);
 				byte[] encrypted = encryptDatabaseKey(key, password);
 				storeEncryptedDatabaseKey(encrypted);
@@ -247,9 +248,9 @@ OnEditorActionListener {
 			LOG.info("Key storage took " + duration + " ms");
 	}
 
-	private byte[] encryptDatabaseKey(byte[] key, String password) {
+	private byte[] encryptDatabaseKey(SecretKey key, String password) {
 		long now = System.currentTimeMillis();
-		byte[] encrypted = crypto.encryptWithPassword(key, password);
+		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
 		long duration = System.currentTimeMillis() - now;
 		if(LOG.isLoggable(INFO))
 			LOG.info("Key derivation took " + duration + " ms");
