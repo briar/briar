@@ -120,10 +120,12 @@ class BobConnector extends Connector {
 		if(remoteMatched) group.remoteConfirmationSucceeded();
 		else group.remoteConfirmationFailed();
 		if(!(localMatched && remoteMatched)) {
+			if(LOG.isLoggable(INFO))
+				LOG.info(pluginName + " confirmation failed");
 			tryToClose(conn, false);
 			return;
 		}
-		// The timestamp is taken after exhanging confirmation results
+		// The timestamp is taken after exchanging confirmation results
 		long localTimestamp = clock.currentTimeMillis();
 		// Confirmation succeeded - upgrade to a secure connection
 		if(LOG.isLoggable(INFO))
@@ -145,13 +147,19 @@ class BobConnector extends Connector {
 		Author remoteAuthor;
 		long remoteTimestamp;
 		Map<TransportId, TransportProperties> remoteProps;
+		boolean remoteReuseConnection;
 		try {
 			remoteAuthor = receivePseudonym(r, aliceNonce);
 			remoteTimestamp = receiveTimestamp(r);
 			remoteProps = receiveTransportProperties(r);
+			remoteReuseConnection = receiveConfirmation(r);
 			sendPseudonym(w, bobNonce);
 			sendTimestamp(w, localTimestamp);
 			sendTransportProperties(w);
+			sendConfirmation(w, reuseConnection);
+			// Close the outgoing stream and expect EOF on the incoming stream
+			w.close();
+			if(!r.eof()) LOG.warning("Unexpected data at end of connection");
 		} catch(GeneralSecurityException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			group.pseudonymExchangeFailed();
@@ -174,12 +182,12 @@ class BobConnector extends Connector {
 			group.pseudonymExchangeFailed();
 			return;
 		}
+		// Reuse the connection as a transport connection if both peers agree
+		if(reuseConnection && remoteReuseConnection) reuseConnection(conn);
+		else tryToClose(conn, false);
 		// Pseudonym exchange succeeded
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " pseudonym exchange succeeded");
 		group.pseudonymExchangeSucceeded(remoteAuthor);
-		// Reuse the connection as an incoming transport connection
-		if(reuseConnection) reuseConnection(conn, false);
-		else tryToClose(conn, false);
 	}
 }

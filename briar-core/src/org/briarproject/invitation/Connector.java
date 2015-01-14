@@ -29,7 +29,6 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyManager;
 import org.briarproject.api.crypto.KeyPair;
@@ -131,8 +130,9 @@ abstract class Connector extends Thread {
 	}
 
 	protected byte[] receivePublicKeyHash(Reader r) throws IOException {
-		byte[] b = r.readBytes(UniqueId.LENGTH);
-		if(b.length < UniqueId.LENGTH) throw new FormatException();
+		int hashLength = messageDigest.getDigestLength();
+		byte[] b = r.readBytes(hashLength);
+		if(b.length < hashLength) throw new FormatException();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received hash");
 		return b;
 	}
@@ -166,19 +166,19 @@ abstract class Connector extends Thread {
 		return crypto.deriveMasterSecret(key, keyPair, alice);
 	}
 
-	protected void sendConfirmation(Writer w, boolean matched)
+	protected void sendConfirmation(Writer w, boolean confirmed)
 			throws IOException {
-		w.writeBoolean(matched);
+		w.writeBoolean(confirmed);
 		w.flush();
 		if(LOG.isLoggable(INFO))
-			LOG.info(pluginName + " sent confirmation: " + matched);
+			LOG.info(pluginName + " sent confirmation: " + confirmed);
 	}
 
 	protected boolean receiveConfirmation(Reader r) throws IOException {
-		boolean matched = r.readBoolean();
+		boolean confirmed = r.readBoolean();
 		if(LOG.isLoggable(INFO))
-			LOG.info(pluginName + " received confirmation: " + matched);
-		return matched;
+			LOG.info(pluginName + " received confirmation: " + confirmed);
+		return confirmed;
 	}
 
 	protected void sendPseudonym(Writer w, byte[] nonce)
@@ -317,13 +317,10 @@ abstract class Connector extends Thread {
 		}
 	}
 
-	protected void reuseConnection(DuplexTransportConnection conn,
-			boolean alice) {
+	protected void reuseConnection(DuplexTransportConnection conn) {
 		if(contactId == null) throw new IllegalStateException();
 		TransportId t = plugin.getId();
-		if(alice)
-			connectionManager.manageOutgoingConnection(contactId, t, conn);
-		else connectionManager.manageIncomingConnection(t, conn);
+		connectionManager.manageOutgoingConnection(contactId, t, conn);
 	}
 
 	private static class TransportIdComparator
