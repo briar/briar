@@ -1,11 +1,12 @@
 package org.briarproject.reliability;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -101,9 +102,9 @@ class Sender {
 			// Don't accept an unreasonably large window size
 			windowSize = Math.min(a.getWindowSize(), MAX_WINDOW_SIZE);
 			// If space has become available, notify any waiting writers
-			if(windowSize > oldWindowSize || foundIndex != -1) sendWindowAvailable.signalAll();
-		}
-		finally{
+			if(windowSize > oldWindowSize || foundIndex != -1)
+				sendWindowAvailable.signalAll();
+		} finally {
 			synchLock.unlock();
 		}
 		// Fast retransmission
@@ -145,8 +146,7 @@ class Sender {
 					}
 				}
 			}
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		// Send a window probe if necessary
@@ -171,7 +171,7 @@ class Sender {
 			long now = clock.currentTimeMillis(), end = now + WRITE_TIMEOUT;
 			while(now < end && outstandingBytes + payloadLength >= windowSize) {
 				dataWaiting = true;
-				sendWindowAvailable.await(end - now, TimeUnit.MILLISECONDS);
+				sendWindowAvailable.await(end - now, MILLISECONDS);
 				now = clock.currentTimeMillis();
 			}
 			if(outstandingBytes + payloadLength >= windowSize)
@@ -179,8 +179,7 @@ class Sender {
 			outstanding.add(new Outstanding(d, now));
 			outstandingBytes += payloadLength;
 			dataWaiting = false;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		writeHandler.handleWrite(d.getBuffer());
@@ -188,10 +187,10 @@ class Sender {
 
 	void flush() throws IOException, InterruptedException {
 		synchLock.lock();
-		try{
-			while(dataWaiting || !outstanding.isEmpty()) sendWindowAvailable.await();
-		}
-		finally{
+		try {
+			while(dataWaiting || !outstanding.isEmpty())
+				sendWindowAvailable.await();
+		} finally {
 			synchLock.unlock();
 		}
 	}

@@ -40,7 +40,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	private final Map<String, Object> options;
 
 	private boolean initialised = false;
-	
+
 	private final Lock synchLock = new ReentrantLock();
 
 
@@ -58,8 +58,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		try {
 			if(!initialised) initialise();
 			return super.addShutdownHook(r);
-		} 
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -95,8 +94,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 				}
 			}
 			if(interrupted) Thread.currentThread().interrupt();
-		} 
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -108,7 +106,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		}
 
 		@Override
-		public void run() {			
+		public void run() {
 			try {
 				// Load user32.dll
 				final User32 user32 = (User32) Native.loadLibrary("user32",

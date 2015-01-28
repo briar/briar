@@ -25,8 +25,8 @@ class FortunaGenerator {
 	private final byte[] counter = new byte[BLOCK_BYTES];
 	private final byte[] buffer = new byte[BLOCK_BYTES];
 	private final byte[] newKey = new byte[KEY_BYTES];
-	
-	private final Lock synchLock = new ReentrantLock(); 
+
+	private final Lock synchLock = new ReentrantLock();
 
 	FortunaGenerator(byte[] seed) {
 		reseed(seed);
@@ -34,13 +34,12 @@ class FortunaGenerator {
 
 	void reseed(byte[] seed) {
 		synchLock.lock();
-		try{
+		try {
 			digest.update(key);
 			digest.update(seed);
 			digest.digest(key, 0, KEY_BYTES);
 			incrementCounter();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 
@@ -49,26 +48,24 @@ class FortunaGenerator {
 	// Package access for testing
 	void incrementCounter() {
 		synchLock.lock();
-		try{
+		try {
 			counter[0]++;
 			for(int i = 0; counter[i] == 0; i++) {
 				if(i + 1 == BLOCK_BYTES)
 					throw new RuntimeException("Counter exhausted");
 				counter[i + 1]++;
 			}
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
-}
+	}
 
 	// Package access for testing
 	byte[] getCounter() {
 		synchLock.lock();
-		try{
+		try {
 			return counter;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 
@@ -76,7 +73,7 @@ class FortunaGenerator {
 
 	int nextBytes(byte[] dest, int off, int len) {
 		synchLock.lock();
-		try{
+		try {
 			// Don't write more than the maximum number of bytes in one request
 			if(len > MAX_BYTES_PER_REQUEST) len = MAX_BYTES_PER_REQUEST;
 			cipher.init(true, new KeyParameter(key));
@@ -105,8 +102,7 @@ class FortunaGenerator {
 			for(int i = 0; i < KEY_BYTES; i++) newKey[i] = 0;
 			// Return the number of bytes written
 			return len;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}

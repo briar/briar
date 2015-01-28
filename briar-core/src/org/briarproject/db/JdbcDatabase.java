@@ -325,7 +325,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 	protected abstract void flushBuffersToDisk(Statement s) throws SQLException;
-	
+
 	private final Lock connectionsLock = new ReentrantLock();
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
@@ -441,11 +441,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			if(closed) throw new DbClosedException();
 			txn = connections.poll();
-		}
-		finally{
+		} finally {
 			connectionsLock.unlock();
 		}
-		
+
 		try {
 			if(txn == null) {
 				// Open a new connection
@@ -455,8 +454,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				connectionsLock.lock();
 				try {
 					openConnections++;
-				}
-				finally{
+				} finally {
 					connectionsLock.unlock();
 				}
 			}
@@ -474,8 +472,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			try {
 				connections.add(txn);
 				connectionsChanged.signalAll();
-			}
-			finally{
+			} finally {
 				connectionsLock.unlock();
 			}
 		} catch(SQLException e) {
@@ -491,10 +488,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			try {
 				openConnections--;
 				connectionsChanged.signalAll();
-			}
-			finally{
+			} finally {
 				connectionsLock.unlock();
-			}		}
+			}
+		}
 	}
 
 	public void commitTransaction(Connection txn) throws DbException {
@@ -509,11 +506,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throw new DbException(e);
 		}
 		connectionsLock.lock();
-		try{
+		try {
 			connections.add(txn);
 			connectionsChanged.signalAll();
-		}
-		finally{
+		} finally {
 			connectionsLock.unlock();
 		}
 	}
@@ -529,7 +525,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected void closeAllConnections() throws SQLException {
 		boolean interrupted = false;
 		connectionsLock.lock();
-		try{
+		try {
 			closed = true;
 			for(Connection c : connections) c.close();
 			openConnections -= connections.size();
@@ -545,11 +541,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				openConnections -= connections.size();
 				connections.clear();
 			}
-		}
-		finally{
+		} finally {
 			connectionsLock.unlock();
 		}
-		
+
 		if(interrupted) Thread.currentThread().interrupt();
 	}
 

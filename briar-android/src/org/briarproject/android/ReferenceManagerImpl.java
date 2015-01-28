@@ -24,7 +24,7 @@ class ReferenceManagerImpl implements ReferenceManager {
 
 	public <T> T getReference(long handle, Class<T> c) {
 		synchLock.lock();
-		try{
+		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
 			if(innerMap == null) {
 				if(LOG.isLoggable(INFO))
@@ -35,16 +35,15 @@ class ReferenceManagerImpl implements ReferenceManager {
 				LOG.info(innerMap.size() + " handles for " + c.getName());
 			Object o = innerMap.get(handle);
 			return c.cast(o);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
-		
+
 	}
 
 	public <T> long putReference(T reference, Class<T> c) {
 		synchLock.lock();
-		try{
+		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
 			if(innerMap == null) {
 				innerMap = new HashMap<Long, Object>();
@@ -57,15 +56,14 @@ class ReferenceManagerImpl implements ReferenceManager {
 						" after put");
 			}
 			return handle;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
 
 	public <T> T removeReference(long handle, Class<T> c) {
 		synchLock.lock();
-		try{
+		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
 			if(innerMap == null) return null;
 			Object o = innerMap.remove(handle);
@@ -75,8 +73,7 @@ class ReferenceManagerImpl implements ReferenceManager {
 						" after remove");
 			}
 			return c.cast(o);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 

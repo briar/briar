@@ -62,7 +62,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
-	
+
 	private final Lock synchLock = new ReentrantLock();
 
 	/*The state that's accessed in addListener() after
@@ -107,14 +107,14 @@ class ConnectorGroup extends Thread implements InvitationTask {
 
 	public InvitationState addListener(InvitationListener l) {
 		synchLock.lock();
-		try{
+		try {
 			listeners.add(l);
-			return new InvitationState(localInvitationCode, remoteInvitationCode,
-					localConfirmationCode, remoteConfirmationCode, connected.get(),
-					connectionFailed, localCompared, remoteCompared, localMatched,
-					remoteMatched, remoteName);
-		}
-		finally{
+			return new InvitationState(localInvitationCode,
+					remoteInvitationCode, localConfirmationCode,
+					remoteConfirmationCode, connected.get(), connectionFailed,
+					localCompared, remoteCompared, localMatched, remoteMatched,
+					remoteName);
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -140,8 +140,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			synchLock.lock();
 			try {
 				connectionFailed = true;
-			}
-			finally{
+			} finally {
 				synchLock.unlock();
 			}
 			for(InvitationListener l : listeners) l.connectionFailed();
@@ -177,8 +176,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			synchLock.lock();
 			try {
 				connectionFailed = true;
-			}
-			finally{
+			} finally {
 				synchLock.unlock();
 			}
 			for(InvitationListener l : listeners) l.connectionFailed();
@@ -212,8 +210,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		try {
 			localCompared = true;
 			localMatched = true;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		localConfirmationLatch.countDown();
@@ -224,8 +221,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		try {
 			localCompared = true;
 			localMatched = false;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		localConfirmationLatch.countDown();
@@ -243,8 +239,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		try {
 			localConfirmationCode = localCode;
 			remoteConfirmationCode = remoteCode;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners)
@@ -260,8 +255,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		synchLock.lock();
 		try {
 			return localMatched;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -271,8 +265,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		try {
 			remoteCompared = true;
 			remoteMatched = true;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners) l.remoteConfirmationSucceeded();
@@ -283,8 +276,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		try {
 			remoteCompared = true;
 			remoteMatched = false;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners) l.remoteConfirmationFailed();
@@ -295,8 +287,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		synchLock.lock();
 		try {
 			remoteName = name;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners)

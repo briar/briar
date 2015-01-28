@@ -22,7 +22,7 @@ class TagRecogniserImpl implements TagRecogniser {
 	private final DatabaseComponent db;
 
 	private final Map<TransportId, TransportTagRecogniser> recognisers;
-	
+
 	private final Lock synchLock = new ReentrantLock();
 
 
@@ -39,8 +39,7 @@ class TagRecogniserImpl implements TagRecogniser {
 		synchLock.lock();
 		try {
 			r = recognisers.get(t);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		if(r == null) return null;
@@ -57,8 +56,7 @@ class TagRecogniserImpl implements TagRecogniser {
 				r = new TransportTagRecogniser(crypto, db, t);
 				recognisers.put(t, r);
 			}
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		r.addSecret(s);
@@ -69,8 +67,7 @@ class TagRecogniserImpl implements TagRecogniser {
 		synchLock.lock();
 		try {
 			r = recognisers.get(t);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		if(r != null) r.removeSecret(c, period);
@@ -78,21 +75,19 @@ class TagRecogniserImpl implements TagRecogniser {
 
 	public void removeSecrets(ContactId c) {
 		synchLock.lock();
-		try{
+		try {
 			for(TransportTagRecogniser r : recognisers.values())
 				r.removeSecrets(c);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
 
 	public void removeSecrets(TransportId t) {
 		synchLock.lock();
-		try{
+		try {
 			recognisers.remove(t);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 
@@ -100,11 +95,10 @@ class TagRecogniserImpl implements TagRecogniser {
 
 	public void removeSecrets() {
 		synchLock.lock();
-		try{
+		try {
 			for(TransportTagRecogniser r : recognisers.values())
 				r.removeSecrets();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 

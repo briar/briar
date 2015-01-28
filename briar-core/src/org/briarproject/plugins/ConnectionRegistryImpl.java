@@ -31,7 +31,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	private final Map<TransportId, Map<ContactId, Integer>> connections;
 	// Locking: this
 	private final Map<ContactId, Integer> contactCounts;
-	
+
 	private final Lock synchLock = new ReentrantLock();
 
 	@Inject
@@ -61,8 +61,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			} else {
 				contactCounts.put(c, count + 1);
 			}
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 
@@ -94,8 +93,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			} else {
 				contactCounts.put(c, count - 1);
 			}
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 
@@ -108,14 +106,13 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public Collection<ContactId> getConnectedContacts(
 			TransportId t) {
 		synchLock.lock();
-		try{
+		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if(m == null) return Collections.emptyList();
 			List<ContactId> ids = new ArrayList<ContactId>(m.keySet());
 			if(LOG.isLoggable(INFO)) LOG.info(ids.size() + " contacts connected");
 			return Collections.unmodifiableList(ids);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 
@@ -123,10 +120,9 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	public boolean isConnected(ContactId c) {
 		synchLock.lock();
-		try{
+		try {
 			return contactCounts.containsKey(c);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 

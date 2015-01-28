@@ -1,11 +1,12 @@
 package org.briarproject.reliability;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -38,12 +39,12 @@ class Receiver implements ReadHandler {
 
 	Data read() throws IOException, InterruptedException {
 		synchLock.lock();
-		try{
+		try {
 			long now = clock.currentTimeMillis(), end = now + READ_TIMEOUT;
 			while(now < end && valid) {
 				if(dataFrames.isEmpty()) {
 					// Wait for a data frame
-					dataFrameAvailable.await(end - now, TimeUnit.MILLISECONDS);
+					dataFrameAvailable.await(end - now, MILLISECONDS);
 				} else {
 					Data d = dataFrames.first();
 					if(d.getSequenceNumber() == nextSequenceNumber) {
@@ -55,15 +56,14 @@ class Receiver implements ReadHandler {
 						return d;
 					} else {
 						// Wait for the next in-order data frame
-						dataFrameAvailable.await(end - now, TimeUnit.MILLISECONDS);
+						dataFrameAvailable.await(end - now, MILLISECONDS);
 					}
 				}
 				now = clock.currentTimeMillis();
 			}
 			if(valid) throw new IOException("Read timed out");
 			throw new IOException("Connection closed");
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -73,8 +73,7 @@ class Receiver implements ReadHandler {
 		synchLock.lock();
 		try {
 			dataFrameAvailable.signalAll();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -97,7 +96,7 @@ class Receiver implements ReadHandler {
 
 	private void handleData(byte[] b) throws IOException {
 		synchLock.lock();
-		try{
+		try {
 			if(b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
 				// Ignore data frame with invalid length
 				return;
@@ -134,8 +133,7 @@ class Receiver implements ReadHandler {
 			}
 			// Acknowledge the data frame even if it's a duplicate
 			sender.sendAck(sequenceNumber, windowSize);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}

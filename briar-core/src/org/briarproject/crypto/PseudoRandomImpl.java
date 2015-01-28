@@ -13,7 +13,7 @@ class PseudoRandomImpl implements PseudoRandom {
 
 	private byte[] state;
 	private int offset;
-	
+
 	private final Lock synchLock = new ReentrantLock();
 
 	PseudoRandomImpl(MessageDigest messageDigest, int seed1, int seed2) {
@@ -28,7 +28,7 @@ class PseudoRandomImpl implements PseudoRandom {
 
 	public byte[] nextBytes(int bytes) {
 		synchLock.lock();
-		try{
+		try {
 			byte[] b = new byte[bytes];
 			int half = state.length / 2;
 			int off = 0, len = b.length, available = half - offset;
@@ -44,8 +44,7 @@ class PseudoRandomImpl implements PseudoRandom {
 			System.arraycopy(state, offset, b, off, len);
 			offset += len;
 			return b;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}

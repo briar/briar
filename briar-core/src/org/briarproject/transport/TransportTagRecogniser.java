@@ -45,7 +45,7 @@ class TransportTagRecogniser {
 
 	StreamContext recogniseTag(byte[] tag) throws DbException {
 		synchLock.lock();
-		try{
+		try {
 			TagContext t = tagMap.remove(new Bytes(tag));
 			if(t == null) return null; // The tag was not expected
 			// Update the reordering window and the expected tags
@@ -65,17 +65,16 @@ class TransportTagRecogniser {
 			// Store the updated reordering window in the DB
 			db.setReorderingWindow(t.contactId, transportId, t.period,
 					t.window.getCentre(), t.window.getBitmap());
-		return new StreamContext(t.contactId, transportId, t.secret,
+			return new StreamContext(t.contactId, transportId, t.secret,
 					t.streamNumber, t.alice);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
 
 	void addSecret(TemporarySecret s) {
 		synchLock.lock();
-		try{
+		try {
 			ContactId contactId = s.getContactId();
 			boolean alice = s.getAlice();
 			long period = s.getPeriod();
@@ -96,21 +95,19 @@ class TransportTagRecogniser {
 			// Create a removal context to remove the window and the tags later
 			RemovalContext r = new RemovalContext(window, secret, alice);
 			removalMap.put(new RemovalKey(contactId, period), r);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
 
 	void removeSecret(ContactId contactId, long period) {
 		synchLock.lock();
-		try{
+		try {
 			RemovalKey k = new RemovalKey(contactId, period);
 			RemovalContext removed = removalMap.remove(k);
 			if(removed == null) throw new IllegalArgumentException();
 			removeSecret(removed);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -128,25 +125,24 @@ class TransportTagRecogniser {
 
 	void removeSecrets(ContactId c) {
 		synchLock.lock();
-		try{
+		try {
 			Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
 			for(RemovalKey k : removalMap.keySet())
 				if(k.contactId.equals(c)) keysToRemove.add(k);
-			for(RemovalKey k : keysToRemove) removeSecret(k.contactId, k.period);
-		}
-		finally{
+			for(RemovalKey k : keysToRemove)
+				removeSecret(k.contactId, k.period);
+		} finally {
 			synchLock.unlock();
 		}
 	}
 
 	void removeSecrets() {
 		synchLock.lock();
-		try{
+		try {
 			for(RemovalContext r : removalMap.values()) removeSecret(r);
 			assert tagMap.isEmpty();
 			removalMap.clear();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}

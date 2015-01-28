@@ -78,7 +78,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		synchLock.lock();
 		try {
 			eventBus.addListener(this);
-			// Load the temporary secrets and transport latencies from the database
+			// Load the temporary secrets and transport latencies from the DB
 			Collection<TemporarySecret> secrets;
 			try {
 				secrets = db.getSecrets();
@@ -89,15 +89,18 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			}
 			// Work out what phase of its lifecycle each secret is in
 			long now = clock.currentTimeMillis();
-			Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
+			Collection<TemporarySecret> dead =
+					assignSecretsToMaps(now, secrets);
 			// Replace any dead secrets
 			Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
 			if(!created.isEmpty()) {
-				// Store any secrets that have been created, removing any dead ones
+				// Store any secrets that have been created,
+				// removing any dead ones
 				try {
 					db.addSecrets(created);
 				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
 					return false;
 				}
 			}
@@ -109,10 +112,10 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			for(TemporarySecret s : newSecrets.values())
 				tagRecogniser.addSecret(s);
 			// Schedule periodic key rotation
-			timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
+			timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS,
+					MS_BETWEEN_CHECKS);
 			return true;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -209,7 +212,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 
 	public boolean stop() {
 		synchLock.lock();
-		try{
+		try {
 			eventBus.removeListener(this);
 			timer.cancel();
 			tagRecogniser.removeSecrets();
@@ -218,8 +221,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			currentSecrets.clear();
 			newSecrets.clear();
 			return true;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -227,7 +229,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	public StreamContext getStreamContext(ContactId c,
 			TransportId t) {
 		synchLock.lock();
-		try{
+		try {
 			TemporarySecret s = currentSecrets.get(new EndpointKey(c, t));
 			if(s == null) {
 				LOG.info("No secret for endpoint");
@@ -244,10 +246,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return null;
 			}
-		byte[] secret = s.getSecret();
+			byte[] secret = s.getSecret();
 			return new StreamContext(c, t, secret, streamNumber, s.getAlice());
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -255,7 +256,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	public synchronized void endpointAdded(Endpoint ep, int maxLatency,
 			byte[] initialSecret) {
 		synchLock.lock();
-		try{
+		try {
 			maxLatencies.put(ep.getTransportId(), maxLatency);
 			// Work out which rotation period we're in
 			long elapsed = clock.currentTimeMillis() - ep.getEpoch();
@@ -287,8 +288,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			tagRecogniser.addSecret(s1);
 			tagRecogniser.addSecret(s2);
 			tagRecogniser.addSecret(s3);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -296,8 +296,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	@Override
 	public void run() {
 		synchLock.lock();
-		try{
-		// Rebuild the maps because we may be running a whole period late
+		try {
+			// Rebuild the maps because we may be running a whole period late
 			Collection<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
 			secrets.addAll(oldSecrets.values());
 			secrets.addAll(currentSecrets.values());
@@ -327,8 +327,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 				// Pass any secrets that have been created to the recogniser
 				for(TemporarySecret s : created) tagRecogniser.addSecret(s);
 			}
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -401,12 +400,11 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			ContactId c = event.getContactId();
 			tagRecogniser.removeSecrets(c);
 			synchLock.lock();
-			try{
+			try {
 				removeSecrets(c, oldSecrets);
 				removeSecrets(c, currentSecrets);
 				removeSecrets(c, newSecrets);
-			}
-			finally{
+			} finally {
 				synchLock.unlock();
 			}
 		}
@@ -425,8 +423,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 			synchLock.lock();
 			try {
 				maxLatencies.put(event.getTransportId(), event.getMaxLatency());
-			}
-			finally{
+			} finally {
 				synchLock.unlock();
 			}
 		}
@@ -450,8 +447,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 				removeSecrets(t, oldSecrets);
 				removeSecrets(t, currentSecrets);
 				removeSecrets(t, newSecrets);
-			}
-			finally{
+			} finally {
 				synchLock.unlock();
 			}
 		}

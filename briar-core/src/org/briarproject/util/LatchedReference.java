@@ -1,7 +1,8 @@
 package org.briarproject.util;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LatchedReference<T> {
@@ -23,7 +24,7 @@ public class LatchedReference<T> {
 	}
 
 	public T waitForReference(long timeout) throws InterruptedException {
-		latch.await(timeout, TimeUnit.MILLISECONDS);
+		latch.await(timeout, MILLISECONDS);
 		return reference.get();
 	}
 }

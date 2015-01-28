@@ -11,7 +11,6 @@ import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.plugins.ConnectionRegistry;
-import org.briarproject.plugins.ConnectionRegistryImpl;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;

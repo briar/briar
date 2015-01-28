@@ -12,7 +12,7 @@ class ShutdownManagerImpl implements ShutdownManager {
 	protected final Map<Integer, Thread> hooks;
 
 	private int nextHandle = 0;
-	
+
 	private final Lock synchLock = new ReentrantLock();
 
 	ShutdownManagerImpl() {
@@ -21,14 +21,13 @@ class ShutdownManagerImpl implements ShutdownManager {
 
 	public int addShutdownHook(Runnable r) {
 		synchLock.lock();
-		try{
+		try {
 			int handle = nextHandle++;
 			Thread hook = createThread(r);
 			hooks.put(handle, hook);
 			Runtime.getRuntime().addShutdownHook(hook);
 			return handle;
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 
@@ -40,12 +39,11 @@ class ShutdownManagerImpl implements ShutdownManager {
 
 	public boolean removeShutdownHook(int handle) {
 		synchLock.lock();
-		try{
+		try {
 			Thread hook = hooks.remove(handle);
 			if(hook == null) return false;
 			else return Runtime.getRuntime().removeShutdownHook(hook);
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 

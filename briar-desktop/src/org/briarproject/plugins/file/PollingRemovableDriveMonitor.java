@@ -1,10 +1,11 @@
 package org.briarproject.plugins.file;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,7 +45,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 		pollingLock.lock();
 		try {
 			stopPolling.signalAll();
-		} 
+		}
 		finally {
 			pollingLock.unlock();
 		}
@@ -56,9 +57,8 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 			while(running) {
 				pollingLock.lock();
 				try {
-					stopPolling.await(pollingInterval, TimeUnit.MILLISECONDS);
-				} 
-				finally{
+					stopPolling.await(pollingInterval, MILLISECONDS);
+				} finally {
 					pollingLock.unlock();
 				}
 				if(!running) return;

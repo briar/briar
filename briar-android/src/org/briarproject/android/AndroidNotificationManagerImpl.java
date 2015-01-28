@@ -49,6 +49,10 @@ Service, EventListener {
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
 	private static final int GROUP_POST_NOTIFICATION_ID = 4;
+	private static final String CONTACT_URI =
+			"content://org.briarproject/contact";
+	private static final String GROUP_URI =
+			"content://org.briarproject/group";
 
 	private static final Logger LOG =
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
@@ -58,15 +62,15 @@ Service, EventListener {
 	private final EventBus eventBus;
 	private final Context appContext;
 	private final Map<ContactId, Integer> contactCounts =
-			new HashMap<ContactId, Integer>(); 
+			new HashMap<ContactId, Integer>();
 	private final Map<GroupId, Integer> groupCounts =
-			new HashMap<GroupId, Integer>(); 
+			new HashMap<GroupId, Integer>();
 
 	private int privateTotal = 0, groupTotal = 0;
 	private int nextRequestId = 0;
 
 	private volatile Settings settings = new Settings();
-	
+
 	private final Lock synchLock = new ReentrantLock();
 
 	@Inject
@@ -109,27 +113,25 @@ Service, EventListener {
 
 	public void showPrivateMessageNotification(ContactId c) {
 		synchLock.lock();
-		try{
+		try {
 			Integer count = contactCounts.get(c);
 			if(count == null) contactCounts.put(c, 1);
 			else contactCounts.put(c, count + 1);
 			privateTotal++;
 			updatePrivateMessageNotification();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
 
 	public void clearPrivateMessageNotification(ContactId c) {
 		synchLock.lock();
-		try{
+		try {
 			Integer count = contactCounts.remove(c);
 			if(count == null) return; // Already cleared
 			privateTotal -= count;
 			updatePrivateMessageNotification();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -158,7 +160,7 @@ Service, EventListener {
 				Intent i = new Intent(appContext, ConversationActivity.class);
 				ContactId c = contactCounts.keySet().iterator().next();
 				i.putExtra("briar.CONTACT_ID", c.getInt());
-				i.setData(Uri.parse(String.format("content://contact/%s", c.getInt())));
+				i.setData(Uri.parse(CONTACT_URI + "/" + c.getInt()));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ConversationActivity.class);
@@ -197,27 +199,25 @@ Service, EventListener {
 
 	public void showGroupPostNotification(GroupId g) {
 		synchLock.lock();
-		try{
+		try {
 			Integer count = groupCounts.get(g);
 			if(count == null) groupCounts.put(g, 1);
 			else groupCounts.put(g, count + 1);
 			groupTotal++;
 			updateGroupPostNotification();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}
 
 	public void clearGroupPostNotification(GroupId g) {
 		synchLock.lock();
-		try{
-		Integer count = groupCounts.remove(g);
-		if(count == null) return; // Already cleared
-		groupTotal -= count;
-		updateGroupPostNotification();
-		}
-		finally{
+		try {
+			Integer count = groupCounts.remove(g);
+			if(count == null) return; // Already cleared
+			groupTotal -= count;
+			updateGroupPostNotification();
+		} finally {
 			synchLock.unlock();
 		}
 	}
@@ -245,8 +245,8 @@ Service, EventListener {
 				Intent i = new Intent(appContext, GroupActivity.class);
 				GroupId g = groupCounts.keySet().iterator().next();
 				i.putExtra("briar.GROUP_ID", g.getBytes());
-				String groupIdString = new String(g.getBytes());
-				i.setData(Uri.parse(String.format("content://org.brairproject.group/%s", groupIdString)));
+				String idHex = StringUtils.toHexString(g.getBytes());
+				i.setData(Uri.parse(GROUP_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(GroupActivity.class);
@@ -274,14 +274,13 @@ Service, EventListener {
 
 	public void clearNotifications() {
 		synchLock.lock();
-		try{
+		try {
 			contactCounts.clear();
 			groupCounts.clear();
 			privateTotal = groupTotal = 0;
 			clearPrivateMessageNotification();
 			clearGroupPostNotification();
-		}
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 	}

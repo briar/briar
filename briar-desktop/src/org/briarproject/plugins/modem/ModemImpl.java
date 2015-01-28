@@ -1,5 +1,6 @@
 package org.briarproject.plugins.modem;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static jssc.SerialPort.PURGE_RXCLEAR;
@@ -10,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,7 +48,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private ReliabilityLayer reliability = null;
 	private boolean initialised = false, connected = false;
-	
+
 	private final Lock synchLock = new ReentrantLock();
 	private final Condition connectedStateChanged = synchLock.newCondition();
 	private final Condition initialisedStateChanged = synchLock.newCondition();
@@ -105,12 +105,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					long now = clock.currentTimeMillis();
 					long end = now + OK_TIMEOUT;
 					while(now < end && !initialised) {
-						initialisedStateChanged.await(end - now, TimeUnit.MILLISECONDS);
+						initialisedStateChanged.await(end - now, MILLISECONDS);
 						now = clock.currentTimeMillis();
 					}
 					success = initialised;
-				} 
-				finally{
+				} finally {
 					synchLock.unlock();
 				}
 			} catch(InterruptedException e) {
@@ -143,8 +142,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			connected = false;
 			initialisedStateChanged.signalAll();
 			connectedStateChanged.signalAll();
-		} 
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		// Hang up if necessary and close the port
@@ -174,8 +172,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			reliability = this.reliability;
 			this.reliability = null;
 			connected = false;
-		} 
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		reliability.stop();
@@ -214,8 +211,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					return false;
 				}
 				this.reliability = reliability;
-			} 
-			finally{
+			} finally {
 				synchLock.unlock();
 			}
 			reliability.start();
@@ -234,12 +230,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					long now = clock.currentTimeMillis();
 					long end = now + CONNECT_TIMEOUT;
 					while(now < end && initialised && !connected) {
-						connectedStateChanged.await(end - now, TimeUnit.MILLISECONDS);
+						connectedStateChanged.await(end - now, MILLISECONDS);
 						now = clock.currentTimeMillis();
 					}
 					if(connected) return true;
-				} 
-				finally{
+				} finally {
 					synchLock.unlock();
 				}
 			} catch(InterruptedException e) {
@@ -259,8 +254,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		synchLock.lock();
 		try {
 			reliability = this.reliability;
-		} 
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		if(reliability == null) throw new IOException("Not connected");
@@ -272,8 +266,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		synchLock.lock();
 		try {
 			reliability = this.reliability;
-		} 
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		if(reliability == null) throw new IOException("Not connected");
@@ -328,8 +321,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		synchLock.lock();
 		try {
 			reliability = this.reliability;
-		} 
-		finally{
+		} finally {
 			synchLock.unlock();
 		}
 		if(reliability == null) return false;
@@ -354,8 +346,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					try {
 						connected = true;
 						connectedStateChanged.signalAll();
-					} 
-					finally{
+					} finally {
 						synchLock.unlock();
 					}
 					// There might be data in the buffer as well as text
@@ -372,8 +363,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					try {
 						connected = false;
 						connectedStateChanged.signalAll();
-					} 
-					finally{
+					} finally {
 						synchLock.unlock();
 					}
 				} else if(s.equals("OK")) {
@@ -381,8 +371,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					try {
 						initialised = true;
 						initialisedStateChanged.signalAll();
-					} 
-					finally{
+					} finally {
 						synchLock.unlock();
 					}
 				} else if(s.equals("RING")) {
@@ -422,8 +411,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					return;
 				}
 				this.reliability = reliability;
-			} 
-			finally{
+			} finally {
 				synchLock.unlock();
 			}
 			reliability.start();
@@ -442,12 +430,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					long now = clock.currentTimeMillis();
 					long end = now + CONNECT_TIMEOUT;
 					while(now < end && initialised && !connected) {
-						connectedStateChanged.await(end - now, TimeUnit.MILLISECONDS);
+						connectedStateChanged.await(end - now, MILLISECONDS);
 						now = clock.currentTimeMillis();
 					}
 					success = connected;
-				} 
-				finally{
+				} finally {
 					synchLock.unlock();
 				}
 			} catch(InterruptedException e) {
