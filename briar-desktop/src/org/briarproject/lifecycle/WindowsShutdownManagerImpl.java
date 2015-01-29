@@ -38,11 +38,9 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	private static final int WS_MINIMIZE = 0x20000000;
 
 	private final Map<String, Object> options;
-
-	private boolean initialised = false;
-
 	private final Lock synchLock = new ReentrantLock();
 
+	private boolean initialised = false; // Locking: synchLock
 
 	WindowsShutdownManagerImpl() {
 		// Use the Unicode versions of Win32 API calls
@@ -68,6 +66,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		return new StartOnce(r);
 	}
 
+	// Locking: synchLock
 	private void initialise() {
 		if(OsUtils.isWindows()) {
 			new EventLoop().start();

@@ -29,10 +29,11 @@ class TransportTagRecogniser {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final TransportId transportId;
+	private final Lock synchLock = new ReentrantLock();
+
+	// The following are locking: synchLock
 	private final Map<Bytes, TagContext> tagMap;
 	private final Map<RemovalKey, RemovalContext> removalMap;
-
-	private final Lock synchLock = new ReentrantLock();
 
 	TransportTagRecogniser(CryptoComponent crypto, DatabaseComponent db,
 			TransportId transportId) {
@@ -112,6 +113,7 @@ class TransportTagRecogniser {
 		}
 	}
 
+	// Locking: synchLock
 	private void removeSecret(RemovalContext r) {
 		// Remove the expected tags
 		SecretKey key = crypto.deriveTagKey(r.secret, !r.alice);

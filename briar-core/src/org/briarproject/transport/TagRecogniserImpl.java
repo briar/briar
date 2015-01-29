@@ -20,11 +20,10 @@ class TagRecogniserImpl implements TagRecogniser {
 
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
-
-	private final Map<TransportId, TransportTagRecogniser> recognisers;
-
 	private final Lock synchLock = new ReentrantLock();
 
+	// Locking: synchLock
+	private final Map<TransportId, TransportTagRecogniser> recognisers;
 
 	@Inject
 	TagRecogniserImpl(CryptoComponent crypto, DatabaseComponent db) {

@@ -44,15 +44,15 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private final Semaphore stateChange;
 	private final byte[] line;
 
-	private int lineLen = 0;
-
-	private ReliabilityLayer reliability = null;
-	private boolean initialised = false, connected = false;
-
 	private final Lock synchLock = new ReentrantLock();
 	private final Condition connectedStateChanged = synchLock.newCondition();
 	private final Condition initialisedStateChanged = synchLock.newCondition();
 
+	// The following are locking: synchLock
+	private ReliabilityLayer reliability = null;
+	private boolean initialised = false, connected = false;
+
+	private int lineLen = 0;
 
 	ModemImpl(Executor ioExecutor, ReliabilityLayerFactory reliabilityFactory,
 			Clock clock, Callback callback, SerialPort port) {
@@ -161,6 +161,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 	}
 
+	// Locking: stateChange
 	private void hangUpInner() throws IOException {
 		ReliabilityLayer reliability;
 		synchLock.lock();

@@ -61,17 +61,17 @@ Service, EventListener {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final Context appContext;
+	private final Lock synchLock = new ReentrantLock();
+
+	// The following are locking: synchLock
 	private final Map<ContactId, Integer> contactCounts =
 			new HashMap<ContactId, Integer>();
 	private final Map<GroupId, Integer> groupCounts =
 			new HashMap<GroupId, Integer>();
-
 	private int privateTotal = 0, groupTotal = 0;
 	private int nextRequestId = 0;
 
 	private volatile Settings settings = new Settings();
-
-	private final Lock synchLock = new ReentrantLock();
 
 	@Inject
 	public AndroidNotificationManagerImpl(DatabaseComponent db,
@@ -136,6 +136,7 @@ Service, EventListener {
 		}
 	}
 
+	// Locking: synchLock
 	private void updatePrivateMessageNotification() {
 		if(privateTotal == 0) {
 			clearPrivateMessageNotification();
@@ -180,6 +181,7 @@ Service, EventListener {
 		}
 	}
 
+	// Locking: synchLock
 	private void clearPrivateMessageNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
@@ -222,6 +224,7 @@ Service, EventListener {
 		}
 	}
 
+	// Locking: synchLock
 	private void updateGroupPostNotification() {
 		if(groupTotal == 0) {
 			clearGroupPostNotification();
@@ -266,6 +269,7 @@ Service, EventListener {
 		}
 	}
 
+	// Locking: synchLock
 	private void clearGroupPostNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;

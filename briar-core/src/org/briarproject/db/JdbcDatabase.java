@@ -316,12 +316,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final Clock clock;
 
 	private final LinkedList<Connection> connections =
-			new LinkedList<Connection>();
+			new LinkedList<Connection>(); // Locking: connectionsLock
 
 	private final AtomicInteger transactionCount = new AtomicInteger(0);
 
-	private int openConnections = 0;
-	private boolean closed = false;
+	private int openConnections = 0; // Locking: connectionsLock
+	private boolean closed = false; // Locking: connectionsLock
 
 	protected abstract Connection createConnection() throws SQLException;
 	protected abstract void flushBuffersToDisk(Statement s) throws SQLException;
@@ -444,7 +444,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} finally {
 			connectionsLock.unlock();
 		}
-
 		try {
 			if(txn == null) {
 				// Open a new connection

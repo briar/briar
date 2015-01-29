@@ -19,14 +19,15 @@ class FortunaGenerator {
 	private static final int KEY_BYTES = 32;
 	private static final int BLOCK_BYTES = 16;
 
+	private final Lock synchLock = new ReentrantLock();
+
+	// The following are locking: synchLock
 	private final MessageDigest digest = new DoubleDigest(new SHA256Digest());
 	private final BlockCipher cipher = new AESLightEngine();
 	private final byte[] key = new byte[KEY_BYTES];
 	private final byte[] counter = new byte[BLOCK_BYTES];
 	private final byte[] buffer = new byte[BLOCK_BYTES];
 	private final byte[] newKey = new byte[KEY_BYTES];
-
-	private final Lock synchLock = new ReentrantLock();
 
 	FortunaGenerator(byte[] seed) {
 		reseed(seed);

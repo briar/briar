@@ -50,13 +50,13 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	private final TagRecogniser tagRecogniser;
 	private final Clock clock;
 	private final Timer timer;
+	private final Lock synchLock = new ReentrantLock();
 
+	// The following are locking: synchLock
 	private final Map<TransportId, Integer> maxLatencies;
 	private final Map<EndpointKey, TemporarySecret> oldSecrets;
 	private final Map<EndpointKey, TemporarySecret> currentSecrets;
 	private final Map<EndpointKey, TemporarySecret> newSecrets;
-
-	private final Lock synchLock = new ReentrantLock();
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
@@ -121,6 +121,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	// Assigns secrets to the appropriate maps and returns any dead secrets
+	// Locking: synchLock
 	private Collection<TemporarySecret> assignSecretsToMaps(long now,
 			Collection<TemporarySecret> secrets) {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
@@ -153,6 +154,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 	}
 
 	// Replaces the given secrets and returns any secrets created
+	// Locking: synchLock
 	private Collection<TemporarySecret> replaceDeadSecrets(long now,
 			Collection<TemporarySecret> dead) {
 		// If there are several dead secrets for an endpoint, use the newest
@@ -253,7 +255,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 	}
 
-	public synchronized void endpointAdded(Endpoint ep, int maxLatency,
+	public void endpointAdded(Endpoint ep, int maxLatency,
 			byte[] initialSecret) {
 		synchLock.lock();
 		try {
@@ -345,12 +347,14 @@ class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 		}
 	}
 
+	// Locking: synchLock
 	private void removeSecrets(ContactId c, Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();
 		while(it.hasNext())
 			if(it.next().getContactId().equals(c)) it.remove();
 	}
 
+	// Locking: synchLock
 	private void removeSecrets(TransportId t, Map<?, TemporarySecret> m) {
 		Iterator<TemporarySecret> it = m.values().iterator();
 		while(it.hasNext())

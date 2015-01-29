@@ -15,12 +15,12 @@ class ReferenceManagerImpl implements ReferenceManager {
 	private static final Logger LOG =
 			Logger.getLogger(ReferenceManagerImpl.class.getName());
 
+	private final Lock synchLock = new ReentrantLock();
+
+	// The following are locking: synchLock
 	private final Map<Class<?>, Map<Long, Object>> outerMap =
 			new HashMap<Class<?>, Map<Long, Object>>();
-
 	private long nextHandle = 0;
-
-	private final Lock synchLock = new ReentrantLock();
 
 	public <T> T getReference(long handle, Class<T> c) {
 		synchLock.lock();

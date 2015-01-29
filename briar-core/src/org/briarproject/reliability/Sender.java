@@ -26,17 +26,17 @@ class Sender {
 
 	private final Clock clock;
 	private final WriteHandler writeHandler;
-	private final LinkedList<Outstanding> outstanding;
+	private final Lock windowLock = new ReentrantLock();
+	private final Condition sendWindowAvailable = windowLock.newCondition();
 
+	// The following are locking: windowLock
+	private final LinkedList<Outstanding> outstanding;
 	private int outstandingBytes = 0;
 	private int windowSize = Data.MAX_PAYLOAD_LENGTH;
 	private int rtt = INITIAL_RTT, rttVar = INITIAL_RTT_VAR;
 	private int rto = rtt + (rttVar << 2);
 	private long lastWindowUpdateOrProbe = Long.MAX_VALUE;
 	private boolean dataWaiting = false;
-
-	private Lock synchLock = new ReentrantLock();
-	private Condition sendWindowAvailable = synchLock.newCondition();
 
 	Sender(Clock clock, WriteHandler writeHandler) {
 		this.clock = clock;
@@ -65,7 +65,7 @@ class Sender {
 		long sequenceNumber = a.getSequenceNumber();
 		long now = clock.currentTimeMillis();
 		Outstanding fastRetransmit = null;
-		synchLock.lock();
+		windowLock.lock();
 		try {
 			// Remove the acked data frame if it's outstanding
 			int foundIndex = -1;
@@ -105,7 +105,7 @@ class Sender {
 			if(windowSize > oldWindowSize || foundIndex != -1)
 				sendWindowAvailable.signalAll();
 		} finally {
-			synchLock.unlock();
+			windowLock.unlock();
 		}
 		// Fast retransmission
 		if(fastRetransmit != null)
@@ -116,7 +116,7 @@ class Sender {
 		long now = clock.currentTimeMillis();
 		List<Outstanding> retransmit = null;
 		boolean sendProbe = false;
-		synchLock.lock();
+		windowLock.lock();
 		try {
 			if(outstanding.isEmpty()) {
 				if(dataWaiting && now - lastWindowUpdateOrProbe > rto) {
@@ -147,7 +147,7 @@ class Sender {
 				}
 			}
 		} finally {
-			synchLock.unlock();
+			windowLock.unlock();
 		}
 		// Send a window probe if necessary
 		if(sendProbe) {
@@ -165,7 +165,7 @@ class Sender {
 
 	void write(Data d) throws IOException, InterruptedException {
 		int payloadLength = d.getPayloadLength();
-		synchLock.lock();
+		windowLock.lock();
 		try {
 			// Wait for space in the window
 			long now = clock.currentTimeMillis(), end = now + WRITE_TIMEOUT;
@@ -180,18 +180,18 @@ class Sender {
 			outstandingBytes += payloadLength;
 			dataWaiting = false;
 		} finally {
-			synchLock.unlock();
+			windowLock.unlock();
 		}
 		writeHandler.handleWrite(d.getBuffer());
 	}
 
 	void flush() throws IOException, InterruptedException {
-		synchLock.lock();
+		windowLock.lock();
 		try {
 			while(dataWaiting || !outstanding.isEmpty())
 				sendWindowAvailable.await();
 		} finally {
-			synchLock.unlock();
+			windowLock.unlock();
 		}
 	}
 

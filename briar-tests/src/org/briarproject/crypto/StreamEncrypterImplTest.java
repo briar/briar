@@ -213,9 +213,9 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		FrameEncoder.encodeHeader(header1, true, payloadLength1,
 				paddingLength1);
 		byte[] expected = new byte[HEADER_LENGTH + payloadLength
-		                           + paddingLength + MAC_LENGTH
-		                           + HEADER_LENGTH + payloadLength1
-		                           + paddingLength1 + MAC_LENGTH];
+		                           + paddingLength + MAC_LENGTH + HEADER_LENGTH
+		                           + payloadLength + paddingLength1
+		                           + MAC_LENGTH];
 		System.arraycopy(header, 0, expected, 0, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, HEADER_LENGTH, payloadLength);
 		System.arraycopy(header1, 0, expected, HEADER_LENGTH + payloadLength

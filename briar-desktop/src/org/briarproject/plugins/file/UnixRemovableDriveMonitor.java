@@ -13,19 +13,21 @@ import net.contentobjects.jnotify.JNotifyListener;
 abstract class UnixRemovableDriveMonitor implements RemovableDriveMonitor,
 JNotifyListener {
 
+	//TODO: rationalise this in a further refactor
+	private static final Lock staticSynchLock = new ReentrantLock();
+
+	// The following are locking: staticSynchLock
 	private static boolean triedLoad = false;
 	private static Throwable loadError = null;
 
-	private final List<Integer> watches = new ArrayList<Integer>();
+	private final Lock synchLock = new ReentrantLock();
 
+	// The following are locking: synchLock
+	private final List<Integer> watches = new ArrayList<Integer>();
 	private boolean started = false;
 	private Callback callback = null;
 
 	protected abstract String[] getPathsToWatch();
-
-	//TODO: rationalise this in a further refactor
-	private final Lock synchLock = new ReentrantLock();
-	private static final Lock staticSynchLock = new ReentrantLock();
 
 	private static Throwable tryLoad() {
 		try {

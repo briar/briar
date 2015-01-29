@@ -27,12 +27,11 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			Logger.getLogger(ConnectionRegistryImpl.class.getName());
 
 	private final EventBus eventBus;
-	// Locking: this
-	private final Map<TransportId, Map<ContactId, Integer>> connections;
-	// Locking: this
-	private final Map<ContactId, Integer> contactCounts;
-
 	private final Lock synchLock = new ReentrantLock();
+
+	// The following are locking: synchLock
+	private final Map<TransportId, Map<ContactId, Integer>> connections;
+	private final Map<ContactId, Integer> contactCounts;
 
 	@Inject
 	ConnectionRegistryImpl(EventBus eventBus) {

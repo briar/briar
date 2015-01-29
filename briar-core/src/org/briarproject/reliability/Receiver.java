@@ -21,15 +21,17 @@ class Receiver implements ReadHandler {
 
 	private final Clock clock;
 	private final Sender sender;
-	private final SortedSet<Data> dataFrames;
+	private final Lock windowLock = new ReentrantLock();
+	private final Condition dataFrameAvailable = windowLock.newCondition();
 
+	// The following are locking: windowLock
+	private final SortedSet<Data> dataFrames;
 	private int windowSize = MAX_WINDOW_SIZE;
+
 	private long finalSequenceNumber = Long.MAX_VALUE;
 	private long nextSequenceNumber = 1;
 
 	private volatile boolean valid = true;
-	private Lock synchLock = new ReentrantLock();
-	private Condition dataFrameAvailable = synchLock.newCondition();
 
 	Receiver(Clock clock, Sender sender) {
 		this.sender = sender;
@@ -38,7 +40,7 @@ class Receiver implements ReadHandler {
 	}
 
 	Data read() throws IOException, InterruptedException {
-		synchLock.lock();
+		windowLock.lock();
 		try {
 			long now = clock.currentTimeMillis(), end = now + READ_TIMEOUT;
 			while(now < end && valid) {
@@ -64,17 +66,17 @@ class Receiver implements ReadHandler {
 			if(valid) throw new IOException("Read timed out");
 			throw new IOException("Connection closed");
 		} finally {
-			synchLock.unlock();
+			windowLock.unlock();
 		}
 	}
 
 	void invalidate() {
 		valid = false;
-		synchLock.lock();
+		windowLock.lock();
 		try {
 			dataFrameAvailable.signalAll();
 		} finally {
-			synchLock.unlock();
+			windowLock.unlock();
 		}
 	}
 
@@ -95,7 +97,7 @@ class Receiver implements ReadHandler {
 	}
 
 	private void handleData(byte[] b) throws IOException {
-		synchLock.lock();
+		windowLock.lock();
 		try {
 			if(b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
 				// Ignore data frame with invalid length
@@ -134,7 +136,7 @@ class Receiver implements ReadHandler {
 			// Acknowledge the data frame even if it's a duplicate
 			sender.sendAck(sequenceNumber, windowSize);
 		} finally {
-			synchLock.unlock();
+			windowLock.unlock();
 		}
 	}
 

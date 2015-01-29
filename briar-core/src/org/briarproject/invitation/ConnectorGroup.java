@@ -62,12 +62,9 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
-
 	private final Lock synchLock = new ReentrantLock();
 
-	/*The state that's accessed in addListener() after
-	 * calling listeners.add() must be guarded by a lock.
-	 */
+	// The following are locking: synchLock
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
 	private boolean connectionFailed = false;
 	private boolean localCompared = false, remoteCompared = false;
