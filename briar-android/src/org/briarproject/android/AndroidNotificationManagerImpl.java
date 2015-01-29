@@ -11,6 +11,8 @@ import static java.util.logging.Level.WARNING;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -47,6 +49,10 @@ Service, EventListener {
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
 	private static final int GROUP_POST_NOTIFICATION_ID = 4;
+	private static final String CONTACT_URI =
+			"content://org.briarproject/contact";
+	private static final String GROUP_URI =
+			"content://org.briarproject/group";
 
 	private static final Logger LOG =
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
@@ -55,13 +61,15 @@ Service, EventListener {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final Context appContext;
-	private final Map<ContactId, Integer> contactCounts =
-			new HashMap<ContactId, Integer>(); // Locking: this
-	private final Map<GroupId, Integer> groupCounts =
-			new HashMap<GroupId, Integer>(); // Locking: this
+	private final Lock synchLock = new ReentrantLock();
 
-	private int privateTotal = 0, groupTotal = 0; // Locking: this
-	private int nextRequestId = 0; // Locking: this
+	// The following are locking: synchLock
+	private final Map<ContactId, Integer> contactCounts =
+			new HashMap<ContactId, Integer>();
+	private final Map<GroupId, Integer> groupCounts =
+			new HashMap<GroupId, Integer>();
+	private int privateTotal = 0, groupTotal = 0;
+	private int nextRequestId = 0;
 
 	private volatile Settings settings = new Settings();
 
@@ -103,22 +111,32 @@ Service, EventListener {
 		if(e instanceof SettingsUpdatedEvent) loadSettings();
 	}
 
-	public synchronized void showPrivateMessageNotification(ContactId c) {
-		Integer count = contactCounts.get(c);
-		if(count == null) contactCounts.put(c, 1);
-		else contactCounts.put(c, count + 1);
-		privateTotal++;
-		updatePrivateMessageNotification();
+	public void showPrivateMessageNotification(ContactId c) {
+		synchLock.lock();
+		try {
+			Integer count = contactCounts.get(c);
+			if(count == null) contactCounts.put(c, 1);
+			else contactCounts.put(c, count + 1);
+			privateTotal++;
+			updatePrivateMessageNotification();
+		} finally {
+			synchLock.unlock();
+		}
 	}
 
-	public synchronized void clearPrivateMessageNotification(ContactId c) {
-		Integer count = contactCounts.remove(c);
-		if(count == null) return; // Already cleared
-		privateTotal -= count;
-		updatePrivateMessageNotification();
+	public void clearPrivateMessageNotification(ContactId c) {
+		synchLock.lock();
+		try {
+			Integer count = contactCounts.remove(c);
+			if(count == null) return; // Already cleared
+			privateTotal -= count;
+			updatePrivateMessageNotification();
+		} finally {
+			synchLock.unlock();
+		}
 	}
 
-	// Locking: this
+	// Locking: synchLock
 	private void updatePrivateMessageNotification() {
 		if(privateTotal == 0) {
 			clearPrivateMessageNotification();
@@ -143,6 +161,7 @@ Service, EventListener {
 				Intent i = new Intent(appContext, ConversationActivity.class);
 				ContactId c = contactCounts.keySet().iterator().next();
 				i.putExtra("briar.CONTACT_ID", c.getInt());
+				i.setData(Uri.parse(CONTACT_URI + "/" + c.getInt()));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ConversationActivity.class);
@@ -162,7 +181,7 @@ Service, EventListener {
 		}
 	}
 
-	// Locking: this
+	// Locking: synchLock
 	private void clearPrivateMessageNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
@@ -180,22 +199,32 @@ Service, EventListener {
 		return defaults;
 	}
 
-	public synchronized void showGroupPostNotification(GroupId g) {
-		Integer count = groupCounts.get(g);
-		if(count == null) groupCounts.put(g, 1);
-		else groupCounts.put(g, count + 1);
-		groupTotal++;
-		updateGroupPostNotification();
+	public void showGroupPostNotification(GroupId g) {
+		synchLock.lock();
+		try {
+			Integer count = groupCounts.get(g);
+			if(count == null) groupCounts.put(g, 1);
+			else groupCounts.put(g, count + 1);
+			groupTotal++;
+			updateGroupPostNotification();
+		} finally {
+			synchLock.unlock();
+		}
 	}
 
-	public synchronized void clearGroupPostNotification(GroupId g) {
-		Integer count = groupCounts.remove(g);
-		if(count == null) return; // Already cleared
-		groupTotal -= count;
-		updateGroupPostNotification();
+	public void clearGroupPostNotification(GroupId g) {
+		synchLock.lock();
+		try {
+			Integer count = groupCounts.remove(g);
+			if(count == null) return; // Already cleared
+			groupTotal -= count;
+			updateGroupPostNotification();
+		} finally {
+			synchLock.unlock();
+		}
 	}
 
-	// Locking: this
+	// Locking: synchLock
 	private void updateGroupPostNotification() {
 		if(groupTotal == 0) {
 			clearGroupPostNotification();
@@ -219,6 +248,8 @@ Service, EventListener {
 				Intent i = new Intent(appContext, GroupActivity.class);
 				GroupId g = groupCounts.keySet().iterator().next();
 				i.putExtra("briar.GROUP_ID", g.getBytes());
+				String idHex = StringUtils.toHexString(g.getBytes());
+				i.setData(Uri.parse(GROUP_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(GroupActivity.class);
@@ -238,18 +269,23 @@ Service, EventListener {
 		}
 	}
 
-	// Locking: this
+	// Locking: synchLock
 	private void clearGroupPostNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.cancel(GROUP_POST_NOTIFICATION_ID);
 	}
 
-	public synchronized void clearNotifications() {
-		contactCounts.clear();
-		groupCounts.clear();
-		privateTotal = groupTotal = 0;
-		clearPrivateMessageNotification();
-		clearGroupPostNotification();
+	public void clearNotifications() {
+		synchLock.lock();
+		try {
+			contactCounts.clear();
+			groupCounts.clear();
+			privateTotal = groupTotal = 0;
+			clearPrivateMessageNotification();
+			clearGroupPostNotification();
+		} finally {
+			synchLock.unlock();
+		}
 	}
 }

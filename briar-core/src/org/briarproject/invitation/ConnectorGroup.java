@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import org.briarproject.api.Author;
@@ -60,13 +62,9 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
+	private final Lock synchLock = new ReentrantLock();
 
-	/*
-	 * All of the following require locking: this. We don't want to call the
-	 * listeners with a lock held, but we need to avoid a race condition in
-	 * addListener(), so the state that's accessed in addListener() after
-	 * calling listeners.add() must be guarded by a lock.
-	 */
+	// The following are locking: synchLock
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
 	private boolean connectionFailed = false;
 	private boolean localCompared = false, remoteCompared = false;
@@ -104,12 +102,18 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		localConfirmationLatch = new CountDownLatch(1);
 	}
 
-	public synchronized InvitationState addListener(InvitationListener l) {
-		listeners.add(l);
-		return new InvitationState(localInvitationCode, remoteInvitationCode,
-				localConfirmationCode, remoteConfirmationCode, connected.get(),
-				connectionFailed, localCompared, remoteCompared, localMatched,
-				remoteMatched, remoteName);
+	public InvitationState addListener(InvitationListener l) {
+		synchLock.lock();
+		try {
+			listeners.add(l);
+			return new InvitationState(localInvitationCode,
+					remoteInvitationCode, localConfirmationCode,
+					remoteConfirmationCode, connected.get(), connectionFailed,
+					localCompared, remoteCompared, localMatched, remoteMatched,
+					remoteName);
+		} finally {
+			synchLock.unlock();
+		}
 	}
 
 	public void removeListener(InvitationListener l) {
@@ -130,8 +134,11 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			localProps = db.getLocalProperties();
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			synchronized(this) {
+			synchLock.lock();
+			try {
 				connectionFailed = true;
+			} finally {
+				synchLock.unlock();
 			}
 			for(InvitationListener l : listeners) l.connectionFailed();
 			return;
@@ -163,8 +170,11 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		}
 		// If none of the threads connected, inform the listeners
 		if(!connected.get()) {
-			synchronized(this) {
+			synchLock.lock();
+			try {
 				connectionFailed = true;
+			} finally {
+				synchLock.unlock();
 			}
 			for(InvitationListener l : listeners) l.connectionFailed();
 		}
@@ -193,17 +203,23 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	}
 
 	public void localConfirmationSucceeded() {
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			localCompared = true;
 			localMatched = true;
+		} finally {
+			synchLock.unlock();
 		}
 		localConfirmationLatch.countDown();
 	}
 
 	public void localConfirmationFailed() {
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			localCompared = true;
 			localMatched = false;
+		} finally {
+			synchLock.unlock();
 		}
 		localConfirmationLatch.countDown();
 	}
@@ -216,9 +232,12 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	}
 
 	void keyAgreementSucceeded(int localCode, int remoteCode) {
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			localConfirmationCode = localCode;
 			remoteConfirmationCode = remoteCode;
+		} finally {
+			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners)
 			l.keyAgreementSucceeded(localCode, remoteCode);
@@ -230,31 +249,43 @@ class ConnectorGroup extends Thread implements InvitationTask {
 
 	boolean waitForLocalConfirmationResult() throws InterruptedException {
 		localConfirmationLatch.await(CONFIRMATION_TIMEOUT, MILLISECONDS);
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			return localMatched;
+		} finally {
+			synchLock.unlock();
 		}
 	}
 
 	void remoteConfirmationSucceeded() {
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			remoteCompared = true;
 			remoteMatched = true;
+		} finally {
+			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners) l.remoteConfirmationSucceeded();
 	}
 
 	void remoteConfirmationFailed() {
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			remoteCompared = true;
 			remoteMatched = false;
+		} finally {
+			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners) l.remoteConfirmationFailed();
 	}
 
 	void pseudonymExchangeSucceeded(Author remoteAuthor) {
 		String name = remoteAuthor.getName();
-		synchronized(this) {
+		synchLock.lock();
+		try {
 			remoteName = name;
+		} finally {
+			synchLock.unlock();
 		}
 		for(InvitationListener l : listeners)
 			l.pseudonymExchangeSucceeded(name);

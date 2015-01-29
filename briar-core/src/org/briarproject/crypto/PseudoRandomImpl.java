@@ -14,7 +14,7 @@ class PseudoRandomImpl implements PseudoRandom {
 		generator = new FortunaGenerator(seed);
 	}
 
-	public synchronized byte[] nextBytes(int length) {
+	public byte[] nextBytes(int length) {
 		byte[] b = new byte[length];
 		int offset = 0;
 		while(offset < length) offset += generator.nextBytes(b, offset, length);

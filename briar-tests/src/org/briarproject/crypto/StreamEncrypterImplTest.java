@@ -38,8 +38,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, false, payloadLength, 0);
-		byte[] expected = new byte[TAG_LENGTH + HEADER_LENGTH + payloadLength
-		                           + MAC_LENGTH];
+		int frameLength = HEADER_LENGTH + payloadLength + MAC_LENGTH;
+		byte[] expected = new byte[TAG_LENGTH + frameLength];
 		System.arraycopy(tag, 0, expected, 0, TAG_LENGTH);
 		System.arraycopy(header, 0, expected, TAG_LENGTH, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, TAG_LENGTH + HEADER_LENGTH,
@@ -53,6 +53,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, tag);
 		int payloadLength = 123;
+		int frameLength = HEADER_LENGTH + payloadLength + MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 
@@ -60,8 +61,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, true, payloadLength, 0);
-		byte[] expected = new byte[TAG_LENGTH + HEADER_LENGTH + payloadLength
-		                           + MAC_LENGTH];
+		byte[] expected = new byte[TAG_LENGTH + frameLength];
 		System.arraycopy(tag, 0, expected, 0, TAG_LENGTH);
 		System.arraycopy(header, 0, expected, TAG_LENGTH, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, TAG_LENGTH + HEADER_LENGTH,
@@ -75,6 +75,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, null);
 		int payloadLength = 123;
+		int frameLength = HEADER_LENGTH + payloadLength + MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 
@@ -82,7 +83,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, false, payloadLength, 0);
-		byte[] expected = new byte[HEADER_LENGTH + payloadLength + MAC_LENGTH];
+		byte[] expected = new byte[frameLength];
 		System.arraycopy(header, 0, expected, 0, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, HEADER_LENGTH, payloadLength);
 		assertArrayEquals(expected, out.toByteArray());
@@ -94,6 +95,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, null);
 		int payloadLength = 123;
+		int frameLength = HEADER_LENGTH + payloadLength + MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 
@@ -101,7 +103,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, true, payloadLength, 0);
-		byte[] expected = new byte[HEADER_LENGTH + payloadLength + MAC_LENGTH];
+		byte[] expected = new byte[frameLength];
 		System.arraycopy(header, 0, expected, 0, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, HEADER_LENGTH, payloadLength);
 		assertArrayEquals(expected, out.toByteArray());
@@ -113,6 +115,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, tag);
 		int payloadLength = 123, paddingLength = 234;
+		int frameLength = HEADER_LENGTH + payloadLength + paddingLength
+				+ MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 
@@ -120,8 +124,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, false, payloadLength, paddingLength);
-		byte[] expected = new byte[TAG_LENGTH + HEADER_LENGTH + payloadLength
-		                           + paddingLength + MAC_LENGTH];
+		byte[] expected = new byte[TAG_LENGTH + frameLength];
 		System.arraycopy(tag, 0, expected, 0, TAG_LENGTH);
 		System.arraycopy(header, 0, expected, TAG_LENGTH, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, TAG_LENGTH + HEADER_LENGTH,
@@ -135,6 +138,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, tag);
 		int payloadLength = 123, paddingLength = 234;
+		int frameLength = HEADER_LENGTH + payloadLength + paddingLength
+				+ MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 
@@ -142,8 +147,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, true, payloadLength, paddingLength);
-		byte[] expected = new byte[TAG_LENGTH + HEADER_LENGTH + payloadLength
-		                           + paddingLength + MAC_LENGTH];
+		byte[] expected = new byte[TAG_LENGTH + frameLength];
 		System.arraycopy(tag, 0, expected, 0, TAG_LENGTH);
 		System.arraycopy(header, 0, expected, TAG_LENGTH, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, TAG_LENGTH + HEADER_LENGTH,
@@ -157,6 +161,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, null);
 		int payloadLength = 123, paddingLength = 234;
+		int frameLength = HEADER_LENGTH + payloadLength + paddingLength
+				+ MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 
@@ -164,8 +170,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, false, payloadLength, paddingLength);
-		byte[] expected = new byte[HEADER_LENGTH + payloadLength
-		                           + paddingLength + MAC_LENGTH];
+		byte[] expected = new byte[frameLength];
 		System.arraycopy(header, 0, expected, 0, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, HEADER_LENGTH, payloadLength);
 		assertArrayEquals(expected, out.toByteArray());
@@ -177,6 +182,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, null);
 		int payloadLength = 123, paddingLength = 234;
+		int frameLength = HEADER_LENGTH + payloadLength + paddingLength
+				+ MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 
@@ -184,8 +191,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 		byte[] header = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header, true, payloadLength, paddingLength);
-		byte[] expected = new byte[HEADER_LENGTH + payloadLength
-		                           + paddingLength + MAC_LENGTH];
+		byte[] expected = new byte[frameLength];
 		System.arraycopy(header, 0, expected, 0, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, HEADER_LENGTH, payloadLength);
 		assertArrayEquals(expected, out.toByteArray());
@@ -197,9 +203,13 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, frameCipher,
 				frameKey, null);
 		int payloadLength = 123, paddingLength = 234;
+		int frameLength = HEADER_LENGTH + payloadLength + paddingLength
+				+ MAC_LENGTH;
 		byte[] payload = new byte[payloadLength];
 		new Random().nextBytes(payload);
 		int payloadLength1 = 345, paddingLength1 = 456;
+		int frameLength1 = HEADER_LENGTH + payloadLength1 + paddingLength1
+				+ MAC_LENGTH;
 		byte[] payload1 = new byte[payloadLength1];
 		new Random().nextBytes(payload1);
 
@@ -211,16 +221,12 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		byte[] header1 = new byte[HEADER_LENGTH];
 		FrameEncoder.encodeHeader(header1, true, payloadLength1,
 				paddingLength1);
-		byte[] expected = new byte[HEADER_LENGTH + payloadLength
-		                           + paddingLength + MAC_LENGTH
-		                           + HEADER_LENGTH + payloadLength1
-		                           + paddingLength1 + MAC_LENGTH];
+		byte[] expected = new byte[frameLength + frameLength1];
 		System.arraycopy(header, 0, expected, 0, HEADER_LENGTH);
 		System.arraycopy(payload, 0, expected, HEADER_LENGTH, payloadLength);
-		System.arraycopy(header1, 0, expected, HEADER_LENGTH + payloadLength
-				+ paddingLength + MAC_LENGTH, HEADER_LENGTH);
-		System.arraycopy(payload1, 0, expected, HEADER_LENGTH + payloadLength
-				+ paddingLength + MAC_LENGTH + HEADER_LENGTH, payloadLength1);
+		System.arraycopy(header1, 0, expected, frameLength, HEADER_LENGTH);
+		System.arraycopy(payload1, 0, expected, frameLength + HEADER_LENGTH,
+				payloadLength1);
 		assertArrayEquals(expected, out.toByteArray());
 	}
 

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.briarproject.api.Bytes;
 import org.briarproject.api.ContactId;
@@ -27,8 +29,11 @@ class TransportTagRecogniser {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final TransportId transportId;
-	private final Map<Bytes, TagContext> tagMap; // Locking: this
-	private final Map<RemovalKey, RemovalContext> removalMap; // Locking: this
+	private final Lock synchLock = new ReentrantLock();
+
+	// The following are locking: synchLock
+	private final Map<Bytes, TagContext> tagMap;
+	private final Map<RemovalKey, RemovalContext> removalMap;
 
 	TransportTagRecogniser(CryptoComponent crypto, DatabaseComponent db,
 			TransportId transportId) {
@@ -39,61 +44,76 @@ class TransportTagRecogniser {
 		removalMap = new HashMap<RemovalKey, RemovalContext>();
 	}
 
-	synchronized StreamContext recogniseTag(byte[] tag) throws DbException {
-		TagContext t = tagMap.remove(new Bytes(tag));
-		if(t == null) return null; // The tag was not expected
-		// Update the reordering window and the expected tags
-		SecretKey key = crypto.deriveTagKey(t.secret, !t.alice);
-		for(long streamNumber : t.window.setSeen(t.streamNumber)) {
-			byte[] tag1 = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag1, key, streamNumber);
-			if(streamNumber < t.streamNumber) {
-				TagContext removed = tagMap.remove(new Bytes(tag1));
-				assert removed != null;
-			} else {
-				TagContext added = new TagContext(t, streamNumber);
-				TagContext duplicate = tagMap.put(new Bytes(tag1), added);
+	StreamContext recogniseTag(byte[] tag) throws DbException {
+		synchLock.lock();
+		try {
+			TagContext t = tagMap.remove(new Bytes(tag));
+			if(t == null) return null; // The tag was not expected
+			// Update the reordering window and the expected tags
+			SecretKey key = crypto.deriveTagKey(t.secret, !t.alice);
+			for(long streamNumber : t.window.setSeen(t.streamNumber)) {
+				byte[] tag1 = new byte[TAG_LENGTH];
+				crypto.encodeTag(tag1, key, streamNumber);
+				if(streamNumber < t.streamNumber) {
+					TagContext removed = tagMap.remove(new Bytes(tag1));
+					assert removed != null;
+				} else {
+					TagContext added = new TagContext(t, streamNumber);
+					TagContext duplicate = tagMap.put(new Bytes(tag1), added);
+					assert duplicate == null;
+				}
+			}
+			// Store the updated reordering window in the DB
+			db.setReorderingWindow(t.contactId, transportId, t.period,
+					t.window.getCentre(), t.window.getBitmap());
+			return new StreamContext(t.contactId, transportId, t.secret,
+					t.streamNumber, t.alice);
+		} finally {
+			synchLock.unlock();
+		}
+	}
+
+	void addSecret(TemporarySecret s) {
+		synchLock.lock();
+		try {
+			ContactId contactId = s.getContactId();
+			boolean alice = s.getAlice();
+			long period = s.getPeriod();
+			byte[] secret = s.getSecret();
+			long centre = s.getWindowCentre();
+			byte[] bitmap = s.getWindowBitmap();
+			// Create the reordering window and the expected tags
+			SecretKey key = crypto.deriveTagKey(secret, !alice);
+			ReorderingWindow window = new ReorderingWindow(centre, bitmap);
+			for(long streamNumber : window.getUnseen()) {
+				byte[] tag = new byte[TAG_LENGTH];
+				crypto.encodeTag(tag, key, streamNumber);
+				TagContext added = new TagContext(contactId, alice, period,
+						secret, window, streamNumber);
+				TagContext duplicate = tagMap.put(new Bytes(tag), added);
 				assert duplicate == null;
 			}
+			// Create a removal context to remove the window and the tags later
+			RemovalContext r = new RemovalContext(window, secret, alice);
+			removalMap.put(new RemovalKey(contactId, period), r);
+		} finally {
+			synchLock.unlock();
 		}
-		// Store the updated reordering window in the DB
-		db.setReorderingWindow(t.contactId, transportId, t.period,
-				t.window.getCentre(), t.window.getBitmap());
-		return new StreamContext(t.contactId, transportId, t.secret,
-				t.streamNumber, t.alice);
 	}
 
-	synchronized void addSecret(TemporarySecret s) {
-		ContactId contactId = s.getContactId();
-		boolean alice = s.getAlice();
-		long period = s.getPeriod();
-		byte[] secret = s.getSecret();
-		long centre = s.getWindowCentre();
-		byte[] bitmap = s.getWindowBitmap();
-		// Create the reordering window and the expected tags
-		SecretKey key = crypto.deriveTagKey(secret, !alice);
-		ReorderingWindow window = new ReorderingWindow(centre, bitmap);
-		for(long streamNumber : window.getUnseen()) {
-			byte[] tag = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag, key, streamNumber);
-			TagContext added = new TagContext(contactId, alice, period,
-					secret, window, streamNumber);
-			TagContext duplicate = tagMap.put(new Bytes(tag), added);
-			assert duplicate == null;
+	void removeSecret(ContactId contactId, long period) {
+		synchLock.lock();
+		try {
+			RemovalKey k = new RemovalKey(contactId, period);
+			RemovalContext removed = removalMap.remove(k);
+			if(removed == null) throw new IllegalArgumentException();
+			removeSecret(removed);
+		} finally {
+			synchLock.unlock();
 		}
-		// Create a removal context to remove the window and the tags later
-		RemovalContext r = new RemovalContext(window, secret, alice);
-		removalMap.put(new RemovalKey(contactId, period), r);
 	}
 
-	synchronized void removeSecret(ContactId contactId, long period) {
-		RemovalKey k = new RemovalKey(contactId, period);
-		RemovalContext removed = removalMap.remove(k);
-		if(removed == null) throw new IllegalArgumentException();
-		removeSecret(removed);
-	}
-
-	// Locking: this
+	// Locking: synchLock
 	private void removeSecret(RemovalContext r) {
 		// Remove the expected tags
 		SecretKey key = crypto.deriveTagKey(r.secret, !r.alice);
@@ -105,17 +125,28 @@ class TransportTagRecogniser {
 		}
 	}
 
-	synchronized void removeSecrets(ContactId c) {
-		Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
-		for(RemovalKey k : removalMap.keySet())
-			if(k.contactId.equals(c)) keysToRemove.add(k);
-		for(RemovalKey k : keysToRemove) removeSecret(k.contactId, k.period);
+	void removeSecrets(ContactId c) {
+		synchLock.lock();
+		try {
+			Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
+			for(RemovalKey k : removalMap.keySet())
+				if(k.contactId.equals(c)) keysToRemove.add(k);
+			for(RemovalKey k : keysToRemove)
+				removeSecret(k.contactId, k.period);
+		} finally {
+			synchLock.unlock();
+		}
 	}
 
-	synchronized void removeSecrets() {
-		for(RemovalContext r : removalMap.values()) removeSecret(r);
-		assert tagMap.isEmpty();
-		removalMap.clear();
+	void removeSecrets() {
+		synchLock.lock();
+		try {
+			for(RemovalContext r : removalMap.values()) removeSecret(r);
+			assert tagMap.isEmpty();
+			removalMap.clear();
+		} finally {
+			synchLock.unlock();
+		}
 	}
 
 	private static class TagContext {

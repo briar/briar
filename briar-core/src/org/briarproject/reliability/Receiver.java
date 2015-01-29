@@ -1,10 +1,15 @@
 package org.briarproject.reliability;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.briarproject.api.reliability.ReadHandler;
 import org.briarproject.api.system.Clock;
@@ -16,9 +21,13 @@ class Receiver implements ReadHandler {
 
 	private final Clock clock;
 	private final Sender sender;
-	private final SortedSet<Data> dataFrames; // Locking: this
+	private final Lock windowLock = new ReentrantLock();
+	private final Condition dataFrameAvailable = windowLock.newCondition();
 
-	private int windowSize = MAX_WINDOW_SIZE; // Locking: this
+	// The following are locking: windowLock
+	private final SortedSet<Data> dataFrames;
+	private int windowSize = MAX_WINDOW_SIZE;
+
 	private long finalSequenceNumber = Long.MAX_VALUE;
 	private long nextSequenceNumber = 1;
 
@@ -30,36 +39,44 @@ class Receiver implements ReadHandler {
 		dataFrames = new TreeSet<Data>(new SequenceNumberComparator());
 	}
 
-	synchronized Data read() throws IOException, InterruptedException {
-		long now = clock.currentTimeMillis(), end = now + READ_TIMEOUT;
-		while(now < end && valid) {
-			if(dataFrames.isEmpty()) {
-				// Wait for a data frame
-				wait(end - now);
-			} else {
-				Data d = dataFrames.first();
-				if(d.getSequenceNumber() == nextSequenceNumber) {
-					dataFrames.remove(d);
-					// Update the window
-					windowSize += d.getPayloadLength();
-					sender.sendAck(0, windowSize);
-					nextSequenceNumber++;
-					return d;
+	Data read() throws IOException, InterruptedException {
+		windowLock.lock();
+		try {
+			long now = clock.currentTimeMillis(), end = now + READ_TIMEOUT;
+			while(now < end && valid) {
+				if(dataFrames.isEmpty()) {
+					// Wait for a data frame
+					dataFrameAvailable.await(end - now, MILLISECONDS);
 				} else {
-					// Wait for the next in-order data frame
-					wait(end - now);
+					Data d = dataFrames.first();
+					if(d.getSequenceNumber() == nextSequenceNumber) {
+						dataFrames.remove(d);
+						// Update the window
+						windowSize += d.getPayloadLength();
+						sender.sendAck(0, windowSize);
+						nextSequenceNumber++;
+						return d;
+					} else {
+						// Wait for the next in-order data frame
+						dataFrameAvailable.await(end - now, MILLISECONDS);
+					}
 				}
+				now = clock.currentTimeMillis();
 			}
-			now = clock.currentTimeMillis();
+			if(valid) throw new IOException("Read timed out");
+			throw new IOException("Connection closed");
+		} finally {
+			windowLock.unlock();
 		}
-		if(valid) throw new IOException("Read timed out");
-		throw new IOException("Connection closed");
 	}
 
 	void invalidate() {
 		valid = false;
-		synchronized(this) {
-			notifyAll();
+		windowLock.lock();
+		try {
+			dataFrameAvailable.signalAll();
+		} finally {
+			windowLock.unlock();
 		}
 	}
 
@@ -79,43 +96,48 @@ class Receiver implements ReadHandler {
 		}
 	}
 
-	private synchronized void handleData(byte[] b) throws IOException {
-		if(b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
-			// Ignore data frame with invalid length
-			return;
-		}
-		Data d = new Data(b);
-		int payloadLength = d.getPayloadLength();
-		if(payloadLength > windowSize) return; // No space in the window
-		if(d.getChecksum() != d.calculateChecksum()) {
-			// Ignore data frame with invalid checksum
-			return;
-		}
-		long sequenceNumber = d.getSequenceNumber();
-		if(sequenceNumber == 0) {
-			// Window probe
-		} else if(sequenceNumber < nextSequenceNumber) {
-			// Duplicate data frame
-		} else if(d.isLastFrame()) {
-			finalSequenceNumber = sequenceNumber;
-			// Remove any data frames with higher sequence numbers
-			Iterator<Data> it = dataFrames.iterator();
-			while(it.hasNext()) {
-				Data d1 = it.next();
-				if(d1.getSequenceNumber() >= finalSequenceNumber) it.remove();
+	private void handleData(byte[] b) throws IOException {
+		windowLock.lock();
+		try {
+			if(b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
+				// Ignore data frame with invalid length
+				return;
 			}
-			if(dataFrames.add(d)) {
-				windowSize -= payloadLength;
-				notifyAll();
+			Data d = new Data(b);
+			int payloadLength = d.getPayloadLength();
+			if(payloadLength > windowSize) return; // No space in the window
+			if(d.getChecksum() != d.calculateChecksum()) {
+				// Ignore data frame with invalid checksum
+				return;
 			}
-		} else if(sequenceNumber < finalSequenceNumber) {
-			if(dataFrames.add(d)) {
-				windowSize -= payloadLength;
-				notifyAll();
+			long sequenceNumber = d.getSequenceNumber();
+			if(sequenceNumber == 0) {
+				// Window probe
+			} else if(sequenceNumber < nextSequenceNumber) {
+				// Duplicate data frame
+			} else if(d.isLastFrame()) {
+				finalSequenceNumber = sequenceNumber;
+				// Remove any data frames with higher sequence numbers
+				Iterator<Data> it = dataFrames.iterator();
+				while(it.hasNext()) {
+					Data d1 = it.next();
+					if(d1.getSequenceNumber() >= finalSequenceNumber) it.remove();
+				}
+				if(dataFrames.add(d)) {
+					windowSize -= payloadLength;
+					dataFrameAvailable.signalAll();
+				}
+			} else if(sequenceNumber < finalSequenceNumber) {
+				if(dataFrames.add(d)) {
+					windowSize -= payloadLength;
+					dataFrameAvailable.signalAll();
+				}
 			}
+			// Acknowledge the data frame even if it's a duplicate
+			sender.sendAck(sequenceNumber, windowSize);
+		} finally {
+			windowLock.unlock();
 		}
-		// Acknowledge the data frame even if it's a duplicate
-		sender.sendAck(sequenceNumber, windowSize);
 	}
 
 	private static class SequenceNumberComparator implements Comparator<Data> {

@@ -1,9 +1,14 @@
 package org.briarproject.plugins.file;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
@@ -14,7 +19,9 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	private final Executor ioExecutor;
 	private final RemovableDriveFinder finder;
 	private final int pollingInterval;
-	private final Object pollingLock = new Object();
+
+	private final Lock pollingLock = new ReentrantLock();
+	private final Condition stopPolling = pollingLock.newCondition();
 
 	private volatile boolean running = false;
 	private volatile Callback callback = null;
@@ -34,8 +41,12 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	public void stop() throws IOException {
 		running = false;
-		synchronized(pollingLock) {
-			pollingLock.notifyAll();
+		pollingLock.lock();
+		try {
+			stopPolling.signalAll();
+		}
+		finally {
+			pollingLock.unlock();
 		}
 	}
 
@@ -43,8 +54,11 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 		try {
 			Collection<File> drives = finder.findRemovableDrives();
 			while(running) {
-				synchronized(pollingLock) {
-					pollingLock.wait(pollingInterval);
+				pollingLock.lock();
+				try {
+					stopPolling.await(pollingInterval, MILLISECONDS);
+				} finally {
+					pollingLock.unlock();
 				}
 				if(!running) return;
 				Collection<File> newDrives = finder.findRemovableDrives();

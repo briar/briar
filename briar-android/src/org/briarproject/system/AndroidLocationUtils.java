@@ -34,9 +34,6 @@ class AndroidLocationUtils implements LocationUtils {
 	 * <ul>
 	 * <li>Phone network. This works even when no SIM card is inserted, or a
 	 *     foreign SIM card is inserted.</li>
-	 * <li><del>Location service (GPS/WiFi/etc).</del> <em>This is disabled for
-	 *     now, until we figure out an offline method of converting a long/lat
-	 *     into a country code, that doesn't involve a network call.</em>
 	 * <li>SIM card. This is only an heuristic and assumes the user is not
 	 *     roaming.</li>
 	 * <li>User locale. This is an even worse heuristic.</li>
