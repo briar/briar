@@ -266,14 +266,14 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private InputStream getTorInputStream() throws IOException {
-		InputStream in = appContext.getResources().getAssets().open("tor");
+		InputStream in = appContext.getResources().getAssets().open("tor.zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if(zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = appContext.getResources().getAssets().open("geoip");
+		InputStream in = appContext.getResources().getAssets().open("geoip.zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if(zin.getNextEntry() == null) throw new IOException();
 		return zin;
