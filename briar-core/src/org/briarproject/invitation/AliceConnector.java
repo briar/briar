@@ -1,23 +1,13 @@
 package org.briarproject.invitation;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.GeneralSecurityException;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyManager;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.data.Reader;
 import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.data.Writer;
@@ -29,8 +19,19 @@ import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.system.Clock;
+import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 /** A connection thread for the peer being Alice in the invitation protocol. */
 class AliceConnector extends Connector {
@@ -49,9 +50,9 @@ class AliceConnector extends Connector {
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super(crypto, db, readerFactory, writerFactory, streamReaderFactory,
-				streamWriterFactory, authorFactory, groupFactory, keyManager,
-				connectionManager, clock, reuseConnection, group, plugin,
-				localAuthor, localProps, random);
+				streamWriterFactory, authorFactory, groupFactory,
+				keyManager, connectionManager, clock, reuseConnection, group,
+				plugin, localAuthor, localProps, random);
 	}
 
 	@Override
@@ -71,7 +72,7 @@ class AliceConnector extends Connector {
 		OutputStream out;
 		Reader r;
 		Writer w;
-		byte[] secret;
+		SecretKey master;
 		try {
 			in = conn.getReader().getInputStream();
 			out = conn.getWriter().getOutputStream();
@@ -82,7 +83,7 @@ class AliceConnector extends Connector {
 			byte[] hash = receivePublicKeyHash(r);
 			sendPublicKey(w);
 			byte[] key = receivePublicKey(r);
-			secret = deriveMasterSecret(hash, key, true);
+			master = deriveMasterSecret(hash, key, true);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			group.keyAgreementFailed();
@@ -96,8 +97,8 @@ class AliceConnector extends Connector {
 		}
 		// The key agreement succeeded - derive the confirmation codes
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " agreement succeeded");
-		int[] codes = crypto.deriveConfirmationCodes(secret);
-		int aliceCode = codes[0], bobCode = codes[1];
+		int aliceCode = crypto.deriveConfirmationCode(master, true);
+		int bobCode = crypto.deriveConfirmationCode(master, false);
 		group.keyAgreementSucceeded(aliceCode, bobCode);
 		// Exchange confirmation results
 		boolean localMatched, remoteMatched;
@@ -130,19 +131,22 @@ class AliceConnector extends Connector {
 		// Confirmation succeeded - upgrade to a secure connection
 		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
+		// Derive the header keys
+		SecretKey aliceHeaderKey = crypto.deriveInvitationKey(master, true);
+		SecretKey bobHeaderKey = crypto.deriveInvitationKey(master, false);
 		// Create the readers
 		InputStream streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
-						secret, false); // Bob's stream
+						bobHeaderKey);
 		r = readerFactory.createReader(streamReader);
 		// Create the writers
 		OutputStream streamWriter =
 				streamWriterFactory.createInvitationStreamWriter(out,
-						secret, true); // Alice's stream
+						aliceHeaderKey);
 		w = writerFactory.createWriter(streamWriter);
 		// Derive the invitation nonces
-		byte[][] nonces = crypto.deriveInvitationNonces(secret);
-		byte[] aliceNonce = nonces[0], bobNonce = nonces[1];
+		byte[] aliceNonce = crypto.deriveSignatureNonce(master, true);
+		byte[] bobNonce = crypto.deriveSignatureNonce(master, false);
 		// Exchange pseudonyms, signed nonces, timestamps and transports
 		Author remoteAuthor;
 		long remoteTimestamp;
@@ -171,11 +175,11 @@ class AliceConnector extends Connector {
 			tryToClose(conn, true);
 			return;
 		}
-		// The epoch is the minimum of the peers' timestamps
-		long epoch = Math.min(localTimestamp, remoteTimestamp);
+		// The agreed timestamp is the minimum of the peers' timestamps
+		long timestamp = Math.min(localTimestamp, remoteTimestamp);
 		// Add the contact and store the transports
 		try {
-			addContact(remoteAuthor, remoteProps, secret, epoch, true);
+			addContact(remoteAuthor, remoteProps, master, timestamp, true);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(conn, true);

@@ -32,7 +32,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.util.StringUtils;
 
@@ -45,7 +44,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
-Service, EventListener {
+EventListener {
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
 	private static final int GROUP_POST_NOTIFICATION_ID = 4;

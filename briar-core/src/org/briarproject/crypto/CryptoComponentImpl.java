@@ -1,20 +1,6 @@
 package org.briarproject.crypto;
 
-import static java.util.logging.Level.INFO;
-import static org.briarproject.api.invitation.InvitationConstants.CODE_BITS;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
-import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
-
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
+import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
@@ -25,6 +11,9 @@ import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.system.SeedProvider;
+import org.briarproject.api.transport.IncomingKeys;
+import org.briarproject.api.transport.OutgoingKeys;
+import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.util.ByteUtils;
 import org.briarproject.util.StringUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
@@ -43,6 +32,21 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.KeyParameter;
 
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static java.util.logging.Level.INFO;
+import static org.briarproject.api.invitation.InvitationConstants.CODE_BITS;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
+import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+
 class CryptoComponentImpl implements CryptoComponent {
 
 	private static final Logger LOG =
@@ -55,22 +59,33 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int PBKDF_TARGET_MILLIS = 500;
 	private static final int PBKDF_SAMPLES = 30;
 
-	// Labels for secret derivation
-	private static final byte[] MASTER = { 'M', 'A', 'S', 'T', 'E', 'R', '\0' };
-	private static final byte[] SALT = { 'S', 'A', 'L', 'T', '\0' };
-	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T', '\0' };
-	private static final byte[] ROTATE = { 'R', 'O', 'T', 'A', 'T', 'E', '\0' };
-	// Label for confirmation code derivation
-	private static final byte[] CODE = { 'C', 'O', 'D', 'E', '\0' };
-	// Label for invitation nonce derivation
-	private static final byte[] NONCE = { 'N', 'O', 'N', 'C', 'E', '\0' };
-	// Labels for key derivation
-	private static final byte[] A_TAG = { 'A', '_', 'T', 'A', 'G', '\0' };
-	private static final byte[] B_TAG = { 'B', '_', 'T', 'A', 'G', '\0' };
-	private static final byte[] A_FRAME =
-		{ 'A', '_', 'F', 'R', 'A', 'M', 'E', '\0' };
-	private static final byte[] B_FRAME =
-		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '\0' };
+	// KDF label for master key derivation
+	private static final byte[] MASTER = { 'M', 'A', 'S', 'T', 'E', 'R' };
+	// KDF labels for confirmation code derivation
+	private static final byte[] A_CONFIRM =
+			{ 'A', '_', 'C', 'O', 'N', 'F', 'I', 'R', 'M' };
+	private static final byte[] B_CONFIRM =
+			{ 'B', '_', 'C', 'O', 'N', 'F', 'I', 'R', 'M' };
+	// KDF labels for invitation stream header key derivation
+	private static final byte[] A_INVITE =
+			{ 'A', '_', 'I', 'N', 'V', 'I', 'T', 'E' };
+	private static final byte[] B_INVITE =
+			{ 'B', '_', 'I', 'N', 'V', 'I', 'T', 'E' };
+	// KDF labels for signature nonce derivation
+	private static final byte[] A_NONCE = { 'A', '_', 'N', 'O', 'N', 'C', 'E' };
+	private static final byte[] B_NONCE = { 'B', '_', 'N', 'O', 'N', 'C', 'E' };
+	// KDF label for group salt derivation
+	private static final byte[] SALT = { 'S', 'A', 'L', 'T' };
+	// KDF labels for tag key derivation
+	private static final byte[] A_TAG = { 'A', '_', 'T', 'A', 'G' };
+	private static final byte[] B_TAG = { 'B', '_', 'T', 'A', 'G' };
+	// KDF labels for header key derivation
+	private static final byte[] A_HEADER =
+			{ 'A', '_', 'H', 'E', 'A', 'D', 'E', 'R' };
+	private static final byte[] B_HEADER =
+			{ 'B', '_', 'H', 'E', 'A', 'D', 'E', 'R' };
+	// KDF label for key rotation
+	private static final byte[] ROTATE = { 'R', 'O', 'T', 'A', 'T', 'E' };
 
 	private final SecureRandom secureRandom;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
@@ -167,26 +182,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return ByteUtils.readUint(random, CODE_BITS);
 	}
 
-	public int[] deriveConfirmationCodes(byte[] secret) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		byte[] alice = counterModeKdf(secret, CODE, 0);
-		byte[] bob = counterModeKdf(secret, CODE, 1);
-		int[] codes = new int[2];
-		codes[0] = ByteUtils.readUint(alice, CODE_BITS);
-		codes[1] = ByteUtils.readUint(bob, CODE_BITS);
-		return codes;
-	}
-
-	public byte[][] deriveInvitationNonces(byte[] secret) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		byte[] alice = counterModeKdf(secret, NONCE, 0);
-		byte[] bob = counterModeKdf(secret, NONCE, 1);
-		return new byte[][] { alice, bob };
-	}
-
-	public byte[] deriveMasterSecret(byte[] theirPublicKey,
+	public SecretKey deriveMasterSecret(byte[] theirPublicKey,
 			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
 		MessageDigest messageDigest = getMessageDigest();
 		byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
@@ -204,9 +200,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		PublicKey theirPub = agreementKeyParser.parsePublicKey(theirPublicKey);
 		// The raw secret comes from the key agreement algorithm
 		byte[] raw = deriveSharedSecret(ourPriv, theirPub);
-		// Derive the cooked secret from the raw secret using the
-		// concatenation KDF
-		return concatenationKdf(raw, MASTER, aliceInfo, bobInfo);
+		// Derive the master secret from the raw secret using the hash KDF
+		return new SecretKey(hashKdf(raw, MASTER, aliceInfo, bobInfo));
 	}
 
 	// Package access for testing
@@ -228,46 +223,90 @@ class CryptoComponentImpl implements CryptoComponent {
 		return secret;
 	}
 
-	public byte[] deriveGroupSalt(byte[] secret) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		return counterModeKdf(secret, SALT, 0);
+	public int deriveConfirmationCode(SecretKey master, boolean alice) {
+		byte[] b = macKdf(master, alice ? A_CONFIRM : B_CONFIRM);
+		return ByteUtils.readUint(b, CODE_BITS);
 	}
 
-	public byte[] deriveInitialSecret(byte[] secret, int transportIndex) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		if (transportIndex < 0) throw new IllegalArgumentException();
-		return counterModeKdf(secret, FIRST, transportIndex);
+	public SecretKey deriveInvitationKey(SecretKey master, boolean alice) {
+		return new SecretKey(macKdf(master, alice ? A_INVITE : B_INVITE));
 	}
 
-	public byte[] deriveNextSecret(byte[] secret, long period) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		if (period < 0 || period > MAX_32_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		return counterModeKdf(secret, ROTATE, period);
+	public byte[] deriveSignatureNonce(SecretKey master, boolean alice) {
+		return macKdf(master, alice ? A_NONCE : B_NONCE);
 	}
 
-	public SecretKey deriveTagKey(byte[] secret, boolean alice) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		if (alice) return deriveKey(secret, A_TAG, 0);
-		else return deriveKey(secret, B_TAG, 0);
+	public byte[] deriveGroupSalt(SecretKey master) {
+		return macKdf(master, SALT);
 	}
 
-	public SecretKey deriveFrameKey(byte[] secret, long streamNumber,
+	public TransportKeys deriveTransportKeys(TransportId t,
+			SecretKey master, long rotationPeriod, boolean alice) {
+		// Keys for the previous period are derived from the master secret
+		SecretKey inTagPrev = deriveTagKey(master, t, !alice);
+		SecretKey inHeaderPrev = deriveHeaderKey(master, t, !alice);
+		SecretKey outTagPrev = deriveTagKey(master, t, alice);
+		SecretKey outHeaderPrev = deriveHeaderKey(master, t, alice);
+		// Derive the keys for the current and next periods
+		SecretKey inTagCurr = rotateKey(inTagPrev, rotationPeriod);
+		SecretKey inHeaderCurr = rotateKey(inHeaderPrev, rotationPeriod);
+		SecretKey inTagNext = rotateKey(inTagCurr, rotationPeriod + 1);
+		SecretKey inHeaderNext = rotateKey(inHeaderCurr, rotationPeriod + 1);
+		SecretKey outTagCurr = rotateKey(outTagPrev, rotationPeriod);
+		SecretKey outHeaderCurr = rotateKey(outHeaderPrev, rotationPeriod);
+		// Initialise the reordering windows and stream counters
+		IncomingKeys inPrev = new IncomingKeys(inTagPrev, inHeaderPrev,
+				rotationPeriod - 1);
+		IncomingKeys inCurr = new IncomingKeys(inTagCurr, inHeaderCurr,
+				rotationPeriod);
+		IncomingKeys inNext = new IncomingKeys(inTagNext, inHeaderNext,
+				rotationPeriod + 1);
+		OutgoingKeys outCurr = new OutgoingKeys(outTagCurr, outHeaderCurr,
+				rotationPeriod);
+		// Collect and return the keys
+		return new TransportKeys(t, inPrev, inCurr, inNext, outCurr);
+	}
+
+	public TransportKeys rotateTransportKeys(TransportKeys k,
+			long rotationPeriod) {
+		if (k.getRotationPeriod() >= rotationPeriod) return k;
+		IncomingKeys inPrev = k.getPreviousIncomingKeys();
+		IncomingKeys inCurr = k.getCurrentIncomingKeys();
+		IncomingKeys inNext = k.getNextIncomingKeys();
+		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
+		long startPeriod = outCurr.getRotationPeriod();
+		// Rotate the keys
+		for (long p = startPeriod + 1; p <= rotationPeriod; p++) {
+			inPrev = inCurr;
+			inCurr = inNext;
+			SecretKey inNextTag = rotateKey(inNext.getTagKey(), p + 1);
+			SecretKey inNextHeader = rotateKey(inNext.getHeaderKey(), p + 1);
+			inNext = new IncomingKeys(inNextTag, inNextHeader, p);
+			SecretKey outCurrTag = rotateKey(outCurr.getTagKey(), p);
+			SecretKey outCurrHeader = rotateKey(outCurr.getHeaderKey(), p);
+			outCurr = new OutgoingKeys(outCurrTag, outCurrHeader, p);
+		}
+		// Collect and return the keys
+		return new TransportKeys(k.getTransportId(), inPrev, inCurr, inNext,
+				outCurr);
+	}
+
+	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
+		byte[] period = new byte[4];
+		ByteUtils.writeUint32(rotationPeriod, period, 0);
+		return new SecretKey(macKdf(k, ROTATE, period));
+	}
+
+	private SecretKey deriveTagKey(SecretKey master, TransportId t,
 			boolean alice) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		if (alice) return deriveKey(secret, A_FRAME, streamNumber);
-		else return deriveKey(secret, B_FRAME, streamNumber);
+		byte[] id = StringUtils.toUtf8(t.getString());
+		return new SecretKey(macKdf(master, alice ? A_TAG : B_TAG, id));
 	}
 
-	private SecretKey deriveKey(byte[] secret, byte[] label, long context) {
-		return new SecretKey(counterModeKdf(secret, label, context));
+	private SecretKey deriveHeaderKey(SecretKey master, TransportId t,
+			boolean alice) {
+		byte[] id = StringUtils.toUtf8(t.getString());
+		return new SecretKey(macKdf(master, alice ? A_HEADER : B_HEADER, id));
 	}
 
 	public void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber) {
@@ -277,7 +316,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		for (int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
 		ByteUtils.writeUint32(streamNumber, tag, 0);
 		BlockCipher cipher = new AESLightEngine();
-		assert cipher.getBlockSize() == TAG_LENGTH;
+		if (cipher.getBlockSize() != TAG_LENGTH)
+			throw new IllegalStateException();
 		KeyParameter k = new KeyParameter(tagKey.getBytes());
 		cipher.init(true, k);
 		cipher.processBlock(tag, 0, tag, 0);
@@ -348,16 +388,16 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Key derivation function based on a hash function - see NIST SP 800-56A,
 	// section 5.8
-	private byte[] concatenationKdf(byte[]... inputs) {
+	private byte[] hashKdf(byte[]... inputs) {
 		// The output of the hash function must be long enough to use as a key
 		MessageDigest messageDigest = getMessageDigest();
 		if (messageDigest.getDigestLength() < SecretKey.LENGTH)
-			throw new RuntimeException();
-		// Each input is length-prefixed - the length must fit in an
-		// unsigned 8-bit integer
+			throw new IllegalStateException();
+		// Calculate the hash over the concatenated length-prefixed inputs
+		byte[] length = new byte[4];
 		for (byte[] input : inputs) {
-			if (input.length > 255) throw new IllegalArgumentException();
-			messageDigest.update((byte) input.length);
+			ByteUtils.writeUint32(input.length, length, 0);
+			messageDigest.update(length);
 			messageDigest.update(input);
 		}
 		byte[] hash = messageDigest.digest();
@@ -368,28 +408,24 @@ class CryptoComponentImpl implements CryptoComponent {
 		return truncated;
 	}
 
-	// Key derivation function based on a PRF in counter mode - see
+	// Key derivation function based on a pseudo-random function - see
 	// NIST SP 800-108, section 5.1
-	private byte[] counterModeKdf(byte[] secret, byte[] label, long context) {
-		if (secret.length != SecretKey.LENGTH)
-			throw new IllegalArgumentException();
-		// The label must be null-terminated
-		if (label[label.length - 1] != '\0')
-			throw new IllegalArgumentException();
+	private byte[] macKdf(SecretKey key, byte[]... inputs) {
 		// Initialise the PRF
 		Mac prf = new HMac(new SHA256Digest());
-		KeyParameter k = new KeyParameter(secret);
-		prf.init(k);
-		int macLength = prf.getMacSize();
+		prf.init(new KeyParameter(key.getBytes()));
 		// The output of the PRF must be long enough to use as a key
-		if (macLength < SecretKey.LENGTH) throw new RuntimeException();
+		int macLength = prf.getMacSize();
+		if (macLength < SecretKey.LENGTH)
+			throw new IllegalStateException();
+		// Calculate the PRF over the concatenated length-prefixed inputs
+		byte[] length = new byte[4];
+		for (byte[] input : inputs) {
+			ByteUtils.writeUint32(input.length, length, 0);
+			prf.update(length, 0, length.length);
+			prf.update(input, 0, input.length);
+		}
 		byte[] mac = new byte[macLength];
-		prf.update((byte) 0); // Counter
-		prf.update(label, 0, label.length); // Null-terminated
-		byte[] contextBytes = new byte[4];
-		ByteUtils.writeUint32(context, contextBytes, 0);
-		prf.update(contextBytes, 0, contextBytes.length);
-		prf.update((byte) SecretKey.LENGTH); // Output length
 		prf.doFinal(mac, 0);
 		// The output is the first SecretKey.LENGTH bytes of the MAC
 		if (mac.length == SecretKey.LENGTH) return mac;

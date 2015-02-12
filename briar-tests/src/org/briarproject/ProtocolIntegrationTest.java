@@ -10,6 +10,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupFactory;
@@ -44,7 +45,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Random;
 
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
@@ -61,14 +61,9 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final MessageVerifier messageVerifier;
 
 	private final ContactId contactId;
-	private final byte[] secret;
-	private final Author author;
+	private final SecretKey tagKey, headerKey;
 	private final Group group;
 	private final Message message, message1;
-	private final String authorName = "Alice";
-	private final String contentType = "text/plain";
-	private final long timestamp = System.currentTimeMillis();
-	private final String messageBody = "Hello world";
 	private final Collection<MessageId> messageIds;
 	private final TransportId transportId;
 	private final TransportProperties transportProperties;
@@ -85,9 +80,9 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		messageVerifier = i.getInstance(MessageVerifier.class);
 		contactId = new ContactId(234);
-		// Create a shared secret
-		secret = new byte[32];
-		new Random().nextBytes(secret);
+		// Create the transport keys
+		tagKey = TestUtils.createSecretKey();
+		headerKey = TestUtils.createSecretKey();
 		// Create a group
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Group");
@@ -95,12 +90,15 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		AuthorFactory authorFactory = i.getInstance(AuthorFactory.class);
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		KeyPair authorKeyPair = crypto.generateSignatureKeyPair();
-		author = authorFactory.createAuthor(authorName,
+		Author author = authorFactory.createAuthor("Alice",
 				authorKeyPair.getPublic().getEncoded());
 		// Create two messages to the group: one anonymous, one pseudonymous
 		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
+		String contentType = "text/plain";
+		long timestamp = System.currentTimeMillis();
+		String messageBody = "Hello world";
 		message = messageFactory.createAnonymousMessage(null, group,
-				contentType, timestamp, messageBody.getBytes("UTF-8"));
+				"text/plain", timestamp, messageBody.getBytes("UTF-8"));
 		message1 = messageFactory.createPseudonymousMessage(null, group,
 				author, authorKeyPair.getPrivate(), contentType, timestamp,
 				messageBody.getBytes("UTF-8"));
@@ -118,8 +116,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamContext ctx = new StreamContext(contactId, transportId, secret,
-				0, true);
+		StreamContext ctx = new StreamContext(contactId, transportId, tagKey,
+				headerKey, 0);
 		OutputStream streamWriter =
 				streamWriterFactory.createStreamWriter(out, ctx);
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
@@ -134,7 +132,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 		packetWriter.writeRequest(new Request(messageIds));
 
-		SubscriptionUpdate su = new SubscriptionUpdate(Arrays.asList(group), 1);
+		SubscriptionUpdate su = new SubscriptionUpdate(
+				Collections.singletonList(group), 1);
 		packetWriter.writeSubscriptionUpdate(su);
 
 		TransportUpdate tu = new TransportUpdate(transportId,
@@ -150,8 +149,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		// FIXME: Check that the expected tag was received
-		StreamContext ctx = new StreamContext(contactId, transportId, secret,
-				0, false);
+		StreamContext ctx = new StreamContext(contactId, transportId, tagKey,
+				headerKey, 0);
 		InputStream streamReader =
 				streamReaderFactory.createStreamReader(in, ctx);
 		PacketReader packetReader = packetReaderFactory.createPacketReader(
@@ -184,7 +183,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// Read the subscription update
 		assertTrue(packetReader.hasSubscriptionUpdate());
 		SubscriptionUpdate su = packetReader.readSubscriptionUpdate();
-		assertEquals(Arrays.asList(group), su.getGroups());
+		assertEquals(Collections.singletonList(group), su.getGroups());
 		assertEquals(1, su.getVersion());
 
 		// Read the transport update

@@ -2,6 +2,8 @@ package org.briarproject.api.transport;
 
 import java.io.InputStream;
 
+import org.briarproject.api.crypto.SecretKey;
+
 public interface StreamReaderFactory {
 
 	/**
@@ -15,5 +17,5 @@ public interface StreamReaderFactory {
 	 * invitation stream.
 	 */
 	InputStream createInvitationStreamReader(InputStream in,
-			byte[] secret, boolean alice);
+			SecretKey headerKey);
 }

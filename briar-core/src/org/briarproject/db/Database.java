@@ -1,9 +1,5 @@
 package org.briarproject.db;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.Contact;
@@ -25,8 +21,11 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.transport.Endpoint;
-import org.briarproject.api.transport.TemporarySecret;
+import org.briarproject.api.transport.TransportKeys;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
 // FIXME: Document the preconditions for calling each method
 
@@ -90,13 +89,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores an endpoint.
-	 * <p>
-	 * Locking: write.
-	 */
-	void addEndpoint(T txn, Endpoint ep) throws DbException;
-
-	/**
 	 * Subscribes to a group, or returns false if the user already has the
 	 * maximum number of subscriptions.
 	 * <p>
@@ -126,15 +118,6 @@ interface Database<T> {
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Stores the given temporary secrets and deletes any secrets that have
-	 * been made obsolete.
-	 * <p>
-	 * Locking: write.
-	 */
-	void addSecrets(T txn, Collection<TemporarySecret> secrets)
-			throws DbException;
-
-	/**
 	 * Initialises the status of the given message with respect to the given
 	 * contact.
 	 * <p>
@@ -153,6 +136,13 @@ interface Database<T> {
 	 */
 	boolean addTransport(T txn, TransportId t, int maxLatency)
 			throws DbException;
+
+	/**
+	 * Stores the given transport keys for a newly added contact.
+	 * <p>
+	 * Locking: write.
+	 */
+	void addTransportKeys(T txn, ContactId c, TransportKeys k) throws DbException;
 
 	/**
 	 * Makes a group visible to the given contact.
@@ -269,13 +259,6 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
-
-	/**
-	 * Returns all endpoints.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<Endpoint> getEndpoints(T txn) throws DbException;
 
 	/**
 	 * Returns the amount of free storage space available to the database, in
@@ -462,13 +445,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns all temporary secrets.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<TemporarySecret> getSecrets(T txn) throws DbException;
-
-	/**
 	 * Returns all settings.
 	 * <p>
 	 * Locking: read.
@@ -509,7 +485,15 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the maximum latencies of all supported transports.
+	 * Returns all transport keys for the given transport.
+	 * <p>
+	 * Locking: read.
+	 */
+	Map<ContactId, TransportKeys> getTransportKeys(T txn, TransportId t)
+			throws DbException;
+
+	/**
+	 * Returns the maximum latencies in milliseconds of all transports.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -540,14 +524,13 @@ interface Database<T> {
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given endpoint in the
-	 * given rotation period and returns the old value, or -1 if the counter
-	 * does not exist.
+	 * Increments the outgoing stream counter for the given contact and
+	 * transport in the given rotation period.
 	 * <p>
 	 * Locking: write.
 	 */
-	long incrementStreamCounter(T txn, ContactId c, TransportId t, long period)
-			throws DbException;
+	void incrementStreamCounter(T txn, ContactId c, TransportId t,
+			long rotationPeriod) throws DbException;
 
 	/**
 	 * Increments the retention time versions for all contacts to indicate that
@@ -692,13 +675,13 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given endpoint in the given rotation
-	 * period.
+	 * Sets the reordering window for the given contact and transport in the
+	 * given rotation period.
 	 * <p>
 	 * Locking: write.
 	 */
-	void setReorderingWindow(T txn, ContactId c, TransportId t, long period,
-			long centre, byte[] bitmap) throws DbException;
+	void setReorderingWindow(T txn, ContactId c, TransportId t,
+			long rotationPeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
 	 * Updates the groups to which the given contact subscribes and returns
@@ -716,7 +699,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	public void setInboxGroup(T txn, ContactId c, Group g) throws DbException;
+	void setInboxGroup(T txn, ContactId c, Group g) throws DbException;
 
 	/**
 	 * Marks a message as read or unread.
@@ -797,5 +780,13 @@ interface Database<T> {
 	 * Locking: write.
 	 */
 	void updateExpiryTime(T txn, ContactId c, MessageId m, int maxLatency)
+			throws DbException;
+
+	/**
+	 * Stores the given transport keys, deleting any keys they have replaced.
+	 * <p>
+	 * Locking: write.
+	 */
+	void updateTransportKeys(T txn, Map<ContactId, TransportKeys> keys)
 			throws DbException;
 }

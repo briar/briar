@@ -7,6 +7,9 @@ import java.io.File;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.briarproject.api.UniqueId;
+import org.briarproject.api.crypto.SecretKey;
+
 public class TestUtils {
 
 	private static final AtomicInteger nextTestDir =
@@ -34,5 +37,11 @@ public class TestUtils {
 		for (int i = 0; i < length; i++)
 			c[i] = (char) ('a' + random.nextInt(26));
 		return new String(c);
+	}
+
+	public static SecretKey createSecretKey() {
+		byte[] b = new byte[SecretKey.LENGTH];
+		random.nextBytes(b);
+		return new SecretKey(b);
 	}
 }

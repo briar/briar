@@ -1,5 +1,8 @@
 package org.briarproject.api.crypto;
 
+import org.briarproject.api.TransportId;
+import org.briarproject.api.transport.TransportKeys;
+
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
@@ -27,55 +30,49 @@ public interface CryptoComponent {
 	int generateInvitationCode();
 
 	/**
-	 * Derives two confirmation codes from the given master secret. The first
-	 * code is for Alice to give to Bob; the second is for Bob to give to
-	 * Alice.
-	 */
-	int[] deriveConfirmationCodes(byte[] secret);
-
-	/**
-	 * Derives two nonces from the given master secret. The first nonce is for
-	 * Alice to sign; the second is for Bob to sign.
-	 */
-	byte[][] deriveInvitationNonces(byte[] secret);
-
-	/**
 	 * Derives a shared master secret from two public keys and one of the
 	 * corresponding private keys.
-	 * @param alice indicates whether the private key belongs to Alice or Bob.
+	 * @param alice whether the private key belongs to Alice or Bob.
 	 */
-	byte[] deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+	SecretKey deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
 			boolean alice) throws GeneralSecurityException;
 
-	/** Derives a group salt from the given master secret. */
-	byte[] deriveGroupSalt(byte[] secret);
+	/**
+	 * Derives a confirmation code from the given master secret.
+	 * @param alice whether the code is for use by Alice or Bob.
+	 */
+	int deriveConfirmationCode(SecretKey master, boolean alice);
 
 	/**
-	 * Derives an initial secret for the given transport from the given master
+	 * Derives a header key for an invitation stream from the given master
 	 * secret.
+	 * @param alice whether the key is for use by Alice or Bob.
 	 */
-	byte[] deriveInitialSecret(byte[] secret, int transportIndex);
+	SecretKey deriveInvitationKey(SecretKey master, boolean alice);
 
 	/**
-	 * Derives a temporary secret for the given period from the given secret,
-	 * which is either the initial shared secret or the previous period's
-	 * temporary secret.
+	 * Derives a nonce from the given master secret for one of the parties to
+	 * sign.
+	 * @param alice whether the nonce is for use by Alice or Bob.
 	 */
-	byte[] deriveNextSecret(byte[] secret, long period);
+	byte[] deriveSignatureNonce(SecretKey master, boolean alice);
+
+	/** Derives a group salt from the given master secret. */
+	byte[] deriveGroupSalt(SecretKey master);
 
 	/**
-	 * Derives a tag key from the given temporary secret.
-	 * @param alice indicates whether the key is for streams initiated by
-	 * Alice or Bob.
+	 * Derives initial transport keys for the given transport in the given
+	 * rotation period from the given master secret.
+	 * @param alice whether the keys are for use by Alice or Bob.
 	 */
-	SecretKey deriveTagKey(byte[] secret, boolean alice);
+	TransportKeys deriveTransportKeys(TransportId t, SecretKey master,
+			long rotationPeriod, boolean alice);
 
 	/**
-	 * Derives a frame key from the given temporary secret and stream number.
-	 * @param alice indicates whether the key is for a stream initiated by
-	 * Alice or Bob.
+	 * Rotates the given transport keys to the given rotation period. If the
+	 * keys are for a future rotation period they are not rotated.
 	 */
-	SecretKey deriveFrameKey(byte[] secret, long streamNumber, boolean alice);
+	TransportKeys rotateTransportKeys(TransportKeys k, long rotationPeriod);
 
 	/** Encodes the pseudo-random tag that is used to recognise a stream. */
 	void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber);
