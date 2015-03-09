@@ -4,3 +4,4 @@ build
 *.tmp
 .idea
 *.iml
+local.properties
