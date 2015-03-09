@@ -2,3 +2,5 @@ build
 .gradle
 .metadata
 *.tmp
+.idea
+*.iml
