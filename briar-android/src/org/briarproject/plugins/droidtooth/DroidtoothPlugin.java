@@ -461,6 +461,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 				finished.countDown();
 			} else if(action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
+				if(LOG.isLoggable(INFO))
+					LOG.info("Discovered device: " + d.getAddress());
 				addresses.add(d.getAddress());
 			}
 		}
