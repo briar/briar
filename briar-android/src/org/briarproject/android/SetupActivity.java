@@ -169,6 +169,7 @@ OnEditorActionListener {
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
+		progress.setPadding(0, pad, 0, 0);
 		progress.setIndeterminate(true);
 		progress.setVisibility(GONE);
 		layout.addView(progress);
