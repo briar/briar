@@ -226,7 +226,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			copy(in, out);
 			// Make the Tor binary executable
 			if(!setExecutable(torFile)) {
-				LOG.warning("Could not make Tor executable");
+				LOG.warning("Could not make Tor binary executable");
 				return false;
 			}
 			return true;
@@ -266,14 +266,23 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private InputStream getTorInputStream() throws IOException {
-		InputStream in = appContext.getResources().getAssets().open("tor.zip");
+		String filename;
+		if(Build.VERSION.SDK_INT >= 16) {
+			LOG.info("Installing PIE Tor binary");
+			filename = "tor-pie.zip";
+		} else {
+			LOG.info("Installing non-PIE Tor binary");
+			filename = "tor.zip";
+		}
+		InputStream in = appContext.getResources().getAssets().open(filename);
 		ZipInputStream zin = new ZipInputStream(in);
 		if(zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = appContext.getResources().getAssets().open("geoip.zip");
+		String filename = "geoip.zip";
+		InputStream in = appContext.getResources().getAssets().open(filename);
 		ZipInputStream zin = new ZipInputStream(in);
 		if(zin.getNextEntry() == null) throw new IOException();
 		return zin;

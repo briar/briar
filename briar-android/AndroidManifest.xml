@@ -7,7 +7,6 @@
 	<uses-sdk
 		android:minSdkVersion="7"
 		android:targetSdkVersion="20"
-		android:maxSdkVersion="20"
 	/>
 
 	<uses-feature android:name="android.hardware.bluetooth" />
