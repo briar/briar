@@ -154,10 +154,12 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 		progress.setVisibility(VISIBLE);
 		new AsyncTask<Void, Void, Map<String, String>>() {
 
+			@Override
 			protected Map<String, String> doInBackground(Void... args) {
 				return getStatusMap();
 			}
 
+			@Override
 			protected void onPostExecute(Map<String, String> result) {
 				Context ctx = CrashReportActivity.this;
 				int pad = LayoutUtils.getPadding(ctx);
@@ -179,6 +181,7 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 
 	// FIXME: Load strings from resources if we're keeping this activity
 	@SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
 	private Map<String, String> getStatusMap() {
 		Map<String, String> statusMap = new LinkedHashMap<String, String>();
 
@@ -199,7 +202,17 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 		statusMap.put("Android version:", release + " (" + sdk + ")");
 
 		// CPU architecture
-		statusMap.put("Architecture:", Build.CPU_ABI);
+		String arch = null;
+		if(Build.VERSION.SDK_INT >= 21) {
+			for(String abi : Build.SUPPORTED_ABIS) {
+				if(arch == null) arch = abi;
+				else arch = arch + ", " + abi;
+			}
+		} else {
+			if(Build.CPU_ABI2 == null) arch = Build.CPU_ABI;
+			else arch = Build.CPU_ABI + ", " + Build.CPU_ABI2;
+		}
+		statusMap.put("Architecture:", arch);
 
 		// System memory
 		Object o = getSystemService(ACTIVITY_SERVICE);
@@ -392,10 +405,12 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 	private void share() {
 		new AsyncTask<Void, Void, Map<String, String>>() {
 
+			@Override
 			protected Map<String, String> doInBackground(Void... args) {
 				return getStatusMap();
 			}
 
+			@Override
 			protected void onPostExecute(Map<String, String> result) {
 				try {
 					File shared = Environment.getExternalStorageDirectory();

@@ -1,5 +1,7 @@
 package org.briarproject.plugins.tor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -9,6 +11,7 @@ import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.system.LocationUtils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 
@@ -36,9 +39,20 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		return TorPlugin.ID;
 	}
 
+	@SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		// Check that we have a Tor binary for this architecture
-		if(!Build.CPU_ABI.startsWith("armeabi")) {
+		List<String> abis = new ArrayList<String>();
+		if(Build.VERSION.SDK_INT >= 21) {
+			for(String abi : Build.SUPPORTED_ABIS) abis.add(abi);
+		} else {
+			abis.add(Build.CPU_ABI);
+			if(Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
+		}
+		boolean supported = false;
+		for(String abi : abis) if(abi.startsWith("armeabi")) supported = true;
+		if(!supported) {
 			LOG.info("Tor is not supported on this architecture");
 			return null;
 		}

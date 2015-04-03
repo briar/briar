@@ -10,6 +10,6 @@
 	<classpathentry kind="lib" path="libs/jssc-0.9-briar.jar" sourcepath="libs/source/jssc-0.9-briar-source.jar"/>
 	<classpathentry kind="lib" path="libs/jna-4.1.0.jar"/>
 	<classpathentry kind="lib" path="libs/jna-platform-4.1.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
