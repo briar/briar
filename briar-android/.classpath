@@ -10,7 +10,7 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry exported="true" kind="lib" path="/briar-api/libs/javax.inject.jar"/>
 	<classpathentry exported="true" kind="lib" path="/briar-core/libs/h2small-1.3.170.jar"/>
-	<classpathentry exported="true" kind="lib" path="/briar-core/libs/lcrypto-jdk15on-151.jar" sourcepath="/briar-core/libs/source/lcrypto-jdk15on-151-source.jar"/>
 	<classpathentry exported="true" kind="lib" path="/briar-core/libs/weupnp-0.1.3-SNAPSHOT-briar.jar"/>
+	<classpathentry kind="lib" path="/briar-core/libs/lcrypto-jdk15on-152.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
