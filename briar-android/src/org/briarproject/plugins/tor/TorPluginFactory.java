@@ -46,9 +46,11 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		List<String> abis = new ArrayList<String>();
 		if(Build.VERSION.SDK_INT >= 21) {
 			for(String abi : Build.SUPPORTED_ABIS) abis.add(abi);
-		} else {
+		} else if(Build.VERSION.SDK_INT >= 8) {
 			abis.add(Build.CPU_ABI);
 			if(Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
+		} else {
+			abis.add(Build.CPU_ABI);
 		}
 		boolean supported = false;
 		for(String abi : abis) if(abi.startsWith("armeabi")) supported = true;

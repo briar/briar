@@ -201,16 +201,18 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 		int sdk = Build.VERSION.SDK_INT;
 		statusMap.put("Android version:", release + " (" + sdk + ")");
 
-		// CPU architecture
+		// CPU architectures
 		String arch = null;
 		if(Build.VERSION.SDK_INT >= 21) {
 			for(String abi : Build.SUPPORTED_ABIS) {
 				if(arch == null) arch = abi;
 				else arch = arch + ", " + abi;
 			}
-		} else {
+		} else if(Build.VERSION.SDK_INT >= 8) {
 			if(Build.CPU_ABI2 == null) arch = Build.CPU_ABI;
 			else arch = Build.CPU_ABI + ", " + Build.CPU_ABI2;
+		} else {
+			arch = Build.CPU_ABI;
 		}
 		statusMap.put("Architecture:", arch);
 
