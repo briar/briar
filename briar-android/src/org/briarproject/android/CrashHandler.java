@@ -26,6 +26,8 @@ class CrashHandler implements UncaughtExceptionHandler {
 
 	public void uncaughtException(Thread thread, Throwable throwable) {
 		LOG.log(WARNING, "Uncaught exception", throwable);
+		// Don't handle more than one exception
+		Thread.setDefaultUncaughtExceptionHandler(delegate);
 		// Get the stack trace
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
