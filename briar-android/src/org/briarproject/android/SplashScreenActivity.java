@@ -5,6 +5,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.TestingConstants.DEFAULT_LOG_LEVEL;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
+import static org.briarproject.android.TestingConstants.TESTING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 import java.io.File;
@@ -16,10 +17,15 @@ import org.briarproject.api.db.DatabaseConfig;
 
 import roboguice.RoboGuice;
 import roboguice.activity.RoboSplashActivity;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.os.StrictMode.ThreadPolicy;
+import android.os.StrictMode.VmPolicy;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -37,6 +43,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 
 	public SplashScreenActivity() {
 		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
+		enableStrictMode();
 		minDisplayMs = 500;
 	}
 
@@ -81,6 +88,20 @@ public class SplashScreenActivity extends RoboSplashActivity {
 				delete(databaseConfig.getDatabaseDirectory());
 				startActivity(new Intent(this, SetupActivity.class));
 			}
+		}
+	}
+
+	@SuppressLint("NewApi")
+	private void enableStrictMode() {
+		if(TESTING && Build.VERSION.SDK_INT >= 9) {
+			ThreadPolicy.Builder threadPolicy = new ThreadPolicy.Builder();
+			threadPolicy.detectAll();
+			threadPolicy.penaltyLog();
+			StrictMode.setThreadPolicy(threadPolicy.build());
+			VmPolicy.Builder vmPolicy = new VmPolicy.Builder();
+			vmPolicy.detectAll();
+			vmPolicy.penaltyLog();
+			StrictMode.setVmPolicy(vmPolicy.build());
 		}
 	}
 

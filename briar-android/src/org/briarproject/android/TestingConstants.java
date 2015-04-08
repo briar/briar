@@ -1,31 +1,34 @@
 package org.briarproject.android;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.OFF;
 
 import java.util.logging.Level;
 
 interface TestingConstants {
 
-	/** Default log level - this should be OFF for release builds. */
-	Level DEFAULT_LOG_LEVEL = INFO;
+	/**
+	 * Whether this is an alpha or beta build. This should be set to false for
+	 * release builds.
+	 */
+	boolean TESTING = true;
+
+	/** Default log level. */
+	Level DEFAULT_LOG_LEVEL = TESTING ? INFO : OFF;
 
 	/**
-	 * Whether to prevent screenshots from being taken. This should be true for
-	 * release builds, to prevent Recent Apps from storing screenshots of
-	 * private information. Unfortunately this also prevents the user from
-	 * taking screenshots intentionally.
+	 * Whether to prevent screenshots from being taken. Setting this to true
+	 * prevents Recent Apps from storing screenshots of private information.
+	 * Unfortunately this also prevents the user from taking screenshots
+	 * intentionally.
 	 */
-	boolean PREVENT_SCREENSHOTS = false;
+	boolean PREVENT_SCREENSHOTS = TESTING ? false : true;
 
 	/**
 	 * Whether to allow TestingActivity to be launched from SettingsActivity.
-	 * This should be false for release builds.
 	 */
-	boolean SHOW_TESTING_ACTIVITY = true;
+	boolean SHOW_TESTING_ACTIVITY = TESTING ? true : false;
 
-	/**
-	 * Whether to allow crash reports to be submitted by email. This should
-	 * be false for release builds.
-	 */
-	boolean SHARE_CRASH_REPORTS = true;
+	/** Whether to allow crash reports to be submitted by email. */
+	boolean SHARE_CRASH_REPORTS = TESTING ? true : false;
 }
