@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,6 +40,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
@@ -192,7 +194,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 
 	// FIXME: Load strings from resources if we're keeping this activity
 	@SuppressLint("NewApi")
-	@SuppressWarnings("deprecation")
 	private Map<String, String> getStatusMap() {
 		Map<String, String> statusMap = new LinkedHashMap<String, String>();
 
@@ -212,18 +213,10 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		int sdk = Build.VERSION.SDK_INT;
 		statusMap.put("Android version:", release + " (" + sdk + ")");
 
-		// CPU architecture
-		String arch = null;
-		if(Build.VERSION.SDK_INT >= 21) {
-			for(String abi : Build.SUPPORTED_ABIS) {
-				if(arch == null) arch = abi;
-				else arch = arch + ", " + abi;
-			}
-		} else {
-			if(Build.CPU_ABI2 == null) arch = Build.CPU_ABI;
-			else arch = Build.CPU_ABI + ", " + Build.CPU_ABI2;
-		}
-		statusMap.put("Architecture:", arch);
+		// CPU architectures
+		Collection<String> abis = AndroidUtils.getSupportedArchitectures();
+		String joined = StringUtils.join(abis, ", ");
+		statusMap.put("Architecture:", joined);
 
 		// System memory
 		Object o = getSystemService(ACTIVITY_SERVICE);

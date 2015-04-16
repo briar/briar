@@ -75,6 +75,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DuplexPluginCallback callback;
+	private final String architecture;
 	private final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, hostnameFile;
@@ -89,11 +90,13 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	TorPlugin(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils, DuplexPluginCallback callback,
-			int maxLatency, int maxIdleTime, int pollingInterval) {
+			String architecture, int maxLatency, int maxIdleTime,
+			int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.callback = callback;
+		this.architecture = architecture;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
@@ -266,14 +269,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private InputStream getTorInputStream() throws IOException {
-		String filename;
-		if(Build.VERSION.SDK_INT >= 16) {
-			LOG.info("Installing PIE Tor binary");
-			filename = "tor-pie.zip";
-		} else {
-			LOG.info("Installing non-PIE Tor binary");
-			filename = "tor.zip";
-		}
+		if(LOG.isLoggable(INFO))
+			LOG.info("Installing Tor binary for " + architecture);
+		String filename = "tor-" + architecture + ".zip";
 		InputStream in = appContext.getResources().getAssets().open(filename);
 		ZipInputStream zin = new ZipInputStream(in);
 		if(zin.getNextEntry() == null) throw new IOException();

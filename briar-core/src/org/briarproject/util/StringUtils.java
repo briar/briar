@@ -1,6 +1,7 @@
 package org.briarproject.util;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 
 public class StringUtils {
 
@@ -11,6 +12,15 @@ public class StringUtils {
 
 	public static boolean isNullOrEmpty(String s) {
 		return s == null || s.length() == 0;
+	}
+
+	public static String join(Collection<String> strings, String separator) {
+		StringBuilder joined = new StringBuilder();
+		for(String s : strings) {
+			if(joined.length() > 0) joined.append(separator);
+			joined.append(s);
+		}
+		return joined.toString();
 	}
 
 	public static byte[] toUtf8(String s) {
