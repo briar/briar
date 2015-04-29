@@ -9,7 +9,7 @@
 	<color name="private_message_date">#AAAAAA</color>
     <color name="unread_background">#FFFFFF</color>
 	<color name="horizontal_border">#CCCCCC</color>
-	<color name="groups_available_background">#FCCF1C</color>
+	<color name="forums_available_background">#FCCF1C</color>
 	<color name="no_private_messages">#AAAAAA</color>
 	<color name="no_posts">#AAAAAA</color>
 	<color name="settings_title_text">#2D3E50</color>

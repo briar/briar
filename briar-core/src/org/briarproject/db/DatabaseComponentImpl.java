@@ -64,7 +64,6 @@ import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.GroupStatus;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.Offer;
@@ -580,12 +579,12 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<GroupStatus> getAvailableGroups() throws DbException {
+	public Collection<Group> getAvailableGroups() throws DbException {
 		lock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Collection<GroupStatus> groups = db.getAvailableGroups(txn);
+				Collection<Group> groups = db.getAvailableGroups(txn);
 				db.commitTransaction(txn);
 				return groups;
 			} catch(DbException e) {

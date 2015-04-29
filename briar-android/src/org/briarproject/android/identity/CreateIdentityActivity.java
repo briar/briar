@@ -52,7 +52,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private EditText nicknameEntry = null;
-	private Button createButton = null;
+	private Button createIdentityButton = null;
 	private ProgressBar progress = null;
 	private TextView feedback = null;
 
@@ -96,12 +96,12 @@ implements OnEditorActionListener, OnClickListener {
 		feedback.setPadding(0, pad, 0, pad);
 		layout.addView(feedback);
 
-		createButton = new Button(this);
-		createButton.setLayoutParams(WRAP_WRAP);
-		createButton.setText(R.string.create_button);
-		createButton.setEnabled(false);
-		createButton.setOnClickListener(this);
-		layout.addView(createButton);
+		createIdentityButton = new Button(this);
+		createIdentityButton.setLayoutParams(WRAP_WRAP);
+		createIdentityButton.setText(R.string.create_identity_button);
+		createIdentityButton.setEnabled(false);
+		createIdentityButton.setOnClickListener(this);
+		layout.addView(createIdentityButton);
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
@@ -114,7 +114,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	private void enableOrDisableCreateButton() {
 		if(progress == null) return; // Not created yet
-		createButton.setEnabled(validateNickname());
+		createIdentityButton.setEnabled(validateNickname());
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
@@ -137,7 +137,7 @@ implements OnEditorActionListener, OnClickListener {
 		hideSoftKeyboard();
 		if(!validateNickname()) return;
 		// Replace the button with a progress bar
-		createButton.setVisibility(GONE);
+		createIdentityButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		// Create the identity in a background thread
 		final String nickname = nicknameEntry.getText().toString();

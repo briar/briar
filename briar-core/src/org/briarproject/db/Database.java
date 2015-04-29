@@ -17,7 +17,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.GroupStatus;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.RetentionAck;
@@ -230,12 +229,11 @@ interface Database<T> {
 	int countOfferedMessages(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the status of all groups to which the user subscribes or can
-	 * subscribe, excluding inbox groups.
+	 * Returns all groups to which the user could subscribe.
 	 * <p>
 	 * Locking: read.
 	 */
-	Collection<GroupStatus> getAvailableGroups(T txn) throws DbException;
+	Collection<Group> getAvailableGroups(T txn) throws DbException;
 
 	/**
 	 * Returns the configuration for the given transport.
@@ -294,7 +292,7 @@ interface Database<T> {
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns all groups to which the user subscribes.
+	 * Returns all groups to which the user subscribes, excluding inboxes.
 	 * <p>
 	 * Locking: read.
 	 */

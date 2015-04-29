@@ -47,7 +47,7 @@ public class PasswordActivity extends RoboActivity {
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private TextView enterPassword = null;
-	private Button continueButton = null;
+	private Button signInButton = null;
 	private ProgressBar progress = null;
 
 	// Fields that are accessed from background threads must be volatile
@@ -102,15 +102,15 @@ public class PasswordActivity extends RoboActivity {
 		// Adjusting the padding of buttons and EditTexts has the wrong results
 		layout.addView(new FixedVerticalSpace(this));
 
-		continueButton = new Button(this);
-		continueButton.setLayoutParams(WRAP_WRAP);
-		continueButton.setText(R.string.continue_button);
-		continueButton.setOnClickListener(new OnClickListener() {
+		signInButton = new Button(this);
+		signInButton.setLayoutParams(WRAP_WRAP);
+		signInButton.setText(R.string.sign_in_button);
+		signInButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				validatePassword(encrypted, passwordEntry.getText());
 			}
 		});
-		layout.addView(continueButton);
+		layout.addView(signInButton);
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
@@ -131,7 +131,7 @@ public class PasswordActivity extends RoboActivity {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
 		// Replace the button with a progress bar
-		continueButton.setVisibility(GONE);
+		signInButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		// Decrypt the database key in a background thread
 		final String password = e.toString();
@@ -152,7 +152,7 @@ public class PasswordActivity extends RoboActivity {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				enterPassword.setText(R.string.try_again);
-				continueButton.setVisibility(VISIBLE);
+				signInButton.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
 			}
 		});

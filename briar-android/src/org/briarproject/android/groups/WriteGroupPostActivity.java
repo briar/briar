@@ -149,7 +149,7 @@ implements OnItemSelectedListener, OnClickListener {
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
-		content.setHint(R.string.group_post_hint);
+		content.setHint(R.string.forum_post_hint);
 		layout.addView(content);
 
 		setContentView(layout);

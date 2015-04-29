@@ -55,7 +55,7 @@ class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 			TextView noPosts = new TextView(ctx);
 			noPosts.setPadding(pad, 0, pad, pad);
 			noPosts.setTextColor(res.getColor(R.color.no_posts));
-			noPosts.setText(R.string.no_posts);
+			noPosts.setText(R.string.no_forum_posts);
 			layout.addView(noPosts);
 		} else {
 			TextView date = new TextView(ctx);

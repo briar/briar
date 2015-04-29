@@ -236,7 +236,7 @@ Service, EventListener {
 			b.setSmallIcon(R.drawable.message_notification_icon);
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
-					R.plurals.group_post_notification_text, groupTotal,
+					R.plurals.forum_post_notification_text, groupTotal,
 					groupTotal));
 			String ringtoneUri = settings.get("notifyRingtoneUri");
 			if(!StringUtils.isNullOrEmpty(ringtoneUri))

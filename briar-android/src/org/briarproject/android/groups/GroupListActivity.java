@@ -2,10 +2,12 @@ package org.briarproject.android.groups;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.Menu.NONE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -21,7 +23,6 @@ import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
@@ -39,23 +40,30 @@ import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.GroupStatus;
 
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class GroupListActivity extends BriarActivity
-implements EventListener, OnClickListener, OnItemClickListener {
+implements EventListener, OnClickListener, OnItemClickListener,
+OnCreateContextMenuListener {
 
+	private static final int MENU_ITEM_UNSUBSCRIBE = 1;
 	private static final Logger LOG =
 			Logger.getLogger(GroupListActivity.class.getName());
 
@@ -67,7 +75,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
 	private TextView available = null;
-	private ImageButton newGroupButton = null, manageGroupsButton = null;
+	private ImageButton newGroupButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -96,6 +104,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
+		list.setOnCreateContextMenuListener(this);
 		list.setVisibility(GONE);
 		layout.addView(list);
 
@@ -107,10 +116,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		available.setLayoutParams(MATCH_WRAP);
 		available.setGravity(CENTER);
 		available.setTextSize(18);
-		Resources res = getResources();
-		int background = res.getColor(R.color.groups_available_background);
-		available.setBackgroundColor(background);
 		available.setPadding(pad, pad, pad, pad);
+		Resources res = getResources();
+		int background = res.getColor(R.color.forums_available_background);
+		available.setBackgroundColor(background);
 		available.setOnClickListener(this);
 		available.setVisibility(GONE);
 		layout.addView(available);
@@ -122,21 +131,11 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
 		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		footer.addView(new ElasticHorizontalSpace(this));
-
 		newGroupButton = new ImageButton(this);
 		newGroupButton.setBackgroundResource(0);
 		newGroupButton.setImageResource(R.drawable.social_new_chat);
 		newGroupButton.setOnClickListener(this);
 		footer.addView(newGroupButton);
-		footer.addView(new ElasticHorizontalSpace(this));
-
-		manageGroupsButton = new ImageButton(this);
-		manageGroupsButton.setBackgroundResource(0);
-		manageGroupsButton.setImageResource(R.drawable.action_settings);
-		manageGroupsButton.setOnClickListener(this);
-		footer.addView(manageGroupsButton);
-		footer.addView(new ElasticHorizontalSpace(this));
 		layout.addView(footer);
 
 		setContentView(layout);
@@ -154,26 +153,19 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					int availableCount = 0;
 					long now = System.currentTimeMillis();
-					for(GroupStatus s : db.getAvailableGroups()) {
-						Group g = s.getGroup();
-						if(s.isSubscribed()) {
-							try {
-								Collection<MessageHeader> headers =
-										db.getMessageHeaders(g.getId());
-								displayHeaders(g, headers);
-							} catch(NoSuchSubscriptionException e) {
-								// Continue
-							}
-						} else {
-							availableCount++;
+					for(Group g : db.getGroups()) {
+						try {
+							displayHeaders(g, db.getMessageHeaders(g.getId()));
+						} catch(NoSuchSubscriptionException e) {
+							// Continue
 						}
 					}
+					int available = db.getAvailableGroups().size();
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
-					displayAvailable(availableCount);
+					displayAvailable(available);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -226,7 +218,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} else {
 					available.setVisibility(VISIBLE);
 					available.setText(getResources().getQuantityString(
-							R.plurals.forums_available, availableCount,
+							R.plurals.forums_shared, availableCount,
 							availableCount));
 				}
 			}
@@ -279,9 +271,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
 			if(groups.containsKey(g.getId())) {
-				// Reload the group, expecting NoSuchSubscriptionException
 				LOG.info("Group removed, reloading");
-				loadHeaders(g);
+				loadHeaders();
 			}
 		}
 	}
@@ -330,10 +321,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					int available = 0;
 					long now = System.currentTimeMillis();
-					for(GroupStatus s : db.getAvailableGroups())
-						if(!s.isSubscribed()) available++;
+					int available = db.getAvailableGroups().size();
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
@@ -348,11 +337,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	public void onClick(View view) {
 		if(view == available) {
-			startActivity(new Intent(this, ManageGroupsActivity.class));
+			startActivity(new Intent(this, AvailableGroupsActivity.class));
 		} else if(view == newGroupButton) {
 			startActivity(new Intent(this, CreateGroupActivity.class));
-		} else if(view == manageGroupsButton) {
-			startActivity(new Intent(this, ManageGroupsActivity.class));
 		}
 	}
 
@@ -363,5 +350,42 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		i.putExtra("briar.GROUP_ID", g.getId().getBytes());
 		i.putExtra("briar.GROUP_NAME", g.getName());
 		startActivity(i);
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view,
+			ContextMenu.ContextMenuInfo info) {
+		String delete = getString(R.string.unsubscribe);
+		menu.add(NONE, MENU_ITEM_UNSUBSCRIBE, NONE, delete);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem menuItem) {
+		if(menuItem.getItemId() == MENU_ITEM_UNSUBSCRIBE) {
+			ContextMenuInfo info = menuItem.getMenuInfo();
+			int position = ((AdapterContextMenuInfo) info).position;
+			GroupListItem item = adapter.getItem(position);
+			removeSubscription(item.getGroup());
+			String unsubscribed = getString(R.string.unsubscribed_toast);
+			Toast.makeText(this, unsubscribed, LENGTH_SHORT).show();
+		}
+		return true;
+	}
+
+	private void removeSubscription(final Group g) {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					long now = System.currentTimeMillis();
+					db.removeGroup(g);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Removing group took " + duration + " ms");
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
 	}
 }

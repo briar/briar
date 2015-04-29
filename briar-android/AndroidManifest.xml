@@ -132,9 +132,9 @@
 			/>
 		</activity>
 		<activity
-			android:name=".android.groups.ConfigureGroupActivity"
+			android:name=".android.groups.AvailableGroupsActivity"
 			android:logo="@drawable/logo"
-			android:label="@string/app_name"
+			android:label="@string/available_forums_title"
 			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -173,9 +173,9 @@
 			/>
 		</activity>
 		<activity
-			android:name=".android.groups.ManageGroupsActivity"
+			android:name=".android.groups.ReadGroupPostActivity"
 			android:logo="@drawable/logo"
-			android:label="@string/manage_forums_title"
+			android:label="@string/app_name"
 			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -183,7 +183,7 @@
 			/>
 		</activity>
 		<activity
-			android:name=".android.groups.ReadGroupPostActivity"
+			android:name=".android.groups.ShareGroupActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
 			android:parentActivityName=".android.groups.GroupListActivity" >

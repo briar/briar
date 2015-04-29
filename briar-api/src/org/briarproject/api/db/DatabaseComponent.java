@@ -16,7 +16,6 @@ import org.briarproject.api.TransportProperties;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.GroupStatus;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.Offer;
@@ -157,11 +156,8 @@ public interface DatabaseComponent {
 	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
 			int maxLatency) throws DbException;
 
-	/**
-	 * Returns the status of all groups to which the user subscribes or can
-	 * subscribe, excluding inbox groups.
-	 */
-	Collection<GroupStatus> getAvailableGroups() throws DbException;
+	/** Returns all groups to which the user could subscribe. */
+	Collection<Group> getAvailableGroups() throws DbException;
 
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
@@ -175,7 +171,7 @@ public interface DatabaseComponent {
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
-	/** Returns all groups to which the user subscribes. */
+	/** Returns all groups to which the user subscribes, excluding inboxes. */
 	Collection<Group> getGroups() throws DbException;
 
 	/**

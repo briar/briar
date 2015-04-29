@@ -46,7 +46,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.GroupStatus;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.RetentionAck;
@@ -1174,35 +1173,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<GroupStatus> getAvailableGroups(Connection txn)
+	public Collection<Group> getAvailableGroups(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Add all subscribed groups to the list, except inbox groups
-			String sql = "SELECT DISTINCT g.groupId, name, salt, visibleToAll"
-					+ " FROM groups AS g"
-					+ " LEFT OUTER JOIN groupVisibilities AS gv"
-					+ " ON g.groupId = gv.groupId"
-					+ " WHERE inbox = FALSE OR inbox IS NULL"
-					+ " GROUP BY g.groupId";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			List<GroupStatus> groups = new ArrayList<GroupStatus>();
-			Set<GroupId> ids = new HashSet<GroupId>();
-			while(rs.next()) {
-				GroupId id = new GroupId(rs.getBytes(1));
-				if(!ids.add(id)) throw new DbStateException();
-				String name = rs.getString(2);
-				byte[] salt = rs.getBytes(3);
-				Group group = new Group(id, name, salt);
-				boolean visibleToAll = rs.getBoolean(4);
-				groups.add(new GroupStatus(group, true, visibleToAll));
-			}
-			rs.close();
-			ps.close();
-			// Add all unsubscribed groups to the list
-			sql = "SELECT DISTINCT cg.groupId, cg.name, cg.salt"
+			String sql = "SELECT DISTINCT cg.groupId, cg.name, cg.salt"
 					+ " FROM contactGroups AS cg"
 					+ " LEFT OUTER JOIN groups AS g"
 					+ " ON cg.groupId = g.groupId"
@@ -1210,13 +1186,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " GROUP BY cg.groupId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
+			List<Group> groups = new ArrayList<Group>();
+			Set<GroupId> ids = new HashSet<GroupId>();
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				if(!ids.add(id)) throw new DbStateException();
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
-				Group group = new Group(id, name, salt);
-				groups.add(new GroupStatus(group, false, false));
+				groups.add(new Group(id, name, salt));
 			}
 			rs.close();
 			ps.close();
@@ -1399,7 +1376,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, name, salt FROM groups";
+			String sql = "SELECT DISTINCT g.groupId, name, salt"
+					+ " FROM groups AS g"
+					+ " LEFT OUTER JOIN groupVisibilities AS gv"
+					+ " ON g.groupId = gv.groupId"
+					+ " WHERE gv.inbox IS NULL OR gv.inbox = FALSE"
+					+ " GROUP BY g.groupId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<Group>();

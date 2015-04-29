@@ -69,7 +69,7 @@ OnClickListener, OnItemClickListener {
 	private GroupAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private ImageButton composeButton = null, configureButton = null;
+	private ImageButton composeButton = null, shareButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -85,6 +85,8 @@ OnClickListener, OnItemClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
+		String name = i.getStringExtra("briar.GROUP_NAME");
+		if(name != null) setTitle(name);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -95,7 +97,7 @@ OnClickListener, OnItemClickListener {
 		empty.setLayoutParams(MATCH_WRAP_1);
 		empty.setGravity(CENTER);
 		empty.setTextSize(18);
-		empty.setText(R.string.no_posts);
+		empty.setText(R.string.no_forum_posts);
 		empty.setVisibility(GONE);
 		layout.addView(empty);
 
@@ -127,11 +129,11 @@ OnClickListener, OnItemClickListener {
 		footer.addView(composeButton);
 		footer.addView(new ElasticHorizontalSpace(this));
 
-		configureButton = new ImageButton(this);
-		configureButton.setBackgroundResource(0);
-		configureButton.setImageResource(R.drawable.action_settings);
-		configureButton.setOnClickListener(this);
-		footer.addView(configureButton);
+		shareButton = new ImageButton(this);
+		shareButton.setBackgroundResource(0);
+		shareButton.setImageResource(R.drawable.social_share);
+		shareButton.setOnClickListener(this);
+		footer.addView(shareButton);
 		footer.addView(new ElasticHorizontalSpace(this));
 		layout.addView(footer);
 
@@ -334,12 +336,10 @@ OnClickListener, OnItemClickListener {
 			i.putExtra("briar.GROUP_NAME", group.getName());
 			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
 			startActivity(i);
-		} else if(view == configureButton) {
-			Intent i = new Intent(this, ConfigureGroupActivity.class);
+		} else if(view == shareButton) {
+			Intent i = new Intent(this, ShareGroupActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("briar.GROUP_NAME", group.getName());
-			i.putExtra("briar.GROUP_SALT", group.getSalt());
-			i.putExtra("briar.SUBSCRIBED", true);
 			startActivity(i);
 		}
 	}

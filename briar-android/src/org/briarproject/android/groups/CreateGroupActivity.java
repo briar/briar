@@ -14,19 +14,13 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.contact.SelectContactsDialog;
-import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.Group;
@@ -42,31 +36,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 public class CreateGroupActivity extends BriarActivity
-implements OnEditorActionListener, OnClickListener, NoContactsDialog.Listener,
-SelectContactsDialog.Listener {
+implements OnEditorActionListener, OnClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(CreateGroupActivity.class.getName());
 
 	private EditText nameEntry = null;
-	private RadioGroup radioGroup = null;
-	private RadioButton visibleToAll = null, visibleToSome = null;
-	private Button createButton = null;
+	private Button createForumButton = null;
 	private ProgressBar progress = null;
 	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile GroupFactory groupFactory;
 	@Inject private volatile DatabaseComponent db;
-	private volatile Collection<Contact> contacts = null;
-	private volatile Collection<ContactId> selected = Collections.emptySet();
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -97,32 +84,16 @@ SelectContactsDialog.Listener {
 		nameEntry.setOnEditorActionListener(this);
 		layout.addView(nameEntry);
 
-		radioGroup = new RadioGroup(this);
-		radioGroup.setOrientation(VERTICAL);
-
-		visibleToAll = new RadioButton(this);
-		visibleToAll.setId(2);
-		visibleToAll.setText(R.string.forum_visible_to_all);
-		visibleToAll.setOnClickListener(this);
-		radioGroup.addView(visibleToAll);
-
-		visibleToSome = new RadioButton(this);
-		visibleToSome.setId(3);
-		visibleToSome.setText(R.string.forum_visible_to_some);
-		visibleToSome.setOnClickListener(this);
-		radioGroup.addView(visibleToSome);
-		layout.addView(radioGroup);
-
 		feedback = new TextView(this);
 		feedback.setGravity(CENTER);
 		feedback.setPadding(0, pad, 0, pad);
 		layout.addView(feedback);
 
-		createButton = new Button(this);
-		createButton.setLayoutParams(WRAP_WRAP);
-		createButton.setText(R.string.create_button);
-		createButton.setOnClickListener(this);
-		layout.addView(createButton);
+		createForumButton = new Button(this);
+		createForumButton.setLayoutParams(WRAP_WRAP);
+		createForumButton.setText(R.string.create_forum_button);
+		createForumButton.setOnClickListener(this);
+		layout.addView(createForumButton);
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
@@ -135,9 +106,7 @@ SelectContactsDialog.Listener {
 
 	private void enableOrDisableCreateButton() {
 		if(progress == null) return; // Not created yet
-		boolean nameValid = validateName();
-		boolean visibilitySelected = radioGroup.getCheckedRadioButtonId() != -1;
-		createButton.setEnabled(nameValid && visibilitySelected);
+		createForumButton.setEnabled(validateName());
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
@@ -156,67 +125,22 @@ SelectContactsDialog.Listener {
 	}
 
 	public void onClick(View view) {
-		if(view == visibleToAll) {
-			enableOrDisableCreateButton();
-		} else if(view == visibleToSome) {
-			if(contacts == null) loadContacts();
-			else displayContacts();
-		} else if(view == createButton) {
+		if(view == createForumButton) {
 			hideSoftKeyboard();
 			if(!validateName()) return;
-			createButton.setVisibility(GONE);
+			createForumButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
-			String name = nameEntry.getText().toString();
-			boolean all = visibleToAll.isChecked();
-			storeGroup(name, all);
+			storeGroup(nameEntry.getText().toString());
 		}
 	}
 
-	private void loadContacts() {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					contacts = db.getContacts();
-					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
-						LOG.info("Load took " + duration + " ms");
-					displayContacts();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void displayContacts() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				if(contacts.isEmpty()) {
-					NoContactsDialog builder = new NoContactsDialog();
-					builder.setListener(CreateGroupActivity.this);
-					builder.build(CreateGroupActivity.this).show();
-				} else {
-					SelectContactsDialog builder = new SelectContactsDialog();
-					builder.setListener(CreateGroupActivity.this);
-					builder.setContacts(contacts);
-					builder.setSelected(selected);
-					builder.build(CreateGroupActivity.this).show();
-				}
-			}
-		});
-	}
-
-	private void storeGroup(final String name, final boolean all) {
+	private void storeGroup(final String name) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					Group g = groupFactory.createGroup(name);
 					long now = System.currentTimeMillis();
 					db.addGroup(g);
-					if(all) db.setVisibleToAll(g.getId(), true);
-					else db.setVisibility(g.getId(), selected);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Storing group took " + duration + " ms");
@@ -243,22 +167,5 @@ SelectContactsDialog.Listener {
 				finish();
 			}
 		});
-	}
-
-	public void contactCreationSelected() {
-		startActivity(new Intent(this, AddContactActivity.class));
-	}
-
-	public void contactCreationCancelled() {
-		enableOrDisableCreateButton();
-	}
-
-	public void contactsSelected(Collection<ContactId> selected) {
-		this.selected = Collections.unmodifiableCollection(selected);
-		enableOrDisableCreateButton();
-	}
-
-	public void contactSelectionCancelled() {
-		enableOrDisableCreateButton();
 	}
 }

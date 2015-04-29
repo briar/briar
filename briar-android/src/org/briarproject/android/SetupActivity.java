@@ -67,7 +67,7 @@ OnEditorActionListener {
 	private EditText passwordEntry = null, passwordConfirmation = null;
 	private StrengthMeter strengthMeter = null;
 	private TextView feedback = null;
-	private Button continueButton = null;
+	private Button createAccountButton = null;
 	private ProgressBar progress = null;
 
 	// Fields that are accessed from background threads must be volatile
@@ -160,12 +160,12 @@ OnEditorActionListener {
 		feedback.setText("");
 		layout.addView(feedback);
 
-		continueButton = new Button(this);
-		continueButton.setLayoutParams(WRAP_WRAP);
-		continueButton.setText(R.string.continue_button);
-		continueButton.setEnabled(false);
-		continueButton.setOnClickListener(this);
-		layout.addView(continueButton);
+		createAccountButton = new Button(this);
+		createAccountButton.setLayoutParams(WRAP_WRAP);
+		createAccountButton.setText(R.string.create_account_button);
+		createAccountButton.setEnabled(false);
+		createAccountButton.setOnClickListener(this);
+		layout.addView(createAccountButton);
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
@@ -205,7 +205,7 @@ OnEditorActionListener {
 		} else {
 			feedback.setText("");
 		}
-		continueButton.setEnabled(nicknameLength > 0
+		createAccountButton.setEnabled(nicknameLength > 0
 				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
 				&& passwordsMatch && strength >= WEAK);
 	}
@@ -220,7 +220,7 @@ OnEditorActionListener {
 	public void onClick(View view) {
 		// Replace the feedback text and button with a progress bar
 		feedback.setVisibility(GONE);
-		continueButton.setVisibility(GONE);
+		createAccountButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		final String nickname = nicknameEntry.getText().toString();
 		final String password = passwordEntry.getText().toString();
