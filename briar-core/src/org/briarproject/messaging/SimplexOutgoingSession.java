@@ -2,7 +2,7 @@ package org.briarproject.messaging;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -167,7 +167,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 			if(interrupted) return;
 			try {
 				Collection<byte[]> b = db.generateBatch(contactId,
-						MAX_PACKET_LENGTH, maxLatency);
+						MAX_PAYLOAD_LENGTH, maxLatency);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
 				if(b == null) decrementOutstandingQueries();

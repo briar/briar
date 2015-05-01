@@ -9,7 +9,7 @@ import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_L
 import static org.briarproject.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
 
 import java.io.ByteArrayOutputStream;
@@ -106,7 +106,7 @@ public class ConstantsTest extends BriarTestCase {
 
 	@Test
 	public void testMessageIdsFitIntoLargeAck() throws Exception {
-		testMessageIdsFitIntoAck(MAX_PACKET_LENGTH);
+		testMessageIdsFitIntoAck(MAX_PAYLOAD_LENGTH);
 	}
 
 	@Test
@@ -139,12 +139,12 @@ public class ConstantsTest extends BriarTestCase {
 				+ MAX_PUBLIC_KEY_LENGTH + MAX_AUTHOR_NAME_LENGTH
 				+ MAX_PUBLIC_KEY_LENGTH + MAX_CONTENT_TYPE_LENGTH
 				+ MAX_BODY_LENGTH);
-		assertTrue(length <= MAX_PACKET_LENGTH);
+		assertTrue(length <= MAX_PAYLOAD_LENGTH);
 	}
 
 	@Test
 	public void testMessageIdsFitIntoLargeOffer() throws Exception {
-		testMessageIdsFitIntoOffer(MAX_PACKET_LENGTH);
+		testMessageIdsFitIntoOffer(MAX_PAYLOAD_LENGTH);
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class ConstantsTest extends BriarTestCase {
 
 	@Test
 	public void testMessageIdsFitIntoLargeRequest() throws Exception {
-		testMessageIdsFitIntoRequest(MAX_PACKET_LENGTH);
+		testMessageIdsFitIntoRequest(MAX_PAYLOAD_LENGTH);
 	}
 
 	@Test
@@ -180,7 +180,7 @@ public class ConstantsTest extends BriarTestCase {
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		writer.writeTransportUpdate(u);
 		// Check the size of the serialised transport update
-		assertTrue(out.size() <= MAX_PACKET_LENGTH);
+		assertTrue(out.size() <= MAX_PAYLOAD_LENGTH);
 	}
 
 	@Test
@@ -198,7 +198,7 @@ public class ConstantsTest extends BriarTestCase {
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		writer.writeSubscriptionUpdate(u);
 		// Check the size of the serialised subscription update
-		assertTrue(out.size() <= MAX_PACKET_LENGTH);
+		assertTrue(out.size() <= MAX_PAYLOAD_LENGTH);
 	}
 
 	private void testMessageIdsFitIntoAck(int length) throws Exception {

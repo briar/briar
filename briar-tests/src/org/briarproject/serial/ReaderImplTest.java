@@ -16,8 +16,28 @@ public class ReaderImplTest extends BriarTestCase {
 	private ReaderImpl r = null;
 
 	@Test
+	public void testReadEmptyInput() throws Exception {
+		setContents("");
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadNull() throws Exception {
+		setContents("00");
+		r.readNull();
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipNull() throws Exception {
+		setContents("00");
+		r.skipNull();
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadBoolean() throws Exception {
-		setContents("00" + "01");
+		setContents("11" + "00" + "11" + "01");
 		assertFalse(r.readBoolean());
 		assertTrue(r.readBoolean());
 		assertTrue(r.eof());
@@ -25,7 +45,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipBoolean() throws Exception {
-		setContents("00" + "01");
+		setContents("11" + "00" + "11" + "01");
 		r.skipBoolean();
 		r.skipBoolean();
 		assertTrue(r.eof());
@@ -33,8 +53,8 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadInt8() throws Exception {
-		setContents("02" + "00" + "02" + "FF"
-				+ "02" + "7F" + "02" + "80");
+		setContents("21" + "00" + "21" + "FF"
+				+ "21" + "7F" + "21" + "80");
 		assertEquals(0, r.readInteger());
 		assertEquals(-1, r.readInteger());
 		assertEquals(Byte.MAX_VALUE, r.readInteger());
@@ -44,15 +64,15 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipInt8() throws Exception {
-		setContents("02" + "00");
+		setContents("21" + "00");
 		r.skipInteger();
 		assertTrue(r.eof());
 	}
 
 	@Test
 	public void testReadInt16() throws Exception {
-		setContents("03" + "0080" + "03" + "FF7F"
-				+ "03" + "7FFF" + "03" + "8000");
+		setContents("22" + "0080" + "22" + "FF7F"
+				+ "22" + "7FFF" + "22" + "8000");
 		assertEquals(Byte.MAX_VALUE + 1, r.readInteger());
 		assertEquals(Byte.MIN_VALUE - 1, r.readInteger());
 		assertEquals(Short.MAX_VALUE, r.readInteger());
@@ -62,15 +82,15 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipInt16() throws Exception {
-		setContents("03" + "0080");
+		setContents("22" + "0080");
 		r.skipInteger();
 		assertTrue(r.eof());
 	}
 
 	@Test
 	public void testReadInt32() throws Exception {
-		setContents("04" + "00008000" + "04" + "FFFF7FFF"
-				+ "04" + "7FFFFFFF" + "04" + "80000000");
+		setContents("24" + "00008000" + "24" + "FFFF7FFF"
+				+ "24" + "7FFFFFFF" + "24" + "80000000");
 		assertEquals(Short.MAX_VALUE + 1, r.readInteger());
 		assertEquals(Short.MIN_VALUE - 1, r.readInteger());
 		assertEquals(Integer.MAX_VALUE, r.readInteger());
@@ -80,15 +100,15 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipInt32() throws Exception {
-		setContents("04" + "00008000");
+		setContents("24" + "00008000");
 		r.skipInteger();
 		assertTrue(r.eof());
 	}
 
 	@Test
 	public void testReadInt64() throws Exception {
-		setContents("05" + "0000000080000000" + "05" + "FFFFFFFF7FFFFFFF"
-				+ "05" + "7FFFFFFFFFFFFFFF" + "05" + "8000000000000000");
+		setContents("28" + "0000000080000000" + "28" + "FFFFFFFF7FFFFFFF"
+				+ "28" + "7FFFFFFFFFFFFFFF" + "28" + "8000000000000000");
 		assertEquals(Integer.MAX_VALUE + 1L, r.readInteger());
 		assertEquals(Integer.MIN_VALUE - 1L, r.readInteger());
 		assertEquals(Long.MAX_VALUE, r.readInteger());
@@ -98,7 +118,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipInt64() throws Exception {
-		setContents("05" + "0000000080000000");
+		setContents("28" + "0000000080000000");
 		r.skipInteger();
 		assertTrue(r.eof());
 	}
@@ -106,39 +126,39 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testIntegersMustHaveMinimalLength() throws Exception {
 		// INTEGER_16 could be encoded as INTEGER_8
-		setContents("02" + "7F" + "03" + "007F");
+		setContents("21" + "7F" + "22" + "007F");
 		assertEquals(Byte.MAX_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
 		} catch(FormatException expected) {}
-		setContents("02" + "80" + "03" + "FF80");
+		setContents("21" + "80" + "22" + "FF80");
 		assertEquals(Byte.MIN_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
 		} catch(FormatException expected) {}
 		// INTEGER_32 could be encoded as INTEGER_16
-		setContents("03" + "7FFF" + "04" + "00007FFF");
+		setContents("22" + "7FFF" + "24" + "00007FFF");
 		assertEquals(Short.MAX_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
 		} catch(FormatException expected) {}
-		setContents("03" + "8000" + "04" + "FFFF8000");
+		setContents("22" + "8000" + "24" + "FFFF8000");
 		assertEquals(Short.MIN_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
 		} catch(FormatException expected) {}
 		// INTEGER_64 could be encoded as INTEGER_32
-		setContents("04" + "7FFFFFFF" + "05" + "000000007FFFFFFF");
+		setContents("24" + "7FFFFFFF" + "28" + "000000007FFFFFFF");
 		assertEquals(Integer.MAX_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
 		} catch(FormatException expected) {}
-		setContents("04" + "80000000" + "05" + "FFFFFFFF80000000");
+		setContents("24" + "80000000" + "28" + "FFFFFFFF80000000");
 		assertEquals(Integer.MIN_VALUE, r.readInteger());
 		try {
 			r.readInteger();
@@ -150,10 +170,10 @@ public class ReaderImplTest extends BriarTestCase {
 	public void testReadFloat() throws Exception {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
 		// http://steve.hollasch.net/cgindex/coding/ieeefloat.html
-		setContents("06" + "0000000000000000" + "06" + "3FF0000000000000"
-				+ "06" + "4000000000000000" + "06" + "BFF0000000000000"
-				+ "06" + "8000000000000000" + "06" + "FFF0000000000000"
-				+ "06" + "7FF0000000000000" + "06" + "7FF8000000000000");
+		setContents("38" + "0000000000000000" + "38" + "3FF0000000000000"
+				+ "38" + "4000000000000000" + "38" + "BFF0000000000000"
+				+ "38" + "8000000000000000" + "38" + "FFF0000000000000"
+				+ "38" + "7FF0000000000000" + "38" + "7FF8000000000000");
 		assertEquals(0.0, r.readFloat());
 		assertEquals(1.0, r.readFloat());
 		assertEquals(2.0, r.readFloat());
@@ -167,7 +187,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipFloat() throws Exception {
-		setContents("06" + "0000000000000000");
+		setContents("38" + "0000000000000000");
 		r.skipFloat();
 		assertTrue(r.eof());
 	}
@@ -177,8 +197,8 @@ public class ReaderImplTest extends BriarTestCase {
 		String longest = TestUtils.createRandomString(Byte.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// "foo", the empty string, and 127 random letters
-		setContents("07" + "03" + "666F6F" + "07" + "00" +
-				"07" + "7F" + longHex);
+		setContents("41" + "03" + "666F6F" + "41" + "00" +
+				"41" + "7F" + longHex);
 		assertEquals("foo", r.readString(Integer.MAX_VALUE));
 		assertEquals("", r.readString(Integer.MAX_VALUE));
 		assertEquals(longest, r.readString(Integer.MAX_VALUE));
@@ -188,7 +208,7 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testReadString8ChecksMaxLength() throws Exception {
 		// "foo" twice
-		setContents("07" + "03" + "666F6F" + "07" + "03" + "666F6F");
+		setContents("41" + "03" + "666F6F" + "41" + "03" + "666F6F");
 		assertEquals("foo", r.readString(3));
 		assertTrue(r.hasString());
 		try {
@@ -202,24 +222,12 @@ public class ReaderImplTest extends BriarTestCase {
 		String longest = TestUtils.createRandomString(Byte.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// "foo", the empty string, and 127 random letters
-		setContents("07" + "03" + "666F6F" + "07" + "00" +
-				"07" + "7F" + longHex);
-		r.skipString(Integer.MAX_VALUE);
-		r.skipString(Integer.MAX_VALUE);
-		r.skipString(Integer.MAX_VALUE);
+		setContents("41" + "03" + "666F6F" + "41" + "00" +
+				"41" + "7F" + longHex);
+		r.skipString();
+		r.skipString();
+		r.skipString();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipString8ChecksMaxLength() throws Exception {
-		// "foo" twice
-		setContents("07" + "03" + "666F6F" + "07" + "03" + "666F6F");
-		r.skipString(3);
-		assertTrue(r.hasString());
-		try {
-			r.skipString(2);
-			fail();
-		} catch(FormatException expected) {}
 	}
 
 	@Test
@@ -229,7 +237,7 @@ public class ReaderImplTest extends BriarTestCase {
 		String longest = TestUtils.createRandomString(Short.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// 128 random letters and 2^15 -1 random letters
-		setContents("08" + "0080" + shortHex + "08" + "7FFF" + longHex);
+		setContents("42" + "0080" + shortHex + "42" + "7FFF" + longHex);
 		assertEquals(shortest, r.readString(Integer.MAX_VALUE));
 		assertEquals(longest, r.readString(Integer.MAX_VALUE));
 		assertTrue(r.eof());
@@ -240,7 +248,7 @@ public class ReaderImplTest extends BriarTestCase {
 		String shortest = TestUtils.createRandomString(Byte.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 128 random letters, twice
-		setContents("08" + "0080" + shortHex + "08" + "0080" + shortHex);
+		setContents("42" + "0080" + shortHex + "42" + "0080" + shortHex);
 		assertEquals(shortest, r.readString(Byte.MAX_VALUE + 1));
 		assertTrue(r.hasString());
 		try {
@@ -256,24 +264,10 @@ public class ReaderImplTest extends BriarTestCase {
 		String longest = TestUtils.createRandomString(Short.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// 128 random letters and 2^15 - 1 random letters
-		setContents("08" + "0080" + shortHex + "08" + "7FFF" + longHex);
-		r.skipString(Integer.MAX_VALUE);
-		r.skipString(Integer.MAX_VALUE);
+		setContents("42" + "0080" + shortHex + "42" + "7FFF" + longHex);
+		r.skipString();
+		r.skipString();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipString16ChecksMaxLength() throws Exception {
-		String shortest = TestUtils.createRandomString(Byte.MAX_VALUE + 1);
-		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
-		// 128 random letters, twice
-		setContents("08" + "0080" + shortHex + "08" + "0080" + shortHex);
-		r.skipString(Byte.MAX_VALUE + 1);
-		assertTrue(r.hasString());
-		try {
-			r.skipString(Byte.MAX_VALUE);
-			fail();
-		} catch(FormatException expected) {}
 	}
 
 	@Test
@@ -281,7 +275,7 @@ public class ReaderImplTest extends BriarTestCase {
 		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 2^15 random letters
-		setContents("09" + "00008000" + shortHex);
+		setContents("44" + "00008000" + shortHex);
 		assertEquals(shortest, r.readString(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
@@ -291,8 +285,8 @@ public class ReaderImplTest extends BriarTestCase {
 		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 2^15 random letters, twice
-		setContents("09" + "00008000" + shortHex +
-				"09" + "00008000" + shortHex);
+		setContents("44" + "00008000" + shortHex +
+				"44" + "00008000" + shortHex);
 		assertEquals(shortest, r.readString(Short.MAX_VALUE + 1));
 		assertTrue(r.hasString());
 		try {
@@ -306,26 +300,11 @@ public class ReaderImplTest extends BriarTestCase {
 		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 2^15 random letters, twice
-		setContents("09" + "00008000" + shortHex +
-				"09" + "00008000" + shortHex);
-		r.skipString(Integer.MAX_VALUE);
-		r.skipString(Integer.MAX_VALUE);
+		setContents("44" + "00008000" + shortHex +
+				"44" + "00008000" + shortHex);
+		r.skipString();
+		r.skipString();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipString32ChecksMaxLength() throws Exception {
-		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
-		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
-		// 2^15 random letters, twice
-		setContents("09" + "00008000" + shortHex +
-				"09" + "00008000" + shortHex);
-		r.skipString(Short.MAX_VALUE + 1);
-		assertTrue(r.hasString());
-		try {
-			r.skipString(Short.MAX_VALUE);
-			fail();
-		} catch(FormatException expected) {}
 	}
 
 	@Test
@@ -333,7 +312,7 @@ public class ReaderImplTest extends BriarTestCase {
 		// STRING_16 could be encoded as STRING_8
 		String longest8 = TestUtils.createRandomString(Byte.MAX_VALUE);
 		String long8Hex = StringUtils.toHexString(longest8.getBytes("UTF-8"));
-		setContents("07" + "7F" + long8Hex + "08" + "007F" + long8Hex);
+		setContents("41" + "7F" + long8Hex + "42" + "007F" + long8Hex);
 		assertEquals(longest8, r.readString(Integer.MAX_VALUE));
 		try {
 			r.readString(Integer.MAX_VALUE);
@@ -342,7 +321,7 @@ public class ReaderImplTest extends BriarTestCase {
 		// STRING_32 could be encoded as STRING_16
 		String longest16 = TestUtils.createRandomString(Short.MAX_VALUE);
 		String long16Hex = StringUtils.toHexString(longest16.getBytes("UTF-8"));
-		setContents("08" + "7FFF" + long16Hex + "09" + "00007FFF" + long16Hex);
+		setContents("42" + "7FFF" + long16Hex + "44" + "00007FFF" + long16Hex);
 		assertEquals(longest16, r.readString(Integer.MAX_VALUE));
 		try {
 			r.readString(Integer.MAX_VALUE);
@@ -355,8 +334,8 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] longest = new byte[Byte.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// {1, 2, 3}, {}, and 127 zero bytes
-		setContents("0A" + "03" + "010203" + "0A" + "00" +
-				"0A" + "7F" + longHex);
+		setContents("51" + "03" + "010203" + "51" + "00" +
+				"51" + "7F" + longHex);
 		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes(Integer.MAX_VALUE));
 		assertArrayEquals(new byte[0], r.readBytes(Integer.MAX_VALUE));
 		assertArrayEquals(longest, r.readBytes(Integer.MAX_VALUE));
@@ -366,7 +345,7 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testReadBytes8ChecksMaxLength() throws Exception {
 		// {1, 2, 3} twice
-		setContents("0A" + "03" + "010203" + "0A" + "03" + "010203");
+		setContents("51" + "03" + "010203" + "51" + "03" + "010203");
 		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes(3));
 		assertTrue(r.hasBytes());
 		try {
@@ -380,24 +359,12 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] longest = new byte[Byte.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// {1, 2, 3}, {}, and 127 zero bytes
-		setContents("0A" + "03" + "010203" + "0A" + "00" +
-				"0A" + "7F" + longHex);
-		r.skipBytes(Integer.MAX_VALUE);
-		r.skipBytes(Integer.MAX_VALUE);
-		r.skipBytes(Integer.MAX_VALUE);
+		setContents("51" + "03" + "010203" + "51" + "00" +
+				"51" + "7F" + longHex);
+		r.skipBytes();
+		r.skipBytes();
+		r.skipBytes();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipBytes8ChecksMaxLength() throws Exception {
-		// {1, 2, 3} twice
-		setContents("0A" + "03" + "010203" + "0A" + "03" + "010203");
-		r.skipBytes(3);
-		assertTrue(r.hasBytes());
-		try {
-			r.skipBytes(2);
-			fail();
-		} catch(FormatException expected) {}
 	}
 
 	@Test
@@ -407,7 +374,7 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] longest = new byte[Short.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// 128 zero bytes and 2^15 - 1 zero bytes
-		setContents("0B" + "0080" + shortHex + "0B" + "7FFF" + longHex);
+		setContents("52" + "0080" + shortHex + "52" + "7FFF" + longHex);
 		assertArrayEquals(shortest, r.readBytes(Integer.MAX_VALUE));
 		assertArrayEquals(longest, r.readBytes(Integer.MAX_VALUE));
 		assertTrue(r.eof());
@@ -418,7 +385,7 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 128 zero bytes, twice
-		setContents("0B" + "0080" + shortHex + "0B" + "0080" + shortHex);
+		setContents("52" + "0080" + shortHex + "52" + "0080" + shortHex);
 		assertArrayEquals(shortest, r.readBytes(Byte.MAX_VALUE + 1));
 		assertTrue(r.hasBytes());
 		try {
@@ -434,24 +401,10 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] longest = new byte[Short.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// 128 zero bytes and 2^15 - 1 zero bytes
-		setContents("0B" + "0080" + shortHex + "0B" + "7FFF" + longHex);
-		r.skipBytes(Integer.MAX_VALUE);
-		r.skipBytes(Integer.MAX_VALUE);
+		setContents("52" + "0080" + shortHex + "52" + "7FFF" + longHex);
+		r.skipBytes();
+		r.skipBytes();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipBytes16ChecksMaxLength() throws Exception {
-		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
-		String shortHex = StringUtils.toHexString(shortest);
-		// 128 zero bytes, twice
-		setContents("0B" + "0080" + shortHex + "0B" + "0080" + shortHex);
-		r.skipBytes(Byte.MAX_VALUE + 1);
-		assertTrue(r.hasBytes());
-		try {
-			r.skipBytes(Byte.MAX_VALUE);
-			fail();
-		} catch(FormatException expected) {}
 	}
 
 	@Test
@@ -459,7 +412,7 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 2^15 zero bytes
-		setContents("0C" + "00008000" + shortHex);
+		setContents("54" + "00008000" + shortHex);
 		assertArrayEquals(shortest, r.readBytes(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
@@ -469,8 +422,8 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 2^15 zero bytes, twice
-		setContents("0C" + "00008000" + shortHex +
-				"0C" + "00008000" + shortHex);
+		setContents("54" + "00008000" + shortHex +
+				"54" + "00008000" + shortHex);
 		assertArrayEquals(shortest, r.readBytes(Short.MAX_VALUE + 1));
 		assertTrue(r.hasBytes());
 		try {
@@ -484,43 +437,28 @@ public class ReaderImplTest extends BriarTestCase {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 2^15 zero bytes, twice
-		setContents("0C" + "00008000" + shortHex +
-				"0C" + "00008000" + shortHex);
-		r.skipBytes(Integer.MAX_VALUE);
-		r.skipBytes(Integer.MAX_VALUE);
+		setContents("54" + "00008000" + shortHex +
+				"54" + "00008000" + shortHex);
+		r.skipBytes();
+		r.skipBytes();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testSkipBytes32ChecksMaxLength() throws Exception {
-		byte[] shortest = new byte[Short.MAX_VALUE + 1];
-		String shortHex = StringUtils.toHexString(shortest);
-		// 2^15 zero bytes, twice
-		setContents("0C" + "00008000" + shortHex +
-				"0C" + "00008000" + shortHex);
-		r.skipBytes(Short.MAX_VALUE + 1);
-		assertTrue(r.hasBytes());
-		try {
-			r.skipBytes(Short.MAX_VALUE);
-			fail();
-		} catch(FormatException expected) {}
-	}
-
-	@Test
 	public void testBytesMustHaveMinimalLength() throws Exception {
-		// BYTES_16 could be encoded as BYTES_8
+		// RAW_16 could be encoded as RAW_8
 		byte[] longest8 = new byte[Byte.MAX_VALUE];
 		String long8Hex = StringUtils.toHexString(longest8);
-		setContents("0A" + "7F" + long8Hex + "0B" + "007F" + long8Hex);
+		setContents("51" + "7F" + long8Hex + "52" + "007F" + long8Hex);
 		assertArrayEquals(longest8, r.readBytes(Integer.MAX_VALUE));
 		try {
 			r.readBytes(Integer.MAX_VALUE);
 			fail();
 		} catch(FormatException expected) {}
-		// BYTES_32 could be encoded as BYTES_16
+		// RAW_32 could be encoded as RAW_16
 		byte[] longest16 = new byte[Short.MAX_VALUE];
 		String long16Hex = StringUtils.toHexString(longest16);
-		setContents("0B" + "7FFF" + long16Hex + "0C" + "00007FFF" + long16Hex);
+		setContents("52" + "7FFF" + long16Hex + "54" + "00007FFF" + long16Hex);
 		assertArrayEquals(longest16, r.readBytes(Integer.MAX_VALUE));
 		try {
 			r.readBytes(Integer.MAX_VALUE);
@@ -531,9 +469,9 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testReadList() throws Exception {
 		// A list containing 1, "foo", and 128
-		setContents("0D" + "02" + "01" +
-				"07" + "03" + "666F6F" +
-				"03" + "0080" + "10");
+		setContents("60" + "21" + "01" +
+				"41" + "03" + "666F6F" +
+				"22" + "0080" + "80");
 		r.readListStart();
 		assertFalse(r.hasListEnd());
 		assertEquals(1, r.readInteger());
@@ -549,25 +487,25 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testSkipList() throws Exception {
 		// A list containing 1, "foo", and 128
-		setContents("0D" + "02" + "01" +
-				"07" + "03" + "666F6F" +
-				"03" + "0080" + "10");
+		setContents("60" + "21" + "01" +
+				"41" + "03" + "666F6F" +
+				"22" + "0080" + "80");
 		r.skipList();
 		assertTrue(r.eof());
 	}
 
 	@Test
 	public void testReadMap() throws Exception {
-		// A map containing "foo" -> 123 and byte[0] -> null
-		setContents("0E" + "07" + "03" + "666F6F" + "02" + "7B" +
-				"0A" + "00" + "11" + "10");
+		// A map containing "foo" -> 123 and "bar" -> null
+		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
+				"41" + "03" + "626172" + "00" + "80");
 		r.readMapStart();
 		assertFalse(r.hasMapEnd());
 		assertEquals("foo", r.readString(1000));
 		assertFalse(r.hasMapEnd());
 		assertEquals(123, r.readInteger());
 		assertFalse(r.hasMapEnd());
-		assertArrayEquals(new byte[0], r.readBytes(1000));
+		assertEquals("bar", r.readString(1000));
 		assertFalse(r.hasMapEnd());
 		assertTrue(r.hasNull());
 		r.readNull();
@@ -578,58 +516,18 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipMap() throws Exception {
-		// A map containing "foo" -> 123 and byte[0] -> null
-		setContents("0E" + "07" + "03" + "666F6F" + "02" + "7B" +
-				"0A" + "00" + "11" + "10");
+		// A map containing "foo" -> 123 and "bar" -> null
+		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
+				"41" + "03" + "626172" + "00" + "80");
 		r.skipMap();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadStruct() throws Exception {
-		// Two empty structs with IDs 0 and 255
-		setContents("0F00" + "10" + "0FFF" + "10");
-		r.readStructStart(0);
-		r.readStructEnd();
-		r.readStructStart(255);
-		r.readStructEnd();
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipStruct() throws Exception {
-		// Two empty structs with IDs 0 and 255
-		setContents("0F00" + "10" + "0FFF" + "10");
-		r.skipStruct();
-		r.skipStruct();
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipNestedStructMapAndList() throws Exception {
-		// A struct containing a map containing two empty lists
-		setContents("0F00" + "0E" + "0D" + "10" + "0D" + "10" + "10" + "10");
-		r.skipStruct();
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadNull() throws Exception {
-		setContents("11");
-		r.readNull();
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testSkipNull() throws Exception {
-		setContents("11");
-		r.skipNull();
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadEmptyInput() throws Exception {
-		setContents("");
+	public void testSkipNestedListsAndMaps() throws Exception {
+		// A list containing a map containing two empty lists
+		setContents("60" + "70" + "60" + "80" + "60" + "80" + "80" + "80");
+		r.skipList();
 		assertTrue(r.eof());
 	}
 

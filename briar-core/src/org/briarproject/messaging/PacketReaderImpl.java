@@ -3,18 +3,21 @@ package org.briarproject.messaging;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static org.briarproject.api.messaging.Types.ACK;
-import static org.briarproject.api.messaging.Types.MESSAGE;
-import static org.briarproject.api.messaging.Types.OFFER;
-import static org.briarproject.api.messaging.Types.REQUEST;
-import static org.briarproject.api.messaging.Types.RETENTION_ACK;
-import static org.briarproject.api.messaging.Types.RETENTION_UPDATE;
-import static org.briarproject.api.messaging.Types.SUBSCRIPTION_ACK;
-import static org.briarproject.api.messaging.Types.SUBSCRIPTION_UPDATE;
-import static org.briarproject.api.messaging.Types.TRANSPORT_ACK;
-import static org.briarproject.api.messaging.Types.TRANSPORT_UPDATE;
+import static org.briarproject.api.messaging.MessagingConstants.HEADER_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.PROTOCOL_VERSION;
+import static org.briarproject.api.messaging.PacketTypes.ACK;
+import static org.briarproject.api.messaging.PacketTypes.MESSAGE;
+import static org.briarproject.api.messaging.PacketTypes.OFFER;
+import static org.briarproject.api.messaging.PacketTypes.REQUEST;
+import static org.briarproject.api.messaging.PacketTypes.RETENTION_ACK;
+import static org.briarproject.api.messaging.PacketTypes.RETENTION_UPDATE;
+import static org.briarproject.api.messaging.PacketTypes.SUBSCRIPTION_ACK;
+import static org.briarproject.api.messaging.PacketTypes.SUBSCRIPTION_UPDATE;
+import static org.briarproject.api.messaging.PacketTypes.TRANSPORT_ACK;
+import static org.briarproject.api.messaging.PacketTypes.TRANSPORT_UPDATE;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -39,42 +42,82 @@ import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.serial.Consumer;
-import org.briarproject.api.serial.CountingConsumer;
 import org.briarproject.api.serial.Reader;
 import org.briarproject.api.serial.ReaderFactory;
-import org.briarproject.api.serial.StructReader;
+import org.briarproject.api.serial.ObjectReader;
+import org.briarproject.util.ByteUtils;
 
 // This class is not thread-safe
 class PacketReaderImpl implements PacketReader {
 
-	private final StructReader<UnverifiedMessage> messageReader;
-	private final StructReader<SubscriptionUpdate> subscriptionUpdateReader;
-	private final Reader r;
+	private enum State { BUFFER_EMPTY, BUFFER_FULL, EOF };
+
+	private final ReaderFactory readerFactory;
+	private final ObjectReader<UnverifiedMessage> messageReader;
+	private final ObjectReader<SubscriptionUpdate> subscriptionUpdateReader;
+	private final InputStream in;
+	private final byte[] header, payload;
+
+	private State state = State.BUFFER_EMPTY;
+	private int payloadLength = 0;
 
 	PacketReaderImpl(ReaderFactory readerFactory,
-			StructReader<UnverifiedMessage> messageReader,
-			StructReader<SubscriptionUpdate> subscriptionUpdateReader,
+			ObjectReader<UnverifiedMessage> messageReader,
+			ObjectReader<SubscriptionUpdate> subscriptionUpdateReader,
 			InputStream in) {
+		this.readerFactory = readerFactory;
 		this.messageReader = messageReader;
 		this.subscriptionUpdateReader = subscriptionUpdateReader;
-		r = readerFactory.createReader(in);
+		this.in = in;
+		header = new byte[HEADER_LENGTH];
+		payload = new byte[MAX_PAYLOAD_LENGTH];
+	}
+
+	private void readPacket() throws IOException {
+		assert state == State.BUFFER_EMPTY;
+		// Read the header
+		int offset = 0;
+		while(offset < HEADER_LENGTH) {
+			int read = in.read(header, offset, HEADER_LENGTH - offset);
+			if(read == -1) {
+				if(offset > 0) throw new FormatException();
+				state = State.EOF;
+				return;
+			}
+			offset += read;
+		}
+		// Check the protocol version
+		if(header[0] != PROTOCOL_VERSION) throw new FormatException();
+		// Read the payload length
+		payloadLength = ByteUtils.readUint16(header, 2);
+		if(payloadLength > MAX_PAYLOAD_LENGTH) throw new FormatException();
+		// Read the payload
+		offset = 0;
+		while(offset < payloadLength) {
+			int read = in.read(payload, offset, payloadLength - offset);
+			if(read == -1) throw new FormatException();
+			offset += read;
+		}
+		state = State.BUFFER_FULL;
 	}
 
 	public boolean eof() throws IOException {
-		return r.eof();
+		if(state == State.BUFFER_EMPTY) readPacket();
+		assert state != State.BUFFER_EMPTY;
+		return state == State.EOF;
 	}
 
 	public boolean hasAck() throws IOException {
-		return r.hasStruct(ACK);
+		return !eof() && header[1] == ACK;
 	}
 
 	public Ack readAck() throws IOException {
+		if(!hasAck()) throw new FormatException();
 		// Set up the reader
-		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
-		r.addConsumer(counting);
-		// Read the start of the struct
-		r.readStructStart(ACK);
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
+		r.readListStart();
 		// Read the message IDs
 		List<MessageId> acked = new ArrayList<MessageId>();
 		r.readListStart();
@@ -86,32 +129,41 @@ class PacketReaderImpl implements PacketReader {
 		}
 		if(acked.isEmpty()) throw new FormatException();
 		r.readListEnd();
-		// Read the end of the struct
-		r.readStructEnd();
-		// Reset the reader
-		r.removeConsumer(counting);
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
 		// Build and return the ack
 		return new Ack(Collections.unmodifiableList(acked));
 	}
 
 	public boolean hasMessage() throws IOException {
-		return r.hasStruct(MESSAGE);
+		return !eof() && header[1] == MESSAGE;
 	}
 
 	public UnverifiedMessage readMessage() throws IOException {
-		return messageReader.readStruct(r);
+		if(!hasMessage()) throw new FormatException();
+		// Set up the reader
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read and build the message
+		UnverifiedMessage m = messageReader.readObject(r);
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
+		return m;
 	}
 
 	public boolean hasOffer() throws IOException {
-		return r.hasStruct(OFFER);
+		return !eof() && header[1] == OFFER;
 	}
 
 	public Offer readOffer() throws IOException {
+		if(!hasOffer()) throw new FormatException();
 		// Set up the reader
-		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
-		r.addConsumer(counting);
-		// Read the start of the struct
-		r.readStructStart(OFFER);
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
+		r.readListStart();
 		// Read the message IDs
 		List<MessageId> offered = new ArrayList<MessageId>();
 		r.readListStart();
@@ -123,27 +175,28 @@ class PacketReaderImpl implements PacketReader {
 		}
 		if(offered.isEmpty()) throw new FormatException();
 		r.readListEnd();
-		// Read the end of the struct
-		r.readStructEnd();
-		// Reset the reader
-		r.removeConsumer(counting);
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
 		// Build and return the offer
 		return new Offer(Collections.unmodifiableList(offered));
 	}
 
 	public boolean hasRequest() throws IOException {
-		return r.hasStruct(REQUEST);
+		return !eof() && header[1] == REQUEST;
 	}
 
 	public Request readRequest() throws IOException {
+		if(!hasRequest()) throw new FormatException();
 		// Set up the reader
-		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
-		r.addConsumer(counting);
-		// Read the start of the struct
-		r.readStructStart(REQUEST);
-		// Read the message IDs
-		List<MessageId> requested = new ArrayList<MessageId>();
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
 		r.readListStart();
+		// Read the message IDs
+		r.readListStart();
+		List<MessageId> requested = new ArrayList<MessageId>();
 		while(!r.hasListEnd()) {
 			byte[] b = r.readBytes(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH)
@@ -152,85 +205,134 @@ class PacketReaderImpl implements PacketReader {
 		}
 		if(requested.isEmpty()) throw new FormatException();
 		r.readListEnd();
-		// Read the end of the struct
-		r.readStructEnd();
-		// Reset the reader
-		r.removeConsumer(counting);
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
 		// Build and return the request
 		return new Request(Collections.unmodifiableList(requested));
 	}
 
 	public boolean hasRetentionAck() throws IOException {
-		return r.hasStruct(RETENTION_ACK);
+		return !eof() && header[1] == RETENTION_ACK;
 	}
 
 	public RetentionAck readRetentionAck() throws IOException {
-		r.readStructStart(RETENTION_ACK);
+		if(!hasRetentionAck()) throw new FormatException();
+		// Set up the reader
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
+		r.readListStart();
+		// Read the version
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
-		r.readStructEnd();
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
+		// Build and return the retention ack
 		return new RetentionAck(version);
 	}
 
 	public boolean hasRetentionUpdate() throws IOException {
-		return r.hasStruct(RETENTION_UPDATE);
+		return !eof() && header[1] == RETENTION_UPDATE;
 	}
 
 	public RetentionUpdate readRetentionUpdate() throws IOException {
-		r.readStructStart(RETENTION_UPDATE);
+		if(!hasRetentionUpdate()) throw new FormatException();
+		// Set up the reader
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
+		r.readListStart();
+		// Read the retention time and version
 		long retention = r.readInteger();
 		if(retention < 0) throw new FormatException();
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
-		r.readStructEnd();
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
+		// Build and return the retention update
 		return new RetentionUpdate(retention, version);
 	}
 
 	public boolean hasSubscriptionAck() throws IOException {
-		return r.hasStruct(SUBSCRIPTION_ACK);
+		return !eof() && header[1] == SUBSCRIPTION_ACK;
 	}
 
 	public SubscriptionAck readSubscriptionAck() throws IOException {
-		r.readStructStart(SUBSCRIPTION_ACK);
+		if(!hasSubscriptionAck()) throw new FormatException();
+		// Set up the reader
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
+		r.readListStart();
+		// Read the version
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
-		r.readStructEnd();
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
+		// Build and return the subscription ack
 		return new SubscriptionAck(version);
 	}
 
 	public boolean hasSubscriptionUpdate() throws IOException {
-		return r.hasStruct(SUBSCRIPTION_UPDATE);
+		return !eof() && header[1] == SUBSCRIPTION_UPDATE;
 	}
 
 	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		return subscriptionUpdateReader.readStruct(r);
+		if(!hasSubscriptionUpdate()) throw new FormatException();
+		// Set up the reader
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read and build the subscription update
+		SubscriptionUpdate u = subscriptionUpdateReader.readObject(r);
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
+		return u;
 	}
 
 	public boolean hasTransportAck() throws IOException {
-		return r.hasStruct(TRANSPORT_ACK);
+		return !eof() && header[1] == TRANSPORT_ACK;
 	}
 
 	public TransportAck readTransportAck() throws IOException {
-		r.readStructStart(TRANSPORT_ACK);
+		if(!hasTransportAck()) throw new FormatException();
+		// Set up the reader
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
+		r.readListStart();
+		// Read the transport ID and version
 		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
 		if(idString.length() == 0) throw new FormatException();
 		TransportId id = new TransportId(idString);
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
-		r.readStructEnd();
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
+		// Build and return the transport ack
 		return new TransportAck(id, version);
 	}
 
 	public boolean hasTransportUpdate() throws IOException {
-		return r.hasStruct(TRANSPORT_UPDATE);
+		return !eof() && header[1] == TRANSPORT_UPDATE;
 	}
 
 	public TransportUpdate readTransportUpdate() throws IOException {
+		if(!hasTransportUpdate()) throw new FormatException();
 		// Set up the reader
-		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
-		r.addConsumer(counting);
-		// Read the start of the struct
-		r.readStructStart(TRANSPORT_UPDATE);
+		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
+		Reader r = readerFactory.createReader(bais);
+		// Read the start of the payload
+		r.readListStart();
 		// Read the transport ID
 		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
 		if(idString.length() == 0) throw new FormatException();
@@ -249,10 +351,10 @@ class PacketReaderImpl implements PacketReader {
 		// Read the version number
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
-		// Read the end of the struct
-		r.readStructEnd();
-		// Reset the reader
-		r.removeConsumer(counting);
+		// Read the end of the payload
+		r.readListEnd();
+		if(!r.eof()) throw new FormatException();
+		state = State.BUFFER_EMPTY;
 		// Build and return the transport update
 		return new TransportUpdate(id, new TransportProperties(p), version);
 	}

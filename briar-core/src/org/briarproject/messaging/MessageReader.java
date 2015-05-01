@@ -3,9 +3,8 @@ package org.briarproject.messaging;
 import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MESSAGE_SALT_LENGTH;
-import static org.briarproject.api.messaging.Types.MESSAGE;
 
 import java.io.IOException;
 
@@ -17,27 +16,27 @@ import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.UnverifiedMessage;
 import org.briarproject.api.serial.CopyingConsumer;
 import org.briarproject.api.serial.CountingConsumer;
+import org.briarproject.api.serial.ObjectReader;
 import org.briarproject.api.serial.Reader;
-import org.briarproject.api.serial.StructReader;
 
-class MessageReader implements StructReader<UnverifiedMessage> {
+class MessageReader implements ObjectReader<UnverifiedMessage> {
 
-	private final StructReader<Group> groupReader;
-	private final StructReader<Author> authorReader;
+	private final ObjectReader<Group> groupReader;
+	private final ObjectReader<Author> authorReader;
 
-	MessageReader(StructReader<Group> groupReader,
-			StructReader<Author> authorReader) {
+	MessageReader(ObjectReader<Group> groupReader,
+			ObjectReader<Author> authorReader) {
 		this.groupReader = groupReader;
 		this.authorReader = authorReader;
 	}
 
-	public UnverifiedMessage readStruct(Reader r) throws IOException {
+	public UnverifiedMessage readObject(Reader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
-		CountingConsumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
+		CountingConsumer counting = new CountingConsumer(MAX_PAYLOAD_LENGTH);
 		r.addConsumer(copying);
 		r.addConsumer(counting);
-		// Read the start of the struct
-		r.readStructStart(MESSAGE);
+		// Read the start of the message
+		r.readListStart();
 		// Read the parent's message ID, if there is one
 		MessageId parent = null;
 		if(r.hasNull()) {
@@ -48,11 +47,11 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 			parent = new MessageId(b);
 		}
 		// Read the group
-		Group group = groupReader.readStruct(r);
+		Group group = groupReader.readObject(r);
 		// Read the author, if there is one
 		Author author = null;
 		if(r.hasNull()) r.readNull();
-		else author = authorReader.readStruct(r);
+		else author = authorReader.readObject(r);
 		// Read the content type
 		String contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
 		// Read the timestamp
@@ -71,11 +70,12 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		byte[] signature = null;
 		if(author == null) r.readNull();
 		else signature = r.readBytes(MAX_SIGNATURE_LENGTH);
-		// Read the end of the struct
-		r.readStructEnd();
-		// The signature will be verified later
+		// Read the end of the message
+		r.readListEnd();
+		// Reset the reader
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
+		// Build and return the unverified message
 		byte[] raw = copying.getCopy();
 		return new UnverifiedMessage(parent, group, author, contentType,
 				timestamp, raw, signature, bodyStart, body.length,

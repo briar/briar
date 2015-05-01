@@ -12,6 +12,7 @@ public interface Writer {
 	void addConsumer(Consumer c);
 	void removeConsumer(Consumer c);
 
+	void writeNull() throws IOException;
 	void writeBoolean(boolean b) throws IOException;
 	void writeInteger(long l) throws IOException;
 	void writeFloat(double d) throws IOException;
@@ -25,9 +26,4 @@ public interface Writer {
 	void writeMap(Map<?, ?> m) throws IOException;
 	void writeMapStart() throws IOException;
 	void writeMapEnd() throws IOException;
-
-	void writeStructStart(int id) throws IOException;
-	void writeStructEnd() throws IOException;
-
-	void writeNull() throws IOException;
 }

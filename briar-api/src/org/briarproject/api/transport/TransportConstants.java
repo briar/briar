@@ -26,7 +26,7 @@ public interface TransportConstants {
 	 * support. Streams may be shorter than this length, but all transport
 	 * plugins must support streams of at least this length.
 	 */
-	int MIN_STREAM_LENGTH = 1024 * 1024; // 2^20, 1 MiB
+	int MIN_STREAM_LENGTH = 64 * 1024; // 64 KiB
 
 	/** The maximum difference between two communicating devices' clocks. */
 	int MAX_CLOCK_DIFFERENCE = 60 * 60 * 1000; // 1 hour

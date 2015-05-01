@@ -1,7 +1,6 @@
 package org.briarproject.messaging;
 
 import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
-import static org.briarproject.api.messaging.Types.GROUP;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,10 +36,10 @@ class GroupFactoryImpl implements GroupFactory {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		try {
-			w.writeStructStart(GROUP);
+			w.writeListStart();
 			w.writeString(name);
 			w.writeBytes(salt);
-			w.writeStructEnd();
+			w.writeListEnd();
 		} catch(IOException e) {
 			// Shouldn't happen with ByteArrayOutputStream
 			throw new RuntimeException();

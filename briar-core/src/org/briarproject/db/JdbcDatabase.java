@@ -64,8 +64,8 @@ import org.briarproject.api.transport.TemporarySecret;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 8;
-	private static final int MIN_SCHEMA_VERSION = 8;
+	private static final int SCHEMA_VERSION = 9;
+	private static final int MIN_SCHEMA_VERSION = 9;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"

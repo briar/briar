@@ -1,8 +1,7 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
-import static org.briarproject.api.messaging.Types.SUBSCRIPTION_UPDATE;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,29 +16,29 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.serial.Consumer;
 import org.briarproject.api.serial.CountingConsumer;
+import org.briarproject.api.serial.ObjectReader;
 import org.briarproject.api.serial.Reader;
-import org.briarproject.api.serial.StructReader;
 
-class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
+class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 
-	private final StructReader<Group> groupReader;
+	private final ObjectReader<Group> groupReader;
 
-	SubscriptionUpdateReader(StructReader<Group> groupReader) {
+	SubscriptionUpdateReader(ObjectReader<Group> groupReader) {
 		this.groupReader = groupReader;
 	}
 
-	public SubscriptionUpdate readStruct(Reader r) throws IOException {
+	public SubscriptionUpdate readObject(Reader r) throws IOException {
 		// Set up the reader
-		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
+		Consumer counting = new CountingConsumer(MAX_PAYLOAD_LENGTH);
 		r.addConsumer(counting);
-		// Read the start of the struct
-		r.readStructStart(SUBSCRIPTION_UPDATE);
+		// Read the start of the update
+		r.readListStart();
 		// Read the subscriptions, rejecting duplicates
 		List<Group> groups = new ArrayList<Group>();
 		Set<GroupId> ids = new HashSet<GroupId>();
 		r.readListStart();
 		for(int i = 0; i < MAX_SUBSCRIPTIONS && !r.hasListEnd(); i++) {
-			Group g = groupReader.readStruct(r);
+			Group g = groupReader.readObject(r);
 			if(!ids.add(g.getId())) throw new FormatException(); // Duplicate
 			groups.add(g);
 		}
@@ -47,8 +46,8 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 		// Read the version number
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
-		// Read the end of the struct
-		r.readStructEnd();
+		// Read the end of the update
+		r.readListEnd();
 		// Reset the reader
 		r.removeConsumer(counting);
 		// Build and return the subscription update

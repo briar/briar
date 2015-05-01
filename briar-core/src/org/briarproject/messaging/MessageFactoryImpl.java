@@ -3,11 +3,8 @@ package org.briarproject.messaging;
 import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MESSAGE_SALT_LENGTH;
-import static org.briarproject.api.messaging.Types.AUTHOR;
-import static org.briarproject.api.messaging.Types.GROUP;
-import static org.briarproject.api.messaging.Types.MESSAGE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -77,7 +74,7 @@ class MessageFactoryImpl implements MessageFactory {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		// Initialise the consumers
-		CountingConsumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
+		CountingConsumer counting = new CountingConsumer(MAX_PAYLOAD_LENGTH);
 		w.addConsumer(counting);
 		Consumer digestingConsumer = new DigestingConsumer(messageDigest);
 		w.addConsumer(digestingConsumer);
@@ -88,7 +85,7 @@ class MessageFactoryImpl implements MessageFactory {
 			w.addConsumer(signingConsumer);
 		}
 		// Write the message
-		w.writeStructStart(MESSAGE);
+		w.writeListStart();
 		if(parent == null) w.writeNull();
 		else w.writeBytes(parent.getBytes());
 		writeGroup(w, group);
@@ -111,7 +108,7 @@ class MessageFactoryImpl implements MessageFactory {
 				throw new IllegalArgumentException();
 			w.writeBytes(sig);
 		}
-		w.writeStructEnd();
+		w.writeListEnd();
 		// Hash the message, including the signature, to get the message ID
 		w.removeConsumer(digestingConsumer);
 		MessageId id = new MessageId(messageDigest.digest());
@@ -120,16 +117,16 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {
-		w.writeStructStart(GROUP);
+		w.writeListStart();
 		w.writeString(g.getName());
 		w.writeBytes(g.getSalt());
-		w.writeStructEnd();
+		w.writeListEnd();
 	}
 
 	private void writeAuthor(Writer w, Author a) throws IOException {
-		w.writeStructStart(AUTHOR);
+		w.writeListStart();
 		w.writeString(a.getName());
 		w.writeBytes(a.getPublicKey());
-		w.writeStructEnd();
+		w.writeListEnd();
 	}
 }

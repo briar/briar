@@ -1,18 +1,19 @@
 package org.briarproject.api.messaging;
 
-import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 
 public interface MessagingConstants {
 
-	/**
-	 * The maximum length of a serialised packet in bytes. To allow for future
-	 * changes in the protocol, this is smaller than the minimum stream length
-	 * minus the maximum encryption and authentication overhead.
-	 */
-	int MAX_PACKET_LENGTH = MIN_STREAM_LENGTH / 2;
+	/** The current version of the messaging protocol. */
+	byte PROTOCOL_VERSION = 0;
+
+	/** The length of the packet header in bytes. */
+	int HEADER_LENGTH = 4;
+
+	/** The maximum length of the packet payload in bytes. */
+	int MAX_PAYLOAD_LENGTH = 32 * 1024; // 32 KiB
 
 	/** The maximum number of public groups a user may subscribe to. */
-	int MAX_SUBSCRIPTIONS = 3000;
+	int MAX_SUBSCRIPTIONS = 300;
 
 	/** The maximum length of a group's name in UTF-8 bytes. */
 	int MAX_GROUP_NAME_LENGTH = 50;
@@ -22,10 +23,10 @@ public interface MessagingConstants {
 
 	/**
 	 * The maximum length of a message body in bytes. To allow for future
-	 * changes in the protocol, this is smaller than the maximum packet length
+	 * changes in the protocol, this is smaller than the maximum payload length
 	 * even when all the message's other fields have their maximum lengths.
 	 */
-	int MAX_BODY_LENGTH = MAX_PACKET_LENGTH - 1024;
+	int MAX_BODY_LENGTH = MAX_PAYLOAD_LENGTH - 1024;
 
 	/** The maximum length of a message's content type in UTF-8 bytes. */
 	int MAX_CONTENT_TYPE_LENGTH = 50;

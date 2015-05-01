@@ -10,6 +10,10 @@ public interface Reader {
 	void addConsumer(Consumer c);
 	void removeConsumer(Consumer c);
 
+	boolean hasNull() throws IOException;
+	void readNull() throws IOException;
+	void skipNull() throws IOException;
+
 	boolean hasBoolean() throws IOException;
 	boolean readBoolean() throws IOException;
 	void skipBoolean() throws IOException;
@@ -24,11 +28,11 @@ public interface Reader {
 
 	boolean hasString() throws IOException;
 	String readString(int maxLength) throws IOException;
-	void skipString(int maxLength) throws IOException;
+	void skipString() throws IOException;
 
 	boolean hasBytes() throws IOException;
 	byte[] readBytes(int maxLength) throws IOException;
-	void skipBytes(int maxLength) throws IOException;
+	void skipBytes() throws IOException;
 
 	boolean hasList() throws IOException;
 	void readListStart() throws IOException;
@@ -41,15 +45,4 @@ public interface Reader {
 	boolean hasMapEnd() throws IOException;
 	void readMapEnd() throws IOException;
 	void skipMap() throws IOException;
-
-	boolean hasStruct() throws IOException;
-	boolean hasStruct(int id) throws IOException;
-	void readStructStart(int id) throws IOException;
-	boolean hasStructEnd() throws IOException;
-	void readStructEnd() throws IOException;
-	void skipStruct() throws IOException;
-
-	boolean hasNull() throws IOException;
-	void readNull() throws IOException;
-	void skipNull() throws IOException;
 }

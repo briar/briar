@@ -1,7 +1,5 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.messaging.Types.AUTHOR;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -45,10 +43,10 @@ class AuthorFactoryImpl implements AuthorFactory {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		try {
-			w.writeStructStart(AUTHOR);
+			w.writeListStart();
 			w.writeString(name);
 			w.writeBytes(publicKey);
-			w.writeStructEnd();
+			w.writeListEnd();
 		} catch(IOException e) {
 			// Shouldn't happen with ByteArrayOutputStream
 			throw new RuntimeException();

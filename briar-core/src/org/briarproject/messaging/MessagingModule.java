@@ -14,7 +14,7 @@ import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.serial.StructReader;
+import org.briarproject.api.serial.ObjectReader;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -34,25 +34,25 @@ public class MessagingModule extends AbstractModule {
 	}
 
 	@Provides
-	StructReader<Author> getAuthorReader(CryptoComponent crypto) {
+	ObjectReader<Author> getAuthorReader(CryptoComponent crypto) {
 		return new AuthorReader(crypto);
 	}
 
 	@Provides
-	StructReader<Group> getGroupReader(CryptoComponent crypto) {
+	ObjectReader<Group> getGroupReader(CryptoComponent crypto) {
 		return new GroupReader(crypto);
 	}
 
 	@Provides
-	StructReader<UnverifiedMessage> getMessageReader(
-			StructReader<Group> groupReader,
-			StructReader<Author> authorReader) {
+	ObjectReader<UnverifiedMessage> getMessageReader(
+			ObjectReader<Group> groupReader,
+			ObjectReader<Author> authorReader) {
 		return new MessageReader(groupReader, authorReader);
 	}
 
 	@Provides
-	StructReader<SubscriptionUpdate> getSubscriptionUpdateReader(
-			StructReader<Group> groupReader) {
+	ObjectReader<SubscriptionUpdate> getSubscriptionUpdateReader(
+			ObjectReader<Group> groupReader) {
 		return new SubscriptionUpdateReader(groupReader);
 	}
 }

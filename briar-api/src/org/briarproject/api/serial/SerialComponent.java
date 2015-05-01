@@ -6,9 +6,5 @@ public interface SerialComponent {
 
 	int getSerialisedListEndLength();
 
-	int getSerialisedStructStartLength(int id);
-
-	int getSerialisedStructEndLength();
-
 	int getSerialisedUniqueIdLength();
 }

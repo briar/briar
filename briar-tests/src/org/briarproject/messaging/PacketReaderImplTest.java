@@ -1,9 +1,10 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static org.briarproject.api.messaging.Types.ACK;
-import static org.briarproject.api.messaging.Types.OFFER;
-import static org.briarproject.api.messaging.Types.REQUEST;
+import static org.briarproject.api.messaging.MessagingConstants.HEADER_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.messaging.PacketTypes.ACK;
+import static org.briarproject.api.messaging.PacketTypes.OFFER;
+import static org.briarproject.api.messaging.PacketTypes.REQUEST;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,6 +17,7 @@ import org.briarproject.api.serial.SerialComponent;
 import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.serial.SerialModule;
+import org.briarproject.util.ByteUtils;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -137,85 +139,106 @@ public class PacketReaderImplTest extends BriarTestCase {
 
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(new byte[HEADER_LENGTH]);
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructStart(ACK);
+		w.writeListStart();
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
-				+ serial.getSerialisedListEndLength()
-				+ serial.getSerialisedStructEndLength()
-				< MAX_PACKET_LENGTH) {
+				+ serial.getSerialisedListEndLength() * 2
+				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
 		if(tooBig) w.writeBytes(TestUtils.getRandomId());
 		w.writeListEnd();
-		w.writeStructEnd();
-		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
-		return out.toByteArray();
+		w.writeListEnd();
+		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
+		byte[] packet = out.toByteArray();
+		packet[1] = ACK;
+		ByteUtils.writeUint16(packet.length - HEADER_LENGTH, packet, 2);
+		return packet;
 	}
 
 	private byte[] createEmptyAck() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(new byte[HEADER_LENGTH]);
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructStart(ACK);
+		w.writeListStart();
 		w.writeListStart();
 		w.writeListEnd();
-		w.writeStructEnd();
-		return out.toByteArray();
+		w.writeListEnd();
+		byte[] packet = out.toByteArray();
+		packet[1] = ACK;
+		ByteUtils.writeUint16(packet.length - HEADER_LENGTH, packet, 2);
+		return packet;
 	}
 
 	private byte[] createOffer(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(new byte[HEADER_LENGTH]);
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructStart(OFFER);
+		w.writeListStart();
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
-				+ serial.getSerialisedListEndLength()
-				+ serial.getSerialisedStructEndLength()
-				< MAX_PACKET_LENGTH) {
+				+ serial.getSerialisedListEndLength() * 2
+				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
 		if(tooBig) w.writeBytes(TestUtils.getRandomId());
 		w.writeListEnd();
-		w.writeStructEnd();
-		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
-		return out.toByteArray();
+		w.writeListEnd();
+		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
+		byte[] packet = out.toByteArray();
+		packet[1] = OFFER;
+		ByteUtils.writeUint16(packet.length - HEADER_LENGTH, packet, 2);
+		return packet;
 	}
 
 	private byte[] createEmptyOffer() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(new byte[HEADER_LENGTH]);
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructStart(OFFER);
+		w.writeListStart();
 		w.writeListStart();
 		w.writeListEnd();
-		w.writeStructEnd();
-		return out.toByteArray();
+		w.writeListEnd();
+		byte[] packet = out.toByteArray();
+		packet[1] = OFFER;
+		ByteUtils.writeUint16(packet.length - HEADER_LENGTH, packet, 2);
+		return packet;
 	}
 
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(new byte[HEADER_LENGTH]);
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructStart(REQUEST);
+		w.writeListStart();
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
-				+ serial.getSerialisedListEndLength()
-				+ serial.getSerialisedStructEndLength()
-				< MAX_PACKET_LENGTH) {
+				+ serial.getSerialisedListEndLength() * 2
+				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
 		if(tooBig) w.writeBytes(TestUtils.getRandomId());
 		w.writeListEnd();
-		w.writeStructEnd();
-		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
-		return out.toByteArray();
+		w.writeListEnd();
+		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
+		byte[] packet = out.toByteArray();
+		packet[1] = REQUEST;
+		ByteUtils.writeUint16(packet.length - HEADER_LENGTH, packet, 2);
+		return packet;
 	}
 
 	private byte[] createEmptyRequest() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(new byte[HEADER_LENGTH]);
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructStart(REQUEST);
+		w.writeListStart();
 		w.writeListStart();
 		w.writeListEnd();
-		w.writeStructEnd();
-		return out.toByteArray();
+		w.writeListEnd();
+		byte[] packet = out.toByteArray();
+		packet[1] = REQUEST;
+		ByteUtils.writeUint16(packet.length - HEADER_LENGTH, packet, 2);
+		return packet;
 	}
 }

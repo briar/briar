@@ -1,18 +1,21 @@
 package org.briarproject.serial;
 
-import static org.briarproject.serial.Tag.BYTES_16;
-import static org.briarproject.serial.Tag.BYTES_32;
-import static org.briarproject.serial.Tag.BYTES_8;
-import static org.briarproject.serial.Tag.FALSE;
-import static org.briarproject.serial.Tag.FLOAT;
-import static org.briarproject.serial.Tag.INTEGER_16;
-import static org.briarproject.serial.Tag.INTEGER_32;
-import static org.briarproject.serial.Tag.INTEGER_64;
-import static org.briarproject.serial.Tag.INTEGER_8;
-import static org.briarproject.serial.Tag.STRING_16;
-import static org.briarproject.serial.Tag.STRING_32;
-import static org.briarproject.serial.Tag.STRING_8;
-import static org.briarproject.serial.Tag.TRUE;
+import static org.briarproject.serial.ObjectTypes.BOOLEAN;
+import static org.briarproject.serial.ObjectTypes.END;
+import static org.briarproject.serial.ObjectTypes.FLOAT_64;
+import static org.briarproject.serial.ObjectTypes.INT_16;
+import static org.briarproject.serial.ObjectTypes.INT_32;
+import static org.briarproject.serial.ObjectTypes.INT_64;
+import static org.briarproject.serial.ObjectTypes.INT_8;
+import static org.briarproject.serial.ObjectTypes.LIST;
+import static org.briarproject.serial.ObjectTypes.MAP;
+import static org.briarproject.serial.ObjectTypes.NULL;
+import static org.briarproject.serial.ObjectTypes.RAW_16;
+import static org.briarproject.serial.ObjectTypes.RAW_32;
+import static org.briarproject.serial.ObjectTypes.RAW_8;
+import static org.briarproject.serial.ObjectTypes.STRING_16;
+import static org.briarproject.serial.ObjectTypes.STRING_32;
+import static org.briarproject.serial.ObjectTypes.STRING_8;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -52,23 +55,28 @@ class WriterImpl implements Writer {
 		if(!consumers.remove(c)) throw new IllegalArgumentException();
 	}
 
+	public void writeNull() throws IOException {
+		write(NULL);
+	}
+
 	public void writeBoolean(boolean b) throws IOException {
-		if(b) write(TRUE);
-		else write(FALSE);
+		write(BOOLEAN);
+		if(b) write((byte) 1);
+		else write((byte) 0);
 	}
 
 	public void writeInteger(long i) throws IOException {
 		if(i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE) {
-			write(INTEGER_8);
+			write(INT_8);
 			write((byte) i);
 		} else if(i >= Short.MIN_VALUE && i <= Short.MAX_VALUE) {
-			write(INTEGER_16);
+			write(INT_16);
 			writeInt16((short) i);
 		} else if(i >= Integer.MIN_VALUE && i <= Integer.MAX_VALUE) {
-			write(INTEGER_32);
+			write(INT_32);
 			writeInt32((int) i);
 		} else {
-			write(INTEGER_64);
+			write(INT_64);
 			writeInt64(i);
 		}
 	}
@@ -97,7 +105,7 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeFloat(double d) throws IOException {
-		write(FLOAT);
+		write(FLOAT_64);
 		writeInt64(Double.doubleToRawLongBits(d));
 	}
 
@@ -118,22 +126,22 @@ class WriterImpl implements Writer {
 
 	public void writeBytes(byte[] b) throws IOException {
 		if(b.length <= Byte.MAX_VALUE) {
-			write(BYTES_8);
+			write(RAW_8);
 			write((byte) b.length);
 		} else if(b.length <= Short.MAX_VALUE) {
-			write(BYTES_16);
+			write(RAW_16);
 			writeInt16((short) b.length);
 		} else {
-			write(BYTES_32);
+			write(RAW_32);
 			writeInt32(b.length);
 		}
 		write(b);
 	}
 
 	public void writeList(Collection<?> c) throws IOException {
-		write(Tag.LIST);
+		write(ObjectTypes.LIST);
 		for(Object o : c) writeObject(o);
-		write(Tag.END);
+		write(ObjectTypes.END);
 	}
 
 	private void writeObject(Object o) throws IOException {
@@ -154,42 +162,28 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeListStart() throws IOException {
-		write(Tag.LIST);
+		write(LIST);
 	}
 
 	public void writeListEnd() throws IOException {
-		write(Tag.END);
+		write(END);
 	}
 
 	public void writeMap(Map<?, ?> m) throws IOException {
-		write(Tag.MAP);
+		write(MAP);
 		for(Entry<?, ?> e : m.entrySet()) {
 			writeObject(e.getKey());
 			writeObject(e.getValue());
 		}
-		write(Tag.END);
+		write(END);
 	}
 
 	public void writeMapStart() throws IOException {
-		write(Tag.MAP);
+		write(MAP);
 	}
 
 	public void writeMapEnd() throws IOException {
-		write(Tag.END);
-	}
-
-	public void writeStructStart(int id) throws IOException {
-		if(id < 0 || id > 255) throw new IllegalArgumentException();
-		write(Tag.STRUCT);
-		write((byte) id);
-	}
-
-	public void writeStructEnd() throws IOException {
-		write(Tag.END);
-	}
-
-	public void writeNull() throws IOException {
-		write(Tag.NULL);
+		write(END);
 	}
 
 	private void write(byte b) throws IOException {

@@ -15,16 +15,6 @@ class SerialComponentImpl implements SerialComponent {
 		return 1;
 	}
 
-	public int getSerialisedStructStartLength(int id) {
-		// STRUCT tag, 8-bit ID
-		return 2;
-	}
-
-	public int getSerialisedStructEndLength() {
-		// END tag
-		return 1;
-	}
-
 	public int getSerialisedUniqueIdLength() {
 		// BYTES_8, BYTES_16 or BYTES_32 tag, length, bytes
 		return 1 + getLengthBytes(UniqueId.LENGTH) + UniqueId.LENGTH;
