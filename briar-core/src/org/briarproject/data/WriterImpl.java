@@ -1,7 +1,7 @@
 package org.briarproject.data;
 
-import static org.briarproject.data.Types.BOOLEAN;
 import static org.briarproject.data.Types.END;
+import static org.briarproject.data.Types.FALSE;
 import static org.briarproject.data.Types.FLOAT_64;
 import static org.briarproject.data.Types.INT_16;
 import static org.briarproject.data.Types.INT_32;
@@ -16,6 +16,7 @@ import static org.briarproject.data.Types.RAW_8;
 import static org.briarproject.data.Types.STRING_16;
 import static org.briarproject.data.Types.STRING_32;
 import static org.briarproject.data.Types.STRING_8;
+import static org.briarproject.data.Types.TRUE;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,9 +61,8 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeBoolean(boolean b) throws IOException {
-		write(BOOLEAN);
-		if(b) write((byte) 1);
-		else write((byte) 0);
+		if(b) write(TRUE);
+		else write(FALSE);
 	}
 
 	public void writeInteger(long i) throws IOException {
@@ -139,9 +139,9 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeList(Collection<?> c) throws IOException {
-		write(Types.LIST);
+		write(LIST);
 		for(Object o : c) writeObject(o);
-		write(Types.END);
+		write(END);
 	}
 
 	private void writeObject(Object o) throws IOException {

@@ -37,7 +37,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadBoolean() throws Exception {
-		setContents("11" + "00" + "11" + "01");
+		setContents("10" + "11");
 		assertFalse(r.readBoolean());
 		assertTrue(r.readBoolean());
 		assertTrue(r.eof());
@@ -45,7 +45,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipBoolean() throws Exception {
-		setContents("11" + "00" + "11" + "01");
+		setContents("10" + "11");
 		r.skipBoolean();
 		r.skipBoolean();
 		assertTrue(r.eof());

@@ -36,8 +36,8 @@ public class WriterImplTest extends BriarTestCase {
 	public void testWriteBoolean() throws IOException {
 		w.writeBoolean(true);
 		w.writeBoolean(false);
-		// BOOLEAN tag, 1, BOOLEAN tag, 0
-		checkContents("11" + "01" + "11" + "00");
+		// TRUE tag, FALSE tag
+		checkContents("11" + "10");
 	}
 
 	@Test

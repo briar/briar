@@ -3,7 +3,8 @@ package org.briarproject.data;
 interface Types {
 
 	byte NULL = 0x00;
-	byte BOOLEAN = 0x11;
+	byte FALSE = 0x10;
+	byte TRUE = 0x11;
 	byte INT_8 = 0x21;
 	byte INT_16 = 0x22;
 	byte INT_32 = 0x24;

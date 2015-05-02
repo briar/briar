@@ -1,6 +1,7 @@
 package org.briarproject.data;
 
 import static org.briarproject.data.Types.END;
+import static org.briarproject.data.Types.FALSE;
 import static org.briarproject.data.Types.FLOAT_64;
 import static org.briarproject.data.Types.INT_16;
 import static org.briarproject.data.Types.INT_32;
@@ -15,6 +16,7 @@ import static org.briarproject.data.Types.RAW_8;
 import static org.briarproject.data.Types.STRING_16;
 import static org.briarproject.data.Types.STRING_32;
 import static org.briarproject.data.Types.STRING_8;
+import static org.briarproject.data.Types.TRUE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,24 +135,18 @@ class ReaderImpl implements Reader {
 	public boolean hasBoolean() throws IOException {
 		if(!hasLookahead) readLookahead();
 		if(eof) return false;
-		return next == Types.BOOLEAN;
+		return next == FALSE || next == TRUE;
 	}
 
 	public boolean readBoolean() throws IOException {
 		if(!hasBoolean()) throw new FormatException();
+		boolean bool = next == TRUE;
 		consumeLookahead();
-		return readBoolean(true);
-	}
-
-	private boolean readBoolean(boolean consume) throws IOException {
-		readIntoBuffer(1, consume);
-		if(buf[0] != 0 && buf[0] != 1) throw new FormatException();
-		return buf[0] == 1;
+		return bool;
 	}
 
 	public void skipBoolean() throws IOException {
 		if(!hasBoolean()) throw new FormatException();
-		skip(1);
 		hasLookahead = false;
 	}
 
