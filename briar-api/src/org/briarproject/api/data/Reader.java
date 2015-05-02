@@ -30,9 +30,9 @@ public interface Reader {
 	String readString(int maxLength) throws IOException;
 	void skipString() throws IOException;
 
-	boolean hasBytes() throws IOException;
-	byte[] readBytes(int maxLength) throws IOException;
-	void skipBytes() throws IOException;
+	boolean hasRaw() throws IOException;
+	byte[] readRaw(int maxLength) throws IOException;
+	void skipRaw() throws IOException;
 
 	boolean hasList() throws IOException;
 	void readListStart() throws IOException;

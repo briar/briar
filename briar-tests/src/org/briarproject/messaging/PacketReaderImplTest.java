@@ -144,9 +144,9 @@ public class PacketReaderImplTest extends BriarTestCase {
 		w.writeListStart();
 		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
-			w.writeBytes(TestUtils.getRandomId());
+			w.writeRaw(TestUtils.getRandomId());
 		}
-		if(tooBig) w.writeBytes(TestUtils.getRandomId());
+		if(tooBig) w.writeRaw(TestUtils.getRandomId());
 		w.writeListEnd();
 		w.writeListEnd();
 		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
@@ -178,9 +178,9 @@ public class PacketReaderImplTest extends BriarTestCase {
 		w.writeListStart();
 		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
-			w.writeBytes(TestUtils.getRandomId());
+			w.writeRaw(TestUtils.getRandomId());
 		}
-		if(tooBig) w.writeBytes(TestUtils.getRandomId());
+		if(tooBig) w.writeRaw(TestUtils.getRandomId());
 		w.writeListEnd();
 		w.writeListEnd();
 		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
@@ -212,9 +212,9 @@ public class PacketReaderImplTest extends BriarTestCase {
 		w.writeListStart();
 		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
-			w.writeBytes(TestUtils.getRandomId());
+			w.writeRaw(TestUtils.getRandomId());
 		}
-		if(tooBig) w.writeBytes(TestUtils.getRandomId());
+		if(tooBig) w.writeRaw(TestUtils.getRandomId());
 		w.writeListEnd();
 		w.writeListEnd();
 		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);

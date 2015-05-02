@@ -116,8 +116,8 @@ public class WriterImplTest extends BriarTestCase {
 	public void testWriteBytes8() throws IOException {
 		byte[] longest = new byte[Byte.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
-		w.writeBytes(new byte[] {1, 2, 3});
-		w.writeBytes(longest);
+		w.writeRaw(new byte[] {1, 2, 3});
+		w.writeRaw(longest);
 		// RAW_8 tag, length 3, bytes, RAW_8 tag, length 127, bytes
 		checkContents("51" + "03" + "010203" + "51" + "7F" + longHex);
 	}
@@ -128,8 +128,8 @@ public class WriterImplTest extends BriarTestCase {
 		String shortHex = StringUtils.toHexString(shortest);
 		byte[] longest = new byte[Short.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
-		w.writeBytes(shortest);
-		w.writeBytes(longest);
+		w.writeRaw(shortest);
+		w.writeRaw(longest);
 		// RAW_16 tag, length 128, bytes, RAW_16 tag, length 2^15 - 1, bytes
 		checkContents("52" + "0080" + shortHex + "52" + "7FFF" + longHex);
 	}
@@ -138,7 +138,7 @@ public class WriterImplTest extends BriarTestCase {
 	public void testWriteBytes32() throws IOException {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
-		w.writeBytes(shortest);
+		w.writeRaw(shortest);
 		// RAW_32 tag, length 2^15, bytes
 		checkContents("54" + "00008000" + shortHex);
 	}

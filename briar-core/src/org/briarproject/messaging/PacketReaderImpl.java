@@ -122,7 +122,7 @@ class PacketReaderImpl implements PacketReader {
 		List<MessageId> acked = new ArrayList<MessageId>();
 		r.readListStart();
 		while(!r.hasListEnd()) {
-			byte[] b = r.readBytes(UniqueId.LENGTH);
+			byte[] b = r.readRaw(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH)
 				throw new FormatException();
 			acked.add(new MessageId(b));
@@ -168,7 +168,7 @@ class PacketReaderImpl implements PacketReader {
 		List<MessageId> offered = new ArrayList<MessageId>();
 		r.readListStart();
 		while(!r.hasListEnd()) {
-			byte[] b = r.readBytes(UniqueId.LENGTH);
+			byte[] b = r.readRaw(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH)
 				throw new FormatException();
 			offered.add(new MessageId(b));
@@ -198,7 +198,7 @@ class PacketReaderImpl implements PacketReader {
 		r.readListStart();
 		List<MessageId> requested = new ArrayList<MessageId>();
 		while(!r.hasListEnd()) {
-			byte[] b = r.readBytes(UniqueId.LENGTH);
+			byte[] b = r.readRaw(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH)
 				throw new FormatException();
 			requested.add(new MessageId(b));

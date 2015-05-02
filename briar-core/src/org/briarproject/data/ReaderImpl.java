@@ -90,7 +90,7 @@ class ReaderImpl implements Reader {
 		else if(hasInteger()) skipInteger();
 		else if(hasFloat()) skipFloat();
 		else if(hasString()) skipString();
-		else if(hasBytes()) skipBytes();
+		else if(hasRaw()) skipRaw();
 		else if(hasList()) skipList();
 		else if(hasMap()) skipMap();
 		else if(hasNull()) skipNull();
@@ -262,16 +262,16 @@ class ReaderImpl implements Reader {
 		hasLookahead = false;
 	}
 
-	public boolean hasBytes() throws IOException {
+	public boolean hasRaw() throws IOException {
 		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == RAW_8 || next == RAW_16 || next == RAW_32;
 	}
 
-	public byte[] readBytes(int maxLength) throws IOException {
-		if(!hasBytes()) throw new FormatException();
+	public byte[] readRaw(int maxLength) throws IOException {
+		if(!hasRaw()) throw new FormatException();
 		consumeLookahead();
-		int length = readBytesLength(true);
+		int length = readRawLength(true);
 		if(length < 0 || length > maxLength) throw new FormatException();
 		if(length == 0) return EMPTY_BUFFER;
 		byte[] b = new byte[length];
@@ -279,16 +279,16 @@ class ReaderImpl implements Reader {
 		return b;
 	}
 
-	private int readBytesLength(boolean consume) throws IOException {
+	private int readRawLength(boolean consume) throws IOException {
 		if(next == RAW_8) return readInt8(consume);
 		if(next == RAW_16) return readInt16(consume);
 		if(next == RAW_32) return readInt32(consume);
 		throw new FormatException();
 	}
 
-	public void skipBytes() throws IOException {
-		if(!hasBytes()) throw new FormatException();
-		int length = readBytesLength(false);
+	public void skipRaw() throws IOException {
+		if(!hasRaw()) throw new FormatException();
+		int length = readRawLength(false);
 		if(length < 0) throw new FormatException();
 		skip(length);
 		hasLookahead = false;

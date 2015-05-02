@@ -28,7 +28,7 @@ class GroupReader implements ObjectReader<Group> {
 		r.readListStart();
 		String name = r.readString(MAX_GROUP_NAME_LENGTH);
 		if(name.length() == 0) throw new FormatException();
-		byte[] salt = r.readBytes(GROUP_SALT_LENGTH);
+		byte[] salt = r.readRaw(GROUP_SALT_LENGTH);
 		if(salt.length != GROUP_SALT_LENGTH) throw new FormatException();
 		r.readListEnd();
 		r.removeConsumer(digesting);

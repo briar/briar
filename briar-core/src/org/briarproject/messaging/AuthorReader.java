@@ -29,7 +29,7 @@ class AuthorReader implements ObjectReader<Author> {
 		r.readListStart();
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
 		if(name.length() == 0) throw new FormatException();
-		byte[] publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		r.readListEnd();
 		// Reset the reader
 		r.removeConsumer(digesting);

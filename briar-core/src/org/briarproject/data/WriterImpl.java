@@ -124,7 +124,7 @@ class WriterImpl implements Writer {
 		write(b);
 	}
 
-	public void writeBytes(byte[] b) throws IOException {
+	public void writeRaw(byte[] b) throws IOException {
 		if(b.length <= Byte.MAX_VALUE) {
 			write(RAW_8);
 			write((byte) b.length);
@@ -153,8 +153,8 @@ class WriterImpl implements Writer {
 		else if(o instanceof Float) writeFloat((Float) o);
 		else if(o instanceof Double) writeFloat((Double) o);
 		else if(o instanceof String) writeString((String) o);
-		else if(o instanceof byte[]) writeBytes((byte[]) o);
-		else if(o instanceof Bytes) writeBytes(((Bytes) o).getBytes());
+		else if(o instanceof byte[]) writeRaw((byte[]) o);
+		else if(o instanceof Bytes) writeRaw(((Bytes) o).getBytes());
 		else if(o instanceof List<?>) writeList((List<?>) o);
 		else if(o instanceof Map<?, ?>) writeMap((Map<?, ?>) o);
 		else if(o == null) writeNull();

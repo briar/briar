@@ -124,14 +124,14 @@ abstract class Connector extends Thread {
 	}
 
 	protected void sendPublicKeyHash(Writer w) throws IOException {
-		w.writeBytes(messageDigest.digest(keyPair.getPublic().getEncoded()));
+		w.writeRaw(messageDigest.digest(keyPair.getPublic().getEncoded()));
 		w.flush();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent hash");
 	}
 
 	protected byte[] receivePublicKeyHash(Reader r) throws IOException {
 		int hashLength = messageDigest.getDigestLength();
-		byte[] b = r.readBytes(hashLength);
+		byte[] b = r.readRaw(hashLength);
 		if(b.length < hashLength) throw new FormatException();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received hash");
 		return b;
@@ -139,14 +139,14 @@ abstract class Connector extends Thread {
 
 	protected void sendPublicKey(Writer w) throws IOException {
 		byte[] key = keyPair.getPublic().getEncoded();
-		w.writeBytes(key);
+		w.writeRaw(key);
 		w.flush();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent key");
 	}
 
 	protected byte[] receivePublicKey(Reader r) throws GeneralSecurityException,
 	IOException {
-		byte[] b = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] b = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		keyParser.parsePublicKey(b);
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received key");
 		return b;
@@ -192,8 +192,8 @@ abstract class Connector extends Thread {
 		byte[] sig = signature.sign();
 		// Write the name, public key and signature
 		w.writeString(localAuthor.getName());
-		w.writeBytes(localAuthor.getPublicKey());
-		w.writeBytes(sig);
+		w.writeRaw(localAuthor.getPublicKey());
+		w.writeRaw(sig);
 		w.flush();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent pseudonym");
 	}
@@ -202,8 +202,8 @@ abstract class Connector extends Thread {
 			throws GeneralSecurityException, IOException {
 		// Read the name, public key and signature
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
-		byte[] sig = r.readBytes(MAX_SIGNATURE_LENGTH);
+		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
+		byte[] sig = r.readRaw(MAX_SIGNATURE_LENGTH);
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received pseudonym");
 		// Verify the signature
 		Signature signature = crypto.getSignature();

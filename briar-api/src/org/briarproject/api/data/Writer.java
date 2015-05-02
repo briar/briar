@@ -17,7 +17,7 @@ public interface Writer {
 	void writeInteger(long l) throws IOException;
 	void writeFloat(double d) throws IOException;
 	void writeString(String s) throws IOException;
-	void writeBytes(byte[] b) throws IOException;
+	void writeRaw(byte[] b) throws IOException;
 
 	void writeList(Collection<?> c) throws IOException;
 	void writeListStart() throws IOException;

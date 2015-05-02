@@ -40,7 +40,7 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		if(r.hasNull()) {
 			r.readNull();
 		} else {
-			byte[] b = r.readBytes(UniqueId.LENGTH);
+			byte[] b = r.readRaw(UniqueId.LENGTH);
 			if(b.length < UniqueId.LENGTH) throw new FormatException();
 			parent = new MessageId(b);
 		}
@@ -56,10 +56,10 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		long timestamp = r.readInteger();
 		if(timestamp < 0) throw new FormatException();
 		// Read the salt
-		byte[] salt = r.readBytes(MESSAGE_SALT_LENGTH);
+		byte[] salt = r.readRaw(MESSAGE_SALT_LENGTH);
 		if(salt.length < MESSAGE_SALT_LENGTH) throw new FormatException();
 		// Read the message body
-		byte[] body = r.readBytes(MAX_BODY_LENGTH);
+		byte[] body = r.readRaw(MAX_BODY_LENGTH);
 		// Record the offset of the body within the message
 		int bodyStart = (int) counting.getCount() - body.length;
 		// Record the length of the data covered by the author's signature
@@ -67,7 +67,7 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		// Read the author's signature, if there is one
 		byte[] signature = null;
 		if(author == null) r.readNull();
-		else signature = r.readBytes(MAX_SIGNATURE_LENGTH);
+		else signature = r.readRaw(MAX_SIGNATURE_LENGTH);
 		// Read the end of the message
 		r.readListEnd();
 		// Reset the reader

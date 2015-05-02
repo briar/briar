@@ -330,138 +330,138 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReadBytes8() throws Exception {
+	public void testReadRaw8() throws Exception {
 		byte[] longest = new byte[Byte.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// {1, 2, 3}, {}, and 127 zero bytes
 		setContents("51" + "03" + "010203" + "51" + "00" +
 				"51" + "7F" + longHex);
-		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes(Integer.MAX_VALUE));
-		assertArrayEquals(new byte[0], r.readBytes(Integer.MAX_VALUE));
-		assertArrayEquals(longest, r.readBytes(Integer.MAX_VALUE));
+		assertArrayEquals(new byte[] {1, 2, 3}, r.readRaw(Integer.MAX_VALUE));
+		assertArrayEquals(new byte[0], r.readRaw(Integer.MAX_VALUE));
+		assertArrayEquals(longest, r.readRaw(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadBytes8ChecksMaxLength() throws Exception {
+	public void testReadRaw8ChecksMaxLength() throws Exception {
 		// {1, 2, 3} twice
 		setContents("51" + "03" + "010203" + "51" + "03" + "010203");
-		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes(3));
-		assertTrue(r.hasBytes());
+		assertArrayEquals(new byte[] {1, 2, 3}, r.readRaw(3));
+		assertTrue(r.hasRaw());
 		try {
-			r.readBytes(2);
+			r.readRaw(2);
 			fail();
 		} catch(FormatException expected) {}
 	}
 
 	@Test
-	public void testSkipBytes8() throws Exception {
+	public void testSkipRaw8() throws Exception {
 		byte[] longest = new byte[Byte.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// {1, 2, 3}, {}, and 127 zero bytes
 		setContents("51" + "03" + "010203" + "51" + "00" +
 				"51" + "7F" + longHex);
-		r.skipBytes();
-		r.skipBytes();
-		r.skipBytes();
+		r.skipRaw();
+		r.skipRaw();
+		r.skipRaw();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadBytes16() throws Exception {
+	public void testReadRaw16() throws Exception {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		byte[] longest = new byte[Short.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// 128 zero bytes and 2^15 - 1 zero bytes
 		setContents("52" + "0080" + shortHex + "52" + "7FFF" + longHex);
-		assertArrayEquals(shortest, r.readBytes(Integer.MAX_VALUE));
-		assertArrayEquals(longest, r.readBytes(Integer.MAX_VALUE));
+		assertArrayEquals(shortest, r.readRaw(Integer.MAX_VALUE));
+		assertArrayEquals(longest, r.readRaw(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadBytes16ChecksMaxLength() throws Exception {
+	public void testReadRaw16ChecksMaxLength() throws Exception {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 128 zero bytes, twice
 		setContents("52" + "0080" + shortHex + "52" + "0080" + shortHex);
-		assertArrayEquals(shortest, r.readBytes(Byte.MAX_VALUE + 1));
-		assertTrue(r.hasBytes());
+		assertArrayEquals(shortest, r.readRaw(Byte.MAX_VALUE + 1));
+		assertTrue(r.hasRaw());
 		try {
-			r.readBytes(Byte.MAX_VALUE);
+			r.readRaw(Byte.MAX_VALUE);
 			fail();
 		} catch(FormatException expected) {}
 	}
 
 	@Test
-	public void testSkipBytes16() throws Exception {
+	public void testSkipRaw16() throws Exception {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		byte[] longest = new byte[Short.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		// 128 zero bytes and 2^15 - 1 zero bytes
 		setContents("52" + "0080" + shortHex + "52" + "7FFF" + longHex);
-		r.skipBytes();
-		r.skipBytes();
+		r.skipRaw();
+		r.skipRaw();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadBytes32() throws Exception {
+	public void testReadRaw32() throws Exception {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 2^15 zero bytes
 		setContents("54" + "00008000" + shortHex);
-		assertArrayEquals(shortest, r.readBytes(Integer.MAX_VALUE));
+		assertArrayEquals(shortest, r.readRaw(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadBytes32ChecksMaxLength() throws Exception {
+	public void testReadRaw32ChecksMaxLength() throws Exception {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 2^15 zero bytes, twice
 		setContents("54" + "00008000" + shortHex +
 				"54" + "00008000" + shortHex);
-		assertArrayEquals(shortest, r.readBytes(Short.MAX_VALUE + 1));
-		assertTrue(r.hasBytes());
+		assertArrayEquals(shortest, r.readRaw(Short.MAX_VALUE + 1));
+		assertTrue(r.hasRaw());
 		try {
-			r.readBytes(Short.MAX_VALUE);
+			r.readRaw(Short.MAX_VALUE);
 			fail();
 		} catch(FormatException expected) {}
 	}
 
 	@Test
-	public void testSkipBytes32() throws Exception {
+	public void testSkipRaw32() throws Exception {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		// 2^15 zero bytes, twice
 		setContents("54" + "00008000" + shortHex +
 				"54" + "00008000" + shortHex);
-		r.skipBytes();
-		r.skipBytes();
+		r.skipRaw();
+		r.skipRaw();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testBytesMustHaveMinimalLength() throws Exception {
+	public void testRawMustHaveMinimalLength() throws Exception {
 		// RAW_16 could be encoded as RAW_8
 		byte[] longest8 = new byte[Byte.MAX_VALUE];
 		String long8Hex = StringUtils.toHexString(longest8);
 		setContents("51" + "7F" + long8Hex + "52" + "007F" + long8Hex);
-		assertArrayEquals(longest8, r.readBytes(Integer.MAX_VALUE));
+		assertArrayEquals(longest8, r.readRaw(Integer.MAX_VALUE));
 		try {
-			r.readBytes(Integer.MAX_VALUE);
+			r.readRaw(Integer.MAX_VALUE);
 			fail();
 		} catch(FormatException expected) {}
 		// RAW_32 could be encoded as RAW_16
 		byte[] longest16 = new byte[Short.MAX_VALUE];
 		String long16Hex = StringUtils.toHexString(longest16);
 		setContents("52" + "7FFF" + long16Hex + "54" + "00007FFF" + long16Hex);
-		assertArrayEquals(longest16, r.readBytes(Integer.MAX_VALUE));
+		assertArrayEquals(longest16, r.readRaw(Integer.MAX_VALUE));
 		try {
-			r.readBytes(Integer.MAX_VALUE);
+			r.readRaw(Integer.MAX_VALUE);
 			fail();
 		} catch(FormatException expected) {}
 	}
