@@ -1,9 +1,10 @@
-package org.briarproject.api.serial;
+package org.briarproject.messaging;
 
 import org.briarproject.api.crypto.MessageDigest;
+import org.briarproject.api.data.Consumer;
 
 /** A consumer that passes its input through a message digest. */
-public class DigestingConsumer implements Consumer {
+class DigestingConsumer implements Consumer {
 
 	private final MessageDigest messageDigest;
 

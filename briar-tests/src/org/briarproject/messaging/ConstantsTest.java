@@ -44,9 +44,9 @@ import org.briarproject.api.messaging.Request;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.crypto.CryptoModule;
+import org.briarproject.data.SerialModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
-import org.briarproject.serial.SerialModule;
 import org.junit.Test;
 
 import com.google.inject.Guice;

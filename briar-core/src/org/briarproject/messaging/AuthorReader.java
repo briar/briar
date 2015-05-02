@@ -10,9 +10,8 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
-import org.briarproject.api.serial.DigestingConsumer;
-import org.briarproject.api.serial.Reader;
-import org.briarproject.api.serial.ObjectReader;
+import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.data.Reader;
 
 class AuthorReader implements ObjectReader<Author> {
 

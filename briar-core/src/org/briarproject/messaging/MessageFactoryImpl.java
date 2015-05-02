@@ -18,16 +18,13 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.Signature;
+import org.briarproject.api.data.Consumer;
+import org.briarproject.api.data.Writer;
+import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
-import org.briarproject.api.serial.Consumer;
-import org.briarproject.api.serial.CountingConsumer;
-import org.briarproject.api.serial.DigestingConsumer;
-import org.briarproject.api.serial.SigningConsumer;
-import org.briarproject.api.serial.Writer;
-import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.util.StringUtils;
 
 class MessageFactoryImpl implements MessageFactory {

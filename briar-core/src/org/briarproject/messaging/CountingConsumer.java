@@ -1,14 +1,15 @@
-package org.briarproject.api.serial;
+package org.briarproject.messaging;
 
 import java.io.IOException;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.data.Consumer;
 
 /**
  * A consumer that counts the number of bytes consumed and throws a
  * FormatException if the count exceeds a given limit.
  */
-public class CountingConsumer implements Consumer {
+class CountingConsumer implements Consumer {
 
 	private final long limit;
 	private long count = 0;

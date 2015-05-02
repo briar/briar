@@ -1,10 +1,12 @@
-package org.briarproject.api.serial;
+package org.briarproject.messaging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.briarproject.api.data.Consumer;
+
 /** A consumer that makes a copy of the bytes consumed. */
-public class CopyingConsumer implements Consumer {
+class CopyingConsumer implements Consumer {
 
 	private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 

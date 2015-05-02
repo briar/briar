@@ -1,12 +1,12 @@
 package org.briarproject.messaging;
 
+import static org.briarproject.api.data.DataConstants.LIST_END_LENGTH;
+import static org.briarproject.api.data.DataConstants.UNIQUE_ID_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.HEADER_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.messaging.PacketTypes.ACK;
 import static org.briarproject.api.messaging.PacketTypes.OFFER;
 import static org.briarproject.api.messaging.PacketTypes.REQUEST;
-import static org.briarproject.api.serial.SerialConstants.LIST_END_LENGTH;
-import static org.briarproject.api.serial.SerialConstants.UNIQUE_ID_LENGTH;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,10 +14,10 @@ import java.io.ByteArrayOutputStream;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
-import org.briarproject.api.serial.ReaderFactory;
-import org.briarproject.api.serial.Writer;
-import org.briarproject.api.serial.WriterFactory;
-import org.briarproject.serial.SerialModule;
+import org.briarproject.api.data.ReaderFactory;
+import org.briarproject.api.data.Writer;
+import org.briarproject.api.data.WriterFactory;
+import org.briarproject.data.SerialModule;
 import org.briarproject.util.ByteUtils;
 import org.junit.Test;
 

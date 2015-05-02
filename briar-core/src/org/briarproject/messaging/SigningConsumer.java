@@ -1,9 +1,10 @@
-package org.briarproject.api.serial;
+package org.briarproject.messaging;
 
 import org.briarproject.api.crypto.Signature;
+import org.briarproject.api.data.Consumer;
 
 /** A consumer that passes its input through a signature. */
-public class SigningConsumer implements Consumer {
+class SigningConsumer implements Consumer {
 
 	private final Signature signature;
 

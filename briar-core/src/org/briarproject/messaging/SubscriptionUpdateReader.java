@@ -11,13 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.data.Consumer;
+import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.data.Reader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.SubscriptionUpdate;
-import org.briarproject.api.serial.Consumer;
-import org.briarproject.api.serial.CountingConsumer;
-import org.briarproject.api.serial.ObjectReader;
-import org.briarproject.api.serial.Reader;
 
 class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 

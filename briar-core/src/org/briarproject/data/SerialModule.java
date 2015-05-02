@@ -1,7 +1,7 @@
-package org.briarproject.serial;
+package org.briarproject.data;
 
-import org.briarproject.api.serial.ReaderFactory;
-import org.briarproject.api.serial.WriterFactory;
+import org.briarproject.api.data.ReaderFactory;
+import org.briarproject.api.data.WriterFactory;
 
 import com.google.inject.AbstractModule;
 

@@ -103,6 +103,8 @@
 			<test name="org.briarproject.crypto.PasswordStrengthEstimatorImplTest"/>
 			<test name='org.briarproject.crypto.StreamDecrypterImplTest'/>
 			<test name='org.briarproject.crypto.StreamEncrypterImplTest'/>
+			<test name='org.briarproject.data.ReaderImplTest'/>
+			<test name='org.briarproject.data.WriterImplTest'/>
 			<test name='org.briarproject.db.BasicH2Test'/>
 			<test name='org.briarproject.db.DatabaseCleanerImplTest'/>
 			<test name='org.briarproject.db.DatabaseComponentImplTest'/>
@@ -124,8 +126,6 @@
 			<test name='org.briarproject.plugins.modem.CountryCodesTest'/>
 			<test name='org.briarproject.plugins.modem.ModemPluginTest'/>
 			<test name='org.briarproject.plugins.tcp.LanTcpPluginTest'/>
-			<test name='org.briarproject.serial.ReaderImplTest'/>
-			<test name='org.briarproject.serial.WriterImplTest'/>
 			<test name='org.briarproject.system.LinuxSeedProviderTest'/>
 			<test name='org.briarproject.transport.KeyManagerImplTest'/>
 			<test name='org.briarproject.transport.KeyRotationIntegrationTest'/>

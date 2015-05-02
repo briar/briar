@@ -11,13 +11,11 @@ import java.io.IOException;
 import org.briarproject.api.Author;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.data.Reader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.serial.CopyingConsumer;
-import org.briarproject.api.serial.CountingConsumer;
-import org.briarproject.api.serial.ObjectReader;
-import org.briarproject.api.serial.Reader;
 
 class MessageReader implements ObjectReader<UnverifiedMessage> {
 

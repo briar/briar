@@ -1,5 +1,8 @@
 package org.briarproject.messaging;
 
+import static org.briarproject.api.data.DataConstants.LIST_END_LENGTH;
+import static org.briarproject.api.data.DataConstants.LIST_START_LENGTH;
+import static org.briarproject.api.data.DataConstants.UNIQUE_ID_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.HEADER_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.PROTOCOL_VERSION;
@@ -12,14 +15,13 @@ import static org.briarproject.api.messaging.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.messaging.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.messaging.PacketTypes.TRANSPORT_ACK;
 import static org.briarproject.api.messaging.PacketTypes.TRANSPORT_UPDATE;
-import static org.briarproject.api.serial.SerialConstants.LIST_END_LENGTH;
-import static org.briarproject.api.serial.SerialConstants.LIST_START_LENGTH;
-import static org.briarproject.api.serial.SerialConstants.UNIQUE_ID_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.briarproject.api.data.Writer;
+import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.MessageId;
@@ -33,8 +35,6 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.serial.Writer;
-import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.util.ByteUtils;
 
 // This class is not thread-safe

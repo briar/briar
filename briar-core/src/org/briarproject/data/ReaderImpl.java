@@ -1,20 +1,20 @@
-package org.briarproject.serial;
+package org.briarproject.data;
 
-import static org.briarproject.serial.ObjectTypes.END;
-import static org.briarproject.serial.ObjectTypes.FLOAT_64;
-import static org.briarproject.serial.ObjectTypes.INT_16;
-import static org.briarproject.serial.ObjectTypes.INT_32;
-import static org.briarproject.serial.ObjectTypes.INT_64;
-import static org.briarproject.serial.ObjectTypes.INT_8;
-import static org.briarproject.serial.ObjectTypes.LIST;
-import static org.briarproject.serial.ObjectTypes.MAP;
-import static org.briarproject.serial.ObjectTypes.NULL;
-import static org.briarproject.serial.ObjectTypes.RAW_16;
-import static org.briarproject.serial.ObjectTypes.RAW_32;
-import static org.briarproject.serial.ObjectTypes.RAW_8;
-import static org.briarproject.serial.ObjectTypes.STRING_16;
-import static org.briarproject.serial.ObjectTypes.STRING_32;
-import static org.briarproject.serial.ObjectTypes.STRING_8;
+import static org.briarproject.data.Types.END;
+import static org.briarproject.data.Types.FLOAT_64;
+import static org.briarproject.data.Types.INT_16;
+import static org.briarproject.data.Types.INT_32;
+import static org.briarproject.data.Types.INT_64;
+import static org.briarproject.data.Types.INT_8;
+import static org.briarproject.data.Types.LIST;
+import static org.briarproject.data.Types.MAP;
+import static org.briarproject.data.Types.NULL;
+import static org.briarproject.data.Types.RAW_16;
+import static org.briarproject.data.Types.RAW_32;
+import static org.briarproject.data.Types.RAW_8;
+import static org.briarproject.data.Types.STRING_16;
+import static org.briarproject.data.Types.STRING_32;
+import static org.briarproject.data.Types.STRING_8;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.serial.Consumer;
-import org.briarproject.api.serial.Reader;
+import org.briarproject.api.data.Consumer;
+import org.briarproject.api.data.Reader;
 
 // This class is not thread-safe
 class ReaderImpl implements Reader {
@@ -133,7 +133,7 @@ class ReaderImpl implements Reader {
 	public boolean hasBoolean() throws IOException {
 		if(!hasLookahead) readLookahead();
 		if(eof) return false;
-		return next == ObjectTypes.BOOLEAN;
+		return next == Types.BOOLEAN;
 	}
 
 	public boolean readBoolean() throws IOException {

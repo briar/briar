@@ -1,4 +1,4 @@
-package org.briarproject.serial;
+package org.briarproject.data;
 
 import static org.junit.Assert.assertArrayEquals;
 

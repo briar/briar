@@ -30,6 +30,9 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.data.Reader;
+import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.messaging.Ack;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.Offer;
@@ -42,9 +45,6 @@ import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.serial.Reader;
-import org.briarproject.api.serial.ReaderFactory;
-import org.briarproject.api.serial.ObjectReader;
 import org.briarproject.util.ByteUtils;
 
 // This class is not thread-safe

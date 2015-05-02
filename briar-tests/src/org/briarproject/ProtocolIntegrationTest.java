@@ -39,10 +39,10 @@ import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
+import org.briarproject.data.SerialModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
-import org.briarproject.serial.SerialModule;
 import org.briarproject.transport.TransportModule;
 import org.junit.Test;
 

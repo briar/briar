@@ -1,8 +1,8 @@
-package org.briarproject.api.serial;
+package org.briarproject.api.data;
 
 import org.briarproject.api.UniqueId;
 
-public interface SerialConstants {
+public interface DataConstants {
 
 	int LIST_START_LENGTH = 1;
 

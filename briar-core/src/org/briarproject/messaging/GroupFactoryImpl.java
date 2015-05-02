@@ -9,11 +9,11 @@ import javax.inject.Inject;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
+import org.briarproject.api.data.Writer;
+import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupFactory;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.serial.Writer;
-import org.briarproject.api.serial.WriterFactory;
 
 class GroupFactoryImpl implements GroupFactory {
 

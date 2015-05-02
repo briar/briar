@@ -1,21 +1,21 @@
-package org.briarproject.serial;
+package org.briarproject.data;
 
-import static org.briarproject.serial.ObjectTypes.BOOLEAN;
-import static org.briarproject.serial.ObjectTypes.END;
-import static org.briarproject.serial.ObjectTypes.FLOAT_64;
-import static org.briarproject.serial.ObjectTypes.INT_16;
-import static org.briarproject.serial.ObjectTypes.INT_32;
-import static org.briarproject.serial.ObjectTypes.INT_64;
-import static org.briarproject.serial.ObjectTypes.INT_8;
-import static org.briarproject.serial.ObjectTypes.LIST;
-import static org.briarproject.serial.ObjectTypes.MAP;
-import static org.briarproject.serial.ObjectTypes.NULL;
-import static org.briarproject.serial.ObjectTypes.RAW_16;
-import static org.briarproject.serial.ObjectTypes.RAW_32;
-import static org.briarproject.serial.ObjectTypes.RAW_8;
-import static org.briarproject.serial.ObjectTypes.STRING_16;
-import static org.briarproject.serial.ObjectTypes.STRING_32;
-import static org.briarproject.serial.ObjectTypes.STRING_8;
+import static org.briarproject.data.Types.BOOLEAN;
+import static org.briarproject.data.Types.END;
+import static org.briarproject.data.Types.FLOAT_64;
+import static org.briarproject.data.Types.INT_16;
+import static org.briarproject.data.Types.INT_32;
+import static org.briarproject.data.Types.INT_64;
+import static org.briarproject.data.Types.INT_8;
+import static org.briarproject.data.Types.LIST;
+import static org.briarproject.data.Types.MAP;
+import static org.briarproject.data.Types.NULL;
+import static org.briarproject.data.Types.RAW_16;
+import static org.briarproject.data.Types.RAW_32;
+import static org.briarproject.data.Types.RAW_8;
+import static org.briarproject.data.Types.STRING_16;
+import static org.briarproject.data.Types.STRING_32;
+import static org.briarproject.data.Types.STRING_8;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.briarproject.api.Bytes;
-import org.briarproject.api.serial.Consumer;
-import org.briarproject.api.serial.Writer;
+import org.briarproject.api.data.Consumer;
+import org.briarproject.api.data.Writer;
 
 // This class is not thread-safe
 class WriterImpl implements Writer {
@@ -139,9 +139,9 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeList(Collection<?> c) throws IOException {
-		write(ObjectTypes.LIST);
+		write(Types.LIST);
 		for(Object o : c) writeObject(o);
-		write(ObjectTypes.END);
+		write(Types.END);
 	}
 
 	private void writeObject(Object o) throws IOException {

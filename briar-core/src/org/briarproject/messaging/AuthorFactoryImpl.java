@@ -11,8 +11,8 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
-import org.briarproject.api.serial.Writer;
-import org.briarproject.api.serial.WriterFactory;
+import org.briarproject.api.data.Writer;
+import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.system.Clock;
 
 class AuthorFactoryImpl implements AuthorFactory {

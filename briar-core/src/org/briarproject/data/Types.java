@@ -1,6 +1,6 @@
-package org.briarproject.serial;
+package org.briarproject.data;
 
-interface ObjectTypes {
+interface Types {
 
 	byte NULL = 0x00;
 	byte BOOLEAN = 0x11;

@@ -4,12 +4,12 @@ import java.io.InputStream;
 
 import javax.inject.Inject;
 
+import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.messaging.PacketReader;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.serial.ReaderFactory;
-import org.briarproject.api.serial.ObjectReader;
 
 class PacketReaderFactoryImpl implements PacketReaderFactory {
 

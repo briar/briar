@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupFactory;
 import org.briarproject.api.messaging.MessageFactory;
@@ -14,7 +15,6 @@ import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriterFactory;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.UnverifiedMessage;
-import org.briarproject.api.serial.ObjectReader;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;

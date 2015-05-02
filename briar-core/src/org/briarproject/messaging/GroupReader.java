@@ -8,11 +8,10 @@ import java.io.IOException;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
+import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.data.Reader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.serial.DigestingConsumer;
-import org.briarproject.api.serial.Reader;
-import org.briarproject.api.serial.ObjectReader;
 
 class GroupReader implements ObjectReader<Group> {
 

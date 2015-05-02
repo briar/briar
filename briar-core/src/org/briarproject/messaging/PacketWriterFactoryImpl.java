@@ -4,9 +4,9 @@ import java.io.OutputStream;
 
 import javax.inject.Inject;
 
+import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.messaging.PacketWriter;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.serial.WriterFactory;
 
 class PacketWriterFactoryImpl implements PacketWriterFactory {
 

@@ -1,9 +1,9 @@
-package org.briarproject.serial;
+package org.briarproject.data;
 
 import java.io.OutputStream;
 
-import org.briarproject.api.serial.Writer;
-import org.briarproject.api.serial.WriterFactory;
+import org.briarproject.api.data.Writer;
+import org.briarproject.api.data.WriterFactory;
 
 class WriterFactoryImpl implements WriterFactory {
 
