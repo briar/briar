@@ -12,6 +12,9 @@ import static org.briarproject.api.messaging.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.messaging.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.messaging.PacketTypes.TRANSPORT_ACK;
 import static org.briarproject.api.messaging.PacketTypes.TRANSPORT_UPDATE;
+import static org.briarproject.api.serial.SerialConstants.LIST_END_LENGTH;
+import static org.briarproject.api.serial.SerialConstants.LIST_START_LENGTH;
+import static org.briarproject.api.serial.SerialConstants.UNIQUE_ID_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +33,6 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.serial.SerialComponent;
 import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.util.ByteUtils;
@@ -38,15 +40,12 @@ import org.briarproject.util.ByteUtils;
 // This class is not thread-safe
 class PacketWriterImpl implements PacketWriter {
 
-	private final SerialComponent serial;
 	private final WriterFactory writerFactory;
 	private final OutputStream out;
 	private final byte[] header;
 	private final ByteArrayOutputStream payload;
 
-	PacketWriterImpl(SerialComponent serial, WriterFactory writerFactory,
-			OutputStream out) {
-		this.serial = serial;
+	PacketWriterImpl(WriterFactory writerFactory, OutputStream out) {
 		this.writerFactory = writerFactory;
 		this.out = out;
 		header = new byte[HEADER_LENGTH];
@@ -69,10 +68,8 @@ class PacketWriterImpl implements PacketWriter {
 	private int getMaxMessagesForPacket(long capacity) {
 		int payload = (int) Math.min(capacity - HEADER_LENGTH,
 				MAX_PAYLOAD_LENGTH);
-		int overhead = serial.getSerialisedListStartLength() * 2
-				+ serial.getSerialisedListEndLength() * 2;
-		int idLength = serial.getSerialisedUniqueIdLength();
-		return (payload - overhead) / idLength;
+		int overhead = LIST_START_LENGTH * 2 + LIST_END_LENGTH * 2;
+		return (payload - overhead) / UNIQUE_ID_LENGTH;
 	}
 
 	private void writePacket(byte packetType) throws IOException {

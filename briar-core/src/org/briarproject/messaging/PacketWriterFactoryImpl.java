@@ -6,22 +6,18 @@ import javax.inject.Inject;
 
 import org.briarproject.api.messaging.PacketWriter;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.serial.SerialComponent;
 import org.briarproject.api.serial.WriterFactory;
 
 class PacketWriterFactoryImpl implements PacketWriterFactory {
 
-	private final SerialComponent serial;
 	private final WriterFactory writerFactory;
 
 	@Inject
-	PacketWriterFactoryImpl(SerialComponent serial,
-			WriterFactory writerFactory) {
-		this.serial = serial;
+	PacketWriterFactoryImpl(WriterFactory writerFactory) {
 		this.writerFactory = writerFactory;
 	}
 
 	public PacketWriter createPacketWriter(OutputStream out) {
-		return new PacketWriterImpl(serial, writerFactory, out);
+		return new PacketWriterImpl(writerFactory, out);
 	}
 }

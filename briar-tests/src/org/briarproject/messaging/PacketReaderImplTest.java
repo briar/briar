@@ -5,6 +5,8 @@ import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENG
 import static org.briarproject.api.messaging.PacketTypes.ACK;
 import static org.briarproject.api.messaging.PacketTypes.OFFER;
 import static org.briarproject.api.messaging.PacketTypes.REQUEST;
+import static org.briarproject.api.serial.SerialConstants.LIST_END_LENGTH;
+import static org.briarproject.api.serial.SerialConstants.UNIQUE_ID_LENGTH;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,7 +15,6 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.serial.ReaderFactory;
-import org.briarproject.api.serial.SerialComponent;
 import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
 import org.briarproject.serial.SerialModule;
@@ -27,13 +28,11 @@ public class PacketReaderImplTest extends BriarTestCase {
 
 	// FIXME: This is an integration test, not a unit test
 
-	private final SerialComponent serial;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 
 	public PacketReaderImplTest() throws Exception {
 		Injector i = Guice.createInjector(new SerialModule());
-		serial = i.getInstance(SerialComponent.class);
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
 	}
@@ -143,8 +142,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		Writer w = writerFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
-		while(out.size() + serial.getSerialisedUniqueIdLength()
-				+ serial.getSerialisedListEndLength() * 2
+		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
@@ -178,8 +176,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		Writer w = writerFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
-		while(out.size() + serial.getSerialisedUniqueIdLength()
-				+ serial.getSerialisedListEndLength() * 2
+		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
@@ -213,8 +210,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		Writer w = writerFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
-		while(out.size() + serial.getSerialisedUniqueIdLength()
-				+ serial.getSerialisedListEndLength() * 2
+		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
