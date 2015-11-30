@@ -3,5 +3,4 @@ build
 .metadata
 *.tmp
 .idea
-*.iml
 local.properties
