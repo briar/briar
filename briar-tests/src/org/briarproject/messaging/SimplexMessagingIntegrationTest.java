@@ -44,7 +44,7 @@ import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.api.transport.TagRecogniser;
 import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.SerialModule;
+import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.plugins.ImmediateExecutor;
@@ -91,7 +91,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		return Guice.createInjector(new TestDatabaseModule(dir),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new EventModule(),
-				new MessagingModule(), new SerialModule(),
+				new MessagingModule(), new DataModule(),
 				new TransportModule());
 	}
 

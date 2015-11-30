@@ -39,7 +39,7 @@ import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.SerialModule;
+import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.messaging.MessagingModule;
@@ -74,7 +74,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new EventModule(),
-				new MessagingModule(), new SerialModule(),
+				new MessagingModule(), new DataModule(),
 				new TransportModule());
 		streamReaderFactory = i.getInstance(StreamReaderFactory.class);
 		streamWriterFactory = i.getInstance(StreamWriterFactory.class);

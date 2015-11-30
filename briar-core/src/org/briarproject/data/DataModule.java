@@ -5,7 +5,7 @@ import org.briarproject.api.data.WriterFactory;
 
 import com.google.inject.AbstractModule;
 
-public class SerialModule extends AbstractModule {
+public class DataModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
