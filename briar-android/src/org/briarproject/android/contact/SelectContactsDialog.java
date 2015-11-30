@@ -35,13 +35,13 @@ public class SelectContactsDialog implements OnMultiChoiceClickListener {
 	}
 
 	public Dialog build(Context ctx) {
-		if(listener == null || contacts == null || selected == null)
+		if (listener == null || contacts == null || selected == null)
 			throw new IllegalStateException();
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		int size = contacts.size();
 		String[] names = new String[size];
 		boolean[] checked = new boolean[size];
-		for(int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			Contact c = contacts.get(i);
 			names[i] = c.getAuthor().getName();
 			checked[i] = selected.contains(c.getId());
@@ -63,7 +63,7 @@ public class SelectContactsDialog implements OnMultiChoiceClickListener {
 	}
 
 	public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-		if(isChecked) selected.add(contacts.get(which).getId());
+		if (isChecked) selected.add(contacts.get(which).getId());
 		else selected.remove(contacts.get(which).getId());
 	}
 

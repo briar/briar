@@ -54,27 +54,27 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 				long now = clock.currentTimeMillis();
 				long next = now + TICK_INTERVAL;
 				try {
-					while(running) {
+					while (running) {
 						byte[] b = null;
-						while(now < next && b == null) {
+						while (now < next && b == null) {
 							b = writes.poll(next - now, MILLISECONDS);
-							if(!running) return;
+							if (!running) return;
 							now = clock.currentTimeMillis();
 						}
-						if(b == null) {
+						if (b == null) {
 							sender.tick();
-							while(next <= now) next += TICK_INTERVAL;
+							while (next <= now) next += TICK_INTERVAL;
 						} else {
-							if(b.length == 0) return; // Poison pill
+							if (b.length == 0) return; // Poison pill
 							writeHandler.handleWrite(b);
 						}
 					}
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					LOG.warning("Interrupted while waiting to write");
 					Thread.currentThread().interrupt();
 					running = false;
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					running = false;
 				}
@@ -98,11 +98,11 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 
 	// The lower layer calls this method to pass data up to the SLIP decoder
 	public void handleRead(byte[] b) throws IOException {
-		if(running) decoder.handleRead(b);
+		if (running) decoder.handleRead(b);
 	}
 
 	// The SLIP encoder calls this method to pass data down to the lower layer
 	public void handleWrite(byte[] b) {
-		if(running && b.length > 0) writes.add(b);
+		if (running && b.length > 0) writes.add(b);
 	}
 }

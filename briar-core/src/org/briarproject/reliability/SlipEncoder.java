@@ -18,15 +18,15 @@ class SlipEncoder implements WriteHandler {
 
 	public void handleWrite(byte[] b) throws IOException {
 		int encodedLength = b.length + 2;
-		for(int i = 0; i < b.length; i++)
-			if(b[i] == END || b[i] == ESC) encodedLength++;
+		for (int i = 0; i < b.length; i++)
+			if (b[i] == END || b[i] == ESC) encodedLength++;
 		byte[] encoded = new byte[encodedLength];
 		encoded[0] = END;
-		for(int i = 0, j = 1; i < b.length; i++) {
-			if(b[i] == END) {
+		for (int i = 0, j = 1; i < b.length; i++) {
+			if (b[i] == END) {
 				encoded[j++] = ESC;
 				encoded[j++] = TEND;
-			} else if(b[i] == ESC) {
+			} else if (b[i] == ESC) {
 				encoded[j++] = ESC;
 				encoded[j++] = TESC;
 			} else {

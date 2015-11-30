@@ -35,13 +35,13 @@ class SignatureImpl implements Signature {
 	}
 
 	public void initSign(PrivateKey k) throws GeneralSecurityException {
-		if(!(k instanceof Sec1PrivateKey)) throw new GeneralSecurityException();
+		if (!(k instanceof Sec1PrivateKey)) throw new GeneralSecurityException();
 		ECPrivateKeyParameters priv = ((Sec1PrivateKey) k).getKey();
 		signer.init(true, new ParametersWithRandom(priv, secureRandom));
 	}
 
 	public void initVerify(PublicKey k) throws GeneralSecurityException {
-		if(!(k instanceof Sec1PublicKey)) throw new GeneralSecurityException();
+		if (!(k instanceof Sec1PublicKey)) throw new GeneralSecurityException();
 		ECPublicKeyParameters pub = ((Sec1PublicKey) k).getKey();
 		signer.init(false, pub);
 	}
@@ -62,7 +62,7 @@ class SignatureImpl implements Signature {
 		long now = System.currentTimeMillis();
 		byte[] signature = signer.generateSignature();
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Generating signature took " + duration + " ms");
 		return signature;
 	}
@@ -71,7 +71,7 @@ class SignatureImpl implements Signature {
 		long now = System.currentTimeMillis();
 		boolean valid = signer.verifySignature(signature);
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Verifying signature took " + duration + " ms");
 		return valid;
 	}

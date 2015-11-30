@@ -12,7 +12,7 @@ public abstract class UniqueId {
 	private int hashCode = -1;
 
 	protected UniqueId(byte[] id) {
-		if(id.length != LENGTH) throw new IllegalArgumentException();
+		if (id.length != LENGTH) throw new IllegalArgumentException();
 		this.id = id;
 	}
 
@@ -24,7 +24,7 @@ public abstract class UniqueId {
 	public int hashCode() {
 		// Thread-safe because if two or more threads check and update the
 		// value, they'll calculate the same value
-		if(hashCode == -1) hashCode = Arrays.hashCode(id);
+		if (hashCode == -1) hashCode = Arrays.hashCode(id);
 		return hashCode;
 	}
 }

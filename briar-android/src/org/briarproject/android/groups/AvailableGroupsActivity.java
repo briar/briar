@@ -78,21 +78,21 @@ implements EventListener, OnItemClickListener {
 					Collection<GroupContacts> available =
 							new ArrayList<GroupContacts>();
 					long now = System.currentTimeMillis();
-					for(Group g : db.getAvailableGroups()) {
+					for (Group g : db.getAvailableGroups()) {
 						try {
 							GroupId id = g.getId();
 							Collection<Contact> c = db.getSubscribers(id);
 							available.add(new GroupContacts(g, c));
-						} catch(NoSuchSubscriptionException e) {
+						} catch (NoSuchSubscriptionException e) {
 							continue;
 						}
 					}
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
 					displayGroups(available);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -102,13 +102,13 @@ implements EventListener, OnItemClickListener {
 	private void displayGroups(final Collection<GroupContacts> available) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(available.isEmpty()) {
+				if (available.isEmpty()) {
 					LOG.info("No groups available, finishing");
 					finish();
 				} else {
 					setContentView(list);
 					adapter.clear();
-					for(GroupContacts g : available)
+					for (GroupContacts g : available)
 						adapter.add(new AvailableGroupsItem(g));
 					adapter.sort(AvailableGroupsItemComparator.INSTANCE);
 					adapter.notifyDataSetChanged();
@@ -124,13 +124,13 @@ implements EventListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof RemoteSubscriptionsUpdatedEvent) {
+		if (e instanceof RemoteSubscriptionsUpdatedEvent) {
 			LOG.info("Remote subscriptions changed, reloading");
 			loadGroups();
-		} else if(e instanceof SubscriptionAddedEvent) {
+		} else if (e instanceof SubscriptionAddedEvent) {
 			LOG.info("Subscription added, reloading");
 			loadGroups();
-		} else if(e instanceof SubscriptionRemovedEvent) {
+		} else if (e instanceof SubscriptionRemovedEvent) {
 			LOG.info("Subscription removed, reloading");
 			loadGroups();
 		}
@@ -140,7 +140,7 @@ implements EventListener, OnItemClickListener {
 			long id) {
 		AvailableGroupsItem item = adapter.getItem(position);
 		Collection<ContactId> visible = new ArrayList<ContactId>();
-		for(Contact c : item.getContacts()) visible.add(c.getId());
+		for (Contact c : item.getContacts()) visible.add(c.getId());
 		addSubscription(item.getGroup(), visible);
 		String subscribed = getString(R.string.subscribed_toast);
 		Toast.makeText(this, subscribed, LENGTH_SHORT).show();
@@ -153,8 +153,8 @@ implements EventListener, OnItemClickListener {
 				try {
 					db.addGroup(g);
 					db.setVisibility(g.getId(), visible);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

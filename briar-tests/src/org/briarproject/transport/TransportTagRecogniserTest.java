@@ -39,7 +39,7 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 			// Add secret
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
-			for(int i = 0; i < 16; i++) {
+			for (int i = 0; i < 16; i++) {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
 						with((long) i));
 				will(new EncodeTagAction());
@@ -47,7 +47,7 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 			// Remove secret
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
-			for(int i = 0; i < 16; i++) {
+			for (int i = 0; i < 16; i++) {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
 						with((long) i));
 				will(new EncodeTagAction());
@@ -74,7 +74,7 @@ public class TransportTagRecogniserTest extends BriarTestCase {
 			// Add secret
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
-			for(int i = 0; i < 16; i++) {
+			for (int i = 0; i < 16; i++) {
 				oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
 						with((long) i));
 				will(new EncodeTagAction());

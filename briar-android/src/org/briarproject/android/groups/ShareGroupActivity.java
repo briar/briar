@@ -62,10 +62,10 @@ SelectContactsDialog.Listener {
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
 		groupName = i.getStringExtra("briar.GROUP_NAME");
-		if(groupName == null) throw new IllegalStateException();
+		if (groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
 
 		LinearLayout layout = new LinearLayout(this);
@@ -109,14 +109,14 @@ SelectContactsDialog.Listener {
 	}
 
 	public void onClick(View view) {
-		if(view == shareWithAll) {
+		if (view == shareWithAll) {
 			changed = true;
-		} else if(view == shareWithSome) {
+		} else if (view == shareWithSome) {
 			changed = true;
-			if(contacts == null) loadVisibility();
+			if (contacts == null) loadVisibility();
 			else displayVisibility();
-		} else if(view == shareButton) {
-			if(changed) {
+		} else if (view == shareButton) {
+			if (changed) {
 				// Replace the button with a progress bar
 				shareButton.setVisibility(GONE);
 				progress.setVisibility(VISIBLE);
@@ -136,11 +136,11 @@ SelectContactsDialog.Listener {
 					contacts = db.getContacts();
 					selected = db.getVisibility(groupId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
 					displayVisibility();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -150,7 +150,7 @@ SelectContactsDialog.Listener {
 	private void displayVisibility() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(contacts.isEmpty()) {
+				if (contacts.isEmpty()) {
 					NoContactsDialog builder = new NoContactsDialog();
 					builder.setListener(ShareGroupActivity.this);
 					builder.build(ShareGroupActivity.this).show();
@@ -171,12 +171,12 @@ SelectContactsDialog.Listener {
 				try {
 					long now = System.currentTimeMillis();
 					db.setVisibleToAll(groupId, all);
-					if(!all) db.setVisibility(groupId, selected);
+					if (!all) db.setVisibility(groupId, selected);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Update took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 				finishOnUiThread();

@@ -111,7 +111,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 		Intent i = getIntent();
 		int id = i.getIntExtra("briar.CONTACT_ID", -1);
-		if(id == -1) throw new IllegalStateException();
+		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
 
 		Intent data = new Intent();
@@ -206,17 +206,17 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					groupId = db.getInboxGroupId(contactId);
 					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO)) {
+					if (LOG.isLoggable(INFO)) {
 						LOG.info("Loading contact and group took "
 								+ duration + " ms");
 					}
 					displayContactName();
-				} catch(NoSuchContactException e) {
+				} catch (NoSuchContactException e) {
 					finishOnUiThread();
-				} catch(NoSuchSubscriptionException e) {
+				} catch (NoSuchSubscriptionException e) {
 					finishOnUiThread();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -239,13 +239,13 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					Collection<MessageHeader> headers =
 							db.getInboxMessageHeaders(contactId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");
 					displayHeaders(headers);
-				} catch(NoSuchContactException e) {
+				} catch (NoSuchContactException e) {
 					finishOnUiThread();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -259,16 +259,16 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				setTitle(contactName);
 				sendButton.setEnabled(true);
 				adapter.clear();
-				if(headers.isEmpty()) {
+				if (headers.isEmpty()) {
 					empty.setVisibility(VISIBLE);
 					list.setVisibility(GONE);
 				} else {
 					empty.setVisibility(GONE);
 					list.setVisibility(VISIBLE);
-					for(MessageHeader h : headers) {
+					for (MessageHeader h : headers) {
 						ConversationItem item = new ConversationItem(h);
 						byte[] body = bodyCache.get(h.getId());
-						if(body == null) loadMessageBody(h);
+						if (body == null) loadMessageBody(h);
 						else item.setBody(body);
 						adapter.add(item);
 					}
@@ -288,13 +288,13 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(h.getId());
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
 					displayMessageBody(h.getId(), body);
-				} catch(NoSuchMessageException e) {
+				} catch (NoSuchMessageException e) {
 					// The item will be removed when we get the event
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -306,9 +306,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				bodyCache.put(m, body);
 				int count = adapter.getCount();
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
-					if(item.getHeader().getId().equals(m)) {
+					if (item.getHeader().getId().equals(m)) {
 						item.setBody(body);
 						adapter.notifyDataSetChanged();
 						// Scroll to the bottom
@@ -323,9 +323,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if(request == REQUEST_READ && result == RESULT_PREV_NEXT) {
+		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);
-			if(position >= 0 && position < adapter.getCount())
+			if (position >= 0 && position < adapter.getCount())
 				displayMessage(position);
 		}
 	}
@@ -334,19 +334,19 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
-		if(isFinishing()) markMessagesRead();
+		if (isFinishing()) markMessagesRead();
 	}
 
 	private void markMessagesRead() {
 		notificationManager.clearPrivateMessageNotification(contactId);
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			MessageHeader h = adapter.getItem(i).getHeader();
-			if(!h.isRead()) unread.add(h.getId());
+			if (!h.isRead()) unread.add(h.getId());
 		}
-		if(unread.isEmpty()) return;
-		if(LOG.isLoggable(INFO))
+		if (unread.isEmpty()) return;
+		if (LOG.isLoggable(INFO))
 			LOG.info("Marking " + unread.size() + " messages read");
 		markMessagesRead(Collections.unmodifiableList(unread));
 	}
@@ -356,12 +356,12 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for(MessageId m : unread) db.setReadFlag(m, true);
+					for (MessageId m : unread) db.setReadFlag(m, true);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -369,24 +369,24 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof ContactRemovedEvent) {
+		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
-			if(c.getContactId().equals(contactId)) {
+			if (c.getContactId().equals(contactId)) {
 				LOG.info("Contact removed");
 				finishOnUiThread();
 			}
-		} else if(e instanceof MessageAddedEvent) {
+		} else if (e instanceof MessageAddedEvent) {
 			GroupId g = ((MessageAddedEvent) e).getGroup().getId();
-			if(g.equals(groupId)) {
+			if (g.equals(groupId)) {
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
-		} else if(e instanceof MessageExpiredEvent) {
+		} else if (e instanceof MessageExpiredEvent) {
 			LOG.info("Message expired, reloading");
 			loadHeaders();
-		} else if(e instanceof MessagesAckedEvent) {
+		} else if (e instanceof MessagesAckedEvent) {
 			MessagesAckedEvent m = (MessagesAckedEvent) e;
-			if(m.getContactId().equals(contactId)) {
+			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
 				markMessagesDelivered(m.getMessageIds());
 			}
@@ -399,21 +399,21 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				Set<MessageId> ackedSet = new HashSet<MessageId>(acked);
 				boolean changed = false;
 				int count = adapter.getCount();
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
-					if(ackedSet.contains(item.getHeader().getId())) {
+					if (ackedSet.contains(item.getHeader().getId())) {
 						item.setDelivered(true);
 						changed = true;
 					}
 				}
-				if(changed) adapter.notifyDataSetChanged();
+				if (changed) adapter.notifyDataSetChanged();
 			}
 		});
 	}
 
 	public void onClick(View view) {
 		String message = content.getText().toString();
-		if(message.equals("")) return;
+		if (message.equals("")) return;
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		createMessage(StringUtils.toUtf8(message), timestamp);
@@ -426,9 +426,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		// Don't use an earlier timestamp than the newest message
 		long timestamp = 0;
 		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			long t = adapter.getItem(i).getHeader().getTimestamp();
-			if(t > timestamp) timestamp = t;
+			if (t > timestamp) timestamp = t;
 		}
 		return timestamp + 1;
 	}
@@ -440,9 +440,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					Message m = messageFactory.createAnonymousMessage(null,
 							group, "text/plain", timestamp, body);
 					storeMessage(m);
-				} catch(GeneralSecurityException e) {
+				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);
-				} catch(IOException e) {
+				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
 			}
@@ -456,10 +456,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					long now = System.currentTimeMillis();
 					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

@@ -19,7 +19,7 @@ public class ExpiredActivity extends Activity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if(PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);

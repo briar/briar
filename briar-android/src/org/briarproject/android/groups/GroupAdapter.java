@@ -45,7 +45,7 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
-		if(!header.isRead())
+		if (!header.isRead())
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		LinearLayout headerLayout = new LinearLayout(ctx);
@@ -55,7 +55,7 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		AuthorView authorView = new AuthorView(ctx);
 		authorView.setLayoutParams(WRAP_WRAP_1);
 		Author author = header.getAuthor();
-		if(author == null) authorView.init(null, header.getAuthorStatus());
+		if (author == null) authorView.init(null, header.getAuthorStatus());
 		else authorView.init(author.getName(), header.getAuthorStatus());
 		headerLayout.addView(authorView);
 
@@ -66,12 +66,12 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		headerLayout.addView(date);
 		layout.addView(headerLayout);
 
-		if(item.getBody() == null) {
+		if (item.getBody() == null) {
 			TextView ellipsis = new TextView(ctx);
 			ellipsis.setPadding(pad, 0, pad, pad);
 			ellipsis.setText("\u2026");
 			layout.addView(ellipsis);
-		} else if(header.getContentType().equals("text/plain")) {
+		} else if (header.getContentType().equals("text/plain")) {
 			TextView text = new TextView(ctx);
 			text.setPadding(pad, 0, pad, pad);
 			text.setText(StringUtils.fromUtf8(item.getBody()));

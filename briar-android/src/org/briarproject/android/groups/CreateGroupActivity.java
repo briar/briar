@@ -105,7 +105,7 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	private void enableOrDisableCreateButton() {
-		if(progress == null) return; // Not created yet
+		if (progress == null) return; // Not created yet
 		createForumButton.setEnabled(validateName());
 	}
 
@@ -116,7 +116,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	private boolean validateName() {
 		int length = StringUtils.toUtf8(nameEntry.getText().toString()).length;
-		if(length > MAX_GROUP_NAME_LENGTH) {
+		if (length > MAX_GROUP_NAME_LENGTH) {
 			feedback.setText(R.string.name_too_long);
 			return false;
 		}
@@ -125,9 +125,9 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == createForumButton) {
+		if (view == createForumButton) {
 			hideSoftKeyboard();
-			if(!validateName()) return;
+			if (!validateName()) return;
 			createForumButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
 			storeGroup(nameEntry.getText().toString());
@@ -142,11 +142,11 @@ implements OnEditorActionListener, OnClickListener {
 					long now = System.currentTimeMillis();
 					db.addGroup(g);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Storing group took " + duration + " ms");
 					displayGroup(g);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					finishOnUiThread();
 				}

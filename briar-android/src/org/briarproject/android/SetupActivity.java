@@ -80,7 +80,7 @@ OnEditorActionListener {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if(PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -181,8 +181,8 @@ OnEditorActionListener {
 	}
 
 	private void enableOrDisableContinueButton() {
-		if(progress == null) return; // Not created yet
-		if(passwordEntry.getText().length() > 0)
+		if (progress == null) return; // Not created yet
+		if (passwordEntry.getText().length() > 0)
 			strengthMeter.setVisibility(VISIBLE);
 		else strengthMeter.setVisibility(INVISIBLE);
 		String nickname = nicknameEntry.getText().toString();
@@ -192,15 +192,15 @@ OnEditorActionListener {
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength = strengthEstimator.estimateStrength(firstPassword);
 		strengthMeter.setStrength(strength);
-		if(nicknameLength > MAX_AUTHOR_NAME_LENGTH) {
+		if (nicknameLength > MAX_AUTHOR_NAME_LENGTH) {
 			feedback.setText(R.string.name_too_long);
-		} else if(firstPassword.length() == 0) {
+		} else if (firstPassword.length() == 0) {
 			feedback.setText("");
-		} else if(secondPassword.length() == 0 || passwordsMatch) {
-			if(strength < PasswordStrengthEstimator.WEAK)
+		} else if (secondPassword.length() == 0 || passwordsMatch) {
+			if (strength < PasswordStrengthEstimator.WEAK)
 				feedback.setText(R.string.password_too_weak);
 			else feedback.setText("");
-		} else if(!passwordsMatch) {
+		} else if (!passwordsMatch) {
 			feedback.setText(R.string.passwords_do_not_match);
 		} else {
 			feedback.setText("");
@@ -245,7 +245,7 @@ OnEditorActionListener {
 		editor.putString("key", StringUtils.toHexString(encrypted));
 		editor.commit();
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Key storage took " + duration + " ms");
 	}
 
@@ -253,7 +253,7 @@ OnEditorActionListener {
 		long now = System.currentTimeMillis();
 		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Key derivation took " + duration + " ms");
 		return encrypted;
 	}
@@ -266,7 +266,7 @@ OnEditorActionListener {
 		LocalAuthor localAuthor = authorFactory.createLocalAuthor(nickname,
 				publicKey, privateKey);
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Identity creation took " + duration + " ms");
 		return localAuthor;
 	}

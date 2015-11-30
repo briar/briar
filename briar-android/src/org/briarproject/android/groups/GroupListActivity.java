@@ -154,20 +154,20 @@ OnCreateContextMenuListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for(Group g : db.getGroups()) {
+					for (Group g : db.getGroups()) {
 						try {
 							displayHeaders(g, db.getMessageHeaders(g.getId()));
-						} catch(NoSuchSubscriptionException e) {
+						} catch (NoSuchSubscriptionException e) {
 							// Continue
 						}
 					}
 					int available = db.getAvailableGroups().size();
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
 					displayAvailable(available);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -198,7 +198,7 @@ OnCreateContextMenuListener {
 				loading.setVisibility(GONE);
 				// Remove the old item, if any
 				GroupListItem item = findGroup(id);
-				if(item != null) adapter.remove(item);
+				if (item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new GroupListItem(g, headers));
 				adapter.sort(GroupListItemComparator.INSTANCE);
@@ -211,9 +211,9 @@ OnCreateContextMenuListener {
 	private void displayAvailable(final int availableCount) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(adapter.isEmpty()) empty.setVisibility(VISIBLE);
+				if (adapter.isEmpty()) empty.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
-				if(availableCount == 0) {
+				if (availableCount == 0) {
 					available.setVisibility(GONE);
 				} else {
 					available.setVisibility(VISIBLE);
@@ -227,22 +227,22 @@ OnCreateContextMenuListener {
 
 	private GroupListItem findGroup(GroupId g) {
 		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			GroupListItem item = adapter.getItem(i);
-			if(item.getGroup().getId().equals(g)) return item;
+			if (item.getGroup().getId().equals(g)) return item;
 		}
 		return null; // Not found
 	}
 
 	private void selectFirstUnread() {
 		int firstUnread = -1, count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
-			if(adapter.getItem(i).getUnreadCount() > 0) {
+		for (int i = 0; i < count; i++) {
+			if (adapter.getItem(i).getUnreadCount() > 0) {
 				firstUnread = i;
 				break;
 			}
 		}
-		if(firstUnread == -1) list.setSelection(count - 1);
+		if (firstUnread == -1) list.setSelection(count - 1);
 		else list.setSelection(firstUnread);
 	}
 
@@ -253,24 +253,24 @@ OnCreateContextMenuListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof MessageAddedEvent) {
+		if (e instanceof MessageAddedEvent) {
 			Group g = ((MessageAddedEvent) e).getGroup();
-			if(groups.containsKey(g.getId())) {
+			if (groups.containsKey(g.getId())) {
 				LOG.info("Message added, reloading");
 				loadHeaders(g);
 			}
-		} else if(e instanceof MessageExpiredEvent) {
+		} else if (e instanceof MessageExpiredEvent) {
 			LOG.info("Message expired, reloading");
 			loadHeaders();
-		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
+		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
 			LOG.info("Remote subscriptions changed, reloading");
 			loadAvailable();
-		} else if(e instanceof SubscriptionAddedEvent) {
+		} else if (e instanceof SubscriptionAddedEvent) {
 			LOG.info("Group added, reloading");
 			loadHeaders();
-		} else if(e instanceof SubscriptionRemovedEvent) {
+		} else if (e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if(groups.containsKey(g.getId())) {
+			if (groups.containsKey(g.getId())) {
 				LOG.info("Group removed, reloading");
 				loadHeaders();
 			}
@@ -285,13 +285,13 @@ OnCreateContextMenuListener {
 					Collection<MessageHeader> headers =
 							db.getMessageHeaders(g.getId());
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
 					displayHeaders(g, headers);
-				} catch(NoSuchSubscriptionException e) {
+				} catch (NoSuchSubscriptionException e) {
 					removeGroup(g.getId());
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -302,11 +302,11 @@ OnCreateContextMenuListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				GroupListItem item = findGroup(g);
-				if(item != null) {
+				if (item != null) {
 					groups.remove(g);
 					adapter.remove(item);
 					adapter.notifyDataSetChanged();
-					if(adapter.isEmpty()) {
+					if (adapter.isEmpty()) {
 						empty.setVisibility(VISIBLE);
 						list.setVisibility(GONE);
 					} else {
@@ -324,11 +324,11 @@ OnCreateContextMenuListener {
 					long now = System.currentTimeMillis();
 					int available = db.getAvailableGroups().size();
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
 					displayAvailable(available);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -336,9 +336,9 @@ OnCreateContextMenuListener {
 	}
 
 	public void onClick(View view) {
-		if(view == available) {
+		if (view == available) {
 			startActivity(new Intent(this, AvailableGroupsActivity.class));
-		} else if(view == newGroupButton) {
+		} else if (view == newGroupButton) {
 			startActivity(new Intent(this, CreateGroupActivity.class));
 		}
 	}
@@ -361,7 +361,7 @@ OnCreateContextMenuListener {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem menuItem) {
-		if(menuItem.getItemId() == MENU_ITEM_UNSUBSCRIBE) {
+		if (menuItem.getItemId() == MENU_ITEM_UNSUBSCRIBE) {
 			ContextMenuInfo info = menuItem.getMenuInfo();
 			int position = ((AdapterContextMenuInfo) info).position;
 			GroupListItem item = adapter.getItem(position);
@@ -379,10 +379,10 @@ OnCreateContextMenuListener {
 					long now = System.currentTimeMillis();
 					db.removeGroup(g);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Removing group took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

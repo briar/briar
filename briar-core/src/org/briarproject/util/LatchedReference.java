@@ -15,8 +15,8 @@ public class LatchedReference<T> {
 	}
 
 	public boolean set(T t) {
-		if(t == null) throw new IllegalArgumentException();
-		if(reference.compareAndSet(null, t)) {
+		if (t == null) throw new IllegalArgumentException();
+		if (reference.compareAndSet(null, t)) {
 			latch.countDown();
 			return true;
 		}

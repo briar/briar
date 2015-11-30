@@ -88,13 +88,13 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 			dbExecutor.execute(new GenerateBatch());
 			// Write packets until interrupted or no more packets to write
 			try {
-				while(!interrupted) {
+				while (!interrupted) {
 					ThrowingRunnable<IOException> task = writerTasks.take();
-					if(task == CLOSE) break;
+					if (task == CLOSE) break;
 					task.run();
 				}
 				packetWriter.flush();
-			} catch(InterruptedException e) {
+			} catch (InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
 				Thread.currentThread().interrupt();
 			}
@@ -109,18 +109,18 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	}
 
 	private void decrementOutstandingQueries() {
-		if(outstandingQueries.decrementAndGet() == 0) writerTasks.add(CLOSE);
+		if (outstandingQueries.decrementAndGet() == 0) writerTasks.add(CLOSE);
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof ContactRemovedEvent) {
+		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
-			if(c.getContactId().equals(contactId)) interrupt();
-		} else if(e instanceof ShutdownEvent) {
+			if (c.getContactId().equals(contactId)) interrupt();
+		} else if (e instanceof ShutdownEvent) {
 			interrupt();
-		} else if(e instanceof TransportRemovedEvent) {
+		} else if (e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if(t.getTransportId().equals(transportId)) interrupt();
+			if (t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 
@@ -128,16 +128,16 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateAck implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
 				Ack a = db.generateAck(contactId, maxMessages);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
-				if(a == null) decrementOutstandingQueries();
+				if (a == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteAck(a));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -153,7 +153,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeAck(ack);
 			LOG.info("Sent ack");
 			dbExecutor.execute(new GenerateAck());
@@ -164,16 +164,16 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateBatch implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				Collection<byte[]> b = db.generateBatch(contactId,
 						MAX_PAYLOAD_LENGTH, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
-				if(b == null) decrementOutstandingQueries();
+				if (b == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteBatch(b));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -189,8 +189,8 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
-			for(byte[] raw : batch) packetWriter.writeMessage(raw);
+			if (interrupted) return;
+			for (byte[] raw : batch) packetWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
 		}
@@ -200,15 +200,15 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRetentionAck implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				RetentionAck a = db.generateRetentionAck(contactId);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated retention ack: " + (a != null));
-				if(a == null) decrementOutstandingQueries();
+				if (a == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteRetentionAck(a));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -225,7 +225,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeRetentionAck(ack);
 			LOG.info("Sent retention ack");
 			dbExecutor.execute(new GenerateRetentionAck());
@@ -236,16 +236,16 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRetentionUpdate implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				RetentionUpdate u =
 						db.generateRetentionUpdate(contactId, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated retention update: " + (u != null));
-				if(u == null) decrementOutstandingQueries();
+				if (u == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteRetentionUpdate(u));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -262,7 +262,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeRetentionUpdate(update);
 			LOG.info("Sent retention update");
 			dbExecutor.execute(new GenerateRetentionUpdate());
@@ -273,15 +273,15 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateSubscriptionAck implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				SubscriptionAck a = db.generateSubscriptionAck(contactId);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated subscription ack: " + (a != null));
-				if(a == null) decrementOutstandingQueries();
+				if (a == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteSubscriptionAck(a));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -298,7 +298,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeSubscriptionAck(ack);
 			LOG.info("Sent subscription ack");
 			dbExecutor.execute(new GenerateSubscriptionAck());
@@ -309,16 +309,16 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateSubscriptionUpdate implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				SubscriptionUpdate u =
 						db.generateSubscriptionUpdate(contactId, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated subscription update: " + (u != null));
-				if(u == null) decrementOutstandingQueries();
+				if (u == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteSubscriptionUpdate(u));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -335,7 +335,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeSubscriptionUpdate(update);
 			LOG.info("Sent subscription update");
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
@@ -346,16 +346,16 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateTransportAcks implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				Collection<TransportAck> acks =
 						db.generateTransportAcks(contactId);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated transport acks: " + (acks != null));
-				if(acks == null) decrementOutstandingQueries();
+				if (acks == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteTransportAcks(acks));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -371,8 +371,8 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
-			for(TransportAck a : acks) packetWriter.writeTransportAck(a);
+			if (interrupted) return;
+			for (TransportAck a : acks) packetWriter.writeTransportAck(a);
 			LOG.info("Sent transport acks");
 			dbExecutor.execute(new GenerateTransportAcks());
 		}
@@ -382,16 +382,16 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateTransportUpdates implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				Collection<TransportUpdate> t =
 						db.generateTransportUpdates(contactId, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated transport updates: " + (t != null));
-				if(t == null) decrementOutstandingQueries();
+				if (t == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteTransportUpdates(t));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -408,8 +408,8 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
-			for(TransportUpdate u : updates)
+			if (interrupted) return;
+			for (TransportUpdate u : updates)
 				packetWriter.writeTransportUpdate(u);
 			LOG.info("Sent transport updates");
 			dbExecutor.execute(new GenerateTransportUpdates());

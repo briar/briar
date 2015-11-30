@@ -332,137 +332,137 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		try {
 			db.addEndpoint(endpoint);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateAck(contactId, 123);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateBatch(contactId, 123, 456);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateOffer(contactId, 123, 456);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateRetentionAck(contactId);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateRetentionUpdate(contactId, 123);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateSubscriptionAck(contactId);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateSubscriptionUpdate(contactId, 123);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateTransportAcks(contactId);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.generateTransportUpdates(contactId, 123);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.getContact(contactId);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.getInboxGroupId(contactId);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.incrementStreamCounter(contactId, transportId, 0);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			Ack a = new Ack(Arrays.asList(messageId));
 			db.receiveAck(contactId, a);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.receiveMessage(contactId, message);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			Offer o = new Offer(Arrays.asList(messageId));
 			db.receiveOffer(contactId, o);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			RetentionAck a = new RetentionAck(0);
 			db.receiveRetentionAck(contactId, a);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			RetentionUpdate u = new RetentionUpdate(0, 1);
 			db.receiveRetentionUpdate(contactId, u);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			SubscriptionAck a = new SubscriptionAck(0);
 			db.receiveSubscriptionAck(contactId, a);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			SubscriptionUpdate u = new SubscriptionUpdate(
 					Collections.<Group>emptyList(), 1);
 			db.receiveSubscriptionUpdate(contactId, u);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			TransportAck a = new TransportAck(transportId, 0);
 			db.receiveTransportAck(contactId, a);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			TransportUpdate u = new TransportUpdate(transportId,
 					transportProperties, 1);
 			db.receiveTransportUpdate(contactId, u);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.removeContact(contactId);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.setReorderingWindow(contactId, transportId, 0, 0, new byte[4]);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		try {
 			db.setInboxGroup(contactId, group);
 			fail();
-		} catch(NoSuchContactException expected) {}
+		} catch (NoSuchContactException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -493,17 +493,17 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		try {
 			db.addContact(author, localAuthorId);
 			fail();
-		} catch(NoSuchLocalAuthorException expected) {}
+		} catch (NoSuchLocalAuthorException expected) {}
 
 		try {
 			db.getLocalAuthor(localAuthorId);
 			fail();
-		} catch(NoSuchLocalAuthorException expected) {}
+		} catch (NoSuchLocalAuthorException expected) {}
 
 		try {
 			db.removeLocalAuthor(localAuthorId);
 			fail();
-		} catch(NoSuchLocalAuthorException expected) {}
+		} catch (NoSuchLocalAuthorException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -531,27 +531,27 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		try {
 			db.getGroup(groupId);
 			fail();
-		} catch(NoSuchSubscriptionException expected) {}
+		} catch (NoSuchSubscriptionException expected) {}
 
 		try {
 			db.getMessageHeaders(groupId);
 			fail();
-		} catch(NoSuchSubscriptionException expected) {}
+		} catch (NoSuchSubscriptionException expected) {}
 
 		try {
 			db.getVisibility(groupId);
 			fail();
-		} catch(NoSuchSubscriptionException expected) {}
+		} catch (NoSuchSubscriptionException expected) {}
 
 		try {
 			db.removeGroup(group);
 			fail();
-		} catch(NoSuchSubscriptionException expected) {}
+		} catch (NoSuchSubscriptionException expected) {}
 
 		try {
 			db.setVisibility(groupId, Collections.<ContactId>emptyList());
 			fail();
-		} catch(NoSuchSubscriptionException expected) {}
+		} catch (NoSuchSubscriptionException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -603,42 +603,42 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		try {
 			db.addEndpoint(endpoint);
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.getConfig(transportId);
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.getLocalProperties(transportId);
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.mergeConfig(transportId, new TransportConfig());
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.mergeLocalProperties(transportId, new TransportProperties());
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.incrementStreamCounter(contactId, transportId, 0);
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.removeTransport(transportId);
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.setReorderingWindow(contactId, transportId, 0, 0, new byte[4]);
 			fail();
-		} catch(NoSuchTransportException expected) {}
+		} catch (NoSuchTransportException expected) {}
 
 		context.assertIsSatisfied();
 	}

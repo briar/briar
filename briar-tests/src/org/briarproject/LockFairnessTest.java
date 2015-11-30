@@ -34,7 +34,7 @@ public class LockFairnessTest extends BriarTestCase {
 						// Release the lock
 						lock.readLock().unlock();
 					}
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					fail();
 				}
 				firstReaderHasFinished.countDown();
@@ -57,7 +57,7 @@ public class LockFairnessTest extends BriarTestCase {
 						// Release the lock
 						lock.readLock().unlock();
 					}
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					fail();
 				}
 				secondReaderHasFinished.countDown();
@@ -90,7 +90,7 @@ public class LockFairnessTest extends BriarTestCase {
 						// Allow the other threads to acquire the lock
 						firstReaderHasLock.countDown();
 						// Wait for both other threads to wait for the lock
-						while(lock.getQueueLength() < 2) Thread.sleep(10);
+						while (lock.getQueueLength() < 2) Thread.sleep(10);
 						// No other thread should have acquired the lock
 						assertFalse(secondReaderHasHeldLock.get());
 						assertFalse(writerHasHeldLock.get());
@@ -98,7 +98,7 @@ public class LockFairnessTest extends BriarTestCase {
 						// Release the lock
 						lock.readLock().unlock();
 					}
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					fail();
 				}
 				firstReaderHasFinished.countDown();
@@ -121,7 +121,7 @@ public class LockFairnessTest extends BriarTestCase {
 					} finally {
 						lock.writeLock().unlock();
 					}
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					fail();
 				}
 				writerHasFinished.countDown();
@@ -136,7 +136,7 @@ public class LockFairnessTest extends BriarTestCase {
 					// Wait for the first reader to acquire the lock
 					assertTrue(firstReaderHasLock.await(10, SECONDS));
 					// Wait for the writer to wait for the lock
-					while(lock.getQueueLength() < 1) Thread.sleep(10);
+					while (lock.getQueueLength() < 1) Thread.sleep(10);
 					// Acquire the lock
 					lock.readLock().lock();
 					try {
@@ -146,7 +146,7 @@ public class LockFairnessTest extends BriarTestCase {
 					} finally {
 						lock.readLock().unlock();
 					}
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					fail();
 				}
 				secondReaderHasFinished.countDown();

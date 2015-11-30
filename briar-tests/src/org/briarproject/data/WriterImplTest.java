@@ -146,7 +146,7 @@ public class WriterImplTest extends BriarTestCase {
 	@Test
 	public void testWriteList() throws IOException {
 		List<Object> l = new ArrayList<Object>();
-		for(int i = 0; i < 3; i++) l.add(i);
+		for (int i = 0; i < 3; i++) l.add(i);
 		w.writeList(l);
 		// LIST tag, elements as integers, END tag
 		checkContents("60" + "21" + "00" + "21" + "01" + "21" + "02" + "80");
@@ -167,7 +167,7 @@ public class WriterImplTest extends BriarTestCase {
 	public void testWriteMap() throws IOException {
 		// Use LinkedHashMap to get predictable iteration order
 		Map<String, Object> m = new LinkedHashMap<String, Object>();
-		for(int i = 0; i < 4; i++) m.put(String.valueOf(i), i);
+		for (int i = 0; i < 4; i++) m.put(String.valueOf(i), i);
 		w.writeMap(m);
 		// MAP tag, keys as strings and values as integers, END tag
 		checkContents("70" + "41" + "01" + "30" + "21" + "00" +

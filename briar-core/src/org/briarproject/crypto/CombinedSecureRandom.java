@@ -24,17 +24,17 @@ class CombinedSecureRandom extends SecureRandom {
 		private final SecureRandom[] randoms;
 
 		private CombinedSecureRandomSpi(SecureRandom... randoms) {
-			if(randoms.length < 2) throw new IllegalArgumentException();
+			if (randoms.length < 2) throw new IllegalArgumentException();
 			this.randoms = randoms;
 		}
 
 		@Override
 		protected byte[] engineGenerateSeed(int numBytes) {
 			byte[] combined = new byte[numBytes];
-			for(SecureRandom random : randoms) {
+			for (SecureRandom random : randoms) {
 				byte[] b = random.generateSeed(numBytes);
 				int length = Math.min(numBytes, b.length);
-				for(int i = 0; i < length; i++)
+				for (int i = 0; i < length; i++)
 					combined[i] = (byte) (combined[i] ^ b[i]);
 			}
 			return combined;
@@ -43,16 +43,16 @@ class CombinedSecureRandom extends SecureRandom {
 		@Override
 		protected void engineNextBytes(byte[] b) {
 			byte[] temp = new byte[b.length];
-			for(SecureRandom random : randoms) {
+			for (SecureRandom random : randoms) {
 				random.nextBytes(temp);
-				for(int i = 0; i < b.length; i++)
+				for (int i = 0; i < b.length; i++)
 					b[i] = (byte) (b[i] ^ temp[i]);
 			}
 		}
 
 		@Override
 		protected void engineSetSeed(byte[] seed) {
-			for(SecureRandom random : randoms) random.setSeed(seed);
+			for (SecureRandom random : randoms) random.setSeed(seed);
 		}
 	}
 

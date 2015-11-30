@@ -8,7 +8,7 @@ public class SecretKey {
 	private final byte[] key;
 
 	public SecretKey(byte[] key) {
-		if(key.length != LENGTH) throw new IllegalArgumentException();
+		if (key.length != LENGTH) throw new IllegalArgumentException();
 		this.key = key;
 	}
 

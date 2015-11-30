@@ -91,7 +91,7 @@ public class StreamWriterImplTest extends BriarTestCase {
 			oneOf(encrypter).writeFrame(with(any(byte[].class)),
 					with(MAX_PAYLOAD_LENGTH), with(0), with(false));
 		}});
-		for(int i = 0; i < MAX_PAYLOAD_LENGTH; i++) w.write(0);
+		for (int i = 0; i < MAX_PAYLOAD_LENGTH; i++) w.write(0);
 		context.assertIsSatisfied();
 
 		// Clean up

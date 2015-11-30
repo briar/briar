@@ -37,27 +37,27 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		r.readListStart();
 		// Read the parent's message ID, if there is one
 		MessageId parent = null;
-		if(r.hasNull()) {
+		if (r.hasNull()) {
 			r.readNull();
 		} else {
 			byte[] b = r.readRaw(UniqueId.LENGTH);
-			if(b.length < UniqueId.LENGTH) throw new FormatException();
+			if (b.length < UniqueId.LENGTH) throw new FormatException();
 			parent = new MessageId(b);
 		}
 		// Read the group
 		Group group = groupReader.readObject(r);
 		// Read the author, if there is one
 		Author author = null;
-		if(r.hasNull()) r.readNull();
+		if (r.hasNull()) r.readNull();
 		else author = authorReader.readObject(r);
 		// Read the content type
 		String contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
 		// Read the timestamp
 		long timestamp = r.readInteger();
-		if(timestamp < 0) throw new FormatException();
+		if (timestamp < 0) throw new FormatException();
 		// Read the salt
 		byte[] salt = r.readRaw(MESSAGE_SALT_LENGTH);
-		if(salt.length < MESSAGE_SALT_LENGTH) throw new FormatException();
+		if (salt.length < MESSAGE_SALT_LENGTH) throw new FormatException();
 		// Read the message body
 		byte[] body = r.readRaw(MAX_BODY_LENGTH);
 		// Record the offset of the body within the message
@@ -66,7 +66,7 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		int signedLength = (int) counting.getCount();
 		// Read the author's signature, if there is one
 		byte[] signature = null;
-		if(author == null) r.readNull();
+		if (author == null) r.readNull();
 		else signature = r.readRaw(MAX_SIGNATURE_LENGTH);
 		// Read the end of the message
 		r.readListEnd();

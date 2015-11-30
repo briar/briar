@@ -43,13 +43,13 @@ class Receiver implements ReadHandler {
 		windowLock.lock();
 		try {
 			long now = clock.currentTimeMillis(), end = now + READ_TIMEOUT;
-			while(now < end && valid) {
-				if(dataFrames.isEmpty()) {
+			while (now < end && valid) {
+				if (dataFrames.isEmpty()) {
 					// Wait for a data frame
 					dataFrameAvailable.await(end - now, MILLISECONDS);
 				} else {
 					Data d = dataFrames.first();
-					if(d.getSequenceNumber() == nextSequenceNumber) {
+					if (d.getSequenceNumber() == nextSequenceNumber) {
 						dataFrames.remove(d);
 						// Update the window
 						windowSize += d.getPayloadLength();
@@ -63,7 +63,7 @@ class Receiver implements ReadHandler {
 				}
 				now = clock.currentTimeMillis();
 			}
-			if(valid) throw new IOException("Read timed out");
+			if (valid) throw new IOException("Read timed out");
 			throw new IOException("Connection closed");
 		} finally {
 			windowLock.unlock();
@@ -81,7 +81,7 @@ class Receiver implements ReadHandler {
 	}
 
 	public void handleRead(byte[] b) throws IOException {
-		if(!valid) throw new IOException("Connection closed");
+		if (!valid) throw new IOException("Connection closed");
 		switch(b[0]) {
 		case 0:
 		case Frame.FIN_FLAG:
@@ -99,36 +99,36 @@ class Receiver implements ReadHandler {
 	private void handleData(byte[] b) throws IOException {
 		windowLock.lock();
 		try {
-			if(b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
+			if (b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
 				// Ignore data frame with invalid length
 				return;
 			}
 			Data d = new Data(b);
 			int payloadLength = d.getPayloadLength();
-			if(payloadLength > windowSize) return; // No space in the window
-			if(d.getChecksum() != d.calculateChecksum()) {
+			if (payloadLength > windowSize) return; // No space in the window
+			if (d.getChecksum() != d.calculateChecksum()) {
 				// Ignore data frame with invalid checksum
 				return;
 			}
 			long sequenceNumber = d.getSequenceNumber();
-			if(sequenceNumber == 0) {
+			if (sequenceNumber == 0) {
 				// Window probe
-			} else if(sequenceNumber < nextSequenceNumber) {
+			} else if (sequenceNumber < nextSequenceNumber) {
 				// Duplicate data frame
-			} else if(d.isLastFrame()) {
+			} else if (d.isLastFrame()) {
 				finalSequenceNumber = sequenceNumber;
 				// Remove any data frames with higher sequence numbers
 				Iterator<Data> it = dataFrames.iterator();
-				while(it.hasNext()) {
+				while (it.hasNext()) {
 					Data d1 = it.next();
-					if(d1.getSequenceNumber() >= finalSequenceNumber) it.remove();
+					if (d1.getSequenceNumber() >= finalSequenceNumber) it.remove();
 				}
-				if(dataFrames.add(d)) {
+				if (dataFrames.add(d)) {
 					windowSize -= payloadLength;
 					dataFrameAvailable.signalAll();
 				}
-			} else if(sequenceNumber < finalSequenceNumber) {
-				if(dataFrames.add(d)) {
+			} else if (sequenceNumber < finalSequenceNumber) {
+				if (dataFrames.add(d)) {
 					windowSize -= payloadLength;
 					dataFrameAvailable.signalAll();
 				}
@@ -144,8 +144,8 @@ class Receiver implements ReadHandler {
 
 		public int compare(Data d1, Data d2) {
 			long s1 = d1.getSequenceNumber(), s2 = d2.getSequenceNumber();
-			if(s1 < s2) return -1;
-			if(s1 > s2) return 1;
+			if (s1 < s2) return -1;
+			if (s1 > s2) return 1;
 			return 0;
 		}
 	}

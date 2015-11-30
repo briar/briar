@@ -16,13 +16,13 @@ class WindowsRemovableDriveFinder implements RemovableDriveFinder {
 
 	public Collection<File> findRemovableDrives() throws IOException {
 		File[] roots = File.listRoots();
-		if(roots == null) throw new IOException();
+		if (roots == null) throw new IOException();
 		List<File> drives = new ArrayList<File>();
-		for(File root : roots) {
+		for (File root : roots) {
 			try {
 				int type = Kernel32.INSTANCE.GetDriveType(root.getPath());
-				if(type == DRIVE_REMOVABLE) drives.add(root);
-			} catch(RuntimeException e) {
+				if (type == DRIVE_REMOVABLE) drives.add(root);
+			} catch (RuntimeException e) {
 				throw new IOException(e);
 			}
 		}

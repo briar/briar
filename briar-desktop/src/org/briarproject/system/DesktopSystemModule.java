@@ -13,7 +13,7 @@ public class DesktopSystemModule extends AbstractModule {
 	protected void configure() {
 		bind(Clock.class).to(SystemClock.class);
 		bind(Timer.class).to(SystemTimer.class);
-		if(OsUtils.isLinux())
+		if (OsUtils.isLinux())
 			bind(SeedProvider.class).to(LinuxSeedProvider.class);
 		bind(FileUtils.class).to(DesktopFileUtils.class);
 	}

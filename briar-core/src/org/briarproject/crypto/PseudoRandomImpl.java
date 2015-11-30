@@ -17,7 +17,7 @@ class PseudoRandomImpl implements PseudoRandom {
 	public byte[] nextBytes(int length) {
 		byte[] b = new byte[length];
 		int offset = 0;
-		while(offset < length) offset += generator.nextBytes(b, offset, length);
+		while (offset < length) offset += generator.nextBytes(b, offset, length);
 		return b;
 	}
 }

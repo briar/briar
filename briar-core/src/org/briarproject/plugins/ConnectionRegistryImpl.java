@@ -46,15 +46,15 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		synchLock.lock();
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
-			if(m == null) {
+			if (m == null) {
 				m = new HashMap<ContactId, Integer>();
 				connections.put(t, m);
 			}
 			Integer count = m.get(c);
-			if(count == null) m.put(c, 1);
+			if (count == null) m.put(c, 1);
 			else m.put(c, count + 1);
 			count = contactCounts.get(c);
-			if(count == null) {
+			if (count == null) {
 				firstConnection = true;
 				contactCounts.put(c, 1);
 			} else {
@@ -64,7 +64,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			synchLock.unlock();
 		}
 
-		if(firstConnection) {
+		if (firstConnection) {
 			LOG.info("Contact connected");
 			eventBus.broadcast(new ContactConnectedEvent(c));
 		}
@@ -76,17 +76,17 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		synchLock.lock();
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
-			if(m == null) throw new IllegalArgumentException();
+			if (m == null) throw new IllegalArgumentException();
 			Integer count = m.remove(c);
-			if(count == null) throw new IllegalArgumentException();
-			if(count == 1) {
-				if(m.isEmpty()) connections.remove(t);
+			if (count == null) throw new IllegalArgumentException();
+			if (count == 1) {
+				if (m.isEmpty()) connections.remove(t);
 			} else {
 				m.put(c, count - 1);
 			}
 			count = contactCounts.get(c);
-			if(count == null) throw new IllegalArgumentException();
-			if(count == 1) {
+			if (count == null) throw new IllegalArgumentException();
+			if (count == 1) {
 				lastConnection = true;
 				contactCounts.remove(c);
 			} else {
@@ -96,7 +96,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			synchLock.unlock();
 		}
 
-		if(lastConnection) {
+		if (lastConnection) {
 			LOG.info("Contact disconnected");
 			eventBus.broadcast(new ContactDisconnectedEvent(c));
 		}
@@ -107,9 +107,9 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		synchLock.lock();
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
-			if(m == null) return Collections.emptyList();
+			if (m == null) return Collections.emptyList();
 			List<ContactId> ids = new ArrayList<ContactId>(m.keySet());
-			if(LOG.isLoggable(INFO)) LOG.info(ids.size() + " contacts connected");
+			if (LOG.isLoggable(INFO)) LOG.info(ids.size() + " contacts connected");
 			return Collections.unmodifiableList(ids);
 		} finally {
 			synchLock.unlock();

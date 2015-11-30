@@ -45,7 +45,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	@Override
 	public void stop() {
 		running = false;
-		if(networkStateReceiver != null)
+		if (networkStateReceiver != null)
 			appContext.unregisterReceiver(networkStateReceiver);
 		tryToClose(socket);
 	}
@@ -54,13 +54,13 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 		@Override
 		public void onReceive(Context ctx, Intent i) {
-			if(!running) return;
+			if (!running) return;
 			Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
 			ConnectivityManager cm = (ConnectivityManager) o;
 			NetworkInfo net = cm.getActiveNetworkInfo();
-			if(net != null && net.getType() == TYPE_WIFI && net.isConnected()) {
+			if (net != null && net.getType() == TYPE_WIFI && net.isConnected()) {
 				LOG.info("Connected to Wi-Fi");
-				if(socket == null || socket.isClosed()) bind();
+				if (socket == null || socket.isClosed()) bind();
 			} else {
 				LOG.info("Not connected to Wi-Fi");
 				tryToClose(socket);

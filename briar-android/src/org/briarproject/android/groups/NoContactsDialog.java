@@ -16,7 +16,7 @@ public class NoContactsDialog {
 	}
 
 	public Dialog build(Context ctx) {
-		if(listener == null) throw new IllegalStateException();
+		if (listener == null) throw new IllegalStateException();
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		builder.setMessage(R.string.no_contacts_prompt);
 		builder.setPositiveButton(R.string.add_button,

@@ -14,11 +14,11 @@ public class AndroidUtils {
 	@SuppressWarnings("deprecation")
 	public static Collection<String> getSupportedArchitectures() {
 		List<String> abis = new ArrayList<String>();
-		if(Build.VERSION.SDK_INT >= 21) {
-			for(String abi : Build.SUPPORTED_ABIS) abis.add(abi);
-		} else if(Build.VERSION.SDK_INT >= 8) {
+		if (Build.VERSION.SDK_INT >= 21) {
+			for (String abi : Build.SUPPORTED_ABIS) abis.add(abi);
+		} else if (Build.VERSION.SDK_INT >= 8) {
 			abis.add(Build.CPU_ABI);
-			if(Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
+			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
 		} else {
 			abis.add(Build.CPU_ABI);
 		}

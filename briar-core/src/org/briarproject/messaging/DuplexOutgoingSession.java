@@ -114,13 +114,13 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 			nextRetxQuery = now + RETX_QUERY_INTERVAL;
 			// Write packets until interrupted
 			try {
-				while(!interrupted) {
+				while (!interrupted) {
 					// Work out how long we should wait for a packet
 					now = clock.currentTimeMillis();
 					long wait = Math.min(nextKeepalive, nextRetxQuery) - now;
-					if(wait < 0) wait = 0;
+					if (wait < 0) wait = 0;
 					// Flush any unflushed data if we're going to wait
-					if(wait > 0 && dataToFlush && writerTasks.isEmpty()) {
+					if (wait > 0 && dataToFlush && writerTasks.isEmpty()) {
 						packetWriter.flush();
 						dataToFlush = false;
 						nextKeepalive = now + maxIdleTime;
@@ -128,9 +128,9 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 					// Wait for a packet
 					ThrowingRunnable<IOException> task = writerTasks.poll(wait,
 							MILLISECONDS);
-					if(task == null) {
+					if (task == null) {
 						now = clock.currentTimeMillis();
-						if(now >= nextRetxQuery) {
+						if (now >= nextRetxQuery) {
 							// Check for retransmittable packets
 							dbExecutor.execute(new GenerateTransportUpdates());
 							dbExecutor.execute(new GenerateSubscriptionUpdate());
@@ -139,21 +139,21 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 							dbExecutor.execute(new GenerateOffer());
 							nextRetxQuery = now + RETX_QUERY_INTERVAL;
 						}
-						if(now >= nextKeepalive) {
+						if (now >= nextKeepalive) {
 							// Flush the stream to keep it alive
 							packetWriter.flush();
 							dataToFlush = false;
 							nextKeepalive = now + maxIdleTime;
 						}
-					} else if(task == CLOSE) {
+					} else if (task == CLOSE) {
 						break;
 					} else {
 						task.run();
 						dataToFlush = true;
 					}
 				}
-				if(dataToFlush) packetWriter.flush();
-			} catch(InterruptedException e) {
+				if (dataToFlush) packetWriter.flush();
+			} catch (InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
 				Thread.currentThread().interrupt();
 			}
@@ -168,53 +168,53 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof ContactRemovedEvent) {
+		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
-			if(c.getContactId().equals(contactId)) interrupt();
-		} else if(e instanceof MessageAddedEvent) {
+			if (c.getContactId().equals(contactId)) interrupt();
+		} else if (e instanceof MessageAddedEvent) {
 			dbExecutor.execute(new GenerateOffer());
-		} else if(e instanceof MessageExpiredEvent) {
+		} else if (e instanceof MessageExpiredEvent) {
 			dbExecutor.execute(new GenerateRetentionUpdate());
-		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
+		} else if (e instanceof LocalSubscriptionsUpdatedEvent) {
 			LocalSubscriptionsUpdatedEvent l =
 					(LocalSubscriptionsUpdatedEvent) e;
-			if(l.getAffectedContacts().contains(contactId)) {
+			if (l.getAffectedContacts().contains(contactId)) {
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
 				dbExecutor.execute(new GenerateOffer());
 			}
-		} else if(e instanceof LocalTransportsUpdatedEvent) {
+		} else if (e instanceof LocalTransportsUpdatedEvent) {
 			dbExecutor.execute(new GenerateTransportUpdates());
-		} else if(e instanceof MessageRequestedEvent) {
-			if(((MessageRequestedEvent) e).getContactId().equals(contactId))
+		} else if (e instanceof MessageRequestedEvent) {
+			if (((MessageRequestedEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateBatch());
-		} else if(e instanceof MessageToAckEvent) {
-			if(((MessageToAckEvent) e).getContactId().equals(contactId))
+		} else if (e instanceof MessageToAckEvent) {
+			if (((MessageToAckEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateAck());
-		} else if(e instanceof MessageToRequestEvent) {
-			if(((MessageToRequestEvent) e).getContactId().equals(contactId))
+		} else if (e instanceof MessageToRequestEvent) {
+			if (((MessageToRequestEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateRequest());
-		} else if(e instanceof RemoteRetentionTimeUpdatedEvent) {
+		} else if (e instanceof RemoteRetentionTimeUpdatedEvent) {
 			RemoteRetentionTimeUpdatedEvent r =
 					(RemoteRetentionTimeUpdatedEvent) e;
-			if(r.getContactId().equals(contactId))
+			if (r.getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateRetentionAck());
-		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
+		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
 			RemoteSubscriptionsUpdatedEvent r =
 					(RemoteSubscriptionsUpdatedEvent) e;
-			if(r.getContactId().equals(contactId)) {
+			if (r.getContactId().equals(contactId)) {
 				dbExecutor.execute(new GenerateSubscriptionAck());
 				dbExecutor.execute(new GenerateOffer());
 			}
-		} else if(e instanceof RemoteTransportsUpdatedEvent) {
+		} else if (e instanceof RemoteTransportsUpdatedEvent) {
 			RemoteTransportsUpdatedEvent r =
 					(RemoteTransportsUpdatedEvent) e;
-			if(r.getContactId().equals(contactId))
+			if (r.getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateTransportAcks());
-		} else if(e instanceof ShutdownEvent) {
+		} else if (e instanceof ShutdownEvent) {
 			interrupt();
-		} else if(e instanceof TransportRemovedEvent) {
+		} else if (e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if(t.getTransportId().equals(transportId)) interrupt();
+			if (t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 
@@ -222,15 +222,15 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateAck implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
 				Ack a = db.generateAck(contactId, maxMessages);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
-				if(a != null) writerTasks.add(new WriteAck(a));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (a != null) writerTasks.add(new WriteAck(a));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -246,7 +246,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeAck(ack);
 			LOG.info("Sent ack");
 			dbExecutor.execute(new GenerateAck());
@@ -257,15 +257,15 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateBatch implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				Collection<byte[]> b = db.generateRequestedBatch(contactId,
 						MAX_PAYLOAD_LENGTH, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
-				if(b != null) writerTasks.add(new WriteBatch(b));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (b != null) writerTasks.add(new WriteBatch(b));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -281,8 +281,8 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
-			for(byte[] raw : batch) packetWriter.writeMessage(raw);
+			if (interrupted) return;
+			for (byte[] raw : batch) packetWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
 		}
@@ -292,16 +292,16 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateOffer implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForOffer(
 					Long.MAX_VALUE);
 			try {
 				Offer o = db.generateOffer(contactId, maxMessages, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated offer: " + (o != null));
-				if(o != null) writerTasks.add(new WriteOffer(o));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (o != null) writerTasks.add(new WriteOffer(o));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -317,7 +317,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeOffer(offer);
 			LOG.info("Sent offer");
 			dbExecutor.execute(new GenerateOffer());
@@ -328,16 +328,16 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRequest implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			int maxMessages = packetWriter.getMaxMessagesForRequest(
 					Long.MAX_VALUE);
 			try {
 				Request r = db.generateRequest(contactId, maxMessages);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated request: " + (r != null));
-				if(r != null) writerTasks.add(new WriteRequest(r));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (r != null) writerTasks.add(new WriteRequest(r));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -353,7 +353,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeRequest(request);
 			LOG.info("Sent request");
 			dbExecutor.execute(new GenerateRequest());
@@ -364,14 +364,14 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRetentionAck implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				RetentionAck a = db.generateRetentionAck(contactId);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated retention ack: " + (a != null));
-				if(a != null) writerTasks.add(new WriteRetentionAck(a));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (a != null) writerTasks.add(new WriteRetentionAck(a));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -388,7 +388,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeRetentionAck(ack);
 			LOG.info("Sent retention ack");
 			dbExecutor.execute(new GenerateRetentionAck());
@@ -399,15 +399,15 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateRetentionUpdate implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				RetentionUpdate u =
 						db.generateRetentionUpdate(contactId, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated retention update: " + (u != null));
-				if(u != null) writerTasks.add(new WriteRetentionUpdate(u));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (u != null) writerTasks.add(new WriteRetentionUpdate(u));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -424,7 +424,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeRetentionUpdate(update);
 			LOG.info("Sent retention update");
 			dbExecutor.execute(new GenerateRetentionUpdate());
@@ -435,14 +435,14 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateSubscriptionAck implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				SubscriptionAck a = db.generateSubscriptionAck(contactId);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated subscription ack: " + (a != null));
-				if(a != null) writerTasks.add(new WriteSubscriptionAck(a));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (a != null) writerTasks.add(new WriteSubscriptionAck(a));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -459,7 +459,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeSubscriptionAck(ack);
 			LOG.info("Sent subscription ack");
 			dbExecutor.execute(new GenerateSubscriptionAck());
@@ -470,15 +470,15 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateSubscriptionUpdate implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				SubscriptionUpdate u =
 						db.generateSubscriptionUpdate(contactId, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated subscription update: " + (u != null));
-				if(u != null) writerTasks.add(new WriteSubscriptionUpdate(u));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (u != null) writerTasks.add(new WriteSubscriptionUpdate(u));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -495,7 +495,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
+			if (interrupted) return;
 			packetWriter.writeSubscriptionUpdate(update);
 			LOG.info("Sent subscription update");
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
@@ -506,15 +506,15 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateTransportAcks implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				Collection<TransportAck> acks =
 						db.generateTransportAcks(contactId);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated transport acks: " + (acks != null));
-				if(acks != null) writerTasks.add(new WriteTransportAcks(acks));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (acks != null) writerTasks.add(new WriteTransportAcks(acks));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -530,8 +530,8 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
-			for(TransportAck a : acks) packetWriter.writeTransportAck(a);
+			if (interrupted) return;
+			for (TransportAck a : acks) packetWriter.writeTransportAck(a);
 			LOG.info("Sent transport acks");
 			dbExecutor.execute(new GenerateTransportAcks());
 		}
@@ -541,15 +541,15 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private class GenerateTransportUpdates implements Runnable {
 
 		public void run() {
-			if(interrupted) return;
+			if (interrupted) return;
 			try {
 				Collection<TransportUpdate> t =
 						db.generateTransportUpdates(contactId, maxLatency);
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Generated transport updates: " + (t != null));
-				if(t != null) writerTasks.add(new WriteTransportUpdates(t));
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (t != null) writerTasks.add(new WriteTransportUpdates(t));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -566,8 +566,8 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		}
 
 		public void run() throws IOException {
-			if(interrupted) return;
-			for(TransportUpdate u : updates)
+			if (interrupted) return;
+			for (TransportUpdate u : updates)
 				packetWriter.writeTransportUpdate(u);
 			LOG.info("Sent transport updates");
 			dbExecutor.execute(new GenerateTransportUpdates());

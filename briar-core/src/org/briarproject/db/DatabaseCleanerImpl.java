@@ -35,19 +35,19 @@ class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 	}
 
 	public void run() {
-		if(callback == null) throw new IllegalStateException();
+		if (callback == null) throw new IllegalStateException();
 		try {
-			if(callback.shouldCheckFreeSpace()) {
+			if (callback.shouldCheckFreeSpace()) {
 				LOG.info("Checking free space");
 				callback.checkFreeSpaceAndClean();
 			}
-		} catch(DbClosedException e) {
+		} catch (DbClosedException e) {
 			LOG.info("Database closed, exiting");
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			throw new Error(e); // Kill the application
-		} catch(RuntimeException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (RuntimeException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			throw new Error(e); // Kill the application
 		}
 	}

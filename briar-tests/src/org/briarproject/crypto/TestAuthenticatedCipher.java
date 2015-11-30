@@ -17,14 +17,14 @@ class TestAuthenticatedCipher implements AuthenticatedCipher {
 
 	public int process(byte[] input, int inputOff, int len, byte[] output,
 			int outputOff) throws GeneralSecurityException {
-		if(encrypt) {
+		if (encrypt) {
 			System.arraycopy(input, inputOff, output, outputOff, len);
-			for(int i = 0; i < MAC_LENGTH; i++)
+			for (int i = 0; i < MAC_LENGTH; i++)
 				output[outputOff + len + i] = 0;
 			return len + MAC_LENGTH;
 		} else {
-			for(int i = 0; i < MAC_LENGTH; i++)
-				if(input[inputOff + len - MAC_LENGTH + i] != 0)
+			for (int i = 0; i < MAC_LENGTH; i++)
+				if (input[inputOff + len - MAC_LENGTH + i] != 0)
 					throw new GeneralSecurityException();
 			System.arraycopy(input, inputOff, output, outputOff,
 					len - MAC_LENGTH);

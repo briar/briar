@@ -74,7 +74,7 @@ public class BasicH2Test extends BriarTestCase {
 		String[] oldNames = new String[BATCH_SIZE];
 		String[] newNames = new String[BATCH_SIZE];
 		Random random = new Random();
-		for(int i = 0; i < BATCH_SIZE; i++) {
+		for (int i = 0; i < BATCH_SIZE; i++) {
 			random.nextBytes(ids[i]);
 			oldNames[i] = TestUtils.createRandomString(50);
 			newNames[i] = TestUtils.createRandomString(50);
@@ -84,20 +84,20 @@ public class BasicH2Test extends BriarTestCase {
 		// Update the names as a batch
 		updateBatch(ids, newNames);
 		// Check that the new names can be retrieved using the IDs
-		for(int i = 0; i < BATCH_SIZE; i++) {
+		for (int i = 0; i < BATCH_SIZE; i++) {
 			assertTrue(rowExists(ids[i]));
 			assertEquals(newNames[i], getName(ids[i]));
 		}
 		// Delete the rows as a batch
 		boolean[] deleted = deleteBatch(ids);
 		// Check that the rows no longer exist
-		for(int i = 0; i < BATCH_SIZE; i++) {
+		for (int i = 0; i < BATCH_SIZE; i++) {
 			assertTrue(deleted[i]);
 			assertFalse(rowExists(ids[i]));
 		}
 		// Deleting the rows again should have no effect
 		deleted = deleteBatch(ids);
-		for(int i = 0; i < BATCH_SIZE; i++) assertFalse(deleted[i]);
+		for (int i = 0; i < BATCH_SIZE; i++) assertFalse(deleted[i]);
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class BasicH2Test extends BriarTestCase {
 			Statement s = connection.createStatement();
 			s.executeUpdate(CREATE_TABLE);
 			s.close();
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -156,13 +156,13 @@ public class BasicH2Test extends BriarTestCase {
 		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			if(id == null) ps.setNull(1, BINARY);
+			if (id == null) ps.setNull(1, BINARY);
 			else ps.setBytes(1, id);
 			ps.setString(2, name);
 			int affected = ps.executeUpdate();
 			assertEquals(1, affected);
 			ps.close();
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -180,7 +180,7 @@ public class BasicH2Test extends BriarTestCase {
 			rs.close();
 			ps.close();
 			return found;
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -199,7 +199,7 @@ public class BasicH2Test extends BriarTestCase {
 			rs.close();
 			ps.close();
 			return name;
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -209,12 +209,12 @@ public class BasicH2Test extends BriarTestCase {
 		String sql = "UPDATE foo SET name = ? WHERE uniqueId = ?";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			if(id == null) ps.setNull(2, BINARY);
+			if (id == null) ps.setNull(2, BINARY);
 			else ps.setBytes(2, id);
 			ps.setString(1, name);
 			assertEquals(1, ps.executeUpdate());
 			ps.close();
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -224,12 +224,12 @@ public class BasicH2Test extends BriarTestCase {
 		String sql = "DELETE FROM foo WHERE uniqueId = ?";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			if(id == null) ps.setNull(1, BINARY);
+			if (id == null) ps.setNull(1, BINARY);
 			else ps.setBytes(1, id);
 			int affected = ps.executeUpdate();
 			ps.close();
 			return affected == 1;
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -240,19 +240,19 @@ public class BasicH2Test extends BriarTestCase {
 		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			for(int i = 0; i < ids.length; i++) {
-				if(ids[i] == null) ps.setNull(1, BINARY);
+			for (int i = 0; i < ids.length; i++) {
+				if (ids[i] == null) ps.setNull(1, BINARY);
 				else ps.setBytes(1, ids[i]);
 				ps.setString(2, names[i]);
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
 			assertEquals(ids.length, batchAffected.length);
-			for(int i = 0; i < batchAffected.length; i++) {
+			for (int i = 0; i < batchAffected.length; i++) {
 				assertEquals(1, batchAffected[i]);
 			}
 			ps.close();
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -263,18 +263,18 @@ public class BasicH2Test extends BriarTestCase {
 		String sql = "UPDATE foo SET name = ? WHERE uniqueId = ?";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			for(int i = 0; i < ids.length; i++) {
-				if(ids[i] == null) ps.setNull(2, BINARY);
+			for (int i = 0; i < ids.length; i++) {
+				if (ids[i] == null) ps.setNull(2, BINARY);
 				else ps.setBytes(2, ids[i]);
 				ps.setString(1, names[i]);
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
 			assertEquals(ids.length, batchAffected.length);
-			for(int i = 0; i < batchAffected.length; i++)
+			for (int i = 0; i < batchAffected.length; i++)
 				assertEquals(1, batchAffected[i]);
 			ps.close();
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -284,19 +284,19 @@ public class BasicH2Test extends BriarTestCase {
 		String sql = "DELETE FROM foo WHERE uniqueId = ?";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			for(int i = 0; i < ids.length; i++) {
-				if(ids[i] == null) ps.setNull(1, BINARY);
+			for (int i = 0; i < ids.length; i++) {
+				if (ids[i] == null) ps.setNull(1, BINARY);
 				else ps.setBytes(1, ids[i]);
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
 			assertEquals(ids.length, batchAffected.length);
 			boolean[] ret = new boolean[ids.length];
-			for(int i = 0; i < batchAffected.length; i++)
+			for (int i = 0; i < batchAffected.length; i++)
 				ret[i] = batchAffected[i] == 1;
 			ps.close();
 			return ret;
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -315,7 +315,7 @@ public class BasicH2Test extends BriarTestCase {
 			rs.close();
 			ps.close();
 			return name;
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -327,11 +327,11 @@ public class BasicH2Test extends BriarTestCase {
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-			while(rs.next()) names.add(rs.getString(1));
+			while (rs.next()) names.add(rs.getString(1));
 			rs.close();
 			ps.close();
 			return names;
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			connection.close();
 			throw e;
 		}
@@ -339,7 +339,7 @@ public class BasicH2Test extends BriarTestCase {
 
 	@After
 	public void tearDown() throws Exception {
-		if(connection != null) connection.close();
+		if (connection != null) connection.close();
 		TestUtils.deleteTestDirectory(testDir);
 	}
 }

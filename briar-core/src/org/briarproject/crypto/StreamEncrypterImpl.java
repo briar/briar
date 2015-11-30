@@ -39,12 +39,12 @@ class StreamEncrypterImpl implements StreamEncrypter {
 
 	public void writeFrame(byte[] payload, int payloadLength,
 			int paddingLength, boolean finalFrame) throws IOException {
-		if(payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
+		if (payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
 			throw new IllegalArgumentException();
 		// Don't allow the frame counter to wrap
-		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IOException();
+		if (frameNumber > MAX_32_BIT_UNSIGNED) throw new IOException();
 		// Write the tag if required
-		if(writeTag) {
+		if (writeTag) {
 			out.write(tag, 0, tag.length);
 			writeTag = false;
 		}
@@ -57,13 +57,13 @@ class StreamEncrypterImpl implements StreamEncrypter {
 			frameCipher.init(true, frameKey, iv);
 			int encrypted = frameCipher.process(plaintext, 0,
 					HEADER_LENGTH - MAC_LENGTH, ciphertext, 0);
-			if(encrypted != HEADER_LENGTH) throw new RuntimeException();
-		} catch(GeneralSecurityException badCipher) {
+			if (encrypted != HEADER_LENGTH) throw new RuntimeException();
+		} catch (GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
 		// Combine the payload and padding
 		System.arraycopy(payload, 0, plaintext, HEADER_LENGTH, payloadLength);
-		for(int i = 0; i < paddingLength; i++)
+		for (int i = 0; i < paddingLength; i++)
 			plaintext[HEADER_LENGTH + payloadLength + i] = 0;
 		// Encrypt and authenticate the payload and padding
 		FrameEncoder.encodeIv(iv, frameNumber, false);
@@ -71,9 +71,9 @@ class StreamEncrypterImpl implements StreamEncrypter {
 			frameCipher.init(true, frameKey, iv);
 			int encrypted = frameCipher.process(plaintext, HEADER_LENGTH,
 					payloadLength + paddingLength, ciphertext, HEADER_LENGTH);
-			if(encrypted != payloadLength + paddingLength + MAC_LENGTH)
+			if (encrypted != payloadLength + paddingLength + MAC_LENGTH)
 				throw new RuntimeException();
-		} catch(GeneralSecurityException badCipher) {
+		} catch (GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
 		// Write the frame
@@ -84,7 +84,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 
 	public void flush() throws IOException {
 		// Write the tag if required
-		if(writeTag) {
+		if (writeTag) {
 			out.write(tag, 0, tag.length);
 			writeTag = false;
 		}

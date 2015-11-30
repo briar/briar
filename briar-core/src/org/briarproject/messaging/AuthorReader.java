@@ -28,7 +28,7 @@ class AuthorReader implements ObjectReader<Author> {
 		// Read and digest the data
 		r.readListStart();
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
-		if(name.length() == 0) throw new FormatException();
+		if (name.length() == 0) throw new FormatException();
 		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		r.readListEnd();
 		// Reset the reader

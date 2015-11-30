@@ -46,10 +46,10 @@ class FileTransportWriter implements TransportConnectionWriter {
 	public void dispose(boolean exception) {
 		try {
 			out.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-		if(exception) file.delete();
+		if (exception) file.delete();
 		else plugin.writerFinished(file);
 	}
 }

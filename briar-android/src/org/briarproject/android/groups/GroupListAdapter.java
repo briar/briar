@@ -37,7 +37,7 @@ class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
 		int unread = item.getUnreadCount();
-		if(unread > 0)
+		if (unread > 0)
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		TextView name = new TextView(ctx);
@@ -47,11 +47,11 @@ class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 		name.setEllipsize(END);
 		name.setPadding(pad, pad, pad, pad);
 		String groupName = item.getGroup().getName();
-		if(unread > 0) name.setText(groupName + " (" + unread + ")");
+		if (unread > 0) name.setText(groupName + " (" + unread + ")");
 		else name.setText(groupName);
 		layout.addView(name);
 
-		if(item.isEmpty()) {
+		if (item.isEmpty()) {
 			TextView noPosts = new TextView(ctx);
 			noPosts.setPadding(pad, 0, pad, pad);
 			noPosts.setTextColor(res.getColor(R.color.no_posts));

@@ -42,11 +42,11 @@ class AndroidExecutorImpl implements AndroidExecutor {
 	}
 
 	private void startIfNecessary() {
-		if(started.getAndSet(true)) return;
+		if (started.getAndSet(true)) return;
 		new Thread(loop, "AndroidExecutor").start();
 		try {
 			startLatch.await();
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while starting executor thread");
 			Thread.currentThread().interrupt();
 		}
@@ -62,7 +62,7 @@ class AndroidExecutorImpl implements AndroidExecutor {
 	}
 
 	public void shutdown() {
-		if(handler != null) {
+		if (handler != null) {
 			Message m = Message.obtain(handler, SHUTDOWN);
 			handler.sendMessage(m);
 		}

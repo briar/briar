@@ -38,14 +38,14 @@ class StreamDecrypterImpl implements StreamDecrypter {
 	}
 
 	public int readFrame(byte[] payload) throws IOException {
-		if(payload.length < MAX_PAYLOAD_LENGTH)
+		if (payload.length < MAX_PAYLOAD_LENGTH)
 			throw new IllegalArgumentException();
-		if(finalFrame) return -1;
+		if (finalFrame) return -1;
 		// Read the header
 		int offset = 0;
-		while(offset < HEADER_LENGTH) {
+		while (offset < HEADER_LENGTH) {
 			int read = in.read(ciphertext, offset, HEADER_LENGTH - offset);
-			if(read == -1) throw new EOFException();
+			if (read == -1) throw new EOFException();
 			offset += read;
 		}
 		// Decrypt and authenticate the header
@@ -54,23 +54,23 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			frameCipher.init(false, frameKey, iv);
 			int decrypted = frameCipher.process(ciphertext, 0, HEADER_LENGTH,
 					header, 0);
-			if(decrypted != HEADER_LENGTH - MAC_LENGTH)
+			if (decrypted != HEADER_LENGTH - MAC_LENGTH)
 				throw new RuntimeException();
-		} catch(GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}
 		// Decode and validate the header
 		finalFrame = FrameEncoder.isFinalFrame(header);
 		int payloadLength = FrameEncoder.getPayloadLength(header);
 		int paddingLength = FrameEncoder.getPaddingLength(header);
-		if(payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
+		if (payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
 			throw new FormatException();
 		// Read the payload and padding
 		int frameLength = HEADER_LENGTH + payloadLength + paddingLength
 				+ MAC_LENGTH;
-		while(offset < frameLength) {
+		while (offset < frameLength) {
 			int read = in.read(ciphertext, offset, frameLength - offset);
-			if(read == -1) throw new EOFException();
+			if (read == -1) throw new EOFException();
 			offset += read;
 		}
 		// Decrypt and authenticate the payload and padding
@@ -79,14 +79,14 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			frameCipher.init(false, frameKey, iv);
 			int decrypted = frameCipher.process(ciphertext, HEADER_LENGTH,
 					payloadLength + paddingLength + MAC_LENGTH, payload, 0);
-			if(decrypted != payloadLength + paddingLength)
+			if (decrypted != payloadLength + paddingLength)
 				throw new RuntimeException();
-		} catch(GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}
 		// If there's any padding it must be all zeroes
-		for(int i = 0; i < paddingLength; i++)
-			if(payload[payloadLength + i] != 0) throw new FormatException();
+		for (int i = 0; i < paddingLength; i++)
+			if (payload[payloadLength + i] != 0) throw new FormatException();
 		frameNumber++;
 		return payloadLength;
 	}

@@ -21,9 +21,9 @@ class MessageImpl implements Message {
 	public MessageImpl(MessageId id, MessageId parent, Group group,
 			Author author, String contentType, long timestamp,
 			byte[] raw, int bodyStart, int bodyLength) {
-		if(bodyStart + bodyLength > raw.length)
+		if (bodyStart + bodyLength > raw.length)
 			throw new IllegalArgumentException();
-		if(bodyLength > MAX_BODY_LENGTH)
+		if (bodyLength > MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.parent = parent;

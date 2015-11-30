@@ -26,7 +26,7 @@ public class AuthorView extends RelativeLayout {
 		nameView.setSingleLine();
 		nameView.setEllipsize(END);
 		nameView.setPadding(pad, pad, pad, pad);
-		if(name == null) nameView.setText(R.string.anonymous);
+		if (name == null) nameView.setText(R.string.anonymous);
 		else nameView.setText(name);
 		LayoutParams leftOf = CommonLayoutParams.relative();
 		leftOf.addRule(ALIGN_PARENT_LEFT);

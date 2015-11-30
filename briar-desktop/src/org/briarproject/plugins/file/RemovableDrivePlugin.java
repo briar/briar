@@ -67,16 +67,16 @@ implements RemovableDriveMonitor.Callback {
 		try {
 			List<File> drives =
 					new ArrayList<File>(finder.findRemovableDrives());
-			if(drives.isEmpty()) return null;
+			if (drives.isEmpty()) return null;
 			String[] paths = new String[drives.size()];
-			for(int i = 0; i < paths.length; i++) {
+			for (int i = 0; i < paths.length; i++) {
 				paths[i] = drives.get(i).getPath();
 			}
 			int i = callback.showChoice(paths, "REMOVABLE_DRIVE_CHOOSE_DRIVE");
-			if(i == -1) return null;
+			if (i == -1) return null;
 			return drives.get(i);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 	}
@@ -95,29 +95,29 @@ implements RemovableDriveMonitor.Callback {
 	protected Collection<File> findFilesByName(String filename) {
 		List<File> matches = new ArrayList<File>();
 		try {
-			for(File drive : finder.findRemovableDrives()) {
+			for (File drive : finder.findRemovableDrives()) {
 				File[] files = drive.listFiles();
-				if(files != null) {
-					for(File f : files) {
-						if(f.isFile() && filename.equals(f.getName()))
+				if (files != null) {
+					for (File f : files) {
+						if (f.isFile() && filename.equals(f.getName()))
 							matches.add(f);
 					}
 				}
 			}
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		return Collections.unmodifiableList(matches);
 	}
 
 	public void driveInserted(File root) {
 		File[] files = root.listFiles();
-		if(files != null) {
-			for(File f : files) if(f.isFile()) createReaderFromFile(f);
+		if (files != null) {
+			for (File f : files) if (f.isFile()) createReaderFromFile(f);
 		}
 	}
 
 	public void exceptionThrown(IOException e) {
-		if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 	}
 }

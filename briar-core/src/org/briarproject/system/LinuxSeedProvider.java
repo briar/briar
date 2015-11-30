@@ -40,9 +40,9 @@ class LinuxSeedProvider implements SeedProvider {
 			writeToEntropyPool(out);
 			out.flush();
 			out.close();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			// On some devices /dev/urandom isn't writable - this isn't fatal
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		// Read the seed from the pool
 		try {
@@ -50,7 +50,7 @@ class LinuxSeedProvider implements SeedProvider {
 					new FileInputStream(inputFile));
 			in.readFully(seed);
 			in.close();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		return seed;
@@ -61,9 +61,9 @@ class LinuxSeedProvider implements SeedProvider {
 		out.writeLong(System.nanoTime());
 		List<NetworkInterface> ifaces =
 				Collections.list(NetworkInterface.getNetworkInterfaces());
-		for(NetworkInterface i : ifaces) {
+		for (NetworkInterface i : ifaces) {
 			List<InetAddress> addrs = Collections.list(i.getInetAddresses());
-			for(InetAddress a : addrs) out.write(a.getAddress());
+			for (InetAddress a : addrs) out.write(a.getAddress());
 		}
 	}
 }

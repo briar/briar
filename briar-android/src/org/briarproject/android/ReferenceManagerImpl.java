@@ -26,12 +26,12 @@ class ReferenceManagerImpl implements ReferenceManager {
 		synchLock.lock();
 		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
-			if(innerMap == null) {
-				if(LOG.isLoggable(INFO))
+			if (innerMap == null) {
+				if (LOG.isLoggable(INFO))
 					LOG.info("0 handles for " + c.getName());
 				return null;
 			}
-			if(LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO))
 				LOG.info(innerMap.size() + " handles for " + c.getName());
 			Object o = innerMap.get(handle);
 			return c.cast(o);
@@ -45,13 +45,13 @@ class ReferenceManagerImpl implements ReferenceManager {
 		synchLock.lock();
 		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
-			if(innerMap == null) {
+			if (innerMap == null) {
 				innerMap = new HashMap<Long, Object>();
 				outerMap.put(c, innerMap);
 			}
 			long handle = nextHandle++;
 			innerMap.put(handle, reference);
-			if(LOG.isLoggable(INFO)) {
+			if (LOG.isLoggable(INFO)) {
 				LOG.info(innerMap.size() + " handles for " + c.getName() +
 						" after put");
 			}
@@ -65,10 +65,10 @@ class ReferenceManagerImpl implements ReferenceManager {
 		synchLock.lock();
 		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
-			if(innerMap == null) return null;
+			if (innerMap == null) return null;
 			Object o = innerMap.remove(handle);
-			if(innerMap.isEmpty()) outerMap.remove(c);
-			if(LOG.isLoggable(INFO)) {
+			if (innerMap.isEmpty()) outerMap.remove(c);
+			if (LOG.isLoggable(INFO)) {
 				LOG.info(innerMap.size() + " handles for " + c.getName() +
 						" after remove");
 			}

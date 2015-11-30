@@ -53,7 +53,7 @@ class WriterImpl implements Writer {
 	}
 
 	public void removeConsumer(Consumer c) {
-		if(!consumers.remove(c)) throw new IllegalArgumentException();
+		if (!consumers.remove(c)) throw new IllegalArgumentException();
 	}
 
 	public void writeNull() throws IOException {
@@ -61,18 +61,18 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeBoolean(boolean b) throws IOException {
-		if(b) write(TRUE);
+		if (b) write(TRUE);
 		else write(FALSE);
 	}
 
 	public void writeInteger(long i) throws IOException {
-		if(i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE) {
+		if (i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE) {
 			write(INT_8);
 			write((byte) i);
-		} else if(i >= Short.MIN_VALUE && i <= Short.MAX_VALUE) {
+		} else if (i >= Short.MIN_VALUE && i <= Short.MAX_VALUE) {
 			write(INT_16);
 			writeInt16((short) i);
-		} else if(i >= Integer.MIN_VALUE && i <= Integer.MAX_VALUE) {
+		} else if (i >= Integer.MIN_VALUE && i <= Integer.MAX_VALUE) {
 			write(INT_32);
 			writeInt32((int) i);
 		} else {
@@ -111,10 +111,10 @@ class WriterImpl implements Writer {
 
 	public void writeString(String s) throws IOException {
 		byte[] b = s.getBytes("UTF-8");
-		if(b.length <= Byte.MAX_VALUE) {
+		if (b.length <= Byte.MAX_VALUE) {
 			write(STRING_8);
 			write((byte) b.length);
-		} else if(b.length <= Short.MAX_VALUE) {
+		} else if (b.length <= Short.MAX_VALUE) {
 			write(STRING_16);
 			writeInt16((short) b.length);
 		} else {
@@ -125,10 +125,10 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeRaw(byte[] b) throws IOException {
-		if(b.length <= Byte.MAX_VALUE) {
+		if (b.length <= Byte.MAX_VALUE) {
 			write(RAW_8);
 			write((byte) b.length);
-		} else if(b.length <= Short.MAX_VALUE) {
+		} else if (b.length <= Short.MAX_VALUE) {
 			write(RAW_16);
 			writeInt16((short) b.length);
 		} else {
@@ -140,24 +140,24 @@ class WriterImpl implements Writer {
 
 	public void writeList(Collection<?> c) throws IOException {
 		write(LIST);
-		for(Object o : c) writeObject(o);
+		for (Object o : c) writeObject(o);
 		write(END);
 	}
 
 	private void writeObject(Object o) throws IOException {
-		if(o instanceof Boolean) writeBoolean((Boolean) o);
-		else if(o instanceof Byte) writeInteger((Byte) o);
-		else if(o instanceof Short) writeInteger((Short) o);
-		else if(o instanceof Integer) writeInteger((Integer) o);
-		else if(o instanceof Long) writeInteger((Long) o);
-		else if(o instanceof Float) writeFloat((Float) o);
-		else if(o instanceof Double) writeFloat((Double) o);
-		else if(o instanceof String) writeString((String) o);
-		else if(o instanceof byte[]) writeRaw((byte[]) o);
-		else if(o instanceof Bytes) writeRaw(((Bytes) o).getBytes());
-		else if(o instanceof List<?>) writeList((List<?>) o);
-		else if(o instanceof Map<?, ?>) writeMap((Map<?, ?>) o);
-		else if(o == null) writeNull();
+		if (o instanceof Boolean) writeBoolean((Boolean) o);
+		else if (o instanceof Byte) writeInteger((Byte) o);
+		else if (o instanceof Short) writeInteger((Short) o);
+		else if (o instanceof Integer) writeInteger((Integer) o);
+		else if (o instanceof Long) writeInteger((Long) o);
+		else if (o instanceof Float) writeFloat((Float) o);
+		else if (o instanceof Double) writeFloat((Double) o);
+		else if (o instanceof String) writeString((String) o);
+		else if (o instanceof byte[]) writeRaw((byte[]) o);
+		else if (o instanceof Bytes) writeRaw(((Bytes) o).getBytes());
+		else if (o instanceof List<?>) writeList((List<?>) o);
+		else if (o instanceof Map<?, ?>) writeMap((Map<?, ?>) o);
+		else if (o == null) writeNull();
 		else throw new IllegalStateException();
 	}
 
@@ -171,7 +171,7 @@ class WriterImpl implements Writer {
 
 	public void writeMap(Map<?, ?> m) throws IOException {
 		write(MAP);
-		for(Entry<?, ?> e : m.entrySet()) {
+		for (Entry<?, ?> e : m.entrySet()) {
 			writeObject(e.getKey());
 			writeObject(e.getValue());
 		}
@@ -188,11 +188,11 @@ class WriterImpl implements Writer {
 
 	private void write(byte b) throws IOException {
 		out.write(b);
-		for(Consumer c : consumers) c.write(b);
+		for (Consumer c : consumers) c.write(b);
 	}
 
 	private void write(byte[] b) throws IOException {
 		out.write(b);
-		for(Consumer c : consumers) c.write(b, 0, b.length);
+		for (Consumer c : consumers) c.write(b, 0, b.length);
 	}
 }

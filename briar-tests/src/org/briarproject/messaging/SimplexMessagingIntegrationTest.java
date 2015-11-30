@@ -240,7 +240,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		private volatile boolean messageAdded = false;
 
 		public void eventOccurred(Event e) {
-			if(e instanceof MessageAddedEvent) messageAdded = true;
+			if (e instanceof MessageAddedEvent) messageAdded = true;
 		}
 	}
 }

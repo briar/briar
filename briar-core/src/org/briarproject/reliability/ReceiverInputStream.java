@@ -16,8 +16,8 @@ class ReceiverInputStream extends InputStream {
 
 	@Override
 	public int read() throws IOException {
-		if(length == -1) return -1;
-		while(length == 0) if(!receive()) return -1;
+		if (length == -1) return -1;
+		while (length == 0) if (!receive()) return -1;
 		int b = data.getBuffer()[offset] & 0xff;
 		offset++;
 		length--;
@@ -31,8 +31,8 @@ class ReceiverInputStream extends InputStream {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		if(length == -1) return -1;
-		while(length == 0) if(!receive()) return -1;
+		if (length == -1) return -1;
+		while (length == 0) if (!receive()) return -1;
 		len = Math.min(len, length);
 		System.arraycopy(data.getBuffer(), offset, b, off, len);
 		offset += len;
@@ -42,13 +42,13 @@ class ReceiverInputStream extends InputStream {
 
 	private boolean receive() throws IOException {
 		assert length == 0;
-		if(data != null && data.isLastFrame()) {
+		if (data != null && data.isLastFrame()) {
 			length = -1;
 			return false;
 		}
 		try {
 			data = receiver.read();
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while reading");
 		}

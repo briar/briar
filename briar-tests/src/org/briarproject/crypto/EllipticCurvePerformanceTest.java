@@ -40,13 +40,13 @@ public class EllipticCurvePerformanceTest {
 			"brainpoolp256r1", "brainpoolp384r1", "brainpoolp512r1");
 
 	public static void main(String[] args) {
-		for(String name : SEC_NAMES) {
+		for (String name : SEC_NAMES) {
 			ECDomainParameters params =
 					convertParams(SECNamedCurves.getByName(name));
 			runTest(name + " default", params);
 			runTest(name + " constant", constantTime(params));
 		}
-		for(String name : BRAINPOOL_NAMES) {
+		for (String name : BRAINPOOL_NAMES) {
 			ECDomainParameters params =
 					convertParams(TeleTrusTNamedCurves.getByName(name));
 			runTest(name + " default", params);
@@ -71,7 +71,7 @@ public class EllipticCurvePerformanceTest {
 				(ECPublicKeyParameters) keyPair2.getPublic();
 		// Time some ECDH key agreements
 		List<Long> samples = new ArrayList<Long>();
-		for(int i = 0; i < SAMPLES; i++) {
+		for (int i = 0; i < SAMPLES; i++) {
 			ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
 			long start = System.nanoTime();
 			agreement.init(private1);
@@ -82,7 +82,7 @@ public class EllipticCurvePerformanceTest {
 		// Time some signatures
 		List<byte[]> signatures = new ArrayList<byte[]>();
 		samples.clear();
-		for(int i = 0; i < SAMPLES; i++) {
+		for (int i = 0; i < SAMPLES; i++) {
 			Digest digest = new SHA256Digest();
 			DSAKCalculator calculator = new HMacDSAKCalculator(digest);
 			DSADigestSigner signer = new DSADigestSigner(new ECDSASigner(
@@ -96,7 +96,7 @@ public class EllipticCurvePerformanceTest {
 		long signatureMedian = median(samples);
 		// Time some signature verifications
 		samples.clear();
-		for(int i = 0; i < SAMPLES; i++) {
+		for (int i = 0; i < SAMPLES; i++) {
 			Digest digest = new SHA256Digest();
 			DSAKCalculator calculator = new HMacDSAKCalculator(digest);
 			DSADigestSigner signer = new DSADigestSigner(new ECDSASigner(
@@ -104,7 +104,7 @@ public class EllipticCurvePerformanceTest {
 			long start = System.nanoTime();
 			signer.init(false, public1);
 			signer.update(new byte[BYTES_TO_SIGN], 0, BYTES_TO_SIGN);
-			if(!signer.verifySignature(signatures.get(i)))
+			if (!signer.verifySignature(signatures.get(i)))
 				throw new AssertionError();
 			samples.add(System.nanoTime() - start);
 		}
@@ -117,9 +117,9 @@ public class EllipticCurvePerformanceTest {
 
 	private static long median(List<Long> list) {
 		int size = list.size();
-		if(size == 0) throw new IllegalArgumentException();
+		if (size == 0) throw new IllegalArgumentException();
 		Collections.sort(list);
-		if(size % 2 == 1) return list.get(size / 2);
+		if (size % 2 == 1) return list.get(size / 2);
 		return list.get(size / 2 - 1) + list.get(size / 2) / 2;
 	}
 

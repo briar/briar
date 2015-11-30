@@ -40,21 +40,21 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		// Check that we have a Tor binary for this architecture
 		String architecture = null;
-		for(String abi : AndroidUtils.getSupportedArchitectures()) {
-			if(abi.startsWith("x86")) {
+		for (String abi : AndroidUtils.getSupportedArchitectures()) {
+			if (abi.startsWith("x86")) {
 				architecture = "x86";
 				break;
-			} else if(abi.startsWith("armeabi")) {
+			} else if (abi.startsWith("armeabi")) {
 				architecture = "arm";
 				break;
 			}
 		}
-		if(architecture == null) {
+		if (architecture == null) {
 			LOG.info("Tor is not supported on this architecture");
 			return null;
 		}
 		// Use position-independent executable for SDK >= 16
-		if(Build.VERSION.SDK_INT >= 16) architecture += "-pie";
+		if (Build.VERSION.SDK_INT >= 16) architecture += "-pie";
 		return new TorPlugin(ioExecutor,appContext, locationUtils, callback,
 				architecture, MAX_LATENCY, MAX_IDLE_TIME, POLLING_INTERVAL);
 	}

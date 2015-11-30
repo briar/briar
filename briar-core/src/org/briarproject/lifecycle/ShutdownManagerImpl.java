@@ -41,7 +41,7 @@ class ShutdownManagerImpl implements ShutdownManager {
 		synchLock.lock();
 		try {
 			Thread hook = hooks.remove(handle);
-			if(hook == null) return false;
+			if (hook == null) return false;
 			else return Runtime.getRuntime().removeShutdownHook(hook);
 		} finally {
 			synchLock.unlock();

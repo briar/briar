@@ -15,10 +15,10 @@ class AndroidSeedProvider extends LinuxSeedProvider {
 		out.writeInt(android.os.Process.myTid());
 		out.writeInt(android.os.Process.myUid());
 		String fingerprint = Build.FINGERPRINT;
-		if(fingerprint != null) out.writeUTF(fingerprint);
-		if(Build.VERSION.SDK_INT >= 9) {
+		if (fingerprint != null) out.writeUTF(fingerprint);
+		if (Build.VERSION.SDK_INT >= 9) {
 			String serial = Build.SERIAL;
-			if(serial != null) out.writeUTF(serial);
+			if (serial != null) out.writeUTF(serial);
 		}
 		super.writeToEntropyPool(out);
 	}

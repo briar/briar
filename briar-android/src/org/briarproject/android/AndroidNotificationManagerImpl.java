@@ -94,8 +94,8 @@ Service, EventListener {
 			public void run() {
 				try {
 					settings = db.getSettings();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -108,14 +108,14 @@ Service, EventListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof SettingsUpdatedEvent) loadSettings();
+		if (e instanceof SettingsUpdatedEvent) loadSettings();
 	}
 
 	public void showPrivateMessageNotification(ContactId c) {
 		synchLock.lock();
 		try {
 			Integer count = contactCounts.get(c);
-			if(count == null) contactCounts.put(c, 1);
+			if (count == null) contactCounts.put(c, 1);
 			else contactCounts.put(c, count + 1);
 			privateTotal++;
 			updatePrivateMessageNotification();
@@ -128,7 +128,7 @@ Service, EventListener {
 		synchLock.lock();
 		try {
 			Integer count = contactCounts.remove(c);
-			if(count == null) return; // Already cleared
+			if (count == null) return; // Already cleared
 			privateTotal -= count;
 			updatePrivateMessageNotification();
 		} finally {
@@ -138,9 +138,9 @@ Service, EventListener {
 
 	// Locking: synchLock
 	private void updatePrivateMessageNotification() {
-		if(privateTotal == 0) {
+		if (privateTotal == 0) {
 			clearPrivateMessageNotification();
-		} else if(!settings.getBoolean("notifyPrivateMessages", true)) {
+		} else if (!settings.getBoolean("notifyPrivateMessages", true)) {
 			return;
 		} else {
 			NotificationCompat.Builder b =
@@ -152,12 +152,12 @@ Service, EventListener {
 					privateTotal));
 			boolean sound = settings.getBoolean("notifySound", true);
 			String ringtoneUri = settings.get("notifyRingtoneUri");
-			if(sound && !StringUtils.isNullOrEmpty(ringtoneUri))
+			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
-			if(contactCounts.size() == 1) {
+			if (contactCounts.size() == 1) {
 				Intent i = new Intent(appContext, ConversationActivity.class);
 				ContactId c = contactCounts.keySet().iterator().next();
 				i.putExtra("briar.CONTACT_ID", c.getInt());
@@ -192,9 +192,9 @@ Service, EventListener {
 		int defaults = DEFAULT_LIGHTS;
 		boolean sound = settings.getBoolean("notifySound", true);
 		String ringtoneUri = settings.get("notifyRingtoneUri");
-		if(sound && StringUtils.isNullOrEmpty(ringtoneUri))
+		if (sound && StringUtils.isNullOrEmpty(ringtoneUri))
 			defaults |= DEFAULT_SOUND;
-		if(settings.getBoolean("notifyVibration", true))
+		if (settings.getBoolean("notifyVibration", true))
 			defaults |= DEFAULT_VIBRATE;
 		return defaults;
 	}
@@ -203,7 +203,7 @@ Service, EventListener {
 		synchLock.lock();
 		try {
 			Integer count = groupCounts.get(g);
-			if(count == null) groupCounts.put(g, 1);
+			if (count == null) groupCounts.put(g, 1);
 			else groupCounts.put(g, count + 1);
 			groupTotal++;
 			updateGroupPostNotification();
@@ -216,7 +216,7 @@ Service, EventListener {
 		synchLock.lock();
 		try {
 			Integer count = groupCounts.remove(g);
-			if(count == null) return; // Already cleared
+			if (count == null) return; // Already cleared
 			groupTotal -= count;
 			updateGroupPostNotification();
 		} finally {
@@ -226,9 +226,9 @@ Service, EventListener {
 
 	// Locking: synchLock
 	private void updateGroupPostNotification() {
-		if(groupTotal == 0) {
+		if (groupTotal == 0) {
 			clearGroupPostNotification();
-		} else if(!settings.getBoolean("notifyGroupPosts", true)) {
+		} else if (!settings.getBoolean("notifyGroupPosts", true)) {
 			return;
 		} else {
 			NotificationCompat.Builder b =
@@ -239,12 +239,12 @@ Service, EventListener {
 					R.plurals.forum_post_notification_text, groupTotal,
 					groupTotal));
 			String ringtoneUri = settings.get("notifyRingtoneUri");
-			if(!StringUtils.isNullOrEmpty(ringtoneUri))
+			if (!StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
-			if(groupCounts.size() == 1) {
+			if (groupCounts.size() == 1) {
 				Intent i = new Intent(appContext, GroupActivity.class);
 				GroupId g = groupCounts.keySet().iterator().next();
 				i.putExtra("briar.GROUP_ID", g.getBytes());

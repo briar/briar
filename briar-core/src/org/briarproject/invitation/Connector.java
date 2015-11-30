@@ -118,7 +118,7 @@ abstract class Connector extends Thread {
 	}
 
 	protected DuplexTransportConnection createInvitationConnection() {
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " creating invitation connection");
 		return plugin.createInvitationConnection(random, CONNECTION_TIMEOUT);
 	}
@@ -126,14 +126,14 @@ abstract class Connector extends Thread {
 	protected void sendPublicKeyHash(Writer w) throws IOException {
 		w.writeRaw(messageDigest.digest(keyPair.getPublic().getEncoded()));
 		w.flush();
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent hash");
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent hash");
 	}
 
 	protected byte[] receivePublicKeyHash(Reader r) throws IOException {
 		int hashLength = messageDigest.getDigestLength();
 		byte[] b = r.readRaw(hashLength);
-		if(b.length < hashLength) throw new FormatException();
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received hash");
+		if (b.length < hashLength) throw new FormatException();
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received hash");
 		return b;
 	}
 
@@ -141,27 +141,27 @@ abstract class Connector extends Thread {
 		byte[] key = keyPair.getPublic().getEncoded();
 		w.writeRaw(key);
 		w.flush();
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent key");
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent key");
 	}
 
 	protected byte[] receivePublicKey(Reader r) throws GeneralSecurityException,
 	IOException {
 		byte[] b = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		keyParser.parsePublicKey(b);
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received key");
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received key");
 		return b;
 	}
 
 	protected byte[] deriveMasterSecret(byte[] hash, byte[] key, boolean alice)
 			throws GeneralSecurityException {
 		// Check that the hash matches the key
-		if(!Arrays.equals(hash, messageDigest.digest(key))) {
-			if(LOG.isLoggable(INFO))
+		if (!Arrays.equals(hash, messageDigest.digest(key))) {
+			if (LOG.isLoggable(INFO))
 				LOG.info(pluginName + " hash does not match key");
 			throw new GeneralSecurityException();
 		}
 		//  Derive the master secret
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " deriving master secret");
 		return crypto.deriveMasterSecret(key, keyPair, alice);
 	}
@@ -170,13 +170,13 @@ abstract class Connector extends Thread {
 			throws IOException {
 		w.writeBoolean(confirmed);
 		w.flush();
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " sent confirmation: " + confirmed);
 	}
 
 	protected boolean receiveConfirmation(Reader r) throws IOException {
 		boolean confirmed = r.readBoolean();
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " received confirmation: " + confirmed);
 		return confirmed;
 	}
@@ -195,7 +195,7 @@ abstract class Connector extends Thread {
 		w.writeRaw(localAuthor.getPublicKey());
 		w.writeRaw(sig);
 		w.flush();
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent pseudonym");
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent pseudonym");
 	}
 
 	protected Author receivePseudonym(Reader r, byte[] nonce)
@@ -204,14 +204,14 @@ abstract class Connector extends Thread {
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
 		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		byte[] sig = r.readRaw(MAX_SIGNATURE_LENGTH);
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received pseudonym");
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received pseudonym");
 		// Verify the signature
 		Signature signature = crypto.getSignature();
 		KeyParser keyParser = crypto.getSignatureKeyParser();
 		signature.initVerify(keyParser.parsePublicKey(publicKey));
 		signature.update(nonce);
-		if(!signature.verify(sig)) {
-			if(LOG.isLoggable(INFO))
+		if (!signature.verify(sig)) {
+			if (LOG.isLoggable(INFO))
 				LOG.info(pluginName + " invalid signature");
 			throw new GeneralSecurityException();
 		}
@@ -221,25 +221,25 @@ abstract class Connector extends Thread {
 	protected void sendTimestamp(Writer w, long timestamp) throws IOException {
 		w.writeInteger(timestamp);
 		w.flush();
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent timestamp");
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent timestamp");
 	}
 
 	protected long receiveTimestamp(Reader r) throws IOException {
 		long timestamp = r.readInteger();
-		if(timestamp < 0) throw new FormatException();
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received timestamp");
+		if (timestamp < 0) throw new FormatException();
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received timestamp");
 		return timestamp;
 	}
 
 	protected void sendTransportProperties(Writer w) throws IOException {
 		w.writeListStart();
-		for(Entry<TransportId, TransportProperties> e : localProps.entrySet()) {
+		for (Entry<TransportId, TransportProperties> e : localProps.entrySet()) {
 			w.writeString(e.getKey().getString());
 			w.writeMap(e.getValue());
 		}
 		w.writeListEnd();
 		w.flush();
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " sent transport properties");
 	}
 
@@ -248,14 +248,14 @@ abstract class Connector extends Thread {
 		Map<TransportId, TransportProperties> remoteProps =
 				new HashMap<TransportId, TransportProperties>();
 		r.readListStart();
-		while(!r.hasListEnd()) {
+		while (!r.hasListEnd()) {
 			String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-			if(idString.length() == 0) throw new FormatException();
+			if (idString.length() == 0) throw new FormatException();
 			TransportId id = new TransportId(idString);
 			Map<String, String> p = new HashMap<String, String>();
 			r.readMapStart();
-			for(int i = 0; !r.hasMapEnd(); i++) {
-				if(i == MAX_PROPERTIES_PER_TRANSPORT)
+			for (int i = 0; !r.hasMapEnd(); i++) {
+				if (i == MAX_PROPERTIES_PER_TRANSPORT)
 					throw new FormatException();
 				String key = r.readString(MAX_PROPERTY_LENGTH);
 				String value = r.readString(MAX_PROPERTY_LENGTH);
@@ -265,7 +265,7 @@ abstract class Connector extends Thread {
 			remoteProps.put(id, new TransportProperties(p));
 		}
 		r.readListEnd();
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " received transport properties");
 		return remoteProps;
 	}
@@ -285,20 +285,20 @@ abstract class Connector extends Thread {
 		// Create an endpoint for each transport shared with the contact
 		List<TransportId> ids = new ArrayList<TransportId>();
 		Map<TransportId, Integer> latencies = db.getTransportLatencies();
-		for(TransportId id : localProps.keySet()) {
-			if(latencies.containsKey(id) && remoteProps.containsKey(id))
+		for (TransportId id : localProps.keySet()) {
+			if (latencies.containsKey(id) && remoteProps.containsKey(id))
 				ids.add(id);
 		}
 		// Assign indices to the transports deterministically and derive keys
 		Collections.sort(ids, TransportIdComparator.INSTANCE);
 		int size = ids.size();
-		for(int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			TransportId id = ids.get(i);
 			Endpoint ep = new Endpoint(contactId, id, epoch, alice);
 			int maxLatency = latencies.get(id);
 			try {
 				db.addEndpoint(ep);
-			} catch(NoSuchTransportException e) {
+			} catch (NoSuchTransportException e) {
 				continue;
 			}
 			byte[] initialSecret = crypto.deriveInitialSecret(secret, i);
@@ -312,13 +312,13 @@ abstract class Connector extends Thread {
 			LOG.info("Closing connection");
 			conn.getReader().dispose(exception, true);
 			conn.getWriter().dispose(exception);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
 	protected void reuseConnection(DuplexTransportConnection conn) {
-		if(contactId == null) throw new IllegalStateException();
+		if (contactId == null) throw new IllegalStateException();
 		TransportId t = plugin.getId();
 		connectionManager.manageOutgoingConnection(contactId, t, conn);
 	}

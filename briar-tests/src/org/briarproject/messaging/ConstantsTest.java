@@ -75,7 +75,7 @@ public class ConstantsTest extends BriarTestCase {
 	@Test
 	public void testAgreementPublicKeys() throws Exception {
 		// Generate 10 agreement key pairs
-		for(int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
 			// Check the length of the public key
 			byte[] publicKey = keyPair.getPublic().getEncoded();
@@ -88,7 +88,7 @@ public class ConstantsTest extends BriarTestCase {
 		Random random = new Random();
 		Signature sig = crypto.getSignature();
 		// Generate 10 signature key pairs
-		for(int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
 			// Check the length of the public key
 			byte[] publicKey = keyPair.getPublic().getEncoded();
@@ -166,7 +166,7 @@ public class ConstantsTest extends BriarTestCase {
 	public void testPropertiesFitIntoTransportUpdate() throws Exception {
 		// Create the maximum number of properties with the maximum length
 		TransportProperties p = new TransportProperties();
-		for(int i = 0; i < MAX_PROPERTIES_PER_TRANSPORT; i++) {
+		for (int i = 0; i < MAX_PROPERTIES_PER_TRANSPORT; i++) {
 			String key = TestUtils.createRandomString(MAX_PROPERTY_LENGTH);
 			String value = TestUtils.createRandomString(MAX_PROPERTY_LENGTH);
 			p.put(key, value);
@@ -187,7 +187,7 @@ public class ConstantsTest extends BriarTestCase {
 	public void testGroupsFitIntoSubscriptionUpdate() throws Exception {
 		// Create the maximum number of maximum-length groups
 		Collection<Group> groups = new ArrayList<Group>();
-		for(int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
+		for (int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
 			String name = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
 			groups.add(groupFactory.createGroup(name));
 		}
@@ -207,7 +207,7 @@ public class ConstantsTest extends BriarTestCase {
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		int maxMessages = writer.getMaxMessagesForAck(length);
 		Collection<MessageId> ids = new ArrayList<MessageId>();
-		for(int i = 0; i < maxMessages; i++)
+		for (int i = 0; i < maxMessages; i++)
 			ids.add(new MessageId(TestUtils.getRandomId()));
 		writer.writeAck(new Ack(ids));
 		// Check the size of the serialised ack
@@ -220,7 +220,7 @@ public class ConstantsTest extends BriarTestCase {
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		int maxMessages = writer.getMaxMessagesForRequest(length);
 		Collection<MessageId> ids = new ArrayList<MessageId>();
-		for(int i = 0; i < maxMessages; i++)
+		for (int i = 0; i < maxMessages; i++)
 			ids.add(new MessageId(TestUtils.getRandomId()));
 		writer.writeRequest(new Request(ids));
 		// Check the size of the serialised request
@@ -233,7 +233,7 @@ public class ConstantsTest extends BriarTestCase {
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
 		int maxMessages = writer.getMaxMessagesForOffer(length);
 		Collection<MessageId> ids = new ArrayList<MessageId>();
-		for(int i = 0; i < maxMessages; i++)
+		for (int i = 0; i < maxMessages; i++)
 			ids.add(new MessageId(TestUtils.getRandomId()));
 		writer.writeOffer(new Offer(ids));
 		// Check the size of the serialised offer

@@ -35,7 +35,7 @@ public class LanTcpClientTest extends DuplexClientTest {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if(args.length != 2) {
+		if (args.length != 2) {
 			System.err.println("Please specify the server's address and port");
 			System.exit(1);
 		}

@@ -41,14 +41,14 @@ class PollerImpl implements Poller {
 	private void schedule(Plugin plugin, boolean randomise) {
 		long interval = plugin.getPollingInterval();
 		// Randomise intervals at startup to spread out connection attempts
-		if(randomise) interval = (long) (interval * Math.random());
+		if (randomise) interval = (long) (interval * Math.random());
 		timer.schedule(new PollTask(plugin), interval);
 	}
 
 	public void pollNow(final Plugin p) {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
-				if(LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO))
 					LOG.info("Polling " + p.getClass().getSimpleName());
 				p.poll(connectionRegistry.getConnectedContacts(p.getId()));
 			}

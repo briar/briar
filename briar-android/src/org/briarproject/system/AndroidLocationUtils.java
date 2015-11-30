@@ -47,14 +47,14 @@ class AndroidLocationUtils implements LocationUtils {
 	@SuppressLint("DefaultLocale")
 	public String getCurrentCountry() {
 		String countryCode = getCountryFromPhoneNetwork();
-		if(!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();
+		if (!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();
 		// Disabled because it involves a network call; requires
 		// ACCESS_FINE_LOCATION
 		// countryCode = getCountryFromLocation();
-		// if(!TextUtils.isEmpty(countryCode)) return countryCode;
+		// if (!TextUtils.isEmpty(countryCode)) return countryCode;
 		LOG.info("Falling back to SIM card country");
 		countryCode = getCountryFromSimCard();
-		if(!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();
+		if (!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();
 		LOG.info("Falling back to user-defined locale");
 		return Locale.getDefault().getCountry();
 	}

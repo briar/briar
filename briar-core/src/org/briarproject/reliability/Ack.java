@@ -13,7 +13,7 @@ class Ack extends Frame {
 
 	Ack(byte[] buf) {
 		super(buf);
-		if(buf.length != LENGTH) throw new IllegalArgumentException();
+		if (buf.length != LENGTH) throw new IllegalArgumentException();
 		buf[0] = (byte) Frame.ACK_FLAG;
 	}
 

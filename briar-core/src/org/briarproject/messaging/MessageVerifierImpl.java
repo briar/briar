@@ -42,7 +42,7 @@ class MessageVerifierImpl implements MessageVerifier {
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		Signature signature = crypto.getSignature();
 		// Reject the message if it's too far in the future
-		if(m.getTimestamp() > clock.currentTimeMillis() + MAX_CLOCK_DIFFERENCE)
+		if (m.getTimestamp() > clock.currentTimeMillis() + MAX_CLOCK_DIFFERENCE)
 			throw new GeneralSecurityException();
 		// Hash the message to get the message ID
 		byte[] raw = m.getSerialised();
@@ -50,18 +50,18 @@ class MessageVerifierImpl implements MessageVerifier {
 		MessageId id = new MessageId(messageDigest.digest());
 		// Verify the author's signature, if there is one
 		Author author = m.getAuthor();
-		if(author != null) {
+		if (author != null) {
 			PublicKey k = keyParser.parsePublicKey(author.getPublicKey());
 			signature.initVerify(k);
 			signature.update(raw, 0, m.getSignedLength());
-			if(!signature.verify(m.getSignature()))
+			if (!signature.verify(m.getSignature()))
 				throw new GeneralSecurityException();
 		}
 		Message verified = new MessageImpl(id, m.getParent(), m.getGroup(),
 				author, m.getContentType(), m.getTimestamp(), raw,
 				m.getBodyStart(), m.getBodyLength());
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Verifying message took " + duration + " ms");
 		return verified;
 	}

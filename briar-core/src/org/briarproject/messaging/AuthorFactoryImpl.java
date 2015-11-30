@@ -47,7 +47,7 @@ class AuthorFactoryImpl implements AuthorFactory {
 			w.writeString(name);
 			w.writeRaw(publicKey);
 			w.writeListEnd();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			// Shouldn't happen with ByteArrayOutputStream
 			throw new RuntimeException();
 		}

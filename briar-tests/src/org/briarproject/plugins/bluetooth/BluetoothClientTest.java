@@ -32,7 +32,7 @@ public class BluetoothClientTest extends DuplexClientTest {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if(args.length != 1) {
+		if (args.length != 1) {
 			System.err.println("Please specify the server's Bluetooth address");
 			System.exit(1);
 		}

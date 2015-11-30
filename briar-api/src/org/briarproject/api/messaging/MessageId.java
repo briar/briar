@@ -16,7 +16,7 @@ public class MessageId extends UniqueId {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof MessageId)
+		if (o instanceof MessageId)
 			return Arrays.equals(id, ((MessageId) o).id);
 		return false;
 	}

@@ -24,20 +24,20 @@ class TestStreamDecrypter implements StreamDecrypter {
 
 	public int readFrame(byte[] payload) throws IOException {
 		int offset = 0;
-		while(offset < HEADER_LENGTH) {
+		while (offset < HEADER_LENGTH) {
 			int read = in.read(frame, offset, HEADER_LENGTH - offset);
-			if(read == -1) throw new EOFException();
+			if (read == -1) throw new EOFException();
 			offset += read;
 		}
 		boolean finalFrame = (frame[0] & 0x80) == 0x80;
 		int payloadLength = ByteUtils.readUint16(frame, 0) & 0x7FFF;
-		while(offset < frame.length) {
+		while (offset < frame.length) {
 			int read = in.read(frame, offset, frame.length - offset);
-			if(read == -1) break;
+			if (read == -1) break;
 			offset += read;
 		}
-		if(!finalFrame && offset < frame.length) throw new EOFException();
-		if(offset < HEADER_LENGTH + payloadLength + MAC_LENGTH)
+		if (!finalFrame && offset < frame.length) throw new EOFException();
+		if (offset < HEADER_LENGTH + payloadLength + MAC_LENGTH)
 			throw new FormatException();
 		System.arraycopy(frame, HEADER_LENGTH, payload, 0, payloadLength);
 		return payloadLength;

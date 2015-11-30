@@ -40,12 +40,12 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		layout.setOrientation(HORIZONTAL);
 		layout.setGravity(CENTER_VERTICAL);
 		int unread = item.getUnreadCount();
-		if(unread > 0)
+		if (unread > 0)
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		ImageView bulb = new ImageView(ctx);
 		bulb.setPadding(pad, pad, pad, pad);
-		if(item.isConnected())
+		if (item.isConnected())
 			bulb.setImageResource(R.drawable.contact_connected);
 		else bulb.setImageResource(R.drawable.contact_disconnected);
 		layout.addView(bulb);
@@ -57,11 +57,11 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		name.setEllipsize(END);
 		name.setPadding(0, pad, pad, pad);
 		String contactName = item.getContact().getAuthor().getName();
-		if(unread > 0) name.setText(contactName + " (" + unread + ")");
+		if (unread > 0) name.setText(contactName + " (" + unread + ")");
 		else name.setText(contactName);
 		layout.addView(name);
 
-		if(item.isEmpty()) {
+		if (item.isEmpty()) {
 			TextView noMessages = new TextView(ctx);
 			noMessages.setPadding(pad, pad, pad, pad);
 			noMessages.setTextColor(res.getColor(R.color.no_private_messages));

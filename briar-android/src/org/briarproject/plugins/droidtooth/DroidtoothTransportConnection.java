@@ -49,8 +49,8 @@ class DroidtoothTransportConnection implements DuplexTransportConnection {
 
 		public void dispose(boolean exception, boolean recognised)
 				throws IOException {
-			if(halfClosed.getAndSet(true) || exception)
-				if(!closed.getAndSet(true)) socket.close();
+			if (halfClosed.getAndSet(true) || exception)
+				if (!closed.getAndSet(true)) socket.close();
 		}
 	}
 
@@ -73,8 +73,8 @@ class DroidtoothTransportConnection implements DuplexTransportConnection {
 		}
 
 		public void dispose(boolean exception) throws IOException {
-			if(halfClosed.getAndSet(true) || exception)
-				if(!closed.getAndSet(true)) socket.close();
+			if (halfClosed.getAndSet(true) || exception)
+				if (!closed.getAndSet(true)) socket.close();
 		}
 	}
 }

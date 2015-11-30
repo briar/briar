@@ -47,22 +47,22 @@ class InvitationListener implements DiscoveryListener {
 		try {
 			discoveryAgent.searchServices(null, uuids, device, this);
 			searches.incrementAndGet();
-		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (BluetoothStateException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
 	public void servicesDiscovered(int transaction, ServiceRecord[] services) {
-		for(ServiceRecord record : services) {
+		for (ServiceRecord record : services) {
 			// Does this service have a URL?
 			String serviceUrl = record.getConnectionURL(
 					ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-			if(serviceUrl == null) continue;
+			if (serviceUrl == null) continue;
 			// Does this service have the UUID we're looking for?
 			Collection<String> uuids = new TreeSet<String>();
 			findNestedClassIds(record.getAttributeValue(0x1), uuids);
-			for(String u : uuids) {
-				if(uuid.equalsIgnoreCase(u)) {
+			for (String u : uuids) {
+				if (uuid.equalsIgnoreCase(u)) {
 					// The UUID matches - store the URL
 					url = serviceUrl;
 					finished.countDown();
@@ -73,30 +73,30 @@ class InvitationListener implements DiscoveryListener {
 	}
 
 	public void inquiryCompleted(int discoveryType) {
-		if(searches.decrementAndGet() == 0) finished.countDown();
+		if (searches.decrementAndGet() == 0) finished.countDown();
 	}
 
 	public void serviceSearchCompleted(int transaction, int response) {
-		if(searches.decrementAndGet() == 0) finished.countDown();
+		if (searches.decrementAndGet() == 0) finished.countDown();
 	}
 
 	// UUIDs are sometimes buried in nested data elements
 	private void findNestedClassIds(Object o, Collection<String> ids) {
 		o = getDataElementValue(o);
-		if(o instanceof Enumeration<?>) {
-			for(Object o1 : Collections.list((Enumeration<?>) o))
+		if (o instanceof Enumeration<?>) {
+			for (Object o1 : Collections.list((Enumeration<?>) o))
 				findNestedClassIds(o1, ids);
-		} else if(o instanceof UUID) {
+		} else if (o instanceof UUID) {
 			ids.add(o.toString());
 		}
 	}
 
 	private Object getDataElementValue(Object o) {
-		if(o instanceof DataElement) {
+		if (o instanceof DataElement) {
 			// Bluecove throws an exception if the type is unknown
 			try {
 				return ((DataElement) o).getValue();
-			} catch(ClassCastException e) {
+			} catch (ClassCastException e) {
 				return null;
 			}
 		}

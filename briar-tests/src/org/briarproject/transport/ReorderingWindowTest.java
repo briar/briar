@@ -14,7 +14,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 	@Test
 	public void testWindowSliding() {
 		ReorderingWindow w = new ReorderingWindow();
-		for(int i = 0; i < 100; i++) {
+		for (int i = 0; i < 100; i++) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
 			assertTrue(w.isSeen(i));
@@ -24,7 +24,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 	@Test
 	public void testWindowJumping() {
 		ReorderingWindow w = new ReorderingWindow();
-		for(int i = 0; i < 100; i += 13) {
+		for (int i = 0; i < 100; i += 13) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
 			assertTrue(w.isSeen(i));
@@ -42,7 +42,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 			// Centre is 32, highest value in window is 47
 			w.setSeen(48);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		// Centre is max - 1, highest value in window is max
 		byte[] bitmap = new byte[REORDERING_WINDOW_SIZE / 8];
 		w = new ReorderingWindow(MAX_32_BIT_UNSIGNED - 1, bitmap);
@@ -52,7 +52,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 		try {
 			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		w.setSeen(MAX_32_BIT_UNSIGNED);
 		assertTrue(w.isSeen(MAX_32_BIT_UNSIGNED));
 		// Centre should have moved to max + 1
@@ -65,7 +65,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 		try {
 			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 		try {
 			w.setSeen(-1);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		// Slide the window
 		w.setSeen(15);
 		// Centre is 16, lowest value in window is 0
@@ -87,7 +87,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 		try {
 			w.setSeen(0);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		// Slide the window
 		w.setSeen(25);
 		// Centre is 26, lowest value in window is 10
@@ -95,7 +95,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 		try {
 			w.setSeen(9);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		// Centre should still be 26
 		assertEquals(26, w.getCentre());
 		// The bits corresponding to 10, 15, 16 and 25 should be set
@@ -112,7 +112,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 		try {
 			w.setSeen(15);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class ReorderingWindowTest extends BriarTestCase {
 		// Centre is 0; window should cover 0 to 15, inclusive, with none seen
 		Collection<Long> unseen = w.getUnseen();
 		assertEquals(16, unseen.size());
-		for(int i = 0; i < 16; i++) {
+		for (int i = 0; i < 16; i++) {
 			assertTrue(unseen.contains(Long.valueOf(i)));
 			assertFalse(w.isSeen(i));
 		}
@@ -130,8 +130,8 @@ public class ReorderingWindowTest extends BriarTestCase {
 		// Centre is 5; window should cover 0 to 20, inclusive, with two seen
 		unseen = w.getUnseen();
 		assertEquals(19, unseen.size());
-		for(int i = 0; i < 21; i++) {
-			if(i == 3 || i == 4) {
+		for (int i = 0; i < 21; i++) {
+			if (i == 3 || i == 4) {
 				assertFalse(unseen.contains(Long.valueOf(i)));
 				assertTrue(w.isSeen(i));
 			} else {
@@ -143,8 +143,8 @@ public class ReorderingWindowTest extends BriarTestCase {
 		// Centre is 20; window should cover 4 to 35, inclusive, with two seen
 		unseen = w.getUnseen();
 		assertEquals(30, unseen.size());
-		for(int i = 4; i < 36; i++) {
-			if(i == 4 || i == 19) {
+		for (int i = 4; i < 36; i++) {
+			if (i == 4 || i == 19) {
 				assertFalse(unseen.contains(Long.valueOf(i)));
 				assertTrue(w.isSeen(i));
 			} else {

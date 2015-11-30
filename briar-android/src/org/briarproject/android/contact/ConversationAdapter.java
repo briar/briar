@@ -45,17 +45,17 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(VERTICAL);
-		if(header.isLocal()) layout.setPadding(3 * pad, 0, 0, 0);
+		if (header.isLocal()) layout.setPadding(3 * pad, 0, 0, 0);
 		else layout.setPadding(0, 0, 3 * pad, 0);
 
 		int background = res.getColor(R.color.private_message_background);
 
 		View content;
-		if(item.getBody() == null) {
+		if (item.getBody() == null) {
 			TextView ellipsis = new TextView(ctx);
 			ellipsis.setText("\u2026");
 			content = ellipsis;
-		} else if(header.getContentType().equals("text/plain")) {
+		} else if (header.getContentType().equals("text/plain")) {
 			TextView text = new TextView(ctx);
 			text.setText(StringUtils.fromUtf8(item.getBody()));
 			content = text;
@@ -69,7 +69,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		content.setPadding(pad, pad, pad, 0);
 		layout.addView(content);
 
-		if(header.isLocal()) {
+		if (header.isLocal()) {
 			LinearLayout footer = new LinearLayout(ctx);
 			footer.setLayoutParams(MATCH_WRAP);
 			footer.setOrientation(HORIZONTAL);
@@ -82,7 +82,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 			ImageView delivered = new ImageView(ctx);
 			delivered.setPadding(0, 0, pad, 0);
 			delivered.setImageResource(R.drawable.message_delivered);
-			if(!item.isDelivered()) delivered.setVisibility(INVISIBLE);
+			if (!item.isDelivered()) delivered.setVisibility(INVISIBLE);
 			footer.addView(delivered);
 
 			TextView date = new TextView(ctx);

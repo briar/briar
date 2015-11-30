@@ -45,15 +45,15 @@ public class BriarActivity extends RoboActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if(PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
-		if(databaseConfig.getEncryptionKey() != null) startAndBindService();
+		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if(request == REQUEST_PASSWORD) {
-			if(result == RESULT_OK) startAndBindService();
+		if (request == REQUEST_PASSWORD) {
+			if (result == RESULT_OK) startAndBindService();
 			else finish();
 		}
 	}
@@ -61,7 +61,7 @@ public class BriarActivity extends RoboActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if(databaseConfig.getEncryptionKey() == null && !isFinishing()) {
+		if (databaseConfig.getEncryptionKey() == null && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION | FLAG_ACTIVITY_SINGLE_TOP);
 			startActivityForResult(i, REQUEST_PASSWORD);
@@ -81,7 +81,7 @@ public class BriarActivity extends RoboActivity {
 	}
 
 	private void unbindService() {
-		if(bound) unbindService(serviceConnection);
+		if (bound) unbindService(serviceConnection);
 	}
 
 	protected void signOut() {
@@ -97,7 +97,7 @@ public class BriarActivity extends RoboActivity {
 					LOG.info("Shutting down service");
 					service.shutdown();
 					service.waitForShutdown();
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					LOG.warning("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
@@ -122,7 +122,7 @@ public class BriarActivity extends RoboActivity {
 				try {
 					lifecycleManager.waitForDatabase();
 					task.run();
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					LOG.warning("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}

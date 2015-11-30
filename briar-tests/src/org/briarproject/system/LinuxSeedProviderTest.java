@@ -29,13 +29,13 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 
 	@Test
 	public void testSeedAppearsSane() {
-		if(!(OsUtils.isLinux())) {
+		if (!(OsUtils.isLinux())) {
 			System.err.println("WARNING: Skipping test, can't run on this OS");
 			return;
 		}
 		Set<Bytes> seeds = new HashSet<Bytes>();
 		LinuxSeedProvider p = new LinuxSeedProvider();
-		for(int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			byte[] seed = p.getSeed();
 			assertEquals(SEED_BYTES, seed.length);
 			assertTrue(seeds.add(new Bytes(seed)));
@@ -44,7 +44,7 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 
 	@Test
 	public void testEntropyIsWrittenToPool() throws Exception {
-		if(!(OsUtils.isLinux())) {
+		if (!(OsUtils.isLinux())) {
 			System.err.println("WARNING: Skipping test, can't run on this OS");
 			return;
 		}
@@ -62,7 +62,7 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 
 	@Test
 	public void testSeedIsReadFromPool() throws Exception {
-		if(!(OsUtils.isLinux())) {
+		if (!(OsUtils.isLinux())) {
 			System.err.println("WARNING: Skipping test, can't run on this OS");
 			return;
 		}

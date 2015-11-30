@@ -23,7 +23,7 @@ public class FortunaGeneratorTest extends BriarTestCase {
 	public void testIncrementCounter() {
 		FortunaGenerator f = new FortunaGenerator(new byte[32]);
 		// Increment the counter until it reaches 255
-		for(int i = 1; i < 255; i++) f.incrementCounter();
+		for (int i = 1; i < 255; i++) f.incrementCounter();
 		byte[] expected = new byte[16];
 		expected[0] = (byte) 255;
 		assertArrayEquals(expected, f.getCounter());
@@ -33,7 +33,7 @@ public class FortunaGeneratorTest extends BriarTestCase {
 		expected[1] = 1;
 		assertArrayEquals(expected, f.getCounter());
 		// Increment the counter until it carries into the next byte
-		for(int i = 256; i < 65536; i++) f.incrementCounter();
+		for (int i = 256; i < 65536; i++) f.incrementCounter();
 		expected[0] = 0;
 		expected[1] = 0;
 		expected[2] = 1;
@@ -49,15 +49,15 @@ public class FortunaGeneratorTest extends BriarTestCase {
 		// One byte longer than a block, with an offset of one
 		byte[] out2 = new byte[49];
 		new FortunaGenerator(seed).nextBytes(out2, 1, 48);
-		for(int i = 0; i < 48; i++) assertEquals(out1[i], out2[i + 1]);
+		for (int i = 0; i < 48; i++) assertEquals(out1[i], out2[i + 1]);
 		// One byte shorter than a block
 		byte[] out3 = new byte[47];
 		new FortunaGenerator(seed).nextBytes(out3, 0, 47);
-		for(int i = 0; i < 47; i++) assertEquals(out1[i], out3[i]);
+		for (int i = 0; i < 47; i++) assertEquals(out1[i], out3[i]);
 		// Less than a block, with an offset greater than a block
 		byte[] out4 = new byte[32];
 		new FortunaGenerator(seed).nextBytes(out4, 17, 15);
-		for(int i = 0; i < 15; i++) assertEquals(out1[i], out4[i + 17]);
+		for (int i = 0; i < 15; i++) assertEquals(out1[i], out4[i + 17]);
 	}
 
 	@Test

@@ -15,14 +15,14 @@ public class OsUtils {
 	}
 
 	public static boolean isMacLeopardOrNewer() {
-		if(!isMac() || version == null) return false;
+		if (!isMac() || version == null) return false;
 		try {
 			String[] v = version.split("\\.");
-			if(v.length != 3) return false;
+			if (v.length != 3) return false;
 			int major = Integer.parseInt(v[0]);
 			int minor = Integer.parseInt(v[1]);
 			return major >= 10 && minor >= 5;
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}

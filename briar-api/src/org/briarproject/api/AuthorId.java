@@ -14,7 +14,7 @@ public class AuthorId extends UniqueId {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof AuthorId)
+		if (o instanceof AuthorId)
 			return Arrays.equals(id, ((AuthorId) o).id);
 		return false;
 	}

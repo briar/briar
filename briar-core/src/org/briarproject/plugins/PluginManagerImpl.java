@@ -84,20 +84,20 @@ class PluginManagerImpl implements PluginManager {
 		Collection<SimplexPluginFactory> sFactories =
 				simplexPluginConfig.getFactories();
 		final CountDownLatch sLatch = new CountDownLatch(sFactories.size());
-		for(SimplexPluginFactory factory : sFactories)
+		for (SimplexPluginFactory factory : sFactories)
 			ioExecutor.execute(new SimplexPluginStarter(factory, sLatch));
 		// Instantiate and start the duplex plugins
 		LOG.info("Starting duplex plugins");
 		Collection<DuplexPluginFactory> dFactories =
 				duplexPluginConfig.getFactories();
 		final CountDownLatch dLatch = new CountDownLatch(dFactories.size());
-		for(DuplexPluginFactory factory : dFactories)
+		for (DuplexPluginFactory factory : dFactories)
 			ioExecutor.execute(new DuplexPluginStarter(factory, dLatch));
 		// Wait for the plugins to start
 		try {
 			sLatch.await();
 			dLatch.await();
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while starting plugins");
 			Thread.currentThread().interrupt();
 			return false;
@@ -112,11 +112,11 @@ class PluginManagerImpl implements PluginManager {
 		final CountDownLatch latch = new CountDownLatch(plugins.size());
 		// Stop the simplex plugins
 		LOG.info("Stopping simplex plugins");
-		for(SimplexPlugin plugin : simplexPlugins)
+		for (SimplexPlugin plugin : simplexPlugins)
 			ioExecutor.execute(new PluginStopper(plugin, latch));
 		// Stop the duplex plugins
 		LOG.info("Stopping duplex plugins");
-		for(DuplexPlugin plugin : duplexPlugins)
+		for (DuplexPlugin plugin : duplexPlugins)
 			ioExecutor.execute(new PluginStopper(plugin, latch));
 		plugins.clear();
 		simplexPlugins.clear();
@@ -124,7 +124,7 @@ class PluginManagerImpl implements PluginManager {
 		// Wait for all the plugins to stop
 		try {
 			latch.await();
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while stopping plugins");
 			Thread.currentThread().interrupt();
 			return false;
@@ -138,8 +138,8 @@ class PluginManagerImpl implements PluginManager {
 
 	public Collection<DuplexPlugin> getInvitationPlugins() {
 		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
-		for(DuplexPlugin d : duplexPlugins)
-			if(d.supportsInvitations()) supported.add(d);
+		for (DuplexPlugin d : duplexPlugins)
+			if (d.supportsInvitations()) supported.add(d);
 		return Collections.unmodifiableList(supported);
 	}
 
@@ -159,8 +159,8 @@ class PluginManagerImpl implements PluginManager {
 				TransportId id = factory.getId();
 				SimplexCallback callback = new SimplexCallback(id);
 				SimplexPlugin plugin = factory.createPlugin(callback);
-				if(plugin == null) {
-					if(LOG.isLoggable(INFO)) {
+				if (plugin == null) {
+					if (LOG.isLoggable(INFO)) {
 						String name = factory.getClass().getSimpleName();
 						LOG.info(name + " did not create a plugin");
 					}
@@ -170,10 +170,10 @@ class PluginManagerImpl implements PluginManager {
 					long start = clock.currentTimeMillis();
 					db.addTransport(id, plugin.getMaxLatency());
 					long duration = clock.currentTimeMillis() - start;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Adding transport took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					return;
 				}
@@ -181,23 +181,23 @@ class PluginManagerImpl implements PluginManager {
 					long start = clock.currentTimeMillis();
 					boolean started = plugin.start();
 					long duration = clock.currentTimeMillis() - start;
-					if(started) {
+					if (started) {
 						plugins.put(id, plugin);
 						simplexPlugins.add(plugin);
-						if(plugin.shouldPoll()) poller.addPlugin(plugin);
-						if(LOG.isLoggable(INFO)) {
+						if (plugin.shouldPoll()) poller.addPlugin(plugin);
+						if (LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.info("Starting " + name + " took " +
 									duration + " ms");
 						}
 					} else {
-						if(LOG.isLoggable(WARNING)) {
+						if (LOG.isLoggable(WARNING)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.warning(name + " did not start");
 						}
 					}
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			} finally {
@@ -222,8 +222,8 @@ class PluginManagerImpl implements PluginManager {
 				TransportId id = factory.getId();
 				DuplexCallback callback = new DuplexCallback(id);
 				DuplexPlugin plugin = factory.createPlugin(callback);
-				if(plugin == null) {
-					if(LOG.isLoggable(INFO)) {
+				if (plugin == null) {
+					if (LOG.isLoggable(INFO)) {
 						String name = factory.getClass().getSimpleName();
 						LOG.info(name + " did not create a plugin");
 					}
@@ -233,10 +233,10 @@ class PluginManagerImpl implements PluginManager {
 					long start = clock.currentTimeMillis();
 					db.addTransport(id, plugin.getMaxLatency());
 					long duration = clock.currentTimeMillis() - start;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Adding transport took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					return;
 				}
@@ -244,23 +244,23 @@ class PluginManagerImpl implements PluginManager {
 					long start = clock.currentTimeMillis();
 					boolean started = plugin.start();
 					long duration = clock.currentTimeMillis() - start;
-					if(started) {
+					if (started) {
 						plugins.put(id, plugin);
 						duplexPlugins.add(plugin);
-						if(plugin.shouldPoll()) poller.addPlugin(plugin);
-						if(LOG.isLoggable(INFO)) {
+						if (plugin.shouldPoll()) poller.addPlugin(plugin);
+						if (LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.info("Starting " + name + " took " +
 									duration + " ms");
 						}
 					} else {
-						if(LOG.isLoggable(WARNING)) {
+						if (LOG.isLoggable(WARNING)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.warning(name + " did not start");
 						}
 					}
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			} finally {
@@ -284,12 +284,12 @@ class PluginManagerImpl implements PluginManager {
 				long start = clock.currentTimeMillis();
 				plugin.stop();
 				long duration = clock.currentTimeMillis() - start;
-				if(LOG.isLoggable(INFO)) {
+				if (LOG.isLoggable(INFO)) {
 					String name = plugin.getClass().getSimpleName();
 					LOG.info("Stopping " + name + " took " + duration + " ms");
 				}
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} finally {
 				latch.countDown();
 			}
@@ -307,8 +307,8 @@ class PluginManagerImpl implements PluginManager {
 		public TransportConfig getConfig() {
 			try {
 				return db.getConfig(id);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return new TransportConfig();
 			}
 		}
@@ -317,8 +317,8 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				TransportProperties p = db.getLocalProperties(id);
 				return p == null ? new TransportProperties() : p;
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return new TransportProperties();
 			}
 		}
@@ -326,8 +326,8 @@ class PluginManagerImpl implements PluginManager {
 		public Map<ContactId, TransportProperties> getRemoteProperties() {
 			try {
 				return db.getRemoteProperties(id);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return Collections.emptyMap();
 			}
 		}
@@ -335,16 +335,16 @@ class PluginManagerImpl implements PluginManager {
 		public void mergeConfig(TransportConfig c) {
 			try {
 				db.mergeConfig(id, c);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 
 		public void mergeLocalProperties(TransportProperties p) {
 			try {
 				db.mergeLocalProperties(id, p);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 
@@ -362,7 +362,7 @@ class PluginManagerImpl implements PluginManager {
 
 		public void pollNow() {
 			Plugin p = plugins.get(id);
-			if(p != null) poller.pollNow(p);
+			if (p != null) poller.pollNow(p);
 		}
 	}
 

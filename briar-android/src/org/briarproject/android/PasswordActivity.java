@@ -58,11 +58,11 @@ public class PasswordActivity extends RoboActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if(PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
 		String hex = prefs.getString("key", null);
-		if(hex == null || !databaseConfig.databaseExists()) {
+		if (hex == null || !databaseConfig.databaseExists()) {
 			// Storage has been deleted - clean up and return to setup
 			prefs.edit().clear().commit();
 			delete(databaseConfig.getDatabaseDirectory());
@@ -121,12 +121,12 @@ public class PasswordActivity extends RoboActivity {
 	}
 
 	private void delete(File f) {
-		if(f.isFile()) f.delete();
-		else if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
+		if (f.isFile()) f.delete();
+		else if (f.isDirectory()) for (File child : f.listFiles()) delete(child);
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
-		if(progress == null) return; // Not created yet
+		if (progress == null) return; // Not created yet
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
@@ -138,7 +138,7 @@ public class PasswordActivity extends RoboActivity {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				byte[] key = crypto.decryptWithPassword(encrypted, password);
-				if(key == null) {
+				if (key == null) {
 					tryAgain();
 				} else {
 					databaseConfig.setEncryptionKey(new SecretKey(key));

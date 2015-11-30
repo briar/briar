@@ -41,7 +41,7 @@ class TagRecogniserImpl implements TagRecogniser {
 		} finally {
 			synchLock.unlock();
 		}
-		if(r == null) return null;
+		if (r == null) return null;
 		return r.recogniseTag(tag);
 	}
 
@@ -51,7 +51,7 @@ class TagRecogniserImpl implements TagRecogniser {
 		synchLock.lock();
 		try {
 			r = recognisers.get(t);
-			if(r == null) {
+			if (r == null) {
 				r = new TransportTagRecogniser(crypto, db, t);
 				recognisers.put(t, r);
 			}
@@ -69,13 +69,13 @@ class TagRecogniserImpl implements TagRecogniser {
 		} finally {
 			synchLock.unlock();
 		}
-		if(r != null) r.removeSecret(c, period);
+		if (r != null) r.removeSecret(c, period);
 	}
 
 	public void removeSecrets(ContactId c) {
 		synchLock.lock();
 		try {
-			for(TransportTagRecogniser r : recognisers.values())
+			for (TransportTagRecogniser r : recognisers.values())
 				r.removeSecrets(c);
 		} finally {
 			synchLock.unlock();
@@ -95,7 +95,7 @@ class TagRecogniserImpl implements TagRecogniser {
 	public void removeSecrets() {
 		synchLock.lock();
 		try {
-			for(TransportTagRecogniser r : recognisers.values())
+			for (TransportTagRecogniser r : recognisers.values())
 				r.removeSecrets();
 		} finally {
 			synchLock.unlock();

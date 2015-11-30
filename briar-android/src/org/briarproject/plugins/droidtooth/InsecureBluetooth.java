@@ -30,7 +30,7 @@ class InsecureBluetooth {
 	@SuppressLint("NewApi")
 	static BluetoothServerSocket listen(BluetoothAdapter adapter, String name,
 			UUID uuid) throws IOException {
-		if(Build.VERSION.SDK_INT >= 10) {
+		if (Build.VERSION.SDK_INT >= 10) {
 			LOG.info("Listening with new API");
 			return adapter.listenUsingInsecureRfcommWithServiceRecord(name,
 					uuid);
@@ -42,13 +42,13 @@ class InsecureBluetooth {
 					+ ".RfcommChannelPicker";
 			Class<?> channelPickerClass = null;
 			Class<?>[] children = BluetoothAdapter.class.getDeclaredClasses();
-			for(Class<?> c : children) {
-				if(c.getCanonicalName().equals(className)) {
+			for (Class<?> c : children) {
+				if (c.getCanonicalName().equals(className)) {
 					channelPickerClass = c;
 					break;
 				}
 			}
-			if(channelPickerClass == null)
+			if (channelPickerClass == null)
 				throw new IOException("Can't find channel picker class");
 			Constructor<?> constructor =
 					channelPickerClass.getDeclaredConstructor(UUID.class);
@@ -58,7 +58,7 @@ class InsecureBluetooth {
 					channelPickerClass.getDeclaredMethod("nextChannel");
 			nextChannel.setAccessible(true);
 			int channel = (Integer) nextChannel.invoke(channelPicker);
-			if(channel == -1) throw new IOException("No available channels");
+			if (channel == -1) throw new IOException("No available channels");
 			// Listen on the channel
 			BluetoothServerSocket socket = listen(channel);
 			// Add a service record
@@ -72,7 +72,7 @@ class InsecureBluetooth {
 			addRfcommServiceRecord.setAccessible(true);
 			int handle = (Integer) addRfcommServiceRecord.invoke(mService, name,
 					new ParcelUuid(uuid), channel, new Binder());
-			if(handle == -1) {
+			if (handle == -1) {
 				socket.close();
 				throw new IOException("Can't register SDP record for " + name);
 			}
@@ -84,16 +84,16 @@ class InsecureBluetooth {
 			setCloseHandler.setAccessible(true);
 			setCloseHandler.invoke(socket, mHandler, handle);
 			return socket;
-		} catch(NoSuchMethodException e) {
+		} catch (NoSuchMethodException e) {
 			throw new IOException(e.toString());
-		} catch(NoSuchFieldException e) {
+		} catch (NoSuchFieldException e) {
 			throw new IOException(e.toString());
-		} catch(IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			throw new IOException(e.toString());
-		} catch(InstantiationException e) {
+		} catch (InstantiationException e) {
 			throw new IOException(e.toString());
-		} catch(InvocationTargetException e) {
-			if(e.getCause() instanceof IOException) {
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
 			} else {
 				throw new IOException(e.toString());
@@ -116,21 +116,21 @@ class InsecureBluetooth {
 					mSocket.getClass().getDeclaredMethod("bindListen");
 			bindListen.setAccessible(true);
 			int errno = (Integer) bindListen.invoke(mSocket);
-			if(errno != 0) {
+			if (errno != 0) {
 				socket.close();
 				throw new IOException("Can't bind: errno " + errno);
 			}
 			return socket;
-		} catch(NoSuchMethodException e) {
+		} catch (NoSuchMethodException e) {
 			throw new IOException(e.toString());
-		} catch(NoSuchFieldException e) {
+		} catch (NoSuchFieldException e) {
 			throw new IOException(e.toString());
-		} catch(IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			throw new IOException(e.toString());
-		} catch(InstantiationException e) {
+		} catch (InstantiationException e) {
 			throw new IOException(e.toString());
-		} catch(InvocationTargetException e) {
-			if(e.getCause() instanceof IOException) {
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
 			} else {
 				throw new IOException(e.toString());
@@ -141,7 +141,7 @@ class InsecureBluetooth {
 	@SuppressLint("NewApi")
 	static BluetoothSocket createSocket(BluetoothDevice device, UUID uuid)
 			throws IOException {
-		if(Build.VERSION.SDK_INT >= 10) {
+		if (Build.VERSION.SDK_INT >= 10) {
 			LOG.info("Creating socket with new API");
 			return device.createInsecureRfcommSocketToServiceRecord(uuid);
 		}
@@ -154,14 +154,14 @@ class InsecureBluetooth {
 			constructor.setAccessible(true);
 			return constructor.newInstance(TYPE_RFCOMM, -1, false, true, device,
 					-1, new ParcelUuid(uuid));
-		} catch(NoSuchMethodException e) {
+		} catch (NoSuchMethodException e) {
 			throw new IOException(e.toString());
-		} catch(IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			throw new IOException(e.toString());
-		} catch(InstantiationException e) {
+		} catch (InstantiationException e) {
 			throw new IOException(e.toString());
-		} catch(InvocationTargetException e) {
-			if(e.getCause() instanceof IOException) {
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
 			} else {
 				throw new IOException(e.toString());

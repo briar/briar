@@ -113,7 +113,7 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	private void enableOrDisableCreateButton() {
-		if(progress == null) return; // Not created yet
+		if (progress == null) return; // Not created yet
 		createIdentityButton.setEnabled(validateNickname());
 	}
 
@@ -125,7 +125,7 @@ implements OnEditorActionListener, OnClickListener {
 	private boolean validateNickname() {
 		String nickname = nicknameEntry.getText().toString();
 		int length = StringUtils.toUtf8(nickname).length;
-		if(length > MAX_AUTHOR_NAME_LENGTH) {
+		if (length > MAX_AUTHOR_NAME_LENGTH) {
 			feedback.setText(R.string.name_too_long);
 			return false;
 		}
@@ -135,7 +135,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	public void onClick(View view) {
 		hideSoftKeyboard();
-		if(!validateNickname()) return;
+		if (!validateNickname()) return;
 		// Replace the button with a progress bar
 		createIdentityButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
@@ -160,10 +160,10 @@ implements OnEditorActionListener, OnClickListener {
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Storing author took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 				setResultAndFinish(a);

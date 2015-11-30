@@ -85,7 +85,7 @@ class PacketWriterImpl implements PacketWriter {
 		Writer w = writerFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
-		for(MessageId m : a.getMessageIds()) w.writeRaw(m.getBytes());
+		for (MessageId m : a.getMessageIds()) w.writeRaw(m.getBytes());
 		w.writeListEnd();
 		w.writeListEnd();
 		writePacket(ACK);
@@ -103,7 +103,7 @@ class PacketWriterImpl implements PacketWriter {
 		Writer w = writerFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
-		for(MessageId m : o.getMessageIds()) w.writeRaw(m.getBytes());
+		for (MessageId m : o.getMessageIds()) w.writeRaw(m.getBytes());
 		w.writeListEnd();
 		w.writeListEnd();
 		writePacket(OFFER);
@@ -114,7 +114,7 @@ class PacketWriterImpl implements PacketWriter {
 		Writer w = writerFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
-		for(MessageId m : r.getMessageIds()) w.writeRaw(m.getBytes());
+		for (MessageId m : r.getMessageIds()) w.writeRaw(m.getBytes());
 		w.writeListEnd();
 		w.writeListEnd();
 		writePacket(REQUEST);
@@ -154,7 +154,7 @@ class PacketWriterImpl implements PacketWriter {
 		Writer w = writerFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
-		for(Group g : u.getGroups()) {
+		for (Group g : u.getGroups()) {
 			w.writeListStart();
 			w.writeString(g.getName());
 			w.writeRaw(g.getSalt());

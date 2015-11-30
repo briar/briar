@@ -17,9 +17,9 @@ abstract class StringMap extends Hashtable<String, String> {
 
 	public boolean getBoolean(String key, boolean defaultValue) {
 		String s = get(key);
-		if(s == null) return defaultValue;
-		if("true".equals(s)) return true;
-		if("false".equals(s)) return false;
+		if (s == null) return defaultValue;
+		if ("true".equals(s)) return true;
+		if ("false".equals(s)) return false;
 		return defaultValue;
 	}
 

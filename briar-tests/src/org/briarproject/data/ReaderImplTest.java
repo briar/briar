@@ -131,39 +131,39 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readInteger();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 		setContents("21" + "80" + "22" + "FF80");
 		assertEquals(Byte.MIN_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 		// INTEGER_32 could be encoded as INTEGER_16
 		setContents("22" + "7FFF" + "24" + "00007FFF");
 		assertEquals(Short.MAX_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 		setContents("22" + "8000" + "24" + "FFFF8000");
 		assertEquals(Short.MIN_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 		// INTEGER_64 could be encoded as INTEGER_32
 		setContents("24" + "7FFFFFFF" + "28" + "000000007FFFFFFF");
 		assertEquals(Integer.MAX_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 		setContents("24" + "80000000" + "28" + "FFFFFFFF80000000");
 		assertEquals(Integer.MIN_VALUE, r.readInteger());
 		try {
 			r.readInteger();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(2);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -254,7 +254,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(Byte.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -292,7 +292,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(Short.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -317,7 +317,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(Integer.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 		// STRING_32 could be encoded as STRING_16
 		String longest16 = TestUtils.createRandomString(Short.MAX_VALUE);
 		String long16Hex = StringUtils.toHexString(longest16.getBytes("UTF-8"));
@@ -326,7 +326,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(Integer.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -351,7 +351,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(2);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -391,7 +391,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(Byte.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -429,7 +429,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(Short.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -454,7 +454,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(Integer.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 		// RAW_32 could be encoded as RAW_16
 		byte[] longest16 = new byte[Short.MAX_VALUE];
 		String long16Hex = StringUtils.toHexString(longest16);
@@ -463,7 +463,7 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(Integer.MAX_VALUE);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test

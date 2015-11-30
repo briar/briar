@@ -41,7 +41,7 @@ class H2Database extends JdbcDatabase {
 
 	public boolean open() throws DbException, IOException {
 		boolean reopen = config.databaseExists();
-		if(!reopen) config.getDatabaseDirectory().mkdirs();
+		if (!reopen) config.getDatabaseDirectory().mkdirs();
 		super.open("org.h2.Driver", reopen);
 		return reopen;
 	}
@@ -50,7 +50,7 @@ class H2Database extends JdbcDatabase {
 		// H2 will close the database when the last connection closes
 		try {
 			super.closeAllConnections();
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e);
 		}
 	}
@@ -64,17 +64,17 @@ class H2Database extends JdbcDatabase {
 			long quota = maxSize - used;
 			long min =  Math.min(free, quota);
 			return min;
-		} catch(IOException e) {
+		} catch (IOException e) {
 			throw new DbException(e);
 		}
 	}
 
 	private long getDiskSpace(File f) {
-		if(f.isDirectory()) {
+		if (f.isDirectory()) {
 			long total = 0;
-			for(File child : f.listFiles()) total += getDiskSpace(child);
+			for (File child : f.listFiles()) total += getDiskSpace(child);
 			return total;
-		} else if(f.isFile()) {
+		} else if (f.isFile()) {
 			return f.length();
 		} else {
 			return 0;
@@ -84,7 +84,7 @@ class H2Database extends JdbcDatabase {
 	@Override
 	protected Connection createConnection() throws SQLException {
 		byte[] key = config.getEncryptionKey().getBytes();
-		if(key == null) throw new IllegalStateException();
+		if (key == null) throw new IllegalStateException();
 		Properties props = new Properties();
 		props.setProperty("user", "user");
 		// Separate the file password from the user password with a space

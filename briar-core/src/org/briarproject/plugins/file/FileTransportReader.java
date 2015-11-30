@@ -35,10 +35,10 @@ class FileTransportReader implements TransportConnectionReader {
 	public void dispose(boolean exception, boolean recognised) {
 		try {
 			in.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-		if(recognised) {
+		if (recognised) {
 			file.delete();
 			plugin.readerFinished(file);
 		}

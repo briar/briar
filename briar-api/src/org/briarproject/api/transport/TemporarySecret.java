@@ -63,7 +63,7 @@ public class TemporarySecret extends Endpoint {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof TemporarySecret) {
+		if (o instanceof TemporarySecret) {
 			TemporarySecret s = (TemporarySecret) o;
 			return contactId.equals(s.contactId) &&
 					transportId.equals(s.transportId) && period == s.period;

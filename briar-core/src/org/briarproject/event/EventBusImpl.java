@@ -21,6 +21,6 @@ class EventBusImpl implements EventBus {
 	}
 
 	public void broadcast(Event e) {
-		for(EventListener l : listeners) l.eventOccurred(e);
+		for (EventListener l : listeners) l.eventOccurred(e);
 	}
 }

@@ -48,7 +48,7 @@ abstract class Frame {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof Frame) {
+		if (o instanceof Frame) {
 			Frame f = (Frame) o;
 			return buf[0] == f.buf[0] &&
 					getSequenceNumber() == f.getSequenceNumber();

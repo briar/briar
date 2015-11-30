@@ -17,7 +17,7 @@ class GroupListItem {
 	GroupListItem(Group group, Collection<MessageHeader> headers) {
 		this.group = group;
 		empty = headers.isEmpty();
-		if(empty) {
+		if (empty) {
 			authorName = null;
 			contentType = null;
 			timestamp = 0;
@@ -26,15 +26,15 @@ class GroupListItem {
 			MessageHeader newest = null;
 			long timestamp = 0;
 			int unread = 0;
-			for(MessageHeader h : headers) {
-				if(h.getTimestamp() > timestamp) {
+			for (MessageHeader h : headers) {
+				if (h.getTimestamp() > timestamp) {
 					timestamp = h.getTimestamp();
 					newest = h;
 				}
-				if(!h.isRead()) unread++;
+				if (!h.isRead()) unread++;
 			}
 			Author a = newest.getAuthor();
-			if(a == null) authorName = null;
+			if (a == null) authorName = null;
 			else authorName = a.getName();
 			contentType = newest.getContentType();
 			this.timestamp = newest.getTimestamp();

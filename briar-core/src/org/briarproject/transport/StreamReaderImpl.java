@@ -21,8 +21,8 @@ class StreamReaderImpl extends InputStream {
 
 	@Override
 	public int read() throws IOException {
-		while(length <= 0) {
-			if(length == -1) return -1;
+		while (length <= 0) {
+			if (length == -1) return -1;
 			readFrame();
 		}
 		int b = payload[offset] & 0xff;
@@ -38,8 +38,8 @@ class StreamReaderImpl extends InputStream {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		while(length <= 0) {
-			if(length == -1) return -1;
+		while (length <= 0) {
+			if (length == -1) return -1;
 			readFrame();
 		}
 		len = Math.min(len, length);

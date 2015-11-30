@@ -31,10 +31,10 @@ abstract class DuplexTest {
 			out.flush();
 			System.out.println("Sent challenge: " + CHALLENGE);
 			Scanner in = new Scanner(r.getInputStream());
-			if(in.hasNextLine()) {
+			if (in.hasNextLine()) {
 				String response = in.nextLine();
 				System.out.println("Received response: " + response);
-				if(RESPONSE.equals(response)) {
+				if (RESPONSE.equals(response)) {
 					System.out.println("Correct response");
 				} else {
 					System.out.println("Incorrect response");
@@ -44,12 +44,12 @@ abstract class DuplexTest {
 			}
 			r.dispose(false, true);
 			w.dispose(false);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			try {
 				r.dispose(true, true);
 				w.dispose(true);
-			} catch(IOException e1) {
+			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
@@ -61,10 +61,10 @@ abstract class DuplexTest {
 		TransportConnectionWriter w = d.getWriter();
 		try {
 			Scanner in = new Scanner(r.getInputStream());
-			if(in.hasNextLine()) {
+			if (in.hasNextLine()) {
 				String challenge = in.nextLine();
 				System.out.println("Received challenge: " + challenge);
-				if(CHALLENGE.equals(challenge)) {
+				if (CHALLENGE.equals(challenge)) {
 
 					PrintStream out = new PrintStream(w.getOutputStream());
 					out.println(RESPONSE);
@@ -78,12 +78,12 @@ abstract class DuplexTest {
 			}
 			r.dispose(false, true);
 			w.dispose(false);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			try {
 				r.dispose(true, true);
 				w.dispose(true);
-			} catch(IOException e1) {
+			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}

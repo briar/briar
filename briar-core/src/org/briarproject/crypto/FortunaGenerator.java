@@ -51,8 +51,8 @@ class FortunaGenerator {
 		synchLock.lock();
 		try {
 			counter[0]++;
-			for(int i = 0; counter[i] == 0; i++) {
-				if(i + 1 == BLOCK_BYTES)
+			for (int i = 0; counter[i] == 0; i++) {
+				if (i + 1 == BLOCK_BYTES)
 					throw new RuntimeException("Counter exhausted");
 				counter[i + 1]++;
 			}
@@ -76,31 +76,31 @@ class FortunaGenerator {
 		synchLock.lock();
 		try {
 			// Don't write more than the maximum number of bytes in one request
-			if(len > MAX_BYTES_PER_REQUEST) len = MAX_BYTES_PER_REQUEST;
+			if (len > MAX_BYTES_PER_REQUEST) len = MAX_BYTES_PER_REQUEST;
 			cipher.init(true, new KeyParameter(key));
 			// Generate full blocks directly into the output buffer
 			int fullBlocks = len / BLOCK_BYTES;
-			for(int i = 0; i < fullBlocks; i++) {
+			for (int i = 0; i < fullBlocks; i++) {
 				cipher.processBlock(counter, 0, dest, off + i * BLOCK_BYTES);
 				incrementCounter();
 			}
 			// Generate a partial block if needed
 			int done = fullBlocks * BLOCK_BYTES, remaining = len - done;
 			assert remaining < BLOCK_BYTES;
-			if(remaining > 0) {
+			if (remaining > 0) {
 				cipher.processBlock(counter, 0, buffer, 0);
 				incrementCounter();
 				// Copy the partial block to the output buffer and erase our copy
 				System.arraycopy(buffer, 0, dest, off + done, remaining);
-				for(int i = 0; i < BLOCK_BYTES; i++) buffer[i] = 0;
+				for (int i = 0; i < BLOCK_BYTES; i++) buffer[i] = 0;
 			}
 			// Generate a new key
-			for(int i = 0; i < KEY_BYTES / BLOCK_BYTES; i++) {
+			for (int i = 0; i < KEY_BYTES / BLOCK_BYTES; i++) {
 				cipher.processBlock(counter, 0, newKey, i * BLOCK_BYTES);
 				incrementCounter();
 			}
 			System.arraycopy(newKey, 0, key, 0, KEY_BYTES);
-			for(int i = 0; i < KEY_BYTES; i++) newKey[i] = 0;
+			for (int i = 0; i < KEY_BYTES; i++) newKey[i] = 0;
 			// Return the number of bytes written
 			return len;
 		} finally {

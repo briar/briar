@@ -89,19 +89,19 @@ implements OnItemSelectedListener, OnClickListener {
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
 		String groupName = i.getStringExtra("briar.GROUP_NAME");
-		if(groupName == null) throw new IllegalStateException();
+		if (groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
 		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
-		if(minTimestamp == -1) throw new IllegalStateException();
+		if (minTimestamp == -1) throw new IllegalStateException();
 		b = i.getByteArrayExtra("briar.PARENT_ID");
-		if(b != null) parentId = new MessageId(b);
+		if (b != null) parentId = new MessageId(b);
 
-		if(state != null) {
+		if (state != null) {
 			b = state.getByteArray("briar.LOCAL_AUTHOR_ID");
-			if(b != null) localAuthorId = new AuthorId(b);
+			if (b != null) localAuthorId = new AuthorId(b);
 		}
 
 		LinearLayout layout = new LinearLayout(this);
@@ -169,11 +169,11 @@ implements OnItemSelectedListener, OnClickListener {
 					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
 					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
 					displayAuthorsAndGroup(localAuthors);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -184,18 +184,18 @@ implements OnItemSelectedListener, OnClickListener {
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(localAuthors.isEmpty()) throw new IllegalStateException();
+				if (localAuthors.isEmpty()) throw new IllegalStateException();
 				adapter.clear();
-				for(LocalAuthor a : localAuthors)
+				for (LocalAuthor a : localAuthors)
 					adapter.add(new LocalAuthorItem(a));
 				adapter.sort(LocalAuthorItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				int count = adapter.getCount();
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					LocalAuthorItem item = adapter.getItem(i);
-					if(item == LocalAuthorItem.ANONYMOUS) continue;
-					if(item == LocalAuthorItem.NEW) continue;
-					if(item.getLocalAuthor().getId().equals(localAuthorId)) {
+					if (item == LocalAuthorItem.ANONYMOUS) continue;
+					if (item == LocalAuthorItem.NEW) continue;
+					if (item.getLocalAuthor().getId().equals(localAuthorId)) {
 						localAuthor = item.getLocalAuthor();
 						spinner.setSelection(i);
 						break;
@@ -210,7 +210,7 @@ implements OnItemSelectedListener, OnClickListener {
 	@Override
 	public void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
-		if(localAuthorId != null) {
+		if (localAuthorId != null) {
 			byte[] b =  localAuthorId.getBytes();
 			state.putByteArray("briar.LOCAL_AUTHOR_ID", b);
 		}
@@ -219,9 +219,9 @@ implements OnItemSelectedListener, OnClickListener {
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if(request == REQUEST_CREATE_IDENTITY && result == RESULT_OK) {
+		if (request == REQUEST_CREATE_IDENTITY && result == RESULT_OK) {
 			byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
-			if(b == null) throw new IllegalStateException();
+			if (b == null) throw new IllegalStateException();
 			localAuthorId = new AuthorId(b);
 			loadAuthorsAndGroup();
 		}
@@ -230,10 +230,10 @@ implements OnItemSelectedListener, OnClickListener {
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		LocalAuthorItem item = adapter.getItem(position);
-		if(item == LocalAuthorItem.ANONYMOUS) {
+		if (item == LocalAuthorItem.ANONYMOUS) {
 			localAuthor = null;
 			localAuthorId = null;
-		} else if(item == LocalAuthorItem.NEW) {
+		} else if (item == LocalAuthorItem.NEW) {
 			localAuthor = null;
 			localAuthorId = null;
 			Intent i = new Intent(this, CreateIdentityActivity.class);
@@ -250,9 +250,9 @@ implements OnItemSelectedListener, OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(group == null) throw new IllegalStateException();
+		if (group == null) throw new IllegalStateException();
 		String message = content.getText().toString();
-		if(message.equals("")) return;
+		if (message.equals("")) return;
 		createMessage(StringUtils.toUtf8(message));
 		Toast.makeText(this, R.string.post_sent_toast, LENGTH_LONG).show();
 		finish();
@@ -266,7 +266,7 @@ implements OnItemSelectedListener, OnClickListener {
 				timestamp = Math.max(timestamp, minTimestamp);
 				Message m;
 				try {
-					if(localAuthor == null) {
+					if (localAuthor == null) {
 						m = messageFactory.createAnonymousMessage(parentId,
 								group, "text/plain", timestamp, body);
 					} else {
@@ -277,9 +277,9 @@ implements OnItemSelectedListener, OnClickListener {
 								group, localAuthor, authorKey, "text/plain",
 								timestamp, body);
 					}
-				} catch(GeneralSecurityException e) {
+				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);
-				} catch(IOException e) {
+				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
 				storeMessage(m);
@@ -294,10 +294,10 @@ implements OnItemSelectedListener, OnClickListener {
 					long now = System.currentTimeMillis();
 					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

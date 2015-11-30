@@ -75,7 +75,7 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		try {
 			c.unregisterConnection(contactId, transportId);
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		// Register both contacts with one transport, one contact with both -
 		// this should broadcast two ContactConnectedEvents
 		c.registerConnection(contactId, transportId);

@@ -78,18 +78,18 @@ implements OnClickListener {
 
 		Intent i = getIntent();
 		contactName = i.getStringExtra("briar.CONTACT_NAME");
-		if(contactName == null) throw new IllegalStateException();
+		if (contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
 		b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
-		if(minTimestamp == -1) throw new IllegalStateException();
+		if (minTimestamp == -1) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
 		b = i.getByteArrayExtra("briar.PARENT_ID");
-		if(b != null) parentId = new MessageId(b);
+		if (b != null) parentId = new MessageId(b);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
@@ -138,7 +138,7 @@ implements OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if(localAuthor == null || group == null) loadAuthorAndGroup();
+		if (localAuthor == null || group == null) loadAuthorAndGroup();
 	}
 
 	private void loadAuthorAndGroup() {
@@ -149,15 +149,15 @@ implements OnClickListener {
 					localAuthor = db.getLocalAuthor(localAuthorId);
 					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
 					displayLocalAuthor();
-				} catch(NoSuchContactException e) {
+				} catch (NoSuchContactException e) {
 					finishOnUiThread();
-				} catch(NoSuchSubscriptionException e) {
+				} catch (NoSuchSubscriptionException e) {
 					finishOnUiThread();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -177,7 +177,7 @@ implements OnClickListener {
 
 	public void onClick(View view) {
 		String message = content.getText().toString();
-		if(message.equals("")) return;
+		if (message.equals("")) return;
 		createMessage(StringUtils.toUtf8(message));
 		Toast.makeText(this, R.string.message_sent_toast, LENGTH_LONG).show();
 		finish();
@@ -193,9 +193,9 @@ implements OnClickListener {
 					Message m = messageFactory.createAnonymousMessage(parentId,
 							group, "text/plain", timestamp, body);
 					storeMessage(m);
-				} catch(GeneralSecurityException e) {
+				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);
-				} catch(IOException e) {
+				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
 			}
@@ -209,10 +209,10 @@ implements OnClickListener {
 					long now = System.currentTimeMillis();
 					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

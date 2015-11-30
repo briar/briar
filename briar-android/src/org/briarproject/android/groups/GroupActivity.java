@@ -83,10 +83,10 @@ OnClickListener, OnItemClickListener {
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
 		String name = i.getStringExtra("briar.GROUP_NAME");
-		if(name != null) setTitle(name);
+		if (name != null) setTitle(name);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -155,13 +155,13 @@ OnClickListener, OnItemClickListener {
 					long now = System.currentTimeMillis();
 					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading group " + duration + " ms");
 					displayGroupName();
-				} catch(NoSuchSubscriptionException e) {
+				} catch (NoSuchSubscriptionException e) {
 					finishOnUiThread();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -184,13 +184,13 @@ OnClickListener, OnItemClickListener {
 					Collection<MessageHeader> headers =
 							db.getMessageHeaders(groupId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
 					displayHeaders(headers);
-				} catch(NoSuchSubscriptionException e) {
+				} catch (NoSuchSubscriptionException e) {
 					finishOnUiThread();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -202,16 +202,16 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				loading.setVisibility(GONE);
 				adapter.clear();
-				if(headers.isEmpty()) {
+				if (headers.isEmpty()) {
 					empty.setVisibility(VISIBLE);
 					list.setVisibility(GONE);
 				} else {
 					empty.setVisibility(GONE);
 					list.setVisibility(VISIBLE);
-					for(MessageHeader h : headers) {
+					for (MessageHeader h : headers) {
 						GroupItem item = new GroupItem(h);
 						byte[] body = bodyCache.get(h.getId());
-						if(body == null) loadMessageBody(h);
+						if (body == null) loadMessageBody(h);
 						else item.setBody(body);
 						adapter.add(item);
 					}
@@ -231,13 +231,13 @@ OnClickListener, OnItemClickListener {
 					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(h.getId());
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
 					displayMessage(h.getId(), body);
-				} catch(NoSuchMessageException e) {
+				} catch (NoSuchMessageException e) {
 					// The item will be removed when we get the event
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -249,9 +249,9 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				bodyCache.put(m, body);
 				int count = adapter.getCount();
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					GroupItem item = adapter.getItem(i);
-					if(item.getHeader().getId().equals(m)) {
+					if (item.getHeader().getId().equals(m)) {
 						item.setBody(body);
 						adapter.notifyDataSetChanged();
 						// Scroll to the bottom
@@ -266,9 +266,9 @@ OnClickListener, OnItemClickListener {
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if(request == REQUEST_READ && result == RESULT_PREV_NEXT) {
+		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);
-			if(position >= 0 && position < adapter.getCount())
+			if (position >= 0 && position < adapter.getCount())
 				displayMessage(position);
 		}
 	}
@@ -277,19 +277,19 @@ OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
-		if(isFinishing()) markMessagesRead();
+		if (isFinishing()) markMessagesRead();
 	}
 
 	private void markMessagesRead() {
 		notificationManager.clearGroupPostNotification(groupId);
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			MessageHeader h = adapter.getItem(i).getHeader();
-			if(!h.isRead()) unread.add(h.getId());
+			if (!h.isRead()) unread.add(h.getId());
 		}
-		if(unread.isEmpty()) return;
-		if(LOG.isLoggable(INFO))
+		if (unread.isEmpty()) return;
+		if (LOG.isLoggable(INFO))
 			LOG.info("Marking " + unread.size() + " messages read");
 		markMessagesRead(Collections.unmodifiableList(unread));
 	}
@@ -299,12 +299,12 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for(MessageId m : unread) db.setReadFlag(m, true);
+					for (MessageId m : unread) db.setReadFlag(m, true);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -312,17 +312,17 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof MessageAddedEvent) {
-			if(((MessageAddedEvent) e).getGroup().getId().equals(groupId)) {
+		if (e instanceof MessageAddedEvent) {
+			if (((MessageAddedEvent) e).getGroup().getId().equals(groupId)) {
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
-		} else if(e instanceof MessageExpiredEvent) {
+		} else if (e instanceof MessageExpiredEvent) {
 			LOG.info("Message expired, reloading");
 			loadHeaders();
-		} else if(e instanceof SubscriptionRemovedEvent) {
+		} else if (e instanceof SubscriptionRemovedEvent) {
 			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
-			if(s.getGroup().getId().equals(groupId)) {
+			if (s.getGroup().getId().equals(groupId)) {
 				LOG.info("Subscription removed");
 				finishOnUiThread();
 			}
@@ -330,13 +330,13 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == composeButton) {
+		if (view == composeButton) {
 			Intent i = new Intent(this, WriteGroupPostActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("briar.GROUP_NAME", group.getName());
 			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
 			startActivity(i);
-		} else if(view == shareButton) {
+		} else if (view == shareButton) {
 			Intent i = new Intent(this, ShareGroupActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("briar.GROUP_NAME", group.getName());
@@ -348,9 +348,9 @@ OnClickListener, OnItemClickListener {
 		// Don't use an earlier timestamp than the newest message
 		long timestamp = 0;
 		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			long t = adapter.getItem(i).getHeader().getTimestamp();
-			if(t > timestamp) timestamp = t;
+			if (t > timestamp) timestamp = t;
 		}
 		return timestamp + 1;
 	}
@@ -367,7 +367,7 @@ OnClickListener, OnItemClickListener {
 		i.putExtra("briar.GROUP_NAME", group.getName());
 		i.putExtra("briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
-		if(author != null) i.putExtra("briar.AUTHOR_NAME", author.getName());
+		if (author != null) i.putExtra("briar.AUTHOR_NAME", author.getName());
 		i.putExtra("briar.AUTHOR_STATUS", item.getAuthorStatus().name());
 		i.putExtra("briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("briar.TIMESTAMP", item.getTimestamp());

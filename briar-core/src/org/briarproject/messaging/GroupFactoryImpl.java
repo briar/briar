@@ -40,7 +40,7 @@ class GroupFactoryImpl implements GroupFactory {
 			w.writeString(name);
 			w.writeRaw(salt);
 			w.writeListEnd();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			// Shouldn't happen with ByteArrayOutputStream
 			throw new RuntimeException();
 		}

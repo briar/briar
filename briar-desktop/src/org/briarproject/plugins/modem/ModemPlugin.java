@@ -59,18 +59,18 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	public boolean start() {
-		for(String portName : serialPortList.getPortNames()) {
-			if(LOG.isLoggable(INFO))
+		for (String portName : serialPortList.getPortNames()) {
+			if (LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
 			modem = modemFactory.createModem(this, portName);
 			try {
-				if(!modem.start()) continue;
-				if(LOG.isLoggable(INFO))
+				if (!modem.start()) continue;
+				if (LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				running = true;
 				return true;
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		return false;
@@ -78,11 +78,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public void stop() {
 		running = false;
-		if(modem != null) {
+		if (modem != null) {
 			try {
 				modem.stop();
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -104,18 +104,18 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	boolean resetModem() {
-		if(!running) return false;
-		for(String portName : serialPortList.getPortNames()) {
-			if(LOG.isLoggable(INFO))
+		if (!running) return false;
+		for (String portName : serialPortList.getPortNames()) {
+			if (LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
 			modem = modemFactory.createModem(this, portName);
 			try {
-				if(!modem.start()) continue;
-				if(LOG.isLoggable(INFO))
+				if (!modem.start()) continue;
+				if (LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				return true;
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		running = false;
@@ -123,26 +123,26 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		if(!running) return null;
+		if (!running) return null;
 		// Get the ISO 3166 code for the caller's country
 		String fromIso = callback.getLocalProperties().get("iso3166");
-		if(StringUtils.isNullOrEmpty(fromIso)) return null;
+		if (StringUtils.isNullOrEmpty(fromIso)) return null;
 		// Get the ISO 3166 code for the callee's country
 		TransportProperties properties = callback.getRemoteProperties().get(c);
-		if(properties == null) return null;
+		if (properties == null) return null;
 		String toIso = properties.get("iso3166");
-		if(StringUtils.isNullOrEmpty(toIso)) return null;
+		if (StringUtils.isNullOrEmpty(toIso)) return null;
 		// Get the callee's phone number
 		String number = properties.get("number");
-		if(StringUtils.isNullOrEmpty(number)) return null;
+		if (StringUtils.isNullOrEmpty(number)) return null;
 		// Convert the number into direct dialling form
 		number = CountryCodes.translate(number, fromIso, toIso);
-		if(number == null) return null;
+		if (number == null) return null;
 		// Dial the number
 		try {
-			if(!modem.dial(number)) return null;
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (!modem.dial(number)) return null;
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			resetModem();
 			return null;
 		}
@@ -184,11 +184,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			LOG.info("Call disconnected");
 			try {
 				modem.hangUp();
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				exception = true;
 			}
-			if(exception) resetModem();
+			if (exception) resetModem();
 			disposalFinished.countDown();
 		}
 
@@ -203,8 +203,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			}
 
 			public void dispose(boolean exception, boolean recognised) {
-				if(halfClosed.getAndSet(true) || exception)
-					if(!closed.getAndSet(true)) hangUp(exception);
+				if (halfClosed.getAndSet(true) || exception)
+					if (!closed.getAndSet(true)) hangUp(exception);
 			}
 		}
 
@@ -227,8 +227,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			}
 
 			public void dispose(boolean exception) {
-				if(halfClosed.getAndSet(true) || exception)
-					if(!closed.getAndSet(true)) hangUp(exception);
+				if (halfClosed.getAndSet(true) || exception)
+					if (!closed.getAndSet(true)) hangUp(exception);
 			}
 		}
 	}

@@ -115,7 +115,7 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 		progress.setVisibility(GONE);
 		layout.addView(progress);
 
-		if(SHARE_CRASH_REPORTS) {
+		if (SHARE_CRASH_REPORTS) {
 			layout.addView(new HorizontalBorder(this));
 			LinearLayout footer = new LinearLayout(this);
 			footer.setLayoutParams(MATCH_WRAP);
@@ -143,7 +143,7 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if(temp != null) temp.delete();
+		if (temp != null) temp.delete();
 	}
 
 	public void onClick(View view) {
@@ -165,7 +165,7 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 			protected void onPostExecute(Map<String, String> result) {
 				Context ctx = CrashReportActivity.this;
 				int pad = LayoutUtils.getPadding(ctx);
-				for(Entry<String, String> e : result.entrySet()) {
+				for (Entry<String, String> e : result.entrySet()) {
 					TextView title = new TextView(ctx);
 					title.setTextSize(18);
 					title.setText(e.getKey());
@@ -191,9 +191,9 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 		String manufacturer = Build.MANUFACTURER;
 		String model = Build.MODEL;
 		String brand = Build.BRAND;
-		if(model.startsWith(manufacturer)) deviceType = capitalize(model);
+		if (model.startsWith(manufacturer)) deviceType = capitalize(model);
 		else deviceType = capitalize(manufacturer) + " " + model;
-		if(!StringUtils.isNullOrEmpty(brand))
+		if (!StringUtils.isNullOrEmpty(brand))
 			deviceType += " (" + capitalize(brand) + ")";
 		statusMap.put("Device type:", deviceType);
 
@@ -213,7 +213,7 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 		am.getMemoryInfo(mem);
 		String systemMemory;
-		if(Build.VERSION.SDK_INT >= 16) {
+		if (Build.VERSION.SDK_INT >= 16) {
 			systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
 					+ (mem.availMem / 1024 / 1204) + " MiB free, "
 					+ (mem.threshold / 1024 / 1024) + " MiB threshold";
@@ -241,7 +241,7 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 			String internal = (rootTotal / 1024 / 1024) + " MiB total, "
 					+ (rootFree / 1024 / 1024) + " MiB free";
 			statusMap.put("Internal storage:", internal);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			statusMap.put("Internal storage:", "Unknown");
 		}
 
@@ -253,7 +253,7 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 			String external = (sdTotal / 1024 / 1024) + " MiB total, "
 					+ (sdFree / 1024 / 1024) + " MiB free";
 			statusMap.put("External storage:", external);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			statusMap.put("External storage:", "Unknown");
 		}
 
@@ -269,26 +269,26 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 			Method method = clazz.getDeclaredMethod("getMobileDataEnabled");
 			method.setAccessible(true);
 			mobileEnabled = (Boolean) method.invoke(cm);
-		} catch(ClassNotFoundException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(NoSuchMethodException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(IllegalAccessException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(IllegalArgumentException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(InvocationTargetException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (ClassNotFoundException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (NoSuchMethodException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IllegalAccessException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IllegalArgumentException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (InvocationTargetException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		// Is mobile data connected ?
 		boolean mobileConnected = mobile != null && mobile.isConnected();
 
 		String mobileStatus;
-		if(mobileAvailable) mobileStatus = "Available, ";
+		if (mobileAvailable) mobileStatus = "Available, ";
 		else mobileStatus = "Not available, ";
-		if(mobileEnabled) mobileStatus += "enabled, ";
+		if (mobileEnabled) mobileStatus += "enabled, ";
 		else mobileStatus += "not enabled, ";
-		if(mobileConnected) mobileStatus += "connected";
+		if (mobileConnected) mobileStatus += "connected";
 		else mobileStatus += "not connected";
 		statusMap.put("Mobile data:", mobileStatus);
 
@@ -303,15 +303,15 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 		boolean wifiConnected = wifi != null && wifi.isConnected();
 
 		String wifiStatus;
-		if(wifiAvailable) wifiStatus = "Available, ";
+		if (wifiAvailable) wifiStatus = "Available, ";
 		else wifiStatus = "Not available, ";
-		if(wifiEnabled) wifiStatus += "enabled, ";
+		if (wifiEnabled) wifiStatus += "enabled, ";
 		else wifiStatus += "not enabled, ";
-		if(wifiConnected) wifiStatus += "connected";
+		if (wifiConnected) wifiStatus += "connected";
 		else wifiStatus += "not connected";
-		if(wm != null) {
+		if (wm != null) {
 			WifiInfo wifiInfo = wm.getConnectionInfo();
-			if(wifiInfo != null) {
+			if (wifiInfo != null) {
 				int ip = wifiInfo.getIpAddress(); // Nice API, Google
 				int ip1 = ip & 0xFF;
 				int ip2 = (ip >> 8) & 0xFF;
@@ -331,11 +331,11 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 					return BluetoothAdapter.getDefaultAdapter();
 				}
 			});
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while getting BluetoothAdapter");
 			Thread.currentThread().interrupt();
-		} catch(ExecutionException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (ExecutionException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		boolean btAvailable = bt != null;
 		// Is Bluetooth enabled?
@@ -350,37 +350,37 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 				bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 
 		String btStatus;
-		if(btAvailable) btStatus = "Available, ";
+		if (btAvailable) btStatus = "Available, ";
 		else btStatus = "Not available, ";
-		if(btEnabled) btStatus += "enabled, ";
+		if (btEnabled) btStatus += "enabled, ";
 		else btStatus += "not enabled, ";
-		if(btConnectable) btStatus += "connectable, ";
+		if (btConnectable) btStatus += "connectable, ";
 		else btStatus += "not connectable, ";
-		if(btDiscoverable) btStatus += "discoverable";
+		if (btDiscoverable) btStatus += "discoverable";
 		else btStatus += "not discoverable";
-		if(bt != null) btStatus += "\nAddress: " + bt.getAddress();
+		if (bt != null) btStatus += "\nAddress: " + bt.getAddress();
 		statusMap.put("Bluetooth:", btStatus);
 
 		// Stack trace
-		if(stack != null) statusMap.put("Stack trace:", stack);
+		if (stack != null) statusMap.put("Stack trace:", stack);
 
 		// All log output from the crashed process
-		if(pid != -1) {
+		if (pid != -1) {
 			StringBuilder log = new StringBuilder();
 			try {
 				Pattern pattern = Pattern.compile(".*\\( *" + pid + "\\).*");
 				Process process = runtime.exec("logcat -d -v time *:I");
 				Scanner scanner = new Scanner(process.getInputStream());
-				while(scanner.hasNextLine()) {
+				while (scanner.hasNextLine()) {
 					String line = scanner.nextLine();
-					if(pattern.matcher(line).matches()) {
+					if (pattern.matcher(line).matches()) {
 						log.append(line);
 						log.append('\n');
 					}
 				}
 				scanner.close();
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 			statusMap.put("Debugging log:", log.toString());
 		}
@@ -389,9 +389,9 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 	}
 
 	private String capitalize(String s) {
-		if(StringUtils.isNullOrEmpty(s)) return s;
+		if (StringUtils.isNullOrEmpty(s)) return s;
 		char first = s.charAt(0);
-		if(Character.isUpperCase(first)) return s;
+		if (Character.isUpperCase(first)) return s;
 		return Character.toUpperCase(first) + s.substring(1);
 	}
 
@@ -408,10 +408,10 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 				try {
 					File shared = Environment.getExternalStorageDirectory();
 					temp = File.createTempFile("crash", ".txt", shared);
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Writing to " + temp.getPath());
 					PrintStream p = new PrintStream(new FileOutputStream(temp));
-					for(Entry<String, String> e : result.entrySet()) {
+					for (Entry<String, String> e : result.entrySet()) {
 						p.println(e.getKey());
 						p.println(e.getValue());
 						p.println();
@@ -419,8 +419,8 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 					p.flush();
 					p.close();
 					sendEmail(Uri.fromFile(temp));
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

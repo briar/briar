@@ -9,7 +9,7 @@ class Data extends Frame {
 
 	Data(byte[] buf) {
 		super(buf);
-		if(buf.length < MIN_LENGTH || buf.length > MAX_LENGTH)
+		if (buf.length < MIN_LENGTH || buf.length > MAX_LENGTH)
 			throw new IllegalArgumentException();
 	}
 
@@ -18,7 +18,7 @@ class Data extends Frame {
 	}
 
 	void setLastFrame(boolean lastFrame) {
-		if(lastFrame) buf[0] = (byte) Frame.FIN_FLAG;
+		if (lastFrame) buf[0] = (byte) Frame.FIN_FLAG;
 	}
 
 	int getPayloadLength() {

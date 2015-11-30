@@ -16,12 +16,12 @@ public class Group {
 		int length;
 		try {
 			length = name.getBytes("UTF-8").length;
-		} catch(UnsupportedEncodingException e) {
+		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		if(length == 0 || length > MAX_GROUP_NAME_LENGTH)
+		if (length == 0 || length > MAX_GROUP_NAME_LENGTH)
 			throw new IllegalArgumentException();
-		if(salt.length != GROUP_SALT_LENGTH)
+		if (salt.length != GROUP_SALT_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.name = name;

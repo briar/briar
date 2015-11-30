@@ -48,13 +48,13 @@ class TransportTagRecogniser {
 		synchLock.lock();
 		try {
 			TagContext t = tagMap.remove(new Bytes(tag));
-			if(t == null) return null; // The tag was not expected
+			if (t == null) return null; // The tag was not expected
 			// Update the reordering window and the expected tags
 			SecretKey key = crypto.deriveTagKey(t.secret, !t.alice);
-			for(long streamNumber : t.window.setSeen(t.streamNumber)) {
+			for (long streamNumber : t.window.setSeen(t.streamNumber)) {
 				byte[] tag1 = new byte[TAG_LENGTH];
 				crypto.encodeTag(tag1, key, streamNumber);
-				if(streamNumber < t.streamNumber) {
+				if (streamNumber < t.streamNumber) {
 					TagContext removed = tagMap.remove(new Bytes(tag1));
 					assert removed != null;
 				} else {
@@ -85,7 +85,7 @@ class TransportTagRecogniser {
 			// Create the reordering window and the expected tags
 			SecretKey key = crypto.deriveTagKey(secret, !alice);
 			ReorderingWindow window = new ReorderingWindow(centre, bitmap);
-			for(long streamNumber : window.getUnseen()) {
+			for (long streamNumber : window.getUnseen()) {
 				byte[] tag = new byte[TAG_LENGTH];
 				crypto.encodeTag(tag, key, streamNumber);
 				TagContext added = new TagContext(contactId, alice, period,
@@ -106,7 +106,7 @@ class TransportTagRecogniser {
 		try {
 			RemovalKey k = new RemovalKey(contactId, period);
 			RemovalContext removed = removalMap.remove(k);
-			if(removed == null) throw new IllegalArgumentException();
+			if (removed == null) throw new IllegalArgumentException();
 			removeSecret(removed);
 		} finally {
 			synchLock.unlock();
@@ -118,7 +118,7 @@ class TransportTagRecogniser {
 		// Remove the expected tags
 		SecretKey key = crypto.deriveTagKey(r.secret, !r.alice);
 		byte[] tag = new byte[TAG_LENGTH];
-		for(long streamNumber : r.window.getUnseen()) {
+		for (long streamNumber : r.window.getUnseen()) {
 			crypto.encodeTag(tag, key, streamNumber);
 			TagContext removed = tagMap.remove(new Bytes(tag));
 			assert removed != null;
@@ -129,9 +129,9 @@ class TransportTagRecogniser {
 		synchLock.lock();
 		try {
 			Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
-			for(RemovalKey k : removalMap.keySet())
-				if(k.contactId.equals(c)) keysToRemove.add(k);
-			for(RemovalKey k : keysToRemove)
+			for (RemovalKey k : removalMap.keySet())
+				if (k.contactId.equals(c)) keysToRemove.add(k);
+			for (RemovalKey k : keysToRemove)
 				removeSecret(k.contactId, k.period);
 		} finally {
 			synchLock.unlock();
@@ -141,7 +141,7 @@ class TransportTagRecogniser {
 	void removeSecrets() {
 		synchLock.lock();
 		try {
-			for(RemovalContext r : removalMap.values()) removeSecret(r);
+			for (RemovalContext r : removalMap.values()) removeSecret(r);
 			assert tagMap.isEmpty();
 			removalMap.clear();
 		} finally {
@@ -191,7 +191,7 @@ class TransportTagRecogniser {
 
 		@Override
 		public boolean equals(Object o) {
-			if(o instanceof RemovalKey) {
+			if (o instanceof RemovalKey) {
 				RemovalKey k = (RemovalKey) o;
 				return contactId.equals(k.contactId) && period == k.period;
 			}

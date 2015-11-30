@@ -132,29 +132,29 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		try {
 			localAuthor = db.getLocalAuthor(localAuthorId);
 			localProps = db.getLocalProperties();
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			synchLock.lock();
 			try {
 				connectionFailed = true;
 			} finally {
 				synchLock.unlock();
 			}
-			for(InvitationListener l : listeners) l.connectionFailed();
+			for (InvitationListener l : listeners) l.connectionFailed();
 			return;
 		}
 		// Start the connection threads
 		Collection<Connector> connectors = new ArrayList<Connector>();
 		// Alice is the party with the smaller invitation code
-		if(localInvitationCode < remoteInvitationCode) {
-			for(DuplexPlugin plugin : pluginManager.getInvitationPlugins()) {
+		if (localInvitationCode < remoteInvitationCode) {
+			for (DuplexPlugin plugin : pluginManager.getInvitationPlugins()) {
 				Connector c = createAliceConnector(plugin, localAuthor,
 						localProps);
 				connectors.add(c);
 				c.start();
 			}
 		} else {
-			for(DuplexPlugin plugin: pluginManager.getInvitationPlugins()) {
+			for (DuplexPlugin plugin: pluginManager.getInvitationPlugins()) {
 				Connector c = createBobConnector(plugin, localAuthor,
 						localProps);
 				connectors.add(c);
@@ -163,20 +163,20 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		}
 		// Wait for the connection threads to finish
 		try {
-			for(Connector c : connectors) c.join();
-		} catch(InterruptedException e) {
+			for (Connector c : connectors) c.join();
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while waiting for connectors");
 			Thread.currentThread().interrupt();
 		}
 		// If none of the threads connected, inform the listeners
-		if(!connected.get()) {
+		if (!connected.get()) {
 			synchLock.lock();
 			try {
 				connectionFailed = true;
 			} finally {
 				synchLock.unlock();
 			}
-			for(InvitationListener l : listeners) l.connectionFailed();
+			for (InvitationListener l : listeners) l.connectionFailed();
 		}
 	}
 
@@ -226,8 +226,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 
 	boolean getAndSetConnected() {
 		boolean redundant = connected.getAndSet(true);
-		if(!redundant)
-			for(InvitationListener l : listeners) l.connectionSucceeded();
+		if (!redundant)
+			for (InvitationListener l : listeners) l.connectionSucceeded();
 		return redundant;
 	}
 
@@ -239,12 +239,12 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		} finally {
 			synchLock.unlock();
 		}
-		for(InvitationListener l : listeners)
+		for (InvitationListener l : listeners)
 			l.keyAgreementSucceeded(localCode, remoteCode);
 	}
 
 	void keyAgreementFailed() {
-		for(InvitationListener l : listeners) l.keyAgreementFailed();
+		for (InvitationListener l : listeners) l.keyAgreementFailed();
 	}
 
 	boolean waitForLocalConfirmationResult() throws InterruptedException {
@@ -265,7 +265,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		} finally {
 			synchLock.unlock();
 		}
-		for(InvitationListener l : listeners) l.remoteConfirmationSucceeded();
+		for (InvitationListener l : listeners) l.remoteConfirmationSucceeded();
 	}
 
 	void remoteConfirmationFailed() {
@@ -276,7 +276,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		} finally {
 			synchLock.unlock();
 		}
-		for(InvitationListener l : listeners) l.remoteConfirmationFailed();
+		for (InvitationListener l : listeners) l.remoteConfirmationFailed();
 	}
 
 	void pseudonymExchangeSucceeded(Author remoteAuthor) {
@@ -287,11 +287,11 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		} finally {
 			synchLock.unlock();
 		}
-		for(InvitationListener l : listeners)
+		for (InvitationListener l : listeners)
 			l.pseudonymExchangeSucceeded(name);
 	}
 
 	void pseudonymExchangeFailed() {
-		for(InvitationListener l : listeners) l.pseudonymExchangeFailed();
+		for (InvitationListener l : listeners) l.pseudonymExchangeFailed();
 	}
 }

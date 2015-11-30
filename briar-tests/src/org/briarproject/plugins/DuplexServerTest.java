@@ -21,18 +21,18 @@ public abstract class DuplexServerTest extends DuplexTest {
 		assert plugin != null;
 		// Start the plugin
 		System.out.println("Starting plugin");
-		if(!plugin.start()) {
+		if (!plugin.start()) {
 			System.out.println("Plugin failed to start");
 			return;
 		}
 		try {
 			// Wait for a connection
 			System.out.println("Waiting for connection");
-			if(!callback.latch.await(120, SECONDS)) {
+			if (!callback.latch.await(120, SECONDS)) {
 				System.out.println("No connection received");
 				return;
 			}
-			if(!plugin.supportsInvitations()) {
+			if (!plugin.supportsInvitations()) {
 				System.out.println("Skipping invitation test");
 				return;
 			}
@@ -40,7 +40,7 @@ public abstract class DuplexServerTest extends DuplexTest {
 			System.out.println("Creating invitation connection");
 			DuplexTransportConnection d = plugin.createInvitationConnection(
 					getPseudoRandom(123), CONNECTION_TIMEOUT);
-			if(d == null) {
+			if (d == null) {
 				System.out.println("Connection failed");
 				return;
 			} else {

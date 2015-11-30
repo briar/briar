@@ -39,7 +39,7 @@ public class DatabaseCleanerImplTest extends BriarTestCase {
 		// Start the cleaner - it should schedule itself with the timer
 		cleaner.startCleaning(callback, 10);
 		// Call the cleaner's run method six times
-		for(int i = 0; i < 6; i++) cleaner.run();
+		for (int i = 0; i < 6; i++) cleaner.run();
 		// Stop the cleaner - it should cancel the timer
 		cleaner.stopCleaning();
 		// The database should have been cleaned three times

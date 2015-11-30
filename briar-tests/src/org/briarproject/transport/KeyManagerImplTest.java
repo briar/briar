@@ -43,13 +43,13 @@ public class KeyManagerImplTest extends BriarTestCase {
 		secret2 = new byte[32];
 		secret3 = new byte[32];
 		secret4 = new byte[32];
-		for(int i = 0; i < secret0.length; i++) secret0[i] = 1;
-		for(int i = 0; i < secret1.length; i++) secret1[i] = 2;
-		for(int i = 0; i < secret2.length; i++) secret2[i] = 3;
-		for(int i = 0; i < secret3.length; i++) secret3[i] = 4;
-		for(int i = 0; i < secret4.length; i++) secret4[i] = 5;
+		for (int i = 0; i < secret0.length; i++) secret0[i] = 1;
+		for (int i = 0; i < secret1.length; i++) secret1[i] = 2;
+		for (int i = 0; i < secret2.length; i++) secret2[i] = 3;
+		for (int i = 0; i < secret3.length; i++) secret3[i] = 4;
+		for (int i = 0; i < secret4.length; i++) secret4[i] = 5;
 		initialSecret = new byte[32];
-		for(int i = 0; i < initialSecret.length; i++) initialSecret[i] = 123;
+		for (int i = 0; i < initialSecret.length; i++) initialSecret[i] = 123;
 	}
 
 	@Test

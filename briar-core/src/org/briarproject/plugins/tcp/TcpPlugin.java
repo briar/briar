@@ -58,7 +58,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.pollingInterval = pollingInterval;
-		if(maxIdleTime > Integer.MAX_VALUE / 2)
+		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
 	}
@@ -80,32 +80,32 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected void bind() {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
-				if(!running) return;
+				if (!running) return;
 				ServerSocket ss = null;
-				for(SocketAddress addr : getLocalSocketAddresses()) {
+				for (SocketAddress addr : getLocalSocketAddresses()) {
 					try {
 						ss = new ServerSocket();
 						ss.bind(addr);
 						break;
-					} catch(IOException e) {
-						if(LOG.isLoggable(INFO))
+					} catch (IOException e) {
+						if (LOG.isLoggable(INFO))
 							LOG.info("Failed to bind " + addr);
 						tryToClose(ss);
 						continue;
 					}
 				}
-				if(ss == null || !ss.isBound()) {
+				if (ss == null || !ss.isBound()) {
 					LOG.info("Could not bind server socket");
 					return;
 				}
-				if(!running) {
+				if (!running) {
 					tryToClose(ss);
 					return;
 				}
 				socket = ss;
 				SocketAddress local = ss.getLocalSocketAddress();
 				setLocalSocketAddress((InetSocketAddress) local);
-				if(LOG.isLoggable(INFO)) LOG.info("Listening on " + local);
+				if (LOG.isLoggable(INFO)) LOG.info("Listening on " + local);
 				callback.pollNow();
 				acceptContactConnections();
 			}
@@ -114,9 +114,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected void tryToClose(ServerSocket ss) {
 		try {
-			if(ss != null) ss.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (ss != null) ss.close();
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -134,17 +134,17 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	private void acceptContactConnections() {
-		while(isRunning()) {
+		while (isRunning()) {
 			Socket s;
 			try {
 				s = socket.accept();
 				s.setSoTimeout(socketTimeout);
-			} catch(IOException e) {
+			} catch (IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
 				return;
 			}
-			if(LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO))
 				LOG.info("Connection from " + s.getRemoteSocketAddress());
 			TcpTransportConnection conn = new TcpTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
@@ -169,26 +169,26 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	public void poll(Collection<ContactId> connected) {
-		if(!isRunning()) return;
-		for(ContactId c : callback.getRemoteProperties().keySet())
-			if(!connected.contains(c)) connectAndCallBack(c);
+		if (!isRunning()) return;
+		for (ContactId c : callback.getRemoteProperties().keySet())
+			if (!connected.contains(c)) connectAndCallBack(c);
 	}
 
 	private void connectAndCallBack(final ContactId c) {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
-				if(d != null) callback.outgoingConnectionCreated(c, d);
+				if (d != null) callback.outgoingConnectionCreated(c, d);
 			}
 		});
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		if(!isRunning()) return null;
+		if (!isRunning()) return null;
 		InetSocketAddress remote = getRemoteSocketAddress(c);
-		if(remote == null) return null;
-		if(!isConnectable(remote)) {
-			if(LOG.isLoggable(INFO)) {
+		if (remote == null) return null;
+		if (!isConnectable(remote)) {
+			if (LOG.isLoggable(INFO)) {
 				SocketAddress local = socket.getLocalSocketAddress();
 				LOG.info(remote + " is not connectable from " + local);
 			}
@@ -196,37 +196,37 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 		Socket s = new Socket();
 		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
+			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
 			s.connect(remote);
 			s.setSoTimeout(socketTimeout);
-			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
+			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
 			return new TcpTransportConnection(this, s);
-		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.info("Could not connect to " + remote);
+		} catch (IOException e) {
+			if (LOG.isLoggable(INFO)) LOG.info("Could not connect to " + remote);
 			return null;
 		}
 	}
 
 	private InetSocketAddress getRemoteSocketAddress(ContactId c) {
 		TransportProperties p = callback.getRemoteProperties().get(c);
-		if(p == null) return null;
+		if (p == null) return null;
 		return parseSocketAddress(p.get("address"), p.get("port"));
 	}
 
 	protected InetSocketAddress parseSocketAddress(String addr, String port) {
-		if(StringUtils.isNullOrEmpty(addr)) return null;
-		if(StringUtils.isNullOrEmpty(port)) return null;
+		if (StringUtils.isNullOrEmpty(addr)) return null;
+		if (StringUtils.isNullOrEmpty(port)) return null;
 		// Ensure getByName() won't perform a DNS lookup
-		if(!DOTTED_QUAD.matcher(addr).matches()) return null;
+		if (!DOTTED_QUAD.matcher(addr).matches()) return null;
 		try {
 			InetAddress a = InetAddress.getByName(addr);
 			int p = Integer.parseInt(port);
 			return new InetSocketAddress(a, p);
-		} catch(UnknownHostException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("Invalid address: " + addr);
+		} catch (UnknownHostException e) {
+			if (LOG.isLoggable(WARNING)) LOG.warning("Invalid address: " + addr);
 			return null;
-		} catch(NumberFormatException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("Invalid port: " + port);
+		} catch (NumberFormatException e) {
+			if (LOG.isLoggable(WARNING)) LOG.warning("Invalid port: " + port);
 			return null;
 		}
 	}
@@ -244,12 +244,12 @@ abstract class TcpPlugin implements DuplexPlugin {
 		List<NetworkInterface> ifaces;
 		try {
 			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-		} catch(SocketException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (SocketException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return Collections.emptyList();
 		}
 		List<InetAddress> addrs = new ArrayList<InetAddress>();
-		for(NetworkInterface iface : ifaces)
+		for (NetworkInterface iface : ifaces)
 			addrs.addAll(Collections.list(iface.getInetAddresses()));
 		return addrs;
 	}

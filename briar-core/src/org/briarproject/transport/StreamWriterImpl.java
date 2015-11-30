@@ -43,7 +43,7 @@ class StreamWriterImpl extends OutputStream {
 	public void write(int b) throws IOException {
 		payload[length] = (byte) b;
 		length++;
-		if(length == payload.length) writeFrame(false);
+		if (length == payload.length) writeFrame(false);
 	}
 
 	@Override
@@ -54,7 +54,7 @@ class StreamWriterImpl extends OutputStream {
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		int available = payload.length - length;
-		while(available <= len) {
+		while (available <= len) {
 			System.arraycopy(b, off, payload, length, available);
 			length += available;
 			writeFrame(false);

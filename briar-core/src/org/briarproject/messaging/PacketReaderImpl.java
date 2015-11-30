@@ -77,32 +77,32 @@ class PacketReaderImpl implements PacketReader {
 		assert state == State.BUFFER_EMPTY;
 		// Read the header
 		int offset = 0;
-		while(offset < HEADER_LENGTH) {
+		while (offset < HEADER_LENGTH) {
 			int read = in.read(header, offset, HEADER_LENGTH - offset);
-			if(read == -1) {
-				if(offset > 0) throw new FormatException();
+			if (read == -1) {
+				if (offset > 0) throw new FormatException();
 				state = State.EOF;
 				return;
 			}
 			offset += read;
 		}
 		// Check the protocol version
-		if(header[0] != PROTOCOL_VERSION) throw new FormatException();
+		if (header[0] != PROTOCOL_VERSION) throw new FormatException();
 		// Read the payload length
 		payloadLength = ByteUtils.readUint16(header, 2);
-		if(payloadLength > MAX_PAYLOAD_LENGTH) throw new FormatException();
+		if (payloadLength > MAX_PAYLOAD_LENGTH) throw new FormatException();
 		// Read the payload
 		offset = 0;
-		while(offset < payloadLength) {
+		while (offset < payloadLength) {
 			int read = in.read(payload, offset, payloadLength - offset);
-			if(read == -1) throw new FormatException();
+			if (read == -1) throw new FormatException();
 			offset += read;
 		}
 		state = State.BUFFER_FULL;
 	}
 
 	public boolean eof() throws IOException {
-		if(state == State.BUFFER_EMPTY) readPacket();
+		if (state == State.BUFFER_EMPTY) readPacket();
 		assert state != State.BUFFER_EMPTY;
 		return state == State.EOF;
 	}
@@ -112,7 +112,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public Ack readAck() throws IOException {
-		if(!hasAck()) throw new FormatException();
+		if (!hasAck()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -121,17 +121,17 @@ class PacketReaderImpl implements PacketReader {
 		// Read the message IDs
 		List<MessageId> acked = new ArrayList<MessageId>();
 		r.readListStart();
-		while(!r.hasListEnd()) {
+		while (!r.hasListEnd()) {
 			byte[] b = r.readRaw(UniqueId.LENGTH);
-			if(b.length != UniqueId.LENGTH)
+			if (b.length != UniqueId.LENGTH)
 				throw new FormatException();
 			acked.add(new MessageId(b));
 		}
-		if(acked.isEmpty()) throw new FormatException();
+		if (acked.isEmpty()) throw new FormatException();
 		r.readListEnd();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the ack
 		return new Ack(Collections.unmodifiableList(acked));
@@ -142,13 +142,13 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public UnverifiedMessage readMessage() throws IOException {
-		if(!hasMessage()) throw new FormatException();
+		if (!hasMessage()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
 		// Read and build the message
 		UnverifiedMessage m = messageReader.readObject(r);
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		return m;
 	}
@@ -158,7 +158,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public Offer readOffer() throws IOException {
-		if(!hasOffer()) throw new FormatException();
+		if (!hasOffer()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -167,17 +167,17 @@ class PacketReaderImpl implements PacketReader {
 		// Read the message IDs
 		List<MessageId> offered = new ArrayList<MessageId>();
 		r.readListStart();
-		while(!r.hasListEnd()) {
+		while (!r.hasListEnd()) {
 			byte[] b = r.readRaw(UniqueId.LENGTH);
-			if(b.length != UniqueId.LENGTH)
+			if (b.length != UniqueId.LENGTH)
 				throw new FormatException();
 			offered.add(new MessageId(b));
 		}
-		if(offered.isEmpty()) throw new FormatException();
+		if (offered.isEmpty()) throw new FormatException();
 		r.readListEnd();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the offer
 		return new Offer(Collections.unmodifiableList(offered));
@@ -188,7 +188,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public Request readRequest() throws IOException {
-		if(!hasRequest()) throw new FormatException();
+		if (!hasRequest()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -197,17 +197,17 @@ class PacketReaderImpl implements PacketReader {
 		// Read the message IDs
 		r.readListStart();
 		List<MessageId> requested = new ArrayList<MessageId>();
-		while(!r.hasListEnd()) {
+		while (!r.hasListEnd()) {
 			byte[] b = r.readRaw(UniqueId.LENGTH);
-			if(b.length != UniqueId.LENGTH)
+			if (b.length != UniqueId.LENGTH)
 				throw new FormatException();
 			requested.add(new MessageId(b));
 		}
-		if(requested.isEmpty()) throw new FormatException();
+		if (requested.isEmpty()) throw new FormatException();
 		r.readListEnd();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the request
 		return new Request(Collections.unmodifiableList(requested));
@@ -218,7 +218,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public RetentionAck readRetentionAck() throws IOException {
-		if(!hasRetentionAck()) throw new FormatException();
+		if (!hasRetentionAck()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -226,10 +226,10 @@ class PacketReaderImpl implements PacketReader {
 		r.readListStart();
 		// Read the version
 		long version = r.readInteger();
-		if(version < 0) throw new FormatException();
+		if (version < 0) throw new FormatException();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the retention ack
 		return new RetentionAck(version);
@@ -240,7 +240,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public RetentionUpdate readRetentionUpdate() throws IOException {
-		if(!hasRetentionUpdate()) throw new FormatException();
+		if (!hasRetentionUpdate()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -248,12 +248,12 @@ class PacketReaderImpl implements PacketReader {
 		r.readListStart();
 		// Read the retention time and version
 		long retention = r.readInteger();
-		if(retention < 0) throw new FormatException();
+		if (retention < 0) throw new FormatException();
 		long version = r.readInteger();
-		if(version < 0) throw new FormatException();
+		if (version < 0) throw new FormatException();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the retention update
 		return new RetentionUpdate(retention, version);
@@ -264,7 +264,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public SubscriptionAck readSubscriptionAck() throws IOException {
-		if(!hasSubscriptionAck()) throw new FormatException();
+		if (!hasSubscriptionAck()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -272,10 +272,10 @@ class PacketReaderImpl implements PacketReader {
 		r.readListStart();
 		// Read the version
 		long version = r.readInteger();
-		if(version < 0) throw new FormatException();
+		if (version < 0) throw new FormatException();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the subscription ack
 		return new SubscriptionAck(version);
@@ -286,13 +286,13 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		if(!hasSubscriptionUpdate()) throw new FormatException();
+		if (!hasSubscriptionUpdate()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
 		// Read and build the subscription update
 		SubscriptionUpdate u = subscriptionUpdateReader.readObject(r);
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		return u;
 	}
@@ -302,7 +302,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public TransportAck readTransportAck() throws IOException {
-		if(!hasTransportAck()) throw new FormatException();
+		if (!hasTransportAck()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -310,13 +310,13 @@ class PacketReaderImpl implements PacketReader {
 		r.readListStart();
 		// Read the transport ID and version
 		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-		if(idString.length() == 0) throw new FormatException();
+		if (idString.length() == 0) throw new FormatException();
 		TransportId id = new TransportId(idString);
 		long version = r.readInteger();
-		if(version < 0) throw new FormatException();
+		if (version < 0) throw new FormatException();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the transport ack
 		return new TransportAck(id, version);
@@ -327,7 +327,7 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public TransportUpdate readTransportUpdate() throws IOException {
-		if(!hasTransportUpdate()) throw new FormatException();
+		if (!hasTransportUpdate()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
 		Reader r = readerFactory.createReader(bais);
@@ -335,13 +335,13 @@ class PacketReaderImpl implements PacketReader {
 		r.readListStart();
 		// Read the transport ID
 		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-		if(idString.length() == 0) throw new FormatException();
+		if (idString.length() == 0) throw new FormatException();
 		TransportId id = new TransportId(idString);
 		// Read the transport properties
 		Map<String, String> p = new HashMap<String, String>();
 		r.readMapStart();
-		for(int i = 0; !r.hasMapEnd(); i++) {
-			if(i == MAX_PROPERTIES_PER_TRANSPORT)
+		for (int i = 0; !r.hasMapEnd(); i++) {
+			if (i == MAX_PROPERTIES_PER_TRANSPORT)
 				throw new FormatException();
 			String key = r.readString(MAX_PROPERTY_LENGTH);
 			String value = r.readString(MAX_PROPERTY_LENGTH);
@@ -350,10 +350,10 @@ class PacketReaderImpl implements PacketReader {
 		r.readMapEnd();
 		// Read the version number
 		long version = r.readInteger();
-		if(version < 0) throw new FormatException();
+		if (version < 0) throw new FormatException();
 		// Read the end of the payload
 		r.readListEnd();
-		if(!r.eof()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		// Build and return the transport update
 		return new TransportUpdate(id, new TransportProperties(p), version);

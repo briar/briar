@@ -52,12 +52,12 @@ public class StrengthMeter extends ProgressBar {
 	}
 
 	public void setStrength(float strength) {
-		if(strength < 0 || strength > 1) throw new IllegalArgumentException();
+		if (strength < 0 || strength > 1) throw new IllegalArgumentException();
 		int colour;
-		if(strength < WEAK) colour = RED;
-		else if(strength < QUITE_WEAK) colour = ORANGE;
-		else if(strength < QUITE_STRONG) colour = YELLOW;
-		else if(strength < STRONG) colour = LIME;
+		if (strength < WEAK) colour = RED;
+		else if (strength < QUITE_WEAK) colour = ORANGE;
+		else if (strength < QUITE_STRONG) colour = YELLOW;
+		else if (strength < STRONG) colour = LIME;
 		else colour = GREEN;
 		bar.getPaint().setColor(colour);
 		setProgress((int) (strength * MAX));

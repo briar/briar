@@ -19,11 +19,11 @@ public class StringUtilsTest extends BriarTestCase {
 		try {
 			StringUtils.fromHexString("12345");
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		try {
 			StringUtils.fromHexString("ABCDEFGH");
 			fail();
-		} catch(IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {}
 		byte[] b = StringUtils.fromHexString("0102037F80");
 		assertArrayEquals(new byte[] {1, 2, 3, 127, -128}, b);
 		b = StringUtils.fromHexString("0a0b0c0d0e0f");

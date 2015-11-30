@@ -16,7 +16,7 @@ public class TestUtils {
 	private static final Random random = new Random();
 
 	public static void delete(File f) {
-		if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
+		if (f.isDirectory()) for (File child : f.listFiles()) delete(child);
 		f.delete();
 	}
 
@@ -47,7 +47,7 @@ public class TestUtils {
 
 	public static String createRandomString(int length) {
 		char[] c = new char[length];
-		for(int i = 0; i < length; i++)
+		for (int i = 0; i < length; i++)
 			c[i] = (char) ('a' + random.nextInt(26));
 		return new String(c);
 	}

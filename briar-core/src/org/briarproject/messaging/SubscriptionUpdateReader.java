@@ -36,15 +36,15 @@ class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 		List<Group> groups = new ArrayList<Group>();
 		Set<GroupId> ids = new HashSet<GroupId>();
 		r.readListStart();
-		for(int i = 0; i < MAX_SUBSCRIPTIONS && !r.hasListEnd(); i++) {
+		for (int i = 0; i < MAX_SUBSCRIPTIONS && !r.hasListEnd(); i++) {
 			Group g = groupReader.readObject(r);
-			if(!ids.add(g.getId())) throw new FormatException(); // Duplicate
+			if (!ids.add(g.getId())) throw new FormatException(); // Duplicate
 			groups.add(g);
 		}
 		r.readListEnd();
 		// Read the version number
 		long version = r.readInteger();
-		if(version < 0) throw new FormatException();
+		if (version < 0) throw new FormatException();
 		// Read the end of the update
 		r.readListEnd();
 		// Reset the reader

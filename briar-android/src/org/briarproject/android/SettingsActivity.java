@@ -183,7 +183,7 @@ OnClickListener {
 
 		layout.addView(new HorizontalBorder(this));
 
-		if(SHOW_TESTING_ACTIVITY) {
+		if (SHOW_TESTING_ACTIVITY) {
 			LinearLayout footer = new LinearLayout(this);
 			footer.setLayoutParams(MATCH_WRAP);
 			footer.setGravity(CENTER);
@@ -215,12 +215,12 @@ OnClickListener {
 					TransportConfig c = db.getConfig(new TransportId("bt"));
 					settings = db.getSettings();
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading settings took " + duration + " ms");
 					bluetoothSetting = c.getBoolean("enable", true);
 					displaySettings();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -234,7 +234,7 @@ OnClickListener {
 				progress.setVisibility(GONE);
 
 				int resId;
-				if(bluetoothSetting) resId = R.string.bluetooth_setting_enabled;
+				if (bluetoothSetting) resId = R.string.bluetooth_setting_enabled;
 				else resId = R.string.bluetooth_setting_disabled;
 				enableBluetoothHint.setText(resId);
 
@@ -248,9 +248,9 @@ OnClickListener {
 						"notifyVibration", true));
 
 				String text;
-				if(settings.getBoolean("notifySound", true)) {
+				if (settings.getBoolean("notifySound", true)) {
 					String ringtoneName = settings.get("notifyRingtoneName");
-					if(StringUtils.isNullOrEmpty(ringtoneName))
+					if (StringUtils.isNullOrEmpty(ringtoneName))
 						text = getString(R.string.notify_sound_setting_default);
 					else text = ringtoneName;
 				} else {
@@ -268,43 +268,43 @@ OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(progress == null) return; // Not created yet
-		if(view == testingButton) {
+		if (progress == null) return; // Not created yet
+		if (view == testingButton) {
 			startActivity(new Intent(this, TestingActivity.class));
-		} else if(view == enableBluetooth || view == enableBluetoothHint) {
+		} else if (view == enableBluetooth || view == enableBluetoothHint) {
 			bluetoothSetting = !bluetoothSetting;
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			if(adapter != null) {
-				if(bluetoothSetting) adapter.enable();
+			if (adapter != null) {
+				if (bluetoothSetting) adapter.enable();
 				else adapter.disable();
 			}
 			storeBluetoothSetting();
 			displaySettings();
 			return;
-		} else if(view == notifyPrivateMessages) {
+		} else if (view == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean("notifyPrivateMessages",
 					notifyPrivateMessages.isChecked());
 			storeSettings(s);
-		} else if(view == notifyGroupPosts) {
+		} else if (view == notifyGroupPosts) {
 			Settings s = new Settings();
 			s.putBoolean("notifyGroupPosts", notifyGroupPosts.isChecked());
 			storeSettings(s);
-		} else if(view == notifyVibration) {
+		} else if (view == notifyVibration) {
 			Settings s = new Settings();
 			s.putBoolean("notifyVibration", notifyVibration.isChecked());
 			storeSettings(s);
-		} else if(view == notifySound || view == notifySoundHint) {
+		} else if (view == notifySound || view == notifySoundHint) {
 			String title = getString(R.string.choose_ringtone_title);
 			Intent i = new Intent(ACTION_RINGTONE_PICKER);
 			i.putExtra(EXTRA_RINGTONE_TYPE, TYPE_NOTIFICATION);
 			i.putExtra(EXTRA_RINGTONE_TITLE, title);
 			i.putExtra(EXTRA_RINGTONE_DEFAULT_URI, DEFAULT_NOTIFICATION_URI);
 			i.putExtra(EXTRA_RINGTONE_SHOW_SILENT, true);
-			if(settings.getBoolean("notifySound", true)) {
+			if (settings.getBoolean("notifySound", true)) {
 				Uri uri;
 				String ringtoneUri = settings.get("notifyRingtoneUri");
-				if(StringUtils.isNullOrEmpty(ringtoneUri))
+				if (StringUtils.isNullOrEmpty(ringtoneUri))
 					uri = DEFAULT_NOTIFICATION_URI;
 				else uri = Uri.parse(ringtoneUri);
 				i.putExtra(EXTRA_RINGTONE_EXISTING_URI, uri);
@@ -322,10 +322,10 @@ OnClickListener {
 					long now = System.currentTimeMillis();
 					db.mergeConfig(new TransportId("bt"), c);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Merging config took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -339,10 +339,10 @@ OnClickListener {
 					long now = System.currentTimeMillis();
 					db.mergeSettings(settings);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Merging settings took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -352,16 +352,16 @@ OnClickListener {
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if(request == REQUEST_RINGTONE && result == RESULT_OK) {
+		if (request == REQUEST_RINGTONE && result == RESULT_OK) {
 			Settings s = new Settings();
 			Uri uri = data.getParcelableExtra(EXTRA_RINGTONE_PICKED_URI);
-			if(uri == null) {
+			if (uri == null) {
 				// The user chose silence
 				notifySoundHint.setText(R.string.notify_sound_setting_disabled);
 				s.putBoolean("notifySound", false);
 				s.put("notifyRingtoneName", "");
 				s.put("notifyRingtoneUri", "");
-			} else if(RingtoneManager.isDefault(uri)) {
+			} else if (RingtoneManager.isDefault(uri)) {
 				// The user chose the default
 				notifySoundHint.setText(R.string.notify_sound_setting_default);
 				s.putBoolean("notifySound", true);
@@ -381,7 +381,7 @@ OnClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof SettingsUpdatedEvent) {
+		if (e instanceof SettingsUpdatedEvent) {
 			LOG.info("Settings updated");
 			loadSettings();
 		}

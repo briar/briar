@@ -29,7 +29,7 @@ public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 			private AtomicBoolean firstCall = new AtomicBoolean(true);
 
 			public Collection<File> findRemovableDrives() throws IOException {
-				if(firstCall.getAndSet(false)) return Collections.emptyList();
+				if (firstCall.getAndSet(false)) return Collections.emptyList();
 				else return Arrays.asList(file1, file2);
 			}
 		};
@@ -68,7 +68,7 @@ public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 			private AtomicBoolean firstCall = new AtomicBoolean(true);
 
 			public Collection<File> findRemovableDrives() throws IOException {
-				if(firstCall.getAndSet(false)) return Collections.emptyList();
+				if (firstCall.getAndSet(false)) return Collections.emptyList();
 				else throw new IOException();
 			}
 		};

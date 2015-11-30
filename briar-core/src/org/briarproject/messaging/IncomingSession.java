@@ -70,35 +70,35 @@ class IncomingSession implements MessagingSession, EventListener {
 		eventBus.addListener(this);
 		try {
 			// Read packets until interrupted or EOF
-			while(!interrupted && !packetReader.eof()) {
-				if(packetReader.hasAck()) {
+			while (!interrupted && !packetReader.eof()) {
+				if (packetReader.hasAck()) {
 					Ack a = packetReader.readAck();
 					dbExecutor.execute(new ReceiveAck(a));
-				} else if(packetReader.hasMessage()) {
+				} else if (packetReader.hasMessage()) {
 					UnverifiedMessage m = packetReader.readMessage();
 					cryptoExecutor.execute(new VerifyMessage(m));
-				} else if(packetReader.hasOffer()) {
+				} else if (packetReader.hasOffer()) {
 					Offer o = packetReader.readOffer();
 					dbExecutor.execute(new ReceiveOffer(o));
-				} else if(packetReader.hasRequest()) {
+				} else if (packetReader.hasRequest()) {
 					Request r = packetReader.readRequest();
 					dbExecutor.execute(new ReceiveRequest(r));
-				} else if(packetReader.hasRetentionAck()) {
+				} else if (packetReader.hasRetentionAck()) {
 					RetentionAck a = packetReader.readRetentionAck();
 					dbExecutor.execute(new ReceiveRetentionAck(a));
-				} else if(packetReader.hasRetentionUpdate()) {
+				} else if (packetReader.hasRetentionUpdate()) {
 					RetentionUpdate u = packetReader.readRetentionUpdate();
 					dbExecutor.execute(new ReceiveRetentionUpdate(u));
-				} else if(packetReader.hasSubscriptionAck()) {
+				} else if (packetReader.hasSubscriptionAck()) {
 					SubscriptionAck a = packetReader.readSubscriptionAck();
 					dbExecutor.execute(new ReceiveSubscriptionAck(a));
-				} else if(packetReader.hasSubscriptionUpdate()) {
+				} else if (packetReader.hasSubscriptionUpdate()) {
 					SubscriptionUpdate u = packetReader.readSubscriptionUpdate();
 					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
-				} else if(packetReader.hasTransportAck()) {
+				} else if (packetReader.hasTransportAck()) {
 					TransportAck a = packetReader.readTransportAck();
 					dbExecutor.execute(new ReceiveTransportAck(a));
-				} else if(packetReader.hasTransportUpdate()) {
+				} else if (packetReader.hasTransportUpdate()) {
 					TransportUpdate u = packetReader.readTransportUpdate();
 					dbExecutor.execute(new ReceiveTransportUpdate(u));
 				} else {
@@ -116,14 +116,14 @@ class IncomingSession implements MessagingSession, EventListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof ContactRemovedEvent) {
+		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
-			if(c.getContactId().equals(contactId)) interrupt();
-		} else if(e instanceof ShutdownEvent) {
+			if (c.getContactId().equals(contactId)) interrupt();
+		} else if (e instanceof ShutdownEvent) {
 			interrupt();
-		} else if(e instanceof TransportRemovedEvent) {
+		} else if (e instanceof TransportRemovedEvent) {
 			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if(t.getTransportId().equals(transportId)) interrupt();
+			if (t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 
@@ -138,8 +138,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveAck(contactId, ack);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -157,8 +157,8 @@ class IncomingSession implements MessagingSession, EventListener {
 			try {
 				Message m = messageVerifier.verifyMessage(message);
 				dbExecutor.execute(new ReceiveMessage(m));
-			} catch(GeneralSecurityException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (GeneralSecurityException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -175,8 +175,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveMessage(contactId, message);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -193,8 +193,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveOffer(contactId, offer);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -211,8 +211,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveRequest(contactId, request);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -229,8 +229,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveRetentionAck(contactId, ack);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -247,8 +247,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveRetentionUpdate(contactId, update);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -265,8 +265,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveSubscriptionAck(contactId, ack);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -283,8 +283,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -301,8 +301,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveTransportAck(contactId, ack);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}
@@ -319,8 +319,8 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveTransportUpdate(contactId, update);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}
 		}

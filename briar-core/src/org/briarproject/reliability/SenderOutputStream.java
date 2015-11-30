@@ -20,7 +20,7 @@ class SenderOutputStream extends OutputStream {
 		send(true);
 		try {
 			sender.flush();
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while closing");
 		}
@@ -28,10 +28,10 @@ class SenderOutputStream extends OutputStream {
 
 	@Override
 	public void flush() throws IOException {
-		if(offset > Data.HEADER_LENGTH) send(false);
+		if (offset > Data.HEADER_LENGTH) send(false);
 		try {
 			sender.flush();
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while flushing");
 		}
@@ -41,7 +41,7 @@ class SenderOutputStream extends OutputStream {
 	public void write(int b) throws IOException {
 		buf[offset] = (byte) b;
 		offset++;
-		if(offset == Data.HEADER_LENGTH + Data.MAX_PAYLOAD_LENGTH) send(false);
+		if (offset == Data.HEADER_LENGTH + Data.MAX_PAYLOAD_LENGTH) send(false);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ class SenderOutputStream extends OutputStream {
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		int available = Data.MAX_LENGTH - offset - Data.FOOTER_LENGTH;
-		while(available <= len) {
+		while (available <= len) {
 			System.arraycopy(b, off, buf, offset, available);
 			offset += available;
 			send(false);
@@ -73,7 +73,7 @@ class SenderOutputStream extends OutputStream {
 		d.setChecksum(d.calculateChecksum());
 		try {
 			sender.write(d);
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while writing");
 		}

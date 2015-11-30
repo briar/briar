@@ -62,13 +62,13 @@ public abstract class FilePlugin implements SimplexPlugin {
 	}
 
 	public TransportConnectionWriter createWriter(ContactId c) {
-		if(!running) return null;
+		if (!running) return null;
 		return createWriter(createConnectionFilename());
 	}
 
 	private String createConnectionFilename() {
 		StringBuilder s = new StringBuilder(12);
-		for(int i = 0; i < 8; i++) s.append((char) ('a' + Math.random() * 26));
+		for (int i = 0; i < 8; i++) s.append((char) ('a' + Math.random() * 26));
 		s.append(".dat");
 		return s.toString();
 	}
@@ -79,24 +79,24 @@ public abstract class FilePlugin implements SimplexPlugin {
 	}
 
 	private TransportConnectionWriter createWriter(String filename) {
-		if(!running) return null;
+		if (!running) return null;
 		File dir = chooseOutputDirectory();
-		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
+		if (dir == null || !dir.exists() || !dir.isDirectory()) return null;
 		File f = new File(dir, filename);
 		try {
 			long capacity = fileUtils.getFreeSpace(dir);
-			if(capacity < MIN_STREAM_LENGTH) return null;
+			if (capacity < MIN_STREAM_LENGTH) return null;
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			f.delete();
 			return null;
 		}
 	}
 
 	protected void createReaderFromFile(final File f) {
-		if(!running) return;
+		if (!running) return;
 		ioExecutor.execute(new ReaderCreator(f));
 	}
 
@@ -109,13 +109,13 @@ public abstract class FilePlugin implements SimplexPlugin {
 		}
 
 		public void run() {
-			if(isPossibleConnectionFilename(file.getName())) {
+			if (isPossibleConnectionFilename(file.getName())) {
 				try {
 					FileInputStream in = new FileInputStream(file);
 					callback.readerCreated(new FileTransportReader(file, in,
 							FilePlugin.this));
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

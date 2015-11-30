@@ -84,9 +84,9 @@ class ConnectionManagerImpl implements ConnectionManager {
 		byte[] tag = new byte[TAG_LENGTH];
 		InputStream in = r.getInputStream();
 		int offset = 0;
-		while(offset < tag.length) {
+		while (offset < tag.length) {
 			int read = in.read(tag, offset, tag.length - offset);
-			if(read == -1) throw new EOFException();
+			if (read == -1) throw new EOFException();
 			offset += read;
 		}
 		return tag;
@@ -135,16 +135,16 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				byte[] tag = readTag(transportId, reader);
 				ctx = tagRecogniser.recogniseTag(transportId, tag);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
 			}
-			if(ctx == null) {
+			if (ctx == null) {
 				LOG.info("Unrecognised tag");
 				disposeReader(true, false);
 				return;
@@ -155,8 +155,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				// Create and run the incoming session
 				createIncomingSession(ctx, reader).run();
 				disposeReader(false, true);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId);
@@ -166,8 +166,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private void disposeReader(boolean exception, boolean recognised) {
 			try {
 				reader.dispose(exception, recognised);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -189,7 +189,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			// Allocate a stream context
 			StreamContext ctx = keyManager.getStreamContext(contactId,
 					transportId);
-			if(ctx == null) {
+			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
 				disposeWriter(true);
 				return;
@@ -199,8 +199,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				// Create and run the outgoing session
 				createSimplexOutgoingSession(ctx, writer).run();
 				disposeWriter(false);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeWriter(true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId);
@@ -210,8 +210,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private void disposeWriter(boolean exception) {
 			try {
 				writer.dispose(exception);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -239,16 +239,16 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				byte[] tag = readTag(transportId, reader);
 				ctx = tagRecogniser.recogniseTag(transportId, tag);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
 			}
-			if(ctx == null) {
+			if (ctx == null) {
 				LOG.info("Unrecognised tag");
 				disposeReader(true, false);
 				return;
@@ -266,8 +266,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				incomingSession = createIncomingSession(ctx, reader);
 				incomingSession.run();
 				disposeReader(false, true);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId);
@@ -278,7 +278,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			// Allocate a stream context
 			StreamContext ctx = keyManager.getStreamContext(contactId,
 					transportId);
-			if(ctx == null) {
+			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
 				disposeWriter(true);
 				return;
@@ -288,29 +288,29 @@ class ConnectionManagerImpl implements ConnectionManager {
 				outgoingSession = createDuplexOutgoingSession(ctx, writer);
 				outgoingSession.run();
 				disposeWriter(false);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeWriter(true);
 			}
 		}
 
 		private void disposeReader(boolean exception, boolean recognised) {
-			if(exception && outgoingSession != null)
+			if (exception && outgoingSession != null)
 				outgoingSession.interrupt();
 			try {
 				reader.dispose(exception, recognised);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 
 		private void disposeWriter(boolean exception) {
-			if(exception && incomingSession != null)
+			if (exception && incomingSession != null)
 				incomingSession.interrupt();
 			try {
 				writer.dispose(exception);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -337,7 +337,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			// Allocate a stream context
 			StreamContext ctx = keyManager.getStreamContext(contactId,
 					transportId);
-			if(ctx == null) {
+			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
 				disposeWriter(true);
 				return;
@@ -354,8 +354,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				outgoingSession = createDuplexOutgoingSession(ctx, writer);
 				outgoingSession.run();
 				disposeWriter(false);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeWriter(true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId);
@@ -368,23 +368,23 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				byte[] tag = readTag(transportId, reader);
 				ctx = tagRecogniser.recogniseTag(transportId, tag);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 				return;
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 				return;
 			}
 			// Unrecognised tags are suspicious in this case
-			if(ctx == null) {
+			if (ctx == null) {
 				LOG.warning("Unrecognised tag for returning stream");
 				disposeReader(true, true);
 				return;
 			}
 			// Check that the stream comes from the expected contact
-			if(!ctx.getContactId().equals(contactId)) {
+			if (!ctx.getContactId().equals(contactId)) {
 				LOG.warning("Wrong contact ID for returning stream");
 				disposeReader(true, true);
 				return;
@@ -394,29 +394,29 @@ class ConnectionManagerImpl implements ConnectionManager {
 				incomingSession = createIncomingSession(ctx, reader);
 				incomingSession.run();
 				disposeReader(false, true);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 			}
 		}
 
 		private void disposeReader(boolean exception, boolean recognised) {
-			if(exception && outgoingSession != null)
+			if (exception && outgoingSession != null)
 				outgoingSession.interrupt();
 			try {
 				reader.dispose(exception, recognised);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 
 		private void disposeWriter(boolean exception) {
-			if(exception && incomingSession != null)
+			if (exception && incomingSession != null)
 				incomingSession.interrupt();
 			try {
 				writer.dispose(exception);
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}

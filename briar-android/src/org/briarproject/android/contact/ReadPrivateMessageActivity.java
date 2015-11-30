@@ -68,27 +68,27 @@ implements OnClickListener {
 
 		Intent i = getIntent();
 		contactName = i.getStringExtra("briar.CONTACT_NAME");
-		if(contactName == null) throw new IllegalStateException();
+		if (contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
 		byte[] b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
 		String authorName = i.getStringExtra("briar.AUTHOR_NAME");
-		if(authorName == null) throw new IllegalStateException();
+		if (authorName == null) throw new IllegalStateException();
 		b = i.getByteArrayExtra("briar.MESSAGE_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
 		b = i.getByteArrayExtra("briar.GROUP_ID");
-		if(b == null) throw new IllegalStateException();
+		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
 		String contentType = i.getStringExtra("briar.CONTENT_TYPE");
-		if(contentType == null) throw new IllegalStateException();
+		if (contentType == null) throw new IllegalStateException();
 		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
-		if(timestamp == -1) throw new IllegalStateException();
+		if (timestamp == -1) throw new IllegalStateException();
 		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
-		if(minTimestamp == -1) throw new IllegalStateException();
+		if (minTimestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
-		if(position == -1) throw new IllegalStateException();
+		if (position == -1) throw new IllegalStateException();
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
@@ -118,7 +118,7 @@ implements OnClickListener {
 		header.addView(date);
 		message.addView(header);
 
-		if(contentType.equals("text/plain")) {
+		if (contentType.equals("text/plain")) {
 			// Load and display the message body
 			content = new TextView(this);
 			content.setPadding(pad, 0, pad, pad);
@@ -164,7 +164,7 @@ implements OnClickListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		if(isFinishing()) markMessageRead();
+		if (isFinishing()) markMessageRead();
 	}
 
 	private void markMessageRead() {
@@ -174,10 +174,10 @@ implements OnClickListener {
 					long now = System.currentTimeMillis();
 					db.setReadFlag(messageId, true);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -191,13 +191,13 @@ implements OnClickListener {
 					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(messageId);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
 					displayMessageBody(StringUtils.fromUtf8(body));
-				} catch(NoSuchMessageException e) {
+				} catch (NoSuchMessageException e) {
 					finishOnUiThread();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -213,17 +213,17 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == prevButton) {
+		if (view == prevButton) {
 			Intent i = new Intent();
 			i.putExtra("briar.POSITION", position - 1);
 			setResult(RESULT_PREV_NEXT, i);
 			finish();
-		} else if(view == nextButton) {
+		} else if (view == nextButton) {
 			Intent i = new Intent();
 			i.putExtra("briar.POSITION", position + 1);
 			setResult(RESULT_PREV_NEXT, i);
 			finish();
-		} else if(view == replyButton) {
+		} else if (view == replyButton) {
 			Intent i = new Intent(this, WritePrivateMessageActivity.class);
 			i.putExtra("briar.CONTACT_NAME", contactName);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());

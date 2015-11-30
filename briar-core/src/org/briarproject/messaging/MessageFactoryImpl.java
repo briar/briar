@@ -61,11 +61,11 @@ class MessageFactoryImpl implements MessageFactory {
 			PrivateKey privateKey, String contentType, long timestamp,
 			byte[] body) throws IOException, GeneralSecurityException {
 		// Validate the arguments
-		if((author == null) != (privateKey == null))
+		if ((author == null) != (privateKey == null))
 			throw new IllegalArgumentException();
-		if(StringUtils.toUtf8(contentType).length > MAX_CONTENT_TYPE_LENGTH)
+		if (StringUtils.toUtf8(contentType).length > MAX_CONTENT_TYPE_LENGTH)
 			throw new IllegalArgumentException();
-		if(body.length > MAX_BODY_LENGTH)
+		if (body.length > MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		// Serialise the message to a buffer
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -76,17 +76,17 @@ class MessageFactoryImpl implements MessageFactory {
 		Consumer digestingConsumer = new DigestingConsumer(messageDigest);
 		w.addConsumer(digestingConsumer);
 		Consumer signingConsumer = null;
-		if(privateKey != null) {
+		if (privateKey != null) {
 			signature.initSign(privateKey);
 			signingConsumer = new SigningConsumer(signature);
 			w.addConsumer(signingConsumer);
 		}
 		// Write the message
 		w.writeListStart();
-		if(parent == null) w.writeNull();
+		if (parent == null) w.writeNull();
 		else w.writeRaw(parent.getBytes());
 		writeGroup(w, group);
-		if(author == null) w.writeNull();
+		if (author == null) w.writeNull();
 		else writeAuthor(w, author);
 		w.writeString(contentType);
 		w.writeInteger(timestamp);
@@ -96,12 +96,12 @@ class MessageFactoryImpl implements MessageFactory {
 		w.writeRaw(body);
 		int bodyStart = (int) counting.getCount() - body.length;
 		// Sign the message with the author's private key, if there is one
-		if(privateKey == null) {
+		if (privateKey == null) {
 			w.writeNull();
 		} else {
 			w.removeConsumer(signingConsumer);
 			byte[] sig = signature.sign();
-			if(sig.length > MAX_SIGNATURE_LENGTH)
+			if (sig.length > MAX_SIGNATURE_LENGTH)
 				throw new IllegalArgumentException();
 			w.writeRaw(sig);
 		}

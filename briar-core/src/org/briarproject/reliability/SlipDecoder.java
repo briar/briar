@@ -22,13 +22,13 @@ class SlipDecoder implements ReadHandler {
 	}
 
 	public void handleRead(byte[] b) throws IOException {
-		for(int i = 0; i < b.length; i++) {
+		for (int i = 0; i < b.length; i++) {
 			switch(b[i]) {
 			case END:
-				if(escape) {
+				if (escape) {
 					reset(true);
 				} else {
-					if(decodedLength > 0) {
+					if (decodedLength > 0) {
 						byte[] decoded = new byte[decodedLength];
 						System.arraycopy(buf, 0, decoded, 0, decodedLength);
 						readHandler.handleRead(decoded);
@@ -37,31 +37,31 @@ class SlipDecoder implements ReadHandler {
 				}
 				break;
 			case ESC:
-				if(escape) reset(true);
+				if (escape) reset(true);
 				else escape = true;
 				break;
 			case TEND:
-				if(escape) {
+				if (escape) {
 					escape = false;
-					if(decodedLength == buf.length) reset(true);
+					if (decodedLength == buf.length) reset(true);
 					else buf[decodedLength++] = END;
 				} else {
-					if(decodedLength == buf.length) reset(true);
+					if (decodedLength == buf.length) reset(true);
 					else buf[decodedLength++] = TEND;
 				}
 				break;
 			case TESC:
-				if(escape) {
+				if (escape) {
 					escape = false;
-					if(decodedLength == buf.length) reset(true);
+					if (decodedLength == buf.length) reset(true);
 					else buf[decodedLength++] = ESC;
 				} else {
-					if(decodedLength == buf.length) reset(true);
+					if (decodedLength == buf.length) reset(true);
 					else buf[decodedLength++] = TESC;
 				}
 				break;
 			default:
-				if(escape || decodedLength == buf.length) reset(true);
+				if (escape || decodedLength == buf.length) reset(true);
 				else buf[decodedLength++] = b[i];
 				break;
 			}

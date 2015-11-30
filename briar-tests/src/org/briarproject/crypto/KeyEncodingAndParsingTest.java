@@ -63,19 +63,19 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		Random random = new Random();
 		byte[] pubFuzz = new byte[pubLength];
 		byte[] privFuzz = new byte[privLength];
-		for(int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			random.nextBytes(pubFuzz);
 			try {
 				parser.parsePublicKey(pubFuzz);
-			} catch(GeneralSecurityException expected) {
-			} catch(Exception e) {
+			} catch (GeneralSecurityException expected) {
+			} catch (Exception e) {
 				fail();
 			}
 			random.nextBytes(privFuzz);
 			try {
 				parser.parsePrivateKey(privFuzz);
-			} catch(GeneralSecurityException expected) {
-			} catch(Exception e) {
+			} catch (GeneralSecurityException expected) {
+			} catch (Exception e) {
 				fail();
 			}
 		}
@@ -126,19 +126,19 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		Random random = new Random();
 		byte[] pubFuzz = new byte[pubLength];
 		byte[] privFuzz = new byte[privLength];
-		for(int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			random.nextBytes(pubFuzz);
 			try {
 				parser.parsePublicKey(pubFuzz);
-			} catch(GeneralSecurityException expected) {
-			} catch(Exception e) {
+			} catch (GeneralSecurityException expected) {
+			} catch (Exception e) {
 				fail();
 			}
 			random.nextBytes(privFuzz);
 			try {
 				parser.parsePrivateKey(privFuzz);
-			} catch(GeneralSecurityException expected) {
-			} catch(Exception e) {
+			} catch (GeneralSecurityException expected) {
+			} catch (Exception e) {
 				fail();
 			}
 		}

@@ -54,7 +54,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	public int addShutdownHook(Runnable r) {
 		synchLock.lock();
 		try {
-			if(!initialised) initialise();
+			if (!initialised) initialise();
 			return super.addShutdownHook(r);
 		} finally {
 			synchLock.unlock();
@@ -68,7 +68,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	// Locking: synchLock
 	private void initialise() {
-		if(OsUtils.isWindows()) {
+		if (OsUtils.isWindows()) {
 			new EventLoop().start();
 		} else {
 			LOG.warning("Windows shutdown manager used on non-Windows OS");
@@ -82,17 +82,17 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		try {
 			boolean interrupted = false;
 			// Start each hook in its own thread
-			for(Thread hook : hooks.values()) hook.start();
+			for (Thread hook : hooks.values()) hook.start();
 			// Wait for all the hooks to finish
-			for(Thread hook : hooks.values()) {
+			for (Thread hook : hooks.values()) {
 				try {
 					hook.join();
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					LOG.warning("Interrupted while running shutdown hooks");
 					interrupted = true;
 				}
 			}
-			if(interrupted) Thread.currentThread().interrupt();
+			if (interrupted) Thread.currentThread().interrupt();
 		} finally {
 			synchLock.unlock();
 		}
@@ -114,7 +114,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 				WindowProc proc = new WindowProc() {
 					public LRESULT callback(HWND hwnd, int msg, WPARAM wp,
 							LPARAM lp) {
-						if(msg == WM_QUERYENDSESSION) {
+						if (msg == WM_QUERYENDSESSION) {
 							// It's safe to delay returning from this message
 							runShutdownHooks();
 						}
@@ -130,19 +130,19 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 					// Use SetWindowLongPtr if available (64-bit safe)
 					user32.SetWindowLongPtr(hwnd, GWL_WNDPROC, proc);
 					LOG.info("Registered 64-bit callback");
-				} catch(UnsatisfiedLinkError e) {
+				} catch (UnsatisfiedLinkError e) {
 					// Use SetWindowLong if SetWindowLongPtr isn't available
 					user32.SetWindowLong(hwnd, GWL_WNDPROC, proc);
 					LOG.info("Registered 32-bit callback");
 				}
 				// Handle events until the window is destroyed
 				MSG msg = new MSG();
-				while(user32.GetMessage(msg, null, 0, 0) > 0) {
+				while (user32.GetMessage(msg, null, 0, 0) > 0) {
 					user32.TranslateMessage(msg);
 					user32.DispatchMessage(msg);
 				}
-			} catch(UnsatisfiedLinkError e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (UnsatisfiedLinkError e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -158,7 +158,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		@Override
 		public void start() {
 			// Ensure the thread is only started once
-			if(!called.getAndSet(true)) super.start();
+			if (!called.getAndSet(true)) super.start();
 		}
 	}
 

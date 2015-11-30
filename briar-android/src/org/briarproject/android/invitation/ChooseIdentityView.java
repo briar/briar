@@ -80,17 +80,17 @@ implements OnItemSelectedListener, OnClickListener {
 	// FIXME: The interaction between views and the container is horrible
 	void displayLocalAuthors(Collection<LocalAuthor> authors) {
 		adapter.clear();
-		for(LocalAuthor a : authors) adapter.add(new LocalAuthorItem(a));
+		for (LocalAuthor a : authors) adapter.add(new LocalAuthorItem(a));
 		adapter.sort(LocalAuthorItemComparator.INSTANCE);
 		adapter.notifyDataSetChanged();
 		// If a local author has been selected, select it again
 		AuthorId localAuthorId = container.getLocalAuthorId();
-		if(localAuthorId == null) return;
+		if (localAuthorId == null) return;
 		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			LocalAuthorItem item = adapter.getItem(i);
-			if(item == NEW) continue;
-			if(item.getLocalAuthor().getId().equals(localAuthorId)) {
+			if (item == NEW) continue;
+			if (item.getLocalAuthor().getId().equals(localAuthorId)) {
 				spinner.setSelection(i);
 				return;
 			}
@@ -100,7 +100,7 @@ implements OnItemSelectedListener, OnClickListener {
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		LocalAuthorItem item = adapter.getItem(position);
-		if(item == NEW) {
+		if (item == NEW) {
 			container.setLocalAuthorId(null);
 			Intent i = new Intent(container, CreateIdentityActivity.class);
 			container.startActivityForResult(i, REQUEST_CREATE_IDENTITY);

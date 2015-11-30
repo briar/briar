@@ -59,11 +59,11 @@ public class DashboardActivity extends BriarActivity {
 	private void handleIntent(Intent i) {
 		boolean failed = i.getBooleanExtra("briar.STARTUP_FAILED", false);
 		long handle = i.getLongExtra("briar.LOCAL_AUTHOR_HANDLE", -1);
-		if(failed) {
+		if (failed) {
 			finish();
 			LOG.info("Exiting");
 			System.exit(0);
-		} else if(handle == -1) {
+		} else if (handle == -1) {
 			// The activity has been launched before
 			showButtons();
 		} else {
@@ -72,7 +72,7 @@ public class DashboardActivity extends BriarActivity {
 					LocalAuthor.class);
 			// The reference may be null if the activity has been recreated,
 			// for example due to screen rotation
-			if(a == null) {
+			if (a == null) {
 				showButtons();
 			} else {
 				showSpinner();
@@ -192,15 +192,15 @@ public class DashboardActivity extends BriarActivity {
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Storing author took " + duration + " ms");
 					runOnUiThread(new Runnable() {
 						public void run() {
 							showButtons();
 						}
 					});
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

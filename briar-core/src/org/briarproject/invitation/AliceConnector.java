@@ -58,11 +58,11 @@ class AliceConnector extends Connector {
 	public void run() {
 		// Create an incoming or outgoing connection
 		DuplexTransportConnection conn = createInvitationConnection();
-		if(conn == null) return;
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " connected");
+		if (conn == null) return;
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " connected");
 		// Don't proceed with more than one connection
-		if(group.getAndSetConnected()) {
-			if(LOG.isLoggable(INFO)) LOG.info(pluginName + " redundant");
+		if (group.getAndSetConnected()) {
+			if (LOG.isLoggable(INFO)) LOG.info(pluginName + " redundant");
 			tryToClose(conn, false);
 			return;
 		}
@@ -83,19 +83,19 @@ class AliceConnector extends Connector {
 			sendPublicKey(w);
 			byte[] key = receivePublicKey(r);
 			secret = deriveMasterSecret(hash, key, true);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			group.keyAgreementFailed();
 			tryToClose(conn, true);
 			return;
-		} catch(GeneralSecurityException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (GeneralSecurityException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			group.keyAgreementFailed();
 			tryToClose(conn, true);
 			return;
 		}
 		// The key agreement succeeded - derive the confirmation codes
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " agreement succeeded");
+		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " agreement succeeded");
 		int[] codes = crypto.deriveConfirmationCodes(secret);
 		int aliceCode = codes[0], bobCode = codes[1];
 		group.keyAgreementSucceeded(aliceCode, bobCode);
@@ -105,22 +105,22 @@ class AliceConnector extends Connector {
 			localMatched = group.waitForLocalConfirmationResult();
 			sendConfirmation(w, localMatched);
 			remoteMatched = receiveConfirmation(r);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			group.remoteConfirmationFailed();
 			tryToClose(conn, true);
 			return;
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while waiting for confirmation");
 			group.remoteConfirmationFailed();
 			tryToClose(conn, true);
 			Thread.currentThread().interrupt();
 			return;
 		}
-		if(remoteMatched) group.remoteConfirmationSucceeded();
+		if (remoteMatched) group.remoteConfirmationSucceeded();
 		else group.remoteConfirmationFailed();
-		if(!(localMatched && remoteMatched)) {
-			if(LOG.isLoggable(INFO))
+		if (!(localMatched && remoteMatched)) {
+			if (LOG.isLoggable(INFO))
 				LOG.info(pluginName + " confirmation failed");
 			tryToClose(conn, false);
 			return;
@@ -128,7 +128,7 @@ class AliceConnector extends Connector {
 		// The timestamp is taken after exchanging confirmation results
 		long localTimestamp = clock.currentTimeMillis();
 		// Confirmation succeeded - upgrade to a secure connection
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
 		// Create the readers
 		InputStream streamReader =
@@ -159,14 +159,14 @@ class AliceConnector extends Connector {
 			remoteReuseConnection = receiveConfirmation(r);
 			// Close the outgoing stream and expect EOF on the incoming stream
 			w.close();
-			if(!r.eof()) LOG.warning("Unexpected data at end of connection");
-		} catch(GeneralSecurityException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (!r.eof()) LOG.warning("Unexpected data at end of connection");
+		} catch (GeneralSecurityException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			group.pseudonymExchangeFailed();
 			tryToClose(conn, true);
 			return;
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			group.pseudonymExchangeFailed();
 			tryToClose(conn, true);
 			return;
@@ -176,17 +176,17 @@ class AliceConnector extends Connector {
 		// Add the contact and store the transports
 		try {
 			addContact(remoteAuthor, remoteProps, secret, epoch, true);
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(conn, true);
 			group.pseudonymExchangeFailed();
 			return;
 		}
 		// Reuse the connection as a transport connection if both peers agree
-		if(reuseConnection && remoteReuseConnection) reuseConnection(conn);
+		if (reuseConnection && remoteReuseConnection) reuseConnection(conn);
 		else tryToClose(conn, false);
 		// Pseudonym exchange succeeded
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " pseudonym exchange succeeded");
 		group.pseudonymExchangeSucceeded(remoteAuthor);
 	}

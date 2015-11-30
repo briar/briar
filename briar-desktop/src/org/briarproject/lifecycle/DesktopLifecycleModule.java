@@ -12,7 +12,7 @@ public class DesktopLifecycleModule extends LifecycleModule {
 	protected void configure() {
 		bind(LifecycleManager.class).to(
 				LifecycleManagerImpl.class).in(Singleton.class);
-		if(OsUtils.isWindows()) {
+		if (OsUtils.isWindows()) {
 			bind(ShutdownManager.class).to(
 					WindowsShutdownManagerImpl.class).in(Singleton.class);
 		} else {

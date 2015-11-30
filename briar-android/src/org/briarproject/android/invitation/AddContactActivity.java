@@ -60,34 +60,34 @@ implements InvitationListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if(state == null) {
+		if (state == null) {
 			// This is a new activity
 			setView(new ChooseIdentityView(this));
 		} else {
 			// Restore the activity's state
 			byte[] b = state.getByteArray("briar.LOCAL_AUTHOR_ID");
-			if(b != null) localAuthorId = new AuthorId(b);
+			if (b != null) localAuthorId = new AuthorId(b);
 			taskHandle = state.getLong("briar.TASK_HANDLE", -1);
 			task = referenceManager.getReference(taskHandle,
 					InvitationTask.class);
-			if(task == null) {
+			if (task == null) {
 				// No background task - we must be in an initial or final state
 				localInvitationCode = state.getInt("briar.LOCAL_CODE");
 				remoteInvitationCode = state.getInt("briar.REMOTE_CODE");
 				connectionFailed = state.getBoolean("briar.FAILED");
 				contactName = state.getString("briar.CONTACT_NAME");
-				if(contactName != null) {
+				if (contactName != null) {
 					localCompared = remoteCompared = true;
 					localMatched = remoteMatched = true;
 				}
 				// Set the appropriate view for the state
-				if(localInvitationCode == -1) {
+				if (localInvitationCode == -1) {
 					setView(new ChooseIdentityView(this));
-				} else if(remoteInvitationCode == -1) {
+				} else if (remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
-				} else if(connectionFailed) {
+				} else if (connectionFailed) {
 					setView(new ConnectionFailedView(this));
-				} else if(contactName == null) {
+				} else if (contactName == null) {
 					setView(new CodesDoNotMatchView(this));
 				} else {
 					showToastAndFinish();
@@ -108,22 +108,22 @@ implements InvitationListener {
 				remoteMatched = s.getRemoteMatched();
 				contactName = s.getContactName();
 				// Set the appropriate view for the state
-				if(localInvitationCode == -1) {
+				if (localInvitationCode == -1) {
 					setView(new ChooseIdentityView(this));
-				} else if(remoteInvitationCode == -1) {
+				} else if (remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
-				} else if(connectionFailed) {
+				} else if (connectionFailed) {
 					setView(new ConnectionFailedView(this));
-				} else if(connected && localConfirmationCode == -1) {
+				} else if (connected && localConfirmationCode == -1) {
 					setView(new ConnectedView(this));
-				} else if(localConfirmationCode == -1) {
+				} else if (localConfirmationCode == -1) {
 					setView(new ConnectionView(this));
-				} else if(!localCompared) {
+				} else if (!localCompared) {
 					setView(new ConfirmationCodeView(this));
-				} else if(!remoteCompared) {
+				} else if (!remoteCompared) {
 					setView(new WaitForContactView(this));
-				} else if(localMatched && remoteMatched) {
-					if(contactName == null) {
+				} else if (localMatched && remoteMatched) {
+					if (contactName == null) {
 						setView(new ContactDetailsView(this));
 					} else {
 						showToastAndFinish();
@@ -135,7 +135,7 @@ implements InvitationListener {
 			}
 		}
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-		if(adapter != null) bluetoothWasEnabled = adapter.isEnabled();
+		if (adapter != null) bluetoothWasEnabled = adapter.isEnabled();
 	}
 
 	private void showToastAndFinish() {
@@ -159,11 +159,11 @@ implements InvitationListener {
 					long now = System.currentTimeMillis();
 					TransportConfig c = db.getConfig(new TransportId("bt"));
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading setting took " + duration + " ms");
 					enableBluetooth = c.getBoolean("enable", true);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -173,7 +173,7 @@ implements InvitationListener {
 	@Override
 	public void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
-		if(localAuthorId != null) {
+		if (localAuthorId != null) {
 			byte[] b = localAuthorId.getBytes();
 			state.putByteArray("briar.LOCAL_AUTHOR_ID", b);
 		}
@@ -181,26 +181,26 @@ implements InvitationListener {
 		state.putInt("briar.REMOTE_CODE", remoteInvitationCode);
 		state.putBoolean("briar.FAILED", connectionFailed);
 		state.putString("briar.CONTACT_NAME", contactName);
-		if(task != null) state.putLong("briar.TASK_HANDLE", taskHandle);
+		if (task != null) state.putLong("briar.TASK_HANDLE", taskHandle);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if(task != null) task.removeListener(this);
-		if(!bluetoothWasEnabled && !enableBluetooth) {
+		if (task != null) task.removeListener(this);
+		if (!bluetoothWasEnabled && !enableBluetooth) {
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			if(adapter != null) adapter.disable();
+			if (adapter != null) adapter.disable();
 		}
 	}
 
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
-		if(request == REQUEST_BLUETOOTH) {
-			if(result != RESULT_CANCELED) reset(new InvitationCodeView(this));
-		} else if(request == REQUEST_CREATE_IDENTITY && result == RESULT_OK) {
+		if (request == REQUEST_BLUETOOTH) {
+			if (result != RESULT_CANCELED) reset(new InvitationCodeView(this));
+		} else if (request == REQUEST_CREATE_IDENTITY && result == RESULT_OK) {
 			byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
-			if(b == null) throw new IllegalStateException();
+			if (b == null) throw new IllegalStateException();
 			localAuthorId = new AuthorId(b);
 			setView(new ChooseIdentityView(this));
 		}
@@ -232,11 +232,11 @@ implements InvitationListener {
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> authors = db.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Loading authors took " + duration + " ms");
 					displayLocalAuthors(authors);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -248,7 +248,7 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				AddContactView view = AddContactActivity.this.view;
-				if(view instanceof ChooseIdentityView)
+				if (view instanceof ChooseIdentityView)
 					((ChooseIdentityView) view).displayLocalAuthors(authors);
 			}
 		});
@@ -263,7 +263,7 @@ implements InvitationListener {
 	}
 
 	int getLocalInvitationCode() {
-		if(localInvitationCode == -1)
+		if (localInvitationCode == -1)
 			localInvitationCode = crypto.generateInvitationCode();
 		return localInvitationCode;
 	}
@@ -273,8 +273,8 @@ implements InvitationListener {
 	}
 
 	void remoteInvitationCodeEntered(int code) {
-		if(localAuthorId == null) throw new IllegalStateException();
-		if(localInvitationCode == -1) throw new IllegalStateException();
+		if (localAuthorId == null) throw new IllegalStateException();
+		if (localInvitationCode == -1) throw new IllegalStateException();
 		remoteInvitationCode = code;
 		setView(new ConnectionView(this));
 		task = invitationTaskFactory.createTask(localAuthorId,
@@ -293,10 +293,10 @@ implements InvitationListener {
 
 	void remoteConfirmationCodeEntered(int code) {
 		localCompared = true;
-		if(code == remoteConfirmationCode) {
+		if (code == remoteConfirmationCode) {
 			localMatched = true;
-			if(remoteMatched) setView(new ContactDetailsView(this));
-			else if(remoteCompared) setView(new CodesDoNotMatchView(this));
+			if (remoteMatched) setView(new ContactDetailsView(this));
+			else if (remoteCompared) setView(new CodesDoNotMatchView(this));
 			else setView(new WaitForContactView(this));
 			task.localConfirmationSucceeded();
 		} else {
@@ -353,7 +353,7 @@ implements InvitationListener {
 			public void run() {
 				remoteCompared = true;
 				remoteMatched = true;
-				if(localMatched)
+				if (localMatched)
 					setView(new ContactDetailsView(AddContactActivity.this));
 			}
 		});
@@ -364,7 +364,7 @@ implements InvitationListener {
 			public void run() {
 				remoteCompared = true;
 				remoteMatched = false;
-				if(localMatched)
+				if (localMatched)
 					setView(new CodesDoNotMatchView(AddContactActivity.this));
 			}
 		});

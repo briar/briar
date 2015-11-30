@@ -81,13 +81,13 @@ class BluetoothPlugin implements DuplexPlugin {
 		// Initialise the Bluetooth stack
 		try {
 			localDevice = LocalDevice.getLocalDevice();
-		} catch(UnsatisfiedLinkError e) {
+		} catch (UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
-			if(OsUtils.isLinux())
+			if (OsUtils.isLinux())
 				callback.showMessage("BLUETOOTH_INSTALL_LIBS");
 			return false;
 		}
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Local address " + localDevice.getBluetoothAddress());
 		running = true;
 		bind();
@@ -97,7 +97,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	private void bind() {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
-				if(!running) return;
+				if (!running) return;
 				// Advertise the Bluetooth address to contacts
 				TransportProperties p = new TransportProperties();
 				p.put("address", localDevice.getBluetoothAddress());
@@ -107,12 +107,12 @@ class BluetoothPlugin implements DuplexPlugin {
 				StreamConnectionNotifier ss;
 				try {
 					ss = (StreamConnectionNotifier) Connector.open(url);
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					return;
 				}
-				if(!running) {
+				if (!running) {
 					tryToClose(ss);
 					return;
 				}
@@ -129,7 +129,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	private String getUuid() {
 		String uuid = callback.getLocalProperties().get("uuid");
-		if(uuid == null) {
+		if (uuid == null) {
 			byte[] random = new byte[UUID_BYTES];
 			secureRandom.nextBytes(random);
 			uuid = UUID.nameUUIDFromBytes(random).toString();
@@ -142,24 +142,24 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	private void tryToClose(StreamConnectionNotifier ss) {
 		try {
-			if(ss != null) ss.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (ss != null) ss.close();
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
 	private void acceptContactConnections(StreamConnectionNotifier ss) {
-		while(true) {
+		while (true) {
 			StreamConnection s;
 			try {
 				s = ss.acceptAndOpen();
-			} catch(IOException e) {
+			} catch (IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
 				return;
 			}
 			callback.incomingConnectionCreated(wrapSocket(s));
-			if(!running) return;
+			if (!running) return;
 		}
 	}
 
@@ -185,22 +185,22 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	public void poll(final Collection<ContactId> connected) {
-		if(!running) return;
+		if (!running) return;
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
-		for(Entry<ContactId, TransportProperties> e : remote.entrySet()) {
+		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
 			final ContactId c = e.getKey();
-			if(connected.contains(c)) continue;
+			if (connected.contains(c)) continue;
 			final String address = e.getValue().get("address");
-			if(StringUtils.isNullOrEmpty(address)) continue;
+			if (StringUtils.isNullOrEmpty(address)) continue;
 			final String uuid = e.getValue().get("uuid");
-			if(StringUtils.isNullOrEmpty(uuid)) continue;
+			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(new Runnable() {
 				public void run() {
-					if(!running) return;
+					if (!running) return;
 					StreamConnection s = connect(makeUrl(address, uuid));
-					if(s != null)
+					if (s != null)
 						callback.outgoingConnectionCreated(c, wrapSocket(s));
 				}
 			});
@@ -208,28 +208,28 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	private StreamConnection connect(String url) {
-		if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + url);
+		if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + url);
 		try {
 			StreamConnection s = (StreamConnection) Connector.open(url);
-			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + url);
+			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + url);
 			return s;
-		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.info("Could not connect to " + url);
+		} catch (IOException e) {
+			if (LOG.isLoggable(INFO)) LOG.info("Could not connect to " + url);
 			return null;
 		}
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		if(!running) return null;
+		if (!running) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
-		if(p == null) return null;
+		if (p == null) return null;
 		String address = p.get("address");
-		if(StringUtils.isNullOrEmpty(address)) return null;
+		if (StringUtils.isNullOrEmpty(address)) return null;
 		String uuid = p.get("uuid");
-		if(StringUtils.isNullOrEmpty(uuid)) return null;
+		if (StringUtils.isNullOrEmpty(uuid)) return null;
 		String url = makeUrl(address, uuid);
 		StreamConnection s = connect(url);
-		if(s == null) return null;
+		if (s == null) return null;
 		return new BluetoothTransportConnection(this, s);
 	}
 
@@ -239,7 +239,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
-		if(!running) return null;
+		if (!running) return null;
 		// Use the invitation codes to generate the UUID
 		byte[] b = r.nextBytes(UUID_BYTES);
 		String uuid = UUID.nameUUIDFromBytes(b).toString();
@@ -250,11 +250,11 @@ class BluetoothPlugin implements DuplexPlugin {
 		final StreamConnectionNotifier ss;
 		try {
 			ss = (StreamConnectionNotifier) Connector.open(url);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
-		if(!running) {
+		if (!running) {
 			tryToClose(ss);
 			return null;
 		}
@@ -266,8 +266,8 @@ class BluetoothPlugin implements DuplexPlugin {
 		// Wait for an incoming or outgoing connection
 		try {
 			StreamConnection s = socketLatch.waitForReference(timeout);
-			if(s != null) return new BluetoothTransportConnection(this, s);
-		} catch(InterruptedException e) {
+			if (s != null) return new BluetoothTransportConnection(this, s);
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while exchanging invitations");
 			Thread.currentThread().interrupt();
 		} finally {
@@ -281,8 +281,8 @@ class BluetoothPlugin implements DuplexPlugin {
 		// Try to make the device discoverable (requires root on Linux)
 		try {
 			localDevice.setDiscoverable(GIAC);
-		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (BluetoothStateException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -304,8 +304,8 @@ class BluetoothPlugin implements DuplexPlugin {
 			DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
 			long now = clock.currentTimeMillis();
 			long end = now + timeout;
-			while(now < end && running && !socketLatch.isSet()) {
-				if(!discoverySemaphore.tryAcquire()) {
+			while (now < end && running && !socketLatch.isSet()) {
+				if (!discoverySemaphore.tryAcquire()) {
 					LOG.info("Another device discovery is in progress");
 					return;
 				}
@@ -314,20 +314,20 @@ class BluetoothPlugin implements DuplexPlugin {
 							new InvitationListener(discoveryAgent, uuid);
 					discoveryAgent.startInquiry(GIAC, listener);
 					String url = listener.waitForUrl();
-					if(url == null) continue;
+					if (url == null) continue;
 					StreamConnection s = connect(url);
-					if(s == null) continue;
+					if (s == null) continue;
 					LOG.info("Outgoing connection");
-					if(!socketLatch.set(s)) {
+					if (!socketLatch.set(s)) {
 						LOG.info("Closing redundant connection");
 						tryToClose(s);
 					}
 					return;
-				} catch(BluetoothStateException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (BluetoothStateException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					return;
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					LOG.warning("Interrupted while waiting for URL");
 					Thread.currentThread().interrupt();
 					return;
@@ -339,9 +339,9 @@ class BluetoothPlugin implements DuplexPlugin {
 
 		private void tryToClose(StreamConnection s) {
 			try {
-				if(s != null) s.close();
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if (s != null) s.close();
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -365,13 +365,13 @@ class BluetoothPlugin implements DuplexPlugin {
 			try {
 				StreamConnection s = serverSocket.acceptAndOpen();
 				LOG.info("Incoming connection");
-				if(!socketLatch.set(s)) {
+				if (!socketLatch.set(s)) {
 					LOG.info("Closing redundant connection");
 					s.close();
 				}
-			} catch(IOException e) {
+			} catch (IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
 			}
 		}
 	}

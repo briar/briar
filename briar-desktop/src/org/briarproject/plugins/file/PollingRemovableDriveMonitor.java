@@ -53,24 +53,24 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	public void run() {
 		try {
 			Collection<File> drives = finder.findRemovableDrives();
-			while(running) {
+			while (running) {
 				pollingLock.lock();
 				try {
 					stopPolling.await(pollingInterval, MILLISECONDS);
 				} finally {
 					pollingLock.unlock();
 				}
-				if(!running) return;
+				if (!running) return;
 				Collection<File> newDrives = finder.findRemovableDrives();
-				for(File f : newDrives) {
-					if(!drives.contains(f)) callback.driveInserted(f);
+				for (File f : newDrives) {
+					if (!drives.contains(f)) callback.driveInserted(f);
 				}
 				drives = newDrives;
 			}
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while waiting to poll");
 			Thread.currentThread().interrupt();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			callback.exceptionThrown(e);
 		}
 	}

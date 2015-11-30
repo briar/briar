@@ -46,7 +46,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		try {
 			reader.readAck();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -67,7 +67,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		try {
 			reader.readAck();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		try {
 			reader.readOffer();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		try {
 			reader.readOffer();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		try {
 			reader.readRequest();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -133,7 +133,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 		try {
 			reader.readRequest();
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	private byte[] createAck(boolean tooBig) throws Exception {
@@ -142,11 +142,11 @@ public class PacketReaderImplTest extends BriarTestCase {
 		Writer w = writerFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
-		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
+		while (out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeRaw(TestUtils.getRandomId());
 		}
-		if(tooBig) w.writeRaw(TestUtils.getRandomId());
+		if (tooBig) w.writeRaw(TestUtils.getRandomId());
 		w.writeListEnd();
 		w.writeListEnd();
 		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
@@ -176,11 +176,11 @@ public class PacketReaderImplTest extends BriarTestCase {
 		Writer w = writerFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
-		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
+		while (out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeRaw(TestUtils.getRandomId());
 		}
-		if(tooBig) w.writeRaw(TestUtils.getRandomId());
+		if (tooBig) w.writeRaw(TestUtils.getRandomId());
 		w.writeListEnd();
 		w.writeListEnd();
 		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
@@ -210,11 +210,11 @@ public class PacketReaderImplTest extends BriarTestCase {
 		Writer w = writerFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
-		while(out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
+		while (out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
 				< HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 			w.writeRaw(TestUtils.getRandomId());
 		}
-		if(tooBig) w.writeRaw(TestUtils.getRandomId());
+		if (tooBig) w.writeRaw(TestUtils.getRandomId());
 		w.writeListEnd();
 		w.writeListEnd();
 		assertEquals(tooBig, out.size() > HEADER_LENGTH + MAX_PAYLOAD_LENGTH);

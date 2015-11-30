@@ -41,6 +41,6 @@ class CrashHandler implements UncaughtExceptionHandler {
 		i.putExtra("briar.PID", android.os.Process.myPid());
 		ctx.startActivity(i);
 		// Pass the exception to the default handler, if any
-		if(delegate != null) delegate.uncaughtException(thread, throwable);
+		if (delegate != null) delegate.uncaughtException(thread, throwable);
 	}
 }

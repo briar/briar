@@ -69,13 +69,13 @@ public class LanTcpPluginTest extends BriarTestCase {
 
 	private byte[] makeAddress(int... parts) {
 		byte[] b = new byte[parts.length];
-		for(int i = 0; i < parts.length; i++) b[i] = (byte) parts[i];
+		for (int i = 0; i < parts.length; i++) b[i] = (byte) parts[i];
 		return b;
 	}
 
 	@Test
 	public void testIncomingConnection() throws Exception {
-		if(!systemHasLocalIpv4Address()) {
+		if (!systemHasLocalIpv4Address()) {
 			System.err.println("WARNING: Skipping test, no local IPv4 address");
 			return;
 		}
@@ -107,7 +107,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 
 	@Test
 	public void testOutgoingConnection() throws Exception {
-		if(!systemHasLocalIpv4Address()) {
+		if (!systemHasLocalIpv4Address()) {
 			System.err.println("WARNING: Skipping test, no local IPv4 address");
 			return;
 		}
@@ -131,7 +131,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 				try {
 					ss.accept();
 					latch.countDown();
-				} catch(IOException e) {
+				} catch (IOException e) {
 					error.set(true);
 				}
 			}
@@ -155,10 +155,10 @@ public class LanTcpPluginTest extends BriarTestCase {
 	}
 
 	private boolean systemHasLocalIpv4Address() throws Exception {
-		for(NetworkInterface i : Collections.list(
+		for (NetworkInterface i : Collections.list(
 				NetworkInterface.getNetworkInterfaces())) {
-			for(InetAddress a : Collections.list(i.getInetAddresses())) {
-				if(a instanceof Inet4Address)
+			for (InetAddress a : Collections.list(i.getInetAddresses())) {
+				if (a instanceof Inet4Address)
 					return a.isLinkLocalAddress() || a.isSiteLocalAddress();
 			}
 		}

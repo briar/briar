@@ -8,7 +8,7 @@ class AvailableGroupsItemComparator implements Comparator<AvailableGroupsItem> {
 			new AvailableGroupsItemComparator();
 
 	public int compare(AvailableGroupsItem a, AvailableGroupsItem b) {
-		if(a == b) return 0;
+		if (a == b) return 0;
 		String aName = a.getGroup().getName();
 		String bName = b.getGroup().getName();
 		return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);

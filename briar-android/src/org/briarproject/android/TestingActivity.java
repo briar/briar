@@ -153,12 +153,12 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if(temp != null) temp.delete();
+		if (temp != null) temp.delete();
 	}
 
 	public void onClick(View view) {
-		if(view == refresh) refresh();
-		else if(view == share) share();
+		if (view == refresh) refresh();
+		else if (view == share) share();
 	}
 
 	private void refresh() {
@@ -175,7 +175,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			@Override
 			protected void onPostExecute(Map<String, String> result) {
 				int pad = LayoutUtils.getPadding(TestingActivity.this);
-				for(Entry<String, String> e : result.entrySet()) {
+				for (Entry<String, String> e : result.entrySet()) {
 					TextView title = new TextView(TestingActivity.this);
 					title.setTextSize(18);
 					title.setText(e.getKey());
@@ -202,9 +202,9 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		String manufacturer = Build.MANUFACTURER;
 		String model = Build.MODEL;
 		String brand = Build.BRAND;
-		if(model.startsWith(manufacturer)) deviceType = capitalize(model);
+		if (model.startsWith(manufacturer)) deviceType = capitalize(model);
 		else deviceType = capitalize(manufacturer) + " " + model;
-		if(!StringUtils.isNullOrEmpty(brand))
+		if (!StringUtils.isNullOrEmpty(brand))
 			deviceType += " (" + capitalize(brand) + ")";
 		statusMap.put("Device type:", deviceType);
 
@@ -224,7 +224,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 		am.getMemoryInfo(mem);
 		String systemMemory;
-		if(Build.VERSION.SDK_INT >= 16) {
+		if (Build.VERSION.SDK_INT >= 16) {
 			systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
 					+ (mem.availMem / 1024 / 1204) + " MiB free, "
 					+ (mem.threshold / 1024 / 1024) + " MiB threshold";
@@ -252,7 +252,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			String internal = (rootTotal / 1024 / 1024) + " MiB total, "
 					+ (rootFree / 1024 / 1024) + " MiB free";
 			statusMap.put("Internal storage:", internal);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			statusMap.put("Internal storage:", "Unknown");
 		}
 
@@ -264,7 +264,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			String external = (sdTotal / 1024 / 1024) + " MiB total, "
 					+ (sdFree / 1024 / 1024) + " MiB free";
 			statusMap.put("External storage:", external);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			statusMap.put("External storage:", "Unknown");
 		}
 
@@ -280,26 +280,26 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			Method method = clazz.getDeclaredMethod("getMobileDataEnabled");
 			method.setAccessible(true);
 			mobileEnabled = (Boolean) method.invoke(cm);
-		} catch(ClassNotFoundException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(NoSuchMethodException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(IllegalAccessException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(IllegalArgumentException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(InvocationTargetException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (ClassNotFoundException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (NoSuchMethodException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IllegalAccessException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IllegalArgumentException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (InvocationTargetException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		// Is mobile data connected ?
 		boolean mobileConnected = mobile != null && mobile.isConnected();
 
 		String mobileStatus;
-		if(mobileAvailable) mobileStatus = "Available, ";
+		if (mobileAvailable) mobileStatus = "Available, ";
 		else mobileStatus = "Not available, ";
-		if(mobileEnabled) mobileStatus += "enabled, ";
+		if (mobileEnabled) mobileStatus += "enabled, ";
 		else mobileStatus += "not enabled, ";
-		if(mobileConnected) mobileStatus += "connected";
+		if (mobileConnected) mobileStatus += "connected";
 		else mobileStatus += "not connected";
 		statusMap.put("Mobile data:", mobileStatus);
 
@@ -314,15 +314,15 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		boolean wifiConnected = wifi != null && wifi.isConnected();
 
 		String wifiStatus;
-		if(wifiAvailable) wifiStatus = "Available, ";
+		if (wifiAvailable) wifiStatus = "Available, ";
 		else wifiStatus = "Not available, ";
-		if(wifiEnabled) wifiStatus += "enabled, ";
+		if (wifiEnabled) wifiStatus += "enabled, ";
 		else wifiStatus += "not enabled, ";
-		if(wifiConnected) wifiStatus += "connected";
+		if (wifiConnected) wifiStatus += "connected";
 		else wifiStatus += "not connected";
-		if(wm != null) {
+		if (wm != null) {
 			WifiInfo wifiInfo = wm.getConnectionInfo();
-			if(wifiInfo != null) {
+			if (wifiInfo != null) {
 				int ip = wifiInfo.getIpAddress(); // Nice API, Google
 				int ip1 = ip & 0xFF;
 				int ip2 = (ip >> 8) & 0xFF;
@@ -342,11 +342,11 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 					return BluetoothAdapter.getDefaultAdapter();
 				}
 			});
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while getting BluetoothAdapter");
 			Thread.currentThread().interrupt();
-		} catch(ExecutionException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (ExecutionException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		boolean btAvailable = bt != null;
 		// Is Bluetooth enabled?
@@ -361,26 +361,26 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 				bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 
 		String btStatus;
-		if(btAvailable) btStatus = "Available, ";
+		if (btAvailable) btStatus = "Available, ";
 		else btStatus = "Not available, ";
-		if(btEnabled) btStatus += "enabled, ";
+		if (btEnabled) btStatus += "enabled, ";
 		else btStatus += "not enabled, ";
-		if(btConnectable) btStatus += "connectable, ";
+		if (btConnectable) btStatus += "connectable, ";
 		else btStatus += "not connectable, ";
-		if(btDiscoverable) btStatus += "discoverable";
+		if (btDiscoverable) btStatus += "discoverable";
 		else btStatus += "not discoverable";
-		if(bt != null) btStatus += "\nAddress: " + bt.getAddress();
+		if (bt != null) btStatus += "\nAddress: " + bt.getAddress();
 		statusMap.put("Bluetooth:", btStatus);
 
 		Map<TransportId, TransportProperties> props = Collections.emptyMap();
 		try {
 			lifecycleManager.waitForDatabase();
 			props = db.getLocalProperties();
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			LOG.info("Interrupted while waiting for database");
 			Thread.currentThread().interrupt();
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 
 		Plugin torPlugin = pluginManager.getPlugin(new TransportId("tor"));
@@ -388,12 +388,12 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		boolean torPluginRunning = torPlugin != null && torPlugin.isRunning();
 
 		String torPluginStatus;
-		if(torPluginEnabled) torPluginStatus = "Enabled, ";
+		if (torPluginEnabled) torPluginStatus = "Enabled, ";
 		else torPluginStatus = "Not enabled, ";
-		if(torPluginRunning) torPluginStatus += "running";
+		if (torPluginRunning) torPluginStatus += "running";
 		else torPluginStatus += "not running";
 		TransportProperties torProps = props.get(new TransportId("tor"));
-		if(torProps != null)
+		if (torProps != null)
 			torPluginStatus += "\nAddress: " + torProps.get("onion");
 		statusMap.put("Tor plugin:", torPluginStatus);
 
@@ -402,12 +402,12 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		boolean lanPluginRunning = lanPlugin != null && lanPlugin.isRunning();
 
 		String lanPluginStatus;
-		if(lanPluginEnabled) lanPluginStatus = "Enabled, ";
+		if (lanPluginEnabled) lanPluginStatus = "Enabled, ";
 		else lanPluginStatus = "Not enabled, ";
-		if(lanPluginRunning) lanPluginStatus += "running";
+		if (lanPluginRunning) lanPluginStatus += "running";
 		else lanPluginStatus += "not running";
 		TransportProperties lanProps = props.get(new TransportId("lan"));
-		if(lanProps != null)
+		if (lanProps != null)
 			lanPluginStatus += "\nAddress: " + lanProps.get("address");
 		statusMap.put("LAN plugin:", lanPluginStatus);
 
@@ -416,12 +416,12 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		boolean btPluginRunning = btPlugin != null && btPlugin.isRunning();
 
 		String btPluginStatus;
-		if(btPluginEnabled) btPluginStatus = "Enabled, ";
+		if (btPluginEnabled) btPluginStatus = "Enabled, ";
 		else btPluginStatus = "Not enabled, ";
-		if(btPluginRunning) btPluginStatus += "running";
+		if (btPluginRunning) btPluginStatus += "running";
 		else btPluginStatus += "not running";
 		TransportProperties btProps = props.get(new TransportId("bt"));
-		if(btProps != null)
+		if (btProps != null)
 			btPluginStatus += "\nAddress: " + btProps.get("address");
 		statusMap.put("Bluetooth plugin:", btPluginStatus);
 
@@ -432,16 +432,16 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			Pattern pattern = Pattern.compile(".*\\( *" + pid + "\\).*");
 			Process process = runtime.exec("logcat -d -v time *:I");
 			Scanner scanner = new Scanner(process.getInputStream());
-			while(scanner.hasNextLine()) {
+			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
-				if(pattern.matcher(line).matches()) {
+				if (pattern.matcher(line).matches()) {
 					log.append(line);
 					log.append('\n');
 				}
 			}
 			scanner.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		statusMap.put("Debugging log:", log.toString());
 
@@ -449,9 +449,9 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	}
 
 	private String capitalize(String s) {
-		if(StringUtils.isNullOrEmpty(s)) return s;
+		if (StringUtils.isNullOrEmpty(s)) return s;
 		char first = s.charAt(0);
-		if(Character.isUpperCase(first)) return s;
+		if (Character.isUpperCase(first)) return s;
 		return Character.toUpperCase(first) + s.substring(1);
 	}
 
@@ -468,10 +468,10 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 				try {
 					File shared = Environment.getExternalStorageDirectory();
 					temp = File.createTempFile("debug", ".txt", shared);
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Writing to " + temp.getPath());
 					PrintStream p = new PrintStream(new FileOutputStream(temp));
-					for(Entry<String, String> e : result.entrySet()) {
+					for (Entry<String, String> e : result.entrySet()) {
 						p.println(e.getKey());
 						p.println(e.getValue());
 						p.println();
@@ -479,8 +479,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 					p.flush();
 					p.close();
 					sendEmail(Uri.fromFile(temp));
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}

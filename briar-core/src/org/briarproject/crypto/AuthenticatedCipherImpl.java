@@ -26,15 +26,15 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 	public int process(byte[] input, int inputOff, int len, byte[] output,
 			int outputOff) throws GeneralSecurityException {
 		int processed = 0;
-		if(len != 0) {
+		if (len != 0) {
 			processed = cipher.processBytes(input, inputOff, len, output,
 					outputOff);
 		}
 		try {
 			return processed + cipher.doFinal(output, outputOff + processed);
-		} catch(DataLengthException e) {
+		} catch (DataLengthException e) {
 			throw new GeneralSecurityException(e.getMessage());
-		} catch(InvalidCipherTextException e) {
+		} catch (InvalidCipherTextException e) {
 			throw new GeneralSecurityException(e.getMessage());
 		}
 	}
@@ -46,7 +46,7 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 		AEADParameters params = new AEADParameters(k, MAC_LENGTH * 8, iv, iv);
 		try {
 			cipher.init(encrypt, params);
-		} catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			throw new GeneralSecurityException(e.getMessage());
 		}
 	}

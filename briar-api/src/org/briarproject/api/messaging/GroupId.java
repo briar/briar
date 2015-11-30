@@ -15,7 +15,7 @@ public class GroupId extends UniqueId {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof GroupId)
+		if (o instanceof GroupId)
 			return Arrays.equals(id, ((GroupId) o).id);
 		return false;
 	}

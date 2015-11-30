@@ -25,16 +25,16 @@ class TestStreamEncrypter implements StreamEncrypter {
 
 	public void writeFrame(byte[] payload, int payloadLength,
 			int paddingLength, boolean finalFrame) throws IOException {
-		if(writeTag) {
+		if (writeTag) {
 			out.write(tag);
 			writeTag = false;
 		}
 		ByteUtils.writeUint16(payloadLength, frame, 0);
-		if(finalFrame) frame[0] |= 0x80;
+		if (finalFrame) frame[0] |= 0x80;
 		System.arraycopy(payload, 0, frame, HEADER_LENGTH, payloadLength);
-		for(int i = HEADER_LENGTH + payloadLength; i < frame.length; i++)
+		for (int i = HEADER_LENGTH + payloadLength; i < frame.length; i++)
 			frame[i] = 0;
-		if(finalFrame)
+		if (finalFrame)
 			out.write(frame, 0, HEADER_LENGTH + payloadLength + MAC_LENGTH);
 		else out.write(frame, 0, frame.length);
 	}

@@ -27,7 +27,7 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 
 	@Test
 	public void testNonexistentDir() throws Exception {
-		if(!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
+		if (!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
 			System.err.println("WARNING: Skipping test, can't run on this OS");
 			return;
 		}
@@ -48,7 +48,7 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 
 	@Test
 	public void testOneCallbackPerFile() throws Exception {
-		if(!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
+		if (!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
 			System.err.println("WARNING: Skipping test, can't run on this OS");
 			return;
 		}

@@ -73,9 +73,9 @@ public class TransportIntegrationTest extends BriarTestCase {
 
 	private void read(InputStream in, byte[] dest) throws IOException {
 		int offset = 0;
-		while(offset < dest.length) {
+		while (offset < dest.length) {
 			int read = in.read(dest, offset, dest.length - offset);
-			if(read == -1) break;
+			if (read == -1) break;
 			offset += read;
 		}
 	}

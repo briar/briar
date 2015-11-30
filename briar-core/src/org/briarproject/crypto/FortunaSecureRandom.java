@@ -37,12 +37,12 @@ class FortunaSecureRandom extends SecureRandom {
 		SecureRandom r = new FortunaSecureRandom(seed);
 		byte[] output = new byte[16];
 		r.nextBytes(output);
-		if(!Arrays.equals(SELF_TEST_VECTOR_1, output)) return false;
+		if (!Arrays.equals(SELF_TEST_VECTOR_1, output)) return false;
 		r.nextBytes(output);
-		if(!Arrays.equals(SELF_TEST_VECTOR_2, output)) return false;
+		if (!Arrays.equals(SELF_TEST_VECTOR_2, output)) return false;
 		r.setSeed(seed);
 		r.nextBytes(output);
-		if(!Arrays.equals(SELF_TEST_VECTOR_3, output)) return false;
+		if (!Arrays.equals(SELF_TEST_VECTOR_3, output)) return false;
 		return true;
 	}
 
@@ -66,7 +66,7 @@ class FortunaSecureRandom extends SecureRandom {
 		@Override
 		protected void engineNextBytes(byte[] b) {
 			int offset = 0;
-			while(offset < b.length)
+			while (offset < b.length)
 				offset += generator.nextBytes(b, offset, b.length - offset);
 		}
 

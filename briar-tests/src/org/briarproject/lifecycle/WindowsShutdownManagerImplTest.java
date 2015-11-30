@@ -14,12 +14,12 @@ public class WindowsShutdownManagerImplTest extends ShutdownManagerImplTest {
 	public void testManagerWaitsForHooksToRun() {
 		WindowsShutdownManagerImpl s = new WindowsShutdownManagerImpl();
 		SlowHook[] hooks = new SlowHook[10];
-		for(int i = 0; i < hooks.length; i++) {
+		for (int i = 0; i < hooks.length; i++) {
 			hooks[i] = new SlowHook();
 			s.addShutdownHook(hooks[i]);
 		}
 		s.runShutdownHooks();
-		for(int i = 0; i < hooks.length; i++) assertTrue(hooks[i].finished);
+		for (int i = 0; i < hooks.length; i++) assertTrue(hooks[i].finished);
 	}
 
 	private static class SlowHook implements Runnable {
@@ -30,7 +30,7 @@ public class WindowsShutdownManagerImplTest extends ShutdownManagerImplTest {
 			try {
 				Thread.sleep(100);
 				finished = true;
-			} catch(InterruptedException e) {
+			} catch (InterruptedException e) {
 				fail();
 			}
 		}

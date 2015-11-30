@@ -47,7 +47,7 @@ class AvailableGroupsAdapter extends ArrayAdapter<AvailableGroupsItem> {
 		TextView status = new TextView(ctx);
 		status.setPadding(pad, 0, pad, pad);
 		Collection<String> names = new ArrayList<String>();
-		for(Contact c : item.getContacts()) names.add(c.getAuthor().getName());
+		for (Contact c : item.getContacts()) names.add(c.getAuthor().getName());
 		String format = ctx.getString(R.string.shared_by_format);
 		status.setText(String.format(format, StringUtils.join(names, ", ")));
 		layout.addView(status);

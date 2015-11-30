@@ -33,9 +33,9 @@ JNotifyListener {
 		try {
 			Class.forName("net.contentobjects.jnotify.JNotify");
 			return null;
-		} catch(UnsatisfiedLinkError e) {
+		} catch (UnsatisfiedLinkError e) {
 			return e;
-		} catch(ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			return e;
 		}
 	}
@@ -43,11 +43,11 @@ JNotifyListener {
 	public static void checkEnabled() throws IOException {
 		staticSynchLock.lock();
 		try {
-			if(!triedLoad) {
+			if (!triedLoad) {
 				loadError = tryLoad();
 				triedLoad = true;
 			}
-			if(loadError != null) throw new IOException(loadError.toString());
+			if (loadError != null) throw new IOException(loadError.toString());
 		} finally {
 			staticSynchLock.unlock();
 		}
@@ -57,8 +57,8 @@ JNotifyListener {
 		checkEnabled();
 		List<Integer> watches = new ArrayList<Integer>();
 		int mask = JNotify.FILE_CREATED;
-		for(String path : getPathsToWatch()) {
-			if(new File(path).exists())
+		for (String path : getPathsToWatch()) {
+			if (new File(path).exists())
 				watches.add(JNotify.addWatch(path, mask, false, this));
 		}
 		synchLock.lock();
@@ -87,7 +87,7 @@ JNotifyListener {
 		} finally {
 			synchLock.unlock();
 		}
-		for(Integer w : watches) JNotify.removeWatch(w);
+		for (Integer w : watches) JNotify.removeWatch(w);
 	}
 
 	public void fileCreated(int wd, String rootPath, String name) {
@@ -98,7 +98,7 @@ JNotifyListener {
 		} finally {
 			synchLock.unlock();
 		}
-		if(callback != null)
+		if (callback != null)
 			callback.driveInserted(new File(rootPath + "/" + name));
 	}
 

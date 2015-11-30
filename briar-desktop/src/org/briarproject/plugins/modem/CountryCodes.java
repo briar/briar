@@ -251,23 +251,23 @@ class CountryCodes {
 			new HashMap<String, Country>();
 
 	static {
-		for(Country c : COUNTRIES) COUNTRY_MAP.put(c.iso3166, c);
+		for (Country c : COUNTRIES) COUNTRY_MAP.put(c.iso3166, c);
 	}
 
 	static String translate(String number, String callerIso, String calleeIso) {
 		Country from = COUNTRY_MAP.get(callerIso);
 		Country to = COUNTRY_MAP.get(calleeIso);
-		if(from == null || to == null) return null;
+		if (from == null || to == null) return null;
 		// Strip any prefixes and country codes from the number
 		String plusCountryCode = "+" + to.countryCode;
 		String iddCountryCode = to.idd + to.countryCode;
-		if(number.startsWith(plusCountryCode))
+		if (number.startsWith(plusCountryCode))
 			number = number.substring(plusCountryCode.length());
-		else if(number.startsWith(iddCountryCode))
+		else if (number.startsWith(iddCountryCode))
 			number = number.substring(iddCountryCode.length());
-		else if(number.startsWith(to.ndd))
+		else if (number.startsWith(to.ndd))
 			number = number.substring(to.ndd.length());
-		if(from == to) return from.ndd + number; // National
+		if (from == to) return from.ndd + number; // National
 		return from.idd + to.countryCode + number; // International
 	}
 

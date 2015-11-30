@@ -31,18 +31,18 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	public SimplexPlugin createPlugin(SimplexPluginCallback callback) {
 		RemovableDriveFinder finder;
 		RemovableDriveMonitor monitor;
-		if(OsUtils.isLinux()) {
+		if (OsUtils.isLinux()) {
 			finder = new LinuxRemovableDriveFinder();
 			monitor = new LinuxRemovableDriveMonitor();
-		} else if(OsUtils.isMacLeopardOrNewer()) {
+		} else if (OsUtils.isMacLeopardOrNewer()) {
 			finder = new MacRemovableDriveFinder();
 			monitor = new MacRemovableDriveMonitor();
-		} else if(OsUtils.isMac()) {
+		} else if (OsUtils.isMac()) {
 			// JNotify requires OS X 10.5 or newer, so we have to poll
 			finder = new MacRemovableDriveFinder();
 			monitor = new PollingRemovableDriveMonitor(ioExecutor, finder,
 					POLLING_INTERVAL);
-		} else if(OsUtils.isWindows()) {
+		} else if (OsUtils.isWindows()) {
 			finder = new WindowsRemovableDriveFinder();
 			monitor = new PollingRemovableDriveMonitor(ioExecutor, finder,
 					POLLING_INTERVAL);

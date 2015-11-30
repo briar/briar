@@ -10,7 +10,7 @@ public class TransportId {
 	private final String id;
 
 	public TransportId(String id) {
-		if(id.length() == 0 || id.length() > MAX_TRANSPORT_ID_LENGTH)
+		if (id.length() == 0 || id.length() > MAX_TRANSPORT_ID_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 	}
@@ -21,7 +21,7 @@ public class TransportId {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof TransportId) return id.equals(((TransportId) o).id);
+		if (o instanceof TransportId) return id.equals(((TransportId) o).id);
 		return false;
 	}
 

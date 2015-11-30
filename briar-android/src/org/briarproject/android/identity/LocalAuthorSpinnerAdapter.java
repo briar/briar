@@ -40,7 +40,7 @@ implements SpinnerAdapter {
 	}
 
 	public int getCount() {
-		if(list.isEmpty()) return 0;
+		if (list.isEmpty()) return 0;
 		return includeAnonymous ? list.size() + 2 : list.size() + 1;
 	}
 
@@ -54,19 +54,19 @@ implements SpinnerAdapter {
 		int pad = LayoutUtils.getPadding(ctx);
 		name.setPadding(pad, pad, pad, pad);
 		LocalAuthorItem item = getItem(position);
-		if(item == ANONYMOUS) name.setText(R.string.anonymous);
-		else if(item == NEW) name.setText(R.string.new_identity_item);
+		if (item == ANONYMOUS) name.setText(R.string.anonymous);
+		else if (item == NEW) name.setText(R.string.new_identity_item);
 		else name.setText(item.getLocalAuthor().getName());
 		return name;
 	}
 
 	public LocalAuthorItem getItem(int position) {
-		if(includeAnonymous) {
-			if(position == list.size()) return ANONYMOUS;
-			if(position == list.size() + 1) return NEW;
+		if (includeAnonymous) {
+			if (position == list.size()) return ANONYMOUS;
+			if (position == list.size() + 1) return NEW;
 			return list.get(position);
 		} else {
-			if(position == list.size()) return NEW;
+			if (position == list.size()) return NEW;
 			return list.get(position);
 		}
 	}
@@ -81,8 +81,8 @@ implements SpinnerAdapter {
 		name.setSingleLine();
 		name.setEllipsize(END);
 		LocalAuthorItem item = getItem(position);
-		if(item == ANONYMOUS) name.setText(R.string.anonymous);
-		else if(item == NEW) name.setText(R.string.new_identity_item);
+		if (item == ANONYMOUS) name.setText(R.string.anonymous);
+		else if (item == NEW) name.setText(R.string.new_identity_item);
 		else name.setText(item.getLocalAuthor().getName());
 		return name;
 	}

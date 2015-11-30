@@ -17,10 +17,10 @@ public class Author {
 		int length;
 		try {
 			length = name.getBytes("UTF-8").length;
-		} catch(UnsupportedEncodingException e) {
+		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		if(length == 0 || length > MAX_AUTHOR_NAME_LENGTH)
+		if (length == 0 || length > MAX_AUTHOR_NAME_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.name = name;

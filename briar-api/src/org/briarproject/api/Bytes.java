@@ -21,13 +21,13 @@ public class Bytes {
 	public int hashCode() {
 		// Thread-safe because if two or more threads check and update the
 		// value, they'll calculate the same value
-		if(hashCode == -1) hashCode = Arrays.hashCode(bytes);
+		if (hashCode == -1) hashCode = Arrays.hashCode(bytes);
 		return hashCode;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof Bytes)
+		if (o instanceof Bytes)
 			return Arrays.equals(bytes, ((Bytes) o).bytes);
 		return false;
 	}

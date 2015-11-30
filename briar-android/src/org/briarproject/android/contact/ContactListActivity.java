@@ -138,22 +138,22 @@ EventListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for(Contact c : db.getContacts()) {
+					for (Contact c : db.getContacts()) {
 						try {
 							GroupId inbox = db.getInboxGroupId(c.getId());
 							Collection<MessageHeader> headers =
 									db.getInboxMessageHeaders(c.getId());
 							displayContact(c, inbox, headers);
-						} catch(NoSuchContactException e) {
+						} catch (NoSuchContactException e) {
 							// Continue
 						}
 					}
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
 					hideProgressBar();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -181,7 +181,7 @@ EventListener {
 				boolean connected = connectionRegistry.isConnected(c.getId());
 				// Remove the old item, if any
 				ContactListItem item = findItem(c.getId());
-				if(item != null) adapter.remove(item);
+				if (item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new ContactListItem(c, connected, inbox, headers));
 				adapter.sort(ContactListItemComparator.INSTANCE);
@@ -193,7 +193,7 @@ EventListener {
 	private void hideProgressBar() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(adapter.isEmpty()) empty.setVisibility(VISIBLE);
+				if (adapter.isEmpty()) empty.setVisibility(VISIBLE);
 				else list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 			}
@@ -202,9 +202,9 @@ EventListener {
 
 	private ContactListItem findItem(ContactId c) {
 		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			ContactListItem item = adapter.getItem(i);
-			if(item.getContact().getId().equals(c)) return item;
+			if (item.getContact().getId().equals(c)) return item;
 		}
 		return null; // Not found
 	}
@@ -243,7 +243,7 @@ EventListener {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem menuItem) {
-		if(menuItem.getItemId() == MENU_ITEM_DELETE) {
+		if (menuItem.getItemId() == MENU_ITEM_DELETE) {
 			ContextMenuInfo info = menuItem.getMenuInfo();
 			int position = ((AdapterContextMenuInfo) info).position;
 			ContactListItem item = adapter.getItem(position);
@@ -259,8 +259,8 @@ EventListener {
 			public void run() {
 				try {
 					db.removeContact(c);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -268,21 +268,21 @@ EventListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof ContactAddedEvent) {
+		if (e instanceof ContactAddedEvent) {
 			loadContacts();
-		} else if(e instanceof ContactConnectedEvent) {
+		} else if (e instanceof ContactConnectedEvent) {
 			setConnected(((ContactConnectedEvent) e).getContactId(), true);
-		} else if(e instanceof ContactDisconnectedEvent) {
+		} else if (e instanceof ContactDisconnectedEvent) {
 			setConnected(((ContactDisconnectedEvent) e).getContactId(), false);
-		} else if(e instanceof ContactRemovedEvent) {
+		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed");
 			removeItem(((ContactRemovedEvent) e).getContactId());
-		} else if(e instanceof MessageAddedEvent) {
+		} else if (e instanceof MessageAddedEvent) {
 			LOG.info("Message added, reloading");
 			ContactId source = ((MessageAddedEvent) e).getContactId();
-			if(source == null) loadContacts();
+			if (source == null) loadContacts();
 			else reloadContact(source);
-		} else if(e instanceof MessageExpiredEvent) {
+		} else if (e instanceof MessageExpiredEvent) {
 			LOG.info("Message expired, reloading");
 			loadContacts();
 		}
@@ -296,13 +296,13 @@ EventListener {
 					Collection<MessageHeader> headers =
 							db.getInboxMessageHeaders(c);
 					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
+					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
 					updateItem(c, headers);
-				} catch(NoSuchContactException e) {
+				} catch (NoSuchContactException e) {
 					removeItem(c);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
@@ -314,7 +314,7 @@ EventListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);
-				if(item != null) {
+				if (item != null) {
 					item.setHeaders(headers);
 					adapter.notifyDataSetChanged();
 				}
@@ -326,10 +326,10 @@ EventListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);
-				if(item != null) {
+				if (item != null) {
 					adapter.remove(item);
 					adapter.notifyDataSetChanged();
-					if(adapter.isEmpty()) {
+					if (adapter.isEmpty()) {
 						empty.setVisibility(VISIBLE);
 						list.setVisibility(GONE);
 					}
@@ -342,7 +342,7 @@ EventListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);
-				if(item != null) {
+				if (item != null) {
 					item.setConnected(connected);
 					adapter.notifyDataSetChanged();
 				}

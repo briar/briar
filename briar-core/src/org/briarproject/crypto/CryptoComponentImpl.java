@@ -79,9 +79,9 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Inject
 	CryptoComponentImpl(SeedProvider r) {
-		if(!FortunaSecureRandom.selfTest()) throw new RuntimeException();
+		if (!FortunaSecureRandom.selfTest()) throw new RuntimeException();
 		SecureRandom secureRandom1 = new SecureRandom();
-		if(LOG.isLoggable(INFO)) {
+		if (LOG.isLoggable(INFO)) {
 			String provider = secureRandom1.getProvider().getName();
 			String algorithm = secureRandom1.getAlgorithm();
 			LOG.info("Default SecureRandom: " + provider + " " + algorithm);
@@ -168,7 +168,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public int[] deriveConfirmationCodes(byte[] secret) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		byte[] alice = counterModeKdf(secret, CODE, 0);
 		byte[] bob = counterModeKdf(secret, CODE, 1);
@@ -179,7 +179,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[][] deriveInvitationNonces(byte[] secret) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		byte[] alice = counterModeKdf(secret, NONCE, 0);
 		byte[] bob = counterModeKdf(secret, NONCE, 1);
@@ -193,7 +193,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] ourHash = messageDigest.digest(ourPublicKey);
 		byte[] theirHash = messageDigest.digest(theirPublicKey);
 		byte[] aliceInfo, bobInfo;
-		if(alice) {
+		if (alice) {
 			aliceInfo = ourHash;
 			bobInfo = theirHash;
 		} else {
@@ -212,9 +212,9 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Package access for testing
 	byte[] deriveSharedSecret(PrivateKey priv, PublicKey pub)
 			throws GeneralSecurityException {
-		if(!(priv instanceof Sec1PrivateKey))
+		if (!(priv instanceof Sec1PrivateKey))
 			throw new IllegalArgumentException();
-		if(!(pub instanceof Sec1PublicKey))
+		if (!(pub instanceof Sec1PublicKey))
 			throw new IllegalArgumentException();
 		ECPrivateKeyParameters ecPriv = ((Sec1PrivateKey) priv).getKey();
 		ECPublicKeyParameters ecPub = ((Sec1PublicKey) pub).getKey();
@@ -223,46 +223,46 @@ class CryptoComponentImpl implements CryptoComponent {
 		agreement.init(ecPriv);
 		byte[] secret = agreement.calculateAgreement(ecPub).toByteArray();
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Deriving shared secret took " + duration + " ms");
 		return secret;
 	}
 
 	public byte[] deriveGroupSalt(byte[] secret) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		return counterModeKdf(secret, SALT, 0);
 	}
 
 	public byte[] deriveInitialSecret(byte[] secret, int transportIndex) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
-		if(transportIndex < 0) throw new IllegalArgumentException();
+		if (transportIndex < 0) throw new IllegalArgumentException();
 		return counterModeKdf(secret, FIRST, transportIndex);
 	}
 
 	public byte[] deriveNextSecret(byte[] secret, long period) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
-		if(period < 0 || period > MAX_32_BIT_UNSIGNED)
+		if (period < 0 || period > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		return counterModeKdf(secret, ROTATE, period);
 	}
 
 	public SecretKey deriveTagKey(byte[] secret, boolean alice) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
-		if(alice) return deriveKey(secret, A_TAG, 0);
+		if (alice) return deriveKey(secret, A_TAG, 0);
 		else return deriveKey(secret, B_TAG, 0);
 	}
 
 	public SecretKey deriveFrameKey(byte[] secret, long streamNumber,
 			boolean alice) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
-		if(streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
+		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		if(alice) return deriveKey(secret, A_FRAME, streamNumber);
+		if (alice) return deriveKey(secret, A_FRAME, streamNumber);
 		else return deriveKey(secret, B_FRAME, streamNumber);
 	}
 
@@ -271,10 +271,10 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber) {
-		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
-		if(streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
+		if (tag.length < TAG_LENGTH) throw new IllegalArgumentException();
+		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
+		for (int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
 		ByteUtils.writeUint32(streamNumber, tag, 0);
 		BlockCipher cipher = new AESLightEngine();
 		assert cipher.getBlockSize() == TAG_LENGTH;
@@ -308,7 +308,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			int outputOff = salt.length + 4 + iv.length;
 			cipher.process(input, 0, input.length, output, outputOff);
 			return output;
-		} catch(GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -317,12 +317,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
 		int macBytes = cipher.getMacBytes();
 		// The input contains the salt, iterations, IV, ciphertext and MAC
-		if(input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + macBytes)
+		if (input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + macBytes)
 			return null; // Invalid input
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		System.arraycopy(input, 0, salt, 0, salt.length);
 		long iterations = ByteUtils.readUint32(input, salt.length);
-		if(iterations < 0 || iterations > Integer.MAX_VALUE)
+		if (iterations < 0 || iterations > Integer.MAX_VALUE)
 			return null; // Invalid iteration count
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		System.arraycopy(input, salt.length + 4, iv, 0, iv.length);
@@ -331,7 +331,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Initialise the cipher
 		try {
 			cipher.init(false, key, iv);
-		} catch(GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
 		// Try to decrypt the ciphertext (may be invalid)
@@ -341,7 +341,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			byte[] output = new byte[inputLen - macBytes];
 			cipher.process(input, inputOff, inputLen, output, 0);
 			return output;
-		} catch(GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			return null; // Invalid ciphertext
 		}
 	}
@@ -351,18 +351,18 @@ class CryptoComponentImpl implements CryptoComponent {
 	private byte[] concatenationKdf(byte[]... inputs) {
 		// The output of the hash function must be long enough to use as a key
 		MessageDigest messageDigest = getMessageDigest();
-		if(messageDigest.getDigestLength() < SecretKey.LENGTH)
+		if (messageDigest.getDigestLength() < SecretKey.LENGTH)
 			throw new RuntimeException();
 		// Each input is length-prefixed - the length must fit in an
 		// unsigned 8-bit integer
-		for(byte[] input : inputs) {
-			if(input.length > 255) throw new IllegalArgumentException();
+		for (byte[] input : inputs) {
+			if (input.length > 255) throw new IllegalArgumentException();
 			messageDigest.update((byte) input.length);
 			messageDigest.update(input);
 		}
 		byte[] hash = messageDigest.digest();
 		// The output is the first SecretKey.LENGTH bytes of the hash
-		if(hash.length == SecretKey.LENGTH) return hash;
+		if (hash.length == SecretKey.LENGTH) return hash;
 		byte[] truncated = new byte[SecretKey.LENGTH];
 		System.arraycopy(hash, 0, truncated, 0, truncated.length);
 		return truncated;
@@ -371,10 +371,10 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Key derivation function based on a PRF in counter mode - see
 	// NIST SP 800-108, section 5.1
 	private byte[] counterModeKdf(byte[] secret, byte[] label, long context) {
-		if(secret.length != SecretKey.LENGTH)
+		if (secret.length != SecretKey.LENGTH)
 			throw new IllegalArgumentException();
 		// The label must be null-terminated
-		if(label[label.length - 1] != '\0')
+		if (label[label.length - 1] != '\0')
 			throw new IllegalArgumentException();
 		// Initialise the PRF
 		Mac prf = new HMac(new SHA256Digest());
@@ -382,7 +382,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.init(k);
 		int macLength = prf.getMacSize();
 		// The output of the PRF must be long enough to use as a key
-		if(macLength < SecretKey.LENGTH) throw new RuntimeException();
+		if (macLength < SecretKey.LENGTH) throw new RuntimeException();
 		byte[] mac = new byte[macLength];
 		prf.update((byte) 0); // Counter
 		prf.update(label, 0, label.length); // Null-terminated
@@ -392,7 +392,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.update((byte) SecretKey.LENGTH); // Output length
 		prf.doFinal(mac, 0);
 		// The output is the first SecretKey.LENGTH bytes of the MAC
-		if(mac.length == SecretKey.LENGTH) return mac;
+		if (mac.length == SecretKey.LENGTH) return mac;
 		byte[] truncated = new byte[SecretKey.LENGTH];
 		System.arraycopy(mac, 0, truncated, 0, truncated.length);
 		return truncated;
@@ -414,9 +414,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		List<Long> quickSamples = new ArrayList<Long>(PBKDF_SAMPLES);
 		List<Long> slowSamples = new ArrayList<Long>(PBKDF_SAMPLES);
 		long iterationNanos = 0, initNanos = 0;
-		while(iterationNanos <= 0 || initNanos <= 0) {
+		while (iterationNanos <= 0 || initNanos <= 0) {
 			// Sample the running time with one iteration and two iterations
-			for(int i = 0; i < PBKDF_SAMPLES; i++) {
+			for (int i = 0; i < PBKDF_SAMPLES; i++) {
 				quickSamples.add(sampleRunningTime(1));
 				slowSamples.add(sampleRunningTime(2));
 			}
@@ -425,16 +425,16 @@ class CryptoComponentImpl implements CryptoComponent {
 			long slowMedian = median(slowSamples);
 			iterationNanos = slowMedian - quickMedian;
 			initNanos = quickMedian - iterationNanos;
-			if(LOG.isLoggable(INFO)) {
+			if (LOG.isLoggable(INFO)) {
 				LOG.info("Init: " + initNanos + ", iteration: "
 						+ iterationNanos);
 			}
 		}
 		long targetNanos = targetMillis * 1000L * 1000L;
 		long iterations = (targetNanos - initNanos) / iterationNanos;
-		if(LOG.isLoggable(INFO)) LOG.info("Target iterations: " + iterations);
-		if(iterations < 1) return 1;
-		if(iterations > Integer.MAX_VALUE) return Integer.MAX_VALUE;
+		if (LOG.isLoggable(INFO)) LOG.info("Target iterations: " + iterations);
+		if (iterations < 1) return 1;
+		if (iterations > Integer.MAX_VALUE) return Integer.MAX_VALUE;
 		return (int) iterations;
 	}
 
@@ -452,9 +452,9 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private long median(List<Long> list) {
 		int size = list.size();
-		if(size == 0) throw new IllegalArgumentException();
+		if (size == 0) throw new IllegalArgumentException();
 		Collections.sort(list);
-		if(size % 2 == 1) return list.get(size / 2);
+		if (size % 2 == 1) return list.get(size / 2);
 		return list.get(size / 2 - 1) + list.get(size / 2) / 2;
 	}
 }

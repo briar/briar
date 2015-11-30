@@ -51,7 +51,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if(PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -71,9 +71,9 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	@Override
 	protected void startNextActivity() {
 		long duration = System.currentTimeMillis() - now;
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Guice startup took " + duration + " ms");
-		if(System.currentTimeMillis() >= EXPIRY_DATE) {
+		if (System.currentTimeMillis() >= EXPIRY_DATE) {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
@@ -81,7 +81,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 			String hex = prefs.getString("key", null);
 			Injector i = RoboGuice.getBaseApplicationInjector(getApplication());
 			DatabaseConfig databaseConfig = i.getInstance(DatabaseConfig.class);
-			if(hex != null && databaseConfig.databaseExists()) {
+			if (hex != null && databaseConfig.databaseExists()) {
 				startActivity(new Intent(this, DashboardActivity.class));
 			} else {
 				prefs.edit().clear().commit();
@@ -93,7 +93,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 
 	@SuppressLint("NewApi")
 	private void enableStrictMode() {
-		if(TESTING && Build.VERSION.SDK_INT >= 9) {
+		if (TESTING && Build.VERSION.SDK_INT >= 9) {
 			ThreadPolicy.Builder threadPolicy = new ThreadPolicy.Builder();
 			threadPolicy.detectAll();
 			threadPolicy.penaltyLog();
@@ -106,7 +106,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	}
 
 	private void delete(File f) {
-		if(f.isFile()) f.delete();
-		else if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
+		if (f.isFile()) f.delete();
+		else if (f.isDirectory()) for (File child : f.listFiles()) delete(child);
 	}
 }

@@ -27,10 +27,10 @@ class ContactListItem {
 		empty = headers.isEmpty();
 		timestamp = 0;
 		unread = 0;
-		if(!empty) {
-			for(MessageHeader h : headers) {
-				if(h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
-				if(!h.isRead()) unread++;
+		if (!empty) {
+			for (MessageHeader h : headers) {
+				if (h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
+				if (!h.isRead()) unread++;
 			}
 		}
 	}

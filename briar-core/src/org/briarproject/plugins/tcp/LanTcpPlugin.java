@@ -32,10 +32,10 @@ class LanTcpPlugin extends TcpPlugin {
 		String oldAddress = p.get("address"), oldPort = p.get("port");
 		InetSocketAddress old = parseSocketAddress(oldAddress, oldPort);
 		List<SocketAddress> addrs = new LinkedList<SocketAddress>();
-		for(InetAddress a : getLocalIpAddresses()) {
-			if(isAcceptableAddress(a)) {
+		for (InetAddress a : getLocalIpAddresses()) {
+			if (isAcceptableAddress(a)) {
 				// If this is the old address, try to use the same port
-				if(old != null && old.getAddress().equals(a))
+				if (old != null && old.getAddress().equals(a))
 					addrs.add(0, new InetSocketAddress(a, old.getPort()));
 				addrs.add(new InetSocketAddress(a, 0));
 			}
@@ -54,10 +54,10 @@ class LanTcpPlugin extends TcpPlugin {
 
 	@Override
 	protected boolean isConnectable(InetSocketAddress remote) {
-		if(remote.getPort() == 0) return false;
-		if(!isAcceptableAddress(remote.getAddress())) return false;
+		if (remote.getPort() == 0) return false;
+		if (!isAcceptableAddress(remote.getAddress())) return false;
 		// Try to determine whether the address is on the same LAN as us
-		if(socket == null) return false;
+		if (socket == null) return false;
 		byte[] localIp = socket.getInetAddress().getAddress();
 		byte[] remoteIp = remote.getAddress().getAddress();
 		return addressesAreOnSameLan(localIp, remoteIp);
@@ -66,12 +66,12 @@ class LanTcpPlugin extends TcpPlugin {
 	// Package access for testing
 	boolean addressesAreOnSameLan(byte[] localIp, byte[] remoteIp) {
 		// 10.0.0.0/8
-		if(localIp[0] == 10) return remoteIp[0] == 10;
+		if (localIp[0] == 10) return remoteIp[0] == 10;
 		// 172.16.0.0/12
-		if(localIp[0] == (byte) 172 && (localIp[1] & 0xF0) == 16)
+		if (localIp[0] == (byte) 172 && (localIp[1] & 0xF0) == 16)
 			return remoteIp[0] == (byte) 172 && (remoteIp[1] & 0xF0) == 16;
 		// 192.168.0.0/16
-		if(localIp[0] == (byte) 192 && localIp[1] == (byte) 168)
+		if (localIp[0] == (byte) 192 && localIp[1] == (byte) 168)
 			return remoteIp[0] == (byte) 192 && remoteIp[1] == (byte) 168;
 		// Unrecognised prefix - may be compatible
 		return true;

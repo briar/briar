@@ -40,7 +40,7 @@ public class ConsumersTest extends BriarTestCase {
 		try {
 			cc.write((byte) 0);
 			fail();
-		} catch(FormatException expected) {}
+		} catch (FormatException expected) {}
 	}
 
 	@Test

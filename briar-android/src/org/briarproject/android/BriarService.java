@@ -66,12 +66,12 @@ public class BriarService extends RoboService implements EventListener {
 	public void onCreate() {
 		super.onCreate();
 		LOG.info("Created");
-		if(created.getAndSet(true)) {
+		if (created.getAndSet(true)) {
 			LOG.info("Already created");
 			stopSelf();
 			return;
 		}
-		if(databaseConfig.getEncryptionKey() == null) {
+		if (databaseConfig.getEncryptionKey() == null) {
 			LOG.info("No database key");
 			stopSelf();
 			return;
@@ -93,14 +93,14 @@ public class BriarService extends RoboService implements EventListener {
 			@Override
 			public void run() {
 				StartResult result = lifecycleManager.startServices();
-				if(result == SUCCESS) {
+				if (result == SUCCESS) {
 					eventBus.addListener(BriarService.this);
 					started = true;
-				} else if(result == ALREADY_RUNNING) {
+				} else if (result == ALREADY_RUNNING) {
 					LOG.info("Already running");
 					stopSelf();
 				} else {
-					if(LOG.isLoggable(WARNING))
+					if (LOG.isLoggable(WARNING))
 						LOG.warning("Startup failed: " + result);
 					showStartupFailureNotification();
 					stopSelf();
@@ -147,7 +147,7 @@ public class BriarService extends RoboService implements EventListener {
 		new Thread() {
 			@Override
 			public void run() {
-				if(started) {
+				if (started) {
 					eventBus.removeListener(BriarService.this);
 					lifecycleManager.stopServices();
 				}
@@ -164,11 +164,11 @@ public class BriarService extends RoboService implements EventListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if(e instanceof MessageAddedEvent) {
+		if (e instanceof MessageAddedEvent) {
 			MessageAddedEvent m = (MessageAddedEvent) e;
 			GroupId g = m.getGroup().getId();
 			ContactId c = m.getContactId();
-			if(c != null) showMessageNotification(g, c);
+			if (c != null) showMessageNotification(g, c);
 		}
 	}
 
@@ -177,13 +177,13 @@ public class BriarService extends RoboService implements EventListener {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
-					if(g.equals(db.getInboxGroupId(c)))
+					if (g.equals(db.getInboxGroupId(c)))
 						notificationManager.showPrivateMessageNotification(c);
 					else notificationManager.showGroupPostNotification(g);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
+				} catch (InterruptedException e) {
 					LOG.info("Interruped while waiting for database");
 					Thread.currentThread().interrupt();
 				}

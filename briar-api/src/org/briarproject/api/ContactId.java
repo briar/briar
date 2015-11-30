@@ -23,7 +23,7 @@ public class ContactId {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof ContactId) return id == ((ContactId) o).id;
+		if (o instanceof ContactId) return id == ((ContactId) o).id;
 		return false;
 	}
 }

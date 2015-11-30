@@ -418,7 +418,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Allowing enough capacity for both messages should return both
 		Collection<MessageId> ids = new HashSet<MessageId>();
-		for(MessageId id : db.getOldMessages(txn, size * 2)) ids.add(id);
+		for (MessageId id : db.getOldMessages(txn, size * 2)) ids.add(id);
 		assertEquals(2, ids.size());
 		assertTrue(ids.contains(messageId));
 		assertTrue(ids.contains(messageId1));
@@ -430,7 +430,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testGetFreeSpace() throws Exception {
 		byte[] largeBody = new byte[ONE_MEGABYTE];
-		for(int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
+		for (int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
 		Message message = new TestMessage(messageId, null, group, author,
 				contentType, subject, timestamp, largeBody);
 		Database<Connection> db = open(false);
@@ -470,9 +470,9 @@ public class H2DatabaseTest extends BriarTestCase {
 				try {
 					closing.countDown();
 					db.close();
-					if(!transactionFinished.get()) error.set(true);
+					if (!transactionFinished.get()) error.set(true);
 					closed.countDown();
-				} catch(Exception e) {
+				} catch (Exception e) {
 					error.set(true);
 				}
 			}
@@ -507,9 +507,9 @@ public class H2DatabaseTest extends BriarTestCase {
 				try {
 					closing.countDown();
 					db.close();
-					if(!transactionFinished.get()) error.set(true);
+					if (!transactionFinished.get()) error.set(true);
 					closed.countDown();
-				} catch(Exception e) {
+				} catch (Exception e) {
 					error.set(true);
 				}
 			}
@@ -903,12 +903,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
 		assertEquals(2, headers.size());
 		boolean firstFound = false, secondFound = false;
-		for(MessageHeader header : headers) {
-			if(messageId.equals(header.getId())) {
+		for (MessageHeader header : headers) {
+			if (messageId.equals(header.getId())) {
 				assertHeadersMatch(message, header);
 				assertTrue(header.isRead());
 				firstFound = true;
-			} else if(messageId1.equals(header.getId())) {
+			} else if (messageId1.equals(header.getId())) {
 				assertHeadersMatch(message1, header);
 				assertFalse(header.isRead());
 				secondFound = true;
@@ -926,10 +926,10 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private void assertHeadersMatch(Message m, MessageHeader h) {
 		assertEquals(m.getId(), h.getId());
-		if(m.getParent() == null) assertNull(h.getParent());
+		if (m.getParent() == null) assertNull(h.getParent());
 		else assertEquals(m.getParent(), h.getParent());
 		assertEquals(m.getGroup().getId(), h.getGroupId());
-		if(m.getAuthor() == null) assertNull(h.getAuthor());
+		if (m.getAuthor() == null) assertNull(h.getAuthor());
 		else assertEquals(m.getAuthor(), h.getAuthor());
 		assertEquals(m.getContentType(), h.getContentType());
 		assertEquals(m.getTimestamp(), h.getTimestamp());
@@ -965,16 +965,16 @@ public class H2DatabaseTest extends BriarTestCase {
 		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
 		assertEquals(3, headers.size());
 		boolean firstFound = false, secondFound = false, thirdFound = false;
-		for(MessageHeader header : headers) {
-			if(messageId.equals(header.getId())) {
+		for (MessageHeader header : headers) {
+			if (messageId.equals(header.getId())) {
 				assertHeadersMatch(message, header);
 				assertEquals(Author.Status.VERIFIED, header.getAuthorStatus());
 				firstFound = true;
-			} else if(messageId1.equals(header.getId())) {
+			} else if (messageId1.equals(header.getId())) {
 				assertHeadersMatch(message1, header);
 				assertEquals(Author.Status.UNKNOWN, header.getAuthorStatus());
 				secondFound = true;
-			} else if(messageId2.equals(header.getId())) {
+			} else if (messageId2.equals(header.getId())) {
 				assertHeadersMatch(message2, header);
 				assertEquals(Author.Status.ANONYMOUS, header.getAuthorStatus());
 				thirdFound = true;
@@ -1075,7 +1075,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	public void testMultipleSubscriptionsAndUnsubscriptions() throws Exception {
 		// Create some groups
 		List<Group> groups = new ArrayList<Group>();
-		for(int i = 0; i < 100; i++) {
+		for (int i = 0; i < 100; i++) {
 			GroupId id = new GroupId(TestUtils.getRandomId());
 			String name = "Group " + i;
 			groups.add(new Group(id, name, new byte[GROUP_SALT_LENGTH]));
@@ -1087,16 +1087,16 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to the groups
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		for(Group g : groups) db.addGroup(txn, g);
+		for (Group g : groups) db.addGroup(txn, g);
 
 		// Make the groups visible to the contact
 		Collections.shuffle(groups);
-		for(Group g : groups) db.addVisibility(txn, contactId, g.getId());
+		for (Group g : groups) db.addVisibility(txn, contactId, g.getId());
 
 		// Make some of the groups invisible to the contact and remove them all
 		Collections.shuffle(groups);
-		for(Group g : groups) {
-			if(Math.random() < 0.5)
+		for (Group g : groups) {
+			if (Math.random() < 0.5)
 				db.removeVisibility(txn, contactId, g.getId());
 			db.removeGroup(txn, g.getId());
 		}
@@ -1156,24 +1156,24 @@ public class H2DatabaseTest extends BriarTestCase {
 		Collection<TemporarySecret> secrets = db.getSecrets(txn);
 		assertEquals(3, secrets.size());
 		boolean foundFirst = false, foundSecond = false, foundThird = false;
-		for(TemporarySecret s : secrets) {
+		for (TemporarySecret s : secrets) {
 			assertEquals(contactId, s.getContactId());
 			assertEquals(transportId, s.getTransportId());
 			assertEquals(epoch, s.getEpoch());
 			assertEquals(alice, s.getAlice());
-			if(s.getPeriod() == 0) {
+			if (s.getPeriod() == 0) {
 				assertArrayEquals(secret1, s.getSecret());
 				assertEquals(outgoing1, s.getOutgoingStreamCounter());
 				assertEquals(centre1, s.getWindowCentre());
 				assertArrayEquals(bitmap1, s.getWindowBitmap());
 				foundFirst = true;
-			} else if(s.getPeriod() == 1) {
+			} else if (s.getPeriod() == 1) {
 				assertArrayEquals(secret2, s.getSecret());
 				assertEquals(outgoing2, s.getOutgoingStreamCounter());
 				assertEquals(centre2, s.getWindowCentre());
 				assertArrayEquals(bitmap2, s.getWindowBitmap());
 				foundSecond = true;
-			} else if(s.getPeriod() == 2) {
+			} else if (s.getPeriod() == 2) {
 				assertArrayEquals(secret3, s.getSecret());
 				assertEquals(outgoing3, s.getOutgoingStreamCounter());
 				assertEquals(centre3, s.getWindowCentre());
@@ -1193,24 +1193,24 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(3, secrets.size());
 		foundSecond = foundThird = false;
 		boolean foundFourth = false;
-		for(TemporarySecret s : secrets) {
+		for (TemporarySecret s : secrets) {
 			assertEquals(contactId, s.getContactId());
 			assertEquals(transportId, s.getTransportId());
 			assertEquals(epoch, s.getEpoch());
 			assertEquals(alice, s.getAlice());
-			if(s.getPeriod() == 1) {
+			if (s.getPeriod() == 1) {
 				assertArrayEquals(secret2, s.getSecret());
 				assertEquals(outgoing2, s.getOutgoingStreamCounter());
 				assertEquals(centre2, s.getWindowCentre());
 				assertArrayEquals(bitmap2, s.getWindowBitmap());
 				foundSecond = true;
-			} else if(s.getPeriod() == 2) {
+			} else if (s.getPeriod() == 2) {
 				assertArrayEquals(secret3, s.getSecret());
 				assertEquals(outgoing3, s.getOutgoingStreamCounter());
 				assertEquals(centre3, s.getWindowCentre());
 				assertArrayEquals(bitmap3, s.getWindowBitmap());
 				foundThird = true;
-			} else if(s.getPeriod() == 3) {
+			} else if (s.getPeriod() == 3) {
 				assertArrayEquals(secret4, s.getSecret());
 				assertEquals(outgoing4, s.getOutgoingStreamCounter());
 				assertEquals(centre4, s.getWindowCentre());
@@ -1387,13 +1387,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		Collection<Endpoint> endpoints = db.getEndpoints(txn);
 		assertEquals(2, endpoints.size());
 		boolean foundFirst = false, foundSecond = false;
-		for(Endpoint ep : endpoints) {
+		for (Endpoint ep : endpoints) {
 			assertEquals(contactId, ep.getContactId());
-			if(ep.getTransportId().equals(transportId1)) {
+			if (ep.getTransportId().equals(transportId1)) {
 				assertEquals(epoch1, ep.getEpoch());
 				assertEquals(alice1, ep.getAlice());
 				foundFirst = true;
-			} else if(ep.getTransportId().equals(transportId2)) {
+			} else if (ep.getTransportId().equals(transportId2)) {
 				assertEquals(epoch2, ep.getEpoch());
 				assertEquals(alice2, ep.getAlice());
 				foundSecond = true;
@@ -1530,7 +1530,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add some offered messages and count them
 		List<MessageId> ids = new ArrayList<MessageId>();
-		for(int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			MessageId m = new MessageId(TestUtils.getRandomId());
 			db.addOfferedMessage(txn, contactId, m);
 			ids.add(m);
@@ -1595,7 +1595,7 @@ public class H2DatabaseTest extends BriarTestCase {
 			// Ask for a nonexistent message - an exception should be thrown
 			db.getRawMessage(txn, messageId);
 			fail();
-		} catch(DbException expected) {
+		} catch (DbException expected) {
 			// It should be possible to abort the transaction without error
 			db.abortTransaction(txn);
 		}
@@ -1606,7 +1606,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
 				MAX_SIZE), new TestFileUtils(), new SystemClock());
-		if(!resume) TestUtils.deleteTestDirectory(testDir);
+		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;
 	}

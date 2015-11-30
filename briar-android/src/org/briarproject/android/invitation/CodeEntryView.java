@@ -55,7 +55,7 @@ implements OnEditorActionListener, OnClickListener {
 			@Override
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
-				if(continueButton != null)
+				if (continueButton != null)
 					continueButton.setEnabled(getText().length() == 6);
 			}
 		};
@@ -78,12 +78,12 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		if(!validateAndReturnCode()) codeEntry.setText("");
+		if (!validateAndReturnCode()) codeEntry.setText("");
 		return true;
 	}
 
 	public void onClick(View view) {
-		if(!validateAndReturnCode()) codeEntry.setText("");
+		if (!validateAndReturnCode()) codeEntry.setText("");
 	}
 
 	private boolean validateAndReturnCode() {
@@ -91,7 +91,7 @@ implements OnEditorActionListener, OnClickListener {
 		int remoteCode;
 		try {
 			remoteCode = Integer.parseInt(remoteCodeString);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 		// Hide the soft keyboard
