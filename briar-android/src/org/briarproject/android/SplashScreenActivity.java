@@ -1,27 +1,8 @@
 package org.briarproject.android;
 
-import static android.view.Gravity.CENTER;
-import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static java.util.logging.Level.INFO;
-import static org.briarproject.android.TestingConstants.DEFAULT_LOG_LEVEL;
-import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
-import static org.briarproject.android.TestingConstants.TESTING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-
-import java.io.File;
-import java.util.logging.Logger;
-
-import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.db.DatabaseConfig;
-
-import roboguice.RoboGuice;
-import roboguice.activity.RoboSplashActivity;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
@@ -30,6 +11,24 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.google.inject.Injector;
+
+import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.db.DatabaseConfig;
+
+import java.io.File;
+import java.util.logging.Logger;
+
+import roboguice.RoboGuice;
+import roboguice.activity.RoboSplashActivity;
+
+import static android.view.Gravity.CENTER;
+import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
+import static java.util.logging.Level.INFO;
+import static org.briarproject.android.TestingConstants.DEFAULT_LOG_LEVEL;
+import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
+import static org.briarproject.android.TestingConstants.TESTING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 public class SplashScreenActivity extends RoboSplashActivity {
 
@@ -91,9 +90,8 @@ public class SplashScreenActivity extends RoboSplashActivity {
 		}
 	}
 
-	@SuppressLint("NewApi")
 	private void enableStrictMode() {
-		if (TESTING && Build.VERSION.SDK_INT >= 9) {
+		if (TESTING) {
 			ThreadPolicy.Builder threadPolicy = new ThreadPolicy.Builder();
 			threadPolicy.detectAll();
 			threadPolicy.penaltyLog();

@@ -1,12 +1,26 @@
 package org.briarproject.plugins.tor;
 
-import static android.content.Context.CONNECTIVITY_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
-import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
-import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.FileObserver;
+
+import net.freehaven.tor.control.EventHandler;
+import net.freehaven.tor.control.TorControlConnection;
+
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportConfig;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.system.LocationUtils;
+import org.briarproject.util.StringUtils;
 
 import java.io.EOFException;
 import java.io.File;
@@ -29,31 +43,16 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
-import net.freehaven.tor.control.EventHandler;
-import net.freehaven.tor.control.TorControlConnection;
-
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportConfig;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.system.LocationUtils;
-import org.briarproject.util.StringUtils;
-
 import socks.Socks5Proxy;
 import socks.SocksSocket;
-import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Build;
-import android.os.FileObserver;
+
+import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
+import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
+import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 class TorPlugin implements DuplexPlugin, EventHandler {
 
@@ -228,7 +227,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			out = new FileOutputStream(torFile);
 			copy(in, out);
 			// Make the Tor binary executable
-			if (!setExecutable(torFile)) {
+			if (!torFile.setExecutable(true, true)) {
 				LOG.warning("Could not make Tor binary executable");
 				return false;
 			}
@@ -299,26 +298,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 		in.close();
 		out.close();
-	}
-
-	@SuppressLint("NewApi")
-	private boolean setExecutable(File f) {
-		if (Build.VERSION.SDK_INT >= 9) {
-			return f.setExecutable(true, true);
-		} else {
-			String[] command = { "chmod", "700", f.getAbsolutePath() };
-			try {
-				return Runtime.getRuntime().exec(command).waitFor() == 0;
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			} catch (InterruptedException e) {
-				LOG.warning("Interrupted while executing chmod");
-				Thread.currentThread().interrupt();
-			} catch (SecurityException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
-			return false;
-		}
 	}
 
 	private void tryToClose(InputStream in) {

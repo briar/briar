@@ -43,5 +43,6 @@
     <orderEntry type="library" exported="" name="jmock-2.5.1" level="project" />
     <orderEntry type="library" exported="" name="hamcrest-core-1.1" level="project" />
     <orderEntry type="library" exported="" name="hamcrest-library-1.1" level="project" />
+    <orderEntry type="library" exported="" name="briar-tests.briar-tests" level="project" />
   </component>
 </module>

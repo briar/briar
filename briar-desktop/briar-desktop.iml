@@ -39,5 +39,6 @@
     <orderEntry type="library" exported="" name="jnotify-0.94" level="project" />
     <orderEntry type="library" exported="" name="bluecove-gpl-2.1.1-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="jssc-0.9-briar" level="project" />
+    <orderEntry type="library" exported="" name="briar-desktop.briar-desktop" level="project" />
   </component>
 </module>

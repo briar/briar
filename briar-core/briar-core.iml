@@ -32,5 +32,6 @@
     <orderEntry type="library" exported="" name="h2small-1.3.170" level="project" />
     <orderEntry type="library" exported="" name="lcrypto-jdk15on-152" level="project" />
     <orderEntry type="library" exported="" name="weupnp-0.1.3-SNAPSHOT-briar" level="project" />
+    <orderEntry type="library" exported="" name="briar-core.briar-core" level="project" />
   </component>
 </module>
