@@ -35,4 +35,8 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
 }
