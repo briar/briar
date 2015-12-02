@@ -119,7 +119,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while getting BluetoothAdapter");
 		} catch (ExecutionException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 		if (adapter == null) {
 			LOG.info("Bluetooth is not supported");
@@ -156,13 +156,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 				p.put("address", adapter.getAddress());
 				callback.mergeLocalProperties(p);
 				// Bind a server socket to accept connections from contacts
-				BluetoothServerSocket ss = null;
+				BluetoothServerSocket ss;
 				try {
 					ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid());
 				} catch (IOException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					tryToClose(ss);
 					return;
 				}
 				if (!isRunning()) {
@@ -331,12 +330,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 		UUID uuid = UUID.nameUUIDFromBytes(b);
 		if (LOG.isLoggable(INFO)) LOG.info("Invitation UUID " + uuid);
 		// Bind a server socket for receiving invitation connections
-		BluetoothServerSocket ss = null;
+		BluetoothServerSocket ss;
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(ss);
 			return null;
 		}
 		// Start the background threads

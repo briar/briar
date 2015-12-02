@@ -85,18 +85,18 @@ class InsecureBluetooth {
 			setCloseHandler.invoke(socket, mHandler, handle);
 			return socket;
 		} catch (NoSuchMethodException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (NoSuchFieldException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (IllegalAccessException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (InstantiationException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (InvocationTargetException e) {
 			if (e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
 			} else {
-				throw new IOException(e.toString());
+				throw new IOException(e);
 			}
 		}
 	}
@@ -122,18 +122,18 @@ class InsecureBluetooth {
 			}
 			return socket;
 		} catch (NoSuchMethodException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (NoSuchFieldException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (IllegalAccessException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (InstantiationException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (InvocationTargetException e) {
 			if (e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
 			} else {
-				throw new IOException(e.toString());
+				throw new IOException(e);
 			}
 		}
 	}
@@ -155,16 +155,16 @@ class InsecureBluetooth {
 			return constructor.newInstance(TYPE_RFCOMM, -1, false, true, device,
 					-1, new ParcelUuid(uuid));
 		} catch (NoSuchMethodException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (IllegalAccessException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (InstantiationException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		} catch (InvocationTargetException e) {
 			if (e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
 			} else {
-				throw new IOException(e.toString());
+				throw new IOException(e);
 			}
 		}
 	}
