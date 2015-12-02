@@ -14,7 +14,7 @@ public class AndroidUtils {
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	public static Collection<String> getSupportedArchitectures() {
-		List<String> abis = new ArrayList<>();
+		List<String> abis = new ArrayList<String>();
 		if (Build.VERSION.SDK_INT >= 21) {
 			abis.addAll(Arrays.asList(Build.SUPPORTED_ABIS));
 		} else {
