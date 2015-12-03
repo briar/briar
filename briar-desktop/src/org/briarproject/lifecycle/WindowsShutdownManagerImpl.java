@@ -38,9 +38,9 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	private static final int WS_MINIMIZE = 0x20000000;
 
 	private final Map<String, Object> options;
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	private boolean initialised = false; // Locking: synchLock
+	private boolean initialised = false; // Locking: lock
 
 	WindowsShutdownManagerImpl() {
 		// Use the Unicode versions of Win32 API calls
@@ -52,12 +52,12 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	@Override
 	public int addShutdownHook(Runnable r) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			if (!initialised) initialise();
 			return super.addShutdownHook(r);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
@@ -66,7 +66,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		return new StartOnce(r);
 	}
 
-	// Locking: synchLock
+	// Locking: lock
 	private void initialise() {
 		if (OsUtils.isWindows()) {
 			new EventLoop().start();
@@ -78,7 +78,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	// Package access for testing
 	void runShutdownHooks() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			boolean interrupted = false;
 			// Start each hook in its own thread
@@ -94,7 +94,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 			}
 			if (interrupted) Thread.currentThread().interrupt();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
@@ -162,7 +162,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		}
 	}
 
-	private static interface User32 extends StdCallLibrary {
+	private interface User32 extends StdCallLibrary {
 
 		HWND CreateWindowEx(int styleEx, String className, String windowName,
 				int style, int x, int y, int width, int height, HWND parent,
@@ -177,8 +177,8 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		LRESULT DispatchMessage(MSG msg);
 	}
 
-	private static interface WindowProc extends StdCallCallback {
+	private interface WindowProc extends StdCallCallback {
 
-		public LRESULT callback(HWND hwnd, int msg, WPARAM wp, LPARAM lp);
+		LRESULT callback(HWND hwnd, int msg, WPARAM wp, LPARAM lp);
 	}
 }

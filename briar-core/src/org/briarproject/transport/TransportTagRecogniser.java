@@ -29,9 +29,9 @@ class TransportTagRecogniser {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final TransportId transportId;
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	// The following are locking: synchLock
+	// The following are locking: lock
 	private final Map<Bytes, TagContext> tagMap;
 	private final Map<RemovalKey, RemovalContext> removalMap;
 
@@ -45,7 +45,7 @@ class TransportTagRecogniser {
 	}
 
 	StreamContext recogniseTag(byte[] tag) throws DbException {
-		synchLock.lock();
+		lock.lock();
 		try {
 			TagContext t = tagMap.remove(new Bytes(tag));
 			if (t == null) return null; // The tag was not expected
@@ -69,12 +69,12 @@ class TransportTagRecogniser {
 			return new StreamContext(t.contactId, transportId, t.secret,
 					t.streamNumber, t.alice);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	void addSecret(TemporarySecret s) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			ContactId contactId = s.getContactId();
 			boolean alice = s.getAlice();
@@ -97,23 +97,23 @@ class TransportTagRecogniser {
 			RemovalContext r = new RemovalContext(window, secret, alice);
 			removalMap.put(new RemovalKey(contactId, period), r);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	void removeSecret(ContactId contactId, long period) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			RemovalKey k = new RemovalKey(contactId, period);
 			RemovalContext removed = removalMap.remove(k);
 			if (removed == null) throw new IllegalArgumentException();
 			removeSecret(removed);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
-	// Locking: synchLock
+	// Locking: lock
 	private void removeSecret(RemovalContext r) {
 		// Remove the expected tags
 		SecretKey key = crypto.deriveTagKey(r.secret, !r.alice);
@@ -126,7 +126,7 @@ class TransportTagRecogniser {
 	}
 
 	void removeSecrets(ContactId c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
 			for (RemovalKey k : removalMap.keySet())
@@ -134,18 +134,18 @@ class TransportTagRecogniser {
 			for (RemovalKey k : keysToRemove)
 				removeSecret(k.contactId, k.period);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	void removeSecrets() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			for (RemovalContext r : removalMap.values()) removeSecret(r);
 			assert tagMap.isEmpty();
 			removalMap.clear();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 

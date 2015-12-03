@@ -15,15 +15,15 @@ class ReferenceManagerImpl implements ReferenceManager {
 	private static final Logger LOG =
 			Logger.getLogger(ReferenceManagerImpl.class.getName());
 
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	// The following are locking: synchLock
+	// The following are locking: lock
 	private final Map<Class<?>, Map<Long, Object>> outerMap =
 			new HashMap<Class<?>, Map<Long, Object>>();
 	private long nextHandle = 0;
 
 	public <T> T getReference(long handle, Class<T> c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
 			if (innerMap == null) {
@@ -36,13 +36,13 @@ class ReferenceManagerImpl implements ReferenceManager {
 			Object o = innerMap.get(handle);
 			return c.cast(o);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 	}
 
 	public <T> long putReference(T reference, Class<T> c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
 			if (innerMap == null) {
@@ -57,12 +57,12 @@ class ReferenceManagerImpl implements ReferenceManager {
 			}
 			return handle;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	public <T> T removeReference(long handle, Class<T> c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Map<Long, Object> innerMap = outerMap.get(c);
 			if (innerMap == null) return null;
@@ -74,7 +74,7 @@ class ReferenceManagerImpl implements ReferenceManager {
 			}
 			return c.cast(o);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 	}

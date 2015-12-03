@@ -62,9 +62,9 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	// The following are locking: synchLock
+	// The following are locking: lock
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
 	private boolean connectionFailed = false;
 	private boolean localCompared = false, remoteCompared = false;
@@ -103,7 +103,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	}
 
 	public InvitationState addListener(InvitationListener l) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			listeners.add(l);
 			return new InvitationState(localInvitationCode,
@@ -112,7 +112,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 					localCompared, remoteCompared, localMatched, remoteMatched,
 					remoteName);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
@@ -134,11 +134,11 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			localProps = db.getLocalProperties();
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			synchLock.lock();
+			lock.lock();
 			try {
 				connectionFailed = true;
 			} finally {
-				synchLock.unlock();
+				lock.unlock();
 			}
 			for (InvitationListener l : listeners) l.connectionFailed();
 			return;
@@ -170,11 +170,11 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		}
 		// If none of the threads connected, inform the listeners
 		if (!connected.get()) {
-			synchLock.lock();
+			lock.lock();
 			try {
 				connectionFailed = true;
 			} finally {
-				synchLock.unlock();
+				lock.unlock();
 			}
 			for (InvitationListener l : listeners) l.connectionFailed();
 		}
@@ -203,23 +203,23 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	}
 
 	public void localConfirmationSucceeded() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			localCompared = true;
 			localMatched = true;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		localConfirmationLatch.countDown();
 	}
 
 	public void localConfirmationFailed() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			localCompared = true;
 			localMatched = false;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		localConfirmationLatch.countDown();
 	}
@@ -232,12 +232,12 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	}
 
 	void keyAgreementSucceeded(int localCode, int remoteCode) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			localConfirmationCode = localCode;
 			remoteConfirmationCode = remoteCode;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		for (InvitationListener l : listeners)
 			l.keyAgreementSucceeded(localCode, remoteCode);
@@ -249,43 +249,43 @@ class ConnectorGroup extends Thread implements InvitationTask {
 
 	boolean waitForLocalConfirmationResult() throws InterruptedException {
 		localConfirmationLatch.await(CONFIRMATION_TIMEOUT, MILLISECONDS);
-		synchLock.lock();
+		lock.lock();
 		try {
 			return localMatched;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	void remoteConfirmationSucceeded() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			remoteCompared = true;
 			remoteMatched = true;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		for (InvitationListener l : listeners) l.remoteConfirmationSucceeded();
 	}
 
 	void remoteConfirmationFailed() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			remoteCompared = true;
 			remoteMatched = false;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		for (InvitationListener l : listeners) l.remoteConfirmationFailed();
 	}
 
 	void pseudonymExchangeSucceeded(Author remoteAuthor) {
 		String name = remoteAuthor.getName();
-		synchLock.lock();
+		lock.lock();
 		try {
 			remoteName = name;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		for (InvitationListener l : listeners)
 			l.pseudonymExchangeSucceeded(name);

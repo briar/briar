@@ -14,15 +14,15 @@ abstract class UnixRemovableDriveMonitor implements RemovableDriveMonitor,
 JNotifyListener {
 
 	//TODO: rationalise this in a further refactor
-	private static final Lock staticSynchLock = new ReentrantLock();
+	private static final Lock staticLock = new ReentrantLock();
 
-	// The following are locking: staticSynchLock
+	// The following are locking: staticLock
 	private static boolean triedLoad = false;
 	private static Throwable loadError = null;
 
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	// The following are locking: synchLock
+	// The following are locking: lock
 	private final List<Integer> watches = new ArrayList<Integer>();
 	private boolean started = false;
 	private Callback callback = null;
@@ -41,7 +41,7 @@ JNotifyListener {
 	}
 
 	public static void checkEnabled() throws IOException {
-		staticSynchLock.lock();
+		staticLock.lock();
 		try {
 			if (!triedLoad) {
 				loadError = tryLoad();
@@ -49,7 +49,7 @@ JNotifyListener {
 			}
 			if (loadError != null) throw new IOException(loadError.toString());
 		} finally {
-			staticSynchLock.unlock();
+			staticLock.unlock();
 		}
 	}
 
@@ -61,7 +61,7 @@ JNotifyListener {
 			if (new File(path).exists())
 				watches.add(JNotify.addWatch(path, mask, false, this));
 		}
-		synchLock.lock();
+		lock.lock();
 		try {
 			assert !started;
 			assert this.callback == null;
@@ -69,14 +69,14 @@ JNotifyListener {
 			this.callback = callback;
 			this.watches.addAll(watches);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	public void stop() throws IOException {
 		checkEnabled();
 		List<Integer> watches;
-		synchLock.lock();
+		lock.lock();
 		try {
 			assert started;
 			assert callback != null;
@@ -85,18 +85,18 @@ JNotifyListener {
 			watches = new ArrayList<Integer>(this.watches);
 			this.watches.clear();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		for (Integer w : watches) JNotify.removeWatch(w);
 	}
 
 	public void fileCreated(int wd, String rootPath, String name) {
 		Callback callback;
-		synchLock.lock();
+		lock.lock();
 		try {
 			callback = this.callback;
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		if (callback != null)
 			callback.driveInserted(new File(rootPath + "/" + name));

@@ -20,9 +20,9 @@ class TagRecogniserImpl implements TagRecogniser {
 
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	// Locking: synchLock
+	// Locking: lock
 	private final Map<TransportId, TransportTagRecogniser> recognisers;
 
 	@Inject
@@ -35,11 +35,11 @@ class TagRecogniserImpl implements TagRecogniser {
 	public StreamContext recogniseTag(TransportId t, byte[] tag)
 			throws DbException {
 		TransportTagRecogniser r;
-		synchLock.lock();
+		lock.lock();
 		try {
 			r = recognisers.get(t);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		if (r == null) return null;
 		return r.recogniseTag(tag);
@@ -48,7 +48,7 @@ class TagRecogniserImpl implements TagRecogniser {
 	public void addSecret(TemporarySecret s) {
 		TransportId t = s.getTransportId();
 		TransportTagRecogniser r;
-		synchLock.lock();
+		lock.lock();
 		try {
 			r = recognisers.get(t);
 			if (r == null) {
@@ -56,49 +56,49 @@ class TagRecogniserImpl implements TagRecogniser {
 				recognisers.put(t, r);
 			}
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		r.addSecret(s);
 	}
 
 	public void removeSecret(ContactId c, TransportId t, long period) {
 		TransportTagRecogniser r;
-		synchLock.lock();
+		lock.lock();
 		try {
 			r = recognisers.get(t);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 		if (r != null) r.removeSecret(c, period);
 	}
 
 	public void removeSecrets(ContactId c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			for (TransportTagRecogniser r : recognisers.values())
 				r.removeSecrets(c);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	public void removeSecrets(TransportId t) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			recognisers.remove(t);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 	}
 
 	public void removeSecrets() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			for (TransportTagRecogniser r : recognisers.values())
 				r.removeSecrets();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 	}

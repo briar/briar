@@ -61,9 +61,9 @@ Service, EventListener {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final Context appContext;
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	// The following are locking: synchLock
+	// The following are locking: lock
 	private final Map<ContactId, Integer> contactCounts =
 			new HashMap<ContactId, Integer>();
 	private final Map<GroupId, Integer> groupCounts =
@@ -112,7 +112,7 @@ Service, EventListener {
 	}
 
 	public void showPrivateMessageNotification(ContactId c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Integer count = contactCounts.get(c);
 			if (count == null) contactCounts.put(c, 1);
@@ -120,23 +120,23 @@ Service, EventListener {
 			privateTotal++;
 			updatePrivateMessageNotification();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	public void clearPrivateMessageNotification(ContactId c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Integer count = contactCounts.remove(c);
 			if (count == null) return; // Already cleared
 			privateTotal -= count;
 			updatePrivateMessageNotification();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
-	// Locking: synchLock
+	// Locking: lock
 	private void updatePrivateMessageNotification() {
 		if (privateTotal == 0) {
 			clearPrivateMessageNotification();
@@ -181,7 +181,7 @@ Service, EventListener {
 		}
 	}
 
-	// Locking: synchLock
+	// Locking: lock
 	private void clearPrivateMessageNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
@@ -200,7 +200,7 @@ Service, EventListener {
 	}
 
 	public void showGroupPostNotification(GroupId g) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Integer count = groupCounts.get(g);
 			if (count == null) groupCounts.put(g, 1);
@@ -208,23 +208,23 @@ Service, EventListener {
 			groupTotal++;
 			updateGroupPostNotification();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
 	public void clearGroupPostNotification(GroupId g) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Integer count = groupCounts.remove(g);
 			if (count == null) return; // Already cleared
 			groupTotal -= count;
 			updateGroupPostNotification();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 
-	// Locking: synchLock
+	// Locking: lock
 	private void updateGroupPostNotification() {
 		if (groupTotal == 0) {
 			clearGroupPostNotification();
@@ -269,7 +269,7 @@ Service, EventListener {
 		}
 	}
 
-	// Locking: synchLock
+	// Locking: lock
 	private void clearGroupPostNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
@@ -277,7 +277,7 @@ Service, EventListener {
 	}
 
 	public void clearNotifications() {
-		synchLock.lock();
+		lock.lock();
 		try {
 			contactCounts.clear();
 			groupCounts.clear();
@@ -285,7 +285,7 @@ Service, EventListener {
 			clearPrivateMessageNotification();
 			clearGroupPostNotification();
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 	}
 }

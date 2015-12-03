@@ -27,9 +27,9 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			Logger.getLogger(ConnectionRegistryImpl.class.getName());
 
 	private final EventBus eventBus;
-	private final Lock synchLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	// The following are locking: synchLock
+	// The following are locking: lock
 	private final Map<TransportId, Map<ContactId, Integer>> connections;
 	private final Map<ContactId, Integer> contactCounts;
 
@@ -43,7 +43,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public void registerConnection(ContactId c, TransportId t) {
 		LOG.info("Connection registered");
 		boolean firstConnection = false;
-		synchLock.lock();
+		lock.lock();
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if (m == null) {
@@ -61,7 +61,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 				contactCounts.put(c, count + 1);
 			}
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 		if (firstConnection) {
@@ -73,7 +73,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public void unregisterConnection(ContactId c, TransportId t) {
 		LOG.info("Connection unregistered");
 		boolean lastConnection = false;
-		synchLock.lock();
+		lock.lock();
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if (m == null) throw new IllegalArgumentException();
@@ -93,7 +93,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 				contactCounts.put(c, count - 1);
 			}
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 		if (lastConnection) {
@@ -104,7 +104,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	public Collection<ContactId> getConnectedContacts(
 			TransportId t) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if (m == null) return Collections.emptyList();
@@ -112,17 +112,17 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			if (LOG.isLoggable(INFO)) LOG.info(ids.size() + " contacts connected");
 			return Collections.unmodifiableList(ids);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 	}
 
 	public boolean isConnected(ContactId c) {
-		synchLock.lock();
+		lock.lock();
 		try {
 			return contactCounts.containsKey(c);
 		} finally {
-			synchLock.unlock();
+			lock.unlock();
 		}
 
 	}
