@@ -27,7 +27,7 @@ public class BasicH2Test extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File db = new File(testDir, "db");
-	private final String url = "jdbc:h2:" + db.getPath();
+	private final String url = "jdbc:h2:" + db.getAbsolutePath();
 
 	private Connection connection = null;
 
@@ -106,19 +106,19 @@ public class BasicH2Test extends BriarTestCase {
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, -128
+				0, 0, 0, 0, 0, 0, 0, 0
 		};
 		byte[] second = new byte[] {
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0
+				0, 0, 0, 0, 0, 0, 0, 127
 		};
 		byte[] third = new byte[] {
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 127
+				0, 0, 0, 0, 0, 0, 0, (byte) 255
 		};
 		// Create the table
 		createTable(connection);

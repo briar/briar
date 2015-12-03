@@ -13,7 +13,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/build/classes/main" />
     <output-test url="file://$MODULE_DIR$/build/classes/test" />
     <exclude-output />
@@ -30,8 +30,8 @@
     <orderEntry type="module" module-name="briar-desktop" exported="" />
     <orderEntry type="library" exported="" name="guice-3.0-no_aop" level="project" />
     <orderEntry type="library" exported="" name="javax.inject" level="project" />
-    <orderEntry type="library" exported="" name="h2small-1.4.190.jar" level="project" />
-    <orderEntry type="library" exported="" name="lcrypto-jdk15on-152" level="project" />
+    <orderEntry type="library" exported="" name="_home_someone_workspace_briar_briar_core_libs_h2small_1_3_170_jar" level="project" />
+    <orderEntry type="library" exported="" name="_home_someone_workspace_briar_briar_core_libs_lcrypto_jdk15on_152_jar" level="project" />
     <orderEntry type="library" exported="" name="weupnp-0.1.3-SNAPSHOT-briar" level="project" />
     <orderEntry type="library" exported="" name="bluecove-2.1.1-SNAPSHOT-briar" level="project" />
     <orderEntry type="library" exported="" name="jna-4.1.0" level="project" />
