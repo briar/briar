@@ -1,23 +1,13 @@
-diff -Bbur jtorctl/net/freehaven/tor/control/TorControlConnection.java jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java
---- jtorctl/net/freehaven/tor/control/TorControlConnection.java	2014-10-03 12:21:51.883098440 +0100
-+++ jtorctl-briar/net/freehaven/tor/control/TorControlConnection.java	2014-10-06 16:28:53.516851714 +0100
-@@ -728,5 +728,19 @@
-         sendAndWaitForResponse("CLOSECIRCUIT "+circID+
-                                (ifUnused?" IFUNUSED":"")+"\r\n", null);
+diff --git a/net/freehaven/tor/control/TorControlConnection.java b/net/freehaven/tor/control/TorControlConnection.java
+index 9524612..38b1879 100644
+--- a/net/freehaven/tor/control/TorControlConnection.java
++++ b/net/freehaven/tor/control/TorControlConnection.java
+@@ -740,7 +740,7 @@ public class TorControlConnection implements TorControlCommands {
+      * service with the given hostname (excluding the .onion extension).
+      */
+     public void forgetHiddenService(String hostname) throws IOException {
+-        sendAndWaitForResponse("FORGETHS " + hostname + "\r\n", null);
++        sendAndWaitForResponse("HSFORGET " + hostname + "\r\n", null);
      }
-+
-+    /** Tells Tor to exit when this control connection is closed. This command
-+     * was added in Tor 0.2.2.28-beta.
-+     */
-+    public void takeOwnership() throws IOException {
-+        sendAndWaitForResponse("TAKEOWNERSHIP\r\n", null);
-+    }
-+
-+    /** Tells Tor to forget any cached client state relating to the hidden
-+     * service with the given hostname (excluding the .onion extension).
-+     */
-+    public void forgetHiddenService(String hostname) throws IOException {
-+        sendAndWaitForResponse("FORGETHS " + hostname + "\r\n", null);
-+    }
  }
  
