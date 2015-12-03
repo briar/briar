@@ -135,12 +135,14 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// If Bluetooth is enabled, bind a socket - otherwise enable it
 		if (adapter.isEnabled()) {
 			bind();
-		} else if (callback.getConfig().getBoolean("enable", true)) {
-			wasDisabled = true;
-			if (adapter.enable()) LOG.info("Enabling Bluetooth");
-			else LOG.info("Could not enable Bluetooth");
 		} else {
-			LOG.info("Not enabling Bluetooth");
+			wasDisabled = true;
+			if (callback.getConfig().getBoolean("enable", false)) {
+				if (adapter.enable()) LOG.info("Enabling Bluetooth");
+				else LOG.info("Could not enable Bluetooth");
+			} else {
+				LOG.info("Not enabling Bluetooth");
+			}
 		}
 		return true;
 	}

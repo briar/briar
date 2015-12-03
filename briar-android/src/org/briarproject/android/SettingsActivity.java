@@ -217,7 +217,7 @@ OnClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading settings took " + duration + " ms");
-					bluetoothSetting = c.getBoolean("enable", true);
+					bluetoothSetting = c.getBoolean("enable", false);
 					displaySettings();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -280,7 +280,6 @@ OnClickListener {
 			}
 			storeBluetoothSetting();
 			displaySettings();
-			return;
 		} else if (view == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean("notifyPrivateMessages",
