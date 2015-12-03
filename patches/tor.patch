@@ -1,18 +1,5 @@
-diff --git a/src/or/config.c b/src/or/config.c
-index 39b85aa..ff42d27 100644
---- a/src/or/config.c
-+++ b/src/or/config.c
-@@ -1096,6 +1096,8 @@ options_act_reversible(const or_options_t *old_options, char **msg)
-                  "non-control network connections. Shutting down all existing "
-                  "connections.");
-       connection_mark_all_noncontrol_connections();
-+      /* We can't complete circuits until the network is re-enabled. */
-+      can_complete_circuit = 0;
-     }
-   }
- 
 diff --git a/src/or/control.c b/src/or/control.c
-index 9378f38..17d2a46 100644
+index e25c3b2..3fff71d 100644
 --- a/src/or/control.c
 +++ b/src/or/control.c
 @@ -37,6 +37,8 @@
@@ -24,7 +11,7 @@ index 9378f38..17d2a46 100644
  #include "rephist.h"
  #include "router.h"
  #include "routerlist.h"
-@@ -156,6 +158,8 @@ static int handle_control_resolve(control_connection_t *conn, uint32_t len,
+@@ -157,6 +159,8 @@ static int handle_control_resolve(control_connection_t *conn, uint32_t len,
  static int handle_control_usefeature(control_connection_t *conn,
                                       uint32_t len,
                                       const char *body);
@@ -33,7 +20,7 @@ index 9378f38..17d2a46 100644
  static int write_stream_target_to_buf(entry_connection_t *conn, char *buf,
                                        size_t len);
  static void orconn_target_get_name(char *buf, size_t len,
-@@ -3164,6 +3168,33 @@ handle_control_dropguards(control_connection_t *conn,
+@@ -3211,6 +3215,33 @@ handle_control_dropguards(control_connection_t *conn,
    return 0;
  }
  
@@ -67,7 +54,7 @@ index 9378f38..17d2a46 100644
  /** Called when <b>conn</b> has no more bytes left on its outbuf. */
  int
  connection_control_finished_flushing(control_connection_t *conn)
-@@ -3461,6 +3492,9 @@ connection_control_process_inbuf(control_connection_t *conn)
+@@ -3508,6 +3539,9 @@ connection_control_process_inbuf(control_connection_t *conn)
    } else if (!strcasecmp(conn->incoming_cmd, "DROPGUARDS")) {
      if (handle_control_dropguards(conn, cmd_data_len, args))
        return -1;
@@ -78,7 +65,7 @@ index 9378f38..17d2a46 100644
      connection_printf_to_buf(conn, "510 Unrecognized command \"%s\"\r\n",
                               conn->incoming_cmd);
 diff --git a/src/or/rendclient.c b/src/or/rendclient.c
-index 19a8cef..c17439d 100644
+index 162e0ac..d255eb9 100644
 --- a/src/or/rendclient.c
 +++ b/src/or/rendclient.c
 @@ -31,6 +31,8 @@
@@ -108,7 +95,7 @@ index 19a8cef..c17439d 100644
   * send the introduction request. */
  void
 diff --git a/src/or/rendclient.h b/src/or/rendclient.h
-index 1f731d0..7084aef 100644
+index 098c61d..15b0956 100644
 --- a/src/or/rendclient.h
 +++ b/src/or/rendclient.h
 @@ -13,6 +13,7 @@
@@ -120,10 +107,10 @@ index 1f731d0..7084aef 100644
  void rend_client_introcirc_has_opened(origin_circuit_t *circ);
  void rend_client_rendcirc_has_opened(origin_circuit_t *circ);
 diff --git a/src/or/rendcommon.c b/src/or/rendcommon.c
-index a664b5d..70d7283 100644
+index 5fdd13e..8171008 100644
 --- a/src/or/rendcommon.c
 +++ b/src/or/rendcommon.c
-@@ -881,6 +881,34 @@ rend_cache_lookup_entry(const char *query, int version, rend_cache_entry_t **e)
+@@ -952,6 +952,34 @@ rend_cache_lookup_entry(const char *query, int version, rend_cache_entry_t **e)
    return 1;
  }
  
@@ -159,7 +146,7 @@ index a664b5d..70d7283 100644
   * copy the pointer to it to *<b>desc</b>.  Return 1 on success, 0 on
   * well-formed-but-not-found, and -1 on failure.
 diff --git a/src/or/rendcommon.h b/src/or/rendcommon.h
-index 07a47ac..0a3160d 100644
+index 8396cc3..c12940a 100644
 --- a/src/or/rendcommon.h
 +++ b/src/or/rendcommon.h
 @@ -39,6 +39,7 @@ void rend_cache_free_all(void);
@@ -170,25 +157,3 @@ index 07a47ac..0a3160d 100644
  int rend_cache_lookup_v2_desc_as_dir(const char *query, const char **desc);
  /** Return value from rend_cache_store_v2_desc_as_{dir,client}. */
  typedef enum {
-diff --git a/src/or/rendservice.c b/src/or/rendservice.c
-index a7c1e32..cc9c0f8 100644
---- a/src/or/rendservice.c
-+++ b/src/or/rendservice.c
-@@ -16,6 +16,7 @@
- #include "circuituse.h"
- #include "config.h"
- #include "directory.h"
-+#include "main.h"
- #include "networkstatus.h"
- #include "nodelist.h"
- #include "rendclient.h"
-@@ -3033,6 +3034,9 @@ rend_services_introduce(void)
-   time_t now;
-   const or_options_t *options = get_options();
- 
-+  if (!can_complete_circuit) 
-+    return;
-+
-   intro_nodes = smartlist_new();
-   now = time(NULL);
- 
