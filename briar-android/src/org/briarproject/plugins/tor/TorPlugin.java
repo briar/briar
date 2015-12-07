@@ -50,11 +50,18 @@ import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
+import static android.net.ConnectivityManager.TYPE_WIFI;
+
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.SettingsUpdatedEvent;
+
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-class TorPlugin implements DuplexPlugin, EventHandler {
+class TorPlugin implements DuplexPlugin, EventHandler,
+					EventListener {
 
 	static final TransportId ID = new TransportId("tor");
 
@@ -82,6 +89,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	private volatile boolean running = false, networkEnabled = false;
 	private volatile boolean bootstrapped = false;
+	private volatile boolean connectedToWifi = false;
+	private volatile boolean online = false;
+
 	private volatile ServerSocket socket = null;
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
@@ -585,27 +595,94 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 		@Override
 		public void onReceive(Context ctx, Intent i) {
+
 			if (!running) return;
-			boolean online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
+
+			Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
+			ConnectivityManager cm = (ConnectivityManager) o;
+			NetworkInfo net = cm.getActiveNetworkInfo();
+
+			/* Some devices fail to set EXTRA_NO_CONNECTIVITY, double check */
+			online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
 			if (online) {
-				// Some devices fail to set EXTRA_NO_CONNECTIVITY, double check
-				Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
-				ConnectivityManager cm = (ConnectivityManager) o;
-				NetworkInfo net = cm.getActiveNetworkInfo();
 				if (net == null || !net.isConnected()) online = false;
 			}
-			String country = locationUtils.getCurrentCountry();
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Online: " + online);
-				if ("".equals(country)) LOG.info("Country code unknown");
-				else LOG.info("Country code: " + country);
-			}
-			boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(country);
-			try {
-				enableNetwork(online && !blocked);
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
+
+			connectedToWifi = (net != null && net.getType() == TYPE_WIFI
+					&& net.isConnected());
+
+			updateConnectionStatus();
 		}
 	}
+
+	public void eventOccurred(Event e) {
+		if (e instanceof SettingsUpdatedEvent) {
+			if (!running) return;
+
+			updateConnectionStatus();
+		}
+	}
+
+	private void updateConnectionStatus() {
+
+		ioExecutor.execute(new Runnable() {
+
+			public void run() {
+
+				boolean wifiOnly = false;
+				boolean blocked = false;
+
+				String country = locationUtils.getCurrentCountry();
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Online: " + online);
+					if ("".equals(country)) LOG.info("Country code unknown");
+					else LOG.info("Country code: " + country);
+				}
+				blocked = TorNetworkMetadata.isTorProbablyBlocked(country);
+				TransportConfig c = callback.getConfig();
+				wifiOnly = c.getBoolean("torOverWifi", false);
+
+				try {
+					/*
+						1) Disable network if offline
+					*/
+					if (!online) {
+						LOG.log(WARNING, "Disabling network, network is offline");
+						enableNetwork(false);
+						return;
+					}
+
+					/*
+						2) Disable network if blocked
+					*/
+					if (blocked) {
+						LOG.log(WARNING, "Disabling network, country is blocked");
+						enableNetwork(false);
+						return;
+					}
+
+					/*
+						3) Disable network if wifiOnly and not connected to
+						wifi
+					*/
+					if (wifiOnly & !connectedToWifi){
+						LOG.log(WARNING, "Disabling network due to wifi only setting");
+						enableNetwork(false);
+						return;
+					}
+
+					/*
+						4) Otherwise enable network
+					*/
+					enableNetwork(true);
+
+				} catch (IOException e) {
+					if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				}
+
+			}
+
+		});
+	}
+
 }
