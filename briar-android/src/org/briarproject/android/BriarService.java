@@ -102,24 +102,27 @@ public class BriarService extends RoboService implements EventListener {
 				} else {
 					if (LOG.isLoggable(WARNING))
 						LOG.warning("Startup failed: " + result);
-					showStartupFailureNotification();
+					showStartupFailureNotification(result);
 					stopSelf();
 				}
 			}
 		}.start();
 	}
 
-	private void showStartupFailureNotification() {
+	private void showStartupFailureNotification(StartResult result) {
 		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
 		b.setSmallIcon(android.R.drawable.stat_notify_error);
 		b.setContentTitle(getText(R.string.startup_failed_notification_title));
 		b.setContentText(getText(R.string.startup_failed_notification_text));
-		Intent i = new Intent(this, DashboardActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+		Intent i = new Intent(this, StartupFailureActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
+		i.putExtra("briar.START_RESULT", result);
+		i.putExtra("briar.FAILURE_NOTIFICATION_ID", FAILURE_NOTIFICATION_ID);
+		b.setContentIntent(PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 		Object o = getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(FAILURE_NOTIFICATION_ID, b.build());
+
 		// Bring the dashboard to the front to clear all other activities
 		i = new Intent(this, DashboardActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);

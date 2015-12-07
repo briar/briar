@@ -219,5 +219,10 @@
 				android:value=".android.contact.ContactListActivity"
 			/>
 		</activity>
+		<activity
+			android:name=".android.StartupFailureActivity"
+			android:logo="@drawable/logo"
+			android:label="@string/startup_failed_activity_title" >
+		</activity>
 	</application>
 </manifest>
