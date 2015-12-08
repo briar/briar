@@ -1,13 +1,13 @@
 package org.briarproject.crypto;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestSeedProvider;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.system.SeedProvider;
 import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class KeyAgreementTest extends BriarTestCase {
 

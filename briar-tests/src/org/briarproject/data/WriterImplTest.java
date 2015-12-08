@@ -1,5 +1,11 @@
 package org.briarproject.data;
 
+import org.briarproject.BriarTestCase;
+import org.briarproject.TestUtils;
+import org.briarproject.util.StringUtils;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,18 +14,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
-import org.briarproject.util.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class WriterImplTest extends BriarTestCase {
 
 	private ByteArrayOutputStream out = null;
 	private WriterImpl w = null;
 
-	@Override
 	@Before
 	public void setUp() {
 		out = new ByteArrayOutputStream();

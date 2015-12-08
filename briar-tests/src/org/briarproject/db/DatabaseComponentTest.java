@@ -1,13 +1,5 @@
 package org.briarproject.db;
 
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
-import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestMessage;
 import org.briarproject.TestUtils;
@@ -57,6 +49,19 @@ import org.briarproject.api.transport.TemporarySecret;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
+import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public abstract class DatabaseComponentTest extends BriarTestCase {
 

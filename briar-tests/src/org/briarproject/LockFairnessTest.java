@@ -1,12 +1,15 @@
 package org.briarproject;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.junit.Test;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class LockFairnessTest extends BriarTestCase {
 

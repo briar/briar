@@ -1,9 +1,5 @@
 package org.briarproject.plugins;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
@@ -14,6 +10,14 @@ import org.briarproject.api.plugins.ConnectionRegistry;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ConnectionRegistryImplTest extends BriarTestCase {
 

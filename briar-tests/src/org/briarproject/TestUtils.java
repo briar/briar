@@ -1,13 +1,13 @@
 package org.briarproject;
 
+import org.briarproject.api.UniqueId;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.briarproject.api.UniqueId;
 
 public class TestUtils {
 

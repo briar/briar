@@ -1,11 +1,5 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
-import static org.junit.Assert.assertArrayEquals;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
@@ -22,6 +16,15 @@ import org.briarproject.api.transport.TemporarySecret;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class KeyManagerImplTest extends BriarTestCase {
 

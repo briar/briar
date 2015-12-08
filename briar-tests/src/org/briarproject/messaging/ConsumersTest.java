@@ -1,14 +1,16 @@
 package org.briarproject.messaging;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.security.GeneralSecurityException;
-import java.util.Random;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.MessageDigest;
 import org.junit.Test;
+
+import java.security.GeneralSecurityException;
+import java.util.Random;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ConsumersTest extends BriarTestCase {
 

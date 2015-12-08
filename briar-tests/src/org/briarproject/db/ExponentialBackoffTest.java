@@ -3,6 +3,8 @@ package org.briarproject.db;
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class ExponentialBackoffTest extends BriarTestCase {
 
 	private static final int ONE_HOUR = 60 * 60 * 1000;

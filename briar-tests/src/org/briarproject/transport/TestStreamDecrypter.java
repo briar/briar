@@ -1,16 +1,16 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import org.briarproject.api.FormatException;
+import org.briarproject.api.crypto.StreamDecrypter;
+import org.briarproject.util.ByteUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.briarproject.api.FormatException;
-import org.briarproject.api.crypto.StreamDecrypter;
-import org.briarproject.util.ByteUtils;
+import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 class TestStreamDecrypter implements StreamDecrypter {
 

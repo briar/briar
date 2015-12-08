@@ -1,8 +1,5 @@
 package org.briarproject.messaging;
 
-import java.util.Arrays;
-import java.util.concurrent.Executor;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
@@ -16,6 +13,9 @@ import org.briarproject.plugins.ImmediateExecutor;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.concurrent.Executor;
 
 public class SimplexOutgoingSessionTest extends BriarTestCase {
 

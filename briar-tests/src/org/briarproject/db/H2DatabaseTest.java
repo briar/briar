@@ -1,24 +1,5 @@
 package org.briarproject.db;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
-import static org.junit.Assert.assertArrayEquals;
-
-import java.io.File;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseConfig;
 import org.briarproject.TestFileUtils;
@@ -43,6 +24,31 @@ import org.briarproject.system.SystemClock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class H2DatabaseTest extends BriarTestCase {
 
@@ -87,7 +93,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		contactId = new ContactId(1);
 	}
 
-	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -1611,7 +1616,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		return db;
 	}
 
-	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);

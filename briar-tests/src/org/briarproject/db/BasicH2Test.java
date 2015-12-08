@@ -1,6 +1,10 @@
 package org.briarproject.db;
 
-import static java.sql.Types.BINARY;
+import org.briarproject.BriarTestCase;
+import org.briarproject.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.sql.Connection;
@@ -13,11 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static java.sql.Types.BINARY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class BasicH2Test extends BriarTestCase {
 

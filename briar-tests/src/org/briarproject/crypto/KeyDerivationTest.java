@@ -1,15 +1,17 @@
 package org.briarproject.crypto;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestSeedProvider;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
 
 public class KeyDerivationTest extends BriarTestCase {
 

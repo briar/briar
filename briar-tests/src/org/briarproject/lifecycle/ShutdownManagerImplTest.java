@@ -1,11 +1,14 @@
 package org.briarproject.lifecycle;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ShutdownManagerImplTest extends BriarTestCase {
 

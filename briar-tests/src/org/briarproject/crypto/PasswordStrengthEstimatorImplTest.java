@@ -1,10 +1,11 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.junit.Test;
+
+import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
+import static org.junit.Assert.assertTrue;
 
 public class PasswordStrengthEstimatorImplTest extends BriarTestCase {
 

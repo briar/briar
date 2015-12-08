@@ -1,12 +1,5 @@
 package org.briarproject.crypto;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.spongycastle.asn1.sec.SECNamedCurves;
 import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
 import org.spongycastle.asn1.x9.X9ECParameters;
@@ -27,6 +20,13 @@ import org.spongycastle.crypto.signers.HMacDSAKCalculator;
 import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
 import org.spongycastle.math.ec.MontgomeryLadderMultiplier;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 // Not a JUnit test
 public class EllipticCurvePerformanceTest {

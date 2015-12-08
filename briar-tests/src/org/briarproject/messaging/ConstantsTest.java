@@ -1,21 +1,7 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
-import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
-
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Random;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseModule;
@@ -49,8 +35,23 @@ import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Random;
+
+import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
+import static org.junit.Assert.assertTrue;
 
 public class ConstantsTest extends BriarTestCase {
 

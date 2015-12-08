@@ -1,16 +1,16 @@
 package org.briarproject.plugins;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
-
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 
 public abstract class DuplexServerTest extends DuplexTest {
 

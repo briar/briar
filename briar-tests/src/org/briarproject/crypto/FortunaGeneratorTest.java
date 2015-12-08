@@ -1,12 +1,13 @@
 package org.briarproject.crypto;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.params.KeyParameter;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class FortunaGeneratorTest extends BriarTestCase {
 

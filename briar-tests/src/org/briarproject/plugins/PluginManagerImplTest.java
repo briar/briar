@@ -1,9 +1,5 @@
 package org.briarproject.plugins;
 
-import java.util.Arrays;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
@@ -22,6 +18,12 @@ import org.briarproject.system.SystemClock;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import static org.junit.Assert.assertTrue;
 
 public class PluginManagerImplTest extends BriarTestCase {
 

@@ -1,16 +1,7 @@
 package org.briarproject;
 
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-import static org.junit.Assert.assertArrayEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Random;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorFactory;
@@ -46,8 +37,20 @@ import org.briarproject.messaging.MessagingModule;
 import org.briarproject.transport.TransportModule;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Random;
+
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ProtocolIntegrationTest extends BriarTestCase {
 

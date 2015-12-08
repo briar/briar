@@ -1,10 +1,5 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
 import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
@@ -18,6 +13,12 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+
+import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
+import static org.junit.Assert.assertEquals;
 
 public class EllipticCurveMultiplicationTest extends BriarTestCase {
 

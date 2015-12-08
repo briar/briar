@@ -1,12 +1,12 @@
 package org.briarproject;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import org.briarproject.api.Author;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class TestMessage implements Message {
 

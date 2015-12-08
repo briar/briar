@@ -1,14 +1,5 @@
 package org.briarproject.system;
 
-import static org.briarproject.api.system.SeedProvider.SEED_BYTES;
-import static org.junit.Assert.assertArrayEquals;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.Bytes;
@@ -17,11 +8,21 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
+import static org.briarproject.api.system.SeedProvider.SEED_BYTES;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class LinuxSeedProviderTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 
-	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -84,7 +85,6 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 		assertArrayEquals(seed, p.getSeed());
 	}
 
-	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
