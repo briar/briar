@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
     <string name="app_name">Briar</string>
     <string name="crash_report_title">Briar Crash Report</string>
     <string name="ongoing_notification_title">Signed into Briar</string>
@@ -13,6 +15,8 @@
     <string name="passwords_do_not_match">Passwords do not match</string>
     <string name="create_account_button">Create Account</string>
     <string name="enter_password">Enter your password:</string>
+    <string name="password_hint">Password</string>
+    <string name="forgotten_password">I have forgotten my password</string>
     <string name="try_again">Wrong password, try again:</string>
     <string name="sign_in_button">Sign In</string>
     <string name="startup_failed_notification_title">Briar could not start</string>
