@@ -36,8 +36,9 @@
     <string name="contact_list_title">Contacts</string>
     <string name="no_contacts">No contacts</string>
     <string name="add_contact_title">Add a Contact</string>
-    <string name="your_nickname">Your nickname: </string>
+    <string name="your_nickname">Please select the identity you want to use:</string>
     <string name="face_to_face">For security reasons you must be face-to-face with the person you want to add as a contact.\n\nThis will prevent anyone from impersonating you or reading your messages in future.</string>
+    <string name="bluetooth_explanation">Contacts need to add each other at the same time. Please continue together and allow Bluetooth to be enabled for the process to work.</string>
     <string name="continue_button">Continue</string>
     <string name="your_invitation_code">Your invitation code is</string>
     <string name="enter_invitation_code">Please enter your contact\'s invitation code:</string>
