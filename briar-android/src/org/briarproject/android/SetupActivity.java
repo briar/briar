@@ -66,7 +66,6 @@ OnEditorActionListener {
 	private EditText nicknameEntry = null;
 	private EditText passwordEntry = null, passwordConfirmation = null;
 	private StrengthMeter strengthMeter = null;
-	private TextView feedback = null;
 	private Button createAccountButton = null;
 	private ProgressBar progress = null;
 
@@ -154,12 +153,6 @@ OnEditorActionListener {
 		strengthMeter.setVisibility(INVISIBLE);
 		layout.addView(strengthMeter);
 
-		feedback = new TextView(this);
-		feedback.setGravity(CENTER);
-		feedback.setPadding(0, pad, 0, pad);
-		feedback.setText("");
-		layout.addView(feedback);
-
 		createAccountButton = new Button(this);
 		createAccountButton.setLayoutParams(WRAP_WRAP);
 		createAccountButton.setText(R.string.create_account_button);
@@ -192,19 +185,12 @@ OnEditorActionListener {
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength = strengthEstimator.estimateStrength(firstPassword);
 		strengthMeter.setStrength(strength);
-		if (nicknameLength > MAX_AUTHOR_NAME_LENGTH) {
-			feedback.setText(R.string.name_too_long);
-		} else if (firstPassword.length() == 0) {
-			feedback.setText("");
-		} else if (secondPassword.length() == 0 || passwordsMatch) {
-			if (strength < PasswordStrengthEstimator.WEAK)
-				feedback.setText(R.string.password_too_weak);
-			else feedback.setText("");
-		} else if (!passwordsMatch) {
-			feedback.setText(R.string.passwords_do_not_match);
-		} else {
-			feedback.setText("");
-		}
+		if (nicknameLength > MAX_AUTHOR_NAME_LENGTH)
+			nicknameEntry.setError(getString(R.string.name_too_long));
+		if (firstPassword.length() > 0 && strength < PasswordStrengthEstimator.WEAK)
+			passwordEntry.setError(getString(R.string.password_too_weak));
+		if (secondPassword.length() > 0 && !passwordsMatch)
+			passwordConfirmation.setError(getString(R.string.passwords_do_not_match));
 		createAccountButton.setEnabled(nicknameLength > 0
 				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
 				&& passwordsMatch && strength >= WEAK);
@@ -219,7 +205,6 @@ OnEditorActionListener {
 
 	public void onClick(View view) {
 		// Replace the feedback text and button with a progress bar
-		feedback.setVisibility(GONE);
 		createAccountButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		final String nickname = nicknameEntry.getText().toString();
