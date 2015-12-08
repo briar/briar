@@ -17,6 +17,9 @@
     <string name="sign_in_button">Sign In</string>
     <string name="startup_failed_notification_title">Briar could not start</string>
     <string name="startup_failed_notification_text">You may need to reinstall Briar.</string>
+    <string name="startup_failed_activity_title">Briar Startup Failure</string>
+    <string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contact connections are lost. Unfortunately, you need to reinstall Briar und set up a new account.</string>
+    <string name="startup_failed_service_error">Briar was unable to start a required plugin. Reinstalling Briar usually solves this problem. However, please note that you will then lose your account and all data associated with it since Briar is not using central servers to store your data on.</string>
     <string name="expiry_warning">This software has expired.\nPlease install a newer version.</string>
     <string name="contact_list_button">Contacts</string>
     <string name="delete_contact">Delete contact</string>
