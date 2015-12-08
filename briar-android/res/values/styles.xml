@@ -12,4 +12,21 @@
     <style name="WindowTitleBackground">
         <item name="android:background">@color/action_bar_background</item>
     </style>
+
+    <style name="BriarButton">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:padding">@dimen/margin_large</item>
+    </style>
+
+    <style name="BriarButton.Default"/>
+
+    <style name="BriarTextTitle">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+    </style>
+
+    <style name="BriarTextBody">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+    </style>
 </resources>
