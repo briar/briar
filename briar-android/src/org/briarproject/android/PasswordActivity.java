@@ -113,6 +113,7 @@ public class PasswordActivity extends BaseActivity {
 				PasswordActivity.this.mTitle.setText(R.string.try_again);
 				PasswordActivity.this.mSignInButton.setVisibility(VISIBLE);
 				PasswordActivity.this.mProgress.setVisibility(GONE);
+				PasswordActivity.this.mPassword.setText("");
 			}
 		});
 	}
