@@ -1,13 +1,9 @@
 package org.briarproject.android.invitation;
 
-import static android.widget.Toast.LENGTH_LONG;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-
-import java.util.Collection;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -24,10 +20,17 @@ import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Toast;
+import java.util.Collection;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.widget.Toast.LENGTH_LONG;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.CONNECTED;
+import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.WAIT_FOR_CONTACT;
+import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.DETAILS;
 
 public class AddContactActivity extends BriarActivity
 implements InvitationListener {
@@ -86,9 +89,10 @@ implements InvitationListener {
 				} else if (remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
 				} else if (connectionFailed) {
-					setView(new ConnectionFailedView(this));
+					setView(new ErrorView(this, R.string.connection_failed,
+							R.string.could_not_find_contact));
 				} else if (contactName == null) {
-					setView(new CodesDoNotMatchView(this));
+					setView(new ErrorView(this, R.string.codes_do_not_match, R.string.interfering));
 				} else {
 					showToastAndFinish();
 					return;
@@ -113,24 +117,25 @@ implements InvitationListener {
 				} else if (remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
 				} else if (connectionFailed) {
-					setView(new ConnectionFailedView(this));
+					setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+							R.string.could_not_find_contact));
 				} else if (connected && localConfirmationCode == -1) {
-					setView(new ConnectedView(this));
+					setView(new ConfirmationCodeView(this, CONNECTED));
 				} else if (localConfirmationCode == -1) {
-					setView(new ConnectionView(this));
+					setView(new InvitationCodeView(this, true));
 				} else if (!localCompared) {
 					setView(new ConfirmationCodeView(this));
 				} else if (!remoteCompared) {
-					setView(new WaitForContactView(this));
+					setView(new ConfirmationCodeView(this, WAIT_FOR_CONTACT));
 				} else if (localMatched && remoteMatched) {
 					if (contactName == null) {
-						setView(new ContactDetailsView(this));
+						setView(new ConfirmationCodeView(this, DETAILS));
 					} else {
 						showToastAndFinish();
 						return;
 					}
 				} else {
-					setView(new CodesDoNotMatchView(this));
+					setView(new ErrorView(this, R.string.codes_do_not_match, R.string.interfering));
 				}
 			}
 		}
@@ -276,7 +281,10 @@ implements InvitationListener {
 		if (localAuthorId == null) throw new IllegalStateException();
 		if (localInvitationCode == -1) throw new IllegalStateException();
 		remoteInvitationCode = code;
-		setView(new ConnectionView(this));
+
+		// change UI to show a progress indicator
+		setView(new InvitationCodeView(this, true));
+
 		task = invitationTaskFactory.createTask(localAuthorId,
 				localInvitationCode, code, enableBluetooth);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
@@ -295,13 +303,14 @@ implements InvitationListener {
 		localCompared = true;
 		if (code == remoteConfirmationCode) {
 			localMatched = true;
-			if (remoteMatched) setView(new ContactDetailsView(this));
-			else if (remoteCompared) setView(new CodesDoNotMatchView(this));
-			else setView(new WaitForContactView(this));
+			if (remoteMatched) setView(new ConfirmationCodeView(this, DETAILS));
+			else if (remoteCompared) setView(new ErrorView(this, R.string.codes_do_not_match,
+					R.string.interfering));
+			else setView(new ConfirmationCodeView(this, WAIT_FOR_CONTACT));
 			task.localConfirmationSucceeded();
 		} else {
 			localMatched = false;
-			setView(new CodesDoNotMatchView(this));
+			setView(new ErrorView(this, R.string.codes_do_not_match, R.string.interfering));
 			task.localConfirmationFailed();
 		}
 	}
@@ -314,7 +323,7 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				connected = true;
-				setView(new ConnectedView(AddContactActivity.this));
+				setView(new ConfirmationCodeView(AddContactActivity.this, CONNECTED));
 			}
 		});
 	}
@@ -323,7 +332,8 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				connectionFailed = true;
-				setView(new ConnectionFailedView(AddContactActivity.this));
+				setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+						R.string.could_not_find_contact));
 			}
 		});
 	}
@@ -343,7 +353,8 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				connectionFailed = true;
-				setView(new ConnectionFailedView(AddContactActivity.this));
+				setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+						R.string.could_not_find_contact));
 			}
 		});
 	}
@@ -354,7 +365,7 @@ implements InvitationListener {
 				remoteCompared = true;
 				remoteMatched = true;
 				if (localMatched)
-					setView(new ContactDetailsView(AddContactActivity.this));
+					setView(new ConfirmationCodeView(AddContactActivity.this, DETAILS));
 			}
 		});
 	}
@@ -365,7 +376,8 @@ implements InvitationListener {
 				remoteCompared = true;
 				remoteMatched = false;
 				if (localMatched)
-					setView(new CodesDoNotMatchView(AddContactActivity.this));
+					setView(new ErrorView(AddContactActivity.this, R.string.codes_do_not_match,
+							R.string.interfering));
 			}
 		});
 	}
@@ -382,7 +394,8 @@ implements InvitationListener {
 	public void pseudonymExchangeFailed() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				setView(new ConnectionFailedView(AddContactActivity.this));
+				setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+						R.string.could_not_find_contact));
 			}
 		});
 	}

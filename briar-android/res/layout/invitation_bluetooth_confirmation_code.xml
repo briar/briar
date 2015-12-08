@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/margin_activity_vertical"
+        android:paddingEnd="@dimen/margin_activity_horizontal"
+        android:paddingRight="@dimen/margin_activity_horizontal"
+        android:paddingStart="@dimen/margin_activity_horizontal"
+        android:paddingLeft="@dimen/margin_activity_horizontal"
+        android:paddingTop="@dimen/margin_activity_vertical">
+
+        <TextView
+            android:id="@+id/stepView"
+            style="@style/BriarTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:padding="@dimen/margin_medium"
+            tools:text="Step 3/3"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+
+        <TextView
+            android:id="@+id/connectedView"
+            style="@style/BriarTextTitle"
+            android:textSize="@dimen/text_size_large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/connected_to_contact"
+            android:padding="@dimen/margin_medium"
+            android:layout_below="@+id/stepView"
+            android:layout_centerHorizontal="true"
+            android:drawableLeft="@drawable/navigation_accept"
+            android:drawableStart="@drawable/navigation_accept"
+            android:gravity="center_vertical"/>
+
+        <TextView
+            android:id="@+id/yourConfirmationCodeView"
+            style="@style/BriarTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/your_confirmation_code"
+            android:padding="@dimen/margin_medium"
+            android:layout_below="@+id/connectedView"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/codeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_medium"
+            android:textSize="50sp"
+            android:layout_below="@+id/yourConfirmationCodeView"
+            android:layout_centerHorizontal="true"
+            tools:text="1337"/>
+
+        <TextView
+            android:id="@+id/waitingView"
+            style="@style/BriarTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/searching_format"
+            android:layout_gravity="center_horizontal"
+            android:padding="@dimen/margin_medium"
+            android:layout_below="@+id/codeView"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            android:gravity="center_horizontal"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_below="@+id/waitingView"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/enterCodeTextView"
+            style="@style/BriarTextBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enter_confirmation_code"
+            android:layout_gravity="center_horizontal"
+            android:padding="@dimen/margin_medium"
+            android:layout_below="@+id/codeView"
+            android:layout_centerHorizontal="true"/>
+
+        <include
+            android:id="@+id/codeEntryView"
+            layout="@layout/view_code_entry"
+            android:layout_below="@+id/enterCodeTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_medium"/>
+
+        <Button
+            android:id="@+id/continueButton"
+            style="@style/BriarButton.Default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/continue_button"
+            android:layout_gravity="center_horizontal"
+            android:enabled="false"
+            android:layout_below="@+id/codeEntryView"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/margin_medium"/>
+
+    </RelativeLayout>
+</ScrollView>
