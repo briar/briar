@@ -1,5 +1,6 @@
 .metadata
 *.tmp
+*.swp
 
 # Windows thumbnail db
 Thumbs.db
@@ -8,14 +9,15 @@ Thumbs.db
 .DS_Store
 
 # Eclipse project files
-.classpath
-.project
+#.classpath
+#.project
 
 # Local configuration file (sdk path, etc)
 local.properties
 
 # Android Studio
 .idea
+!.idea/codeStyleSettings.xml
 .gradle
-build
+build/
 *.iml
