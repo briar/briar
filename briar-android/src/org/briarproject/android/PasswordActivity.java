@@ -47,6 +47,7 @@ public class PasswordActivity extends RoboActivity {
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private TextView enterPassword = null;
+	private EditText passwordEntry = null;
 	private Button signInButton = null;
 	private ProgressBar progress = null;
 
@@ -86,7 +87,7 @@ public class PasswordActivity extends RoboActivity {
 		enterPassword.setText(R.string.enter_password);
 		layout.addView(enterPassword);
 
-		final EditText passwordEntry = new EditText(this);
+		passwordEntry = new EditText(this);
 		passwordEntry.setId(1);
 		passwordEntry.setMaxLines(1);
 		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
@@ -152,6 +153,7 @@ public class PasswordActivity extends RoboActivity {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				enterPassword.setText(R.string.try_again);
+				passwordEntry.setText("");
 				signInButton.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
 			}
