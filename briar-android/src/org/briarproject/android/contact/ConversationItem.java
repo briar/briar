@@ -5,14 +5,16 @@ import org.briarproject.api.db.MessageHeader;
 // This class is not thread-safe
 class ConversationItem {
 
+	public enum State { STORED, SENT, DELIVERED };
+
 	private final MessageHeader header;
 	private byte[] body;
-	private boolean delivered;
+	private State status;
 
 	ConversationItem(MessageHeader header) {
 		this.header = header;
 		body = null;
-		delivered = header.isDelivered();
+		status = header.isDelivered() ? State.DELIVERED : State.STORED;
 	}
 
 	MessageHeader getHeader() {
@@ -27,11 +29,11 @@ class ConversationItem {
 		this.body = body;
 	}
 
-	boolean isDelivered() {
-		return delivered;
+	State getStatus() {
+		return status;
 	}
 
-	void setDelivered(boolean delivered) {
-		this.delivered = delivered;
+	void setStatus(State state) {
+		this.status = state;
 	}
 }

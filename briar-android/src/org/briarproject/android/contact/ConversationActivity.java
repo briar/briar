@@ -55,6 +55,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
+import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
@@ -384,25 +385,31 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		} else if (e instanceof MessageExpiredEvent) {
 			LOG.info("Message expired, reloading");
 			loadHeaders();
+		} else if (e instanceof MessagesSentEvent) {
+			MessagesSentEvent m = (MessagesSentEvent) e;
+			if (m.getContactId().equals(contactId)) {
+				LOG.info("Messages sent");
+				markMessages(m.getMessageIds(), ConversationItem.State.SENT);
+			}
 		} else if (e instanceof MessagesAckedEvent) {
 			MessagesAckedEvent m = (MessagesAckedEvent) e;
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
-				markMessagesDelivered(m.getMessageIds());
+				markMessages(m.getMessageIds(), ConversationItem.State.DELIVERED);
 			}
 		}
 	}
 
-	private void markMessagesDelivered(final Collection<MessageId> acked) {
+	private void markMessages(final Collection<MessageId> messageIds, final ConversationItem.State state) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				Set<MessageId> ackedSet = new HashSet<MessageId>(acked);
+				Set<MessageId> messages = new HashSet<MessageId>(messageIds);
 				boolean changed = false;
 				int count = adapter.getCount();
 				for (int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
-					if (ackedSet.contains(item.getHeader().getId())) {
-						item.setDelivered(true);
+					if (messages.contains(item.getHeader().getId())) {
+						item.setStatus(state);
 						changed = true;
 					}
 				}
@@ -417,7 +424,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		createMessage(StringUtils.toUtf8(message), timestamp);
-		Toast.makeText(this, R.string.message_sent_toast, LENGTH_SHORT).show();
 		content.setText("");
 		hideSoftKeyboard();
 	}
