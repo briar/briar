@@ -182,7 +182,7 @@ OnEditorActionListener {
 
 	private void enableOrDisableContinueButton() {
 		if (progress == null) return; // Not created yet
-		if (passwordEntry.getText().length() > 0)
+		if (passwordEntry.getText().length() > 0 && passwordEntry.hasFocus())
 			strengthMeter.setVisibility(VISIBLE);
 		else strengthMeter.setVisibility(INVISIBLE);
 		String nickname = nicknameEntry.getText().toString();
