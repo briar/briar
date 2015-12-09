@@ -3,6 +3,8 @@ package org.briarproject.util;
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class ByteUtilsTest extends BriarTestCase {
 
 	@Test

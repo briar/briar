@@ -1,8 +1,9 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-import static org.junit.Assert.assertArrayEquals;
+import org.briarproject.BriarTestCase;
+import org.briarproject.api.crypto.StreamDecrypter;
+import org.briarproject.api.crypto.StreamEncrypter;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,10 +12,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Random;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.api.crypto.StreamDecrypter;
-import org.briarproject.api.crypto.StreamEncrypter;
-import org.junit.Test;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class TransportIntegrationTest extends BriarTestCase {
 

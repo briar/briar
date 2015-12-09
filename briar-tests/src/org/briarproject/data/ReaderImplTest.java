@@ -1,14 +1,18 @@
 package org.briarproject.data;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.io.ByteArrayInputStream;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.util.StringUtils;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ReaderImplTest extends BriarTestCase {
 
@@ -174,13 +178,13 @@ public class ReaderImplTest extends BriarTestCase {
 				+ "38" + "4000000000000000" + "38" + "BFF0000000000000"
 				+ "38" + "8000000000000000" + "38" + "FFF0000000000000"
 				+ "38" + "7FF0000000000000" + "38" + "7FF8000000000000");
-		assertEquals(0.0, r.readFloat());
-		assertEquals(1.0, r.readFloat());
-		assertEquals(2.0, r.readFloat());
-		assertEquals(-1.0, r.readFloat());
-		assertEquals(-0.0, r.readFloat());
-		assertEquals(Double.NEGATIVE_INFINITY, r.readFloat());
-		assertEquals(Double.POSITIVE_INFINITY, r.readFloat());
+		assertEquals(0, Double.compare(0.0, r.readFloat()));
+		assertEquals(0, Double.compare(1.0, r.readFloat()));
+		assertEquals(0, Double.compare(2.0, r.readFloat()));
+		assertEquals(0, Double.compare(-1.0, r.readFloat()));
+		assertEquals(0, Double.compare(-0.0, r.readFloat()));
+		assertEquals(0, Double.compare(Double.NEGATIVE_INFINITY, r.readFloat()));
+		assertEquals(0, Double.compare(Double.POSITIVE_INFINITY, r.readFloat()));
 		assertTrue(Double.isNaN(r.readFloat()));
 		assertTrue(r.eof());
 	}

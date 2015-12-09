@@ -1,7 +1,5 @@
 package org.briarproject.db;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.system.Timer;
@@ -9,6 +7,10 @@ import org.briarproject.db.DatabaseCleaner.Callback;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class DatabaseCleanerImplTest extends BriarTestCase {
 

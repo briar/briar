@@ -1,12 +1,15 @@
 package org.briarproject.crypto;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.util.Random;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestSeedProvider;
 import org.junit.Test;
+
+import java.util.Random;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PasswordBasedKdfTest extends BriarTestCase {
 

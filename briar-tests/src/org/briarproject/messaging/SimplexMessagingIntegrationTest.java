@@ -1,16 +1,7 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Random;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseModule;
@@ -53,8 +44,21 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Random;
+
+import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
@@ -79,7 +83,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		epoch = System.currentTimeMillis() - 2 * ROTATION_PERIOD;
 	}
 
-	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -229,7 +232,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.close();
 	}
 
-	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);

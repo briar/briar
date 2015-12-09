@@ -1,10 +1,5 @@
 package org.briarproject.crypto;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.security.GeneralSecurityException;
-import java.util.Random;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestSeedProvider;
 import org.briarproject.api.crypto.KeyPair;
@@ -12,6 +7,12 @@ import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
 import org.junit.Test;
+
+import java.security.GeneralSecurityException;
+import java.util.Random;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 public class KeyEncodingAndParsingTest extends BriarTestCase {
 

@@ -1,15 +1,7 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.data.DataConstants.LIST_END_LENGTH;
-import static org.briarproject.api.data.DataConstants.UNIQUE_ID_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.HEADER_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
-import static org.briarproject.api.messaging.PacketTypes.ACK;
-import static org.briarproject.api.messaging.PacketTypes.OFFER;
-import static org.briarproject.api.messaging.PacketTypes.REQUEST;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
@@ -21,8 +13,18 @@ import org.briarproject.data.DataModule;
 import org.briarproject.util.ByteUtils;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import static org.briarproject.api.data.DataConstants.LIST_END_LENGTH;
+import static org.briarproject.api.data.DataConstants.UNIQUE_ID_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.HEADER_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.messaging.PacketTypes.ACK;
+import static org.briarproject.api.messaging.PacketTypes.OFFER;
+import static org.briarproject.api.messaging.PacketTypes.REQUEST;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class PacketReaderImplTest extends BriarTestCase {
 

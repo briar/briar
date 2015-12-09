@@ -2,9 +2,9 @@ package org.briarproject;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
 
-public abstract class BriarTestCase extends TestCase {
+public abstract class BriarTestCase {
 
 	public BriarTestCase() {
 		// Ensure exceptions thrown on worker threads cause tests to fail

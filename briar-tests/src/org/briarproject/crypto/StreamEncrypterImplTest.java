@@ -1,16 +1,17 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-import static org.junit.Assert.assertArrayEquals;
+import org.briarproject.BriarTestCase;
+import org.briarproject.api.crypto.SecretKey;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.api.crypto.SecretKey;
-import org.junit.Test;
+import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class StreamEncrypterImplTest extends BriarTestCase {
 

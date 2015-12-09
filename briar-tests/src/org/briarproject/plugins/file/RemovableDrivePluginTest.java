@@ -1,15 +1,5 @@
 package org.briarproject.plugins.file;
 
-import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Executor;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestFileUtils;
 import org.briarproject.TestUtils;
@@ -25,13 +15,27 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Executor;
+
+import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 public class RemovableDrivePluginTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final ContactId contactId = new ContactId(234);
 	private final FileUtils fileUtils = new TestFileUtils();
 
-	@Override
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
@@ -352,7 +356,6 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
-	@Override
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);

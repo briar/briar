@@ -1,16 +1,16 @@
 package org.briarproject.plugins;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Random;
-import java.util.Scanner;
-
 import org.briarproject.api.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Random;
+import java.util.Scanner;
 
 abstract class DuplexTest {
 

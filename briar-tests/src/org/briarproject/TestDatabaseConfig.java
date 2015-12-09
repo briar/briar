@@ -1,9 +1,9 @@
 package org.briarproject;
 
-import java.io.File;
-
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
+
+import java.io.File;
 
 public class TestDatabaseConfig implements DatabaseConfig {
 

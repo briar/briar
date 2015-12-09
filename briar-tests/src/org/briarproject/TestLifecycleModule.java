@@ -1,15 +1,15 @@
 package org.briarproject;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.google.inject.AbstractModule;
 
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ShutdownManager;
 
-import com.google.inject.AbstractModule;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TestLifecycleModule extends AbstractModule {
 

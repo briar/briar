@@ -1,6 +1,8 @@
 package org.briarproject.plugins.file;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import org.briarproject.BriarTestCase;
+import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,9 +15,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
-import org.junit.Test;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 

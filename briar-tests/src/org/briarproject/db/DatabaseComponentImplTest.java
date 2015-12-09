@@ -1,10 +1,5 @@
 package org.briarproject.db;
 
-import static org.briarproject.db.DatabaseConstants.BYTES_PER_SWEEP;
-import static org.briarproject.db.DatabaseConstants.MIN_FREE_SPACE;
-
-import java.util.Collections;
-
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.EventBus;
@@ -13,6 +8,11 @@ import org.briarproject.db.DatabaseCleaner.Callback;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.util.Collections;
+
+import static org.briarproject.db.DatabaseConstants.BYTES_PER_SWEEP;
+import static org.briarproject.db.DatabaseConstants.MIN_FREE_SPACE;
 
 /**
  * Tests that use the DatabaseCleaner.Callback interface of

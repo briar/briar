@@ -1,13 +1,17 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
-import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
-import static org.junit.Assert.assertArrayEquals;
+import org.briarproject.BriarTestCase;
+import org.junit.Test;
 
 import java.util.Collection;
 
-import org.briarproject.BriarTestCase;
-import org.junit.Test;
+import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
+import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ReorderingWindowTest extends BriarTestCase {
 

@@ -1,17 +1,17 @@
 package org.briarproject.plugins.bluetooth;
 
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportConfig;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.plugins.DuplexClientTest;
+import org.briarproject.system.SystemClock;
+
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportConfig;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.plugins.DuplexClientTest;
-import org.briarproject.system.SystemClock;
 
 // This is not a JUnit test - it has to be run manually while the server test
 // is running on another machine

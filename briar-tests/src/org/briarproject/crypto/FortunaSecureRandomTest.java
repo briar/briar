@@ -1,10 +1,5 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.crypto.FortunaSecureRandom.SELF_TEST_VECTOR_1;
-import static org.briarproject.crypto.FortunaSecureRandom.SELF_TEST_VECTOR_2;
-import static org.briarproject.crypto.FortunaSecureRandom.SELF_TEST_VECTOR_3;
-import static org.junit.Assert.assertArrayEquals;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.MessageDigest;
 import org.junit.Test;
@@ -12,6 +7,12 @@ import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.params.KeyParameter;
+
+import static org.briarproject.crypto.FortunaSecureRandom.SELF_TEST_VECTOR_1;
+import static org.briarproject.crypto.FortunaSecureRandom.SELF_TEST_VECTOR_2;
+import static org.briarproject.crypto.FortunaSecureRandom.SELF_TEST_VECTOR_3;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FortunaSecureRandomTest extends BriarTestCase {
 

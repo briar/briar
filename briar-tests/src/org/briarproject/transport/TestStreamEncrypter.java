@@ -1,14 +1,14 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import org.briarproject.api.crypto.StreamEncrypter;
+import org.briarproject.util.ByteUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.briarproject.api.crypto.StreamEncrypter;
-import org.briarproject.util.ByteUtils;
+import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 class TestStreamEncrypter implements StreamEncrypter {
 

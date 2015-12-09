@@ -1,13 +1,5 @@
 package org.briarproject.plugins.file;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
@@ -15,6 +7,17 @@ import org.briarproject.util.OsUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 

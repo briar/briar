@@ -1,8 +1,8 @@
 package org.briarproject;
 
-import java.util.Random;
-
 import org.briarproject.api.system.SeedProvider;
+
+import java.util.Random;
 
 public class TestSeedProvider implements SeedProvider {
 

@@ -1,16 +1,16 @@
 package org.briarproject.plugins;
 
-import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
-
-import java.io.IOException;
-import java.util.Map;
-
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+
+import java.io.IOException;
+import java.util.Map;
+
+import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 
 public abstract class DuplexClientTest extends DuplexTest {
 

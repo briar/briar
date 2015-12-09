@@ -1,15 +1,15 @@
 package org.briarproject.plugins.tcp;
 
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportConfig;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.plugins.DuplexClientTest;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportConfig;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.plugins.DuplexClientTest;
 
 // This is not a JUnit test - it has to be run manually while the server test
 // is running on another machine

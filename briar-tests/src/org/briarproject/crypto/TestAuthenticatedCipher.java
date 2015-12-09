@@ -1,10 +1,10 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import org.briarproject.api.crypto.SecretKey;
 
 import java.security.GeneralSecurityException;
 
-import org.briarproject.api.crypto.SecretKey;
+import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 
 class TestAuthenticatedCipher implements AuthenticatedCipher {
 

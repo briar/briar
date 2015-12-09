@@ -1,11 +1,11 @@
 package org.briarproject;
 
-import java.io.File;
+import com.google.inject.AbstractModule;
 
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.system.FileUtils;
 
-import com.google.inject.AbstractModule;
+import java.io.File;
 
 public class TestDatabaseModule extends AbstractModule {
 

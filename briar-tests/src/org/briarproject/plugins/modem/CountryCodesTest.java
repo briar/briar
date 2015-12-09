@@ -3,6 +3,9 @@ package org.briarproject.plugins.modem;
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 public class CountryCodesTest extends BriarTestCase {
 
 	@Test

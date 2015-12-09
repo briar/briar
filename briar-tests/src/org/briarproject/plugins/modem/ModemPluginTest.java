@@ -1,9 +1,5 @@
 package org.briarproject.plugins.modem;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportProperties;
@@ -11,6 +7,14 @@ import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ModemPluginTest extends BriarTestCase {
 

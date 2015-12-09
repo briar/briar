@@ -1,12 +1,13 @@
 package org.briarproject.transport;
 
-import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.crypto.StreamDecrypter;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+
+import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
+import static org.junit.Assert.assertEquals;
 
 public class StreamReaderImplTest extends BriarTestCase {
 

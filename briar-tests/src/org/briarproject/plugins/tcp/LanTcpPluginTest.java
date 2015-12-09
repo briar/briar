@@ -1,6 +1,13 @@
 package org.briarproject.plugins.tcp;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import org.briarproject.BriarTestCase;
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportConfig;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -17,14 +24,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportConfig;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.junit.Test;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class LanTcpPluginTest extends BriarTestCase {
 
