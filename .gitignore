@@ -1,6 +1,23 @@
-build
-.gradle
 .metadata
 *.tmp
-.idea
+*.swp
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
+
+# Eclipse project files
+#.classpath
+#.project
+
+# Local configuration file (sdk path, etc)
 local.properties
+
+# Android Studio
+.idea
+!.idea/codeStyleSettings.xml
+.gradle
+build/
+*.iml
