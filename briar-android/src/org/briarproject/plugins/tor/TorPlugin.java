@@ -108,7 +108,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		hostnameFile = new File(torDirectory, "hostname");
+		hostnameFile = new File(torDirectory, "hs/hostname");
 		circuitBuilt = new AtomicBoolean(false);
 	}
 
@@ -140,7 +140,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			}
 			// Install the GeoIP database and config file if necessary
 			if (!isConfigInstalled() && !installConfig()) {
-				LOG.info("Could not install Tor config");
+				LOG.warning("Could not install Tor config");
 				return false;
 			}
 			LOG.info("Starting Tor");
@@ -354,6 +354,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					tryToClose(ss);
+					return;
 				}
 				if (!running) {
 					tryToClose(ss);
@@ -391,14 +392,15 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			LOG.info("Creating hidden service");
 			try {
 				// Watch for the hostname file being created/updated
-				hostnameFile.getParentFile().mkdirs();
+				File serviceDirectory = hostnameFile.getParentFile();
+				serviceDirectory.mkdirs();
 				hostnameFile.createNewFile();
 				CountDownLatch latch = new CountDownLatch(1);
 				FileObserver obs = new WriteObserver(hostnameFile, latch);
 				obs.startWatching();
 				// Use the control connection to update the Tor config
 				List<String> config = Arrays.asList(
-						"HiddenServiceDir " + torDirectory.getAbsolutePath(),
+						"HiddenServiceDir " + serviceDirectory.getAbsolutePath(),
 						"HiddenServicePort 80 127.0.0.1:" + port);
 				controlConnection.setConf(config);
 				controlConnection.saveConf();
