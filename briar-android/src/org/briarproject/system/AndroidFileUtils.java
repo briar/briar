@@ -14,4 +14,12 @@ public class AndroidFileUtils implements FileUtils {
 	public long getFreeSpace(File f) throws IOException {
 		return f.getUsableSpace();
 	}
+
+	public static void deleteFileOrDir(File f) {
+		if (f.isFile())
+			f.delete();
+		else if (f.isDirectory())
+			for (File child : f.listFiles())
+				deleteFileOrDir(child);
+	}
 }

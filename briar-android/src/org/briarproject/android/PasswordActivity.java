@@ -3,17 +3,16 @@ package org.briarproject.android;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import java.io.File;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.util.BriarIOUtils;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.system.AndroidFileUtils;
 import org.briarproject.util.StringUtils;
 
 import android.app.AlertDialog;
@@ -32,10 +31,10 @@ import android.widget.TextView.OnEditorActionListener;
 public class PasswordActivity extends BaseActivity {
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
-	private Button mSignInButton;
-	private ProgressBar mProgress;
-	private TextView mTitle;
-	private EditText mPassword;
+	private Button signInButton;
+	private ProgressBar progress;
+	private TextView title;
+	private EditText password;
 
 	private byte[] encrypted;
 
@@ -47,23 +46,23 @@ public class PasswordActivity extends BaseActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		String hex = this.getDbKeyInHex();
+		String hex = getDbKeyInHex();
 		if (hex == null || !databaseConfig.databaseExists()) {
-			this.clearDbPrefs();
+			clearDbPrefs();
 			return;
 		}
-		this.encrypted = StringUtils.fromHexString(hex);
+		encrypted = StringUtils.fromHexString(hex);
 
-		this.setContentView(R.layout.activity_password);
-		this.mSignInButton = (Button)findViewById(R.id.btn_sign_in);
-		this.mProgress = (ProgressBar)findViewById(R.id.progress_wheel);
-		this.mTitle = (TextView)findViewById(R.id.title_password);
-		this.mPassword = (EditText)findViewById(R.id.edit_password);
-		this.mPassword.setOnEditorActionListener(new OnEditorActionListener() {
+		setContentView(R.layout.activity_password);
+		signInButton = (Button)findViewById(R.id.btn_sign_in);
+		progress = (ProgressBar)findViewById(R.id.progress_wheel);
+		title = (TextView)findViewById(R.id.title_password);
+		password = (EditText)findViewById(R.id.edit_password);
+		password.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
-					validatePassword(encrypted, PasswordActivity.this.mPassword.getText());
+					validatePassword(encrypted, password.getText());
 				}
 				return false;
 			}
@@ -73,12 +72,12 @@ public class PasswordActivity extends BaseActivity {
 	@Override
 	protected void clearDbPrefs() {
 		super.clearDbPrefs();
-		BriarIOUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
-		this.gotoAndFinish(SetupActivity.class, RESULT_CANCELED);
+		AndroidFileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+		gotoAndFinish(SetupActivity.class, RESULT_CANCELED);
 	}
 
 	public void onSignInClick(View v) {
-		this.validatePassword(this.encrypted, this.mPassword.getText());
+		validatePassword(encrypted, password.getText());
 	}
 
 	public void onForgottenPasswordClick(View v) {
@@ -90,7 +89,7 @@ public class PasswordActivity extends BaseActivity {
 		builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				PasswordActivity.this.clearDbPrefs();
+				clearDbPrefs();
 			}
 		});
 		AlertDialog dialog = builder.create();
@@ -98,10 +97,10 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
-		this.hideSoftKeyboard();
+		hideSoftKeyboard();
 		// Replace the button with a progress bar
-		this.mSignInButton.setVisibility(View.INVISIBLE);
-		this.mProgress.setVisibility(VISIBLE);
+		signInButton.setVisibility(View.INVISIBLE);
+		progress.setVisibility(VISIBLE);
 		// Decrypt the database key in a background thread
 		final String password = e.toString();
 		cryptoExecutor.execute(new Runnable() {
@@ -120,10 +119,10 @@ public class PasswordActivity extends BaseActivity {
 	private void tryAgain() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				PasswordActivity.this.mTitle.setText(R.string.try_again);
-				PasswordActivity.this.mSignInButton.setVisibility(VISIBLE);
-				PasswordActivity.this.mProgress.setVisibility(GONE);
-				PasswordActivity.this.mPassword.setText("");
+				title.setText(R.string.try_again);
+				signInButton.setVisibility(VISIBLE);
+				progress.setVisibility(GONE);
+				password.setText("");
 			}
 		});
 	}
