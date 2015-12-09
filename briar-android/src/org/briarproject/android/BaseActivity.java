@@ -48,6 +48,11 @@ public abstract class BaseActivity extends RoboActivity {
         this.finish();
     }
 
+    protected void gotoAndFinish(Class classInstance)
+    {
+        this.gotoAndFinish(classInstance, Integer.MIN_VALUE);
+    }
+
     protected void hideSoftKeyboard()
     {
         Object o = getSystemService(INPUT_METHOD_SERVICE);

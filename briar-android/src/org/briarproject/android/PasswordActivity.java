@@ -9,12 +9,15 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.util.BriarIOUtils;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.StringUtils;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.KeyEvent;
@@ -70,7 +73,7 @@ public class PasswordActivity extends BaseActivity {
 	@Override
 	protected void clearDbPrefs() {
 		super.clearDbPrefs();
-		this.delete(databaseConfig.getDatabaseDirectory());
+		BriarIOUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
 		this.gotoAndFinish(SetupActivity.class, RESULT_CANCELED);
 	}
 
@@ -79,12 +82,19 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	public void onForgottenPasswordClick(View v) {
-		this.clearDbPrefs();
-	}
-
-	private void delete(File f) {
-		if (f.isFile()) f.delete();
-		else if (f.isDirectory()) for (File child : f.listFiles()) delete(child);
+		// TODO Encapsulate the dialog in a re-usable fragment
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.dialog_title_lost_password);
+		builder.setMessage(R.string.dialog_message_lost_password);
+		builder.setNegativeButton(R.string.no, null);
+		builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				PasswordActivity.this.clearDbPrefs();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
