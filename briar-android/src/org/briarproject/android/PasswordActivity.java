@@ -12,7 +12,7 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.system.AndroidFileUtils;
+import org.briarproject.api.system.FileUtils;
 import org.briarproject.util.StringUtils;
 
 import android.app.AlertDialog;
@@ -41,6 +41,7 @@ public class PasswordActivity extends BaseActivity {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile DatabaseConfig databaseConfig;
+	@Inject private FileUtils fileUtils;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -72,7 +73,7 @@ public class PasswordActivity extends BaseActivity {
 	@Override
 	protected void clearDbPrefs() {
 		super.clearDbPrefs();
-		AndroidFileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+		fileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
 		gotoAndFinish(SetupActivity.class, RESULT_CANCELED);
 	}
 

@@ -1,5 +1,7 @@
 package org.briarproject.plugins.file;
 
+import com.google.inject.Inject;
+
 import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 
 import java.io.File;
@@ -11,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.TestFileUtils;
 import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.plugins.TransportConnectionWriter;
@@ -29,7 +30,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final ContactId contactId = new ContactId(234);
-	private final FileUtils fileUtils = new TestFileUtils();
+	@Inject private FileUtils fileUtils;
 
 	@Override
 	@Before

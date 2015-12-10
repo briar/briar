@@ -45,7 +45,6 @@ import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.system.FileUtils;
-import org.briarproject.system.AndroidFileUtils;
 import org.briarproject.util.StringUtils;
 
 import android.annotation.SuppressLint;
@@ -71,12 +70,14 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 public class CrashReportActivity extends Activity implements OnClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(CrashReportActivity.class.getName());
 
-	private final FileUtils fileUtils = new AndroidFileUtils();
+	@Inject private FileUtils fileUtils;
 	private final AndroidExecutor androidExecutor = new AndroidExecutorImpl();
 
 	private ScrollView scroll = null;
