@@ -15,6 +15,6 @@ public class DesktopSystemModule extends AbstractModule {
 		bind(Timer.class).to(SystemTimer.class);
 		if (OsUtils.isLinux())
 			bind(SeedProvider.class).to(LinuxSeedProvider.class);
-		bind(FileUtils.class).to(DesktopFileUtils.class);
+		bind(FileUtils.class).to(FileUtilsImpl.class);
 	}
 }

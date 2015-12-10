@@ -2,7 +2,6 @@ package org.briarproject.db;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseConfig;
-import org.briarproject.TestFileUtils;
 import org.briarproject.TestMessage;
 import org.briarproject.TestUtils;
 import org.briarproject.api.Author;
@@ -20,6 +19,7 @@ import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.TemporarySecret;
+import org.briarproject.system.FileUtilsImpl;
 import org.briarproject.system.SystemClock;
 import org.junit.After;
 import org.junit.Before;
@@ -1610,7 +1610,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
-				MAX_SIZE), new TestFileUtils(), new SystemClock());
+				MAX_SIZE), new FileUtilsImpl(), new SystemClock());
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;

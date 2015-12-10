@@ -1,7 +1,7 @@
 package org.briarproject.plugins.file;
 
+import com.google.inject.Inject;
 import org.briarproject.BriarTestCase;
-import org.briarproject.TestFileUtils;
 import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.plugins.TransportConnectionWriter;
@@ -34,7 +34,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final ContactId contactId = new ContactId(234);
-	private final FileUtils fileUtils = new TestFileUtils();
+	@Inject private FileUtils fileUtils;
 
 	@Before
 	public void setUp() {
