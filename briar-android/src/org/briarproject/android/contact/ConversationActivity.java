@@ -8,7 +8,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
@@ -45,6 +44,7 @@ import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.MessageHeader.State;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
@@ -55,6 +55,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
+import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
@@ -76,7 +77,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ConversationActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener {
@@ -384,25 +384,31 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		} else if (e instanceof MessageExpiredEvent) {
 			LOG.info("Message expired, reloading");
 			loadHeaders();
+		} else if (e instanceof MessagesSentEvent) {
+			MessagesSentEvent m = (MessagesSentEvent) e;
+			if (m.getContactId().equals(contactId)) {
+				LOG.info("Messages sent");
+				markMessages(m.getMessageIds(), State.SENT);
+			}
 		} else if (e instanceof MessagesAckedEvent) {
 			MessagesAckedEvent m = (MessagesAckedEvent) e;
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
-				markMessagesDelivered(m.getMessageIds());
+				markMessages(m.getMessageIds(), State.DELIVERED);
 			}
 		}
 	}
 
-	private void markMessagesDelivered(final Collection<MessageId> acked) {
+	private void markMessages(final Collection<MessageId> messageIds, final State state) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				Set<MessageId> ackedSet = new HashSet<MessageId>(acked);
+				Set<MessageId> messages = new HashSet<MessageId>(messageIds);
 				boolean changed = false;
 				int count = adapter.getCount();
 				for (int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
-					if (ackedSet.contains(item.getHeader().getId())) {
-						item.setDelivered(true);
+					if (messages.contains(item.getHeader().getId())) {
+						item.setStatus(state);
 						changed = true;
 					}
 				}
@@ -417,7 +423,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		createMessage(StringUtils.toUtf8(message), timestamp);
-		Toast.makeText(this, R.string.message_sent_toast, LENGTH_SHORT).show();
 		content.setText("");
 		hideSoftKeyboard();
 	}

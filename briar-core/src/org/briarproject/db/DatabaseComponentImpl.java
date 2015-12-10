@@ -52,6 +52,7 @@ import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
+import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.RemoteRetentionTimeUpdatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
@@ -380,6 +381,7 @@ DatabaseCleaner.Callback {
 			lock.writeLock().unlock();
 		}
 		if (messages.isEmpty()) return null;
+		if (!ids.isEmpty()) eventBus.broadcast(new MessagesSentEvent(c, ids));
 		return Collections.unmodifiableList(messages);
 	}
 
@@ -455,6 +457,7 @@ DatabaseCleaner.Callback {
 			lock.writeLock().unlock();
 		}
 		if (messages.isEmpty()) return null;
+		if (!ids.isEmpty()) eventBus.broadcast(new MessagesSentEvent(c, ids));
 		return Collections.unmodifiableList(messages);
 	}
 

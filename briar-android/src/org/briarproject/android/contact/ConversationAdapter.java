@@ -13,6 +13,7 @@ import org.briarproject.R;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.MessageHeader.State;
 import org.briarproject.util.StringUtils;
 
 import android.content.Context;
@@ -79,11 +80,16 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 
 			footer.addView(new ElasticHorizontalSpace(ctx));
 
-			ImageView delivered = new ImageView(ctx);
-			delivered.setPadding(0, 0, pad, 0);
-			delivered.setImageResource(R.drawable.message_delivered);
-			if (!item.isDelivered()) delivered.setVisibility(INVISIBLE);
-			footer.addView(delivered);
+			ImageView status = new ImageView(ctx);
+			status.setPadding(0, 0, pad, 0);
+			if (item.getStatus() == State.DELIVERED) {
+				status.setImageResource(R.drawable.message_delivered);
+			} else if (item.getStatus() == State.SENT) {
+				status.setImageResource(R.drawable.message_sent);
+			} else {
+				status.setImageResource(R.drawable.message_stored);
+			}
+			footer.addView(status);
 
 			TextView date = new TextView(ctx);
 			date.setTextColor(res.getColor(R.color.private_message_date));

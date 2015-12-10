@@ -44,6 +44,7 @@ import org.briarproject.api.TransportProperties;
 import org.briarproject.api.db.DbClosedException;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.MessageHeader.State;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
@@ -1452,7 +1453,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (rs.next()) throw new DbException();
 			// Get the message headers
 			sql = "SELECT m.messageId, parentId, m.groupId, contentType,"
-					+ " timestamp, local, read, seen"
+					+ " timestamp, local, read, seen, s.txCount"
 					+ " FROM messages AS m"
 					+ " JOIN groups AS g"
 					+ " ON m.groupId = g.groupId"
@@ -1478,8 +1479,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean read = rs.getBoolean(7);
 				boolean seen = rs.getBoolean(8);
 				Author author = local ? localAuthor : remoteAuthor;
+
+				// initialize message status
+				State status;
+				if (seen) status = State.DELIVERED;
+				else if (rs.getInt(9) > 0) status = State.SENT;
+				else status = State.STORED;
+
 				headers.add(new MessageHeader(id, parent, groupId, author,
-						VERIFIED, contentType, timestamp, local, read, seen));
+						VERIFIED, contentType, timestamp, local, read, status));
 			}
 			rs.close();
 			ps.close();
@@ -1631,6 +1639,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	/**
+	 * This method is used to get group messages.
+	 * The message status won't be used.
+	 */
 	public Collection<MessageHeader> getMessageHeaders(Connection txn,
 			GroupId g) throws DbException {
 		PreparedStatement ps = null;
@@ -1669,12 +1681,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean read = rs.getBoolean(9);
 				boolean isSelf = rs.getBoolean(10);
 				boolean isContact = rs.getBoolean(11);
+
 				Author.Status status;
 				if (author == null) status = ANONYMOUS;
 				else if (isSelf || isContact) status = VERIFIED;
 				else status = UNKNOWN;
+
 				headers.add(new MessageHeader(id, parent, g, author, status,
-						contentType, timestamp, local, read, false));
+						contentType, timestamp, local, read, State.STORED));
 			}
 			rs.close();
 			ps.close();
