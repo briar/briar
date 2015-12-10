@@ -1,12 +1,11 @@
 package org.briarproject.system;
 
+import com.google.inject.AbstractModule;
+
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.FileUtils;
 import org.briarproject.api.system.SeedProvider;
 import org.briarproject.api.system.Timer;
 import org.briarproject.util.OsUtils;
-
-import com.google.inject.AbstractModule;
 
 public class DesktopSystemModule extends AbstractModule {
 
@@ -15,6 +14,5 @@ public class DesktopSystemModule extends AbstractModule {
 		bind(Timer.class).to(SystemTimer.class);
 		if (OsUtils.isLinux())
 			bind(SeedProvider.class).to(LinuxSeedProvider.class);
-		bind(FileUtils.class).to(FileUtilsImpl.class);
 	}
 }

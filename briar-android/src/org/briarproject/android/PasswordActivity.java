@@ -1,32 +1,32 @@
 package org.briarproject.android;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-
-import java.util.concurrent.Executor;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.api.system.FileUtils;
-import org.briarproject.util.StringUtils;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+
+import org.briarproject.R;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.util.FileUtils;
+import org.briarproject.util.StringUtils;
+
+import java.util.concurrent.Executor;
+
+import javax.inject.Inject;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 
 public class PasswordActivity extends BaseActivity {
 
@@ -41,7 +41,6 @@ public class PasswordActivity extends BaseActivity {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile DatabaseConfig databaseConfig;
-	@Inject private FileUtils fileUtils;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -55,14 +54,14 @@ public class PasswordActivity extends BaseActivity {
 		encrypted = StringUtils.fromHexString(hex);
 
 		setContentView(R.layout.activity_password);
-		signInButton = (Button)findViewById(R.id.btn_sign_in);
-		progress = (ProgressBar)findViewById(R.id.progress_wheel);
-		title = (TextView)findViewById(R.id.title_password);
-		password = (EditText)findViewById(R.id.edit_password);
+		signInButton = (Button) findViewById(R.id.btn_sign_in);
+		progress = (ProgressBar) findViewById(R.id.progress_wheel);
+		title = (TextView) findViewById(R.id.title_password);
+		password = (EditText) findViewById(R.id.edit_password);
 		password.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_DONE) {
+				if (actionId == IME_ACTION_DONE) {
 					validatePassword(encrypted, password.getText());
 				}
 				return false;
@@ -73,7 +72,7 @@ public class PasswordActivity extends BaseActivity {
 	@Override
 	protected void clearDbPrefs() {
 		super.clearDbPrefs();
-		fileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+		FileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
 		gotoAndFinish(SetupActivity.class, RESULT_CANCELED);
 	}
 
@@ -100,7 +99,7 @@ public class PasswordActivity extends BaseActivity {
 	private void validatePassword(final byte[] encrypted, Editable e) {
 		hideSoftKeyboard();
 		// Replace the button with a progress bar
-		signInButton.setVisibility(View.INVISIBLE);
+		signInButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		// Decrypt the database key in a background thread
 		final String password = e.toString();

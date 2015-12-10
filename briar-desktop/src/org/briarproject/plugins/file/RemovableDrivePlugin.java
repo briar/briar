@@ -1,6 +1,8 @@
 package org.briarproject.plugins.file;
 
-import static java.util.logging.Level.WARNING;
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,10 +13,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.api.system.FileUtils;
+import static java.util.logging.Level.WARNING;
 
 class RemovableDrivePlugin extends FilePlugin
 implements RemovableDriveMonitor.Callback {
@@ -27,10 +26,10 @@ implements RemovableDriveMonitor.Callback {
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
 
-	RemovableDrivePlugin(Executor ioExecutor, FileUtils fileUtils,
-			SimplexPluginCallback callback, RemovableDriveFinder finder,
-			RemovableDriveMonitor monitor, int maxLatency) {
-		super(ioExecutor, fileUtils, callback, maxLatency);
+	RemovableDrivePlugin(Executor ioExecutor, SimplexPluginCallback callback,
+			RemovableDriveFinder finder, RemovableDriveMonitor monitor,
+			int maxLatency) {
+		super(ioExecutor, callback, maxLatency);
 		this.finder = finder;
 		this.monitor = monitor;
 	}

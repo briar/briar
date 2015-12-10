@@ -1,8 +1,6 @@
 package org.briarproject.plugins;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.Executor;
+import com.google.inject.Provides;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.lifecycle.IoExecutor;
@@ -12,24 +10,26 @@ import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.reliability.ReliabilityLayerFactory;
-import org.briarproject.api.system.FileUtils;
 import org.briarproject.plugins.bluetooth.BluetoothPluginFactory;
 import org.briarproject.plugins.file.RemovableDrivePluginFactory;
 import org.briarproject.plugins.modem.ModemPluginFactory;
 import org.briarproject.plugins.tcp.LanTcpPluginFactory;
 import org.briarproject.plugins.tcp.WanTcpPluginFactory;
 
-import com.google.inject.Provides;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.Executor;
 
 public class DesktopPluginsModule extends PluginsModule {
 
 	@Provides
-	SimplexPluginConfig getSimplexPluginConfig(@IoExecutor Executor ioExecutor,
-			FileUtils fileUtils) {
+	SimplexPluginConfig getSimplexPluginConfig(
+			@IoExecutor Executor ioExecutor) {
 		SimplexPluginFactory removable =
-				new RemovableDrivePluginFactory(ioExecutor, fileUtils);
+				new RemovableDrivePluginFactory(ioExecutor);
 		final Collection<SimplexPluginFactory> factories =
-				Arrays.asList(removable);
+				Collections.singletonList(removable);
 		return new SimplexPluginConfig() {
 			public Collection<SimplexPluginFactory> getFactories() {
 				return factories;

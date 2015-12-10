@@ -1,7 +1,10 @@
 package org.briarproject.plugins.file;
 
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
+import org.briarproject.api.ContactId;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
+import org.briarproject.api.plugins.simplex.SimplexPlugin;
+import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,12 +16,8 @@ import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.plugins.simplex.SimplexPlugin;
-import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.api.system.FileUtils;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 
 public abstract class FilePlugin implements SimplexPlugin {
 
@@ -26,7 +25,6 @@ public abstract class FilePlugin implements SimplexPlugin {
 			Logger.getLogger(FilePlugin.class.getName());
 
 	protected final Executor ioExecutor;
-	protected final FileUtils fileUtils;
 	protected final SimplexPluginCallback callback;
 	protected final int maxLatency;
 
@@ -37,10 +35,9 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	protected FilePlugin(Executor ioExecutor, FileUtils fileUtils,
-			SimplexPluginCallback callback, int maxLatency) {
+	protected FilePlugin(Executor ioExecutor, SimplexPluginCallback callback,
+			int maxLatency) {
 		this.ioExecutor = ioExecutor;
-		this.fileUtils = fileUtils;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 	}
@@ -84,7 +81,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 		if (dir == null || !dir.exists() || !dir.isDirectory()) return null;
 		File f = new File(dir, filename);
 		try {
-			long capacity = fileUtils.getFreeSpace(dir);
+			long capacity = dir.getFreeSpace();
 			if (capacity < MIN_STREAM_LENGTH) return null;
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);

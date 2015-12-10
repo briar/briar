@@ -1,61 +1,5 @@
 package org.briarproject.android;
 
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-import static android.content.Intent.ACTION_SEND;
-import static android.content.Intent.EXTRA_EMAIL;
-import static android.content.Intent.EXTRA_STREAM;
-import static android.content.Intent.EXTRA_SUBJECT;
-import static android.net.ConnectivityManager.TYPE_MOBILE;
-import static android.net.ConnectivityManager.TYPE_WIFI;
-import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Scanner;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.android.util.ElasticHorizontalSpace;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.android.AndroidExecutor;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.plugins.Plugin;
-import org.briarproject.api.plugins.PluginManager;
-import org.briarproject.api.system.FileUtils;
-import org.briarproject.util.StringUtils;
-
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
@@ -77,6 +21,61 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.HorizontalBorder;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.android.util.ListLoadingProgressBar;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.plugins.Plugin;
+import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.util.StringUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+import static android.content.Intent.ACTION_SEND;
+import static android.content.Intent.EXTRA_EMAIL;
+import static android.content.Intent.EXTRA_STREAM;
+import static android.content.Intent.EXTRA_SUBJECT;
+import static android.net.ConnectivityManager.TYPE_MOBILE;
+import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+
 public class TestingActivity extends BriarActivity implements OnClickListener {
 
 	private static final Logger LOG =
@@ -91,8 +90,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	private LinearLayout status = null;
 	private ImageButton refresh = null, share = null;
 	private File temp = null;
-
-	@Inject private volatile FileUtils fileUtils;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -245,28 +242,20 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		statusMap.put("Virtual machine memory:", vmMemory);
 
 		// Internal storage
-		try {
-			File root = Environment.getRootDirectory();
-			long rootTotal = fileUtils.getTotalSpace(root);
-			long rootFree = fileUtils.getFreeSpace(root);
-			String internal = (rootTotal / 1024 / 1024) + " MiB total, "
-					+ (rootFree / 1024 / 1024) + " MiB free";
-			statusMap.put("Internal storage:", internal);
-		} catch (IOException e) {
-			statusMap.put("Internal storage:", "Unknown");
-		}
+		File root = Environment.getRootDirectory();
+		long rootTotal = root.getTotalSpace();
+		long rootFree = root.getFreeSpace();
+		String internal = (rootTotal / 1024 / 1024) + " MiB total, "
+				+ (rootFree / 1024 / 1024) + " MiB free";
+		statusMap.put("Internal storage:", internal);
 
 		// External storage (SD card)
-		try {
-			File sd = Environment.getExternalStorageDirectory();
-			long sdTotal = fileUtils.getTotalSpace(sd);
-			long sdFree = fileUtils.getFreeSpace(sd);
-			String external = (sdTotal / 1024 / 1024) + " MiB total, "
-					+ (sdFree / 1024 / 1024) + " MiB free";
-			statusMap.put("External storage:", external);
-		} catch (IOException e) {
-			statusMap.put("External storage:", "Unknown");
-		}
+		File sd = Environment.getExternalStorageDirectory();
+		long sdTotal = sd.getTotalSpace();
+		long sdFree = sd.getFreeSpace();
+		String external = (sdTotal / 1024 / 1024) + " MiB total, "
+				+ (sdFree / 1024 / 1024) + " MiB free";
+		statusMap.put("External storage:", external);
 
 		// Is mobile data available?
 		o = getSystemService(CONNECTIVITY_SERVICE);
@@ -355,7 +344,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		// Is Bluetooth connectable?
 		boolean btConnectable = bt != null &&
 				(bt.getScanMode() == SCAN_MODE_CONNECTABLE ||
-				bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+						bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 		// Is Bluetooth discoverable?
 		boolean btDiscoverable = bt != null &&
 				bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
