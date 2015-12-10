@@ -9,12 +9,12 @@ import org.briarproject.api.messaging.MessageId;
 public class MessagesSentEvent extends Event {
 
 	private final ContactId contactId;
-	private final Collection<MessageId> acked;
+	private final Collection<MessageId> messageIds;
 
 	public MessagesSentEvent(ContactId contactId,
-	                         Collection<MessageId> acked) {
+	                         Collection<MessageId> messageIds) {
 		this.contactId = contactId;
-		this.acked = acked;
+		this.messageIds = messageIds;
 	}
 
 	public ContactId getContactId() {
@@ -22,6 +22,6 @@ public class MessagesSentEvent extends Event {
 	}
 
 	public Collection<MessageId> getMessageIds() {
-		return acked;
+		return messageIds;
 	}
 }

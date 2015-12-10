@@ -6,17 +6,20 @@ import org.briarproject.api.messaging.MessageId;
 
 public class MessageHeader {
 
+	public enum State { STORED, SENT, DELIVERED };
+
 	private final MessageId id, parent;
 	private final GroupId groupId;
 	private final Author author;
 	private final Author.Status authorStatus;
 	private final String contentType;
 	private final long timestamp;
-	private final boolean local, read, delivered;
+	private final boolean local, read;
+	private final State status;
 
 	public MessageHeader(MessageId id, MessageId parent, GroupId groupId,
 			Author author, Author.Status authorStatus, String contentType,
-			long timestamp, boolean local, boolean read, boolean delivered) {
+			long timestamp, boolean local, boolean read, State status) {
 		this.id = id;
 		this.parent = parent;
 		this.groupId = groupId;
@@ -26,7 +29,7 @@ public class MessageHeader {
 		this.timestamp = timestamp;
 		this.local = local;
 		this.read = read;
-		this.delivered = delivered;
+		this.status = status;
 	}
 
 	/** Returns the message's unique identifier. */
@@ -82,10 +85,9 @@ public class MessageHeader {
 	}
 
 	/**
-	 * Returns true if the message has been delivered. (This only applies to
-	 * locally generated private messages.)
+	 * Returns message status. (This only applies to locally generated private messages.)
 	 */
-	public boolean isDelivered() {
-		return delivered;
+	public State getStatus() {
+		return status;
 	}
 }

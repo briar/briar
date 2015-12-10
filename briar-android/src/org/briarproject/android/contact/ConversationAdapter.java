@@ -13,6 +13,7 @@ import org.briarproject.R;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.MessageHeader.State;
 import org.briarproject.util.StringUtils;
 
 import android.content.Context;
@@ -81,9 +82,9 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 
 			ImageView status = new ImageView(ctx);
 			status.setPadding(0, 0, pad, 0);
-			if (item.getStatus() == ConversationItem.State.DELIVERED) {
+			if (item.getStatus() == State.DELIVERED) {
 				status.setImageResource(R.drawable.message_delivered);
-			} else if (item.getStatus() == ConversationItem.State.SENT) {
+			} else if (item.getStatus() == State.SENT) {
 				status.setImageResource(R.drawable.message_sent);
 			} else {
 				status.setImageResource(R.drawable.message_stored);

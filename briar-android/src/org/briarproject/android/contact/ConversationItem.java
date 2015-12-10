@@ -1,11 +1,10 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.MessageHeader.State;
 
 // This class is not thread-safe
 class ConversationItem {
-
-	public enum State { STORED, SENT, DELIVERED };
 
 	private final MessageHeader header;
 	private byte[] body;
@@ -14,7 +13,7 @@ class ConversationItem {
 	ConversationItem(MessageHeader header) {
 		this.header = header;
 		body = null;
-		status = header.isDelivered() ? State.DELIVERED : State.STORED;
+		status = header.getStatus();
 	}
 
 	MessageHeader getHeader() {

@@ -8,7 +8,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
@@ -45,6 +44,7 @@ import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.MessageHeader.State;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
@@ -77,7 +77,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ConversationActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener {
@@ -389,18 +388,18 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			MessagesSentEvent m = (MessagesSentEvent) e;
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages sent");
-				markMessages(m.getMessageIds(), ConversationItem.State.SENT);
+				markMessages(m.getMessageIds(), State.SENT);
 			}
 		} else if (e instanceof MessagesAckedEvent) {
 			MessagesAckedEvent m = (MessagesAckedEvent) e;
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
-				markMessages(m.getMessageIds(), ConversationItem.State.DELIVERED);
+				markMessages(m.getMessageIds(), State.DELIVERED);
 			}
 		}
 	}
 
-	private void markMessages(final Collection<MessageId> messageIds, final ConversationItem.State state) {
+	private void markMessages(final Collection<MessageId> messageIds, final State state) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				Set<MessageId> messages = new HashSet<MessageId>(messageIds);
