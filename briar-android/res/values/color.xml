@@ -14,4 +14,6 @@
 	<color name="no_posts">#AAAAAA</color>
 	<color name="settings_title_text">#2D3E50</color>
 	<color name="settings_title_underline">#2D3E50</color>
+
+    <color name="text_link">#2D3E50</color>
 </resources>

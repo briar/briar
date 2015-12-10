@@ -25,7 +25,7 @@ import android.os.IBinder;
 import android.view.inputmethod.InputMethodManager;
 
 @SuppressLint("Registered")
-public class BriarActivity extends RoboActivity {
+public class BriarActivity extends BaseActivity {
 
 	public static final int REQUEST_PASSWORD = 1;
 
@@ -45,7 +45,6 @@ public class BriarActivity extends RoboActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 

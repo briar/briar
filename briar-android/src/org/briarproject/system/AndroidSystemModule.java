@@ -14,7 +14,7 @@ public class AndroidSystemModule extends AbstractModule {
 		bind(Clock.class).to(SystemClock.class);
 		bind(Timer.class).to(SystemTimer.class);
 		bind(SeedProvider.class).to(AndroidSeedProvider.class);
-		bind(FileUtils.class).to(AndroidFileUtils.class);
+		bind(FileUtils.class).to(FileUtilsImpl.class);
 		bind(LocationUtils.class).to(AndroidLocationUtils.class);
 	}
 }

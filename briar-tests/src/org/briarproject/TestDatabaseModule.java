@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.system.FileUtils;
+import org.briarproject.system.FileUtilsImpl;
 
 import java.io.File;
 
@@ -25,6 +26,6 @@ public class TestDatabaseModule extends AbstractModule {
 
 	protected void configure() {
 		bind(DatabaseConfig.class).toInstance(config);
-		bind(FileUtils.class).to(TestFileUtils.class);
+		bind(FileUtils.class).to(FileUtilsImpl.class);
 	}
 }

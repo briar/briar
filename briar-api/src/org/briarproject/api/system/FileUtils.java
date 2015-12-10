@@ -8,4 +8,6 @@ public interface FileUtils {
 	long getTotalSpace(File f) throws IOException;
 
 	long getFreeSpace(File f) throws IOException;
+
+	void deleteFileOrDir(File f);
 }

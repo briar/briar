@@ -1,138 +1,106 @@
 package org.briarproject.android;
 
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
-import static android.widget.LinearLayout.VERTICAL;
-import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
-import java.io.File;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.util.FixedVerticalSpace;
-import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.system.FileUtils;
 import org.briarproject.util.StringUtils;
 
-import roboguice.activity.RoboActivity;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class PasswordActivity extends RoboActivity {
+public class PasswordActivity extends BaseActivity {
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
-	private TextView enterPassword = null;
-	private EditText passwordEntry = null;
-	private Button signInButton = null;
-	private ProgressBar progress = null;
+	private Button signInButton;
+	private ProgressBar progress;
+	private TextView title;
+	private EditText password;
+
+	private byte[] encrypted;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile DatabaseConfig databaseConfig;
+	@Inject private FileUtils fileUtils;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
-
-		SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
-		String hex = prefs.getString("key", null);
+		String hex = getDbKeyInHex();
 		if (hex == null || !databaseConfig.databaseExists()) {
-			// Storage has been deleted - clean up and return to setup
-			prefs.edit().clear().commit();
-			delete(databaseConfig.getDatabaseDirectory());
-			setResult(RESULT_CANCELED);
-			startActivity(new Intent(this, SetupActivity.class));
-			finish();
+			clearDbPrefs();
 			return;
 		}
-		final byte[] encrypted = StringUtils.fromHexString(hex);
+		encrypted = StringUtils.fromHexString(hex);
 
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
-		int pad = LayoutUtils.getPadding(this);
-		layout.setPadding(pad, pad, pad, pad);
-
-		enterPassword = new TextView(this);
-		enterPassword.setGravity(CENTER);
-		enterPassword.setTextSize(18);
-		enterPassword.setText(R.string.enter_password);
-		layout.addView(enterPassword);
-
-		passwordEntry = new EditText(this);
-		passwordEntry.setId(1);
-		passwordEntry.setMaxLines(1);
-		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
-		passwordEntry.setInputType(inputType);
-		passwordEntry.setOnEditorActionListener(new OnEditorActionListener() {
-			public boolean onEditorAction(TextView v, int action, KeyEvent e) {
-				validatePassword(encrypted, passwordEntry.getText());
-				return true;
+		setContentView(R.layout.activity_password);
+		signInButton = (Button)findViewById(R.id.btn_sign_in);
+		progress = (ProgressBar)findViewById(R.id.progress_wheel);
+		title = (TextView)findViewById(R.id.title_password);
+		password = (EditText)findViewById(R.id.edit_password);
+		password.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE) {
+					validatePassword(encrypted, password.getText());
+				}
+				return false;
 			}
 		});
-		layout.addView(passwordEntry);
-
-		// Adjusting the padding of buttons and EditTexts has the wrong results
-		layout.addView(new FixedVerticalSpace(this));
-
-		signInButton = new Button(this);
-		signInButton.setLayoutParams(WRAP_WRAP);
-		signInButton.setText(R.string.sign_in_button);
-		signInButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				validatePassword(encrypted, passwordEntry.getText());
-			}
-		});
-		layout.addView(signInButton);
-
-		progress = new ProgressBar(this);
-		progress.setLayoutParams(WRAP_WRAP);
-		progress.setIndeterminate(true);
-		progress.setVisibility(GONE);
-		layout.addView(progress);
-		setContentView(layout);
 	}
 
-	private void delete(File f) {
-		if (f.isFile()) f.delete();
-		else if (f.isDirectory()) for (File child : f.listFiles()) delete(child);
+	@Override
+	protected void clearDbPrefs() {
+		super.clearDbPrefs();
+		fileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+		gotoAndFinish(SetupActivity.class, RESULT_CANCELED);
+	}
+
+	public void onSignInClick(View v) {
+		validatePassword(encrypted, password.getText());
+	}
+
+	public void onForgottenPasswordClick(View v) {
+		// TODO Encapsulate the dialog in a re-usable fragment
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.dialog_title_lost_password);
+		builder.setMessage(R.string.dialog_message_lost_password);
+		builder.setNegativeButton(R.string.no, null);
+		builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				clearDbPrefs();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
-		if (progress == null) return; // Not created yet
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		hideSoftKeyboard();
 		// Replace the button with a progress bar
-		signInButton.setVisibility(GONE);
+		signInButton.setVisibility(View.INVISIBLE);
 		progress.setVisibility(VISIBLE);
 		// Decrypt the database key in a background thread
 		final String password = e.toString();
@@ -152,10 +120,10 @@ public class PasswordActivity extends RoboActivity {
 	private void tryAgain() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				enterPassword.setText(R.string.try_again);
-				passwordEntry.setText("");
+				title.setText(R.string.try_again);
 				signInButton.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
+				password.setText("");
 			}
 		});
 	}

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
     <string name="app_name">Briar</string>
     <string name="crash_report_title">Briar Crash Report</string>
     <string name="ongoing_notification_title">Signed into Briar</string>
@@ -13,6 +15,10 @@
     <string name="passwords_do_not_match">Passwords do not match</string>
     <string name="create_account_button">Create Account</string>
     <string name="enter_password">Enter your password:</string>
+    <string name="password_hint">Password</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="forgotten_password">I have forgotten my password</string>
     <string name="try_again">Wrong password, try again:</string>
     <string name="sign_in_button">Sign In</string>
     <string name="startup_failed_notification_title">Briar could not start</string>
@@ -104,4 +110,8 @@
     <string name="notify_sound_setting_default">Default ringtone</string>
     <string name="notify_sound_setting_disabled">None</string>
     <string name="choose_ringtone_title">Choose ringtone</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_title_lost_password">Lost password</string>
+    <string name="dialog_message_lost_password">Password recovery is not possible. Do you wish to delete your user, all contacts, and re-register ?</string>
 </resources>
