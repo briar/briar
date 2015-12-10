@@ -33,7 +33,7 @@ public class PasswordActivity extends BaseActivity {
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Button signInButton;
 	private ProgressBar progress;
-	private TextView title;
+	private TextView title, forgotPassword;
 	private EditText password;
 
 	private byte[] encrypted;
@@ -57,6 +57,7 @@ public class PasswordActivity extends BaseActivity {
 		signInButton = (Button) findViewById(R.id.btn_sign_in);
 		progress = (ProgressBar) findViewById(R.id.progress_wheel);
 		title = (TextView) findViewById(R.id.title_password);
+		forgotPassword = (TextView) findViewById(R.id.forgot_password);
 		password = (EditText) findViewById(R.id.edit_password);
 		password.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
@@ -100,6 +101,7 @@ public class PasswordActivity extends BaseActivity {
 		hideSoftKeyboard();
 		// Replace the button with a progress bar
 		signInButton.setVisibility(GONE);
+		forgotPassword.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
 		// Decrypt the database key in a background thread
 		final String password = e.toString();
@@ -121,6 +123,7 @@ public class PasswordActivity extends BaseActivity {
 			public void run() {
 				title.setText(R.string.try_again);
 				signInButton.setVisibility(VISIBLE);
+				forgotPassword.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
 				password.setText("");
 			}
