@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.db.MessageHeader.State.STORED;
 import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -1516,7 +1517,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(timestamp, header.getTimestamp());
 		assertEquals(local, header.isLocal());
 		assertEquals(false, header.isRead());
-		assertEquals(seen, header.isDelivered());
+		assertEquals(STORED, header.getStatus());
 		assertFalse(header.isRead());
 
 		db.commitTransaction(txn);

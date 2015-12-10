@@ -28,6 +28,7 @@ import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
+import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.lifecycle.ShutdownManager;
@@ -705,6 +706,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(MessagesSentEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
@@ -805,6 +807,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(MessagesSentEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
