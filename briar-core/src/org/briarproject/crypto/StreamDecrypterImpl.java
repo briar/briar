@@ -9,31 +9,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 
-import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 
-// FIXME: Implementation is incomplete, doesn't read the stream header
 class StreamDecrypterImpl implements StreamDecrypter {
 
 	private final InputStream in;
-	private final AuthenticatedCipher frameCipher;
-	private final SecretKey frameKey;
-	private final byte[] iv, frameHeader, frameCiphertext;
+	private final AuthenticatedCipher cipher;
+	private final SecretKey streamHeaderKey;
+	private final byte[] frameIv, frameHeader, frameCiphertext;
 
+	private SecretKey frameKey;
 	private long frameNumber;
 	private boolean finalFrame;
 
-	StreamDecrypterImpl(InputStream in, AuthenticatedCipher frameCipher,
-			SecretKey headerKey) {
+	StreamDecrypterImpl(InputStream in, AuthenticatedCipher cipher,
+			SecretKey streamHeaderKey) {
 		this.in = in;
-		this.frameCipher = frameCipher;
-		this.frameKey = headerKey; // FIXME
-		iv = new byte[IV_LENGTH];
-		frameHeader = new byte[HEADER_LENGTH];
+		this.cipher = cipher;
+		this.streamHeaderKey = streamHeaderKey;
+		frameIv = new byte[FRAME_IV_LENGTH];
+		frameHeader = new byte[FRAME_HEADER_LENGTH];
 		frameCiphertext = new byte[MAX_FRAME_LENGTH];
+		frameKey = null;
 		frameNumber = 0;
 		finalFrame = false;
 	}
@@ -43,20 +46,23 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		if (payload.length < MAX_PAYLOAD_LENGTH)
 			throw new IllegalArgumentException();
 		if (finalFrame) return -1;
+		// Read the stream header if required
+		if (frameKey == null) readStreamHeader();
 		// Read the frame header
 		int offset = 0;
-		while (offset < HEADER_LENGTH) {
-			int read = in.read(frameCiphertext, offset, HEADER_LENGTH - offset);
+		while (offset < FRAME_HEADER_LENGTH) {
+			int read = in.read(frameCiphertext, offset,
+					FRAME_HEADER_LENGTH - offset);
 			if (read == -1) throw new EOFException();
 			offset += read;
 		}
 		// Decrypt and authenticate the frame header
-		FrameEncoder.encodeIv(iv, frameNumber, true);
+		FrameEncoder.encodeIv(frameIv, frameNumber, true);
 		try {
-			frameCipher.init(false, frameKey, iv);
-			int decrypted = frameCipher.process(frameCiphertext, 0,
-					HEADER_LENGTH, frameHeader, 0);
-			if (decrypted != HEADER_LENGTH - MAC_LENGTH)
+			cipher.init(false, frameKey, frameIv);
+			int decrypted = cipher.process(frameCiphertext, 0,
+					FRAME_HEADER_LENGTH, frameHeader, 0);
+			if (decrypted != FRAME_HEADER_LENGTH - MAC_LENGTH)
 				throw new RuntimeException();
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
@@ -68,7 +74,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		if (payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
 			throw new FormatException();
 		// Read the payload and padding
-		int frameLength = HEADER_LENGTH + payloadLength + paddingLength
+		int frameLength = FRAME_HEADER_LENGTH + payloadLength + paddingLength
 				+ MAC_LENGTH;
 		while (offset < frameLength) {
 			int read = in.read(frameCiphertext, offset, frameLength - offset);
@@ -76,10 +82,10 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			offset += read;
 		}
 		// Decrypt and authenticate the payload and padding
-		FrameEncoder.encodeIv(iv, frameNumber, false);
+		FrameEncoder.encodeIv(frameIv, frameNumber, false);
 		try {
-			frameCipher.init(false, frameKey, iv);
-			int decrypted = frameCipher.process(frameCiphertext, HEADER_LENGTH,
+			cipher.init(false, frameKey, frameIv);
+			int decrypted = cipher.process(frameCiphertext, FRAME_HEADER_LENGTH,
 					payloadLength + paddingLength + MAC_LENGTH, payload, 0);
 			if (decrypted != payloadLength + paddingLength)
 				throw new RuntimeException();
@@ -91,5 +97,32 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			if (payload[payloadLength + i] != 0) throw new FormatException();
 		frameNumber++;
 		return payloadLength;
+	}
+
+	private void readStreamHeader() throws IOException {
+		byte[] streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
+		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];
+		byte[] streamHeaderPlaintext = new byte[SecretKey.LENGTH];
+		// Read the stream header
+		int offset = 0;
+		while (offset < STREAM_HEADER_LENGTH) {
+			int read = in.read(streamHeaderCiphertext, offset,
+					STREAM_HEADER_LENGTH - offset);
+			if (read == -1) throw new EOFException();
+			offset += read;
+		}
+		// Decrypt and authenticate the stream header
+		System.arraycopy(streamHeaderCiphertext, 0, streamHeaderIv, 0,
+				STREAM_HEADER_IV_LENGTH);
+		try {
+			cipher.init(false, streamHeaderKey, streamHeaderIv);
+			int decrypted = cipher.process(streamHeaderCiphertext,
+					STREAM_HEADER_IV_LENGTH, SecretKey.LENGTH + MAC_LENGTH,
+					streamHeaderPlaintext, 0);
+			if (decrypted != SecretKey.LENGTH) throw new RuntimeException();
+		} catch (GeneralSecurityException e) {
+			throw new FormatException();
+		}
+		frameKey = new SecretKey(streamHeaderPlaintext);
 	}
 }

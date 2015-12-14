@@ -7,35 +7,41 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
-import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-// FIXME: Implementation is incomplete, doesn't write the stream header
 class StreamEncrypterImpl implements StreamEncrypter {
 
 	private final OutputStream out;
-	private final AuthenticatedCipher frameCipher;
-	private final SecretKey frameKey;
-	private final byte[] tag, iv, framePlaintext, frameCiphertext;
+	private final AuthenticatedCipher cipher;
+	private final SecretKey streamHeaderKey, frameKey;
+	private final byte[] tag, streamHeaderIv;
+	private final byte[] frameIv, framePlaintext, frameCiphertext;
 
 	private long frameNumber;
-	private boolean writeTag;
+	private boolean writeTag, writeStreamHeader;
 
-	StreamEncrypterImpl(OutputStream out, AuthenticatedCipher frameCipher,
-			SecretKey headerKey, byte[] tag) {
+	StreamEncrypterImpl(OutputStream out, AuthenticatedCipher cipher,
+			byte[] tag, byte[] streamHeaderIv, SecretKey streamHeaderKey,
+			SecretKey frameKey) {
 		this.out = out;
-		this.frameCipher = frameCipher;
-		this.frameKey = headerKey; // FIXME
+		this.cipher = cipher;
 		this.tag = tag;
-		iv = new byte[IV_LENGTH];
-		framePlaintext = new byte[HEADER_LENGTH + MAX_PAYLOAD_LENGTH];
+		this.streamHeaderIv = streamHeaderIv;
+		this.streamHeaderKey = streamHeaderKey;
+		this.frameKey = frameKey;
+		frameIv = new byte[FRAME_IV_LENGTH];
+		framePlaintext = new byte[FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH];
 		frameCiphertext = new byte[MAX_FRAME_LENGTH];
 		frameNumber = 0;
 		writeTag = (tag != null);
+		writeStreamHeader = true;
 	}
 
 	public void writeFrame(byte[] payload, int payloadLength,
@@ -45,52 +51,75 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		// Don't allow the frame counter to wrap
 		if (frameNumber > MAX_32_BIT_UNSIGNED) throw new IOException();
 		// Write the tag if required
-		if (writeTag) {
-			out.write(tag, 0, tag.length);
-			writeTag = false;
-		}
+		if (writeTag) writeTag();
+		// Write the stream header if required
+		if (writeStreamHeader) writeStreamHeader();
 		// Encode the frame header
 		FrameEncoder.encodeHeader(framePlaintext, finalFrame, payloadLength,
 				paddingLength);
 		// Encrypt and authenticate the frame header
-		FrameEncoder.encodeIv(iv, frameNumber, true);
+		FrameEncoder.encodeIv(frameIv, frameNumber, true);
 		try {
-			frameCipher.init(true, frameKey, iv);
-			int encrypted = frameCipher.process(framePlaintext, 0,
-					HEADER_LENGTH - MAC_LENGTH, frameCiphertext, 0);
-			if (encrypted != HEADER_LENGTH) throw new RuntimeException();
+			cipher.init(true, frameKey, frameIv);
+			int encrypted = cipher.process(framePlaintext, 0,
+					FRAME_HEADER_LENGTH - MAC_LENGTH, frameCiphertext, 0);
+			if (encrypted != FRAME_HEADER_LENGTH) throw new RuntimeException();
 		} catch (GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
 		// Combine the payload and padding
-		System.arraycopy(payload, 0, framePlaintext, HEADER_LENGTH,
+		System.arraycopy(payload, 0, framePlaintext, FRAME_HEADER_LENGTH,
 				payloadLength);
 		for (int i = 0; i < paddingLength; i++)
-			framePlaintext[HEADER_LENGTH + payloadLength + i] = 0;
+			framePlaintext[FRAME_HEADER_LENGTH + payloadLength + i] = 0;
 		// Encrypt and authenticate the payload and padding
-		FrameEncoder.encodeIv(iv, frameNumber, false);
+		FrameEncoder.encodeIv(frameIv, frameNumber, false);
 		try {
-			frameCipher.init(true, frameKey, iv);
-			int encrypted = frameCipher.process(framePlaintext, HEADER_LENGTH,
+			cipher.init(true, frameKey, frameIv);
+			int encrypted = cipher.process(framePlaintext, FRAME_HEADER_LENGTH,
 					payloadLength + paddingLength, frameCiphertext,
-					HEADER_LENGTH);
+					FRAME_HEADER_LENGTH);
 			if (encrypted != payloadLength + paddingLength + MAC_LENGTH)
 				throw new RuntimeException();
 		} catch (GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
 		// Write the frame
-		out.write(frameCiphertext, 0, HEADER_LENGTH + payloadLength
+		out.write(frameCiphertext, 0, FRAME_HEADER_LENGTH + payloadLength
 				+ paddingLength + MAC_LENGTH);
 		frameNumber++;
 	}
 
+	private void writeTag() throws IOException {
+		out.write(tag, 0, tag.length);
+		writeTag = false;
+	}
+
+	private void writeStreamHeader() throws IOException {
+		byte[] streamHeaderPlaintext = frameKey.getBytes();
+		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];
+		System.arraycopy(streamHeaderIv, 0, streamHeaderCiphertext, 0,
+				STREAM_HEADER_IV_LENGTH);
+		// Encrypt and authenticate the frame key
+		try {
+			cipher.init(true, streamHeaderKey, streamHeaderIv);
+			int encrypted = cipher.process(streamHeaderPlaintext, 0,
+					SecretKey.LENGTH, streamHeaderCiphertext,
+					STREAM_HEADER_IV_LENGTH);
+			if (encrypted != SecretKey.LENGTH + MAC_LENGTH)
+				throw new RuntimeException();
+		} catch (GeneralSecurityException badCipher) {
+			throw new RuntimeException(badCipher);
+		}
+		out.write(streamHeaderCiphertext);
+		writeStreamHeader = false;
+	}
+
 	public void flush() throws IOException {
 		// Write the tag if required
-		if (writeTag) {
-			out.write(tag, 0, tag.length);
-			writeTag = false;
-		}
+		if (writeTag) writeTag();
+		// Write the stream header if required
+		if (writeStreamHeader) writeStreamHeader();
 		out.flush();
 	}
 }
