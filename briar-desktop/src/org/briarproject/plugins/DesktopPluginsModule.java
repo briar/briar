@@ -1,10 +1,6 @@
 package org.briarproject.plugins;
 
 import com.google.inject.Provides;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.concurrent.Executor;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.lifecycle.IoExecutor;

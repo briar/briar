@@ -21,7 +21,6 @@ import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
-import org.briarproject.system.FileUtilsImpl;
 import org.briarproject.system.SystemClock;
 import org.junit.After;
 import org.junit.Before;
