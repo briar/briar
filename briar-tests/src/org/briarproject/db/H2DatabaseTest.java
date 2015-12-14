@@ -19,7 +19,6 @@ import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.TemporarySecret;
-import org.briarproject.system.FileUtilsImpl;
 import org.briarproject.system.SystemClock;
 import org.junit.After;
 import org.junit.Before;
@@ -1611,7 +1610,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
-				MAX_SIZE), new FileUtilsImpl(), new SystemClock());
+				MAX_SIZE), new SystemClock());
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;

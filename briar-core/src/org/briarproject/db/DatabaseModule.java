@@ -1,6 +1,15 @@
 package org.briarproject.db;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.db.DatabaseExecutor;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.lifecycle.ShutdownManager;
+import org.briarproject.system.SystemClock;
 
 import java.sql.Connection;
 import java.util.concurrent.BlockingQueue;
@@ -12,17 +21,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.inject.Singleton;
 
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.api.db.DatabaseExecutor;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.lifecycle.ShutdownManager;
-import org.briarproject.api.system.FileUtils;
-import org.briarproject.system.SystemClock;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class DatabaseModule extends AbstractModule {
 
@@ -45,9 +44,8 @@ public class DatabaseModule extends AbstractModule {
 	}
 
 	@Provides
-	Database<Connection> getDatabase(DatabaseConfig config,
-			FileUtils fileUtils) {
-		return new H2Database(config, fileUtils, new SystemClock());
+	Database<Connection> getDatabase(DatabaseConfig config) {
+		return new H2Database(config, new SystemClock());
 	}
 
 	@Provides @Singleton

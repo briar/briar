@@ -1,13 +1,12 @@
 package org.briarproject.plugins.file;
 
-import java.util.concurrent.Executor;
-
 import org.briarproject.api.TransportId;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
-import org.briarproject.api.system.FileUtils;
 import org.briarproject.util.OsUtils;
+
+import java.util.concurrent.Executor;
 
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 
@@ -16,12 +15,9 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	private static final int POLLING_INTERVAL = 10 * 1000; // 10 seconds
 
 	private final Executor ioExecutor;
-	private final FileUtils fileUtils;
 
-	public RemovableDrivePluginFactory(Executor ioExecutor,
-			FileUtils fileUtils) {
+	public RemovableDrivePluginFactory(Executor ioExecutor) {
 		this.ioExecutor = ioExecutor;
-		this.fileUtils = fileUtils;
 	}
 
 	public TransportId getId() {
@@ -49,7 +45,7 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 		} else {
 			return null;
 		}
-		return new RemovableDrivePlugin(ioExecutor, fileUtils, callback,
-				finder, monitor, MAX_LATENCY);
+		return new RemovableDrivePlugin(ioExecutor, callback, finder, monitor,
+				MAX_LATENCY);
 	}
 }
