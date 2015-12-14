@@ -67,12 +67,11 @@
           </extensions>
         </Objective-C-extensions>
         <XML>
-          <option name="XML_KEEP_LINE_BREAKS" value="false" />
-          <option name="XML_ALIGN_ATTRIBUTES" value="false" />
-          <option name="XML_SPACE_INSIDE_EMPTY_TAG" value="true" />
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
         <codeStyleSettings language="JAVA">
           <option name="RIGHT_MARGIN" value="80" />
+          <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
           <option name="SPACE_BEFORE_ARRAY_INITIALIZER_LBRACE" value="true" />
           <option name="CALL_PARAMETERS_WRAP" value="1" />
           <option name="METHOD_PARAMETERS_WRAP" value="1" />
@@ -110,7 +109,7 @@
                   <match>
                     <AND>
                       <NAME>xmlns:android</NAME>
-                      <XML_NAMESPACE />
+                      <XML_NAMESPACE>Namespace:</XML_NAMESPACE>
                     </AND>
                   </match>
                 </rule>
@@ -120,7 +119,7 @@
                   <match>
                     <AND>
                       <NAME>xmlns:.*</NAME>
-                      <XML_NAMESPACE />
+                      <XML_NAMESPACE>Namespace:</XML_NAMESPACE>
                     </AND>
                   </match>
                   <order>BY_NAME</order>
