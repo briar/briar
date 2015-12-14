@@ -12,30 +12,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Random;
 
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class TransportIntegrationTest extends BriarTestCase {
 
-	private final Random random;
-
-	public TransportIntegrationTest() {
-		random = new Random();
-	}
+	private final Random random = new Random();
 
 	@Test
-	public void testInitiatorWriteAndRead() throws Exception {
-		testWriteAndRead(true);
-	}
-
-	@Test
-	public void testResponderWriteAndRead() throws Exception {
-		testWriteAndRead(false);
-	}
-
-	private void testWriteAndRead(boolean initiator) throws Exception {
+	public void testWriteAndRead() throws Exception {
 		// Generate a random tag
 		byte[] tag = new byte[TAG_LENGTH];
 		random.nextBytes(tag);
@@ -53,7 +42,10 @@ public class TransportIntegrationTest extends BriarTestCase {
 		streamWriter.write(payload2);
 		streamWriter.flush();
 		byte[] output = out.toByteArray();
-		assertEquals(TAG_LENGTH + MAX_FRAME_LENGTH * 2, output.length);
+		assertEquals(TAG_LENGTH + STREAM_HEADER_LENGTH
+				+ FRAME_HEADER_LENGTH  + payload1.length + MAC_LENGTH
+				+ FRAME_HEADER_LENGTH  + payload2.length + MAC_LENGTH,
+				output.length);
 		// Read the tag back
 		ByteArrayInputStream in = new ByteArrayInputStream(output);
 		byte[] recoveredTag = new byte[tag.length];

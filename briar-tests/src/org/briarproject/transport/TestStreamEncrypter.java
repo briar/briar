@@ -8,38 +8,41 @@ import java.io.OutputStream;
 
 import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 
 class TestStreamEncrypter implements StreamEncrypter {
 
 	private final OutputStream out;
-	private final byte[] tag, frame;
+	private final byte[] tag;
 
-	private boolean writeTag = true;
+	private boolean writeTagAndHeader = true;
 
 	TestStreamEncrypter(OutputStream out, byte[] tag) {
 		this.out = out;
 		this.tag = tag;
-		frame = new byte[MAX_FRAME_LENGTH];
 	}
 
 	public void writeFrame(byte[] payload, int payloadLength,
 			int paddingLength, boolean finalFrame) throws IOException {
-		if (writeTag) {
-			out.write(tag);
-			writeTag = false;
-		}
-		ByteUtils.writeUint16(payloadLength, frame, 0);
-		if (finalFrame) frame[0] |= 0x80;
-		System.arraycopy(payload, 0, frame, FRAME_HEADER_LENGTH, payloadLength);
-		for (int i = FRAME_HEADER_LENGTH + payloadLength; i < frame.length; i++)
-			frame[i] = 0;
-		if (finalFrame)
-			out.write(frame, 0, FRAME_HEADER_LENGTH + payloadLength + MAC_LENGTH);
-		else out.write(frame, 0, frame.length);
+		if (writeTagAndHeader) writeTagAndHeader();
+		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
+		ByteUtils.writeUint16(payloadLength, frameHeader, 0);
+		ByteUtils.writeUint16(paddingLength, frameHeader, 2);
+		if (finalFrame) frameHeader[0] |= 0x80;
+		out.write(frameHeader);
+		out.write(payload, 0, payloadLength);
+		out.write(new byte[paddingLength]);
+		out.write(new byte[MAC_LENGTH]);
 	}
 
 	public void flush() throws IOException {
+		if (writeTagAndHeader) writeTagAndHeader();
 		out.flush();
+	}
+
+	private void writeTagAndHeader() throws IOException {
+		out.write(tag);
+		out.write(new byte[STREAM_HEADER_LENGTH]);
+		writeTagAndHeader = false;
 	}
 }
