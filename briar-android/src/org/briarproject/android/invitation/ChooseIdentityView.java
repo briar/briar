@@ -21,6 +21,7 @@ import org.briarproject.api.LocalAuthor;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -35,7 +36,6 @@ implements OnItemSelectedListener, OnClickListener {
 
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
-	private Button continueButton = null;
 
 	ChooseIdentityView(Context ctx) {
 		super(ctx);
@@ -45,34 +45,22 @@ implements OnItemSelectedListener, OnClickListener {
 		removeAllViews();
 		Context ctx = getContext();
 
-		LinearLayout innerLayout = new LinearLayout(ctx);
-		innerLayout.setLayoutParams(MATCH_WRAP);
-		innerLayout.setOrientation(HORIZONTAL);
-		innerLayout.setGravity(CENTER);
+		LayoutInflater inflater = (LayoutInflater) ctx.getSystemService
+				(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.invitation_bluetooth_start, this);
 
-		TextView yourNickname = new TextView(ctx);
-		yourNickname.setTextSize(18);
-		yourNickname.setPadding(pad, pad, pad, pad);
-		yourNickname.setText(R.string.your_nickname);
-		innerLayout.addView(yourNickname);
+		// current step
+		// TODO this could go into the ActionBar eventually
+		TextView step = (TextView) view.findViewById(R.id.stepView);
+		step.setText(String.format(ctx.getString(R.string.step), 1, 3));
 
 		adapter = new LocalAuthorSpinnerAdapter(ctx, false);
-		spinner = new Spinner(ctx);
+		spinner = (Spinner) view.findViewById(R.id.spinner);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		innerLayout.addView(spinner);
-		addView(innerLayout);
 
-		TextView faceToFace = new TextView(ctx);
-		faceToFace.setPadding(pad, pad, pad, pad);
-		faceToFace.setText(R.string.face_to_face);
-		addView(faceToFace);
-
-		continueButton = new Button(ctx);
-		continueButton.setLayoutParams(WRAP_WRAP);
-		continueButton.setText(R.string.continue_button);
+		Button continueButton = (Button) view.findViewById(R.id.continueButton);
 		continueButton.setOnClickListener(this);
-		addView(continueButton);
 
 		container.loadLocalAuthors();
 	}

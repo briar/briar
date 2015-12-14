@@ -36,12 +36,12 @@
     <string name="contact_list_title">Contacts</string>
     <string name="no_contacts">No contacts</string>
     <string name="add_contact_title">Add a Contact</string>
-    <string name="your_nickname">Your nickname: </string>
-    <string name="face_to_face">For security reasons you must be face-to-face with the person you want to add as a contact.\n\nThis will prevent anyone from impersonating you or reading your messages in future.</string>
+    <string name="your_nickname">Please select the identity you want to use:</string>
+    <string name="face_to_face">You must be face-to-face with the person you want to add as a contact. This will prevent anyone from impersonating you or reading your messages in future.</string>
     <string name="continue_button">Continue</string>
     <string name="your_invitation_code">Your invitation code is</string>
     <string name="enter_invitation_code">Please enter your contact\'s invitation code:</string>
-    <string name="searching_format">Searching for %06d\u2026</string>
+    <string name="searching_format">Searching for contact with invitation code %06d\u2026</string>
     <string name="connection_failed">Connection failed</string>
     <string name="could_not_find_contact">Briar could not find your contact nearby</string>
     <string name="try_again_button">Try Again</string>
@@ -110,6 +110,7 @@
     <string name="notify_sound_setting_default">Default ringtone</string>
     <string name="notify_sound_setting_disabled">None</string>
     <string name="choose_ringtone_title">Choose ringtone</string>
+    <string name="step">Step %1$d/%2$d</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_lost_password">Lost password</string>
