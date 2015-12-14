@@ -39,14 +39,6 @@
 			android:spinnerMode="dropdown"
 			android:layout_marginTop="@dimen/margin_medium"/>
 
-		<TextView
-			android:id="@+id/faceToFaceView"
-			style="@style/BriarTextBody"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/face_to_face"
-			android:layout_marginTop="@dimen/margin_medium"/>
-
 		<ImageView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -57,11 +49,11 @@
 			android:layout_marginTop="@dimen/margin_medium"/>
 
 		<TextView
-			android:id="@+id/explanationView"
+			android:id="@+id/faceToFaceView"
 			style="@style/BriarTextBody"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/bluetooth_explanation"
+			android:text="@string/face_to_face"
 			android:layout_marginTop="@dimen/margin_medium"/>
 
 		<Button
