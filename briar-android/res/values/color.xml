@@ -15,5 +15,8 @@
 	<color name="settings_title_text">#2D3E50</color>
 	<color name="settings_title_underline">#2D3E50</color>
 
-    <color name="text_link">#2D3E50</color>
+    <color name="briar_text_link">#2D3E50</color>
+    <color name="briar_green_light">#95d220</color>
+    <color name="briar_green_dark">#75ab0d</color>
+    <color name="briar_text_primary">#333333</color>
 </resources>

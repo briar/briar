@@ -11,7 +11,7 @@ import roboguice.activity.RoboActivity;
 
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult;
 
-public class StartupFailureActivity extends RoboActivity {
+public class StartupFailureActivity extends BaseActivity {
 
 	@Override
 	public void onCreate(Bundle state) {
