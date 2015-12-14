@@ -9,7 +9,7 @@ public interface TransportConstants {
 	int TAG_LENGTH = 16;
 
 	/** The length of the stream header IV in bytes. */
-	int STREAM_HEADER_IV_LENGTH = 12;
+	int STREAM_HEADER_IV_LENGTH = 24;
 
 	/** The length of the message authentication code (MAC) in bytes. */
 	int MAC_LENGTH = 16;
