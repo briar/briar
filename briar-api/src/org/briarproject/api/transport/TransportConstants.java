@@ -28,8 +28,8 @@ public interface TransportConstants {
 	 */
 	int MIN_STREAM_LENGTH = 64 * 1024; // 64 KiB
 
-	/** The maximum difference between two communicating devices' clocks. */
-	int MAX_CLOCK_DIFFERENCE = 60 * 60 * 1000; // 1 hour
+	/** The maximum difference in milliseconds between two peers' clocks. */
+	int MAX_CLOCK_DIFFERENCE = 24 * 60 * 60 * 1000; // 24 hours
 
 	/** The size of the reordering window. */
 	int REORDERING_WINDOW_SIZE = 32;

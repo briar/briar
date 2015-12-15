@@ -1,22 +1,5 @@
 package org.briarproject.plugins;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
@@ -41,6 +24,23 @@ import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 class PluginManagerImpl implements PluginManager {
 
@@ -367,7 +367,7 @@ class PluginManagerImpl implements PluginManager {
 	}
 
 	private class SimplexCallback extends PluginCallbackImpl
-	implements SimplexPluginCallback {
+			implements SimplexPluginCallback {
 
 		private SimplexCallback(TransportId id) {
 			super(id);
@@ -383,7 +383,7 @@ class PluginManagerImpl implements PluginManager {
 	}
 
 	private class DuplexCallback extends PluginCallbackImpl
-	implements DuplexPluginCallback {
+			implements DuplexPluginCallback {
 
 		private DuplexCallback(TransportId id) {
 			super(id);

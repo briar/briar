@@ -8,9 +8,9 @@ import java.io.OutputStream;
 import org.briarproject.api.crypto.StreamEncrypter;
 
 /**
- * A {@link org.briarproject.api.transport.StreamWriter StreamWriter} that
- * buffers its input and writes a frame whenever there is a full frame to write
- * or the {@link #flush()} method is called.
+ * An {@link java.io.OutputStream OutputStream} that packs data into transport
+ * frames, writing a frame whenever there is a full frame to write or the
+ * {@link #flush()} method is called.
  * <p>
  * This class is not thread-safe.
  */

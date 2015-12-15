@@ -28,7 +28,7 @@ public interface Message {
 	/** Returns the message's content type. */
 	String getContentType();
 
-	/** Returns the message's timestamp. */
+	/** Returns the message's timestamp in milliseconds since the Unix epoch. */
 	long getTimestamp();
 
 	/** Returns the serialised message. */

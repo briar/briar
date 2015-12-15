@@ -14,7 +14,6 @@ import javax.inject.Inject;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.crypto.KeyManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.messaging.MessagingSession;
@@ -24,10 +23,10 @@ import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.api.transport.TagRecogniser;
 
 class ConnectionManagerImpl implements ConnectionManager {
 
@@ -36,7 +35,6 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 	private final Executor ioExecutor;
 	private final KeyManager keyManager;
-	private final TagRecogniser tagRecogniser;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 	private final MessagingSessionFactory messagingSessionFactory;
@@ -44,14 +42,12 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 	@Inject
 	ConnectionManagerImpl(@IoExecutor Executor ioExecutor,
-			KeyManager keyManager, TagRecogniser tagRecogniser,
-			StreamReaderFactory streamReaderFactory,
+			KeyManager keyManager, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			MessagingSessionFactory messagingSessionFactory,
 			ConnectionRegistry connectionRegistry) {
 		this.ioExecutor = ioExecutor;
 		this.keyManager = keyManager;
-		this.tagRecogniser = tagRecogniser;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 		this.messagingSessionFactory = messagingSessionFactory;
@@ -134,7 +130,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			StreamContext ctx;
 			try {
 				byte[] tag = readTag(transportId, reader);
-				ctx = tagRecogniser.recogniseTag(transportId, tag);
+				ctx = keyManager.recogniseTag(transportId, tag);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
@@ -238,7 +234,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			StreamContext ctx;
 			try {
 				byte[] tag = readTag(transportId, reader);
-				ctx = tagRecogniser.recogniseTag(transportId, tag);
+				ctx = keyManager.recogniseTag(transportId, tag);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
@@ -367,7 +363,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			StreamContext ctx;
 			try {
 				byte[] tag = readTag(transportId, reader);
-				ctx = tagRecogniser.recogniseTag(transportId, tag);
+				ctx = keyManager.recogniseTag(transportId, tag);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);

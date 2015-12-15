@@ -1,19 +1,5 @@
 package org.briarproject.invitation;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.invitation.InvitationConstants.CONFIRMATION_TIMEOUT;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
-
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.AuthorId;
@@ -21,7 +7,6 @@ import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyManager;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.data.WriterFactory;
@@ -35,8 +20,23 @@ import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.system.Clock;
+import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.invitation.InvitationConstants.CONFIRMATION_TIMEOUT;
 
 /** A task consisting of one or more parallel connection attempts. */
 class ConnectorGroup extends Thread implements InvitationTask {

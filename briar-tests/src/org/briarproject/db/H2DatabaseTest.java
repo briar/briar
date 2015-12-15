@@ -11,14 +11,16 @@ import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
-import org.briarproject.api.transport.Endpoint;
-import org.briarproject.api.transport.TemporarySecret;
+import org.briarproject.api.transport.IncomingKeys;
+import org.briarproject.api.transport.OutgoingKeys;
+import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.system.SystemClock;
 import org.junit.After;
 import org.junit.Before;
@@ -34,6 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +62,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	private final Random random = new Random();
 	private final GroupId groupId;
 	private final Group group;
-	private final AuthorId authorId;
 	private final Author author;
 	private final AuthorId localAuthorId;
 	private final LocalAuthor localAuthor;
@@ -75,7 +77,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	public H2DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
 		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH]);
-		authorId = new AuthorId(TestUtils.getRandomId());
+		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
@@ -171,7 +173,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 		db.addMessage(txn, message, true);
 
 		// The message has no status yet, so it should not be sendable
@@ -216,7 +218,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(ids.isEmpty());
 
 		// The contact subscribing should make the message sendable
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertFalse(ids.isEmpty());
 		Iterator<MessageId> it = ids.iterator();
@@ -243,7 +245,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 		db.addMessage(txn, message, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -273,7 +275,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 		db.addMessage(txn, message, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -305,7 +307,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 
 		// Add some messages to ack
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
@@ -342,7 +344,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 
 		// Receive the same message twice
 		db.addMessage(txn, message, true);
@@ -352,10 +354,10 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// The message ID should only be returned once
 		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
-		assertEquals(Arrays.asList(messageId), ids);
+		assertEquals(Collections.singletonList(messageId), ids);
 
 		// Remove the message ID
-		db.lowerAckFlag(txn, contactId, Arrays.asList(messageId));
+		db.lowerAckFlag(txn, contactId, Collections.singletonList(messageId));
 
 		// The message ID should have been removed
 		assertEquals(Collections.emptyList(), db.getMessagesToAck(txn,
@@ -375,7 +377,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 		db.addMessage(txn, message, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -674,7 +676,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 
 		// The message is not in the database
 		assertFalse(db.containsVisibleMessage(txn, contactId, messageId));
@@ -692,7 +694,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact with a subscription
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 
 		// There's no local subscription for the group
 		assertFalse(db.containsVisibleMessage(txn, contactId, messageId));
@@ -711,7 +713,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 		db.addMessage(txn, message, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -737,7 +739,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Make the group visible to the contact
 		db.addVisibility(txn, contactId, groupId);
-		assertEquals(Arrays.asList(contactId), db.getVisibility(txn, groupId));
+		assertEquals(Collections.singletonList(contactId),
+				db.getVisibility(txn, groupId));
 
 		// Make the group invisible again
 		db.removeVisibility(txn, contactId, groupId);
@@ -1111,183 +1114,97 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testTemporarySecrets() throws Exception {
-		// Create an endpoint and four consecutive temporary secrets
-		long epoch = 123;
-		int latency = 234;
-		boolean alice = false;
-		long outgoing1 = 345, centre1 = 456;
-		long outgoing2 = 567, centre2 = 678;
-		long outgoing3 = 789, centre3 = 890;
-		long outgoing4 = 901, centre4 = 123;
-		Endpoint ep = new Endpoint(contactId, transportId, epoch, alice);
-		Random random = new Random();
-		byte[] secret1 = new byte[32], bitmap1 = new byte[4];
-		random.nextBytes(secret1);
-		random.nextBytes(bitmap1);
-		TemporarySecret s1 = new TemporarySecret(contactId, transportId, epoch,
-				alice, 0, secret1, outgoing1, centre1, bitmap1);
-		byte[] secret2 = new byte[32], bitmap2 = new byte[4];
-		random.nextBytes(secret2);
-		random.nextBytes(bitmap2);
-		TemporarySecret s2 = new TemporarySecret(contactId, transportId, epoch,
-				alice, 1, secret2, outgoing2, centre2, bitmap2);
-		byte[] secret3 = new byte[32], bitmap3 = new byte[4];
-		random.nextBytes(secret3);
-		random.nextBytes(bitmap3);
-		TemporarySecret s3 = new TemporarySecret(contactId, transportId, epoch,
-				alice, 2, secret3, outgoing3, centre3, bitmap3);
-		byte[] secret4 = new byte[32], bitmap4 = new byte[4];
-		random.nextBytes(secret4);
-		random.nextBytes(bitmap4);
-		TemporarySecret s4 = new TemporarySecret(contactId, transportId, epoch,
-				alice, 3, secret4, outgoing4, centre4, bitmap4);
+	public void testTransportKeys() throws Exception {
+		TransportKeys keys = createTransportKeys();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Initially there should be no secrets in the database
-		assertEquals(Collections.emptyList(), db.getSecrets(txn));
+		// Initially there should be no transport keys in the database
+		assertEquals(Collections.emptyMap(),
+				db.getTransportKeys(txn, transportId));
 
-		// Add the contact, the transport, the endpoint and the first three
-		// secrets (periods 0, 1 and 2)
+		// Add the contact, the transport and the transport keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addTransport(txn, transportId, latency);
-		db.addEndpoint(txn, ep);
-		db.addSecrets(txn, Arrays.asList(s1, s2, s3));
+		db.addTransport(txn, transportId, 123);
+		db.addTransportKeys(txn, contactId, keys);
 
-		// Retrieve the first three secrets
-		Collection<TemporarySecret> secrets = db.getSecrets(txn);
-		assertEquals(3, secrets.size());
-		boolean foundFirst = false, foundSecond = false, foundThird = false;
-		for (TemporarySecret s : secrets) {
-			assertEquals(contactId, s.getContactId());
-			assertEquals(transportId, s.getTransportId());
-			assertEquals(epoch, s.getEpoch());
-			assertEquals(alice, s.getAlice());
-			if (s.getPeriod() == 0) {
-				assertArrayEquals(secret1, s.getSecret());
-				assertEquals(outgoing1, s.getOutgoingStreamCounter());
-				assertEquals(centre1, s.getWindowCentre());
-				assertArrayEquals(bitmap1, s.getWindowBitmap());
-				foundFirst = true;
-			} else if (s.getPeriod() == 1) {
-				assertArrayEquals(secret2, s.getSecret());
-				assertEquals(outgoing2, s.getOutgoingStreamCounter());
-				assertEquals(centre2, s.getWindowCentre());
-				assertArrayEquals(bitmap2, s.getWindowBitmap());
-				foundSecond = true;
-			} else if (s.getPeriod() == 2) {
-				assertArrayEquals(secret3, s.getSecret());
-				assertEquals(outgoing3, s.getOutgoingStreamCounter());
-				assertEquals(centre3, s.getWindowCentre());
-				assertArrayEquals(bitmap3, s.getWindowBitmap());
-				foundThird = true;
-			} else {
-				fail();
-			}
-		}
-		assertTrue(foundFirst);
-		assertTrue(foundSecond);
-		assertTrue(foundThird);
+		// Retrieve the transport keys
+		Map<ContactId, TransportKeys> newKeys =
+				db.getTransportKeys(txn, transportId);
+		assertEquals(1, newKeys.size());
+		Entry<ContactId, TransportKeys> e =
+				newKeys.entrySet().iterator().next();
+		assertEquals(contactId, e.getKey());
+		TransportKeys k = e.getValue();
+		assertEquals(transportId, k.getTransportId());
+		assertKeysEquals(keys.getPreviousIncomingKeys(),
+				k.getPreviousIncomingKeys());
+		assertKeysEquals(keys.getCurrentIncomingKeys(),
+				k.getCurrentIncomingKeys());
+		assertKeysEquals(keys.getNextIncomingKeys(),
+				k.getNextIncomingKeys());
+		assertKeysEquals(keys.getCurrentOutgoingKeys(),
+				k.getCurrentOutgoingKeys());
 
-		// Adding the fourth secret (period 3) should delete the first
-		db.addSecrets(txn, Arrays.asList(s4));
-		secrets = db.getSecrets(txn);
-		assertEquals(3, secrets.size());
-		foundSecond = foundThird = false;
-		boolean foundFourth = false;
-		for (TemporarySecret s : secrets) {
-			assertEquals(contactId, s.getContactId());
-			assertEquals(transportId, s.getTransportId());
-			assertEquals(epoch, s.getEpoch());
-			assertEquals(alice, s.getAlice());
-			if (s.getPeriod() == 1) {
-				assertArrayEquals(secret2, s.getSecret());
-				assertEquals(outgoing2, s.getOutgoingStreamCounter());
-				assertEquals(centre2, s.getWindowCentre());
-				assertArrayEquals(bitmap2, s.getWindowBitmap());
-				foundSecond = true;
-			} else if (s.getPeriod() == 2) {
-				assertArrayEquals(secret3, s.getSecret());
-				assertEquals(outgoing3, s.getOutgoingStreamCounter());
-				assertEquals(centre3, s.getWindowCentre());
-				assertArrayEquals(bitmap3, s.getWindowBitmap());
-				foundThird = true;
-			} else if (s.getPeriod() == 3) {
-				assertArrayEquals(secret4, s.getSecret());
-				assertEquals(outgoing4, s.getOutgoingStreamCounter());
-				assertEquals(centre4, s.getWindowCentre());
-				assertArrayEquals(bitmap4, s.getWindowBitmap());
-				foundFourth = true;
-			} else {
-				fail();
-			}
-		}
-		assertTrue(foundSecond);
-		assertTrue(foundThird);
-		assertTrue(foundFourth);
-
-		// Removing the contact should remove the secrets
+		// Removing the contact should remove the transport keys
 		db.removeContact(txn, contactId);
-		assertEquals(Collections.emptyList(), db.getSecrets(txn));
+		assertEquals(Collections.emptyMap(),
+				db.getTransportKeys(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
+	private void assertKeysEquals(IncomingKeys expected, IncomingKeys actual) {
+		assertArrayEquals(expected.getTagKey().getBytes(),
+				actual.getTagKey().getBytes());
+		assertArrayEquals(expected.getHeaderKey().getBytes(),
+				actual.getHeaderKey().getBytes());
+		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getWindowBase(), actual.getWindowBase());
+		assertArrayEquals(expected.getWindowBitmap(), actual.getWindowBitmap());
+	}
+
+	private void assertKeysEquals(OutgoingKeys expected, OutgoingKeys actual) {
+		assertArrayEquals(expected.getTagKey().getBytes(),
+				actual.getTagKey().getBytes());
+		assertArrayEquals(expected.getHeaderKey().getBytes(),
+				actual.getHeaderKey().getBytes());
+		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getStreamCounter(), actual.getStreamCounter());
+	}
+
 	@Test
 	public void testIncrementStreamCounter() throws Exception {
-		// Create an endpoint and a temporary secret
-		long epoch = 123;
-		int latency = 234;
-		boolean alice = false;
-		long period = 345, outgoing = 456, centre = 567;
-		Endpoint ep = new Endpoint(contactId, transportId, epoch, alice);
-		Random random = new Random();
-		byte[] secret = new byte[32], bitmap = new byte[4];
-		random.nextBytes(secret);
-		TemporarySecret s = new TemporarySecret(contactId, transportId, epoch,
-				alice, period, secret, outgoing, centre, bitmap);
+		TransportKeys keys = createTransportKeys();
+		long rotationPeriod = keys.getCurrentOutgoingKeys().getRotationPeriod();
+		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact, transport, endpoint and temporary secret
+		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addTransport(txn, transportId, latency);
-		db.addEndpoint(txn, ep);
-		db.addSecrets(txn, Arrays.asList(s));
+		db.addTransport(txn, transportId, 123);
+		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
 
-		// Retrieve the secret
-		Collection<TemporarySecret> secrets = db.getSecrets(txn);
-		assertEquals(1, secrets.size());
-		s = secrets.iterator().next();
-		assertEquals(contactId, s.getContactId());
-		assertEquals(transportId, s.getTransportId());
-		assertEquals(period, s.getPeriod());
-		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingStreamCounter());
-		assertEquals(centre, s.getWindowCentre());
-		assertArrayEquals(bitmap, s.getWindowBitmap());
-
-		// Increment the stream counter twice and retrieve the secret again
-		assertEquals(outgoing, db.incrementStreamCounter(txn,
-				s.getContactId(), s.getTransportId(), s.getPeriod()));
-		assertEquals(outgoing + 1, db.incrementStreamCounter(txn,
-				s.getContactId(), s.getTransportId(), s.getPeriod()));
-		secrets = db.getSecrets(txn);
-		assertEquals(1, secrets.size());
-		s = secrets.iterator().next();
-		assertEquals(contactId, s.getContactId());
-		assertEquals(transportId, s.getTransportId());
-		assertEquals(period, s.getPeriod());
-		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing + 2, s.getOutgoingStreamCounter());
-		assertEquals(centre, s.getWindowCentre());
-		assertArrayEquals(bitmap, s.getWindowBitmap());
+		// Increment the stream counter twice and retrieve the transport keys
+		db.incrementStreamCounter(txn, contactId, transportId, rotationPeriod);
+		db.incrementStreamCounter(txn, contactId, transportId, rotationPeriod);
+		Map<ContactId, TransportKeys> newKeys =
+				db.getTransportKeys(txn, transportId);
+		assertEquals(1, newKeys.size());
+		Entry<ContactId, TransportKeys> e =
+				newKeys.entrySet().iterator().next();
+		assertEquals(contactId, e.getKey());
+		TransportKeys k = e.getValue();
+		assertEquals(transportId, k.getTransportId());
+		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
+		assertEquals(rotationPeriod, outCurr.getRotationPeriod());
+		assertEquals(streamCounter + 2, outCurr.getStreamCounter());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1295,123 +1212,36 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testSetReorderingWindow() throws Exception {
-		// Create an endpoint and a temporary secret
-		long epoch = 123;
-		int latency = 234;
-		boolean alice = false;
-		long period = 345, outgoing = 456, centre = 567;
-		Endpoint ep = new Endpoint(contactId, transportId, epoch, alice);
-		Random random = new Random();
-		byte[] secret = new byte[32], bitmap = new byte[4];
-		random.nextBytes(secret);
-		TemporarySecret s = new TemporarySecret(contactId, transportId, epoch,
-				alice, period, secret, outgoing, centre, bitmap);
+		TransportKeys keys = createTransportKeys();
+		long rotationPeriod = keys.getCurrentIncomingKeys().getRotationPeriod();
+		long base = keys.getCurrentIncomingKeys().getWindowBase();
+		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact, transport, endpoint and temporary secret
+		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addTransport(txn, transportId, latency);
-		db.addEndpoint(txn, ep);
-		db.addSecrets(txn, Arrays.asList(s));
+		db.addTransport(txn, transportId, 123);
+		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
 
-		// Retrieve the secret
-		Collection<TemporarySecret> secrets = db.getSecrets(txn);
-		assertEquals(1, secrets.size());
-		s = secrets.iterator().next();
-		assertEquals(contactId, s.getContactId());
-		assertEquals(transportId, s.getTransportId());
-		assertEquals(period, s.getPeriod());
-		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingStreamCounter());
-		assertEquals(centre, s.getWindowCentre());
-		assertArrayEquals(bitmap, s.getWindowBitmap());
-
-		// Update the reordering window and retrieve the secret again
+		// Update the reordering window and retrieve the transport keys
 		random.nextBytes(bitmap);
-		db.setReorderingWindow(txn, contactId, transportId, period, centre,
-				bitmap);
-		secrets = db.getSecrets(txn);
-		assertEquals(1, secrets.size());
-		s = secrets.iterator().next();
-		assertEquals(contactId, s.getContactId());
-		assertEquals(transportId, s.getTransportId());
-		assertEquals(period, s.getPeriod());
-		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingStreamCounter());
-		assertEquals(centre, s.getWindowCentre());
-		assertArrayEquals(bitmap, s.getWindowBitmap());
-
-		// Updating a nonexistent window should not throw an exception
-		db.setReorderingWindow(txn, contactId, transportId, period + 1, 1,
-				bitmap);
-		// The nonexistent window should not have been created
-		secrets = db.getSecrets(txn);
-		assertEquals(1, secrets.size());
-		s = secrets.iterator().next();
-		assertEquals(contactId, s.getContactId());
-		assertEquals(transportId, s.getTransportId());
-		assertEquals(period, s.getPeriod());
-		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing, s.getOutgoingStreamCounter());
-		assertEquals(centre, s.getWindowCentre());
-		assertArrayEquals(bitmap, s.getWindowBitmap());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testEndpoints() throws Exception {
-		// Create some endpoints
-		long epoch1 = 123, epoch2 = 234;
-		int latency1 = 345, latency2 = 456;
-		boolean alice1 = true, alice2 = false;
-		TransportId transportId1 = new TransportId("bar");
-		TransportId transportId2 = new TransportId("baz");
-		Endpoint ep1 = new Endpoint(contactId, transportId1, epoch1, alice1);
-		Endpoint ep2 = new Endpoint(contactId, transportId2, epoch2, alice2);
-
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Initially there should be no endpoints in the database
-		assertEquals(Collections.emptyList(), db.getEndpoints(txn));
-
-		// Add the contact, the transports and the endpoints
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addTransport(txn, transportId1, latency1);
-		db.addTransport(txn, transportId2, latency2);
-		db.addEndpoint(txn, ep1);
-		db.addEndpoint(txn, ep2);
-
-		// Retrieve the endpoints
-		Collection<Endpoint> endpoints = db.getEndpoints(txn);
-		assertEquals(2, endpoints.size());
-		boolean foundFirst = false, foundSecond = false;
-		for (Endpoint ep : endpoints) {
-			assertEquals(contactId, ep.getContactId());
-			if (ep.getTransportId().equals(transportId1)) {
-				assertEquals(epoch1, ep.getEpoch());
-				assertEquals(alice1, ep.getAlice());
-				foundFirst = true;
-			} else if (ep.getTransportId().equals(transportId2)) {
-				assertEquals(epoch2, ep.getEpoch());
-				assertEquals(alice2, ep.getAlice());
-				foundSecond = true;
-			} else {
-				fail();
-			}
-		}
-		assertTrue(foundFirst);
-		assertTrue(foundSecond);
-
-		// Removing the contact should remove the endpoints
-		db.removeContact(txn, contactId);
-		assertEquals(Collections.emptyList(), db.getEndpoints(txn));
+		db.setReorderingWindow(txn, contactId, transportId, rotationPeriod,
+				base + 1, bitmap);
+		Map<ContactId, TransportKeys> newKeys =
+				db.getTransportKeys(txn, transportId);
+		assertEquals(1, newKeys.size());
+		Entry<ContactId, TransportKeys> e =
+				newKeys.entrySet().iterator().next();
+		assertEquals(contactId, e.getKey());
+		TransportKeys k = e.getValue();
+		assertEquals(transportId, k.getTransportId());
+		IncomingKeys inCurr = k.getCurrentIncomingKeys();
+		assertEquals(rotationPeriod, inCurr.getRotationPeriod());
+		assertEquals(base + 1, inCurr.getWindowBase());
+		assertArrayEquals(bitmap, inCurr.getWindowBitmap());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1431,27 +1261,30 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		assertEquals(contactId1, db.addContact(txn, author1, localAuthorId));
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
-		db.setGroups(txn, contactId1, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
+		db.setGroups(txn, contactId1, Collections.singletonList(group), 1);
 
 		// The group should be available
 		assertEquals(Collections.emptyList(), db.getGroups(txn));
-		assertEquals(Arrays.asList(group), db.getAvailableGroups(txn));
+		assertEquals(Collections.singletonList(group),
+				db.getAvailableGroups(txn));
 
 		// Subscribe to the group - it should no longer be available
 		db.addGroup(txn, group);
-		assertEquals(Arrays.asList(group), db.getGroups(txn));
+		assertEquals(Collections.singletonList(group), db.getGroups(txn));
 		assertEquals(Collections.emptyList(), db.getAvailableGroups(txn));
 
 		// Unsubscribe from the group - it should be available again
 		db.removeGroup(txn, groupId);
 		assertEquals(Collections.emptyList(), db.getGroups(txn));
-		assertEquals(Arrays.asList(group), db.getAvailableGroups(txn));
+		assertEquals(Collections.singletonList(group),
+				db.getAvailableGroups(txn));
 
 		// The first contact unsubscribes - it should still be available
 		db.setGroups(txn, contactId, Collections.<Group>emptyList(), 2);
 		assertEquals(Collections.emptyList(), db.getGroups(txn));
-		assertEquals(Arrays.asList(group), db.getAvailableGroups(txn));
+		assertEquals(Collections.singletonList(group),
+				db.getAvailableGroups(txn));
 
 		// The second contact unsubscribes - it should no longer be available
 		db.setGroups(txn, contactId1, Collections.<Group>emptyList(), 2);
@@ -1501,9 +1334,8 @@ public class H2DatabaseTest extends BriarTestCase {
 				db.getInboxMessageHeaders(txn, contactId));
 
 		// Add a message to the inbox group - the header should be returned
-		boolean local = true, seen = false;
-		db.addMessage(txn, message, local);
-		db.addStatus(txn, contactId, messageId, false, seen);
+		db.addMessage(txn, message, true);
+		db.addStatus(txn, contactId, messageId, false, false);
 		Collection<MessageHeader> headers =
 				db.getInboxMessageHeaders(txn, contactId);
 		assertEquals(1, headers.size());
@@ -1514,7 +1346,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(localAuthor, header.getAuthor());
 		assertEquals(contentType, header.getContentType());
 		assertEquals(timestamp, header.getTimestamp());
-		assertEquals(local, header.isLocal());
+		assertEquals(true, header.isLocal());
 		assertEquals(false, header.isRead());
 		assertEquals(STORED, header.getStatus());
 		assertFalse(header.isRead());
@@ -1560,7 +1392,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact who subscribes to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 1);
 
 		// Subscribe to the group and make it visible to the contact
 		db.addGroup(txn, group);
@@ -1571,7 +1403,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addStatus(txn, contactId, messageId, false, false);
 		Collection<MessageId> sendable = db.getMessagesToSend(txn, contactId,
 				ONE_MEGABYTE);
-		assertEquals(Arrays.asList(messageId), sendable);
+		assertEquals(Collections.singletonList(messageId), sendable);
 
 		// Mark the message as seen - it should no longer be sendable
 		db.raiseSeenFlag(txn, contactId, messageId);
@@ -1584,9 +1416,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(Collections.emptyList(), sendable);
 
 		// The contact resubscribes - the message should be sendable again
-		db.setGroups(txn, contactId, Arrays.asList(group), 3);
+		db.setGroups(txn, contactId, Collections.singletonList(group), 3);
 		sendable = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertEquals(Arrays.asList(messageId), sendable);
+		assertEquals(Collections.singletonList(messageId), sendable);
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1614,6 +1446,26 @@ public class H2DatabaseTest extends BriarTestCase {
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;
+	}
+
+	private TransportKeys createTransportKeys() {
+		SecretKey inPrevTagKey = TestUtils.createSecretKey();
+		SecretKey inPrevHeaderKey = TestUtils.createSecretKey();
+		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
+				1, 123, new byte[4]);
+		SecretKey inCurrTagKey = TestUtils.createSecretKey();
+		SecretKey inCurrHeaderKey = TestUtils.createSecretKey();
+		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
+				2, 234, new byte[4]);
+		SecretKey inNextTagKey = TestUtils.createSecretKey();
+		SecretKey inNextHeaderKey = TestUtils.createSecretKey();
+		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
+				3, 345, new byte[4]);
+		SecretKey outCurrTagKey = TestUtils.createSecretKey();
+		SecretKey outCurrHeaderKey = TestUtils.createSecretKey();
+		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
+				2, 456);
+		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 
 	@After

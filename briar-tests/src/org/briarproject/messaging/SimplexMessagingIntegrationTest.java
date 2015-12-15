@@ -13,7 +13,8 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.crypto.KeyManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -29,11 +30,11 @@ import org.briarproject.api.messaging.PacketReader;
 import org.briarproject.api.messaging.PacketReaderFactory;
 import org.briarproject.api.messaging.PacketWriter;
 import org.briarproject.api.messaging.PacketWriterFactory;
-import org.briarproject.api.transport.Endpoint;
+import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.api.transport.TagRecogniser;
+import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
@@ -49,7 +50,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Random;
+import java.util.Collections;
 
 import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
@@ -63,25 +64,17 @@ import static org.junit.Assert.assertTrue;
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private static final int MAX_LATENCY = 2 * 60 * 1000; // 2 minutes
-	private static final int ROTATION_PERIOD =
-			MAX_CLOCK_DIFFERENCE + MAX_LATENCY;
+	private static final long ROTATION_PERIOD_LENGTH =
+			MAX_LATENCY + MAX_CLOCK_DIFFERENCE;
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
-	private final TransportId transportId;
-	private final byte[] initialSecret;
-	private final long epoch;
+	private final TransportId transportId = new TransportId("id");
+	private final SecretKey master = TestUtils.createSecretKey();
+	private final long timestamp = System.currentTimeMillis();
 
 	private Injector alice, bob;
-
-	public SimplexMessagingIntegrationTest() throws Exception {
-		transportId = new TransportId("id");
-		// Create matching secrets for Alice and Bob
-		initialSecret = new byte[32];
-		new Random().nextBytes(initialSecret);
-		epoch = System.currentTimeMillis() - 2 * ROTATION_PERIOD;
-	}
 
 	@Before
 	public void setUp() {
@@ -125,14 +118,17 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Group group = gf.createGroup("Group", new byte[GROUP_SALT_LENGTH]);
 		db.addGroup(group);
 		db.setInboxGroup(contactId, group);
-		// Add the transport and the endpoint
+		// Add the transport
 		db.addTransport(transportId, MAX_LATENCY);
-		Endpoint ep = new Endpoint(contactId, transportId, epoch, true);
-		db.addEndpoint(ep);
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
+		// Derive and store the transport keys
+		long rotationPeriod = timestamp / ROTATION_PERIOD_LENGTH;
+		CryptoComponent crypto = alice.getInstance(CryptoComponent.class);
+		TransportKeys keys = crypto.deriveTransportKeys(transportId, master,
+				rotationPeriod, true);
+		db.addTransportKeys(contactId, keys);
+		keyManager.contactAdded(contactId, Collections.singletonList(keys));
 		// Send Bob a message
 		String contentType = "text/plain";
-		long timestamp = System.currentTimeMillis();
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
 		MessageFactory messageFactory = alice.getInstance(MessageFactory.class);
 		Message message = messageFactory.createAnonymousMessage(null, group,
@@ -166,7 +162,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		return out.toByteArray();
 	}
 
-	private void read(byte[] b) throws Exception {
+	private void read(byte[] stream) throws Exception {
 		// Open Bob's database
 		DatabaseComponent db = bob.getInstance(DatabaseComponent.class);
 		assertFalse(db.open());
@@ -188,21 +184,24 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Group group = gf.createGroup("Group", new byte[GROUP_SALT_LENGTH]);
 		db.addGroup(group);
 		db.setInboxGroup(contactId, group);
-		// Add the transport and the endpoint
+		// Add the transport
 		db.addTransport(transportId, MAX_LATENCY);
-		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
-		db.addEndpoint(ep);
-		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret);
+		// Derive and store the transport keys
+		long rotationPeriod = timestamp / ROTATION_PERIOD_LENGTH;
+		CryptoComponent crypto = bob.getInstance(CryptoComponent.class);
+		TransportKeys keys = crypto.deriveTransportKeys(transportId, master,
+				rotationPeriod, false);
+		db.addTransportKeys(contactId, keys);
+		keyManager.contactAdded(contactId, Collections.singletonList(keys));
 		// Set up an event listener
 		MessageListener listener = new MessageListener();
 		bob.getInstance(EventBus.class).addListener(listener);
-		// Create a tag recogniser and recognise the tag
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		TagRecogniser rec = bob.getInstance(TagRecogniser.class);
+		// Read and recognise the tag
+		ByteArrayInputStream in = new ByteArrayInputStream(stream);
 		byte[] tag = new byte[TAG_LENGTH];
 		int read = in.read(tag);
 		assertEquals(tag.length, read);
-		StreamContext ctx = rec.recogniseTag(transportId, tag);
+		StreamContext ctx = keyManager.recogniseTag(transportId, tag);
 		assertNotNull(ctx);
 		// Create a stream reader
 		StreamReaderFactory streamReaderFactory =

@@ -2,22 +2,22 @@ package org.briarproject.api.transport;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.crypto.SecretKey;
 
 public class StreamContext {
 
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final byte[] secret;
+	private final SecretKey tagKey, headerKey;
 	private final long streamNumber;
-	private final boolean alice;
 
 	public StreamContext(ContactId contactId, TransportId transportId,
-			byte[] secret, long streamNumber, boolean alice) {
+			SecretKey tagKey, SecretKey headerKey, long streamNumber) {
 		this.contactId = contactId;
 		this.transportId = transportId;
-		this.secret = secret;
+		this.tagKey = tagKey;
+		this.headerKey = headerKey;
 		this.streamNumber = streamNumber;
-		this.alice = alice;
 	}
 
 	public ContactId getContactId() {
@@ -28,15 +28,15 @@ public class StreamContext {
 		return transportId;
 	}
 
-	public byte[] getSecret() {
-		return secret;
+	public SecretKey getTagKey() {
+		return tagKey;
+	}
+
+	public SecretKey getHeaderKey() {
+		return headerKey;
 	}
 
 	public long getStreamNumber() {
 		return streamNumber;
-	}
-
-	public boolean getAlice() {
-		return alice;
 	}
 }

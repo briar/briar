@@ -13,5 +13,5 @@ public interface StreamDecrypterFactory {
 	 * Creates a {@link StreamDecrypter} for decrypting an invitation stream.
 	 */
 	StreamDecrypter createInvitationStreamDecrypter(InputStream in,
-			byte[] secret, boolean alice);
+			SecretKey headerKey);
 }

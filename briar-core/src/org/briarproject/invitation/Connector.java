@@ -1,5 +1,46 @@
 package org.briarproject.invitation;
 
+import org.briarproject.api.Author;
+import org.briarproject.api.AuthorFactory;
+import org.briarproject.api.ContactId;
+import org.briarproject.api.FormatException;
+import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.crypto.KeyParser;
+import org.briarproject.api.crypto.MessageDigest;
+import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.crypto.Signature;
+import org.briarproject.api.data.Reader;
+import org.briarproject.api.data.ReaderFactory;
+import org.briarproject.api.data.Writer;
+import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.messaging.Group;
+import org.briarproject.api.messaging.GroupFactory;
+import org.briarproject.api.plugins.ConnectionManager;
+import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.system.Clock;
+import org.briarproject.api.transport.KeyManager;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.api.transport.TransportKeys;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
@@ -9,50 +50,9 @@ import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
+import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Logger;
-
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.ContactId;
-import org.briarproject.api.FormatException;
-import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyManager;
-import org.briarproject.api.crypto.KeyPair;
-import org.briarproject.api.crypto.KeyParser;
-import org.briarproject.api.crypto.MessageDigest;
-import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.crypto.Signature;
-import org.briarproject.api.data.Reader;
-import org.briarproject.api.data.ReaderFactory;
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupFactory;
-import org.briarproject.api.plugins.ConnectionManager;
-import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.Endpoint;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
-
+// FIXME: This class has way too many dependencies
 abstract class Connector extends Thread {
 
 	private static final Logger LOG =
@@ -152,8 +152,8 @@ abstract class Connector extends Thread {
 		return b;
 	}
 
-	protected byte[] deriveMasterSecret(byte[] hash, byte[] key, boolean alice)
-			throws GeneralSecurityException {
+	protected SecretKey deriveMasterSecret(byte[] hash, byte[] key,
+			boolean alice) throws GeneralSecurityException {
 		// Check that the hash matches the key
 		if (!Arrays.equals(hash, messageDigest.digest(key))) {
 			if (LOG.isLoggable(INFO))
@@ -271,39 +271,34 @@ abstract class Connector extends Thread {
 	}
 
 	protected void addContact(Author remoteAuthor,
-			Map<TransportId, TransportProperties> remoteProps,  byte[] secret,
-			long epoch, boolean alice) throws DbException {
+			Map<TransportId, TransportProperties> remoteProps, SecretKey master,
+			long timestamp, boolean alice) throws DbException {
 		// Add the contact to the database
 		contactId = db.addContact(remoteAuthor, localAuthor.getId());
 		// Create and store the inbox group
-		byte[] salt = crypto.deriveGroupSalt(secret);
+		byte[] salt = crypto.deriveGroupSalt(master);
 		Group inbox = groupFactory.createGroup("Inbox", salt);
 		db.addGroup(inbox);
 		db.setInboxGroup(contactId, inbox);
 		// Store the remote transport properties
 		db.setRemoteProperties(contactId, remoteProps);
-		// Create an endpoint for each transport shared with the contact
-		List<TransportId> ids = new ArrayList<TransportId>();
+		// Derive transport keys for each transport shared with the contact
 		Map<TransportId, Integer> latencies = db.getTransportLatencies();
-		for (TransportId id : localProps.keySet()) {
-			if (latencies.containsKey(id) && remoteProps.containsKey(id))
-				ids.add(id);
-		}
-		// Assign indices to the transports deterministically and derive keys
-		Collections.sort(ids, TransportIdComparator.INSTANCE);
-		int size = ids.size();
-		for (int i = 0; i < size; i++) {
-			TransportId id = ids.get(i);
-			Endpoint ep = new Endpoint(contactId, id, epoch, alice);
-			int maxLatency = latencies.get(id);
-			try {
-				db.addEndpoint(ep);
-			} catch (NoSuchTransportException e) {
-				continue;
+		List<TransportKeys> keys = new ArrayList<TransportKeys>();
+		for (TransportId t : localProps.keySet()) {
+			if (remoteProps.containsKey(t) && latencies.containsKey(t)) {
+				// Work out what rotation period the timestamp belongs to
+				long latency = latencies.get(t);
+				long rotationPeriodLength = latency + MAX_CLOCK_DIFFERENCE;
+				long rotationPeriod = timestamp / rotationPeriodLength;
+				// Derive the transport keys
+				TransportKeys k = crypto.deriveTransportKeys(t, master,
+						rotationPeriod, alice);
+				db.addTransportKeys(contactId, k);
+				keys.add(k);
 			}
-			byte[] initialSecret = crypto.deriveInitialSecret(secret, i);
-			keyManager.endpointAdded(ep, maxLatency, initialSecret);
 		}
+		keyManager.contactAdded(contactId, keys);
 	}
 
 	protected void tryToClose(DuplexTransportConnection conn,
@@ -321,17 +316,5 @@ abstract class Connector extends Thread {
 		if (contactId == null) throw new IllegalStateException();
 		TransportId t = plugin.getId();
 		connectionManager.manageOutgoingConnection(contactId, t, conn);
-	}
-
-	private static class TransportIdComparator
-	implements Comparator<TransportId> {
-
-		private static final TransportIdComparator INSTANCE =
-				new TransportIdComparator();
-
-		public int compare(TransportId t1, TransportId t2) {
-			String s1 = t1.getString(), s2 = t2.getString();
-			return String.CASE_INSENSITIVE_ORDER.compare(s1, s2);
-		}
 	}
 }

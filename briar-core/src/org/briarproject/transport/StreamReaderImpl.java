@@ -7,6 +7,12 @@ import java.io.InputStream;
 
 import org.briarproject.api.crypto.StreamDecrypter;
 
+/**
+ * An {@link java.io.InputStream InputStream} that unpacks payload data from
+ * transport frames.
+ * <p>
+ * This class is not thread-safe.
+ */
 class StreamReaderImpl extends InputStream {
 
 	private final StreamDecrypter decrypter;
@@ -50,7 +56,7 @@ class StreamReaderImpl extends InputStream {
 	}
 
 	private void readFrame() throws IOException {
-		assert length == 0;
+		if (length != 0) throw new IllegalStateException();
 		offset = 0;
 		length = decrypter.readFrame(payload);
 	}

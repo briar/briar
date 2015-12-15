@@ -1,25 +1,5 @@
 package org.briarproject.db;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.db.DatabaseConstants.BYTES_PER_SWEEP;
-import static org.briarproject.db.DatabaseConstants.CRITICAL_FREE_SPACE;
-import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
-import static org.briarproject.db.DatabaseConstants.MAX_TRANSACTIONS_BETWEEN_SPACE_CHECKS;
-import static org.briarproject.db.DatabaseConstants.MIN_FREE_SPACE;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.Contact;
@@ -75,8 +55,29 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.transport.Endpoint;
-import org.briarproject.api.transport.TemporarySecret;
+import org.briarproject.api.transport.TransportKeys;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.db.DatabaseConstants.BYTES_PER_SWEEP;
+import static org.briarproject.db.DatabaseConstants.CRITICAL_FREE_SPACE;
+import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
+import static org.briarproject.db.DatabaseConstants.MAX_TRANSACTIONS_BETWEEN_SPACE_CHECKS;
+import static org.briarproject.db.DatabaseConstants.MIN_FREE_SPACE;
 
 /**
  * An implementation of DatabaseComponent using reentrant read-write locks.
@@ -85,7 +86,7 @@ import org.briarproject.api.transport.TemporarySecret;
  * implementation is safe on a given JVM.
  */
 class DatabaseComponentImpl<T> implements DatabaseComponent,
-DatabaseCleaner.Callback {
+		DatabaseCleaner.Callback {
 
 	private static final Logger LOG =
 			Logger.getLogger(DatabaseComponentImpl.class.getName());
@@ -180,26 +181,6 @@ DatabaseCleaner.Callback {
 		return c;
 	}
 
-	public void addEndpoint(Endpoint ep) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, ep.getContactId()))
-					throw new NoSuchContactException();
-				if (!db.containsTransport(txn, ep.getTransportId()))
-					throw new NoSuchTransportException();
-				db.addEndpoint(txn, ep);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
 	public boolean addGroup(Group g) throws DbException {
 		boolean added = false;
 		lock.writeLock().lock();
@@ -290,30 +271,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void addSecrets(Collection<TemporarySecret> secrets)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<TemporarySecret> relevant =
-						new ArrayList<TemporarySecret>();
-				for (TemporarySecret s : secrets) {
-					if (db.containsContact(txn, s.getContactId()))
-						if (db.containsTransport(txn, s.getTransportId()))
-							relevant.add(s);
-				}
-				if (!secrets.isEmpty()) db.addSecrets(txn, relevant);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
 	public boolean addTransport(TransportId t, int maxLatency)
 			throws DbException {
 		boolean added;
@@ -332,6 +289,27 @@ DatabaseCleaner.Callback {
 		}
 		if (added) eventBus.broadcast(new TransportAddedEvent(t, maxLatency));
 		return added;
+	}
+
+	public void addTransportKeys(ContactId c, TransportKeys k)
+			throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsContact(txn, c))
+					throw new NoSuchContactException();
+				if (!db.containsTransport(txn, k.getTransportId()))
+					throw new NoSuchTransportException();
+				db.addTransportKeys(txn, c, k);
+				db.commitTransaction(txn);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
 	}
 
 	public Ack generateAck(ContactId c, int maxMessages) throws DbException {
@@ -883,23 +861,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<TemporarySecret> getSecrets() throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<TemporarySecret> secrets = db.getSecrets(txn);
-				db.commitTransaction(txn);
-				return secrets;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
 	public Settings getSettings() throws DbException {
 		lock.readLock().lock();
 		try {
@@ -925,6 +886,27 @@ DatabaseCleaner.Callback {
 				Collection<Contact> contacts = db.getSubscribers(txn, g);
 				db.commitTransaction(txn);
 				return contacts;
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
+	public Map<ContactId, TransportKeys> getTransportKeys(TransportId t)
+			throws DbException {
+		lock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsTransport(txn, t))
+					throw new NoSuchTransportException();
+				Map<ContactId, TransportKeys> keys =
+						db.getTransportKeys(txn, t);
+				db.commitTransaction(txn);
+				return keys;
 			} catch (DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -989,8 +971,8 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public long incrementStreamCounter(ContactId c, TransportId t,
-			long period) throws DbException {
+	public void incrementStreamCounter(ContactId c, TransportId t,
+			long rotationPeriod) throws DbException {
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
@@ -999,9 +981,8 @@ DatabaseCleaner.Callback {
 					throw new NoSuchContactException();
 				if (!db.containsTransport(txn, t))
 					throw new NoSuchTransportException();
-				long counter = db.incrementStreamCounter(txn, c, t, period);
+				db.incrementStreamCounter(txn, c, t, rotationPeriod);
 				db.commitTransaction(txn);
-				return counter;
 			} catch (DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -1404,27 +1385,6 @@ DatabaseCleaner.Callback {
 		eventBus.broadcast(new TransportRemovedEvent(t));
 	}
 
-	public void setReorderingWindow(ContactId c, TransportId t, long period,
-			long centre, byte[] bitmap) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				db.setReorderingWindow(txn, c, t, period, centre, bitmap);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
 	public void setInboxGroup(ContactId c, Group g) throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -1470,6 +1430,27 @@ DatabaseCleaner.Callback {
 				if (!db.containsContact(txn, c))
 					throw new NoSuchContactException();
 				db.setRemoteProperties(txn, c, p);
+				db.commitTransaction(txn);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	public void setReorderingWindow(ContactId c, TransportId t,
+			long rotationPeriod, long base, byte[] bitmap) throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsContact(txn, c))
+					throw new NoSuchContactException();
+				if (!db.containsTransport(txn, t))
+					throw new NoSuchTransportException();
+				db.setReorderingWindow(txn, c, t, rotationPeriod, base, bitmap);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -1550,6 +1531,33 @@ DatabaseCleaner.Callback {
 		}
 		if (!affected.isEmpty())
 			eventBus.broadcast(new LocalSubscriptionsUpdatedEvent(affected));
+	}
+
+	public void updateTransportKeys(Map<ContactId, TransportKeys> keys)
+			throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Map<ContactId, TransportKeys> filtered =
+						new HashMap<ContactId, TransportKeys>();
+				for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
+					ContactId c = e.getKey();
+					TransportKeys k = e.getValue();
+					if (db.containsContact(txn, c)
+							&& db.containsTransport(txn, k.getTransportId())) {
+						filtered.put(c, k);
+					}
+				}
+				db.updateTransportKeys(txn, filtered);
+				db.commitTransaction(txn);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
 	}
 
 	public void checkFreeSpaceAndClean() throws DbException {

@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-public class KeyManagerImplTest extends BriarTestCase {
+public class TransportKeyManagerTest extends BriarTestCase {
 
 	@Test
 	public void testUnitTestsExist() {

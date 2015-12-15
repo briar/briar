@@ -11,6 +11,7 @@ import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
@@ -45,8 +46,9 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.transport.Endpoint;
-import org.briarproject.api.transport.TemporarySecret;
+import org.briarproject.api.transport.IncomingKeys;
+import org.briarproject.api.transport.OutgoingKeys;
+import org.briarproject.api.transport.TransportKeys;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -84,8 +86,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	protected final int maxLatency;
 	protected final ContactId contactId;
 	protected final Contact contact;
-	protected final Endpoint endpoint;
-	protected final TemporarySecret temporarySecret;
 
 	public DatabaseComponentTest() {
 		groupId = new GroupId(TestUtils.getRandomId());
@@ -112,9 +112,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthorId);
-		endpoint = new Endpoint(contactId, transportId, 123, true);
-		temporarySecret = new TemporarySecret(contactId, transportId, 123,
-				false, 234, new byte[32], 345, 456, new byte[4]);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -157,7 +154,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
-			will(returnValue(Arrays.asList(contact)));
+			will(returnValue(Collections.singletonList(contact)));
 			// getRemoteProperties()
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(Collections.emptyMap()));
@@ -177,7 +174,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(Collections.emptyList()));
 			// getGroups()
 			oneOf(database).getGroups(txn);
-			will(returnValue(Arrays.asList(groupId)));
+			will(returnValue(Collections.singletonList(group)));
 			// removeGroup()
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
@@ -213,13 +210,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		assertFalse(db.open());
 		db.addLocalAuthor(localAuthor);
 		assertEquals(contactId, db.addContact(author, localAuthorId));
-		assertEquals(Arrays.asList(contact), db.getContacts());
+		assertEquals(Collections.singletonList(contact), db.getContacts());
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(transportId));
 		db.addGroup(group); // First time - listeners called
 		db.addGroup(group); // Second time - not called
 		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
-		assertEquals(Arrays.asList(groupId), db.getGroups());
+		assertEquals(Collections.singletonList(group), db.getGroups());
 		db.removeGroup(group);
 		db.removeContact(contactId);
 		db.removeLocalAuthor(localAuthorId);
@@ -297,9 +294,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addMessage(txn, message, true);
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Arrays.asList(contactId)));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).getContactIds(txn);
-			will(returnValue(Arrays.asList(contactId)));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, false, false);
@@ -336,7 +333,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				eventBus, shutdown);
 
 		try {
-			db.addEndpoint(endpoint);
+			db.addTransportKeys(contactId, createTransportKeys());
 			fail();
 		} catch (NoSuchContactException expected) {}
 
@@ -401,7 +398,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch (NoSuchContactException expected) {}
 
 		try {
-			Ack a = new Ack(Arrays.asList(messageId));
+			Ack a = new Ack(Collections.singletonList(messageId));
 			db.receiveAck(contactId, a);
 			fail();
 		} catch (NoSuchContactException expected) {}
@@ -412,7 +409,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch (NoSuchContactException expected) {}
 
 		try {
-			Offer o = new Offer(Arrays.asList(messageId));
+			Offer o = new Offer(Collections.singletonList(messageId));
 			db.receiveOffer(contactId, o);
 			fail();
 		} catch (NoSuchContactException expected) {}
@@ -594,7 +591,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// Check whether the transport is in the DB (which it's not)
 			exactly(8).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(3).of(database).containsContact(txn, contactId);
+			exactly(2).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			exactly(8).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
@@ -607,17 +604,17 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(author, localAuthorId));
 
 		try {
-			db.addEndpoint(endpoint);
-			fail();
-		} catch (NoSuchTransportException expected) {}
-
-		try {
 			db.getConfig(transportId);
 			fail();
 		} catch (NoSuchTransportException expected) {}
 
 		try {
 			db.getLocalProperties(transportId);
+			fail();
+		} catch (NoSuchTransportException expected) {}
+
+		try {
+			db.getTransportKeys(transportId);
 			fail();
 		} catch (NoSuchTransportException expected) {}
 
@@ -909,7 +906,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getSubscriptionUpdate(txn, contactId, maxLatency);
-			will(returnValue(new SubscriptionUpdate(Arrays.asList(group), 1)));
+			will(returnValue(new SubscriptionUpdate(
+					Collections.singletonList(group), 1)));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -917,7 +915,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId,
 				maxLatency);
-		assertEquals(Arrays.asList(group), u.getGroups());
+		assertEquals(Collections.singletonList(group), u.getGroups());
 		assertEquals(1, u.getVersion());
 
 		context.assertIsSatisfied();
@@ -962,8 +960,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getTransportUpdates(txn, contactId, maxLatency);
-			will(returnValue(Arrays.asList(new TransportUpdate(transportId,
-					transportProperties, 1))));
+			will(returnValue(Collections.singletonList(new TransportUpdate(
+					transportId, transportProperties, 1))));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -1003,7 +1001,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		db.receiveAck(contactId, new Ack(Arrays.asList(messageId)));
+		db.receiveAck(contactId, new Ack(Collections.singletonList(messageId)));
 
 		context.assertIsSatisfied();
 	}
@@ -1027,9 +1025,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addMessage(txn, message, false);
 			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Arrays.asList(contactId)));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).getContactIds(txn);
-			will(returnValue(Arrays.asList(contactId)));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, false, true);
@@ -1176,7 +1174,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		db.receiveRequest(contactId, new Request(Arrays.asList(messageId)));
+		db.receiveRequest(contactId, new Request(Collections.singletonList(
+				messageId)));
 
 		context.assertIsSatisfied();
 	}
@@ -1244,13 +1243,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).setGroups(txn, contactId, Arrays.asList(group), 1);
+			oneOf(database).setGroups(txn, contactId,
+					Collections.singletonList(group), 1);
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		SubscriptionUpdate u = new SubscriptionUpdate(Arrays.asList(group), 1);
+		SubscriptionUpdate u = new SubscriptionUpdate(
+				Collections.singletonList(group), 1);
 		db.receiveSubscriptionUpdate(contactId, u);
 
 		context.assertIsSatisfied();
@@ -1398,7 +1399,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		db.setVisibility(groupId, Arrays.asList(contactId));
+		db.setVisibility(groupId, Collections.singletonList(contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -1467,7 +1468,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).setVisibleToAll(txn, groupId, true);
 			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Arrays.asList(contactId)));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
 			oneOf(database).addVisibility(txn, contactId1, groupId);
@@ -1478,14 +1479,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		db.setVisibility(groupId, Arrays.asList(contactId));
+		db.setVisibility(groupId, Collections.singletonList(contactId));
 		db.setVisibleToAll(groupId, true);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testTemporarySecrets() throws Exception {
+	public void testTransportKeys() throws Exception {
+		final TransportKeys keys = createTransportKeys();
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1493,28 +1495,52 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			// addSecrets()
+			// updateTransportKeys()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).containsTransport(txn, transportId);
 			will(returnValue(true));
-			oneOf(database).addSecrets(txn, Arrays.asList(temporarySecret));
+			oneOf(database).updateTransportKeys(txn,
+					Collections.singletonMap(contactId, keys));
 			oneOf(database).commitTransaction(txn);
-			// getSecrets()
+			// getTransportKeys()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getSecrets(txn);
-			will(returnValue(Arrays.asList(temporarySecret)));
+			oneOf(database).containsTransport(txn, transportId);
+			will(returnValue(true));
+			oneOf(database).getTransportKeys(txn, transportId);
+			will(returnValue(Collections.singletonMap(contactId, keys)));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				eventBus, shutdown);
 
-		db.addSecrets(Arrays.asList(temporarySecret));
-		assertEquals(Arrays.asList(temporarySecret), db.getSecrets());
+		db.updateTransportKeys(Collections.singletonMap(contactId, keys));
+		assertEquals(Collections.singletonMap(contactId, keys),
+				db.getTransportKeys(transportId));
 
 		context.assertIsSatisfied();
+	}
+
+	private TransportKeys createTransportKeys() {
+		SecretKey inPrevTagKey = TestUtils.createSecretKey();
+		SecretKey inPrevHeaderKey = TestUtils.createSecretKey();
+		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
+				1, 123, new byte[4]);
+		SecretKey inCurrTagKey = TestUtils.createSecretKey();
+		SecretKey inCurrHeaderKey = TestUtils.createSecretKey();
+		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
+				2, 234, new byte[4]);
+		SecretKey inNextTagKey = TestUtils.createSecretKey();
+		SecretKey inNextHeaderKey = TestUtils.createSecretKey();
+		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
+				3, 345, new byte[4]);
+		SecretKey outCurrTagKey = TestUtils.createSecretKey();
+		SecretKey outCurrHeaderKey = TestUtils.createSecretKey();
+		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
+				2, 456);
+		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 }

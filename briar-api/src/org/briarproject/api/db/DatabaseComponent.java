@@ -1,9 +1,5 @@
 package org.briarproject.api.db;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.Contact;
@@ -26,8 +22,11 @@ import org.briarproject.api.messaging.SubscriptionAck;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportAck;
 import org.briarproject.api.messaging.TransportUpdate;
-import org.briarproject.api.transport.Endpoint;
-import org.briarproject.api.transport.TemporarySecret;
+import org.briarproject.api.transport.TransportKeys;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Encapsulates the database implementation and exposes high-level operations
@@ -47,9 +46,6 @@ public interface DatabaseComponent {
 	 */
 	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
-	/** Stores an endpoint. */
-	void addEndpoint(Endpoint ep) throws DbException;
-
 	/**
 	 * Subscribes to a group, or returns false if the user already has the
 	 * maximum number of public subscriptions.
@@ -63,16 +59,15 @@ public interface DatabaseComponent {
 	void addLocalMessage(Message m) throws DbException;
 
 	/**
-	 * Stores the given temporary secrets and deletes any secrets that have
-	 * been made obsolete.
-	 */
-	void addSecrets(Collection<TemporarySecret> secrets) throws DbException;
-
-	/**
 	 * Stores a transport and returns true if the transport was not previously
 	 * in the database.
 	 */
 	boolean addTransport(TransportId t, int maxLatency) throws DbException;
+
+	/**
+	 * Stores the given transport keys for a newly added contact.
+	 */
+	void addTransportKeys(ContactId c, TransportKeys k) throws DbException;
 
 	/**
 	 * Returns an acknowledgement for the given contact, or null if there are
@@ -214,16 +209,17 @@ public interface DatabaseComponent {
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
 			throws DbException;
 
-	/** Returns all temporary secrets. */
-	Collection<TemporarySecret> getSecrets() throws DbException;
-
 	/** Returns all settings. */
 	Settings getSettings() throws DbException;
 
 	/** Returns all contacts who subscribe to the given group. */
 	Collection<Contact> getSubscribers(GroupId g) throws DbException;
 
-	/** Returns the maximum latencies of all supported transports. */
+	/** Returns all transport keys for the given transport. */
+	Map<ContactId, TransportKeys> getTransportKeys(TransportId t)
+			throws DbException;
+
+	/** Returns the maximum latencies in milliseconds of all transports. */
 	Map<TransportId, Integer> getTransportLatencies() throws DbException;
 
 	/** Returns the number of unread messages in each subscribed group. */
@@ -233,11 +229,10 @@ public interface DatabaseComponent {
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given endpoint in the
-	 * given rotation period and returns the old value, or -1 if the counter
-	 * does not exist.
+	 * Increments the outgoing stream counter for the given contact and
+	 * transport in the given rotation period .
 	 */
-	long incrementStreamCounter(ContactId c, TransportId t, long period)
+	void incrementStreamCounter(ContactId c, TransportId t, long rotationPeriod)
 			throws DbException;
 
 	/**
@@ -311,17 +306,10 @@ public interface DatabaseComponent {
 	void removeTransport(TransportId t) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given endpoint in the given rotation
-	 * period.
-	 */
-	void setReorderingWindow(ContactId c, TransportId t, long period,
-			long centre, byte[] bitmap) throws DbException;
-
-	/**
 	 * Makes a group visible to the given contact, adds it to the contact's
 	 * subscriptions, and sets it as the inbox group for the contact.
 	 */
-	public void setInboxGroup(ContactId c, Group g) throws DbException;
+	void setInboxGroup(ContactId c, Group g) throws DbException;
 
 	/**
 	 * Marks a message as read or unread.
@@ -336,6 +324,13 @@ public interface DatabaseComponent {
 			Map<TransportId, TransportProperties> p) throws DbException;
 
 	/**
+	 * Sets the reordering window for the given contact and transport in the
+	 * given rotation period.
+	 */
+	void setReorderingWindow(ContactId c, TransportId t, long rotationPeriod,
+			long base, byte[] bitmap) throws DbException;
+
+	/**
 	 * Makes a group visible to the given set of contacts and invisible to any
 	 * other current or future contacts.
 	 */
@@ -347,4 +342,10 @@ public interface DatabaseComponent {
 	 * to future contacts.
 	 */
 	void setVisibleToAll(GroupId g, boolean all) throws DbException;
+
+	/**
+	 * Stores the given transport keys, deleting any keys they have replaced.
+	 */
+	void updateTransportKeys(Map<ContactId, TransportKeys> keys)
+			throws DbException;
 }
