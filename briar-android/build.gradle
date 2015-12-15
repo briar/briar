@@ -6,6 +6,7 @@ dependencies {
     compile fileTree(dir: '../briar-core/libs', include: '*.jar')
     compile project(':briar-core')
     compile fileTree(dir: 'libs', include: '*.jar')
+    compile "com.android.support:appcompat-v7:23.1.1"
 }
 
 android {

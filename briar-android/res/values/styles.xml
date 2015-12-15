@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="LightTheme" parent="android:Theme.Light">
-        <item name="android:windowTitleStyle">@style/WindowTitle</item>
-        <item name="android:windowTitleBackgroundStyle">@style/WindowTitleBackground</item>
-        <item name="android:windowBackground">@color/window_background</item>
+
+    <style name="BriarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/BriarActionBar</item>
+        <item name="colorPrimary">@color/briar_primary</item>
+        <item name="colorPrimaryDark">@color/briar_primary_dark</item>
+        <item name="android:textColorPrimary">@color/briar_text_primary</item>
+        <item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
+        <item name="android:textColorSecondary">@color/briar_text_primary</item>
+        <item name="android:textColorLink">@color/briar_text_link</item>
+
+        <!-- The rest of your attributes -->
     </style>
-    <style name="WindowTitle">
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:textColor">@color/action_bar_text</item>
-    </style>
-    <style name="WindowTitleBackground">
-        <item name="android:background">@color/action_bar_background</item>
+
+    <style name="BriarActionBar" parent="Base.Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="elevation">1dp</item>
     </style>
 
     <style name="BriarButton">
