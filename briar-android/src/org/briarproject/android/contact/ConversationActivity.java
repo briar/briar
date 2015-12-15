@@ -1,20 +1,53 @@
 package org.briarproject.android.contact;
 
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.AuthorId;
+import org.briarproject.api.Contact;
+import org.briarproject.api.ContactId;
+import org.briarproject.api.android.AndroidNotificationManager;
+import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.MessageHeader.State;
+import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.db.NoSuchSubscriptionException;
+import org.briarproject.api.event.ContactConnectedEvent;
+import org.briarproject.api.event.ContactDisconnectedEvent;
+import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.MessageAddedEvent;
+import org.briarproject.api.event.MessageExpiredEvent;
+import org.briarproject.api.event.MessagesAckedEvent;
+import org.briarproject.api.event.MessagesSentEvent;
+import org.briarproject.api.messaging.Group;
+import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.messaging.Message;
+import org.briarproject.api.messaging.MessageFactory;
+import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -31,52 +64,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import org.briarproject.R;
-import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
-import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.db.MessageHeader.State;
-import org.briarproject.api.db.NoSuchContactException;
-import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
-import org.briarproject.api.event.ContactRemovedEvent;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
-import org.briarproject.api.event.MessagesAckedEvent;
-import org.briarproject.api.event.MessagesSentEvent;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.Message;
-import org.briarproject.api.messaging.MessageFactory;
-import org.briarproject.api.messaging.MessageId;
-import org.briarproject.util.StringUtils;
-
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
-import android.text.InputType;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
+import static android.view.View.GONE;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class ConversationActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener {
@@ -86,12 +78,13 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			Logger.getLogger(ConversationActivity.class.getName());
 
 	@Inject private AndroidNotificationManager notificationManager;
+	@Inject private ConnectionRegistry connectionRegistry;
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private TextView empty = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
-	private ListLoadingProgressBar loading = null;
+	private ProgressBar loading = null;
 	private EditText content = null;
 	private ImageButton sendButton = null;
 
@@ -104,6 +97,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private volatile GroupId groupId = null;
 	private volatile Group group = null;
 	private volatile AuthorId localAuthorId = null;
+	private volatile boolean connected;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -118,17 +112,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		data.putExtra("briar.CONTACT_ID", id);
 		setResult(RESULT_OK, data);
 
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-
-		empty = new TextView(this);
-		empty.setLayoutParams(MATCH_WRAP_1);
-		empty.setGravity(CENTER);
-		empty.setTextSize(18);
-		empty.setText(R.string.no_private_messages);
-		empty.setVisibility(GONE);
-		layout.addView(empty);
+		setContentView(R.layout.activity_conversation);
+		ViewGroup layout = (ViewGroup) findViewById(R.id.layout);
+		empty = (TextView) findViewById(R.id.emptyView);
 
 		adapter = new ConversationAdapter(this);
 		list = new ListView(this) {
@@ -145,46 +131,21 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		list.setClipToPadding(false);
 		// Make the dividers the same colour as the background
 		Resources res = getResources();
-		int background = res.getColor(R.color.window_background);
+		int background = res.getColor(android.R.color.transparent);
 		list.setDivider(new ColorDrawable(background));
 		list.setDividerHeight(pad);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
-		list.setVisibility(GONE);
-		layout.addView(list);
+		list.setEmptyView(empty);
+		layout.addView(list, 0);
 
 		// Show a progress bar while the list is loading
-		loading = new ListLoadingProgressBar(this);
-		layout.addView(loading);
+		loading = (ProgressBar) findViewById(R.id.listLoadingProgressBar);
 
-		layout.addView(new HorizontalBorder(this));
-
-		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(MATCH_WRAP);
-		footer.setOrientation(HORIZONTAL);
-		footer.setGravity(CENTER_VERTICAL);
-		footer.setPadding(pad, 0, 0, 0);
-		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-
-		content = new EditText(this);
-		content.setId(1);
-		content.setLayoutParams(WRAP_WRAP_1);
-		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
-				| TYPE_TEXT_FLAG_CAP_SENTENCES;
-		content.setInputType(inputType);
-		content.setHint(R.string.private_message_hint);
-		footer.addView(content);
-
-		sendButton = new ImageButton(this);
-		sendButton.setId(2);
-		sendButton.setBackgroundResource(0);
-		sendButton.setImageResource(R.drawable.social_send_now);
+		content = (EditText) findViewById(R.id.contentView);
+		sendButton = (ImageButton) findViewById(R.id.sendButton);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
-		footer.addView(sendButton);
-		layout.addView(footer);
-
-		setContentView(layout);
 	}
 
 	@Override
@@ -205,12 +166,13 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					localAuthorId = contact.getLocalAuthorId();
 					groupId = db.getInboxGroupId(contactId);
 					group = db.getGroup(groupId);
+					connected = connectionRegistry.isConnected(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO)) {
 						LOG.info("Loading contact and group took "
 								+ duration + " ms");
 					}
-					displayContactName();
+					displayContactDetails();
 				} catch (NoSuchContactException e) {
 					finishOnUiThread();
 				} catch (NoSuchSubscriptionException e) {
@@ -223,10 +185,18 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayContactName() {
+	private void displayContactDetails() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				setTitle(contactName);
+				ActionBar actionBar = getSupportActionBar();
+				if (actionBar != null) {
+					actionBar.setTitle(contactName);
+					if (connected) {
+						actionBar.setSubtitle(getString(R.string.online));
+					} else {
+						actionBar.setSubtitle(getString(R.string.offline));
+					}
+				}
 			}
 		});
 	}
@@ -256,15 +226,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				loading.setVisibility(GONE);
-				setTitle(contactName);
+				displayContactDetails();
 				sendButton.setEnabled(true);
 				adapter.clear();
-				if (headers.isEmpty()) {
-					empty.setVisibility(VISIBLE);
-					list.setVisibility(GONE);
-				} else {
-					empty.setVisibility(GONE);
-					list.setVisibility(VISIBLE);
+				if (!headers.isEmpty()) {
 					for (MessageHeader h : headers) {
 						ConversationItem item = new ConversationItem(h);
 						byte[] body = bodyCache.get(h.getId());
@@ -395,6 +360,20 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
 				markMessages(m.getMessageIds(), State.DELIVERED);
+			}
+		} else if (e instanceof ContactConnectedEvent) {
+			ContactConnectedEvent c = (ContactConnectedEvent) e;
+			if (c.getContactId().equals(contactId)) {
+				LOG.info("Contact connected");
+				connected = true;
+				displayContactDetails();
+			}
+		} else if (e instanceof ContactDisconnectedEvent) {
+			ContactDisconnectedEvent c = (ContactDisconnectedEvent) e;
+			if (c.getContactId().equals(contactId)) {
+				LOG.info("Contact disconnected");
+				connected = false;
+				displayContactDetails();
 			}
 		}
 	}
