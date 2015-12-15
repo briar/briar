@@ -1,25 +1,19 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
 
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
-import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
-import static android.widget.RelativeLayout.CENTER_VERTICAL;
-import static android.widget.RelativeLayout.LEFT_OF;
-import static android.widget.RelativeLayout.RIGHT_OF;
-import static android.widget.Toast.LENGTH_LONG;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collection;
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.InputType;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -44,27 +38,33 @@ import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.util.StringUtils;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.InputType;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
-public class WriteGroupPostActivity extends BriarActivity
+import javax.inject.Inject;
+
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
+import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
+import static android.widget.RelativeLayout.CENTER_VERTICAL;
+import static android.widget.RelativeLayout.LEFT_OF;
+import static android.widget.RelativeLayout.RIGHT_OF;
+import static android.widget.Toast.LENGTH_LONG;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+
+public class WriteForumPostActivity extends BriarActivity
 implements OnItemSelectedListener, OnClickListener {
 
 	private static final int REQUEST_CREATE_IDENTITY = 2;
 	private static final Logger LOG =
-			Logger.getLogger(WriteGroupPostActivity.class.getName());
+			Logger.getLogger(WriteForumPostActivity.class.getName());
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private LocalAuthorSpinnerAdapter adapter = null;
@@ -91,9 +91,9 @@ implements OnItemSelectedListener, OnClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String groupName = i.getStringExtra("briar.GROUP_NAME");
-		if (groupName == null) throw new IllegalStateException();
-		setTitle(groupName);
+		String forumName = i.getStringExtra("briar.FORUM_NAME");
+		if (forumName == null) throw new IllegalStateException();
+		setTitle(forumName);
 		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
 		if (minTimestamp == -1) throw new IllegalStateException();
 		b = i.getByteArrayExtra("briar.PARENT_ID");

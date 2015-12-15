@@ -1,14 +1,14 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
 
 import org.briarproject.api.db.MessageHeader;
 
 // This class is not thread-safe
-class GroupItem {
+class ForumItem {
 
 	private final MessageHeader header;
 	private byte[] body;
 
-	GroupItem(MessageHeader header) {
+	ForumItem(MessageHeader header) {
 		this.header = header;
 		body = null;
 	}

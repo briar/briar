@@ -1,18 +1,13 @@
 package org.briarproject.android;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
-import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Binder;
+import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 
 import org.briarproject.R;
 import org.briarproject.api.ContactId;
@@ -30,15 +25,21 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.api.messaging.GroupId;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import roboguice.service.RoboService;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Binder;
-import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 
 public class BriarService extends RoboService implements EventListener {
 
@@ -182,7 +183,7 @@ public class BriarService extends RoboService implements EventListener {
 					lifecycleManager.waitForDatabase();
 					if (g.equals(db.getInboxGroupId(c)))
 						notificationManager.showPrivateMessageNotification(c);
-					else notificationManager.showGroupPostNotification(g);
+					else notificationManager.showForumPostNotification(g);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

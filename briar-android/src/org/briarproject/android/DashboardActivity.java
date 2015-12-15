@@ -1,26 +1,5 @@
 package org.briarproject.android;
 
-import static android.view.Gravity.CENTER;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.android.contact.ContactListActivity;
-import org.briarproject.android.groups.GroupListActivity;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.android.ReferenceManager;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -33,6 +12,27 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import org.briarproject.R;
+import org.briarproject.android.contact.ContactListActivity;
+import org.briarproject.android.forum.ForumListActivity;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.android.ReferenceManager;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.view.Gravity.CENTER;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 public class DashboardActivity extends BriarActivity {
 
@@ -109,7 +109,7 @@ public class DashboardActivity extends BriarActivity {
 		forumsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
 				startActivity(new Intent(DashboardActivity.this,
-						GroupListActivity.class));
+						ForumListActivity.class));
 			}
 		});
 		buttons.add(forumsButton);

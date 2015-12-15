@@ -1,25 +1,22 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
 
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Menu.NONE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.Toast.LENGTH_SHORT;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnCreateContextMenuListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -41,41 +38,44 @@ import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 
-import android.content.Intent;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnCreateContextMenuListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
-public class GroupListActivity extends BriarActivity
+import javax.inject.Inject;
+
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.Menu.NONE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+
+public class ForumListActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener,
 OnCreateContextMenuListener {
 
 	private static final int MENU_ITEM_UNSUBSCRIBE = 1;
 	private static final Logger LOG =
-			Logger.getLogger(GroupListActivity.class.getName());
+			Logger.getLogger(ForumListActivity.class.getName());
 
-	private final Map<GroupId,GroupId> groups =
-			new ConcurrentHashMap<GroupId,GroupId>();
+	private final Map<GroupId, GroupId> groupIds =
+			new ConcurrentHashMap<GroupId, GroupId>();
 
 	private TextView empty = null;
-	private GroupListAdapter adapter = null;
+	private ForumListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
 	private TextView available = null;
-	private ImageButton newGroupButton = null;
+	private ImageButton newForumButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -99,7 +99,7 @@ OnCreateContextMenuListener {
 		empty.setVisibility(GONE);
 		layout.addView(empty);
 
-		adapter = new GroupListAdapter(this);
+		adapter = new ForumListAdapter(this);
 		list = new ListView(this);
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
@@ -131,11 +131,11 @@ OnCreateContextMenuListener {
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
 		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		newGroupButton = new ImageButton(this);
-		newGroupButton.setBackgroundResource(0);
-		newGroupButton.setImageResource(R.drawable.social_new_chat);
-		newGroupButton.setOnClickListener(this);
-		footer.addView(newGroupButton);
+		newForumButton = new ImageButton(this);
+		newForumButton.setBackgroundResource(0);
+		newForumButton.setImageResource(R.drawable.social_new_chat);
+		newForumButton.setOnClickListener(this);
+		footer.addView(newForumButton);
 		layout.addView(footer);
 
 		setContentView(layout);
@@ -177,7 +177,7 @@ OnCreateContextMenuListener {
 	private void clearHeaders() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				groups.clear();
+				groupIds.clear();
 				empty.setVisibility(GONE);
 				list.setVisibility(GONE);
 				available.setVisibility(GONE);
@@ -193,15 +193,15 @@ OnCreateContextMenuListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				GroupId id = g.getId();
-				groups.put(id, id);
+				groupIds.put(id, id);
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				// Remove the old item, if any
-				GroupListItem item = findGroup(id);
+				ForumListItem item = findForum(id);
 				if (item != null) adapter.remove(item);
 				// Add a new item
-				adapter.add(new GroupListItem(g, headers));
-				adapter.sort(GroupListItemComparator.INSTANCE);
+				adapter.add(new ForumListItem(g, headers));
+				adapter.sort(ForumListItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			}
@@ -225,10 +225,10 @@ OnCreateContextMenuListener {
 		});
 	}
 
-	private GroupListItem findGroup(GroupId g) {
+	private ForumListItem findForum(GroupId g) {
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
-			GroupListItem item = adapter.getItem(i);
+			ForumListItem item = adapter.getItem(i);
 			if (item.getGroup().getId().equals(g)) return item;
 		}
 		return null; // Not found
@@ -255,7 +255,7 @@ OnCreateContextMenuListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof MessageAddedEvent) {
 			Group g = ((MessageAddedEvent) e).getGroup();
-			if (groups.containsKey(g.getId())) {
+			if (groupIds.containsKey(g.getId())) {
 				LOG.info("Message added, reloading");
 				loadHeaders(g);
 			}
@@ -270,7 +270,7 @@ OnCreateContextMenuListener {
 			loadHeaders();
 		} else if (e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if (groups.containsKey(g.getId())) {
+			if (groupIds.containsKey(g.getId())) {
 				LOG.info("Group removed, reloading");
 				loadHeaders();
 			}
@@ -289,7 +289,7 @@ OnCreateContextMenuListener {
 						LOG.info("Partial load took " + duration + " ms");
 					displayHeaders(g, headers);
 				} catch (NoSuchSubscriptionException e) {
-					removeGroup(g.getId());
+					removeForum(g.getId());
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -298,12 +298,12 @@ OnCreateContextMenuListener {
 		});
 	}
 
-	private void removeGroup(final GroupId g) {
+	private void removeForum(final GroupId g) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				GroupListItem item = findGroup(g);
+				ForumListItem item = findForum(g);
 				if (item != null) {
-					groups.remove(g);
+					groupIds.remove(g);
 					adapter.remove(item);
 					adapter.notifyDataSetChanged();
 					if (adapter.isEmpty()) {
@@ -337,18 +337,18 @@ OnCreateContextMenuListener {
 
 	public void onClick(View view) {
 		if (view == available) {
-			startActivity(new Intent(this, AvailableGroupsActivity.class));
-		} else if (view == newGroupButton) {
-			startActivity(new Intent(this, CreateGroupActivity.class));
+			startActivity(new Intent(this, AvailableForumsActivity.class));
+		} else if (view == newForumButton) {
+			startActivity(new Intent(this, CreateForumActivity.class));
 		}
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		Intent i = new Intent(this, GroupActivity.class);
+		Intent i = new Intent(this, ForumActivity.class);
 		Group g = adapter.getItem(position).getGroup();
 		i.putExtra("briar.GROUP_ID", g.getId().getBytes());
-		i.putExtra("briar.GROUP_NAME", g.getName());
+		i.putExtra("briar.FORUM_NAME", g.getName());
 		startActivity(i);
 	}
 
@@ -364,7 +364,7 @@ OnCreateContextMenuListener {
 		if (menuItem.getItemId() == MENU_ITEM_UNSUBSCRIBE) {
 			ContextMenuInfo info = menuItem.getMenuInfo();
 			int position = ((AdapterContextMenuInfo) info).position;
-			GroupListItem item = adapter.getItem(position);
+			ForumListItem item = adapter.getItem(position);
 			removeSubscription(item.getGroup());
 			String unsubscribed = getString(R.string.unsubscribed_toast);
 			Toast.makeText(this, unsubscribed, LENGTH_SHORT).show();

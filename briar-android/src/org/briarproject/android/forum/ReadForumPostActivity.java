@@ -1,18 +1,15 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
 
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
-
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -28,29 +25,32 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.util.StringUtils;
 
-import android.content.Intent;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.text.format.DateUtils;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import java.util.logging.Logger;
 
-public class ReadGroupPostActivity extends BriarActivity
+import javax.inject.Inject;
+
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_VERTICAL;
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+
+public class ReadForumPostActivity extends BriarActivity
 implements OnClickListener {
 
 	static final int RESULT_REPLY = RESULT_FIRST_USER;
 	static final int RESULT_PREV_NEXT = RESULT_FIRST_USER + 1;
 
 	private static final Logger LOG =
-			Logger.getLogger(ReadGroupPostActivity.class.getName());
+			Logger.getLogger(ReadForumPostActivity.class.getName());
 
 	private GroupId groupId = null;
-	private String groupName = null;
-	private long timestamp = -1, minTimestamp = -1;
+	private String forumName = null;
+	private long minTimestamp = -1;
 	private ImageButton prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
@@ -68,15 +68,15 @@ implements OnClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		groupName = i.getStringExtra("briar.GROUP_NAME");
-		if (groupName == null) throw new IllegalStateException();
-		setTitle(groupName);
+		forumName = i.getStringExtra("briar.FORUM_NAME");
+		if (forumName == null) throw new IllegalStateException();
+		setTitle(forumName);
 		b = i.getByteArrayExtra("briar.MESSAGE_ID");
 		if (b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
 		String contentType = i.getStringExtra("briar.CONTENT_TYPE");
 		if (contentType == null) throw new IllegalStateException();
-		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
+		long timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 		if (timestamp == -1) throw new IllegalStateException();
 		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
 		if (minTimestamp == -1) throw new IllegalStateException();
@@ -221,9 +221,9 @@ implements OnClickListener {
 			setResult(RESULT_PREV_NEXT, i);
 			finish();
 		} else if (view == replyButton) {
-			Intent i = new Intent(this, WriteGroupPostActivity.class);
+			Intent i = new Intent(this, WriteForumPostActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.GROUP_NAME", groupName);
+			i.putExtra("briar.FORUM_NAME", forumName);
 			i.putExtra("briar.PARENT_ID", messageId.getBytes());
 			i.putExtra("briar.MIN_TIMESTAMP", minTimestamp);
 			startActivity(i);

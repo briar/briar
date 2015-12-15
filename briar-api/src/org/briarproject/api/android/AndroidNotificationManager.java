@@ -10,13 +10,13 @@ import org.briarproject.api.messaging.GroupId;
  */
 public interface AndroidNotificationManager extends Service {
 
-	public void showPrivateMessageNotification(ContactId c);
+	void showPrivateMessageNotification(ContactId c);
 
-	public void clearPrivateMessageNotification(ContactId c);
+	void clearPrivateMessageNotification(ContactId c);
 
-	public void showGroupPostNotification(GroupId g);
+	void showForumPostNotification(GroupId g);
 
-	public void clearGroupPostNotification(GroupId g);
+	void clearForumPostNotification(GroupId g);
 
-	public void clearNotifications();
+	void clearNotifications();
 }

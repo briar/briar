@@ -1,4 +1,30 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+
+import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.messaging.Group;
+import org.briarproject.api.messaging.GroupFactory;
+import org.briarproject.util.StringUtils;
+
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
@@ -14,37 +40,11 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupFactory;
-import org.briarproject.util.StringUtils;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
-
-public class CreateGroupActivity extends BriarActivity
+public class CreateForumActivity extends BriarActivity
 implements OnEditorActionListener, OnClickListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(CreateGroupActivity.class.getName());
+			Logger.getLogger(CreateForumActivity.class.getName());
 
 	private EditText nameEntry = null;
 	private Button createForumButton = null;
@@ -130,11 +130,11 @@ implements OnEditorActionListener, OnClickListener {
 			if (!validateName()) return;
 			createForumButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
-			storeGroup(nameEntry.getText().toString());
+			storeForum(nameEntry.getText().toString());
 		}
 	}
 
-	private void storeGroup(final String name) {
+	private void storeForum(final String name) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -143,8 +143,8 @@ implements OnEditorActionListener, OnClickListener {
 					db.addGroup(g);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Storing group took " + duration + " ms");
-					displayGroup(g);
+						LOG.info("Storing forum took " + duration + " ms");
+					displayForum(g);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -154,15 +154,15 @@ implements OnEditorActionListener, OnClickListener {
 		});
 	}
 
-	private void displayGroup(final Group g) {
+	private void displayForum(final Group g) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				Intent i = new Intent(CreateGroupActivity.this,
-						GroupActivity.class);
+				Intent i = new Intent(CreateForumActivity.this,
+						ForumActivity.class);
 				i.putExtra("briar.GROUP_ID", g.getId().getBytes());
-				i.putExtra("briar.GROUP_NAME", g.getName());
+				i.putExtra("briar.FORUM_NAME", g.getName());
 				startActivity(i);
-				Toast.makeText(CreateGroupActivity.this,
+				Toast.makeText(CreateForumActivity.this,
 						R.string.forum_created_toast, LENGTH_LONG).show();
 				finish();
 			}

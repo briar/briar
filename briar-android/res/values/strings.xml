@@ -104,7 +104,7 @@
     <string name="bluetooth_setting_disabled">Only when adding contacts</string>
     <string name="notification_settings_title">NOTIFICATIONS</string>
     <string name="notify_private_messages_setting">Show alerts for private messages</string>
-    <string name="notify_group_posts_setting">Show alerts for forum posts</string>
+    <string name="notify_forum_posts_setting">Show alerts for forum posts</string>
     <string name="notify_vibration_setting">Vibrate</string>
     <string name="notify_sound_setting">Sound</string>
     <string name="notify_sound_setting_default">Default ringtone</string>

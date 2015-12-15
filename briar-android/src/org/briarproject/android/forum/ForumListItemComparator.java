@@ -1,13 +1,13 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
 
 import java.util.Comparator;
 
-class GroupListItemComparator implements Comparator<GroupListItem> {
+class ForumListItemComparator implements Comparator<ForumListItem> {
 
-	static final GroupListItemComparator INSTANCE =
-			new GroupListItemComparator();
+	static final ForumListItemComparator INSTANCE =
+			new ForumListItemComparator();
 
-	public int compare(GroupListItem a, GroupListItem b) {
+	public int compare(ForumListItem a, ForumListItem b) {
 		if (a == b) return 0;
 		// The item with the newest message comes first
 		long aTime = a.getTimestamp(), bTime = b.getTimestamp();

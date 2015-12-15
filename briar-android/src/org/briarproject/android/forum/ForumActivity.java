@@ -1,26 +1,16 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
 
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.groups.ReadGroupPostActivity.RESULT_PREV_NEXT;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -44,29 +34,39 @@ import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
 
-import android.content.Intent;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
-public class GroupActivity extends BriarActivity implements EventListener,
+import javax.inject.Inject;
+
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.forum.ReadForumPostActivity.RESULT_PREV_NEXT;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+
+public class ForumActivity extends BriarActivity implements EventListener,
 OnClickListener, OnItemClickListener {
 
 	private static final int REQUEST_READ = 2;
 	private static final Logger LOG =
-			Logger.getLogger(GroupActivity.class.getName());
+			Logger.getLogger(ForumActivity.class.getName());
 
 	@Inject private AndroidNotificationManager notificationManager;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private TextView empty = null;
-	private GroupAdapter adapter = null;
+	private ForumAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
 	private ImageButton composeButton = null, shareButton = null;
@@ -85,8 +85,8 @@ OnClickListener, OnItemClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String name = i.getStringExtra("briar.GROUP_NAME");
-		if (name != null) setTitle(name);
+		String forumName = i.getStringExtra("briar.FORUM_NAME");
+		if (forumName != null) setTitle(forumName);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -101,7 +101,7 @@ OnClickListener, OnItemClickListener {
 		empty.setVisibility(GONE);
 		layout.addView(empty);
 
-		adapter = new GroupAdapter(this);
+		adapter = new ForumAdapter(this);
 		list = new ListView(this);
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
@@ -144,11 +144,11 @@ OnClickListener, OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
-		loadGroup();
+		loadForum();
 		loadHeaders();
 	}
 
-	private void loadGroup() {
+	private void loadForum() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -157,7 +157,7 @@ OnClickListener, OnItemClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading group " + duration + " ms");
-					displayGroupName();
+					displayForumName();
 				} catch (NoSuchSubscriptionException e) {
 					finishOnUiThread();
 				} catch (DbException e) {
@@ -168,7 +168,7 @@ OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayGroupName() {
+	private void displayForumName() {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				setTitle(group.getName());
@@ -209,13 +209,13 @@ OnClickListener, OnItemClickListener {
 					empty.setVisibility(GONE);
 					list.setVisibility(VISIBLE);
 					for (MessageHeader h : headers) {
-						GroupItem item = new GroupItem(h);
+						ForumItem item = new ForumItem(h);
 						byte[] body = bodyCache.get(h.getId());
 						if (body == null) loadMessageBody(h);
 						else item.setBody(body);
 						adapter.add(item);
 					}
-					adapter.sort(GroupItemComparator.INSTANCE);
+					adapter.sort(ForumItemComparator.INSTANCE);
 					// Scroll to the bottom
 					list.setSelection(adapter.getCount() - 1);
 				}
@@ -250,7 +250,7 @@ OnClickListener, OnItemClickListener {
 				bodyCache.put(m, body);
 				int count = adapter.getCount();
 				for (int i = 0; i < count; i++) {
-					GroupItem item = adapter.getItem(i);
+					ForumItem item = adapter.getItem(i);
 					if (item.getHeader().getId().equals(m)) {
 						item.setBody(body);
 						adapter.notifyDataSetChanged();
@@ -281,7 +281,7 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void markMessagesRead() {
-		notificationManager.clearGroupPostNotification(groupId);
+		notificationManager.clearForumPostNotification(groupId);
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
@@ -331,15 +331,15 @@ OnClickListener, OnItemClickListener {
 
 	public void onClick(View view) {
 		if (view == composeButton) {
-			Intent i = new Intent(this, WriteGroupPostActivity.class);
+			Intent i = new Intent(this, WriteForumPostActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.GROUP_NAME", group.getName());
+			i.putExtra("briar.FORUM_NAME", group.getName());
 			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
 			startActivity(i);
 		} else if (view == shareButton) {
-			Intent i = new Intent(this, ShareGroupActivity.class);
+			Intent i = new Intent(this, ShareForumActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.GROUP_NAME", group.getName());
+			i.putExtra("briar.FORUM_NAME", group.getName());
 			startActivity(i);
 		}
 	}
@@ -362,9 +362,9 @@ OnClickListener, OnItemClickListener {
 
 	private void displayMessage(int position) {
 		MessageHeader item = adapter.getItem(position).getHeader();
-		Intent i = new Intent(this, ReadGroupPostActivity.class);
+		Intent i = new Intent(this, ReadForumPostActivity.class);
 		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.GROUP_NAME", group.getName());
+		i.putExtra("briar.FORUM_NAME", group.getName());
 		i.putExtra("briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
 		if (author != null) i.putExtra("briar.AUTHOR_NAME", author.getName());
