@@ -1,12 +1,12 @@
 package org.briarproject.api.db;
 
 import org.briarproject.api.Author;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageId;
 
 public class MessageHeader {
 
-	public enum State { STORED, SENT, DELIVERED };
+	public enum State { STORED, SENT, DELIVERED }
 
 	private final MessageId id, parent;
 	private final GroupId groupId;

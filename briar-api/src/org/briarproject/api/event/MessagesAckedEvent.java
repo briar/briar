@@ -1,9 +1,9 @@
 package org.briarproject.api.event;
 
-import java.util.Collection;
-
 import org.briarproject.api.ContactId;
-import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.sync.MessageId;
+
+import java.util.Collection;
 
 /** An event that is broadcast when messages are acked by a contact. */
 public class MessagesAckedEvent extends Event {

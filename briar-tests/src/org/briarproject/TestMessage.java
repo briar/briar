@@ -1,9 +1,9 @@
 package org.briarproject;
 
 import org.briarproject.api.Author;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.Message;
-import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageId;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

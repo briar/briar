@@ -1,10 +1,10 @@
 package org.briarproject.android.contact;
 
-import java.util.Collection;
-
 import org.briarproject.api.Contact;
 import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.sync.GroupId;
+
+import java.util.Collection;
 
 // This class is not thread-safe
 class ContactListItem {

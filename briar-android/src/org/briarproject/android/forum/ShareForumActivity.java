@@ -19,7 +19,7 @@ import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 import java.util.Collections;

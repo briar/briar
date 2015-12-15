@@ -1,19 +1,15 @@
 package org.briarproject.android.contact;
 
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
-import static org.briarproject.api.Author.Status.VERIFIED;
-
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -25,20 +21,24 @@ import org.briarproject.api.AuthorId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
-import android.content.Intent;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.text.format.DateUtils;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_VERTICAL;
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+import static org.briarproject.api.Author.Status.VERIFIED;
 
 public class ReadPrivateMessageActivity extends BriarActivity
 implements OnClickListener {

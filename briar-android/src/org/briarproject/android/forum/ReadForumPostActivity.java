@@ -21,8 +21,8 @@ import org.briarproject.api.Author;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
