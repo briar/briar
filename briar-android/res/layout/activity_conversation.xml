@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/layout"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<!-- ListView will get inserted here -->
+
+	<ProgressBar
+		android:id="@+id/listLoadingProgressBar"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:layout_gravity="center_horizontal"
+		android:layout_weight="1"
+		android:indeterminate="true"/>
+
+	<TextView
+		android:id="@+id/emptyView"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:layout_gravity="center"
+		android:padding="@dimen/margin_large"
+		android:textSize="@dimen/text_size_large"
+		android:text="@string/no_private_messages"/>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1px"
+	    android:background="@color/horizontal_border"/>
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/button_bar_background"
+		android:paddingLeft="@dimen/margin_medium"
+		android:paddingStart="@dimen/margin_medium"
+		android:paddingRight="@dimen/margin_medium"
+		android:paddingEnd="@dimen/margin_medium">
+
+		<EditText
+			android:id="@+id/contentView"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:hint="@string/private_message_hint"
+			android:layout_weight="1"
+			android:inputType="text|textMultiLine|textCapSentences"/>
+
+		<ImageButton
+			android:id="@+id/sendButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/social_send_now"
+			android:background="@color/button_bar_background"
+			android:contentDescription="@string/send"
+			android:layout_gravity="center"/>
+	</LinearLayout>
+
+</LinearLayout>

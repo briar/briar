@@ -113,6 +113,7 @@
     <string name="step">Step %1$d/%2$d</string>
     <string name="online">Online</string>
     <string name="offline">Offline</string>
+    <string name="send">Send</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_lost_password">Lost password</string>
