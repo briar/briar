@@ -117,15 +117,19 @@ SelectContactsDialog.Listener {
 			else displayVisibility();
 		} else if (view == shareButton) {
 			if (changed) {
-				// Replace the button with a progress bar
-				shareButton.setVisibility(GONE);
-				progress.setVisibility(VISIBLE);
-				// Update the group in a background thread
-				storeVisibility(shareWithAll.isChecked());
+				share();
 			} else {
 				finish();
 			}
 		}
+	}
+
+	private void share() {
+		// Replace the button with a progress bar
+		shareButton.setVisibility(GONE);
+		progress.setVisibility(VISIBLE);
+		// Update the group in a background thread
+		storeVisibility(shareWithAll.isChecked());
 	}
 
 	private void loadVisibility() {
@@ -194,6 +198,7 @@ SelectContactsDialog.Listener {
 
 	public void contactsSelected(Collection<ContactId> selected) {
 		this.selected = Collections.unmodifiableCollection(selected);
+		share();
 	}
 
 	public void contactSelectionCancelled() {
