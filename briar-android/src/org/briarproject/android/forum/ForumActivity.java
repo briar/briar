@@ -21,7 +21,6 @@ import org.briarproject.api.Author;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
@@ -32,6 +31,7 @@ import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;

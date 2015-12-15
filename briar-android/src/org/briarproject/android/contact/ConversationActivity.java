@@ -27,8 +27,6 @@ import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.db.MessageHeader.State;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
@@ -44,6 +42,8 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
+import org.briarproject.api.sync.MessageHeader;
+import org.briarproject.api.sync.MessageHeader.State;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 

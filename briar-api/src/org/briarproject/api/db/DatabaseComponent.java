@@ -179,7 +179,7 @@ public interface DatabaseComponent {
 	 * Returns the headers of all messages in the inbox group for the given
 	 * contact, or null if no inbox group has been set.
 	 */
-	Collection<MessageHeader> getInboxMessageHeaders(ContactId c)
+	Collection<org.briarproject.api.sync.MessageHeader> getInboxMessageHeaders(ContactId c)
 			throws DbException;
 
 	/** Returns the local pseudonym with the given ID. */
@@ -199,7 +199,7 @@ public interface DatabaseComponent {
 	byte[] getMessageBody(MessageId m) throws DbException;
 
 	/** Returns the headers of all messages in the given group. */
-	Collection<MessageHeader> getMessageHeaders(GroupId g)
+	Collection<org.briarproject.api.sync.MessageHeader> getMessageHeaders(GroupId g)
 			throws DbException;
 
 	/** Returns true if the given message is marked as read. */

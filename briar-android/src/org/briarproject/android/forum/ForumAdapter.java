@@ -14,7 +14,7 @@ import org.briarproject.R;
 import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.Author;
-import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;

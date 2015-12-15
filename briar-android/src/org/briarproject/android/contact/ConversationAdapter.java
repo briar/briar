@@ -1,21 +1,5 @@
 package org.briarproject.android.contact;
 
-import static android.view.Gravity.BOTTOM;
-import static android.view.Gravity.LEFT;
-import static android.view.View.INVISIBLE;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-
-import java.util.ArrayList;
-
-import org.briarproject.R;
-import org.briarproject.android.util.ElasticHorizontalSpace;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.db.MessageHeader.State;
-import org.briarproject.util.StringUtils;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
@@ -26,6 +10,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.briarproject.R;
+import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.sync.MessageHeader;
+import org.briarproject.api.sync.MessageHeader.State;
+import org.briarproject.util.StringUtils;
+
+import java.util.ArrayList;
+
+import static android.view.Gravity.BOTTOM;
+import static android.view.Gravity.LEFT;
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 
 class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 

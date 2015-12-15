@@ -1,8 +1,8 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.Contact;
-import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageHeader;
 
 import java.util.Collection;
 

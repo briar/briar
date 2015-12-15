@@ -1,8 +1,6 @@
-package org.briarproject.api.db;
+package org.briarproject.api.sync;
 
 import org.briarproject.api.Author;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
 
 public class MessageHeader {
 

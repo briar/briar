@@ -1,6 +1,6 @@
 package org.briarproject.android.forum;
 
-import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.sync.MessageHeader;
 
 // This class is not thread-safe
 class ForumItem {

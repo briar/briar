@@ -28,7 +28,6 @@ import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactConnectedEvent;
@@ -41,6 +40,7 @@ import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageHeader;
 
 import java.util.Collection;
 import java.util.logging.Logger;
