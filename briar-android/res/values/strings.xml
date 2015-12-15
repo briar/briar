@@ -102,6 +102,8 @@
     <string name="bluetooth_setting">Connect via Bluetooth</string>
     <string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
     <string name="bluetooth_setting_disabled">Only when adding contacts</string>
+    <string name="tor_wifi_setting_title">TOR</string>
+    <string name="tor_wifi_setting"> Use Tor over WiFi Only</string>
     <string name="notification_settings_title">NOTIFICATIONS</string>
     <string name="notify_private_messages_setting">Show alerts for private messages</string>
     <string name="notify_group_posts_setting">Show alerts for forum posts</string>

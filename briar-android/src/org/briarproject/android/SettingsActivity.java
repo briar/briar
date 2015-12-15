@@ -67,6 +67,7 @@ OnClickListener {
 	private TextView enableBluetooth = null, enableBluetoothHint = null;
 	private CheckBox notifyPrivateMessages = null, notifyGroupPosts = null;
 	private CheckBox notifyVibration = null;
+	private CheckBox torOverWifi = null;
 	private TextView notifySound = null, notifySoundHint = null;
 	private ListLoadingProgressBar progress = null;
 	private ImageButton testingButton = null;
@@ -116,6 +117,23 @@ OnClickListener {
 		enableBluetoothHint.setPadding(pad, 0, pad, pad);
 		enableBluetoothHint.setOnClickListener(this);
 		settings.addView(enableBluetoothHint);
+
+		TextView torTitle = new TextView(this);
+		torTitle.setPadding(pad, 0, pad, 0);
+		torTitle.setTypeface(DEFAULT_BOLD);
+		torTitle.setTextColor(titleText);
+		torTitle.setText(R.string.tor_wifi_setting_title);
+		settings.addView(torTitle);
+
+		underline = new HorizontalBorder(this);
+		underline.setBackgroundColor(titleUnderline);
+		settings.addView(underline);
+
+		torOverWifi = new CheckBox(this);
+		torOverWifi.setTextSize(18);
+		torOverWifi.setText(R.string.tor_wifi_setting);
+		torOverWifi.setOnClickListener(this);
+		settings.addView(torOverWifi);
 
 		TextView notificationsTitle = new TextView(this);
 		notificationsTitle.setPadding(pad, 0, pad, 0);
@@ -280,6 +298,8 @@ OnClickListener {
 			}
 			storeBluetoothSetting();
 			displaySettings();
+		} else if (view == torOverWifi) {
+			storeTorSettings();
 		} else if (view == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean("notifyPrivateMessages",
@@ -310,6 +330,24 @@ OnClickListener {
 			}
 			this.startActivityForResult(i, REQUEST_RINGTONE);
 		}
+	}
+
+	private void storeTorSettings() {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				Settings s = new Settings();
+				s.putBoolean("torOverWifi", torOverWifi.isChecked());
+				TransportConfig c = new TransportConfig();
+				c.putBoolean("torOverWifi", torOverWifi.isChecked());
+				storeSettings(s);
+				try {
+					db.mergeConfig(new TransportId("tor"), c);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
 	}
 
 	private void storeBluetoothSetting() {
