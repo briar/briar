@@ -58,7 +58,7 @@ implements InvitationListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	private volatile boolean enableBluetooth = true;
+	private volatile boolean leaveBluetoothEnabled = true;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -66,6 +66,9 @@ implements InvitationListener {
 		if (state == null) {
 			// This is a new activity
 			setView(new ChooseIdentityView(this));
+
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if (adapter != null) bluetoothWasEnabled = adapter.isEnabled();
 		} else {
 			// Restore the activity's state
 			byte[] b = state.getByteArray("briar.LOCAL_AUTHOR_ID");
@@ -73,6 +76,8 @@ implements InvitationListener {
 			taskHandle = state.getLong("briar.TASK_HANDLE", -1);
 			task = referenceManager.getReference(taskHandle,
 					InvitationTask.class);
+			bluetoothWasEnabled = state.getBoolean("briar.BLUETOOTH_WAS_ENABLED");
+
 			if (task == null) {
 				// No background task - we must be in an initial or final state
 				localInvitationCode = state.getInt("briar.LOCAL_CODE");
@@ -139,8 +144,6 @@ implements InvitationListener {
 				}
 			}
 		}
-		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-		if (adapter != null) bluetoothWasEnabled = adapter.isEnabled();
 	}
 
 	private void showToastAndFinish() {
@@ -166,7 +169,7 @@ implements InvitationListener {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading setting took " + duration + " ms");
-					enableBluetooth = c.getBoolean("enable", true);
+					leaveBluetoothEnabled = c.getBoolean("enable", true);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -187,16 +190,15 @@ implements InvitationListener {
 		state.putBoolean("briar.FAILED", connectionFailed);
 		state.putString("briar.CONTACT_NAME", contactName);
 		if (task != null) state.putLong("briar.TASK_HANDLE", taskHandle);
+		state.putBoolean("briar.BLUETOOTH_WAS_ENABLED", bluetoothWasEnabled);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+
 		if (task != null) task.removeListener(this);
-		if (!bluetoothWasEnabled && !enableBluetooth) {
-			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			if (adapter != null) adapter.disable();
-		}
+		if (isFinishing()) disableBluetooth();
 	}
 
 	@Override
@@ -286,7 +288,7 @@ implements InvitationListener {
 		setView(new InvitationCodeView(this, true));
 
 		task = invitationTaskFactory.createTask(localAuthorId,
-				localInvitationCode, code, enableBluetooth);
+				localInvitationCode, code, leaveBluetoothEnabled);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
 		task.addListener(AddContactActivity.this);
 		// Add a second listener so we can remove the first in onDestroy(),
@@ -312,6 +314,15 @@ implements InvitationListener {
 			localMatched = false;
 			setView(new ErrorView(this, R.string.codes_do_not_match, R.string.interfering));
 			task.localConfirmationFailed();
+		}
+	}
+
+	public void disableBluetooth() {
+		if (!bluetoothWasEnabled && !leaveBluetoothEnabled) {
+			if (LOG.isLoggable(INFO)) LOG.info("Turning off Bluetooth again.");
+
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if (adapter != null) adapter.disable();
 		}
 	}
 

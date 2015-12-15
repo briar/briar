@@ -39,6 +39,8 @@ class ErrorView extends AddContactView implements OnClickListener {
 		removeAllViews();
 		Context ctx = getContext();
 
+		container.disableBluetooth();
+
 		LayoutInflater inflater = (LayoutInflater) ctx.getSystemService
 				(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.invitation_error, this);
