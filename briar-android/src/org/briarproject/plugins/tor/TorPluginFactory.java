@@ -1,19 +1,18 @@
 package org.briarproject.plugins.tor;
 
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import org.briarproject.api.event.EventBus;
+import android.content.Context;
+import android.os.Build;
 
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.system.LocationUtils;
 
-import android.content.Context;
-import android.os.Build;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 public class TorPluginFactory implements DuplexPluginFactory {
 
@@ -43,8 +42,6 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 
-		TorPlugin thisPlugin = null;
-
 		// Check that we have a Tor binary for this architecture
 		String architecture = null;
 		for (String abi : AndroidUtils.getSupportedArchitectures()) {
@@ -63,12 +60,10 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		// Use position-independent executable for SDK >= 16
 		if (Build.VERSION.SDK_INT >= 16) architecture += "-pie";
 
-		thisPlugin = new TorPlugin(ioExecutor,appContext, locationUtils,
-			callback, architecture, MAX_LATENCY, MAX_IDLE_TIME,
-			POLLING_INTERVAL);
-		this.eventBus.addListener(thisPlugin);
-
-		return thisPlugin;
-
+		TorPlugin plugin = new TorPlugin(ioExecutor, appContext, locationUtils,
+				callback, architecture, MAX_LATENCY, MAX_IDLE_TIME,
+				POLLING_INTERVAL);
+		eventBus.addListener(plugin);
+		return plugin;
 	}
 }

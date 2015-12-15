@@ -16,6 +16,9 @@ import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -51,22 +54,17 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
 import static android.net.ConnectivityManager.TYPE_WIFI;
-
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.SettingsUpdatedEvent;
-
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 class TorPlugin implements DuplexPlugin, EventHandler,
-					EventListener {
+		EventListener {
 
 	static final TransportId ID = new TransportId("tor");
 
 	private static final String[] EVENTS = {
-		"CIRC", "ORCONN", "NOTICE", "WARN", "ERR"
+			"CIRC", "ORCONN", "NOTICE", "WARN", "ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
@@ -591,46 +589,17 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		}
 	}
 
-	private class NetworkStateReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context ctx, Intent i) {
-
-			if (!running) return;
-
-			Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
-			ConnectivityManager cm = (ConnectivityManager) o;
-			NetworkInfo net = cm.getActiveNetworkInfo();
-
-			/* Some devices fail to set EXTRA_NO_CONNECTIVITY, double check */
-			online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
-			if (online) {
-				if (net == null || !net.isConnected()) online = false;
-			}
-
-			connectedToWifi = (net != null && net.getType() == TYPE_WIFI
-					&& net.isConnected());
-
-			updateConnectionStatus();
-		}
-	}
-
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
-			if (!running) return;
-
+			// Wifi setting may have been updated
 			updateConnectionStatus();
 		}
 	}
 
 	private void updateConnectionStatus() {
-
 		ioExecutor.execute(new Runnable() {
-
 			public void run() {
-
-				boolean wifiOnly = false;
-				boolean blocked = false;
+				if (!running) return;
 
 				String country = locationUtils.getCurrentCountry();
 				if (LOG.isLoggable(INFO)) {
@@ -638,51 +607,46 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 					if ("".equals(country)) LOG.info("Country code unknown");
 					else LOG.info("Country code: " + country);
 				}
-				blocked = TorNetworkMetadata.isTorProbablyBlocked(country);
+				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
+						country);
 				TransportConfig c = callback.getConfig();
-				wifiOnly = c.getBoolean("torOverWifi", false);
+				boolean wifiOnly = c.getBoolean("torOverWifi", false);
 
 				try {
-					/*
-						1) Disable network if offline
-					*/
 					if (!online) {
-						LOG.log(WARNING, "Disabling network, network is offline");
+						LOG.info("Disabling network, device is offline");
 						enableNetwork(false);
-						return;
-					}
-
-					/*
-						2) Disable network if blocked
-					*/
-					if (blocked) {
-						LOG.log(WARNING, "Disabling network, country is blocked");
+					} else if (blocked) {
+						LOG.info("Disabling network, country is blocked");
 						enableNetwork(false);
-						return;
-					}
-
-					/*
-						3) Disable network if wifiOnly and not connected to
-						wifi
-					*/
-					if (wifiOnly & !connectedToWifi){
-						LOG.log(WARNING, "Disabling network due to wifi only setting");
+					} else if (wifiOnly & !connectedToWifi){
+						LOG.info("Disabling network due to wifi setting");
 						enableNetwork(false);
-						return;
+					} else {
+						enableNetwork(true);
 					}
-
-					/*
-						4) Otherwise enable network
-					*/
-					enableNetwork(true);
-
 				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
 				}
-
 			}
-
 		});
 	}
 
+	private class NetworkStateReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context ctx, Intent i) {
+			if (!running) return;
+			online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
+			// Some devices fail to set EXTRA_NO_CONNECTIVITY, double check
+			Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
+			ConnectivityManager cm = (ConnectivityManager) o;
+			NetworkInfo net = cm.getActiveNetworkInfo();
+			if (net == null || !net.isConnected()) online = false;
+			connectedToWifi = (net != null && net.getType() == TYPE_WIFI
+					&& net.isConnected());
+			updateConnectionStatus();
+		}
+	}
 }
