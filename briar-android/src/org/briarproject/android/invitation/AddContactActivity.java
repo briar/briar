@@ -29,8 +29,8 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.CONNECTED;
-import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.WAIT_FOR_CONTACT;
 import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.DETAILS;
+import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.WAIT_FOR_CONTACT;
 
 public class AddContactActivity extends BriarActivity
 implements InvitationListener {
@@ -76,7 +76,8 @@ implements InvitationListener {
 			taskHandle = state.getLong("briar.TASK_HANDLE", -1);
 			task = referenceManager.getReference(taskHandle,
 					InvitationTask.class);
-			bluetoothWasEnabled = state.getBoolean("briar.BLUETOOTH_WAS_ENABLED");
+			bluetoothWasEnabled =
+					state.getBoolean("briar.BLUETOOTH_WAS_ENABLED");
 
 			if (task == null) {
 				// No background task - we must be in an initial or final state
@@ -97,10 +98,10 @@ implements InvitationListener {
 					setView(new ErrorView(this, R.string.connection_failed,
 							R.string.could_not_find_contact));
 				} else if (contactName == null) {
-					setView(new ErrorView(this, R.string.codes_do_not_match, R.string.interfering));
+					setView(new ErrorView(this, R.string.codes_do_not_match,
+							R.string.interfering));
 				} else {
 					showToastAndFinish();
-					return;
 				}
 			} else {
 				// A background task exists - listen to it and get its state
@@ -122,7 +123,8 @@ implements InvitationListener {
 				} else if (remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
 				} else if (connectionFailed) {
-					setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+					setView(new ErrorView(AddContactActivity.this,
+							R.string.connection_failed,
 							R.string.could_not_find_contact));
 				} else if (connected && localConfirmationCode == -1) {
 					setView(new ConfirmationCodeView(this, CONNECTED));
@@ -137,10 +139,10 @@ implements InvitationListener {
 						setView(new ConfirmationCodeView(this, DETAILS));
 					} else {
 						showToastAndFinish();
-						return;
 					}
 				} else {
-					setView(new ErrorView(this, R.string.codes_do_not_match, R.string.interfering));
+					setView(new ErrorView(this, R.string.codes_do_not_match,
+							R.string.interfering));
 				}
 			}
 		}
@@ -169,7 +171,7 @@ implements InvitationListener {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading setting took " + duration + " ms");
-					leaveBluetoothEnabled = c.getBoolean("enable", true);
+					leaveBluetoothEnabled = c.getBoolean("enable", false);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -305,36 +307,38 @@ implements InvitationListener {
 		localCompared = true;
 		if (code == remoteConfirmationCode) {
 			localMatched = true;
-			if (remoteMatched) setView(new ConfirmationCodeView(this, DETAILS));
-			else if (remoteCompared) setView(new ErrorView(this, R.string.codes_do_not_match,
-					R.string.interfering));
-			else setView(new ConfirmationCodeView(this, WAIT_FOR_CONTACT));
+			if (remoteMatched) {
+				setView(new ConfirmationCodeView(this, DETAILS));
+			} else if (remoteCompared) {
+				setView(new ErrorView(this, R.string.codes_do_not_match,
+						R.string.interfering));
+			} else {
+				setView(new ConfirmationCodeView(this, WAIT_FOR_CONTACT));
+			}
 			task.localConfirmationSucceeded();
 		} else {
 			localMatched = false;
-			setView(new ErrorView(this, R.string.codes_do_not_match, R.string.interfering));
+			setView(new ErrorView(this, R.string.codes_do_not_match,
+					R.string.interfering));
 			task.localConfirmationFailed();
 		}
 	}
 
 	public void disableBluetooth() {
 		if (!bluetoothWasEnabled && !leaveBluetoothEnabled) {
-			if (LOG.isLoggable(INFO)) LOG.info("Turning off Bluetooth again.");
+			if (LOG.isLoggable(INFO)) LOG.info("Turning off Bluetooth again");
 
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 			if (adapter != null) adapter.disable();
 		}
 	}
 
-	String getContactName() {
-		return contactName;
-	}
-
 	public void connectionSucceeded() {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				connected = true;
-				setView(new ConfirmationCodeView(AddContactActivity.this, CONNECTED));
+				setView(new ConfirmationCodeView(AddContactActivity.this,
+						CONNECTED));
 			}
 		});
 	}
@@ -343,7 +347,8 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				connectionFailed = true;
-				setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+				setView(new ErrorView(AddContactActivity.this,
+						R.string.connection_failed,
 						R.string.could_not_find_contact));
 			}
 		});
@@ -364,7 +369,8 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				connectionFailed = true;
-				setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+				setView(new ErrorView(AddContactActivity.this,
+						R.string.connection_failed,
 						R.string.could_not_find_contact));
 			}
 		});
@@ -375,8 +381,10 @@ implements InvitationListener {
 			public void run() {
 				remoteCompared = true;
 				remoteMatched = true;
-				if (localMatched)
-					setView(new ConfirmationCodeView(AddContactActivity.this, DETAILS));
+				if (localMatched) {
+					setView(new ConfirmationCodeView(AddContactActivity.this,
+							DETAILS));
+				}
 			}
 		});
 	}
@@ -386,9 +394,10 @@ implements InvitationListener {
 			public void run() {
 				remoteCompared = true;
 				remoteMatched = false;
-				if (localMatched)
-					setView(new ErrorView(AddContactActivity.this, R.string.codes_do_not_match,
-							R.string.interfering));
+				if (localMatched) {
+					setView(new ErrorView(AddContactActivity.this,
+							R.string.codes_do_not_match, R.string.interfering));
+				}
 			}
 		});
 	}
@@ -405,7 +414,8 @@ implements InvitationListener {
 	public void pseudonymExchangeFailed() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				setView(new ErrorView(AddContactActivity.this, R.string.connection_failed,
+				setView(new ErrorView(AddContactActivity.this,
+						R.string.connection_failed,
 						R.string.could_not_find_contact));
 			}
 		});
