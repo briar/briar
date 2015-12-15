@@ -48,6 +48,8 @@ import org.briarproject.api.db.MessageHeader.State;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
+import org.briarproject.api.event.ContactConnectedEvent;
+import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -61,12 +63,14 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -86,6 +90,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			Logger.getLogger(ConversationActivity.class.getName());
 
 	@Inject private AndroidNotificationManager notificationManager;
+	@Inject private ConnectionRegistry connectionRegistry;
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private TextView empty = null;
@@ -104,6 +109,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private volatile GroupId groupId = null;
 	private volatile Group group = null;
 	private volatile AuthorId localAuthorId = null;
+	private volatile boolean connected;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -205,12 +211,13 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					localAuthorId = contact.getLocalAuthorId();
 					groupId = db.getInboxGroupId(contactId);
 					group = db.getGroup(groupId);
+					connected = connectionRegistry.isConnected(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO)) {
 						LOG.info("Loading contact and group took "
 								+ duration + " ms");
 					}
-					displayContactName();
+					displayContactDetails();
 				} catch (NoSuchContactException e) {
 					finishOnUiThread();
 				} catch (NoSuchSubscriptionException e) {
@@ -223,10 +230,18 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayContactName() {
+	private void displayContactDetails() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				setTitle(contactName);
+				ActionBar actionBar = getSupportActionBar();
+				if (actionBar != null) {
+					actionBar.setTitle(contactName);
+					if (connected) {
+						actionBar.setSubtitle(getString(R.string.online));
+					} else {
+						actionBar.setSubtitle(getString(R.string.offline));
+					}
+				}
 			}
 		});
 	}
@@ -256,7 +271,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				loading.setVisibility(GONE);
-				setTitle(contactName);
+				displayContactDetails();
 				sendButton.setEnabled(true);
 				adapter.clear();
 				if (headers.isEmpty()) {
@@ -395,6 +410,20 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
 				markMessages(m.getMessageIds(), State.DELIVERED);
+			}
+		} else if (e instanceof ContactConnectedEvent) {
+			ContactConnectedEvent c = (ContactConnectedEvent) e;
+			if (c.getContactId().equals(contactId)) {
+				LOG.info("Contact connected");
+				connected = true;
+				displayContactDetails();
+			}
+		} else if (e instanceof ContactDisconnectedEvent) {
+			ContactDisconnectedEvent c = (ContactDisconnectedEvent) e;
+			if (c.getContactId().equals(contactId)) {
+				LOG.info("Contact disconnected");
+				connected = false;
+				displayContactDetails();
 			}
 		}
 	}

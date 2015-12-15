@@ -111,6 +111,8 @@
     <string name="notify_sound_setting_disabled">None</string>
     <string name="choose_ringtone_title">Choose ringtone</string>
     <string name="step">Step %1$d/%2$d</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_lost_password">Lost password</string>
