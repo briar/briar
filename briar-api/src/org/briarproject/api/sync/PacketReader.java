@@ -18,21 +18,15 @@ public interface PacketReader {
 	boolean hasRequest() throws IOException;
 	Request readRequest() throws IOException;
 
-	boolean hasRetentionAck() throws IOException;
-	org.briarproject.api.sync.RetentionAck readRetentionAck() throws IOException;
-
-	boolean hasRetentionUpdate() throws IOException;
-	org.briarproject.api.sync.RetentionUpdate readRetentionUpdate() throws IOException;
-
 	boolean hasSubscriptionAck() throws IOException;
-	org.briarproject.api.sync.SubscriptionAck readSubscriptionAck() throws IOException;
+	SubscriptionAck readSubscriptionAck() throws IOException;
 
 	boolean hasSubscriptionUpdate() throws IOException;
-	org.briarproject.api.sync.SubscriptionUpdate readSubscriptionUpdate() throws IOException;
+	SubscriptionUpdate readSubscriptionUpdate() throws IOException;
 
 	boolean hasTransportAck() throws IOException;
 	TransportAck readTransportAck() throws IOException;
 
 	boolean hasTransportUpdate() throws IOException;
-	org.briarproject.api.sync.TransportUpdate readTransportUpdate() throws IOException;
+	TransportUpdate readTransportUpdate() throws IOException;
 }

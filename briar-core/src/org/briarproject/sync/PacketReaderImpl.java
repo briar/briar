@@ -12,8 +12,6 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -40,8 +38,6 @@ import static org.briarproject.api.sync.PacketTypes.ACK;
 import static org.briarproject.api.sync.PacketTypes.MESSAGE;
 import static org.briarproject.api.sync.PacketTypes.OFFER;
 import static org.briarproject.api.sync.PacketTypes.REQUEST;
-import static org.briarproject.api.sync.PacketTypes.RETENTION_ACK;
-import static org.briarproject.api.sync.PacketTypes.RETENTION_UPDATE;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.sync.PacketTypes.TRANSPORT_ACK;
@@ -211,52 +207,6 @@ class PacketReaderImpl implements PacketReader {
 		state = State.BUFFER_EMPTY;
 		// Build and return the request
 		return new Request(Collections.unmodifiableList(requested));
-	}
-
-	public boolean hasRetentionAck() throws IOException {
-		return !eof() && header[1] == RETENTION_ACK;
-	}
-
-	public RetentionAck readRetentionAck() throws IOException {
-		if (!hasRetentionAck()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the version
-		long version = r.readInteger();
-		if (version < 0) throw new FormatException();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		// Build and return the retention ack
-		return new RetentionAck(version);
-	}
-
-	public boolean hasRetentionUpdate() throws IOException {
-		return !eof() && header[1] == RETENTION_UPDATE;
-	}
-
-	public RetentionUpdate readRetentionUpdate() throws IOException {
-		if (!hasRetentionUpdate()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the retention time and version
-		long retention = r.readInteger();
-		if (retention < 0) throw new FormatException();
-		long version = r.readInteger();
-		if (version < 0) throw new FormatException();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		// Build and return the retention update
-		return new RetentionUpdate(retention, version);
 	}
 
 	public boolean hasSubscriptionAck() throws IOException {

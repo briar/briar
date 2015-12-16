@@ -40,20 +40,18 @@ public class DatabaseModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(DatabaseCleaner.class).to(DatabaseCleanerImpl.class);
+		// Nothing to bind
 	}
 
-	@Provides
+	@Provides @Singleton
 	Database<Connection> getDatabase(DatabaseConfig config) {
 		return new H2Database(config, new SystemClock());
 	}
 
 	@Provides @Singleton
 	DatabaseComponent getDatabaseComponent(Database<Connection> db,
-			DatabaseCleaner cleaner, EventBus eventBus,
-			ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<Connection>(db, cleaner, eventBus,
-				shutdown);
+			EventBus eventBus, ShutdownManager shutdown) {
+		return new DatabaseComponentImpl<Connection>(db, eventBus, shutdown);
 	}
 
 	@Provides @Singleton @DatabaseExecutor

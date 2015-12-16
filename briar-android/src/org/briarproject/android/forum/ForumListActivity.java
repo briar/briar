@@ -30,7 +30,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
@@ -259,9 +258,6 @@ OnCreateContextMenuListener {
 				LOG.info("Message added, reloading");
 				loadHeaders(g);
 			}
-		} else if (e instanceof MessageExpiredEvent) {
-			LOG.info("Message expired, reloading");
-			loadHeaders();
 		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
 			LOG.info("Remote subscriptions changed, reloading");
 			loadAvailable();

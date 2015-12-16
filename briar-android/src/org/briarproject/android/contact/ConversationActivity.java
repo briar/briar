@@ -36,7 +36,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.plugins.ConnectionRegistry;
@@ -346,9 +345,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
-		} else if (e instanceof MessageExpiredEvent) {
-			LOG.info("Message expired, reloading");
-			loadHeaders();
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
 			if (m.getContactId().equals(contactId)) {

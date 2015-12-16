@@ -15,8 +15,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -380,14 +378,6 @@ interface Database<T> {
 			int maxMessages) throws DbException;
 
 	/**
-	 * Returns the IDs of the oldest messages in the database, with a total
-	 * size less than or equal to the given size.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<MessageId> getOldMessages(T txn, int size) throws DbException;
-
-	/**
 	 * Returns the parent of the given message, or null if either the message
 	 * has no parent, or the parent is absent from the database, or the parent
 	 * belongs to a different group.
@@ -427,22 +417,6 @@ interface Database<T> {
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
 			int maxLength) throws DbException;
-
-	/**
-	 * Returns a retention ack for the given contact, or null if no ack is due.
-	 * <p>
-	 * Locking: write.
-	 */
-	RetentionAck getRetentionAck(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns a retention update for the given contact and updates its expiry
-	 * time using the given latency, or returns null if no update is due.
-	 * <p>
-	 * Locking: write.
-	 */
-	RetentionUpdate getRetentionUpdate(T txn, ContactId c, int maxLatency)
-			throws DbException;
 
 	/**
 	 * Returns all settings.
@@ -531,14 +505,6 @@ interface Database<T> {
 	 */
 	void incrementStreamCounter(T txn, ContactId c, TransportId t,
 			long rotationPeriod) throws DbException;
-
-	/**
-	 * Increments the retention time versions for all contacts to indicate that
-	 * the database's retention time has changed and updates should be sent.
-	 * <p>
-	 * Locking: write.
-	 */
-	void incrementRetentionVersions(T txn) throws DbException;
 
 	/**
 	 * Marks the given messages as not needing to be acknowledged to the
@@ -727,25 +693,6 @@ interface Database<T> {
 	 */
 	boolean setRemoteProperties(T txn, ContactId c, TransportId t,
 			TransportProperties p, long version) throws DbException;
-
-	/**
-	 * Sets the retention time of the given contact's database and returns
-	 * true, unless an update with an equal or higher version number has
-	 * already been received from the contact.
-	 * <p>
-	 * Locking: write.
-	 */
-	boolean setRetentionTime(T txn, ContactId c, long retention, long version)
-			throws DbException;
-
-	/**
-	 * Records a retention ack from the given contact for the given version,
-	 * unless the contact has already acked an equal or higher version.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setRetentionUpdateAcked(T txn, ContactId c, long version)
-			throws DbException;
 
 	/**
 	 * Records a subscription ack from the given contact for the given version,

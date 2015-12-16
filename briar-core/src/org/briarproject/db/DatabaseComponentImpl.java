@@ -26,13 +26,11 @@ import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
-import org.briarproject.api.event.RemoteRetentionTimeUpdatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
@@ -49,8 +47,6 @@ import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -71,13 +67,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.db.DatabaseConstants.BYTES_PER_SWEEP;
-import static org.briarproject.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
-import static org.briarproject.db.DatabaseConstants.MAX_TRANSACTIONS_BETWEEN_SPACE_CHECKS;
-import static org.briarproject.db.DatabaseConstants.MIN_FREE_SPACE;
 
 /**
  * An implementation of DatabaseComponent using reentrant read-write locks.
@@ -85,15 +76,12 @@ import static org.briarproject.db.DatabaseConstants.MIN_FREE_SPACE;
  * writers to starve. LockFairnessTest can be used to test whether this
  * implementation is safe on a given JVM.
  */
-class DatabaseComponentImpl<T> implements DatabaseComponent,
-		DatabaseCleaner.Callback {
+class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	private static final Logger LOG =
 			Logger.getLogger(DatabaseComponentImpl.class.getName());
-	private static final int MS_BETWEEN_SWEEPS = 10 * 1000; // 10 seconds
 
 	private final Database<T> db;
-	private final DatabaseCleaner cleaner;
 	private final EventBus eventBus;
 	private final ShutdownManager shutdown;
 
@@ -104,10 +92,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent,
 	private int shutdownHandle = -1; // Locking: lock.writeLock
 
 	@Inject
-	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner,
-			EventBus eventBus, ShutdownManager shutdown) {
+	DatabaseComponentImpl(Database<T> db, EventBus eventBus,
+			ShutdownManager shutdown) {
 		this.db = db;
-		this.cleaner = cleaner;
 		this.eventBus = eventBus;
 		this.shutdown = shutdown;
 	}
@@ -135,7 +122,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent,
 			if (open) throw new IllegalStateException();
 			open = true;
 			boolean reopened = db.open();
-			cleaner.startCleaning(this, MS_BETWEEN_SWEEPS);
 			shutdownHandle = shutdown.addShutdownHook(shutdownHook);
 			return reopened;
 		} finally {
@@ -150,7 +136,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent,
 			open = false;
 			if (shutdownHandle != -1)
 				shutdown.removeShutdownHook(shutdownHandle);
-			cleaner.stopCleaning();
 			db.close();
 		} finally {
 			lock.writeLock().unlock();
@@ -437,45 +422,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent,
 		if (messages.isEmpty()) return null;
 		if (!ids.isEmpty()) eventBus.broadcast(new MessagesSentEvent(c, ids));
 		return Collections.unmodifiableList(messages);
-	}
-
-	public RetentionAck generateRetentionAck(ContactId c) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				RetentionAck a = db.getRetentionAck(txn, c);
-				db.commitTransaction(txn);
-				return a;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public RetentionUpdate generateRetentionUpdate(ContactId c, int maxLatency)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				RetentionUpdate u = db.getRetentionUpdate(txn, c, maxLatency);
-				db.commitTransaction(txn);
-				return u;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
 	}
 
 	public SubscriptionAck generateSubscriptionAck(ContactId c)
@@ -1168,47 +1114,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent,
 		if (requested) eventBus.broadcast(new MessageRequestedEvent(c));
 	}
 
-	public void receiveRetentionAck(ContactId c, RetentionAck a)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				db.setRetentionUpdateAcked(txn, c, a.getVersion());
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public void receiveRetentionUpdate(ContactId c, RetentionUpdate u)
-			throws DbException {
-		boolean updated;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				long retention = u.getRetentionTime(), version = u.getVersion();
-				updated = db.setRetentionTime(txn, c, retention, version);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (updated) eventBus.broadcast(new RemoteRetentionTimeUpdatedEvent(c));
-	}
-
 	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
 			throws DbException {
 		lock.writeLock().lock();
@@ -1558,58 +1463,5 @@ class DatabaseComponentImpl<T> implements DatabaseComponent,
 		} finally {
 			lock.writeLock().unlock();
 		}
-	}
-
-	public void checkFreeSpaceAndClean() throws DbException {
-		long freeSpace = db.getFreeSpace();
-		if (LOG.isLoggable(INFO)) LOG.info(freeSpace + " bytes free space");
-		while (freeSpace < MIN_FREE_SPACE) {
-			boolean expired = expireMessages(BYTES_PER_SWEEP);
-			if (freeSpace < CRITICAL_FREE_SPACE && !expired) {
-				// FIXME: Work out what to do here
-				throw new Error("Disk space is critically low");
-			}
-			Thread.yield();
-			freeSpace = db.getFreeSpace();
-		}
-	}
-
-	/**
-	 * Removes the oldest messages from the database, with a total size less
-	 * than or equal to the given size, and returns true if any messages were
-	 * removed.
-	 */
-	private boolean expireMessages(int size) throws DbException {
-		Collection<MessageId> expired;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				expired = db.getOldMessages(txn, size);
-				if (!expired.isEmpty()) {
-					for (MessageId m : expired) db.removeMessage(txn, m);
-					db.incrementRetentionVersions(txn);
-					if (LOG.isLoggable(INFO))
-						LOG.info("Expired " + expired.size() + " messages");
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (expired.isEmpty()) return false;
-		eventBus.broadcast(new MessageExpiredEvent());
-		return true;
-	}
-
-	public boolean shouldCheckFreeSpace() {
-		if (db.getTransactionCount() > MAX_TRANSACTIONS_BETWEEN_SPACE_CHECKS) {
-			db.resetTransactionCount();
-			return true;
-		}
-		return false;
 	}
 }

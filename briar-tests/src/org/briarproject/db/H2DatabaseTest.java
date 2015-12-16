@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -399,36 +398,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		// The message still should not be sendable
 		it = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testGetOldMessages() throws Exception {
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new TestMessage(messageId1, null, group, author,
-				contentType, subject, timestamp + 1000, raw);
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Subscribe to a group and store two messages
-		db.addGroup(txn, group);
-		db.addMessage(txn, message, true);
-		db.addMessage(txn, message1, true);
-
-		// Allowing enough capacity for one message should return the older one
-		Iterator<MessageId> it = db.getOldMessages(txn, size).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId, it.next());
-		assertFalse(it.hasNext());
-
-		// Allowing enough capacity for both messages should return both
-		Collection<MessageId> ids = new HashSet<MessageId>();
-		for (MessageId id : db.getOldMessages(txn, size * 2)) ids.add(id);
-		assertEquals(2, ids.size());
-		assertTrue(ids.contains(messageId));
-		assertTrue(ids.contains(messageId1));
 
 		db.commitTransaction(txn);
 		db.close();

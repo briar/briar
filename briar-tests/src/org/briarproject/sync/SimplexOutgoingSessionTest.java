@@ -65,12 +65,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			// No subscription update to send
 			oneOf(db).generateSubscriptionUpdate(contactId, maxLatency);
 			will(returnValue(null));
-			// No retention ack to send
-			oneOf(db).generateRetentionAck(contactId);
-			will(returnValue(null));
-			// No retention update to send
-			oneOf(db).generateRetentionUpdate(contactId, maxLatency);
-			will(returnValue(null));
 			// No acks to send
 			oneOf(packetWriter).getMaxMessagesForAck(with(any(long.class)));
 			will(returnValue(MAX_MESSAGES_PER_ACK));
@@ -111,12 +105,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			will(returnValue(null));
 			// No subscription update to send
 			oneOf(db).generateSubscriptionUpdate(contactId, maxLatency);
-			will(returnValue(null));
-			// No retention ack to send
-			oneOf(db).generateRetentionAck(contactId);
-			will(returnValue(null));
-			// No retention update to send
-			oneOf(db).generateRetentionUpdate(contactId, maxLatency);
 			will(returnValue(null));
 			// One ack to send
 			oneOf(packetWriter).getMaxMessagesForAck(with(any(long.class)));

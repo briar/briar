@@ -18,8 +18,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageHeader.State;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -58,7 +56,6 @@ import static org.briarproject.api.Author.Status.ANONYMOUS;
 import static org.briarproject.api.Author.Status.UNKNOWN;
 import static org.briarproject.api.Author.Status.VERIFIED;
 import static org.briarproject.api.sync.MessagingConstants.MAX_SUBSCRIPTIONS;
-import static org.briarproject.api.sync.MessagingConstants.RETENTION_GRANULARITY;
 import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
 
 /**
@@ -199,21 +196,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String INDEX_STATUSES_BY_CONTACT =
 			"CREATE INDEX statusesByContact ON statuses (contactId)";
-
-	private static final String CREATE_RETENTION_VERSIONS =
-			"CREATE TABLE retentionVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " retention BIGINT NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
-					+ " remoteVersion BIGINT NOT NULL,"
-					+ " remoteAcked BOOLEAN NOT NULL,"
-					+ " expiry BIGINT NOT NULL,"
-					+ " txCount INT NOT NULL,"
-					+ " PRIMARY KEY (contactId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_TRANSPORTS =
 			"CREATE TABLE transports"
@@ -416,7 +398,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
-			s.executeUpdate(insertTypeNames(CREATE_RETENTION_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIGS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_PROPS));
@@ -632,16 +613,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 				}
 				ps.close();
 			}
-			// Create a retention version row
-			sql = "INSERT INTO retentionVersions (contactId, retention,"
-					+ " localVersion, localAcked, remoteVersion, remoteAcked,"
-					+ " expiry, txCount)"
-					+ " VALUES (?, 0, 1, 0, 0, TRUE, 0, 0)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
 			// Create a group version row
 			sql = "INSERT INTO groupVersions (contactId, localVersion,"
 					+ " localAcked, remoteVersion, remoteAcked, expiry,"
@@ -1712,13 +1683,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC LIMIT ?";
@@ -1775,13 +1743,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC";
@@ -1794,33 +1759,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) {
 				int length = rs.getInt(1);
 				if (total + length > maxLength) break;
-				ids.add(new MessageId(rs.getBytes(2)));
-				total += length;
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(ids);
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<MessageId> getOldMessages(Connection txn, int capacity)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT length, messageId FROM messages"
-					+ " ORDER BY timestamp";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
-			int total = 0;
-			while (rs.next()) {
-				int length = rs.getInt(1);
-				if (total + length > capacity) break;
 				ids.add(new MessageId(rs.getBytes(2)));
 				total += length;
 			}
@@ -1954,13 +1892,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC";
@@ -1982,94 +1917,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public RetentionAck getRetentionAck(Connection txn, ContactId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT remoteVersion FROM retentionVersions"
-					+ " WHERE contactId = ? AND remoteAcked = FALSE";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if (!rs.next()) {
-				rs.close();
-				ps.close();
-				return null;
-			}
-			long version = rs.getLong(1);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "UPDATE retentionVersions SET remoteAcked = TRUE"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			return new RetentionAck(version);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
-	public RetentionUpdate getRetentionUpdate(Connection txn, ContactId c,
-			int maxLatency) throws DbException {
-		long now = clock.currentTimeMillis();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT localVersion, txCount"
-					+ " FROM retentionVersions"
-					+ " WHERE contactId = ?"
-					+ " AND localVersion > localAcked"
-					+ " AND expiry < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, now);
-			rs = ps.executeQuery();
-			if (!rs.next()) {
-				rs.close();
-				ps.close();
-				return null;
-			}
-			long version = rs.getLong(1);
-			int txCount = rs.getInt(2);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "SELECT timestamp FROM messages AS m"
-					+ " ORDER BY timestamp LIMIT 1";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			long retention = 0;
-			if (rs.next()) {
-				retention = rs.getLong(1);
-				retention -= retention % RETENTION_GRANULARITY;
-			}
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "UPDATE retentionVersions"
-					+ " SET expiry = ?, txCount = txCount + 1"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			return new RetentionUpdate(retention, version);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}
@@ -2468,19 +2315,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void incrementRetentionVersions(Connection txn) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE retentionVersions"
-					+ " SET localVersion = localVersion + 1, expiry = 0";
-			ps = txn.prepareStatement(sql);
-			ps.executeUpdate();
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -3191,49 +3025,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			tryToClose(ps);
 			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean setRetentionTime(Connection txn, ContactId c, long retention,
-			long version) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE retentionVersions SET retention = ?,"
-					+ " remoteVersion = ?, remoteAcked = FALSE"
-					+ " WHERE contactId = ? AND remoteVersion < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, retention);
-			ps.setLong(2, version);
-			ps.setInt(3, c.getInt());
-			ps.setLong(4, version);
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-			return affected == 1;
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setRetentionUpdateAcked(Connection txn, ContactId c,
-			long version) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE retentionVersions SET localAcked = ?"
-					+ " WHERE contactId = ?"
-					+ " AND localAcked < ? AND localVersion >= ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, version);
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, version);
-			ps.setLong(4, version);
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
 			throw new DbException(e);
 		}
 	}

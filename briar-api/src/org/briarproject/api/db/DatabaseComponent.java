@@ -16,8 +16,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -107,20 +105,6 @@ public interface DatabaseComponent {
 	 */
 	Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
 			int maxLatency) throws DbException;
-
-	/**
-	 * Returns a retention ack for the given contact, or null if no retention
-	 * ack is due.
-	 */
-	RetentionAck generateRetentionAck(ContactId c) throws DbException;
-
-	/**
-	 * Returns a retention update for the given contact, for transmission
-	 * over a transport with the given latency. Returns null if no update is
-	 * due.
-	 */
-	RetentionUpdate generateRetentionUpdate(ContactId c, int maxLatency)
-			throws DbException;
 
 	/**
 	 * Returns a subscription ack for the given contact, or null if no
@@ -262,13 +246,6 @@ public interface DatabaseComponent {
 
 	/** Processes a request from the given contact. */
 	void receiveRequest(ContactId c, Request r) throws DbException;
-
-	/** Processes a retention ack from the given contact. */
-	void receiveRetentionAck(ContactId c, RetentionAck a) throws DbException;
-
-	/** Processes a retention update from the given contact. */
-	void receiveRetentionUpdate(ContactId c, RetentionUpdate u)
-			throws DbException;
 
 	/** Processes a subscription ack from the given contact. */
 	void receiveSubscriptionAck(ContactId c, SubscriptionAck a)

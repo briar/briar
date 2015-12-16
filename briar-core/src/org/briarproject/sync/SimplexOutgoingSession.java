@@ -13,8 +13,6 @@ import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.MessagingSession;
 import org.briarproject.api.sync.PacketWriter;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -33,7 +31,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;
 
 /**
- * An outgoing {@link MessagingSession
+ * An outgoing {@link org.briarproject.api.sync.MessagingSession
  * MessagingSession} suitable for simplex transports. The session sends
  * messages without offering them, and closes its output stream when there are
  * no more packets to send.
@@ -70,7 +68,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.packetWriter = packetWriter;
-		outstandingQueries = new AtomicInteger(8); // One per type of packet
+		outstandingQueries = new AtomicInteger(6); // One per type of packet
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
@@ -82,8 +80,6 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 			dbExecutor.execute(new GenerateTransportUpdates());
 			dbExecutor.execute(new GenerateSubscriptionAck());
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
-			dbExecutor.execute(new GenerateRetentionAck());
-			dbExecutor.execute(new GenerateRetentionUpdate());
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
 			// Write packets until interrupted or no more packets to write
@@ -193,79 +189,6 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 			for (byte[] raw : batch) packetWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateRetentionAck implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				RetentionAck a = db.generateRetentionAck(contactId);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated retention ack: " + (a != null));
-				if (a == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteRetentionAck(a));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This tasks runs on the writer thread
-	private class WriteRetentionAck implements ThrowingRunnable<IOException> {
-
-		private final RetentionAck ack;
-
-		private WriteRetentionAck(RetentionAck ack) {
-			this.ack = ack;
-		}
-
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeRetentionAck(ack);
-			LOG.info("Sent retention ack");
-			dbExecutor.execute(new GenerateRetentionAck());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateRetentionUpdate implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				RetentionUpdate u =
-						db.generateRetentionUpdate(contactId, maxLatency);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated retention update: " + (u != null));
-				if (u == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteRetentionUpdate(u));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteRetentionUpdate
-	implements ThrowingRunnable<IOException> {
-
-		private final RetentionUpdate update;
-
-		private WriteRetentionUpdate(RetentionUpdate update) {
-			this.update = update;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeRetentionUpdate(update);
-			LOG.info("Sent retention update");
-			dbExecutor.execute(new GenerateRetentionUpdate());
 		}
 	}
 

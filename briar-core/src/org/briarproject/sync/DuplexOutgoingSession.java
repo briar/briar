@@ -11,11 +11,9 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
-import org.briarproject.api.event.RemoteRetentionTimeUpdatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
 import org.briarproject.api.event.ShutdownEvent;
@@ -25,8 +23,6 @@ import org.briarproject.api.sync.MessagingSession;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -46,7 +42,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;
 
 /**
- * An outgoing {@link MessagingSession
+ * An outgoing {@link org.briarproject.api.sync.MessagingSession
  * MessagingSession} suitable for duplex transports. The session offers
  * messages before sending them, keeps its output stream open when there are no
  * packets to send, and reacts to events that make packets available to send.
@@ -72,10 +68,6 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 	private final int maxLatency, maxIdleTime;
 	private final PacketWriter packetWriter;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
-
-	// The following must only be accessed on the writer thread
-	private long nextKeepalive = 0, nextRetxQuery = 0;
-	private boolean dataToFlush = true;
 
 	private volatile boolean interrupted = false;
 
@@ -103,15 +95,14 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 			dbExecutor.execute(new GenerateTransportUpdates());
 			dbExecutor.execute(new GenerateSubscriptionAck());
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
-			dbExecutor.execute(new GenerateRetentionAck());
-			dbExecutor.execute(new GenerateRetentionUpdate());
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
 			dbExecutor.execute(new GenerateOffer());
 			dbExecutor.execute(new GenerateRequest());
 			long now = clock.currentTimeMillis();
-			nextKeepalive = now + maxIdleTime;
-			nextRetxQuery = now + RETX_QUERY_INTERVAL;
+			long nextKeepalive = now + maxIdleTime;
+			long nextRetxQuery = now + RETX_QUERY_INTERVAL;
+			boolean dataToFlush = true;
 			// Write packets until interrupted
 			try {
 				while (!interrupted) {
@@ -134,7 +125,6 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 							// Check for retransmittable packets
 							dbExecutor.execute(new GenerateTransportUpdates());
 							dbExecutor.execute(new GenerateSubscriptionUpdate());
-							dbExecutor.execute(new GenerateRetentionUpdate());
 							dbExecutor.execute(new GenerateBatch());
 							dbExecutor.execute(new GenerateOffer());
 							nextRetxQuery = now + RETX_QUERY_INTERVAL;
@@ -173,8 +163,6 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof MessageAddedEvent) {
 			dbExecutor.execute(new GenerateOffer());
-		} else if (e instanceof MessageExpiredEvent) {
-			dbExecutor.execute(new GenerateRetentionUpdate());
 		} else if (e instanceof LocalSubscriptionsUpdatedEvent) {
 			LocalSubscriptionsUpdatedEvent l =
 					(LocalSubscriptionsUpdatedEvent) e;
@@ -193,11 +181,6 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		} else if (e instanceof MessageToRequestEvent) {
 			if (((MessageToRequestEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateRequest());
-		} else if (e instanceof RemoteRetentionTimeUpdatedEvent) {
-			RemoteRetentionTimeUpdatedEvent r =
-					(RemoteRetentionTimeUpdatedEvent) e;
-			if (r.getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateRetentionAck());
 		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
 			RemoteSubscriptionsUpdatedEvent r =
 					(RemoteSubscriptionsUpdatedEvent) e;
@@ -357,77 +340,6 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 			packetWriter.writeRequest(request);
 			LOG.info("Sent request");
 			dbExecutor.execute(new GenerateRequest());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateRetentionAck implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				RetentionAck a = db.generateRetentionAck(contactId);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated retention ack: " + (a != null));
-				if (a != null) writerTasks.add(new WriteRetentionAck(a));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This tasks runs on the writer thread
-	private class WriteRetentionAck implements ThrowingRunnable<IOException> {
-
-		private final RetentionAck ack;
-
-		private WriteRetentionAck(RetentionAck ack) {
-			this.ack = ack;
-		}
-
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeRetentionAck(ack);
-			LOG.info("Sent retention ack");
-			dbExecutor.execute(new GenerateRetentionAck());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateRetentionUpdate implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				RetentionUpdate u =
-						db.generateRetentionUpdate(contactId, maxLatency);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated retention update: " + (u != null));
-				if (u != null) writerTasks.add(new WriteRetentionUpdate(u));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteRetentionUpdate
-	implements ThrowingRunnable<IOException> {
-
-		private final RetentionUpdate update;
-
-		private WriteRetentionUpdate(RetentionUpdate update) {
-			this.update = update;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeRetentionUpdate(update);
-			LOG.info("Sent retention update");
-			dbExecutor.execute(new GenerateRetentionUpdate());
 		}
 	}
 

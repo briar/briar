@@ -27,7 +27,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -317,9 +316,6 @@ OnClickListener, OnItemClickListener {
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
-		} else if (e instanceof MessageExpiredEvent) {
-			LOG.info("Message expired, reloading");
-			loadHeaders();
 		} else if (e instanceof SubscriptionRemovedEvent) {
 			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
 			if (s.getGroup().getId().equals(groupId)) {

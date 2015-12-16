@@ -9,8 +9,6 @@ import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketTypes;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -30,8 +28,6 @@ import static org.briarproject.api.sync.MessagingConstants.PROTOCOL_VERSION;
 import static org.briarproject.api.sync.PacketTypes.ACK;
 import static org.briarproject.api.sync.PacketTypes.OFFER;
 import static org.briarproject.api.sync.PacketTypes.REQUEST;
-import static org.briarproject.api.sync.PacketTypes.RETENTION_ACK;
-import static org.briarproject.api.sync.PacketTypes.RETENTION_UPDATE;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.sync.PacketTypes.TRANSPORT_ACK;
@@ -118,25 +114,6 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeListEnd();
 		w.writeListEnd();
 		writePacket(REQUEST);
-	}
-
-	public void writeRetentionAck(RetentionAck a) throws IOException {
-		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeInteger(a.getVersion());
-		w.writeListEnd();
-		writePacket(RETENTION_ACK);
-	}
-
-	public void writeRetentionUpdate(RetentionUpdate u) throws IOException {
-		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeInteger(u.getRetentionTime());
-		w.writeInteger(u.getVersion());
-		w.writeListEnd();
-		writePacket(RETENTION_UPDATE);
 	}
 
 	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {

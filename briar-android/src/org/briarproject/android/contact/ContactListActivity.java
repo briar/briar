@@ -37,7 +37,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageHeader;
@@ -73,7 +72,6 @@ EventListener {
 	private ContactListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private ImageButton addContactButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -115,7 +113,7 @@ EventListener {
 		footer.setGravity(CENTER);
 		Resources res = getResources();
 		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		addContactButton = new ImageButton(this);
+		ImageButton addContactButton = new ImageButton(this);
 		addContactButton.setBackgroundResource(0);
 		addContactButton.setImageResource(R.drawable.social_add_person);
 		addContactButton.setOnClickListener(this);
@@ -269,6 +267,7 @@ EventListener {
 
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactAddedEvent) {
+			LOG.info("Contact added, reloading");
 			loadContacts();
 		} else if (e instanceof ContactConnectedEvent) {
 			setConnected(((ContactConnectedEvent) e).getContactId(), true);
@@ -282,9 +281,6 @@ EventListener {
 			ContactId source = ((MessageAddedEvent) e).getContactId();
 			if (source == null) loadContacts();
 			else reloadContact(source);
-		} else if (e instanceof MessageExpiredEvent) {
-			LOG.info("Message expired, reloading");
-			loadContacts();
 		}
 	}
 

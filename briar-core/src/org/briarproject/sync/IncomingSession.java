@@ -18,8 +18,6 @@ import org.briarproject.api.sync.MessagingSession;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.RetentionAck;
-import org.briarproject.api.sync.RetentionUpdate;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -34,7 +32,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.WARNING;
 
 /**
- * An incoming {@link MessagingSession
+ * An incoming {@link org.briarproject.api.sync.MessagingSession
  * MessagingSession}.
  */
 class IncomingSession implements MessagingSession, EventListener {
@@ -83,12 +81,6 @@ class IncomingSession implements MessagingSession, EventListener {
 				} else if (packetReader.hasRequest()) {
 					Request r = packetReader.readRequest();
 					dbExecutor.execute(new ReceiveRequest(r));
-				} else if (packetReader.hasRetentionAck()) {
-					RetentionAck a = packetReader.readRetentionAck();
-					dbExecutor.execute(new ReceiveRetentionAck(a));
-				} else if (packetReader.hasRetentionUpdate()) {
-					RetentionUpdate u = packetReader.readRetentionUpdate();
-					dbExecutor.execute(new ReceiveRetentionUpdate(u));
 				} else if (packetReader.hasSubscriptionAck()) {
 					SubscriptionAck a = packetReader.readSubscriptionAck();
 					dbExecutor.execute(new ReceiveSubscriptionAck(a));
@@ -211,42 +203,6 @@ class IncomingSession implements MessagingSession, EventListener {
 		public void run() {
 			try {
 				db.receiveRequest(contactId, request);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	private class ReceiveRetentionAck implements Runnable {
-
-		private final RetentionAck ack;
-
-		private ReceiveRetentionAck(RetentionAck ack) {
-			this.ack = ack;
-		}
-
-		public void run() {
-			try {
-				db.receiveRetentionAck(contactId, ack);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	private class ReceiveRetentionUpdate implements Runnable {
-
-		private final RetentionUpdate update;
-
-		private ReceiveRetentionUpdate(RetentionUpdate update) {
-			this.update = update;
-		}
-
-		public void run() {
-			try {
-				db.receiveRetentionUpdate(contactId, update);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
