@@ -8,7 +8,7 @@
 		<item>org.briarproject.event.EventModule</item>
 		<item>org.briarproject.invitation.InvitationModule</item>
 		<item>org.briarproject.lifecycle.LifecycleModule</item>
-		<item>org.briarproject.messaging.MessagingModule</item>
+		<item>org.briarproject.sync.MessagingModule</item>
 		<item>org.briarproject.plugins.AndroidPluginsModule</item>
 		<item>org.briarproject.system.AndroidSystemModule</item>
 		<item>org.briarproject.transport.TransportModule</item>
