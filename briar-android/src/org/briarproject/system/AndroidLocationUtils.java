@@ -1,12 +1,5 @@
 package org.briarproject.system;
 
-import static android.content.Context.TELEPHONY_SERVICE;
-
-import java.util.Locale;
-import java.util.logging.Logger;
-
-import org.briarproject.api.system.LocationUtils;
-
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
@@ -14,6 +7,13 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.google.inject.Inject;
+
+import org.briarproject.api.system.LocationUtils;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+
+import static android.content.Context.TELEPHONY_SERVICE;
 
 class AndroidLocationUtils implements LocationUtils {
 
@@ -40,7 +40,7 @@ class AndroidLocationUtils implements LocationUtils {
 	 * </ul>
 	 *
 	 * Note: this is very similar to <a href="https://android.googlesource.com/platform/frameworks/base/+/cd92588%5E/location/java/android/location/CountryDetector.java">
-	 * this API</a> except it seems that Google doesn't want us to useit for
+	 * this API</a> except it seems that Google doesn't want us to use it for
 	 * some reason - both that class and {@code Context.COUNTRY_CODE} are
 	 * annotated {@code @hide}.
 	 */
@@ -48,10 +48,6 @@ class AndroidLocationUtils implements LocationUtils {
 	public String getCurrentCountry() {
 		String countryCode = getCountryFromPhoneNetwork();
 		if (!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();
-		// Disabled because it involves a network call; requires
-		// ACCESS_FINE_LOCATION
-		// countryCode = getCountryFromLocation();
-		// if (!TextUtils.isEmpty(countryCode)) return countryCode;
 		LOG.info("Falling back to SIM card country");
 		countryCode = getCountryFromSimCard();
 		if (!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();

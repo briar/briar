@@ -186,7 +186,7 @@ OnEditorActionListener {
 		strengthMeter.setStrength(strength);
 		if (nicknameLength > MAX_AUTHOR_NAME_LENGTH)
 			nicknameEntry.setError(getString(R.string.name_too_long));
-		if (firstPassword.length() > 0 && strength < PasswordStrengthEstimator.WEAK)
+		if (firstPassword.length() > 0 && strength < WEAK)
 			passwordEntry.setError(getString(R.string.password_too_weak));
 		if (secondPassword.length() > 0 && !passwordsMatch)
 			passwordConfirmation.setError(getString(R.string.passwords_do_not_match));
