@@ -27,9 +27,10 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -75,7 +76,8 @@ implements OnItemSelectedListener, OnClickListener {
 	private GroupId groupId = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile IdentityManager identityManager;
+	@Inject private volatile ForumManager forumManager;
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile MessageId parentId = null;
@@ -166,8 +168,9 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
-					group = db.getGroup(groupId);
+					Collection<LocalAuthor> localAuthors =
+							identityManager.getLocalAuthors();
+					group = forumManager.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
@@ -292,7 +295,7 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					db.addLocalMessage(m);
+					forumManager.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");

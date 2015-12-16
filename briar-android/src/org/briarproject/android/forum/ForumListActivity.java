@@ -23,7 +23,6 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
@@ -33,6 +32,7 @@ import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageHeader;
@@ -77,7 +77,7 @@ OnCreateContextMenuListener {
 	private ImageButton newForumButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile ForumManager forumManager;
 	@Inject private volatile EventBus eventBus;
 
 	@Override
@@ -153,14 +153,16 @@ OnCreateContextMenuListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for (Group g : db.getGroups()) {
+					for (Group g : forumManager.getGroups()) {
 						try {
-							displayHeaders(g, db.getMessageHeaders(g.getId()));
+							Collection<MessageHeader> headers =
+									forumManager.getMessageHeaders(g.getId());
+							displayHeaders(g, headers);
 						} catch (NoSuchSubscriptionException e) {
 							// Continue
 						}
 					}
-					int available = db.getAvailableGroups().size();
+					int available = forumManager.getAvailableGroups().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
@@ -279,7 +281,7 @@ OnCreateContextMenuListener {
 				try {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
-							db.getMessageHeaders(g.getId());
+							forumManager.getMessageHeaders(g.getId());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
@@ -318,7 +320,7 @@ OnCreateContextMenuListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					int available = db.getAvailableGroups().size();
+					int available = forumManager.getAvailableGroups().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
@@ -373,7 +375,7 @@ OnCreateContextMenuListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					db.removeGroup(g);
+					forumManager.removeGroup(g);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing group took " + duration + " ms");

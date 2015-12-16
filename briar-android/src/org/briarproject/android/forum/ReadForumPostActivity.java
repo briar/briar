@@ -17,9 +17,9 @@ import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -57,7 +57,7 @@ implements OnClickListener {
 	private int position = -1;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile ForumManager forumManager;
 	private volatile MessageId messageId = null;
 
 	@Override
@@ -169,7 +169,7 @@ implements OnClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					db.setReadFlag(messageId, true);
+					forumManager.setReadFlag(messageId, true);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
@@ -186,7 +186,7 @@ implements OnClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					byte[] body = db.getMessageBody(messageId);
+					byte[] body = forumManager.getMessageBody(messageId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");

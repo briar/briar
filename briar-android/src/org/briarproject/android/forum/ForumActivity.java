@@ -18,7 +18,6 @@ import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
@@ -27,6 +26,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -71,7 +71,7 @@ OnClickListener, OnItemClickListener {
 	private ImageButton composeButton = null, shareButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile ForumManager forumManager;
 	@Inject private volatile EventBus eventBus;
 	private volatile GroupId groupId = null;
 	private volatile Group group = null;
@@ -152,7 +152,7 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					group = db.getGroup(groupId);
+					group = forumManager.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading group " + duration + " ms");
@@ -181,7 +181,7 @@ OnClickListener, OnItemClickListener {
 				try {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
-							db.getMessageHeaders(groupId);
+							forumManager.getMessageHeaders(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
@@ -228,7 +228,7 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					byte[] body = db.getMessageBody(h.getId());
+					byte[] body = forumManager.getMessageBody(h.getId());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
@@ -298,7 +298,8 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for (MessageId m : unread) db.setReadFlag(m, true);
+					for (MessageId m : unread)
+						forumManager.setReadFlag(m, true);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");

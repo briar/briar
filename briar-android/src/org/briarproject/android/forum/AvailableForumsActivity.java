@@ -12,7 +12,6 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
@@ -21,6 +20,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 
@@ -46,7 +46,7 @@ implements EventListener, OnItemClickListener {
 	private ListLoadingProgressBar loading = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile ForumManager forumManager;
 	@Inject private volatile EventBus eventBus;
 
 	@Override
@@ -78,10 +78,11 @@ implements EventListener, OnItemClickListener {
 					Collection<ForumContacts> available =
 							new ArrayList<ForumContacts>();
 					long now = System.currentTimeMillis();
-					for (Group g : db.getAvailableGroups()) {
+					for (Group g : forumManager.getAvailableGroups()) {
 						try {
 							GroupId id = g.getId();
-							Collection<Contact> c = db.getSubscribers(id);
+							Collection<Contact> c =
+									forumManager.getSubscribers(id);
 							available.add(new ForumContacts(g, c));
 						} catch (NoSuchSubscriptionException e) {
 							// Continue
@@ -151,8 +152,8 @@ implements EventListener, OnItemClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					db.addGroup(g);
-					db.setVisibility(g.getId(), visible);
+					forumManager.addGroup(g);
+					forumManager.setVisibility(g.getId(), visible);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

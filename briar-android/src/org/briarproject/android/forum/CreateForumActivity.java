@@ -16,8 +16,8 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.util.StringUtils;
@@ -53,7 +53,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile GroupFactory groupFactory;
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile ForumManager forumManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -140,7 +140,7 @@ implements OnEditorActionListener, OnClickListener {
 				try {
 					Group g = groupFactory.createGroup(name);
 					long now = System.currentTimeMillis();
-					db.addGroup(g);
+					forumManager.addGroup(g);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing forum took " + duration + " ms");
