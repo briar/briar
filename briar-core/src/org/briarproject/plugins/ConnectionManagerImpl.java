@@ -1,7 +1,20 @@
 package org.briarproject.plugins;
 
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import org.briarproject.api.ContactId;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.lifecycle.IoExecutor;
+import org.briarproject.api.plugins.ConnectionManager;
+import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.sync.MessagingSession;
+import org.briarproject.api.sync.MessagingSessionFactory;
+import org.briarproject.api.transport.KeyManager;
+import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -12,21 +25,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.lifecycle.IoExecutor;
-import org.briarproject.api.messaging.MessagingSession;
-import org.briarproject.api.messaging.MessagingSessionFactory;
-import org.briarproject.api.plugins.ConnectionManager;
-import org.briarproject.api.plugins.ConnectionRegistry;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.transport.KeyManager;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 class ConnectionManagerImpl implements ConnectionManager {
 

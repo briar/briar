@@ -12,18 +12,18 @@ import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbClosedException;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.db.MessageHeader.State;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.Message;
-import org.briarproject.api.messaging.MessageId;
-import org.briarproject.api.messaging.RetentionAck;
-import org.briarproject.api.messaging.RetentionUpdate;
-import org.briarproject.api.messaging.SubscriptionAck;
-import org.briarproject.api.messaging.SubscriptionUpdate;
-import org.briarproject.api.messaging.TransportAck;
-import org.briarproject.api.messaging.TransportUpdate;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageHeader;
+import org.briarproject.api.sync.MessageHeader.State;
+import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.sync.RetentionAck;
+import org.briarproject.api.sync.RetentionUpdate;
+import org.briarproject.api.sync.SubscriptionAck;
+import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.TransportAck;
+import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
@@ -57,8 +57,8 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.Author.Status.ANONYMOUS;
 import static org.briarproject.api.Author.Status.UNKNOWN;
 import static org.briarproject.api.Author.Status.VERIFIED;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
-import static org.briarproject.api.messaging.MessagingConstants.RETENTION_GRANULARITY;
+import static org.briarproject.api.sync.MessagingConstants.MAX_SUBSCRIPTIONS;
+import static org.briarproject.api.sync.MessagingConstants.RETENTION_GRANULARITY;
 import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
 
 /**
@@ -2675,7 +2675,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void raiseRequestedFlag(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
 			String sql = "UPDATE statuses SET requested = TRUE"
 					+ " WHERE messageId = ? AND contactId = ?";
@@ -2686,7 +2685,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -2695,7 +2693,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void raiseSeenFlag(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
 			String sql = "UPDATE statuses SET seen = TRUE"
 					+ " WHERE messageId = ? AND contactId = ?";
@@ -2706,7 +2703,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}

@@ -1,7 +1,7 @@
 package org.briarproject.android.contact;
 
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.db.MessageHeader.State;
+import org.briarproject.api.sync.MessageHeader;
+import org.briarproject.api.sync.MessageHeader.State;
 
 // This class is not thread-safe
 class ConversationItem {

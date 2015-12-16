@@ -21,8 +21,8 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;

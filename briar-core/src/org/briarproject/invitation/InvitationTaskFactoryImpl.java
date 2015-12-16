@@ -1,7 +1,5 @@
 package org.briarproject.invitation;
 
-import javax.inject.Inject;
-
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -10,13 +8,15 @@ import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
-import org.briarproject.api.messaging.GroupFactory;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
+
+import javax.inject.Inject;
 
 class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 

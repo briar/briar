@@ -1,7 +1,7 @@
 package org.briarproject.android.forum;
 
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.messaging.Group;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.MessageHeader;
 
 import java.util.Collection;
 

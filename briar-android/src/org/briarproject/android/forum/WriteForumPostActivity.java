@@ -31,11 +31,11 @@ import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.Message;
-import org.briarproject.api.messaging.MessageFactory;
-import org.briarproject.api.messaging.MessageId;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageFactory;
+import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;

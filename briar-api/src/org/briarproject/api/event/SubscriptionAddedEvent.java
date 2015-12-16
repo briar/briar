@@ -1,6 +1,6 @@
 package org.briarproject.api.event;
 
-import org.briarproject.api.messaging.Group;
+import org.briarproject.api.sync.Group;
 
 /** An event that is broadcast when the user subscribes to a group. */
 public class SubscriptionAddedEvent extends Event {

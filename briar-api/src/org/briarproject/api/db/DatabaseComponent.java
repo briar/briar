@@ -9,19 +9,19 @@ import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
-import org.briarproject.api.messaging.Ack;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.messaging.Message;
-import org.briarproject.api.messaging.MessageId;
-import org.briarproject.api.messaging.Offer;
-import org.briarproject.api.messaging.Request;
-import org.briarproject.api.messaging.RetentionAck;
-import org.briarproject.api.messaging.RetentionUpdate;
-import org.briarproject.api.messaging.SubscriptionAck;
-import org.briarproject.api.messaging.SubscriptionUpdate;
-import org.briarproject.api.messaging.TransportAck;
-import org.briarproject.api.messaging.TransportUpdate;
+import org.briarproject.api.sync.Ack;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.sync.Offer;
+import org.briarproject.api.sync.Request;
+import org.briarproject.api.sync.RetentionAck;
+import org.briarproject.api.sync.RetentionUpdate;
+import org.briarproject.api.sync.SubscriptionAck;
+import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.TransportAck;
+import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -179,7 +179,7 @@ public interface DatabaseComponent {
 	 * Returns the headers of all messages in the inbox group for the given
 	 * contact, or null if no inbox group has been set.
 	 */
-	Collection<MessageHeader> getInboxMessageHeaders(ContactId c)
+	Collection<org.briarproject.api.sync.MessageHeader> getInboxMessageHeaders(ContactId c)
 			throws DbException;
 
 	/** Returns the local pseudonym with the given ID. */
@@ -199,7 +199,7 @@ public interface DatabaseComponent {
 	byte[] getMessageBody(MessageId m) throws DbException;
 
 	/** Returns the headers of all messages in the given group. */
-	Collection<MessageHeader> getMessageHeaders(GroupId g)
+	Collection<org.briarproject.api.sync.MessageHeader> getMessageHeaders(GroupId g)
 			throws DbException;
 
 	/** Returns true if the given message is marked as read. */

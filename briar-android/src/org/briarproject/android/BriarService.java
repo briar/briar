@@ -23,7 +23,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.LifecycleManager.StartResult;
-import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.sync.GroupId;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;

@@ -1,47 +1,5 @@
 package org.briarproject.android.contact;
 
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Menu.NONE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.Toast.LENGTH_SHORT;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-
-import java.util.Collection;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.android.BriarActivity;
-import org.briarproject.android.invitation.AddContactActivity;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.api.db.NoSuchContactException;
-import org.briarproject.api.event.ContactAddedEvent;
-import org.briarproject.api.event.ContactConnectedEvent;
-import org.briarproject.api.event.ContactDisconnectedEvent;
-import org.briarproject.api.event.ContactRemovedEvent;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.event.MessageExpiredEvent;
-import org.briarproject.api.messaging.GroupId;
-import org.briarproject.api.plugins.ConnectionRegistry;
-
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -59,6 +17,48 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
+import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.util.HorizontalBorder;
+import org.briarproject.android.util.ListLoadingProgressBar;
+import org.briarproject.api.AuthorId;
+import org.briarproject.api.Contact;
+import org.briarproject.api.ContactId;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.event.ContactAddedEvent;
+import org.briarproject.api.event.ContactConnectedEvent;
+import org.briarproject.api.event.ContactDisconnectedEvent;
+import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.MessageAddedEvent;
+import org.briarproject.api.event.MessageExpiredEvent;
+import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageHeader;
+
+import java.util.Collection;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.Menu.NONE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class ContactListActivity extends BriarActivity
 implements OnClickListener, OnItemClickListener, OnCreateContextMenuListener,

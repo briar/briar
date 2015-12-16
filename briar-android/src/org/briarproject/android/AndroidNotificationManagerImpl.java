@@ -23,7 +23,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import java.util.HashMap;

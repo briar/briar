@@ -18,8 +18,8 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.messaging.Group;
-import org.briarproject.api.messaging.GroupFactory;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
@@ -38,7 +38,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
+import static org.briarproject.api.sync.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 
 public class CreateForumActivity extends BriarActivity
 implements OnEditorActionListener, OnClickListener {
