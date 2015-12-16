@@ -3,6 +3,8 @@ package org.briarproject.plugins;
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -32,6 +34,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 		Clock clock = new SystemClock();
 		Mockery context = new Mockery();
 		final Executor ioExecutor = Executors.newCachedThreadPool();
+		final EventBus eventBus = context.mock(EventBus.class);
 		final SimplexPluginConfig simplexPluginConfig =
 				context.mock(SimplexPluginConfig.class);
 		final DuplexPluginConfig duplexPluginConfig =
@@ -121,9 +124,10 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(simplexPlugin).stop();
 			oneOf(duplexPlugin).stop();
 		}});
-		PluginManagerImpl p = new PluginManagerImpl(ioExecutor,
+		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, eventBus,
 				simplexPluginConfig, duplexPluginConfig, clock, db, poller,
 				dispatcher, uiCallback);
+
 		// Two plugins should be started and stopped
 		assertTrue(p.start());
 		assertTrue(p.stop());

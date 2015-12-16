@@ -106,7 +106,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 				SocketAddress local = ss.getLocalSocketAddress();
 				setLocalSocketAddress((InetSocketAddress) local);
 				if (LOG.isLoggable(INFO)) LOG.info("Listening on " + local);
-				callback.pollNow();
+				callback.transportEnabled();
 				acceptContactConnections();
 			}
 		});
@@ -117,6 +117,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			callback.transportDisabled();
 		}
 	}
 

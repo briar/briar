@@ -18,9 +18,19 @@ import org.briarproject.android.contact.ContactListActivity;
 import org.briarproject.android.forum.ForumListActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.TransportAddedEvent;
+import org.briarproject.api.event.TransportDisabledEvent;
+import org.briarproject.api.event.TransportEnabledEvent;
+import org.briarproject.api.event.TransportRemovedEvent;
+import org.briarproject.api.plugins.Plugin;
+import org.briarproject.api.plugins.PluginManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,15 +44,17 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
-public class DashboardActivity extends BriarActivity {
+public class DashboardActivity extends BriarActivity implements EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(DashboardActivity.class.getName());
 
 	@Inject private ReferenceManager referenceManager;
+	@Inject private PluginManager pluginManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -51,9 +63,38 @@ public class DashboardActivity extends BriarActivity {
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+
+		eventBus.addListener(this);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		eventBus.removeListener(this);
+	}
+
+	@Override
 	public void onNewIntent(Intent i) {
 		super.onNewIntent(i);
 		handleIntent(i);
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof TransportEnabledEvent) {
+			TransportId id = ((TransportEnabledEvent) e).getTransportId();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("TransportEnabledEvent: " + id.getString());
+			}
+		} else if (e instanceof TransportDisabledEvent) {
+			TransportId id = ((TransportDisabledEvent) e).getTransportId();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("TransportDisabledEvent: " + id.getString());
+			}
+		}
 	}
 
 	private void handleIntent(Intent i) {

@@ -50,6 +50,9 @@ public interface PluginCallback {
 	 */
 	void showMessage(String... message);
 
-	/** Schedules the plugin to be polled immediately. */
-	void pollNow();
+	/** Signal that the transport got enabled. */
+	void transportEnabled();
+
+	/** Signal that the transport got disabled. */
+	void transportDisabled();
 }

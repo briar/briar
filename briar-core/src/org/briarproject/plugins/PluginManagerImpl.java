@@ -6,6 +6,9 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.TransportDisabledEvent;
+import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.Plugin;
@@ -48,6 +51,7 @@ class PluginManagerImpl implements PluginManager {
 			Logger.getLogger(PluginManagerImpl.class.getName());
 
 	private final Executor ioExecutor;
+	private final EventBus eventBus;
 	private final SimplexPluginConfig simplexPluginConfig;
 	private final DuplexPluginConfig duplexPluginConfig;
 	private final Clock clock;
@@ -60,12 +64,13 @@ class PluginManagerImpl implements PluginManager {
 	private final List<DuplexPlugin> duplexPlugins;
 
 	@Inject
-	PluginManagerImpl(@IoExecutor Executor ioExecutor,
+	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
 			SimplexPluginConfig simplexPluginConfig,
 			DuplexPluginConfig duplexPluginConfig, Clock clock,
 			DatabaseComponent db, Poller poller,
 			ConnectionManager connectionManager, UiCallback uiCallback) {
 		this.ioExecutor = ioExecutor;
+		this.eventBus = eventBus;
 		this.simplexPluginConfig = simplexPluginConfig;
 		this.duplexPluginConfig = duplexPluginConfig;
 		this.clock = clock;
@@ -360,9 +365,15 @@ class PluginManagerImpl implements PluginManager {
 			uiCallback.showMessage(message);
 		}
 
-		public void pollNow() {
+		public void transportEnabled() {
+			eventBus.broadcast(new TransportEnabledEvent(id));
+
 			Plugin p = plugins.get(id);
 			if (p != null) poller.pollNow(p);
+		}
+
+		public void transportDisabled() {
+			eventBus.broadcast(new TransportDisabledEvent(id));
 		}
 	}
 
