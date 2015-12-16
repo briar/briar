@@ -25,7 +25,7 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
@@ -37,6 +37,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageHeader;
@@ -74,7 +75,8 @@ EventListener {
 	private ListLoadingProgressBar loading = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile ContactManager contactManager;
+	@Inject private volatile MessagingManager messagingManager;
 	@Inject private volatile EventBus eventBus;
 
 	@Override
@@ -136,11 +138,13 @@ EventListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for (Contact c : db.getContacts()) {
+					for (Contact c : contactManager.getContacts()) {
 						try {
-							GroupId inbox = db.getInboxGroupId(c.getId());
+							ContactId id = c.getId();
+							GroupId inbox =
+									messagingManager.getInboxGroupId(id);
 							Collection<MessageHeader> headers =
-									db.getInboxMessageHeaders(c.getId());
+									messagingManager.getInboxMessageHeaders(id);
 							displayContact(c, inbox, headers);
 						} catch (NoSuchContactException e) {
 							// Continue
@@ -256,7 +260,7 @@ EventListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					db.removeContact(c);
+					contactManager.removeContact(c);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -290,7 +294,7 @@ EventListener {
 				try {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
-							db.getInboxMessageHeaders(c);
+							messagingManager.getInboxMessageHeaders(c);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");

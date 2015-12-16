@@ -22,8 +22,8 @@ import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchMessageException;
@@ -38,6 +38,7 @@ import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -89,7 +90,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private ImageButton sendButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile ContactManager contactManager;
+	@Inject private volatile MessagingManager messagingManager;
 	@Inject private volatile EventBus eventBus;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile ContactId contactId = null;
@@ -162,11 +164,11 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Contact contact = db.getContact(contactId);
+					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
 					localAuthorId = contact.getLocalAuthorId();
-					groupId = db.getInboxGroupId(contactId);
-					group = db.getGroup(groupId);
+					groupId = messagingManager.getInboxGroupId(contactId);
+					group = messagingManager.getGroup(groupId);
 					connected = connectionRegistry.isConnected(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO)) {
@@ -208,7 +210,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				try {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
-							db.getInboxMessageHeaders(contactId);
+							messagingManager.getInboxMessageHeaders(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");
@@ -254,7 +256,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					byte[] body = db.getMessageBody(h.getId());
+					byte[] body = messagingManager.getMessageBody(h.getId());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
@@ -324,7 +326,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for (MessageId m : unread) db.setReadFlag(m, true);
+					for (MessageId m : unread)
+						messagingManager.setReadFlag(m, true);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
@@ -438,7 +441,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					db.addLocalMessage(m);
+					messagingManager.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
