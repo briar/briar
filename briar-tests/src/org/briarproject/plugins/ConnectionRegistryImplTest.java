@@ -1,8 +1,8 @@
 package org.briarproject.plugins;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.EventBus;
@@ -11,7 +11,6 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -52,19 +51,19 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		// Check that a registered connection shows up - this should
 		// broadcast a ContactConnectedEvent
 		c.registerConnection(contactId, transportId);
-		assertEquals(Arrays.asList(contactId),
+		assertEquals(Collections.singletonList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
 		// Register an identical connection - lookup should be unaffected
 		c.registerConnection(contactId, transportId);
-		assertEquals(Arrays.asList(contactId),
+		assertEquals(Collections.singletonList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
 		// Unregister one of the connections - lookup should be unaffected
 		c.unregisterConnection(contactId, transportId);
-		assertEquals(Arrays.asList(contactId),
+		assertEquals(Collections.singletonList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
@@ -79,7 +78,9 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		try {
 			c.unregisterConnection(contactId, transportId);
 			fail();
-		} catch (IllegalArgumentException expected) {}
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
 		// Register both contacts with one transport, one contact with both -
 		// this should broadcast two ContactConnectedEvents
 		c.registerConnection(contactId, transportId);
@@ -89,7 +90,7 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		assertEquals(2, connected.size());
 		assertTrue(connected.contains(contactId));
 		assertTrue(connected.contains(contactId1));
-		assertEquals(Arrays.asList(contactId1),
+		assertEquals(Collections.singletonList(contactId1),
 				c.getConnectedContacts(transportId1));
 		context.assertIsSatisfied();
 	}

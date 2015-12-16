@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.Contact;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;

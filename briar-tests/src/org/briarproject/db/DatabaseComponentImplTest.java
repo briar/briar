@@ -3,14 +3,11 @@ package org.briarproject.db;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestMessage;
 import org.briarproject.TestUtils;
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.NoSuchContactException;
@@ -32,6 +29,9 @@ import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Group;
@@ -55,7 +55,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.MessagingConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
@@ -74,7 +74,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	protected final AuthorId localAuthorId;
 	protected final LocalAuthor localAuthor;
 	protected final MessageId messageId, messageId1;
-	protected final String contentType, subject;
+	protected final String contentType;
 	protected final long timestamp;
 	protected final int size;
 	protected final byte[] raw;
@@ -96,14 +96,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
 		contentType = "text/plain";
-		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
 		message = new TestMessage(messageId, null, group, author, contentType,
-				subject, timestamp, raw);
+				timestamp, raw);
 		message1 = new TestMessage(messageId1, messageId, group, null,
-				contentType, subject, timestamp, raw);
+				contentType, timestamp, raw);
 		transportId = new TransportId("id");
 		transportProperties = new TransportProperties(Collections.singletonMap(
 				"bar", "baz"));

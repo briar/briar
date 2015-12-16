@@ -13,7 +13,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.Author;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.util.StringUtils;
 

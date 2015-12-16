@@ -1,8 +1,8 @@
 package org.briarproject.plugins;
 
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 
@@ -42,7 +42,6 @@ public abstract class DuplexServerTest extends DuplexTest {
 					getPseudoRandom(123), CONNECTION_TIMEOUT);
 			if (d == null) {
 				System.out.println("Connection failed");
-				return;
 			} else {
 				System.out.println("Connection created");
 				receiveChallengeSendResponse(d);

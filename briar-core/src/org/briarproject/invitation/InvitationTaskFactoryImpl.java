@@ -1,11 +1,11 @@
 package org.briarproject.invitation;
 
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.AuthorId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.plugins.ConnectionManager;

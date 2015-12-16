@@ -1,17 +1,17 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.data.Reader;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
 
 import java.io.IOException;
 
-import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 
 class AuthorReader implements ObjectReader<Author> {
 

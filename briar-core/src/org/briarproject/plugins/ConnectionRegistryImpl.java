@@ -1,6 +1,13 @@
 package org.briarproject.plugins;
 
-import static java.util.logging.Level.INFO;
+import com.google.inject.Inject;
+
+import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.event.ContactConnectedEvent;
+import org.briarproject.api.event.ContactDisconnectedEvent;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.plugins.ConnectionRegistry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,14 +19,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.event.ContactConnectedEvent;
-import org.briarproject.api.event.ContactDisconnectedEvent;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.plugins.ConnectionRegistry;
-
-import com.google.inject.Inject;
+import static java.util.logging.Level.INFO;
 
 class ConnectionRegistryImpl implements ConnectionRegistry {
 
@@ -109,7 +109,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			Map<ContactId, Integer> m = connections.get(t);
 			if (m == null) return Collections.emptyList();
 			List<ContactId> ids = new ArrayList<ContactId>(m.keySet());
-			if (LOG.isLoggable(INFO)) LOG.info(ids.size() + " contacts connected");
+			if (LOG.isLoggable(INFO))
+				LOG.info(ids.size() + " contacts connected");
 			return Collections.unmodifiableList(ids);
 		} finally {
 			lock.unlock();

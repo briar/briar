@@ -1,6 +1,6 @@
 package org.briarproject.plugins;
 
-import org.briarproject.api.ContactId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;

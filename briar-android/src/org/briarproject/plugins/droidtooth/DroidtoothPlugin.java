@@ -1,18 +1,25 @@
 package org.briarproject.plugins.droidtooth;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
-import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
-import static android.bluetooth.BluetoothAdapter.STATE_OFF;
-import static android.bluetooth.BluetoothAdapter.STATE_ON;
-import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+
+import org.briarproject.api.TransportId;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.system.Clock;
+import org.briarproject.util.LatchedReference;
+import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -29,26 +36,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.android.AndroidExecutor;
-import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.system.Clock;
-import org.briarproject.util.LatchedReference;
-import org.briarproject.util.StringUtils;
-
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
+import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
+import static android.bluetooth.BluetoothAdapter.STATE_OFF;
+import static android.bluetooth.BluetoothAdapter.STATE_ON;
+import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 class DroidtoothPlugin implements DuplexPlugin {
 

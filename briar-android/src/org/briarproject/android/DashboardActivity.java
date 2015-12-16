@@ -21,7 +21,6 @@ import org.briarproject.R;
 import org.briarproject.android.contact.ContactListActivity;
 import org.briarproject.android.forum.ForumListActivity;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DatabaseComponent;
@@ -31,6 +30,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
 

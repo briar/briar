@@ -1,6 +1,6 @@
 package org.briarproject.api.event;
 
-import org.briarproject.api.AuthorId;
+import org.briarproject.api.identity.AuthorId;
 
 /** An event that is broadcast when a local pseudonym is removed. */
 public class LocalAuthorRemovedEvent extends Event {

@@ -1,12 +1,9 @@
 package org.briarproject.invitation;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.FormatException;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
@@ -20,6 +17,9 @@ import org.briarproject.api.data.Writer;
 import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -43,12 +43,12 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 

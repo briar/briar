@@ -1,5 +1,40 @@
 package org.briarproject.android;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+
+import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.android.util.StrengthMeter;
+import org.briarproject.api.android.ReferenceManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.util.StringUtils;
+
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
@@ -16,44 +51,8 @@ import static java.util.logging.Level.INFO;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
-import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
-
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.android.util.StrengthMeter;
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.android.ReferenceManager;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.crypto.KeyPair;
-import org.briarproject.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.util.StringUtils;
-
-import roboguice.activity.RoboActivity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 public class SetupActivity extends BaseActivity implements OnClickListener,
 OnEditorActionListener {

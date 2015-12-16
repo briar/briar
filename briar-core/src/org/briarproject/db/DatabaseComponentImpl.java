@@ -1,14 +1,11 @@
 package org.briarproject.db;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.ContactExistsException;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -38,6 +35,9 @@ import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.event.TransportAddedEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Group;

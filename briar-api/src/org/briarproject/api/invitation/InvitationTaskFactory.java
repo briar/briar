@@ -1,6 +1,6 @@
 package org.briarproject.api.invitation;
 
-import org.briarproject.api.AuthorId;
+import org.briarproject.api.identity.AuthorId;
 
 /** Creates tasks for exchanging invitations with remote peers. */
 public interface InvitationTaskFactory {

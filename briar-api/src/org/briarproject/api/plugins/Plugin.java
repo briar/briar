@@ -1,10 +1,10 @@
 package org.briarproject.api.plugins;
 
+import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
+
 import java.io.IOException;
 import java.util.Collection;
-
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
 
 public interface Plugin {
 

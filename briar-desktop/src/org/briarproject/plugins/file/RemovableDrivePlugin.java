@@ -1,7 +1,7 @@
 package org.briarproject.plugins.file;
 
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 
 import java.io.File;

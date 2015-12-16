@@ -1,7 +1,7 @@
 package org.briarproject.api.transport;
 
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 
 public class StreamContext {

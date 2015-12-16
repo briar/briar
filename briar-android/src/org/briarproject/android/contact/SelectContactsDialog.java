@@ -1,20 +1,20 @@
 package org.briarproject.android.contact;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.briarproject.R;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
+
+import org.briarproject.R;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SelectContactsDialog implements OnMultiChoiceClickListener {
 

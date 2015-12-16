@@ -7,14 +7,14 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;

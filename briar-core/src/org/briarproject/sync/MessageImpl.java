@@ -1,6 +1,6 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.Author;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;

@@ -1,36 +1,5 @@
 package org.briarproject.android.identity;
 
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.Toast.LENGTH_LONG;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
-import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.crypto.KeyPair;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.util.StringUtils;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -43,6 +12,37 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.util.StringUtils;
+
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_LONG;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 public class CreateIdentityActivity extends BriarActivity
 implements OnEditorActionListener, OnClickListener {

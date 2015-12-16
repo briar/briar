@@ -1,6 +1,6 @@
 package org.briarproject.api.android;
 
-import org.briarproject.api.ContactId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.GroupId;
 

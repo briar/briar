@@ -1,6 +1,6 @@
 package org.briarproject.android.forum;
 
-import org.briarproject.api.Contact;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.sync.Group;
 
 import java.util.Collection;

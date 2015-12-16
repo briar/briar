@@ -1,6 +1,6 @@
 package org.briarproject.api.sync;
 
-import org.briarproject.api.Author;
+import org.briarproject.api.identity.Author;
 
 public interface Message {
 
@@ -20,7 +20,7 @@ public interface Message {
 	Group getGroup();
 
 	/**
-	 * Returns the message's {@link org.briarproject.api.Author Author}, or null
+	 * Returns the message's {@link Author Author}, or null
 	 * if this is an anonymous message.
 	 */
 	Author getAuthor();

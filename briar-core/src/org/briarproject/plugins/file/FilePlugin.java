@@ -1,6 +1,6 @@
 package org.briarproject.plugins.file;
 
-import org.briarproject.api.ContactId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;

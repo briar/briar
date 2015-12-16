@@ -1,6 +1,6 @@
 package org.briarproject.api.plugins.duplex;
 
-import org.briarproject.api.ContactId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.Plugin;
 

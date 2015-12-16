@@ -1,8 +1,16 @@
 package org.briarproject.plugins.bluetooth;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static javax.bluetooth.DiscoveryAgent.GIAC;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.system.Clock;
+import org.briarproject.util.LatchedReference;
+import org.briarproject.util.OsUtils;
+import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -21,17 +29,9 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.system.Clock;
-import org.briarproject.util.LatchedReference;
-import org.briarproject.util.OsUtils;
-import org.briarproject.util.StringUtils;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static javax.bluetooth.DiscoveryAgent.GIAC;
 
 class BluetoothPlugin implements DuplexPlugin {
 

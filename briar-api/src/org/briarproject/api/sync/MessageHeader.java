@@ -1,6 +1,6 @@
 package org.briarproject.api.sync;
 
-import org.briarproject.api.Author;
+import org.briarproject.api.identity.Author;
 
 public class MessageHeader {
 

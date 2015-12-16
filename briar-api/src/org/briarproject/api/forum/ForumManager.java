@@ -1,7 +1,7 @@
 package org.briarproject.api.forum;
 
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;

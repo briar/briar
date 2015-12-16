@@ -1,6 +1,5 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.Author;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.crypto.PrivateKey;
@@ -8,6 +7,7 @@ import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.Consumer;
 import org.briarproject.api.data.Writer;
 import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
@@ -21,7 +21,7 @@ import java.security.SecureRandom;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.sync.MessagingConstants.MAX_BODY_LENGTH;
 import static org.briarproject.api.sync.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;
@@ -78,7 +78,7 @@ class MessageFactoryImpl implements MessageFactory {
 		Consumer signingConsumer = null;
 		if (privateKey != null) {
 			signature.initSign(privateKey);
-			signingConsumer = new org.briarproject.sync.SigningConsumer(signature);
+			signingConsumer = new SigningConsumer(signature);
 			w.addConsumer(signingConsumer);
 		}
 		// Write the message
@@ -109,7 +109,7 @@ class MessageFactoryImpl implements MessageFactory {
 		// Hash the message, including the signature, to get the message ID
 		w.removeConsumer(digestingConsumer);
 		MessageId id = new MessageId(messageDigest.digest());
-		return new org.briarproject.sync.MessageImpl(id, parent, group, author, contentType,
+		return new MessageImpl(id, parent, group, author, contentType,
 				timestamp, out.toByteArray(), bodyStart, body.length);
 	}
 

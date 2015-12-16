@@ -1,4 +1,4 @@
-package org.briarproject.api;
+package org.briarproject.api.identity;
 
 /** A pseudonym for the local user. */
 public class LocalAuthor extends Author {

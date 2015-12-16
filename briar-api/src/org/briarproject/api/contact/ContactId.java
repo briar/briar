@@ -1,4 +1,4 @@
-package org.briarproject.api;
+package org.briarproject.api.contact;
 
 /**
  * Type-safe wrapper for an integer that uniquely identifies a contact within

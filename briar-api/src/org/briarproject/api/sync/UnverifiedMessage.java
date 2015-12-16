@@ -1,6 +1,6 @@
 package org.briarproject.api.sync;
 
-import org.briarproject.api.Author;
+import org.briarproject.api.identity.Author;
 
 /** A {@link Message} that has not yet had its signatures (if any) verified. */
 public class UnverifiedMessage {
@@ -45,7 +45,7 @@ public class UnverifiedMessage {
 	}
 
 	/**
-	 * Returns the message's {@link org.briarproject.api.Author Author}, or null
+	 * Returns the message's {@link Author Author}, or null
 	 * if this is an anonymous message.
 	 */
 	public Author getAuthor() {

@@ -1,13 +1,13 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.data.Writer;
 import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.system.Clock;
 
 import java.io.ByteArrayOutputStream;

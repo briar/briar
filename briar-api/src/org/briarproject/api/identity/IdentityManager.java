@@ -1,7 +1,5 @@
 package org.briarproject.api.identity;
 
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.db.DbException;
 
 import java.util.Collection;

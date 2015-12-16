@@ -1,13 +1,11 @@
-package org.briarproject.api;
-
-import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+package org.briarproject.api.identity;
 
 import java.io.UnsupportedEncodingException;
 
 /** A pseudonym for a user. */
 public class Author {
 
-	public enum Status { ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED };
+	public enum Status { ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED }
 
 	private final AuthorId id;
 	private final String name;
@@ -20,7 +18,7 @@ public class Author {
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		if (length == 0 || length > MAX_AUTHOR_NAME_LENGTH)
+		if (length == 0 || length > AuthorConstants.MAX_AUTHOR_NAME_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.name = name;

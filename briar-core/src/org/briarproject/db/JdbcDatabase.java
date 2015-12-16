@@ -1,17 +1,17 @@
 package org.briarproject.db;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbClosedException;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -52,9 +52,9 @@ import java.util.logging.Logger;
 import static java.sql.Types.BINARY;
 import static java.sql.Types.VARCHAR;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.Author.Status.ANONYMOUS;
-import static org.briarproject.api.Author.Status.UNKNOWN;
-import static org.briarproject.api.Author.Status.VERIFIED;
+import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
+import static org.briarproject.api.identity.Author.Status.UNKNOWN;
+import static org.briarproject.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.api.sync.MessagingConstants.MAX_SUBSCRIPTIONS;
 import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
 

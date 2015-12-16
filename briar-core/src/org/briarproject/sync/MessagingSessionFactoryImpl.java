@@ -1,7 +1,7 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;

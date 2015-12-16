@@ -1,17 +1,17 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.Author;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.data.Reader;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.UnverifiedMessage;
 
 import java.io.IOException;
 
-import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.sync.MessagingConstants.MAX_BODY_LENGTH;
 import static org.briarproject.api.sync.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;

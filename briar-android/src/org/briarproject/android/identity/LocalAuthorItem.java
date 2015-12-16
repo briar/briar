@@ -1,6 +1,6 @@
 package org.briarproject.android.identity;
 
-import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.identity.LocalAuthor;
 
 public class LocalAuthorItem {
 

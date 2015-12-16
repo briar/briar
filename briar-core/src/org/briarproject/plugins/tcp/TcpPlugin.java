@@ -1,7 +1,12 @@
 package org.briarproject.plugins.tcp;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,13 +25,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.util.StringUtils;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 abstract class TcpPlugin implements DuplexPlugin {
 
@@ -91,7 +91,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 						if (LOG.isLoggable(INFO))
 							LOG.info("Failed to bind " + addr);
 						tryToClose(ss);
-						continue;
 					}
 				}
 				if (ss == null || !ss.isBound()) {

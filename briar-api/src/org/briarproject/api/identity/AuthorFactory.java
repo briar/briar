@@ -1,4 +1,4 @@
-package org.briarproject.api;
+package org.briarproject.api.identity;
 
 public interface AuthorFactory {
 

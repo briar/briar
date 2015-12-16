@@ -2,8 +2,8 @@ package org.briarproject.sync;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.sync.Ack;

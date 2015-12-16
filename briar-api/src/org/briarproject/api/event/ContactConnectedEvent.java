@@ -1,6 +1,6 @@
 package org.briarproject.api.event;
 
-import org.briarproject.api.ContactId;
+import org.briarproject.api.contact.ContactId;
 
 /**
  * An event that is broadcast when a contact connects that was not previously

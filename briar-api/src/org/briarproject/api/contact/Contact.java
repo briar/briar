@@ -1,4 +1,7 @@
-package org.briarproject.api;
+package org.briarproject.api.contact;
+
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
 
 public class Contact {
 

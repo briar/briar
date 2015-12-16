@@ -1,9 +1,9 @@
 package org.briarproject.api.plugins;
 
-import java.util.Collection;
-
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
+
+import java.util.Collection;
 
 /**
  * Keeps track of which contacts are currently connected by which transports.

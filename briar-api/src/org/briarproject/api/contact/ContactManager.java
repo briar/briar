@@ -1,10 +1,8 @@
 package org.briarproject.api.contact;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.Contact;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
 
 import java.util.Collection;
 

@@ -1,8 +1,8 @@
 package org.briarproject.plugins.tcp;
 
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.plugins.DuplexClientTest;
 
 import java.util.Collections;

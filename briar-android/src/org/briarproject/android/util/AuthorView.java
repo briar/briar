@@ -1,14 +1,14 @@
 package org.briarproject.android.util;
 
-import static android.text.TextUtils.TruncateAt.END;
-
-import org.briarproject.R;
-import org.briarproject.api.Author;
-
 import android.content.Context;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.briarproject.R;
+import org.briarproject.api.identity.Author;
+
+import static android.text.TextUtils.TruncateAt.END;
 
 public class AuthorView extends RelativeLayout {
 

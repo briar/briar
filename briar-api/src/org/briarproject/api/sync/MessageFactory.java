@@ -1,7 +1,7 @@
 package org.briarproject.api.sync;
 
-import org.briarproject.api.Author;
 import org.briarproject.api.crypto.PrivateKey;
+import org.briarproject.api.identity.Author;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

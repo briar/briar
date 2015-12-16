@@ -3,10 +3,10 @@ package org.briarproject.sync;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
@@ -47,7 +47,7 @@ public class MessagingModule extends AbstractModule {
 	ObjectReader<UnverifiedMessage> getMessageReader(
 			ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
-		return new org.briarproject.sync.MessageReader(groupReader, authorReader);
+		return new MessageReader(groupReader, authorReader);
 	}
 
 	@Provides

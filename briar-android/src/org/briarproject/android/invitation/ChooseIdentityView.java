@@ -1,24 +1,5 @@
 package org.briarproject.android.invitation;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
-import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
-import static android.view.Gravity.CENTER;
-import static org.briarproject.android.identity.LocalAuthorItem.NEW;
-import static org.briarproject.android.invitation.AddContactActivity.REQUEST_BLUETOOTH;
-import static org.briarproject.android.invitation.AddContactActivity.REQUEST_CREATE_IDENTITY;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
-
-import java.util.Collection;
-
-import org.briarproject.R;
-import org.briarproject.android.identity.CreateIdentityActivity;
-import org.briarproject.android.identity.LocalAuthorItem;
-import org.briarproject.android.identity.LocalAuthorItemComparator;
-import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
-import org.briarproject.api.AuthorId;
-import org.briarproject.api.LocalAuthor;
-
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -27,9 +8,24 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import org.briarproject.R;
+import org.briarproject.android.identity.CreateIdentityActivity;
+import org.briarproject.android.identity.LocalAuthorItem;
+import org.briarproject.android.identity.LocalAuthorItemComparator;
+import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
+
+import java.util.Collection;
+
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
+import static org.briarproject.android.identity.LocalAuthorItem.NEW;
+import static org.briarproject.android.invitation.AddContactActivity.REQUEST_BLUETOOTH;
+import static org.briarproject.android.invitation.AddContactActivity.REQUEST_CREATE_IDENTITY;
 
 class ChooseIdentityView extends AddContactView
 implements OnItemSelectedListener, OnClickListener {

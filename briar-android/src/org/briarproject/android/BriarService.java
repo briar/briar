@@ -10,9 +10,9 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 import org.briarproject.R;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;

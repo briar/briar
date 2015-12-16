@@ -3,14 +3,14 @@ package org.briarproject;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;

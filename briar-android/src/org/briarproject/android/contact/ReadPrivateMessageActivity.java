@@ -17,10 +17,10 @@ import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.AuthorId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
@@ -38,7 +38,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
-import static org.briarproject.api.Author.Status.VERIFIED;
+import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
 public class ReadPrivateMessageActivity extends BriarActivity
 implements OnClickListener {

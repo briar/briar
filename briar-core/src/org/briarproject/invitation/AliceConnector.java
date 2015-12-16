@@ -1,8 +1,5 @@
 package org.briarproject.invitation;
 
-import org.briarproject.api.Author;
-import org.briarproject.api.AuthorFactory;
-import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -14,6 +11,9 @@ import org.briarproject.api.data.Writer;
 import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;

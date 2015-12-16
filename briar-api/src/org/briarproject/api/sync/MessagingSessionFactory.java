@@ -1,7 +1,7 @@
 package org.briarproject.api.sync;
 
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -1,11 +1,11 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.Author;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.Signature;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageVerifier;

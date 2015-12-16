@@ -1,8 +1,8 @@
 package org.briarproject.api.event;
 
-import java.util.Collection;
+import org.briarproject.api.contact.ContactId;
 
-import org.briarproject.api.ContactId;
+import java.util.Collection;
 
 /**
  * An event that is broadcast when the set of subscriptions visible to one or

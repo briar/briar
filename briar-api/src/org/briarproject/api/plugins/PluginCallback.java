@@ -1,10 +1,10 @@
 package org.briarproject.api.plugins;
 
-import java.util.Map;
-
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
+
+import java.util.Map;
 
 /**
  * An interface through which a transport plugin interacts with the rest of

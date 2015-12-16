@@ -1,7 +1,15 @@
 package org.briarproject.plugins.modem;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
+import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,16 +19,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import org.briarproject.api.ContactId;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.util.StringUtils;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
@@ -195,7 +195,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		private class Reader implements TransportConnectionReader {
 
 			public long getMaxLatency() {
-				return maxLatency;
+				return ModemPlugin.this.getMaxLatency();
 			}
 
 			public InputStream getInputStream() throws IOException {
@@ -211,11 +211,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		private class Writer implements TransportConnectionWriter {
 
 			public int getMaxLatency() {
-				return getMaxLatency();
+				return ModemPlugin.this.getMaxLatency();
 			}
 
 			public int getMaxIdleTime() {
-				return getMaxIdleTime();
+				return ModemPlugin.this.getMaxIdleTime();
 			}
 
 			public long getCapacity() {

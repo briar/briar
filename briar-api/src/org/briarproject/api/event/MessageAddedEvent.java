@@ -1,6 +1,6 @@
 package org.briarproject.api.event;
 
-import org.briarproject.api.ContactId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.sync.Group;
 
 /** An event that is broadcast when a message is added to the database. */

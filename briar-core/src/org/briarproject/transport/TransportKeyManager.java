@@ -1,8 +1,8 @@
 package org.briarproject.transport;
 
 import org.briarproject.api.Bytes;
-import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;

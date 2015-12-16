@@ -1,4 +1,6 @@
-package org.briarproject.api;
+package org.briarproject.api.identity;
+
+import org.briarproject.api.UniqueId;
 
 import java.util.Arrays;
 
