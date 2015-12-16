@@ -1,19 +1,14 @@
-package org.briarproject.android.groups;
+package org.briarproject.android.forum;
 
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -26,24 +21,28 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.GroupId;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.logging.Logger;
 
-public class ShareGroupActivity extends BriarActivity
+import javax.inject.Inject;
+
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+
+public class ShareForumActivity extends BriarActivity
 implements OnClickListener, NoContactsDialog.Listener,
 SelectContactsDialog.Listener {
 
 	private static final Logger LOG =
-			Logger.getLogger(ShareGroupActivity.class.getName());
+			Logger.getLogger(ShareForumActivity.class.getName());
 
-	private String groupName = null;
 	private RadioGroup radioGroup = null;
 	private RadioButton shareWithAll = null, shareWithSome = null;
 	private Button shareButton = null;
@@ -64,9 +63,9 @@ SelectContactsDialog.Listener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		groupName = i.getStringExtra("briar.GROUP_NAME");
-		if (groupName == null) throw new IllegalStateException();
-		setTitle(groupName);
+		String forumName = i.getStringExtra("briar.FORUM_NAME");
+		if (forumName == null) throw new IllegalStateException();
+		setTitle(forumName);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -156,14 +155,14 @@ SelectContactsDialog.Listener {
 			public void run() {
 				if (contacts.isEmpty()) {
 					NoContactsDialog builder = new NoContactsDialog();
-					builder.setListener(ShareGroupActivity.this);
-					builder.build(ShareGroupActivity.this).show();
+					builder.setListener(ShareForumActivity.this);
+					builder.build(ShareForumActivity.this).show();
 				} else {
 					SelectContactsDialog builder = new SelectContactsDialog();
-					builder.setListener(ShareGroupActivity.this);
+					builder.setListener(ShareForumActivity.this);
 					builder.setContacts(contacts);
 					builder.setSelected(selected);
-					builder.build(ShareGroupActivity.this).show();
+					builder.build(ShareForumActivity.this).show();
 				}
 			}
 		});

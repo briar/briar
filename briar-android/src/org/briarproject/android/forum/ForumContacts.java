@@ -1,16 +1,16 @@
-package org.briarproject.android.groups;
-
-import java.util.Collection;
+package org.briarproject.android.forum;
 
 import org.briarproject.api.Contact;
 import org.briarproject.api.messaging.Group;
 
-class GroupContacts {
+import java.util.Collection;
+
+class ForumContacts {
 
 	private final Group group;
 	private final Collection<Contact> contacts;
 
-	GroupContacts(Group group, Collection<Contact> contacts) {
+	ForumContacts(Group group, Collection<Contact> contacts) {
 		this.group = group;
 		this.contacts = contacts;
 	}

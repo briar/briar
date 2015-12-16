@@ -1,15 +1,9 @@
 package org.briarproject.android;
 
-import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
-import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
-
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.IBinder;
 
 import org.briarproject.android.BriarService.BriarBinder;
 import org.briarproject.android.BriarService.BriarServiceConnection;
@@ -17,12 +11,13 @@ import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
-import roboguice.activity.RoboActivity;
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.view.inputmethod.InputMethodManager;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
 @SuppressLint("Registered")
 public class BriarActivity extends BaseActivity {
@@ -135,10 +130,5 @@ public class BriarActivity extends BaseActivity {
 				finish();
 			}
 		});
-	}
-
-	protected void hideSoftKeyboard() {
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
 	}
 }

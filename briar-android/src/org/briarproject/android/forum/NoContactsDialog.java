@@ -1,11 +1,11 @@
-package org.briarproject.android.groups;
-
-import org.briarproject.R;
+package org.briarproject.android.forum;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+
+import org.briarproject.R;
 
 public class NoContactsDialog {
 

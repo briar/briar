@@ -1,15 +1,4 @@
-package org.briarproject.android.groups;
-
-import static android.text.TextUtils.TruncateAt.END;
-import static android.widget.LinearLayout.VERTICAL;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.Contact;
-import org.briarproject.util.StringUtils;
+package org.briarproject.android.forum;
 
 import android.content.Context;
 import android.view.View;
@@ -18,19 +7,30 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class AvailableGroupsAdapter extends ArrayAdapter<AvailableGroupsItem> {
+import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.Contact;
+import org.briarproject.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static android.text.TextUtils.TruncateAt.END;
+import static android.widget.LinearLayout.VERTICAL;
+
+class AvailableForumsAdapter extends ArrayAdapter<AvailableForumsItem> {
 
 	private final int pad;
 
-	AvailableGroupsAdapter(Context ctx) {
+	AvailableForumsAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<AvailableGroupsItem>());
+				new ArrayList<AvailableForumsItem>());
 		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		AvailableGroupsItem item = getItem(position);
+		AvailableForumsItem item = getItem(position);
 		Context ctx = getContext();
 
 		LinearLayout layout = new LinearLayout(ctx);

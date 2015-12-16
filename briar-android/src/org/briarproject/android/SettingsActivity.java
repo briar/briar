@@ -1,5 +1,40 @@
 package org.briarproject.android;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import org.briarproject.R;
+import org.briarproject.android.util.FixedVerticalSpace;
+import org.briarproject.android.util.HorizontalBorder;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.android.util.ListLoadingProgressBar;
+import org.briarproject.api.Settings;
+import org.briarproject.api.TransportConfig;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.SettingsUpdatedEvent;
+import org.briarproject.util.StringUtils;
+
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import static android.graphics.Typeface.DEFAULT_BOLD;
 import static android.media.RingtoneManager.ACTION_RINGTONE_PICKER;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI;
@@ -20,41 +55,6 @@ import static org.briarproject.android.TestingConstants.SHOW_TESTING_ACTIVITY;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.briarproject.R;
-import org.briarproject.android.util.FixedVerticalSpace;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.Settings;
-import org.briarproject.api.TransportConfig;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.util.StringUtils;
-
-import android.bluetooth.BluetoothAdapter;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.CheckBox;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
-
 public class SettingsActivity extends BriarActivity implements EventListener,
 OnClickListener {
 
@@ -65,7 +65,7 @@ OnClickListener {
 
 	private ScrollView scroll = null;
 	private TextView enableBluetooth = null, enableBluetoothHint = null;
-	private CheckBox notifyPrivateMessages = null, notifyGroupPosts = null;
+	private CheckBox notifyPrivateMessages = null, notifyForumPosts = null;
 	private CheckBox notifyVibration = null;
 	private CheckBox torOverWifi = null;
 	private TextView notifySound = null, notifySoundHint = null;
@@ -158,11 +158,11 @@ OnClickListener {
 		settings.addView(new HorizontalBorder(this));
 		settings.addView(new FixedVerticalSpace(this));
 
-		notifyGroupPosts = new CheckBox(this);
-		notifyGroupPosts.setTextSize(18);
-		notifyGroupPosts.setText(R.string.notify_group_posts_setting);
-		notifyGroupPosts.setOnClickListener(this);
-		settings.addView(notifyGroupPosts);
+		notifyForumPosts = new CheckBox(this);
+		notifyForumPosts.setTextSize(18);
+		notifyForumPosts.setText(R.string.notify_forum_posts_setting);
+		notifyForumPosts.setOnClickListener(this);
+		settings.addView(notifyForumPosts);
 
 		settings.addView(new FixedVerticalSpace(this));
 		settings.addView(new HorizontalBorder(this));
@@ -259,8 +259,8 @@ OnClickListener {
 				notifyPrivateMessages.setChecked(settings.getBoolean(
 						"notifyPrivateMessages", true));
 
-				notifyGroupPosts.setChecked(settings.getBoolean(
-						"notifyGroupPosts", true));
+				notifyForumPosts.setChecked(settings.getBoolean(
+						"notifyForumPosts", true));
 
 				notifyVibration.setChecked(settings.getBoolean(
 						"notifyVibration", true));
@@ -305,9 +305,9 @@ OnClickListener {
 			s.putBoolean("notifyPrivateMessages",
 					notifyPrivateMessages.isChecked());
 			storeSettings(s);
-		} else if (view == notifyGroupPosts) {
+		} else if (view == notifyForumPosts) {
 			Settings s = new Settings();
-			s.putBoolean("notifyGroupPosts", notifyGroupPosts.isChecked());
+			s.putBoolean("notifyForumPosts", notifyForumPosts.isChecked());
 			storeSettings(s);
 		} else if (view == notifyVibration) {
 			Settings s = new Settings();

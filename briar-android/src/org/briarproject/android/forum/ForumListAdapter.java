@@ -1,13 +1,4 @@
-package org.briarproject.android.groups;
-
-import static android.text.TextUtils.TruncateAt.END;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
-
-import java.util.ArrayList;
-
-import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
+package org.briarproject.android.forum;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -18,19 +9,28 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class GroupListAdapter extends ArrayAdapter<GroupListItem> {
+import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+
+import java.util.ArrayList;
+
+import static android.text.TextUtils.TruncateAt.END;
+import static android.widget.LinearLayout.HORIZONTAL;
+import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+
+class ForumListAdapter extends ArrayAdapter<ForumListItem> {
 
 	private final int pad;
 
-	GroupListAdapter(Context ctx) {
+	ForumListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<GroupListItem>());
+				new ArrayList<ForumListItem>());
 		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		GroupListItem item = getItem(position);
+		ForumListItem item = getItem(position);
 		Context ctx = getContext();
 		Resources res = ctx.getResources();
 
@@ -46,9 +46,9 @@ class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 		name.setSingleLine();
 		name.setEllipsize(END);
 		name.setPadding(pad, pad, pad, pad);
-		String groupName = item.getGroup().getName();
-		if (unread > 0) name.setText(groupName + " (" + unread + ")");
-		else name.setText(groupName);
+		String forumName = item.getGroup().getName();
+		if (unread > 0) name.setText(forumName + " (" + unread + ")");
+		else name.setText(forumName);
 		layout.addView(name);
 
 		if (item.isEmpty()) {

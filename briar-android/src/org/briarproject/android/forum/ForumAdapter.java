@@ -1,19 +1,4 @@
-package org.briarproject.android.groups;
-
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
-
-import java.util.ArrayList;
-
-import org.briarproject.R;
-import org.briarproject.android.util.AuthorView;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.Author;
-import org.briarproject.api.db.MessageHeader;
-import org.briarproject.util.StringUtils;
+package org.briarproject.android.forum;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -25,19 +10,34 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class GroupAdapter extends ArrayAdapter<GroupItem> {
+import org.briarproject.R;
+import org.briarproject.android.util.AuthorView;
+import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.Author;
+import org.briarproject.api.db.MessageHeader;
+import org.briarproject.util.StringUtils;
+
+import java.util.ArrayList;
+
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.Gravity.CENTER_VERTICAL;
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
+import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+
+class ForumAdapter extends ArrayAdapter<ForumItem> {
 
 	private final int pad;
 
-	GroupAdapter(Context ctx) {
+	ForumAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<GroupItem>());
+				new ArrayList<ForumItem>());
 		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		GroupItem item = getItem(position);
+		ForumItem item = getItem(position);
 		MessageHeader header = item.getHeader();
 		Context ctx = getContext();
 		Resources res = ctx.getResources();

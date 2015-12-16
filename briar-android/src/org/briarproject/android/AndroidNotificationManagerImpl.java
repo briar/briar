@@ -1,27 +1,18 @@
 package org.briarproject.android;
 
-import static android.app.Notification.DEFAULT_LIGHTS;
-import static android.app.Notification.DEFAULT_SOUND;
-import static android.app.Notification.DEFAULT_VIBRATE;
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static java.util.logging.Level.WARNING;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import android.app.Application;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.ContactListActivity;
 import org.briarproject.android.contact.ConversationActivity;
-import org.briarproject.android.groups.GroupActivity;
-import org.briarproject.android.groups.GroupListActivity;
+import org.briarproject.android.forum.ForumActivity;
+import org.briarproject.android.forum.ForumListActivity;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.Settings;
 import org.briarproject.api.android.AndroidNotificationManager;
@@ -35,23 +26,32 @@ import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.util.StringUtils;
 
-import android.app.Application;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.app.Notification.DEFAULT_LIGHTS;
+import static android.app.Notification.DEFAULT_SOUND;
+import static android.app.Notification.DEFAULT_VIBRATE;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static java.util.logging.Level.WARNING;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 EventListener {
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
-	private static final int GROUP_POST_NOTIFICATION_ID = 4;
+	private static final int FORUM_POST_NOTIFICATION_ID = 4;
 	private static final String CONTACT_URI =
 			"content://org.briarproject/contact";
-	private static final String GROUP_URI =
-			"content://org.briarproject/group";
+	private static final String FORUM_URI =
+			"content://org.briarproject/forum";
 
 	private static final Logger LOG =
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
@@ -65,9 +65,9 @@ EventListener {
 	// The following are locking: lock
 	private final Map<ContactId, Integer> contactCounts =
 			new HashMap<ContactId, Integer>();
-	private final Map<GroupId, Integer> groupCounts =
+	private final Map<GroupId, Integer> forumCounts =
 			new HashMap<GroupId, Integer>();
-	private int privateTotal = 0, groupTotal = 0;
+	private int contactTotal = 0, forumTotal = 0;
 	private int nextRequestId = 0;
 
 	private volatile Settings settings = new Settings();
@@ -116,7 +116,7 @@ EventListener {
 			Integer count = contactCounts.get(c);
 			if (count == null) contactCounts.put(c, 1);
 			else contactCounts.put(c, count + 1);
-			privateTotal++;
+			contactTotal++;
 			updatePrivateMessageNotification();
 		} finally {
 			lock.unlock();
@@ -128,7 +128,7 @@ EventListener {
 		try {
 			Integer count = contactCounts.remove(c);
 			if (count == null) return; // Already cleared
-			privateTotal -= count;
+			contactTotal -= count;
 			updatePrivateMessageNotification();
 		} finally {
 			lock.unlock();
@@ -137,18 +137,16 @@ EventListener {
 
 	// Locking: lock
 	private void updatePrivateMessageNotification() {
-		if (privateTotal == 0) {
+		if (contactTotal == 0) {
 			clearPrivateMessageNotification();
-		} else if (!settings.getBoolean("notifyPrivateMessages", true)) {
-			return;
-		} else {
+		} else if (settings.getBoolean("notifyPrivateMessages", true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.message_notification_icon);
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
-					R.plurals.private_message_notification_text, privateTotal,
-					privateTotal));
+					R.plurals.private_message_notification_text, contactTotal,
+					contactTotal));
 			boolean sound = settings.getBoolean("notifySound", true);
 			String ringtoneUri = settings.get("notifyRingtoneUri");
 			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri))
@@ -198,91 +196,89 @@ EventListener {
 		return defaults;
 	}
 
-	public void showGroupPostNotification(GroupId g) {
+	public void showForumPostNotification(GroupId g) {
 		lock.lock();
 		try {
-			Integer count = groupCounts.get(g);
-			if (count == null) groupCounts.put(g, 1);
-			else groupCounts.put(g, count + 1);
-			groupTotal++;
-			updateGroupPostNotification();
+			Integer count = forumCounts.get(g);
+			if (count == null) forumCounts.put(g, 1);
+			else forumCounts.put(g, count + 1);
+			forumTotal++;
+			updateForumPostNotification();
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	public void clearGroupPostNotification(GroupId g) {
+	public void clearForumPostNotification(GroupId g) {
 		lock.lock();
 		try {
-			Integer count = groupCounts.remove(g);
+			Integer count = forumCounts.remove(g);
 			if (count == null) return; // Already cleared
-			groupTotal -= count;
-			updateGroupPostNotification();
+			forumTotal -= count;
+			updateForumPostNotification();
 		} finally {
 			lock.unlock();
 		}
 	}
 
 	// Locking: lock
-	private void updateGroupPostNotification() {
-		if (groupTotal == 0) {
-			clearGroupPostNotification();
-		} else if (!settings.getBoolean("notifyGroupPosts", true)) {
-			return;
-		} else {
+	private void updateForumPostNotification() {
+		if (forumTotal == 0) {
+			clearForumPostNotification();
+		} else if (settings.getBoolean("notifyForumPosts", true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.message_notification_icon);
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
-					R.plurals.forum_post_notification_text, groupTotal,
-					groupTotal));
+					R.plurals.forum_post_notification_text, forumTotal,
+					forumTotal));
 			String ringtoneUri = settings.get("notifyRingtoneUri");
 			if (!StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
-			if (groupCounts.size() == 1) {
-				Intent i = new Intent(appContext, GroupActivity.class);
-				GroupId g = groupCounts.keySet().iterator().next();
+			if (forumCounts.size() == 1) {
+				Intent i = new Intent(appContext, ForumActivity.class);
+				GroupId g = forumCounts.keySet().iterator().next();
 				i.putExtra("briar.GROUP_ID", g.getBytes());
 				String idHex = StringUtils.toHexString(g.getBytes());
-				i.setData(Uri.parse(GROUP_URI + "/" + idHex));
+				i.setData(Uri.parse(FORUM_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
-				t.addParentStack(GroupActivity.class);
+				t.addParentStack(ForumActivity.class);
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			} else {
-				Intent i = new Intent(appContext, GroupListActivity.class);
+				Intent i = new Intent(appContext, ForumListActivity.class);
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
-				t.addParentStack(GroupListActivity.class);
+				t.addParentStack(ForumListActivity.class);
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
-			nm.notify(GROUP_POST_NOTIFICATION_ID, b.build());
+			nm.notify(FORUM_POST_NOTIFICATION_ID, b.build());
 		}
 	}
 
 	// Locking: lock
-	private void clearGroupPostNotification() {
+	private void clearForumPostNotification() {
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(GROUP_POST_NOTIFICATION_ID);
+		nm.cancel(FORUM_POST_NOTIFICATION_ID);
 	}
 
 	public void clearNotifications() {
 		lock.lock();
 		try {
 			contactCounts.clear();
-			groupCounts.clear();
-			privateTotal = groupTotal = 0;
+			forumCounts.clear();
+			contactTotal = forumTotal = 0;
 			clearPrivateMessageNotification();
-			clearGroupPostNotification();
+			clearForumPostNotification();
 		} finally {
 			lock.unlock();
 		}
