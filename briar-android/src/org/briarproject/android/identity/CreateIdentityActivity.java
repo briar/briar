@@ -19,9 +19,9 @@ import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.util.StringUtils;
 
@@ -59,7 +59,7 @@ implements OnEditorActionListener, OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile AuthorFactory authorFactory;
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile IdentityManager identityManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -158,7 +158,7 @@ implements OnEditorActionListener, OnClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					db.addLocalAuthor(a);
+					identityManager.addLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing author took " + duration + " ms");
