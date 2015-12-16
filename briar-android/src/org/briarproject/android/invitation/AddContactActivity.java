@@ -14,6 +14,7 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
@@ -58,6 +59,7 @@ implements InvitationListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile IdentityManager identityManager;
 	private volatile boolean leaveBluetoothEnabled = true;
 
 	@Override
@@ -239,7 +241,8 @@ implements InvitationListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<LocalAuthor> authors = db.getLocalAuthors();
+					Collection<LocalAuthor> authors =
+							identityManager.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading authors took " + duration + " ms");
