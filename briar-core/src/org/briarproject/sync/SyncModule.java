@@ -19,7 +19,7 @@ import org.briarproject.api.sync.UnverifiedMessage;
 
 import javax.inject.Singleton;
 
-public class MessagingModule extends AbstractModule {
+public class SyncModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

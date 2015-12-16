@@ -65,7 +65,7 @@ public class ConstantsTest extends BriarTestCase {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new EventModule(),
-				new org.briarproject.sync.MessagingModule(), new DataModule());
+				new SyncModule(), new DataModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);

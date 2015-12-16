@@ -87,7 +87,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		return Guice.createInjector(new TestDatabaseModule(dir),
 				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new EventModule(),
-				new org.briarproject.sync.MessagingModule(), new DataModule(),
+				new SyncModule(), new DataModule(),
 				new TransportModule());
 	}
 

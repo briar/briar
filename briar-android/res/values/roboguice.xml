@@ -2,14 +2,18 @@
 <resources>
 	<string-array name="roboguice_modules">
 		<item>org.briarproject.android.AndroidModule</item>
+		<item>org.briarproject.contact.ContactModule</item>
 		<item>org.briarproject.crypto.CryptoModule</item>
 		<item>org.briarproject.data.DataModule</item>
 		<item>org.briarproject.db.DatabaseModule</item>
 		<item>org.briarproject.event.EventModule</item>
+		<item>org.briarproject.forum.ForumModule</item>
+		<item>org.briarproject.identity.IdentityModule</item>
 		<item>org.briarproject.invitation.InvitationModule</item>
 		<item>org.briarproject.lifecycle.LifecycleModule</item>
-		<item>org.briarproject.sync.MessagingModule</item>
+		<item>org.briarproject.messaging.MessagingModule</item>
 		<item>org.briarproject.plugins.AndroidPluginsModule</item>
+		<item>org.briarproject.sync.SyncModule</item>
 		<item>org.briarproject.system.AndroidSystemModule</item>
 		<item>org.briarproject.transport.TransportModule</item>
 	</string-array>
