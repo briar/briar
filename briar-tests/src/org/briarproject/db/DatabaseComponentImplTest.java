@@ -64,7 +64,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-public class DatabaseComponentTest extends BriarTestCase {
+public class DatabaseComponentImplTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
 	protected final GroupId groupId;
@@ -85,7 +85,7 @@ public class DatabaseComponentTest extends BriarTestCase {
 	protected final ContactId contactId;
 	protected final Contact contact;
 
-	public DatabaseComponentTest() {
+	public DatabaseComponentImplTest() {
 		groupId = new GroupId(TestUtils.getRandomId());
 		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH]);
 		authorId = new AuthorId(TestUtils.getRandomId());
