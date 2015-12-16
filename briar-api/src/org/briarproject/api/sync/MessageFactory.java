@@ -8,11 +8,11 @@ import java.security.GeneralSecurityException;
 
 public interface MessageFactory {
 
-	Message createAnonymousMessage(MessageId parent, org.briarproject.api.sync.Group group,
+	Message createAnonymousMessage(MessageId parent, Group group,
 			String contentType, long timestamp, byte[] body) throws IOException,
 			GeneralSecurityException;
 
-	Message createPseudonymousMessage(MessageId parent, org.briarproject.api.sync.Group group,
+	Message createPseudonymousMessage(MessageId parent, Group group,
 			Author author, PrivateKey privateKey, String contentType,
 			long timestamp, byte[] body) throws IOException,
 			GeneralSecurityException;

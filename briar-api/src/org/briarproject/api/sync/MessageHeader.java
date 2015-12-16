@@ -83,7 +83,8 @@ public class MessageHeader {
 	}
 
 	/**
-	 * Returns message status. (This only applies to locally generated private messages.)
+	 * Returns message status. (This only applies to locally generated private
+	 * messages.)
 	 */
 	public State getStatus() {
 		return status;

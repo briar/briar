@@ -6,14 +6,14 @@ import org.briarproject.api.Author;
 public class UnverifiedMessage {
 
 	private final MessageId parent;
-	private final org.briarproject.api.sync.Group group;
+	private final Group group;
 	private final Author author;
 	private final String contentType;
 	private final long timestamp;
 	private final byte[] raw, signature;
 	private final int bodyStart, bodyLength, signedLength;
 
-	public UnverifiedMessage(MessageId parent, org.briarproject.api.sync.Group group, Author author,
+	public UnverifiedMessage(MessageId parent, Group group, Author author,
 			String contentType, long timestamp, byte[] raw, byte[] signature,
 			int bodyStart, int bodyLength, int signedLength) {
 		this.parent = parent;
@@ -37,10 +37,10 @@ public class UnverifiedMessage {
 	}
 
 	/**
-	 * Returns the {@link org.briarproject.api.sync.Group} to which the message belongs, or null if this
+	 * Returns the {@link Group} to which the message belongs, or null if this
 	 * is a private message.
 	 */
-	public org.briarproject.api.sync.Group getGroup() {
+	public Group getGroup() {
 		return group;
 	}
 
