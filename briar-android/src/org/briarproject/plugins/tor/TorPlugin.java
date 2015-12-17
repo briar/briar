@@ -391,6 +391,8 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 			if (ss != null) ss.close();
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			callback.transportDisabled();
 		}
 	}
 
@@ -459,7 +461,10 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private void enableNetwork(boolean enable) throws IOException {
 		if (!running) return;
 		if (LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
-		if (!enable) circuitBuilt.set(false);
+		if (!enable) {
+			circuitBuilt.set(false);
+			callback.transportDisabled();
+		}
 		networkEnabled = enable;
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 	}
@@ -549,7 +554,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	public void circuitStatus(String status, String id, String path) {
 		if (status.equals("BUILT") && !circuitBuilt.getAndSet(true)) {
 			LOG.info("First circuit built");
-			if (isRunning()) callback.pollNow();
+			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
@@ -567,7 +572,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			bootstrapped = true;
-			if (isRunning()) callback.pollNow();
+			if (isRunning()) callback.transportEnabled();
 		}
 	}
 

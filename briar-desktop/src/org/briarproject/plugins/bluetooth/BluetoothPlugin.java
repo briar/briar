@@ -117,7 +117,7 @@ class BluetoothPlugin implements DuplexPlugin {
 					return;
 				}
 				socket = ss;
-				callback.pollNow();
+				callback.transportEnabled();
 				acceptContactConnections(ss);
 			}
 		});
@@ -145,6 +145,8 @@ class BluetoothPlugin implements DuplexPlugin {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			callback.transportDisabled();
 		}
 	}
 

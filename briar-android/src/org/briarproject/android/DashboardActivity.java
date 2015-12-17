@@ -1,26 +1,38 @@
 package org.briarproject.android;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.ContactListActivity;
 import org.briarproject.android.forum.ForumListActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.TransportDisabledEvent;
+import org.briarproject.api.event.TransportEnabledEvent;
+import org.briarproject.api.plugins.Plugin;
+import org.briarproject.api.plugins.PluginManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,19 +42,25 @@ import javax.inject.Inject;
 
 import static android.view.Gravity.CENTER;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
-public class DashboardActivity extends BriarActivity {
+public class DashboardActivity extends BriarActivity implements EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(DashboardActivity.class.getName());
 
+	private List<Transport> transports;
+	private BaseAdapter transportsAdapter;
+
 	@Inject private ReferenceManager referenceManager;
+	@Inject private PluginManager pluginManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -51,9 +69,40 @@ public class DashboardActivity extends BriarActivity {
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+
+		eventBus.addListener(this);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		eventBus.removeListener(this);
+	}
+
+	@Override
 	public void onNewIntent(Intent i) {
 		super.onNewIntent(i);
 		handleIntent(i);
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof TransportEnabledEvent) {
+			TransportId id = ((TransportEnabledEvent) e).getTransportId();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("TransportEnabledEvent: " + id.getString());
+			}
+			setTransport(id, true);
+		} else if (e instanceof TransportDisabledEvent) {
+			TransportId id = ((TransportDisabledEvent) e).getTransportId();
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("TransportDisabledEvent: " + id.getString());
+			}
+			setTransport(id, false);
+		}
 	}
 
 	private void handleIntent(Intent i) {
@@ -144,8 +193,14 @@ public class DashboardActivity extends BriarActivity {
 
 		int pad = LayoutUtils.getPadding(this);
 
+		LinearLayout layout = new LinearLayout(this);
+		layout.setLayoutParams(MATCH_MATCH);
+		layout.setOrientation(LinearLayout.VERTICAL);
+
 		GridView grid = new GridView(this);
-		grid.setLayoutParams(matchMatch);
+		LinearLayout.LayoutParams params =
+				new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f);
+		grid.setLayoutParams(params);
 		grid.setGravity(CENTER);
 		grid.setPadding(pad, pad, pad, pad);
 		Resources res = getResources();
@@ -170,7 +225,21 @@ public class DashboardActivity extends BriarActivity {
 				return buttons.get(position);
 			}
 		});
-		setContentView(grid);
+		layout.addView(grid);
+
+		// inflate transports layout
+		LayoutInflater inflater = (LayoutInflater) getSystemService
+				(Context.LAYOUT_INFLATER_SERVICE);
+		ViewGroup transportsLayout = (ViewGroup) inflater.
+				inflate(R.layout.transports_list, layout);
+
+		initializeTransports();
+
+		GridView transportsView = (GridView) transportsLayout.findViewById(
+				R.id.transportsView);
+		transportsView.setAdapter(transportsAdapter);
+
+		setContentView(layout);
 	}
 
 	private void showSpinner() {
@@ -205,5 +274,106 @@ public class DashboardActivity extends BriarActivity {
 				}
 			}
 		});
+	}
+
+	private void initializeTransports() {
+		transports = new ArrayList<Transport>(3);
+
+		Transport tor = new Transport();
+		tor.id = new TransportId("tor");
+		Plugin torPlugin = pluginManager.getPlugin(tor.id);
+		if (torPlugin == null) tor.enabled = false;
+		else tor.enabled = torPlugin.isRunning();
+		tor.iconId = R.drawable.transport_tor;
+		tor.textId = R.string.transport_tor;
+		transports.add(tor);
+
+		Transport bt = new Transport();
+		bt.id = new TransportId("bt");
+		Plugin btPlugin = pluginManager.getPlugin(bt.id);
+		if (btPlugin == null) bt.enabled = false;
+		else bt.enabled = btPlugin.isRunning();
+		bt.iconId = R.drawable.transport_bt;
+		bt.textId = R.string.transport_bt;
+		transports.add(bt);
+
+		Transport lan = new Transport();
+		lan.id = new TransportId("lan");
+		Plugin lanPlugin = pluginManager.getPlugin(lan.id);
+		if (lanPlugin == null) lan.enabled = false;
+		else lan.enabled = lanPlugin.isRunning();
+		lan.iconId = R.drawable.transport_lan;
+		lan.textId = R.string.transport_lan;
+		transports.add(lan);
+
+		transportsAdapter = new BaseAdapter() {
+			@Override
+			public int getCount() {
+				return transports.size();
+			}
+
+			@Override
+			public Transport getItem(int position) {
+				return transports.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				return 0;
+			}
+
+			@Override
+			public View getView(int position, View convertView,
+					ViewGroup parent) {
+				LayoutInflater inflater = (LayoutInflater) getSystemService(
+						Context.LAYOUT_INFLATER_SERVICE);
+				ViewGroup view = (ViewGroup) inflater
+						.inflate(R.layout.list_item_transport, parent, false);
+
+				Transport t = getItem(position);
+				Resources r = getResources();
+
+				int c;
+				if (t.enabled) {
+					c = r.getColor(R.color.briar_green_light);
+				} else {
+					c = r.getColor(android.R.color.tertiary_text_light);
+				}
+
+				ImageView icon = (ImageView) view.findViewById(R.id.imageView);
+				icon.setImageDrawable(r.getDrawable(t.iconId));
+				icon.setColorFilter(c);
+
+				TextView text = (TextView) view.findViewById(R.id.textView);
+				text.setText(getString(t.textId));
+				text.setTextColor(c);
+
+				return view;
+			}
+		};
+	}
+
+	private void setTransport(final TransportId id, final boolean enabled) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				if (transports == null || transportsAdapter == null) return;
+
+				for (Transport t : transports) {
+					if (t.id.equals(id)) {
+						t.enabled = enabled;
+						break;
+					}
+				}
+
+				transportsAdapter.notifyDataSetChanged();
+			}
+		});
+	}
+
+	private static class Transport {
+		TransportId id;
+		boolean enabled;
+		int iconId;
+		int textId;
 	}
 }

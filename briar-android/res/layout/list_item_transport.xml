@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:orientation="horizontal"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:padding="@dimen/margin_small"
+	android:gravity="center_horizontal">
+
+	<ImageView
+		android:id="@+id/imageView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/margin_small"
+		tools:src="@drawable/transport_tor"/>
+
+	<TextView
+		android:id="@+id/textView"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:gravity="center_vertical"
+		android:padding="@dimen/margin_small"
+		android:textColor="@android:color/tertiary_text_light"
+		tools:text="@string/transport_tor"/>
+
+</LinearLayout>

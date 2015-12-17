@@ -205,13 +205,15 @@ public class LanTcpPluginTest extends BriarTestCase {
 
 		public void showMessage(String... message) {}
 
-		public void pollNow() {}
-
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			connectionsLatch.countDown();
 		}
 
 		public void outgoingConnectionCreated(ContactId c,
 				DuplexTransportConnection d) {}
+
+		public void transportEnabled() {}
+
+		public void transportDisabled() {}
 	}
 }

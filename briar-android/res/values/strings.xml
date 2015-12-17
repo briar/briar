@@ -116,6 +116,10 @@
     <string name="online">Online</string>
     <string name="offline">Offline</string>
     <string name="send">Send</string>
+    <string name="data_transports">Data Transports</string>
+    <string name="transport_tor">Internet</string>
+    <string name="transport_bt">Bluetooth</string>
+    <string name="transport_lan">Wi-Fi</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_lost_password">Lost password</string>
