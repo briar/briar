@@ -28,9 +28,9 @@ import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
@@ -180,8 +180,8 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<MessageHeader> headers =
-							forumManager.getMessageHeaders(groupId);
+					Collection<ForumPostHeader> headers =
+							forumManager.getPostHeaders(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
@@ -196,7 +196,7 @@ OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayHeaders(final Collection<MessageHeader> headers) {
+	private void displayHeaders(final Collection<ForumPostHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				loading.setVisibility(GONE);
@@ -207,10 +207,10 @@ OnClickListener, OnItemClickListener {
 				} else {
 					empty.setVisibility(GONE);
 					list.setVisibility(VISIBLE);
-					for (MessageHeader h : headers) {
+					for (ForumPostHeader h : headers) {
 						ForumItem item = new ForumItem(h);
 						byte[] body = bodyCache.get(h.getId());
-						if (body == null) loadMessageBody(h);
+						if (body == null) loadPostBody(h);
 						else item.setBody(body);
 						adapter.add(item);
 					}
@@ -223,16 +223,16 @@ OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void loadMessageBody(final MessageHeader h) {
+	private void loadPostBody(final ForumPostHeader h) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					byte[] body = forumManager.getMessageBody(h.getId());
+					byte[] body = forumManager.getPostBody(h.getId());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
-					displayMessage(h.getId(), body);
+					displayPost(h.getId(), body);
 				} catch (NoSuchMessageException e) {
 					// The item will be removed when we get the event
 				} catch (DbException e) {
@@ -243,7 +243,7 @@ OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayMessage(final MessageId m, final byte[] body) {
+	private void displayPost(final MessageId m, final byte[] body) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				bodyCache.put(m, body);
@@ -268,7 +268,7 @@ OnClickListener, OnItemClickListener {
 		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);
 			if (position >= 0 && position < adapter.getCount())
-				displayMessage(position);
+				displayPost(position);
 		}
 	}
 
@@ -276,24 +276,24 @@ OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
-		if (isFinishing()) markMessagesRead();
+		if (isFinishing()) markPostsRead();
 	}
 
-	private void markMessagesRead() {
+	private void markPostsRead() {
 		notificationManager.clearForumPostNotification(groupId);
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
-			MessageHeader h = adapter.getItem(i).getHeader();
+			ForumPostHeader h = adapter.getItem(i).getHeader();
 			if (!h.isRead()) unread.add(h.getId());
 		}
 		if (unread.isEmpty()) return;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Marking " + unread.size() + " messages read");
-		markMessagesRead(Collections.unmodifiableList(unread));
+			LOG.info("Marking " + unread.size() + " posts read");
+		markPostsRead(Collections.unmodifiableList(unread));
 	}
 
-	private void markMessagesRead(final Collection<MessageId> unread) {
+	private void markPostsRead(final Collection<MessageId> unread) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -331,7 +331,7 @@ OnClickListener, OnItemClickListener {
 			Intent i = new Intent(this, WriteForumPostActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("briar.FORUM_NAME", forum.getName());
-			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
+			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewPost());
 			startActivity(i);
 		} else if (view == shareButton) {
 			Intent i = new Intent(this, ShareForumActivity.class);
@@ -341,8 +341,8 @@ OnClickListener, OnItemClickListener {
 		}
 	}
 
-	private long getMinTimestampForNewMessage() {
-		// Don't use an earlier timestamp than the newest message
+	private long getMinTimestampForNewPost() {
+		// Don't use an earlier timestamp than the newest post
 		long timestamp = 0;
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
@@ -354,21 +354,21 @@ OnClickListener, OnItemClickListener {
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		displayMessage(position);
+		displayPost(position);
 	}
 
-	private void displayMessage(int position) {
-		MessageHeader item = adapter.getItem(position).getHeader();
+	private void displayPost(int position) {
+		ForumPostHeader header = adapter.getItem(position).getHeader();
 		Intent i = new Intent(this, ReadForumPostActivity.class);
 		i.putExtra("briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("briar.FORUM_NAME", forum.getName());
-		i.putExtra("briar.MESSAGE_ID", item.getId().getBytes());
-		Author author = item.getAuthor();
+		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
+		Author author = header.getAuthor();
 		if (author != null) i.putExtra("briar.AUTHOR_NAME", author.getName());
-		i.putExtra("briar.AUTHOR_STATUS", item.getAuthorStatus().name());
-		i.putExtra("briar.CONTENT_TYPE", item.getContentType());
-		i.putExtra("briar.TIMESTAMP", item.getTimestamp());
-		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
+		i.putExtra("briar.AUTHOR_STATUS", header.getAuthorStatus().name());
+		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
+		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
+		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewPost());
 		i.putExtra("briar.POSITION", position);
 		startActivityForResult(i, REQUEST_READ);
 	}

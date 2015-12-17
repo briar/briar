@@ -8,6 +8,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -35,7 +36,7 @@ class ForumManagerImpl implements ForumManager {
 	}
 
 	@Override
-	public void addLocalMessage(Message m) throws DbException {
+	public void addLocalPost(Message m) throws DbException {
 		db.addLocalMessage(m);
 	}
 
@@ -61,14 +62,19 @@ class ForumManagerImpl implements ForumManager {
 	}
 
 	@Override
-	public byte[] getMessageBody(MessageId m) throws DbException {
+	public byte[] getPostBody(MessageId m) throws DbException {
 		return db.getMessageBody(m);
 	}
 
 	@Override
-	public Collection<MessageHeader> getMessageHeaders(GroupId g)
+	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
-		return db.getMessageHeaders(g);
+		Collection<MessageHeader> headers = db.getMessageHeaders(g);
+		List<ForumPostHeader> postHeaders =
+				new ArrayList<ForumPostHeader>(headers.size());
+		for (MessageHeader m : headers)
+			postHeaders.add(new ForumPostHeaderImpl(m));
+		return Collections.unmodifiableList(postHeaders);
 	}
 
 	@Override

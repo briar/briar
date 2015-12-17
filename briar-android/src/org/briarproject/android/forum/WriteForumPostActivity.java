@@ -78,8 +78,8 @@ implements OnItemSelectedListener, OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile IdentityManager identityManager;
 	@Inject private volatile ForumManager forumManager;
-	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile ForumPostFactory forumPostFactory;
+	@Inject private volatile CryptoComponent crypto;
 	private volatile MessageId parentId = null;
 	private volatile long minTimestamp = -1;
 	private volatile LocalAuthor localAuthor = null;
@@ -160,10 +160,10 @@ implements OnItemSelectedListener, OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadAuthorsAndGroup();
+		loadAuthorsAndForum();
 	}
 
-	private void loadAuthorsAndGroup() {
+	private void loadAuthorsAndForum() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -174,7 +174,7 @@ implements OnItemSelectedListener, OnClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayAuthorsAndGroup(localAuthors);
+					displayAuthorsAndForum(localAuthors);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -183,7 +183,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void displayAuthorsAndGroup(
+	private void displayAuthorsAndForum(
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -226,7 +226,7 @@ implements OnItemSelectedListener, OnClickListener {
 			byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
 			if (b == null) throw new IllegalStateException();
 			localAuthorId = new AuthorId(b);
-			loadAuthorsAndGroup();
+			loadAuthorsAndForum();
 		}
 	}
 
@@ -254,14 +254,14 @@ implements OnItemSelectedListener, OnClickListener {
 
 	public void onClick(View view) {
 		if (forum == null) throw new IllegalStateException();
-		String message = content.getText().toString();
-		if (message.equals("")) return;
-		createMessage(StringUtils.toUtf8(message));
+		String body = content.getText().toString();
+		if (body.equals("")) return;
+		createPost(StringUtils.toUtf8(body));
 		Toast.makeText(this, R.string.post_sent_toast, LENGTH_LONG).show();
 		finish();
 	}
 
-	private void createMessage(final byte[] body) {
+	private void createPost(final byte[] body) {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				// Don't use an earlier timestamp than the newest post
@@ -285,17 +285,17 @@ implements OnItemSelectedListener, OnClickListener {
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
-				storeMessage(m);
+				storePost(m);
 			}
 		});
 	}
 
-	private void storeMessage(final Message m) {
+	private void storePost(final Message m) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					forumManager.addLocalMessage(m);
+					forumManager.addLocalPost(m);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");

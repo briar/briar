@@ -34,9 +34,9 @@ import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageHeader;
 
 import java.util.Collection;
 import java.util.Map;
@@ -156,8 +156,8 @@ OnCreateContextMenuListener {
 					long now = System.currentTimeMillis();
 					for (Forum f : forumManager.getForums()) {
 						try {
-							Collection<MessageHeader> headers =
-									forumManager.getMessageHeaders(f.getId());
+							Collection<ForumPostHeader> headers =
+									forumManager.getPostHeaders(f.getId());
 							displayHeaders(f, headers);
 						} catch (NoSuchSubscriptionException e) {
 							// Continue
@@ -191,7 +191,7 @@ OnCreateContextMenuListener {
 	}
 
 	private void displayHeaders(final Forum f,
-			final Collection<MessageHeader> headers) {
+			final Collection<ForumPostHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				GroupId id = f.getId();
@@ -282,8 +282,8 @@ OnCreateContextMenuListener {
 				try {
 					long now = System.currentTimeMillis();
 					Forum f = forumManager.getForum(g);
-					Collection<MessageHeader> headers =
-							forumManager.getMessageHeaders(g);
+					Collection<ForumPostHeader> headers =
+							forumManager.getPostHeaders(g);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");

@@ -120,7 +120,7 @@ implements OnClickListener {
 			content = new TextView(this);
 			content.setPadding(pad, 0, pad, pad);
 			message.addView(content);
-			loadMessageBody();
+			loadPostBody();
 		}
 		scrollView.addView(message);
 		layout.addView(scrollView);
@@ -161,10 +161,10 @@ implements OnClickListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (isFinishing()) markMessageRead();
+		if (isFinishing()) markPostRead();
 	}
 
-	private void markMessageRead() {
+	private void markPostRead() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -181,16 +181,16 @@ implements OnClickListener {
 		});
 	}
 
-	private void loadMessageBody() {
+	private void loadPostBody() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					byte[] body = forumManager.getMessageBody(messageId);
+					byte[] body = forumManager.getPostBody(messageId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading message took " + duration + " ms");
-					displayMessageBody(StringUtils.fromUtf8(body));
+						LOG.info("Loading post took " + duration + " ms");
+					displayPostBody(StringUtils.fromUtf8(body));
 				} catch (NoSuchMessageException e) {
 					finishOnUiThread();
 				} catch (DbException e) {
@@ -201,7 +201,7 @@ implements OnClickListener {
 		});
 	}
 
-	private void displayMessageBody(final String body) {
+	private void displayPostBody(final String body) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				content.setText(body);

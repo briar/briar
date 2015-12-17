@@ -5,7 +5,6 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
@@ -18,8 +17,8 @@ public interface ForumManager {
 	 */
 	boolean addForum(Forum f) throws DbException;
 
-	/** Stores a local message. */
-	void addLocalMessage(Message m) throws DbException;
+	/** Stores a local forum post. */
+	void addLocalPost(Message m) throws DbException;
 
 	/** Returns all forums to which the user could subscribe. */
 	Collection<Forum> getAvailableForums() throws DbException;
@@ -30,12 +29,11 @@ public interface ForumManager {
 	/** Returns all forums to which the user subscribes. */
 	Collection<Forum> getForums() throws DbException;
 
-	/** Returns the body of the message with the given ID. */
-	byte[] getMessageBody(MessageId m) throws DbException;
+	/** Returns the body of the forum post with the given ID. */
+	byte[] getPostBody(MessageId m) throws DbException;
 
-	/** Returns the headers of all messages in the given forum. */
-	Collection<MessageHeader> getMessageHeaders(GroupId g)
-			throws DbException;
+	/** Returns the headers of all posts in the given forum. */
+	Collection<ForumPostHeader> getPostHeaders(GroupId g) throws DbException;
 
 	/** Returns all contacts who subscribe to the given forum. */
 	Collection<Contact> getSubscribers(GroupId g) throws DbException;
@@ -49,7 +47,7 @@ public interface ForumManager {
 	 */
 	void removeForum(Forum f) throws DbException;
 
-	/** Marks a message as read or unread. */
+	/** Marks a forum post as read or unread. */
 	void setReadFlag(MessageId m, boolean read) throws DbException;
 
 	/**

@@ -1,7 +1,7 @@
 package org.briarproject.android.forum;
 
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.sync.MessageHeader;
+import org.briarproject.api.forum.ForumPostHeader;
 
 import java.util.Collection;
 
@@ -12,17 +12,17 @@ class ForumListItem {
 	private final long timestamp;
 	private final int unread;
 
-	ForumListItem(Forum forum, Collection<MessageHeader> headers) {
+	ForumListItem(Forum forum, Collection<ForumPostHeader> headers) {
 		this.forum = forum;
 		empty = headers.isEmpty();
 		if (empty) {
 			timestamp = 0;
 			unread = 0;
 		} else {
-			MessageHeader newest = null;
+			ForumPostHeader newest = null;
 			long timestamp = -1;
 			int unread = 0;
-			for (MessageHeader h : headers) {
+			for (ForumPostHeader h : headers) {
 				if (h.getTimestamp() > timestamp) {
 					timestamp = h.getTimestamp();
 					newest = h;

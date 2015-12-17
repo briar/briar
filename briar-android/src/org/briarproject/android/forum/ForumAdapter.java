@@ -13,8 +13,8 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ class ForumAdapter extends ArrayAdapter<ForumItem> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ForumItem item = getItem(position);
-		MessageHeader header = item.getHeader();
+		ForumPostHeader header = item.getHeader();
 		Context ctx = getContext();
 		Resources res = ctx.getResources();
 

@@ -1,19 +1,19 @@
 package org.briarproject.android.forum;
 
-import org.briarproject.api.sync.MessageHeader;
+import org.briarproject.api.forum.ForumPostHeader;
 
 // This class is not thread-safe
 class ForumItem {
 
-	private final MessageHeader header;
+	private final ForumPostHeader header;
 	private byte[] body;
 
-	ForumItem(MessageHeader header) {
+	ForumItem(ForumPostHeader header) {
 		this.header = header;
 		body = null;
 	}
 
-	MessageHeader getHeader() {
+	ForumPostHeader getHeader() {
 		return header;
 	}
 
