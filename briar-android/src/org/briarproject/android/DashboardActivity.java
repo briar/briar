@@ -71,14 +71,13 @@ public class DashboardActivity extends BriarActivity implements EventListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-
+		updateTransports();
 		eventBus.addListener(this);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-
 		eventBus.removeListener(this);
 	}
 
@@ -282,8 +281,7 @@ public class DashboardActivity extends BriarActivity implements EventListener {
 		Transport tor = new Transport();
 		tor.id = new TransportId("tor");
 		Plugin torPlugin = pluginManager.getPlugin(tor.id);
-		if (torPlugin == null) tor.enabled = false;
-		else tor.enabled = torPlugin.isRunning();
+		tor.enabled = torPlugin != null && torPlugin.isRunning();
 		tor.iconId = R.drawable.transport_tor;
 		tor.textId = R.string.transport_tor;
 		transports.add(tor);
@@ -291,8 +289,7 @@ public class DashboardActivity extends BriarActivity implements EventListener {
 		Transport bt = new Transport();
 		bt.id = new TransportId("bt");
 		Plugin btPlugin = pluginManager.getPlugin(bt.id);
-		if (btPlugin == null) bt.enabled = false;
-		else bt.enabled = btPlugin.isRunning();
+		bt.enabled = btPlugin != null && btPlugin.isRunning();
 		bt.iconId = R.drawable.transport_bt;
 		bt.textId = R.string.transport_bt;
 		transports.add(bt);
@@ -300,8 +297,7 @@ public class DashboardActivity extends BriarActivity implements EventListener {
 		Transport lan = new Transport();
 		lan.id = new TransportId("lan");
 		Plugin lanPlugin = pluginManager.getPlugin(lan.id);
-		if (lanPlugin == null) lan.enabled = false;
-		else lan.enabled = lanPlugin.isRunning();
+		lan.enabled = lanPlugin != null && lanPlugin.isRunning();
 		lan.iconId = R.drawable.transport_lan;
 		lan.textId = R.string.transport_lan;
 		transports.add(lan);
@@ -357,17 +353,24 @@ public class DashboardActivity extends BriarActivity implements EventListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if (transports == null || transportsAdapter == null) return;
-
 				for (Transport t : transports) {
 					if (t.id.equals(id)) {
 						t.enabled = enabled;
+						transportsAdapter.notifyDataSetChanged();
 						break;
 					}
 				}
-
-				transportsAdapter.notifyDataSetChanged();
 			}
 		});
+	}
+
+	private void updateTransports() {
+		if (transports == null || transportsAdapter == null) return;
+		for (Transport t : transports) {
+			Plugin plugin = pluginManager.getPlugin(t.id);
+			t.enabled = plugin != null && plugin.isRunning();
+		}
+		transportsAdapter.notifyDataSetChanged();
 	}
 
 	private static class Transport {
