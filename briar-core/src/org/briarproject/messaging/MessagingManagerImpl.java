@@ -6,7 +6,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.sync.Group;
+import org.briarproject.api.messaging.PrivateConversation;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageHeader;
@@ -14,6 +14,7 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
+// Temporary facade during sync protocol refactoring
 class MessagingManagerImpl implements MessagingManager {
 
 	private final DatabaseComponent db;
@@ -24,27 +25,22 @@ class MessagingManagerImpl implements MessagingManager {
 	}
 
 	@Override
-	public boolean addGroup(Group g) throws DbException {
-		return db.addGroup(g);
-	}
-
-	@Override
 	public void addLocalMessage(Message m) throws DbException {
 		db.addLocalMessage(m);
 	}
 
 	@Override
-	public Group getGroup(GroupId g) throws DbException {
-		return db.getGroup(g);
+	public PrivateConversation getConversation(GroupId g) throws DbException {
+		return new PrivateConversationImpl(db.getGroup(g));
 	}
 
 	@Override
-	public GroupId getInboxGroupId(ContactId c) throws DbException {
+	public GroupId getConversationId(ContactId c) throws DbException {
 		return db.getInboxGroupId(c);
 	}
 
 	@Override
-	public Collection<MessageHeader> getInboxMessageHeaders(ContactId c)
+	public Collection<MessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
 		return db.getInboxMessageHeaders(c);
 	}
@@ -55,8 +51,9 @@ class MessagingManagerImpl implements MessagingManager {
 	}
 
 	@Override
-	public void setInboxGroup(ContactId c, Group g) throws DbException {
-		db.setInboxGroup(c, g);
+	public void setConversation(ContactId c, PrivateConversation p)
+			throws DbException {
+		db.setInboxGroup(c, ((PrivateConversationImpl) p).getGroup());
 	}
 
 	@Override

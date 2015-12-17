@@ -24,10 +24,10 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.sync.Group;
+import org.briarproject.api.messaging.PrivateConversation;
+import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
@@ -65,21 +65,20 @@ implements OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile IdentityManager identityManager;
 	@Inject private volatile MessagingManager messagingManager;
-	@Inject private volatile MessageFactory messageFactory;
-	private volatile String contactName = null;
+	@Inject private volatile PrivateMessageFactory privateMessageFactory;
 	private volatile GroupId groupId = null;
 	private volatile AuthorId localAuthorId = null;
 	private volatile MessageId parentId = null;
 	private volatile long minTimestamp = -1;
 	private volatile LocalAuthor localAuthor = null;
-	private volatile Group group = null;
+	private volatile PrivateConversation conversation = null;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		contactName = i.getStringExtra("briar.CONTACT_NAME");
+		String contactName = i.getStringExtra("briar.CONTACT_NAME");
 		if (contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
@@ -118,7 +117,7 @@ implements OnClickListener {
 		sendButton.setId(2);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
-		sendButton.setEnabled(false); // Enabled after loading the group
+		sendButton.setEnabled(false); // Enabled after loading the conversation
 		sendButton.setOnClickListener(this);
 		RelativeLayout.LayoutParams right = CommonLayoutParams.relative();
 		right.addRule(ALIGN_PARENT_RIGHT);
@@ -140,16 +139,17 @@ implements OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (localAuthor == null || group == null) loadAuthorAndGroup();
+		if (localAuthor == null || conversation == null)
+			loadAuthorAndConversation();
 	}
 
-	private void loadAuthorAndGroup() {
+	private void loadAuthorAndConversation() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
 					localAuthor = identityManager.getLocalAuthor(localAuthorId);
-					group = messagingManager.getGroup(groupId);
+					conversation = messagingManager.getConversation(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
@@ -192,8 +192,9 @@ implements OnClickListener {
 				long timestamp = System.currentTimeMillis();
 				timestamp = Math.max(timestamp, minTimestamp);
 				try {
-					Message m = messageFactory.createAnonymousMessage(parentId,
-							group, "text/plain", timestamp, body);
+					Message m = privateMessageFactory.createPrivateMessage(
+							parentId, conversation, "text/plain", timestamp,
+							body);
 					storeMessage(m);
 				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);

@@ -2,7 +2,6 @@ package org.briarproject.api.messaging;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageHeader;
@@ -12,43 +11,35 @@ import java.util.Collection;
 
 public interface MessagingManager {
 
-	/**
-	 * Subscribes to a group, or returns false if the user already has the
-	 * maximum number of public subscriptions.
-	 */
-	boolean addGroup(Group g) throws DbException;
-
-	/** Stores a local message. */
+	/** Stores a local private message. */
 	void addLocalMessage(Message m) throws DbException;
 
-	/** Returns the group with the given ID, if the user subscribes to it. */
-	Group getGroup(GroupId g) throws DbException;
-
-
-	/**
-	 * Returns the ID of the inbox group for the given contact, or null if no
-	 * inbox group has been set.
-	 */
-	GroupId getInboxGroupId(ContactId c) throws DbException;
+	/** Returns the private conversation with the given ID. */
+	PrivateConversation getConversation(GroupId g) throws DbException;
 
 	/**
-	 * Returns the headers of all messages in the inbox group for the given
-	 * contact, or null if no inbox group has been set.
+	 * Returns the ID of the private conversation with the given contact, or
+	 * null if no private conversation ID has been set.
 	 */
-	Collection<MessageHeader> getInboxMessageHeaders(ContactId c)
+	GroupId getConversationId(ContactId c) throws DbException;
+
+	/**
+	 * Returns the headers of all messages in the private conversation with the
+	 * given contact, or null if no private conversation ID has been set.
+	 */
+	Collection<MessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
 
-	/** Returns the body of the message with the given ID. */
+	/** Returns the body of the private message with the given ID. */
 	byte[] getMessageBody(MessageId m) throws DbException;
 
 	/**
-	 * Makes a group visible to the given contact, adds it to the contact's
-	 * subscriptions, and sets it as the inbox group for the contact.
+	 * Makes a private conversation visible to the given contact, adds it to
+	 * the contact's subscriptions, and sets it as the private conversation for
+	 * the contact.
 	 */
-	void setInboxGroup(ContactId c, Group g) throws DbException;
+	void setConversation(ContactId c, PrivateConversation p) throws DbException;
 
-	/**
-	 * Marks a message as read or unread.
-	 */
+	/** Marks a private message as read or unread. */
 	void setReadFlag(MessageId m, boolean read) throws DbException;
 }

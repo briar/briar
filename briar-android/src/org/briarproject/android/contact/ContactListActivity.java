@@ -142,9 +142,9 @@ EventListener {
 						try {
 							ContactId id = c.getId();
 							GroupId inbox =
-									messagingManager.getInboxGroupId(id);
+									messagingManager.getConversationId(id);
 							Collection<MessageHeader> headers =
-									messagingManager.getInboxMessageHeaders(id);
+									messagingManager.getMessageHeaders(id);
 							displayContact(c, inbox, headers);
 						} catch (NoSuchContactException e) {
 							// Continue
@@ -294,7 +294,7 @@ EventListener {
 				try {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
-							messagingManager.getInboxMessageHeaders(c);
+							messagingManager.getMessageHeaders(c);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");

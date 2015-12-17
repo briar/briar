@@ -39,11 +39,11 @@ import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.messaging.MessagingManager;
+import org.briarproject.api.messaging.PrivateConversation;
+import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.plugins.ConnectionRegistry;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageHeader.State;
 import org.briarproject.api.sync.MessageId;
@@ -93,11 +93,11 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Inject private volatile ContactManager contactManager;
 	@Inject private volatile MessagingManager messagingManager;
 	@Inject private volatile EventBus eventBus;
-	@Inject private volatile MessageFactory messageFactory;
+	@Inject private volatile PrivateMessageFactory privateMessageFactory;
 	private volatile ContactId contactId = null;
 	private volatile String contactName = null;
 	private volatile GroupId groupId = null;
-	private volatile Group group = null;
+	private volatile PrivateConversation conversation = null;
 	private volatile AuthorId localAuthorId = null;
 	private volatile boolean connected;
 
@@ -147,7 +147,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 		content = (EditText) findViewById(R.id.contentView);
 		sendButton = (ImageButton) findViewById(R.id.sendButton);
-		sendButton.setEnabled(false); // Enabled after loading the group
+		sendButton.setEnabled(false); // Enabled after loading the conversation
 		sendButton.setOnClickListener(this);
 	}
 
@@ -167,12 +167,12 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
 					localAuthorId = contact.getLocalAuthorId();
-					groupId = messagingManager.getInboxGroupId(contactId);
-					group = messagingManager.getGroup(groupId);
+					groupId = messagingManager.getConversationId(contactId);
+					conversation = messagingManager.getConversation(groupId);
 					connected = connectionRegistry.isConnected(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO)) {
-						LOG.info("Loading contact and group took "
+						LOG.info("Loading contact and conversation took "
 								+ duration + " ms");
 					}
 					displayContactDetails();
@@ -210,7 +210,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				try {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
-							messagingManager.getInboxMessageHeaders(contactId);
+							messagingManager.getMessageHeaders(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");
@@ -424,8 +424,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					Message m = messageFactory.createAnonymousMessage(null,
-							group, "text/plain", timestamp, body);
+					Message m = privateMessageFactory.createPrivateMessage(null,
+							conversation, "text/plain", timestamp, body);
 					storeMessage(m);
 				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);
