@@ -1,22 +1,22 @@
 package org.briarproject.android.contact;
 
-import org.briarproject.api.sync.MessageHeader;
-import org.briarproject.api.sync.MessageHeader.State;
+import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.messaging.PrivateMessageHeader.Status;
 
 // This class is not thread-safe
 class ConversationItem {
 
-	private final MessageHeader header;
+	private final PrivateMessageHeader header;
 	private byte[] body;
-	private State status;
+	private Status status;
 
-	ConversationItem(MessageHeader header) {
+	ConversationItem(PrivateMessageHeader header) {
 		this.header = header;
 		body = null;
 		status = header.getStatus();
 	}
 
-	MessageHeader getHeader() {
+	PrivateMessageHeader getHeader() {
 		return header;
 	}
 
@@ -28,11 +28,11 @@ class ConversationItem {
 		this.body = body;
 	}
 
-	State getStatus() {
+	Status getStatus() {
 		return status;
 	}
 
-	void setStatus(State state) {
-		this.status = state;
+	void setStatus(Status status) {
+		this.status = status;
 	}
 }

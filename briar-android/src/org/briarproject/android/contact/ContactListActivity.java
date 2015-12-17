@@ -38,9 +38,9 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.messaging.MessagingManager;
+import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageHeader;
 
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -141,11 +141,11 @@ EventListener {
 					for (Contact c : contactManager.getContacts()) {
 						try {
 							ContactId id = c.getId();
-							GroupId inbox =
+							GroupId conversation =
 									messagingManager.getConversationId(id);
-							Collection<MessageHeader> headers =
+							Collection<PrivateMessageHeader> headers =
 									messagingManager.getMessageHeaders(id);
-							displayContact(c, inbox, headers);
+							displayContact(c, conversation, headers);
 						} catch (NoSuchContactException e) {
 							// Continue
 						}
@@ -174,8 +174,8 @@ EventListener {
 		});
 	}
 
-	private void displayContact(final Contact c,
-			final GroupId inbox, final Collection<MessageHeader> headers) {
+	private void displayContact(final Contact c, final GroupId conversation,
+			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				list.setVisibility(VISIBLE);
@@ -185,7 +185,8 @@ EventListener {
 				ContactListItem item = findItem(c.getId());
 				if (item != null) adapter.remove(item);
 				// Add a new item
-				adapter.add(new ContactListItem(c, connected, inbox, headers));
+				adapter.add(new ContactListItem(c, connected, conversation,
+						headers));
 				adapter.sort(ContactListItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
@@ -226,12 +227,12 @@ EventListener {
 		ContactListItem item = adapter.getItem(position);
 		ContactId contactId = item.getContact().getId();
 		String contactName = item.getContact().getAuthor().getName();
-		GroupId inbox = item.getInboxGroupId();
+		GroupId groupId = item.getConversationId();
 		AuthorId localAuthorId = item.getContact().getLocalAuthorId();
 		Intent i = new Intent(this, ConversationActivity.class);
 		i.putExtra("briar.CONTACT_ID", contactId.getInt());
 		i.putExtra("briar.CONTACT_NAME", contactName);
-		i.putExtra("briar.GROUP_ID", inbox.getBytes());
+		i.putExtra("briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
 		startActivity(i);
 	}
@@ -293,7 +294,7 @@ EventListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<MessageHeader> headers =
+					Collection<PrivateMessageHeader> headers =
 							messagingManager.getMessageHeaders(c);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -310,7 +311,7 @@ EventListener {
 	}
 
 	private void updateItem(final ContactId c,
-			final Collection<MessageHeader> headers) {
+			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);

@@ -4,7 +4,6 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
@@ -27,7 +26,7 @@ public interface MessagingManager {
 	 * Returns the headers of all messages in the private conversation with the
 	 * given contact, or null if no private conversation ID has been set.
 	 */
-	Collection<MessageHeader> getMessageHeaders(ContactId c)
+	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
 
 	/** Returns the body of the private message with the given ID. */

@@ -41,11 +41,11 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateConversation;
 import org.briarproject.api.messaging.PrivateMessageFactory;
+import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.messaging.PrivateMessageHeader.Status;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageHeader;
-import org.briarproject.api.sync.MessageHeader.State;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
@@ -70,6 +70,8 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+import static org.briarproject.api.messaging.PrivateMessageHeader.Status.DELIVERED;
+import static org.briarproject.api.messaging.PrivateMessageHeader.Status.SENT;
 
 public class ConversationActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener {
@@ -209,7 +211,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<MessageHeader> headers =
+					Collection<PrivateMessageHeader> headers =
 							messagingManager.getMessageHeaders(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -225,7 +227,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayHeaders(final Collection<MessageHeader> headers) {
+	private void displayHeaders(
+			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				loading.setVisibility(GONE);
@@ -235,7 +238,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				sendButton.setEnabled(true);
 				adapter.clear();
 				if (!headers.isEmpty()) {
-					for (MessageHeader h : headers) {
+					for (PrivateMessageHeader h : headers) {
 						ConversationItem item = new ConversationItem(h);
 						byte[] body = bodyCache.get(h.getId());
 						if (body == null) loadMessageBody(h);
@@ -251,7 +254,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void loadMessageBody(final MessageHeader h) {
+	private void loadMessageBody(final PrivateMessageHeader h) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -312,7 +315,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
-			MessageHeader h = adapter.getItem(i).getHeader();
+			PrivateMessageHeader h = adapter.getItem(i).getHeader();
 			if (!h.isRead()) unread.add(h.getId());
 		}
 		if (unread.isEmpty()) return;
@@ -356,13 +359,13 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			MessagesSentEvent m = (MessagesSentEvent) e;
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages sent");
-				markMessages(m.getMessageIds(), State.SENT);
+				markMessages(m.getMessageIds(), SENT);
 			}
 		} else if (e instanceof MessagesAckedEvent) {
 			MessagesAckedEvent m = (MessagesAckedEvent) e;
 			if (m.getContactId().equals(contactId)) {
 				LOG.info("Messages acked");
-				markMessages(m.getMessageIds(), State.DELIVERED);
+				markMessages(m.getMessageIds(), DELIVERED);
 			}
 		} else if (e instanceof ContactConnectedEvent) {
 			ContactConnectedEvent c = (ContactConnectedEvent) e;
@@ -381,7 +384,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		}
 	}
 
-	private void markMessages(final Collection<MessageId> messageIds, final State state) {
+	private void markMessages(final Collection<MessageId> messageIds,
+			final Status status) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				Set<MessageId> messages = new HashSet<MessageId>(messageIds);
@@ -390,7 +394,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				for (int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
 					if (messages.contains(item.getHeader().getId())) {
-						item.setStatus(state);
+						item.setStatus(status);
 						changed = true;
 					}
 				}
@@ -460,7 +464,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	private void displayMessage(int position) {
 		ConversationItem item = adapter.getItem(position);
-		MessageHeader header = item.getHeader();
+		PrivateMessageHeader header = item.getHeader();
 		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
 		i.putExtra("briar.CONTACT_ID", contactId.getInt());
 		i.putExtra("briar.CONTACT_NAME", contactName);

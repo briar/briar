@@ -14,8 +14,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.sync.MessageHeader;
-import org.briarproject.api.sync.MessageHeader.State;
+import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -25,6 +24,8 @@ import static android.view.Gravity.LEFT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
+import static org.briarproject.api.messaging.PrivateMessageHeader.Status.DELIVERED;
+import static org.briarproject.api.messaging.PrivateMessageHeader.Status.SENT;
 
 class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 
@@ -39,7 +40,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ConversationItem item = getItem(position);
-		MessageHeader header = item.getHeader();
+		PrivateMessageHeader header = item.getHeader();
 		Context ctx = getContext();
 		Resources res = ctx.getResources();
 
@@ -81,9 +82,9 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 
 			ImageView status = new ImageView(ctx);
 			status.setPadding(0, 0, pad, 0);
-			if (item.getStatus() == State.DELIVERED) {
+			if (item.getStatus() == DELIVERED) {
 				status.setImageResource(R.drawable.message_delivered);
-			} else if (item.getStatus() == State.SENT) {
+			} else if (item.getStatus() == SENT) {
 				status.setImageResource(R.drawable.message_sent);
 			} else {
 				status.setImageResource(R.drawable.message_stored);

@@ -7,12 +7,16 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateConversation;
+import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 // Temporary facade during sync protocol refactoring
 class MessagingManagerImpl implements MessagingManager {
@@ -40,9 +44,14 @@ class MessagingManagerImpl implements MessagingManager {
 	}
 
 	@Override
-	public Collection<MessageHeader> getMessageHeaders(ContactId c)
+	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
-		return db.getInboxMessageHeaders(c);
+		Collection<MessageHeader> headers = db.getInboxMessageHeaders(c);
+		List<PrivateMessageHeader> privateHeaders =
+				new ArrayList<PrivateMessageHeader>(headers.size());
+		for (MessageHeader m : headers)
+			privateHeaders.add(new PrivateMessageHeaderImpl(m));
+		return Collections.unmodifiableList(privateHeaders);
 	}
 
 	@Override

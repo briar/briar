@@ -1,8 +1,8 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageHeader;
 
 import java.util.Collection;
 
@@ -10,25 +10,25 @@ import java.util.Collection;
 class ContactListItem {
 
 	private final Contact contact;
-	private final GroupId inbox;
+	private final GroupId conversation;
 	private boolean connected, empty;
 	private long timestamp;
 	private int unread;
 
-	ContactListItem(Contact contact, boolean connected, GroupId inbox,
-			Collection<MessageHeader> headers) {
+	ContactListItem(Contact contact, boolean connected, GroupId conversation,
+			Collection<PrivateMessageHeader> headers) {
 		this.contact = contact;
-		this.inbox = inbox;
+		this.conversation = conversation;
 		this.connected = connected;
 		setHeaders(headers);
 	}
 
-	void setHeaders(Collection<MessageHeader> headers) {
+	void setHeaders(Collection<PrivateMessageHeader> headers) {
 		empty = headers.isEmpty();
 		timestamp = 0;
 		unread = 0;
 		if (!empty) {
-			for (MessageHeader h : headers) {
+			for (PrivateMessageHeader h : headers) {
 				if (h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
 				if (!h.isRead()) unread++;
 			}
@@ -39,8 +39,8 @@ class ContactListItem {
 		return contact;
 	}
 
-	GroupId getInboxGroupId() {
-		return inbox;
+	GroupId getConversationId() {
+		return conversation;
 	}
 
 	boolean isConnected() {
