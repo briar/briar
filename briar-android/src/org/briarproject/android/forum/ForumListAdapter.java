@@ -46,7 +46,7 @@ class ForumListAdapter extends ArrayAdapter<ForumListItem> {
 		name.setSingleLine();
 		name.setEllipsize(END);
 		name.setPadding(pad, pad, pad, pad);
-		String forumName = item.getGroup().getName();
+		String forumName = item.getForum().getName();
 		if (unread > 0) name.setText(forumName + " (" + unread + ")");
 		else name.setText(forumName);
 		layout.addView(name);

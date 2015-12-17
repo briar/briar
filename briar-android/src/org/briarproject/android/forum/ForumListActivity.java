@@ -32,6 +32,7 @@ import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -153,16 +154,16 @@ OnCreateContextMenuListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for (Group g : forumManager.getGroups()) {
+					for (Forum f : forumManager.getForums()) {
 						try {
 							Collection<MessageHeader> headers =
-									forumManager.getMessageHeaders(g.getId());
-							displayHeaders(g, headers);
+									forumManager.getMessageHeaders(f.getId());
+							displayHeaders(f, headers);
 						} catch (NoSuchSubscriptionException e) {
 							// Continue
 						}
 					}
-					int available = forumManager.getAvailableGroups().size();
+					int available = forumManager.getAvailableForums().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
@@ -189,11 +190,11 @@ OnCreateContextMenuListener {
 		});
 	}
 
-	private void displayHeaders(final Group g,
+	private void displayHeaders(final Forum f,
 			final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				GroupId id = g.getId();
+				GroupId id = f.getId();
 				groupIds.put(id, id);
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
@@ -201,7 +202,7 @@ OnCreateContextMenuListener {
 				ForumListItem item = findForum(id);
 				if (item != null) adapter.remove(item);
 				// Add a new item
-				adapter.add(new ForumListItem(g, headers));
+				adapter.add(new ForumListItem(f, headers));
 				adapter.sort(ForumListItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
@@ -230,7 +231,7 @@ OnCreateContextMenuListener {
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
 			ForumListItem item = adapter.getItem(i);
-			if (item.getGroup().getId().equals(g)) return item;
+			if (item.getForum().getId().equals(g)) return item;
 		}
 		return null; // Not found
 	}
@@ -255,8 +256,8 @@ OnCreateContextMenuListener {
 
 	public void eventOccurred(Event e) {
 		if (e instanceof MessageAddedEvent) {
-			Group g = ((MessageAddedEvent) e).getGroup();
-			if (groupIds.containsKey(g.getId())) {
+			GroupId g = ((MessageAddedEvent) e).getGroupId();
+			if (groupIds.containsKey(g)) {
 				LOG.info("Message added, reloading");
 				loadHeaders(g);
 			}
@@ -275,19 +276,20 @@ OnCreateContextMenuListener {
 		}
 	}
 
-	private void loadHeaders(final Group g) {
+	private void loadHeaders(final GroupId g) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
+					Forum f = forumManager.getForum(g);
 					Collection<MessageHeader> headers =
-							forumManager.getMessageHeaders(g.getId());
+							forumManager.getMessageHeaders(g);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
-					displayHeaders(g, headers);
+					displayHeaders(f, headers);
 				} catch (NoSuchSubscriptionException e) {
-					removeForum(g.getId());
+					removeForum(g);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -320,7 +322,7 @@ OnCreateContextMenuListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					int available = forumManager.getAvailableGroups().size();
+					int available = forumManager.getAvailableForums().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
@@ -344,9 +346,9 @@ OnCreateContextMenuListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		Intent i = new Intent(this, ForumActivity.class);
-		Group g = adapter.getItem(position).getGroup();
-		i.putExtra("briar.GROUP_ID", g.getId().getBytes());
-		i.putExtra("briar.FORUM_NAME", g.getName());
+		Forum f = adapter.getItem(position).getForum();
+		i.putExtra("briar.GROUP_ID", f.getId().getBytes());
+		i.putExtra("briar.FORUM_NAME", f.getName());
 		startActivity(i);
 	}
 
@@ -363,19 +365,19 @@ OnCreateContextMenuListener {
 			ContextMenuInfo info = menuItem.getMenuInfo();
 			int position = ((AdapterContextMenuInfo) info).position;
 			ForumListItem item = adapter.getItem(position);
-			removeSubscription(item.getGroup());
+			removeSubscription(item.getForum());
 			String unsubscribed = getString(R.string.unsubscribed_toast);
 			Toast.makeText(this, unsubscribed, LENGTH_SHORT).show();
 		}
 		return true;
 	}
 
-	private void removeSubscription(final Group g) {
+	private void removeSubscription(final Forum f) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					forumManager.removeGroup(g);
+					forumManager.removeForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing group took " + duration + " ms");

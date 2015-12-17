@@ -170,7 +170,7 @@ public class BriarService extends RoboService implements EventListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof MessageAddedEvent) {
 			MessageAddedEvent m = (MessageAddedEvent) e;
-			GroupId g = m.getGroup().getId();
+			GroupId g = m.getGroupId();
 			ContactId c = m.getContactId();
 			if (c != null) showMessageNotification(g, c);
 		}

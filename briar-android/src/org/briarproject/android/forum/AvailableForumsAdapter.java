@@ -41,7 +41,7 @@ class AvailableForumsAdapter extends ArrayAdapter<AvailableForumsItem> {
 		name.setSingleLine();
 		name.setEllipsize(END);
 		name.setPadding(pad, pad, pad, pad);
-		name.setText(item.getGroup().getName());
+		name.setText(item.getForum().getName());
 		layout.addView(name);
 
 		TextView status = new TextView(ctx);

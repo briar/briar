@@ -1,7 +1,7 @@
 package org.briarproject.android.forum;
 
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.sync.Group;
+import org.briarproject.api.forum.Forum;
 
 import java.util.Collection;
 
@@ -13,8 +13,8 @@ class AvailableForumsItem {
 		this.forumContacts = forumContacts;
 	}
 
-	Group getGroup() {
-		return forumContacts.getGroup();
+	Forum getForum() {
+		return forumContacts.getForum();
 	}
 
 	Collection<Contact> getContacts() {

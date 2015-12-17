@@ -28,14 +28,14 @@ import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
@@ -79,11 +79,11 @@ implements OnItemSelectedListener, OnClickListener {
 	@Inject private volatile IdentityManager identityManager;
 	@Inject private volatile ForumManager forumManager;
 	@Inject private volatile CryptoComponent crypto;
-	@Inject private volatile MessageFactory messageFactory;
+	@Inject private volatile ForumPostFactory forumPostFactory;
 	private volatile MessageId parentId = null;
 	private volatile long minTimestamp = -1;
 	private volatile LocalAuthor localAuthor = null;
-	private volatile Group group = null;
+	private volatile Forum forum = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -138,7 +138,7 @@ implements OnItemSelectedListener, OnClickListener {
 		sendButton.setId(3);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
-		sendButton.setEnabled(false); // Enabled after loading the group
+		sendButton.setEnabled(false); // Enabled after loading the forum
 		sendButton.setOnClickListener(this);
 		RelativeLayout.LayoutParams right = CommonLayoutParams.relative();
 		right.addRule(ALIGN_PARENT_RIGHT);
@@ -170,7 +170,7 @@ implements OnItemSelectedListener, OnClickListener {
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> localAuthors =
 							identityManager.getLocalAuthors();
-					group = forumManager.getGroup(groupId);
+					forum = forumManager.getForum(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
@@ -204,7 +204,7 @@ implements OnItemSelectedListener, OnClickListener {
 						break;
 					}
 				}
-				setTitle(group.getName());
+				setTitle(forum.getName());
 				sendButton.setEnabled(true);
 			}
 		});
@@ -253,7 +253,7 @@ implements OnItemSelectedListener, OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if (group == null) throw new IllegalStateException();
+		if (forum == null) throw new IllegalStateException();
 		String message = content.getText().toString();
 		if (message.equals("")) return;
 		createMessage(StringUtils.toUtf8(message));
@@ -270,14 +270,14 @@ implements OnItemSelectedListener, OnClickListener {
 				Message m;
 				try {
 					if (localAuthor == null) {
-						m = messageFactory.createAnonymousMessage(parentId,
-								group, "text/plain", timestamp, body);
+						m = forumPostFactory.createAnonymousPost(parentId,
+								forum, "text/plain", timestamp, body);
 					} else {
 						KeyParser keyParser = crypto.getSignatureKeyParser();
 						byte[] b = localAuthor.getPrivateKey();
 						PrivateKey authorKey = keyParser.parsePrivateKey(b);
-						m = messageFactory.createPseudonymousMessage(parentId,
-								group, localAuthor, authorKey, "text/plain",
+						m = forumPostFactory.createPseudonymousPost(parentId,
+								forum, localAuthor, authorKey, "text/plain",
 								timestamp, body);
 					}
 				} catch (GeneralSecurityException e) {

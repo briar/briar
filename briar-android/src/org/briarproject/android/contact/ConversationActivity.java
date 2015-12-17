@@ -347,7 +347,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				finishOnUiThread();
 			}
 		} else if (e instanceof MessageAddedEvent) {
-			GroupId g = ((MessageAddedEvent) e).getGroup().getId();
+			GroupId g = ((MessageAddedEvent) e).getGroupId();
 			if (g.equals(groupId)) {
 				LOG.info("Message added, reloading");
 				loadHeaders();

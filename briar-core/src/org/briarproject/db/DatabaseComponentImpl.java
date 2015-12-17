@@ -222,8 +222,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if (!duplicate && subscribed)
-			eventBus.broadcast(new MessageAddedEvent(m.getGroup(), null));
+		if (!duplicate && subscribed) {
+			GroupId g = m.getGroup().getId();
+			eventBus.broadcast(new MessageAddedEvent(g, null));
+		}
 	}
 
 	/**
@@ -1050,8 +1052,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		if (visible) {
-			if (!duplicate)
-				eventBus.broadcast(new MessageAddedEvent(m.getGroup(), c));
+			if (!duplicate) {
+				GroupId g = m.getGroup().getId();
+				eventBus.broadcast(new MessageAddedEvent(g, c));
+			}
 			eventBus.broadcast(new MessageToAckEvent(c));
 		}
 	}

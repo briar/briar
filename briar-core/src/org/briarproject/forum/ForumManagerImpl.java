@@ -6,6 +6,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -13,8 +14,12 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
+// Temporary facade during sync protocol refactoring
 class ForumManagerImpl implements ForumManager {
 
 	private final DatabaseComponent db;
@@ -25,8 +30,8 @@ class ForumManagerImpl implements ForumManager {
 	}
 
 	@Override
-	public boolean addGroup(Group g) throws DbException {
-		return db.addGroup(g);
+	public boolean addForum(Forum f) throws DbException {
+		return db.addGroup(((ForumImpl) f).getGroup());
 	}
 
 	@Override
@@ -35,18 +40,24 @@ class ForumManagerImpl implements ForumManager {
 	}
 
 	@Override
-	public Collection<Group> getAvailableGroups() throws DbException {
-		return db.getAvailableGroups();
+	public Collection<Forum> getAvailableForums() throws DbException {
+		Collection<Group> groups = db.getAvailableGroups();
+		List<Forum> forums = new ArrayList<Forum>(groups.size());
+		for (Group g : groups) forums.add(new ForumImpl(g));
+		return Collections.unmodifiableList(forums);
 	}
 
 	@Override
-	public Group getGroup(GroupId g) throws DbException {
-		return db.getGroup(g);
+	public Forum getForum(GroupId g) throws DbException {
+		return new ForumImpl(db.getGroup(g));
 	}
 
 	@Override
-	public Collection<Group> getGroups() throws DbException {
-		return db.getGroups();
+	public Collection<Forum> getForums() throws DbException {
+		Collection<Group> groups = db.getGroups();
+		List<Forum> forums = new ArrayList<Forum>(groups.size());
+		for (Group g : groups) forums.add(new ForumImpl(g));
+		return Collections.unmodifiableList(forums);
 	}
 
 	@Override
@@ -71,8 +82,8 @@ class ForumManagerImpl implements ForumManager {
 	}
 
 	@Override
-	public void removeGroup(Group g) throws DbException {
-		db.removeGroup(g);
+	public void removeForum(Forum f) throws DbException {
+		db.removeGroup(((ForumImpl) f).getGroup());
 	}
 
 	@Override

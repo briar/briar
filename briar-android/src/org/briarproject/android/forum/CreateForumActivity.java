@@ -17,9 +17,9 @@ import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
@@ -52,7 +52,7 @@ implements OnEditorActionListener, OnClickListener {
 	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile GroupFactory groupFactory;
+	@Inject private volatile ForumFactory forumFactory;
 	@Inject private volatile ForumManager forumManager;
 
 	@Override
@@ -138,13 +138,13 @@ implements OnEditorActionListener, OnClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					Group g = groupFactory.createGroup(name);
+					Forum f = forumFactory.createForum(name);
 					long now = System.currentTimeMillis();
-					forumManager.addGroup(g);
+					forumManager.addForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing forum took " + duration + " ms");
-					displayForum(g);
+					displayForum(f);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -154,13 +154,13 @@ implements OnEditorActionListener, OnClickListener {
 		});
 	}
 
-	private void displayForum(final Group g) {
+	private void displayForum(final Forum f) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				Intent i = new Intent(CreateForumActivity.this,
 						ForumActivity.class);
-				i.putExtra("briar.GROUP_ID", g.getId().getBytes());
-				i.putExtra("briar.FORUM_NAME", g.getName());
+				i.putExtra("briar.GROUP_ID", f.getId().getBytes());
+				i.putExtra("briar.FORUM_NAME", f.getName());
 				startActivity(i);
 				Toast.makeText(CreateForumActivity.this,
 						R.string.forum_created_toast, LENGTH_LONG).show();

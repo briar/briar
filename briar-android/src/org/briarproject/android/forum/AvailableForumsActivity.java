@@ -20,8 +20,8 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -43,7 +43,6 @@ implements EventListener, OnItemClickListener {
 
 	private AvailableForumsAdapter adapter = null;
 	private ListView list = null;
-	private ListLoadingProgressBar loading = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile ForumManager forumManager;
@@ -60,7 +59,7 @@ implements EventListener, OnItemClickListener {
 		list.setOnItemClickListener(this);
 
 		// Show a progress bar while the list is loading
-		loading = new ListLoadingProgressBar(this);
+		ListLoadingProgressBar loading = new ListLoadingProgressBar(this);
 		setContentView(loading);
 	}
 
@@ -78,12 +77,12 @@ implements EventListener, OnItemClickListener {
 					Collection<ForumContacts> available =
 							new ArrayList<ForumContacts>();
 					long now = System.currentTimeMillis();
-					for (Group g : forumManager.getAvailableGroups()) {
+					for (Forum f : forumManager.getAvailableForums()) {
 						try {
-							GroupId id = g.getId();
+							GroupId id = f.getId();
 							Collection<Contact> c =
 									forumManager.getSubscribers(id);
-							available.add(new ForumContacts(g, c));
+							available.add(new ForumContacts(f, c));
 						} catch (NoSuchSubscriptionException e) {
 							// Continue
 						}
@@ -142,18 +141,18 @@ implements EventListener, OnItemClickListener {
 		AvailableForumsItem item = adapter.getItem(position);
 		Collection<ContactId> visible = new ArrayList<ContactId>();
 		for (Contact c : item.getContacts()) visible.add(c.getId());
-		addSubscription(item.getGroup(), visible);
+		addSubscription(item.getForum(), visible);
 		String subscribed = getString(R.string.subscribed_toast);
 		Toast.makeText(this, subscribed, LENGTH_SHORT).show();
 	}
 
-	private void addSubscription(final Group g,
+	private void addSubscription(final Forum f,
 			final Collection<ContactId> visible) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					forumManager.addGroup(g);
-					forumManager.setVisibility(g.getId(), visible);
+					forumManager.addForum(f);
+					forumManager.setVisibility(f.getId(), visible);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

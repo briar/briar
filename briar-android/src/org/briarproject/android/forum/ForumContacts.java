@@ -1,22 +1,22 @@
 package org.briarproject.android.forum;
 
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.sync.Group;
+import org.briarproject.api.forum.Forum;
 
 import java.util.Collection;
 
 class ForumContacts {
 
-	private final Group group;
+	private final Forum forum;
 	private final Collection<Contact> contacts;
 
-	ForumContacts(Group group, Collection<Contact> contacts) {
-		this.group = group;
+	ForumContacts(Forum forum, Collection<Contact> contacts) {
+		this.forum = forum;
 		this.contacts = contacts;
 	}
 
-	Group getGroup() {
-		return group;
+	Forum getForum() {
+		return forum;
 	}
 
 	Collection<Contact> getContacts() {

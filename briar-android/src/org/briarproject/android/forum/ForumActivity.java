@@ -26,9 +26,9 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
@@ -74,7 +74,7 @@ OnClickListener, OnItemClickListener {
 	@Inject private volatile ForumManager forumManager;
 	@Inject private volatile EventBus eventBus;
 	private volatile GroupId groupId = null;
-	private volatile Group group = null;
+	private volatile Forum forum = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -152,10 +152,10 @@ OnClickListener, OnItemClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					group = forumManager.getGroup(groupId);
+					forum = forumManager.getForum(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading group " + duration + " ms");
+						LOG.info("Loading forum " + duration + " ms");
 					displayForumName();
 				} catch (NoSuchSubscriptionException e) {
 					finishOnUiThread();
@@ -170,7 +170,7 @@ OnClickListener, OnItemClickListener {
 	private void displayForumName() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				setTitle(group.getName());
+				setTitle(forum.getName());
 			}
 		});
 	}
@@ -313,7 +313,7 @@ OnClickListener, OnItemClickListener {
 
 	public void eventOccurred(Event e) {
 		if (e instanceof MessageAddedEvent) {
-			if (((MessageAddedEvent) e).getGroup().getId().equals(groupId)) {
+			if (((MessageAddedEvent) e).getGroupId().equals(groupId)) {
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
@@ -330,13 +330,13 @@ OnClickListener, OnItemClickListener {
 		if (view == composeButton) {
 			Intent i = new Intent(this, WriteForumPostActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.FORUM_NAME", group.getName());
+			i.putExtra("briar.FORUM_NAME", forum.getName());
 			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
 			startActivity(i);
 		} else if (view == shareButton) {
 			Intent i = new Intent(this, ShareForumActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.FORUM_NAME", group.getName());
+			i.putExtra("briar.FORUM_NAME", forum.getName());
 			startActivity(i);
 		}
 	}
@@ -361,7 +361,7 @@ OnClickListener, OnItemClickListener {
 		MessageHeader item = adapter.getItem(position).getHeader();
 		Intent i = new Intent(this, ReadForumPostActivity.class);
 		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.FORUM_NAME", group.getName());
+		i.putExtra("briar.FORUM_NAME", forum.getName());
 		i.putExtra("briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
 		if (author != null) i.putExtra("briar.AUTHOR_NAME", author.getName());

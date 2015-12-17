@@ -1,19 +1,19 @@
 package org.briarproject.android.forum;
 
-import org.briarproject.api.sync.Group;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.sync.MessageHeader;
 
 import java.util.Collection;
 
 class ForumListItem {
 
-	private final Group group;
+	private final Forum forum;
 	private final boolean empty;
 	private final long timestamp;
 	private final int unread;
 
-	ForumListItem(Group group, Collection<MessageHeader> headers) {
-		this.group = group;
+	ForumListItem(Forum forum, Collection<MessageHeader> headers) {
+		this.forum = forum;
 		empty = headers.isEmpty();
 		if (empty) {
 			timestamp = 0;
@@ -34,8 +34,8 @@ class ForumListItem {
 		}
 	}
 
-	Group getGroup() {
-		return group;
+	Forum getForum() {
+		return forum;
 	}
 
 	boolean isEmpty() {

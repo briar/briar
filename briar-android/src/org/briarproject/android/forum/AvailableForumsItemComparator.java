@@ -9,8 +9,8 @@ class AvailableForumsItemComparator implements Comparator<AvailableForumsItem> {
 
 	public int compare(AvailableForumsItem a, AvailableForumsItem b) {
 		if (a == b) return 0;
-		String aName = a.getGroup().getName();
-		String bName = b.getGroup().getName();
+		String aName = a.getForum().getName();
+		String bName = b.getForum().getName();
 		return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
 	}
 }
