@@ -64,6 +64,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
@@ -81,9 +82,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private TextView empty = null;
+	private ProgressBar loading = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
-	private ProgressBar loading = null;
 	private EditText content = null;
 	private ImageButton sendButton = null;
 
@@ -114,6 +115,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		setContentView(R.layout.activity_conversation);
 		ViewGroup layout = (ViewGroup) findViewById(R.id.layout);
 		empty = (TextView) findViewById(R.id.emptyView);
+		empty.setVisibility(GONE);
+		// Show a progress bar while the list is loading
+		loading = (ProgressBar) findViewById(R.id.listLoadingProgressBar);
+		loading.setVisibility(VISIBLE);
 
 		adapter = new ConversationAdapter(this);
 		list = new ListView(this) {
@@ -135,11 +140,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		list.setDividerHeight(pad);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
-		list.setEmptyView(empty);
+		list.setEmptyView(loading);
 		layout.addView(list, 0);
-
-		// Show a progress bar while the list is loading
-		loading = (ProgressBar) findViewById(R.id.listLoadingProgressBar);
 
 		content = (EditText) findViewById(R.id.contentView);
 		sendButton = (ImageButton) findViewById(R.id.sendButton);
@@ -225,6 +227,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				loading.setVisibility(GONE);
+				empty.setVisibility(VISIBLE);
+				list.setEmptyView(empty);
 				displayContactDetails();
 				sendButton.setEnabled(true);
 				adapter.clear();
