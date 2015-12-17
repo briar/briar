@@ -67,7 +67,7 @@ OnClickListener {
 	private TextView enableBluetooth = null, enableBluetoothHint = null;
 	private CheckBox notifyPrivateMessages = null, notifyForumPosts = null;
 	private CheckBox notifyVibration = null;
-	private CheckBox torOverWifi = null;
+	private TextView torOverWifi = null, torOverWifiHint = null;
 	private TextView notifySound = null, notifySoundHint = null;
 	private ListLoadingProgressBar progress = null;
 	private ImageButton testingButton = null;
@@ -76,7 +76,7 @@ OnClickListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject private volatile EventBus eventBus;
 	private volatile Settings settings;
-	private volatile boolean bluetoothSetting = true;
+	private volatile boolean bluetoothSetting = true, torSetting = false;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -129,11 +129,17 @@ OnClickListener {
 		underline.setBackgroundColor(titleUnderline);
 		settings.addView(underline);
 
-		torOverWifi = new CheckBox(this);
+		torOverWifi = new TextView(this);
+		torOverWifi.setPadding(pad, pad, pad, 0);
 		torOverWifi.setTextSize(18);
 		torOverWifi.setText(R.string.tor_wifi_setting);
 		torOverWifi.setOnClickListener(this);
 		settings.addView(torOverWifi);
+
+		torOverWifiHint = new TextView(this);
+		torOverWifiHint.setPadding(pad, 0, pad, pad);
+		torOverWifiHint.setOnClickListener(this);
+		settings.addView(torOverWifiHint);
 
 		TextView notificationsTitle = new TextView(this);
 		notificationsTitle.setPadding(pad, 0, pad, 0);
@@ -236,6 +242,7 @@ OnClickListener {
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading settings took " + duration + " ms");
 					bluetoothSetting = c.getBoolean("enable", false);
+					torSetting = settings.getBoolean("torOverWifi", false);
 					displaySettings();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -255,6 +262,10 @@ OnClickListener {
 				if (bluetoothSetting) resId = R.string.bluetooth_setting_enabled;
 				else resId = R.string.bluetooth_setting_disabled;
 				enableBluetoothHint.setText(resId);
+
+				if (torSetting) resId = R.string.tor_wifi_setting_enabled;
+				else resId = R.string.tor_wifi_setting_disabled;
+				torOverWifiHint.setText(resId);
 
 				notifyPrivateMessages.setChecked(settings.getBoolean(
 						"notifyPrivateMessages", true));
@@ -298,7 +309,8 @@ OnClickListener {
 			}
 			storeBluetoothSetting();
 			displaySettings();
-		} else if (view == torOverWifi) {
+		} else if (view == torOverWifi || view == torOverWifiHint) {
+			torSetting = !torSetting;
 			storeTorSettings();
 		} else if (view == notifyPrivateMessages) {
 			Settings s = new Settings();
@@ -335,13 +347,17 @@ OnClickListener {
 	private void storeTorSettings() {
 		runOnDbThread(new Runnable() {
 			public void run() {
-				Settings s = new Settings();
-				s.putBoolean("torOverWifi", torOverWifi.isChecked());
-				TransportConfig c = new TransportConfig();
-				c.putBoolean("torOverWifi", torOverWifi.isChecked());
-				storeSettings(s);
 				try {
+					Settings s = new Settings();
+					s.putBoolean("torOverWifi", torSetting);
+					TransportConfig c = new TransportConfig();
+					c.putBoolean("torOverWifi", torSetting);
+					long now = System.currentTimeMillis();
+					db.mergeSettings(s);
 					db.mergeConfig(new TransportId("tor"), c);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Merging config took " + duration + " ms");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
