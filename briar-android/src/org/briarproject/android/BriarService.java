@@ -13,7 +13,6 @@ import org.briarproject.R;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -23,6 +22,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.LifecycleManager.StartResult;
+import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.concurrent.CountDownLatch;
@@ -59,7 +59,7 @@ public class BriarService extends RoboService implements EventListener {
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile AndroidExecutor androidExecutor;
 	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
-	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile MessagingManager messagingManager;
 	@Inject private volatile EventBus eventBus;
 	private volatile boolean started = false;
 
@@ -181,7 +181,7 @@ public class BriarService extends RoboService implements EventListener {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
-					if (g.equals(db.getInboxGroupId(c)))
+					if (g.equals(messagingManager.getConversationId(c)))
 						notificationManager.showPrivateMessageNotification(c);
 					else notificationManager.showForumPostNotification(g);
 				} catch (DbException e) {
