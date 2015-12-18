@@ -94,16 +94,16 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final KeyParser agreementKeyParser, signatureKeyParser;
 
 	@Inject
-	CryptoComponentImpl(SeedProvider r) {
+	CryptoComponentImpl(SeedProvider seedProvider) {
 		if (!FortunaSecureRandom.selfTest()) throw new RuntimeException();
-		SecureRandom secureRandom1 = new SecureRandom();
+		SecureRandom platformSecureRandom = new SecureRandom();
 		if (LOG.isLoggable(INFO)) {
-			String provider = secureRandom1.getProvider().getName();
-			String algorithm = secureRandom1.getAlgorithm();
+			String provider = platformSecureRandom.getProvider().getName();
+			String algorithm = platformSecureRandom.getAlgorithm();
 			LOG.info("Default SecureRandom: " + provider + " " + algorithm);
 		}
-		SecureRandom secureRandom2 = new FortunaSecureRandom(r.getSeed());
-		secureRandom = new CombinedSecureRandom(secureRandom1, secureRandom2);
+		SecureRandom fortuna = new FortunaSecureRandom(seedProvider.getSeed());
+		secureRandom = new CombinedSecureRandom(platformSecureRandom, fortuna);
 		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
 				PARAMETERS, secureRandom);
 		agreementKeyPairGenerator = new ECKeyPairGenerator();
