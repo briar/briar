@@ -55,12 +55,12 @@ implements InvitationListener {
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
 	private String contactName = null;
-	private boolean bluetoothWasEnabled = false;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject private volatile IdentityManager identityManager;
-	private volatile boolean leaveBluetoothEnabled = true;
+	private volatile boolean bluetoothWasEnabled = false;
+	private volatile boolean leaveBluetoothEnabled = false;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -173,7 +173,8 @@ implements InvitationListener {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading setting took " + duration + " ms");
-					leaveBluetoothEnabled = c.getBoolean("enable", false);
+					leaveBluetoothEnabled = bluetoothWasEnabled
+							|| c.getBoolean("enable", false);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -328,7 +329,7 @@ implements InvitationListener {
 	}
 
 	public void disableBluetooth() {
-		if (!bluetoothWasEnabled && !leaveBluetoothEnabled) {
+		if (!leaveBluetoothEnabled) {
 			if (LOG.isLoggable(INFO)) LOG.info("Turning off Bluetooth again");
 
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
