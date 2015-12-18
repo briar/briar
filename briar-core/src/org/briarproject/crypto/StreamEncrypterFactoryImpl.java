@@ -1,17 +1,18 @@
 package org.briarproject.crypto;
 
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.crypto.StreamEncrypter;
+import org.briarproject.api.crypto.StreamEncrypterFactory;
+import org.briarproject.api.transport.StreamContext;
 
 import java.io.OutputStream;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.crypto.StreamEncrypter;
-import org.briarproject.api.crypto.StreamEncrypterFactory;
-import org.briarproject.api.transport.StreamContext;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 
@@ -27,15 +28,23 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 
 	public StreamEncrypter createStreamEncrypter(OutputStream out,
 			StreamContext ctx) {
+		AuthenticatedCipher cipher = cipherProvider.get();
 		byte[] tag = new byte[TAG_LENGTH];
 		crypto.encodeTag(tag, ctx.getTagKey(), ctx.getStreamNumber());
-		AuthenticatedCipher cipher = cipherProvider.get();
-		return new StreamEncrypterImpl(out, cipher, ctx.getHeaderKey(), tag);
+		byte[] streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
+		crypto.getSecureRandom().nextBytes(streamHeaderIv);
+		SecretKey frameKey = crypto.generateSecretKey();
+		return new StreamEncrypterImpl(out, cipher, tag, streamHeaderIv,
+				ctx.getHeaderKey(), frameKey);
 	}
 
 	public StreamEncrypter createInvitationStreamEncrypter(OutputStream out,
 			SecretKey headerKey) {
 		AuthenticatedCipher cipher = cipherProvider.get();
-		return new StreamEncrypterImpl(out, cipher, headerKey, null);
+		byte[] streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
+		crypto.getSecureRandom().nextBytes(streamHeaderIv);
+		SecretKey frameKey = crypto.generateSecretKey();
+		return new StreamEncrypterImpl(out, cipher, null, streamHeaderIv,
+				headerKey, frameKey);
 	}
 }
