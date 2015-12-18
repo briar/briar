@@ -112,7 +112,7 @@ public class XSalsa20Poly1305AuthenticatedCipher
 				poly1305.doFinal(output, outputOff);
 			}
 
-			return processed;
+			return encrypting ? processed + MAC_LENGTH : processed;
 		} catch (DataLengthException e) {
 			throw new GeneralSecurityException(e.getMessage());
 		}

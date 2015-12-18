@@ -9,6 +9,7 @@ import java.security.GeneralSecurityException;
 import java.util.Random;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class XSalsa20Poly1305AuthenticatedCipherTest extends BriarTestCase {
 
@@ -51,7 +52,8 @@ public class XSalsa20Poly1305AuthenticatedCipherTest extends BriarTestCase {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(true, k, TEST_IV);
 		byte[] output = new byte[TEST_CIPHERTEXT.length];
-		cipher.process(TEST_PLAINTEXT, 0, TEST_PLAINTEXT.length, output, 0);
+		assertEquals(TEST_CIPHERTEXT.length, cipher.process(TEST_PLAINTEXT, 0,
+						TEST_PLAINTEXT.length, output, 0));
 		assertArrayEquals(TEST_CIPHERTEXT, output);
 	}
 
@@ -61,7 +63,8 @@ public class XSalsa20Poly1305AuthenticatedCipherTest extends BriarTestCase {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(false, k, TEST_IV);
 		byte[] output = new byte[TEST_PLAINTEXT.length];
-		cipher.process(TEST_CIPHERTEXT, 0, TEST_CIPHERTEXT.length, output, 0);
+		assertEquals(TEST_PLAINTEXT.length, cipher.process(TEST_CIPHERTEXT, 0,
+				TEST_CIPHERTEXT.length, output, 0));
 		assertArrayEquals(TEST_PLAINTEXT, output);
 	}
 

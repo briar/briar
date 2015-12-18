@@ -26,14 +26,14 @@ interface AuthenticatedCipher {
 	 *              including the MAC.
 	 * @param inputOff the offset into the input array where the data to be
 	 *                 processed starts.
-	 * @param len the number of bytes to be processed. If decrypting, includes
-	 *            the MAC length.
-	 * @param output the output buffer the processed bytes go into. If
-	 *               encrypting, the ciphertext including the MAC. If
-	 *               decrypting, the plaintext.
-	 * @param outputOff the offset into the output byte array the processed
-	 *                  data starts at.
-	 * @return  the number of bytes processed.
+	 * @param len the length of the input. If decrypting, includes the MAC
+	 *            length.
+	 * @param output the output byte array. If encrypting, the ciphertext
+	 *               including the MAC. If decrypting, the plaintext.
+	 * @param outputOff the offset into the output byte array where the
+	 *                  processed data starts.
+	 * @return  the length of the output. If encrypting, includes the MAC
+	 *          length.
 	 * @throws GeneralSecurityException on invalid input.
 	 */
 	int process(byte[] input, int inputOff, int len, byte[] output,
