@@ -13,6 +13,7 @@
 		<item>org.briarproject.lifecycle.LifecycleModule</item>
 		<item>org.briarproject.messaging.MessagingModule</item>
 		<item>org.briarproject.plugins.AndroidPluginsModule</item>
+		<item>org.briarproject.property.PropertyModule</item>
 		<item>org.briarproject.sync.SyncModule</item>
 		<item>org.briarproject.system.AndroidSystemModule</item>
 		<item>org.briarproject.transport.TransportModule</item>

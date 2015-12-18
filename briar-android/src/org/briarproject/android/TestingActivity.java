@@ -30,11 +30,11 @@ import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.android.AndroidExecutor;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
@@ -84,7 +84,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	@Inject private AndroidExecutor androidExecutor;
 	@Inject private PluginManager pluginManager;
 	@Inject private LifecycleManager lifecycleManager;
-	@Inject private DatabaseComponent db;
+	@Inject private TransportPropertyManager transportPropertyManager;
 	private ScrollView scroll = null;
 	private ListLoadingProgressBar progress = null;
 	private LinearLayout status = null;
@@ -364,7 +364,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		Map<TransportId, TransportProperties> props = Collections.emptyMap();
 		try {
 			lifecycleManager.waitForDatabase();
-			props = db.getLocalProperties();
+			props = transportPropertyManager.getLocalProperties();
 		} catch (InterruptedException e) {
 			LOG.info("Interrupted while waiting for database");
 			Thread.currentThread().interrupt();

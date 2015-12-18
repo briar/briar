@@ -25,6 +25,7 @@ import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
+import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 
@@ -58,6 +59,7 @@ class PluginManagerImpl implements PluginManager {
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionManager connectionManager;
+	private final TransportPropertyManager transportPropertyManager;
 	private final UiCallback uiCallback;
 	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
@@ -68,7 +70,9 @@ class PluginManagerImpl implements PluginManager {
 			SimplexPluginConfig simplexPluginConfig,
 			DuplexPluginConfig duplexPluginConfig, Clock clock,
 			DatabaseComponent db, Poller poller,
-			ConnectionManager connectionManager, UiCallback uiCallback) {
+			ConnectionManager connectionManager,
+			TransportPropertyManager transportPropertyManager,
+			UiCallback uiCallback) {
 		this.ioExecutor = ioExecutor;
 		this.eventBus = eventBus;
 		this.simplexPluginConfig = simplexPluginConfig;
@@ -77,6 +81,7 @@ class PluginManagerImpl implements PluginManager {
 		this.db = db;
 		this.poller = poller;
 		this.connectionManager = connectionManager;
+		this.transportPropertyManager = transportPropertyManager;
 		this.uiCallback = uiCallback;
 		plugins = new ConcurrentHashMap<TransportId, Plugin>();
 		simplexPlugins = new CopyOnWriteArrayList<SimplexPlugin>();
@@ -320,7 +325,8 @@ class PluginManagerImpl implements PluginManager {
 
 		public TransportProperties getLocalProperties() {
 			try {
-				TransportProperties p = db.getLocalProperties(id);
+				TransportProperties p =
+						transportPropertyManager.getLocalProperties(id);
 				return p == null ? new TransportProperties() : p;
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -330,7 +336,7 @@ class PluginManagerImpl implements PluginManager {
 
 		public Map<ContactId, TransportProperties> getRemoteProperties() {
 			try {
-				return db.getRemoteProperties(id);
+				return transportPropertyManager.getRemoteProperties(id);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return Collections.emptyMap();
@@ -347,7 +353,7 @@ class PluginManagerImpl implements PluginManager {
 
 		public void mergeLocalProperties(TransportProperties p) {
 			try {
-				db.mergeLocalProperties(id, p);
+				transportPropertyManager.mergeLocalProperties(id, p);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

@@ -1,6 +1,7 @@
 package org.briarproject.api.messaging;
 
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -9,6 +10,12 @@ import org.briarproject.api.sync.MessageId;
 import java.util.Collection;
 
 public interface MessagingManager {
+
+	/**
+	 * Informs the messaging manager that a new contact has been added.
+	 * Creates a private conversation with the contact.
+	 */
+	void addContact(ContactId c, SecretKey master) throws DbException;
 
 	/** Stores a local private message. */
 	void addLocalMessage(Message m) throws DbException;

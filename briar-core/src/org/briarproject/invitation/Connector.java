@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
@@ -15,28 +16,25 @@ import org.briarproject.api.data.Reader;
 import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.data.Writer;
 import org.briarproject.api.data.WriterFactory;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.sync.Group;
+import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
@@ -50,7 +48,6 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENG
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
-import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
 // FIXME: This class has way too many dependencies
 abstract class Connector extends Thread {
@@ -59,7 +56,6 @@ abstract class Connector extends Thread {
 			Logger.getLogger(Connector.class.getName());
 
 	protected final CryptoComponent crypto;
-	protected final DatabaseComponent db;
 	protected final ReaderFactory readerFactory;
 	protected final WriterFactory writerFactory;
 	protected final StreamReaderFactory streamReaderFactory;
@@ -68,6 +64,9 @@ abstract class Connector extends Thread {
 	protected final GroupFactory groupFactory;
 	protected final KeyManager keyManager;
 	protected final ConnectionManager connectionManager;
+	protected final ContactManager contactManager;
+	protected final MessagingManager messagingManager;
+	protected final TransportPropertyManager transportPropertyManager;
 	protected final Clock clock;
 	protected final boolean reuseConnection;
 	protected final ConnectorGroup group;
@@ -83,19 +82,20 @@ abstract class Connector extends Thread {
 
 	private volatile ContactId contactId = null;
 
-	Connector(CryptoComponent crypto, DatabaseComponent db,
+	Connector(CryptoComponent crypto,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
-			Clock clock, boolean reuseConnection, ConnectorGroup group,
-			DuplexPlugin plugin, LocalAuthor localAuthor,
+			ContactManager contactManager, MessagingManager messagingManager,
+			TransportPropertyManager transportPropertyManager, Clock clock,
+			boolean reuseConnection, ConnectorGroup group, DuplexPlugin plugin,
+			LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super("Connector");
 		this.crypto = crypto;
-		this.db = db;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
 		this.streamReaderFactory = streamReaderFactory;
@@ -104,6 +104,9 @@ abstract class Connector extends Thread {
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
 		this.connectionManager = connectionManager;
+		this.contactManager = contactManager;
+		this.messagingManager = messagingManager;
+		this.transportPropertyManager = transportPropertyManager;
 		this.clock = clock;
 		this.reuseConnection = reuseConnection;
 		this.group = group;
@@ -274,31 +277,15 @@ abstract class Connector extends Thread {
 			Map<TransportId, TransportProperties> remoteProps, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
 		// Add the contact to the database
-		contactId = db.addContact(remoteAuthor, localAuthor.getId());
-		// Create and store the inbox group
-		byte[] salt = crypto.deriveGroupSalt(master);
-		Group inbox = groupFactory.createGroup("Inbox", salt);
-		db.addGroup(inbox);
-		db.setInboxGroup(contactId, inbox);
+		contactId = contactManager.addContact(remoteAuthor,
+				localAuthor.getId());
+		// Create a private messaging conversation
+		messagingManager.addContact(contactId, master);
 		// Store the remote transport properties
-		db.setRemoteProperties(contactId, remoteProps);
+		transportPropertyManager.setRemoteProperties(contactId, remoteProps);
 		// Derive transport keys for each transport shared with the contact
-		Map<TransportId, Integer> latencies = db.getTransportLatencies();
-		List<TransportKeys> keys = new ArrayList<TransportKeys>();
-		for (TransportId t : localProps.keySet()) {
-			if (remoteProps.containsKey(t) && latencies.containsKey(t)) {
-				// Work out what rotation period the timestamp belongs to
-				long latency = latencies.get(t);
-				long rotationPeriodLength = latency + MAX_CLOCK_DIFFERENCE;
-				long rotationPeriod = timestamp / rotationPeriodLength;
-				// Derive the transport keys
-				TransportKeys k = crypto.deriveTransportKeys(t, master,
-						rotationPeriod, alice);
-				db.addTransportKeys(contactId, k);
-				keys.add(k);
-			}
-		}
-		keyManager.contactAdded(contactId, keys);
+		keyManager.addContact(contactId, remoteProps.keySet(), master,
+				timestamp, alice);
 	}
 
 	protected void tryToClose(DuplexTransportConnection conn,

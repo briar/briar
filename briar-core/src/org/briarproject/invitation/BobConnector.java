@@ -2,6 +2,7 @@ package org.briarproject.invitation;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.crypto.SecretKey;
@@ -9,14 +10,15 @@ import org.briarproject.api.data.Reader;
 import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.data.Writer;
 import org.briarproject.api.data.WriterFactory;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.KeyManager;
@@ -39,20 +41,24 @@ class BobConnector extends Connector {
 	private static final Logger LOG =
 			Logger.getLogger(BobConnector.class.getName());
 
-	BobConnector(CryptoComponent crypto, DatabaseComponent db,
+	BobConnector(CryptoComponent crypto,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
-			Clock clock, boolean reuseConnection, ConnectorGroup group,
-			DuplexPlugin plugin, LocalAuthor localAuthor,
+			ContactManager contactManager, MessagingManager messagingManager,
+			TransportPropertyManager transportPropertyManager, Clock clock,
+			boolean reuseConnection, ConnectorGroup group, DuplexPlugin plugin,
+			LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
-		super(crypto, db, readerFactory, writerFactory, streamReaderFactory,
+		super(crypto, readerFactory, writerFactory, streamReaderFactory,
 				streamWriterFactory, authorFactory, groupFactory,
-				keyManager, connectionManager, clock, reuseConnection, group,
-				plugin, localAuthor, localProps, random);
+				keyManager, connectionManager, contactManager,
+				messagingManager, transportPropertyManager, clock,
+				reuseConnection, group, plugin, localAuthor, localProps,
+				random);
 	}
 
 	@Override
