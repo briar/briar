@@ -6,10 +6,11 @@ import org.briarproject.util.StringUtils;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
+import java.util.Random;
 
 import static org.junit.Assert.assertArrayEquals;
 
-public class XSalsa20Poly1305ACTest extends BriarTestCase {
+public class XSalsa20Poly1305AuthenticatedCipherTest extends BriarTestCase {
 
 	// Test vectors from the NaCl paper
 	// http://cr.yp.to/highspeed/naclcrypto-20090310.pdf
@@ -47,9 +48,9 @@ public class XSalsa20Poly1305ACTest extends BriarTestCase {
 	@Test
 	public void testEncrypt() throws Exception {
 		SecretKey k = new SecretKey(TEST_KEY);
-		AuthenticatedCipher cipher = new XSalsa20Poly1305AC();
+		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(true, k, TEST_IV);
-		byte[] output = new byte[TEST_PLAINTEXT.length + cipher.getMacBytes()];
+		byte[] output = new byte[TEST_CIPHERTEXT.length];
 		cipher.process(TEST_PLAINTEXT, 0, TEST_PLAINTEXT.length, output, 0);
 		assertArrayEquals(TEST_CIPHERTEXT, output);
 	}
@@ -57,9 +58,9 @@ public class XSalsa20Poly1305ACTest extends BriarTestCase {
 	@Test
 	public void testDecrypt() throws Exception {
 		SecretKey k = new SecretKey(TEST_KEY);
-		AuthenticatedCipher cipher = new XSalsa20Poly1305AC();
+		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(false, k, TEST_IV);
-		byte[] output = new byte[TEST_CIPHERTEXT.length - cipher.getMacBytes()];
+		byte[] output = new byte[TEST_PLAINTEXT.length];
 		cipher.process(TEST_CIPHERTEXT, 0, TEST_CIPHERTEXT.length, output, 0);
 		assertArrayEquals(TEST_PLAINTEXT, output);
 	}
@@ -67,23 +68,23 @@ public class XSalsa20Poly1305ACTest extends BriarTestCase {
 	@Test(expected = GeneralSecurityException.class)
 	public void testDecryptFailsWithShortInput() throws Exception {
 		SecretKey k = new SecretKey(TEST_KEY);
-		AuthenticatedCipher cipher = new XSalsa20Poly1305AC();
+		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(false, k, TEST_IV);
-		byte[] input = new byte[8];
-		System.arraycopy(TEST_CIPHERTEXT, 0, input, 0, 8);
-		byte[] output = new byte[TEST_CIPHERTEXT.length - cipher.getMacBytes()];
+		byte[] input = new byte[cipher.getMacBytes() - 1];
+		System.arraycopy(TEST_CIPHERTEXT, 0, input, 0, input.length);
+		byte[] output = new byte[TEST_PLAINTEXT.length];
 		cipher.process(input, 0, input.length, output, 0);
 	}
 
 	@Test(expected = GeneralSecurityException.class)
 	public void testDecryptFailsWithAlteredCiphertext() throws Exception {
 		SecretKey k = new SecretKey(TEST_KEY);
-		AuthenticatedCipher cipher = new XSalsa20Poly1305AC();
+		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(false, k, TEST_IV);
 		byte[] input = new byte[TEST_CIPHERTEXT.length];
 		System.arraycopy(TEST_CIPHERTEXT, 0, input, 0, TEST_CIPHERTEXT.length);
-		input[TEST_CIPHERTEXT.length - cipher.getMacBytes()] = 42;
-		byte[] output = new byte[TEST_CIPHERTEXT.length - cipher.getMacBytes()];
+		input[new Random().nextInt(TEST_CIPHERTEXT.length)] ^= 0xFF;
+		byte[] output = new byte[TEST_PLAINTEXT.length];
 		cipher.process(input, 0, input.length, output, 0);
 	}
 }

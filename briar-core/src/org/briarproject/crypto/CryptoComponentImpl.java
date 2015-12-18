@@ -55,8 +55,8 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private static final int AGREEMENT_KEY_PAIR_BITS = 256;
 	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
-	private static final int STORAGE_IV_BYTES = 16; // 128 bits
-	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
+	private static final int STORAGE_IV_BYTES = 24; // 196 bits
+	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
 	private static final int PBKDF_TARGET_MILLIS = 500;
 	private static final int PBKDF_SAMPLES = 30;
 
@@ -325,7 +325,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] encryptWithPassword(byte[] input, String password) {
-		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
 		// Generate a random salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
@@ -355,7 +355,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] decryptWithPassword(byte[] input, String password) {
-		AuthenticatedCipher cipher = new AuthenticatedCipherImpl();
+		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
 		// The input contains the salt, iterations, IV, ciphertext and MAC
 		if (input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + macBytes)

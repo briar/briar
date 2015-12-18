@@ -19,7 +19,7 @@ public interface TransportConstants {
 			+ MAC_LENGTH;
 
 	/** The length of the frame initalisation vector (IV) in bytes. */
-	int FRAME_IV_LENGTH = 12;
+	int FRAME_IV_LENGTH = 24;
 
 	/** The length of the frame header in bytes. */
 	int FRAME_HEADER_LENGTH = 4 + MAC_LENGTH;
