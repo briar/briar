@@ -2,7 +2,7 @@ package org.briarproject.api.sync;
 
 import java.util.Collection;
 
-/** A packet acknowledging receipt of one or more {@link Message}s. */
+/** A packet acknowledging receipt of one or more {@link Message Messages}. */
 public class Ack {
 
 	private final Collection<MessageId> acked;
