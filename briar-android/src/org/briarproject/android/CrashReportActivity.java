@@ -1,7 +1,6 @@
 package org.briarproject.android;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -16,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -69,7 +69,7 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
-public class CrashReportActivity extends Activity implements OnClickListener {
+public class CrashReportActivity extends AppCompatActivity implements OnClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(CrashReportActivity.class.getName());
@@ -141,6 +141,14 @@ public class CrashReportActivity extends Activity implements OnClickListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if (temp != null) temp.delete();
+	}
+
+	@Override
+	public void onBackPressed() {
+		// show home screen, otherwise we are crashing again
+		Intent intent = new Intent(Intent.ACTION_MAIN);
+		intent.addCategory(Intent.CATEGORY_HOME);
+		startActivity(intent);
 	}
 
 	public void onClick(View view) {

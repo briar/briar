@@ -7,8 +7,6 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 
-import roboguice.activity.RoboActivity;
-
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult;
 
 public class StartupFailureActivity extends BaseActivity {
