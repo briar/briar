@@ -3,17 +3,46 @@ package org.briarproject.api.forum;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.MessageId;
 
-public interface ForumPostHeader {
+public class ForumPostHeader {
 
-	MessageId getId();
+	private final MessageId id;
+	private final long timestamp;
+	private final Author author;
+	private final Author.Status authorStatus;
+	private final String contentType;
+	private final boolean read;
 
-	Author getAuthor();
+	public ForumPostHeader(MessageId id, long timestamp, Author author,
+			Author.Status authorStatus, String contentType, boolean read) {
+		this.id = id;
+		this.timestamp = timestamp;
+		this.author = author;
+		this.authorStatus = authorStatus;
+		this.contentType = contentType;
+		this.read = read;
+	}
 
-	Author.Status getAuthorStatus();
+	public MessageId getId() {
+		return id;
+	}
 
-	String getContentType();
+	public Author getAuthor() {
+		return author;
+	}
 
-	long getTimestamp();
+	public Author.Status getAuthorStatus() {
+		return authorStatus;
+	}
 
-	boolean isRead();
+	public String getContentType() {
+		return contentType;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public boolean isRead() {
+		return read;
+	}
 }

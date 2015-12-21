@@ -326,11 +326,11 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		// Is Bluetooth available?
 		BluetoothAdapter bt = null;
 		try {
-			bt = androidExecutor.call(new Callable<BluetoothAdapter>() {
+			bt = androidExecutor.submit(new Callable<BluetoothAdapter>() {
 				public BluetoothAdapter call() throws Exception {
 					return BluetoothAdapter.getDefaultAdapter();
 				}
-			});
+			}).get();
 		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while getting BluetoothAdapter");
 			Thread.currentThread().interrupt();

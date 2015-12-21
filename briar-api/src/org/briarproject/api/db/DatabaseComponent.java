@@ -9,11 +9,12 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.Ack;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
@@ -44,9 +45,12 @@ public interface DatabaseComponent {
 	 */
 	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
+	/** Adds a group to the given contact's subscriptions. */
+	void addGroup(ContactId c, Group g) throws DbException;
+
 	/**
 	 * Subscribes to a group, or returns false if the user already has the
-	 * maximum number of public subscriptions.
+	 * maximum number of subscriptions.
 	 */
 	boolean addGroup(Group g) throws DbException;
 
@@ -54,7 +58,8 @@ public interface DatabaseComponent {
 	void addLocalAuthor(LocalAuthor a) throws DbException;
 
 	/** Stores a local message. */
-	void addLocalMessage(Message m) throws DbException;
+	void addLocalMessage(Message m, ClientId c, Metadata meta)
+			throws DbException;
 
 	/**
 	 * Stores a transport and returns true if the transport was not previously
@@ -147,21 +152,8 @@ public interface DatabaseComponent {
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
-	/** Returns all groups to which the user subscribes, excluding inboxes. */
+	/** Returns all groups to which the user subscribes. */
 	Collection<Group> getGroups() throws DbException;
-
-	/**
-	 * Returns the ID of the inbox group for the given contact, or null if no
-	 * inbox group has been set.
-	 */
-	GroupId getInboxGroupId(ContactId c) throws DbException;
-
-	/**
-	 * Returns the headers of all messages in the inbox group for the given
-	 * contact, or null if no inbox group has been set.
-	 */
-	Collection<MessageHeader> getInboxMessageHeaders(ContactId c)
-			throws DbException;
 
 	/** Returns the local pseudonym with the given ID. */
 	LocalAuthor getLocalAuthor(AuthorId a) throws DbException;
@@ -176,15 +168,35 @@ public interface DatabaseComponent {
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
 
-	/** Returns the body of the message with the given ID. */
-	byte[] getMessageBody(MessageId m) throws DbException;
+	/**
+	 * Returns the IDs of any messages that need to be validated by the given
+	 * client.
+	 */
+	Collection<MessageId> getMessagesToValidate(ClientId c) throws DbException;
 
-	/** Returns the headers of all messages in the given group. */
-	Collection<MessageHeader> getMessageHeaders(GroupId g)
+	/** Returns the message with the given ID, in serialised form. */
+	byte[] getRawMessage(MessageId m) throws DbException;
+
+	/** Returns the metadata for all messages in the given group. */
+	Map<MessageId, Metadata> getMessageMetadata(GroupId g)
 			throws DbException;
 
-	/** Returns true if the given message is marked as read. */
-	boolean getReadFlag(MessageId m) throws DbException;
+	/** Returns the metadata for the given message. */
+	Metadata getMessageMetadata(MessageId m) throws DbException;
+
+	/**
+	 * Returns the status of all messages in the given group with respect to
+	 * the given contact.
+	 */
+	Collection<MessageStatus> getMessageStatus(ContactId c, GroupId g)
+			throws DbException;
+
+	/**
+	 * Returns the status of the given message with respect to the given
+	 * contact.
+	 */
+	MessageStatus getMessageStatus(ContactId c, MessageId m)
+			throws DbException;
 
 	/** Returns all remote transport properties for the given transport. */
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
@@ -203,9 +215,6 @@ public interface DatabaseComponent {
 	/** Returns the maximum latencies in milliseconds of all transports. */
 	Map<TransportId, Integer> getTransportLatencies() throws DbException;
 
-	/** Returns the number of unread messages in each subscribed group. */
-	Map<GroupId, Integer> getUnreadMessageCounts() throws DbException;
-
 	/** Returns the IDs of all contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
 
@@ -222,6 +231,12 @@ public interface DatabaseComponent {
 	 */
 	void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException;
+
+	/**
+	 * Merges the given metadata with the existing metadata for the given
+	 * message.
+	 */
+	void mergeMessageMetadata(MessageId m, Metadata meta) throws DbException;
 
 	/**
 	 * Merges the given settings with the existing settings in the given
@@ -276,16 +291,9 @@ public interface DatabaseComponent {
 	 */
 	void removeTransport(TransportId t) throws DbException;
 
-	/**
-	 * Makes a group visible to the given contact, adds it to the contact's
-	 * subscriptions, and sets it as the inbox group for the contact.
-	 */
-	void setInboxGroup(ContactId c, Group g) throws DbException;
-
-	/**
-	 * Marks a message as read or unread.
-	 */
-	void setReadFlag(MessageId m, boolean read) throws DbException;
+	/** Marks the given message as valid or invalid. */
+	void setMessageValidity(Message m, ClientId c, boolean valid)
+			throws DbException;
 
 	/**
 	 * Sets the remote transport properties for the given contact, replacing

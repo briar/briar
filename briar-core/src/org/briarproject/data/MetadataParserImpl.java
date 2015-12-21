@@ -33,13 +33,13 @@ class MetadataParserImpl implements MetadataParser {
 
 	@Override
 	public BdfDictionary parse(Metadata m) throws FormatException {
-		BdfDictionary dict = new BdfDictionary();
+		BdfDictionary d = new BdfDictionary();
 		for (Entry<String, byte[]> e : m.entrySet())
-			dict.put(e.getKey(), parseObject(e.getValue()));
-		return dict;
+			d.put(e.getKey(), parseValue(e.getValue()));
+		return d;
 	}
 
-	private Object parseObject(byte[] b) throws FormatException {
+	private Object parseValue(byte[] b) throws FormatException {
 		if (b == REMOVE) return null;
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Object o = parseObject(in);

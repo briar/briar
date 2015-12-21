@@ -125,7 +125,6 @@
 			<test name='org.briarproject.plugins.modem.ModemPluginTest'/>
 			<test name='org.briarproject.plugins.tcp.LanTcpPluginTest'/>
 			<test name='org.briarproject.sync.ConstantsTest'/>
-			<test name='org.briarproject.sync.ConsumersTest'/>
 			<test name='org.briarproject.sync.PacketReaderImplTest'/>
 			<test name='org.briarproject.sync.SimplexMessagingIntegrationTest'/>
 			<test name='org.briarproject.sync.SimplexOutgoingSessionTest'/>

@@ -6,14 +6,16 @@ import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Metadata;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageHeader;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
@@ -84,6 +86,13 @@ interface Database<T> {
 	 */
 	ContactId addContact(T txn, Author remote, AuthorId local)
 			throws DbException;
+
+	/**
+	 * Adds a group to the given contact's subscriptions.
+	 * <p>
+	 * Locking: write.
+	 */
+	void addGroup(T txn, ContactId c, Group g) throws DbException;
 
 	/**
 	 * Subscribes to a group, or returns false if the user already has the
@@ -265,28 +274,11 @@ interface Database<T> {
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns all groups to which the user subscribes, excluding inboxes.
+	 * Returns all groups to which the user subscribes.
 	 * <p>
 	 * Locking: read.
 	 */
 	Collection<Group> getGroups(T txn) throws DbException;
-
-	/**
-	 * Returns the ID of the inbox group for the given contact, or null if no
-	 * inbox group has been set.
-	 * <p>
-	 * Locking: read.
-	 */
-	GroupId getInboxGroupId(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns the headers of all messages in the inbox group for the given
-	 * contact, or null if no inbox group has been set.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<MessageHeader> getInboxMessageHeaders(T txn, ContactId c)
-			throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.
@@ -319,19 +311,37 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the body of the message identified by the given ID.
+	 * Returns the metadata for all messages in the given group.
 	 * <p>
 	 * Locking: read.
 	 */
-	byte[] getMessageBody(T txn, MessageId m) throws DbException;
+	Map<MessageId, Metadata> getMessageMetadata(T txn, GroupId g)
+			throws DbException;
 
 	/**
-	 * Returns the headers of all messages in the given group.
+	 * Returns the metadata for the given message.
 	 * <p>
 	 * Locking: read.
 	 */
-	Collection<MessageHeader> getMessageHeaders(T txn, GroupId g)
-			throws DbException;
+	Metadata getMessageMetadata(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the status of all messages in the given group with respect
+	 * to the given contact.
+	 * <p>
+	 * Locking: read
+	 */
+	Collection<MessageStatus> getMessageStatus(T txn, ContactId c, GroupId g)
+		throws DbException;
+
+	/**
+	 * Returns the status of the given message with respect to the given
+	 * contact.
+	 * <p>
+	 * Locking: read
+	 */
+	MessageStatus getMessageStatus(T txn, ContactId c, MessageId m)
+		throws DbException;
 
 	/**
 	 * Returns the IDs of some messages received from the given contact that
@@ -370,27 +380,20 @@ interface Database<T> {
 			int maxMessages) throws DbException;
 
 	/**
-	 * Returns the parent of the given message, or null if either the message
-	 * has no parent, or the parent is absent from the database, or the parent
-	 * belongs to a different group.
+	 * Returns the IDs of any messages that need to be validated by the given
+	 * client.
 	 * <p>
 	 * Locking: read.
 	 */
-	MessageId getParent(T txn, MessageId m) throws DbException;
+	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
+		throws DbException;
 
 	/**
-	 * Returns the message identified by the given ID, in serialised form.
+	 * Returns the message with the given ID, in serialised form.
 	 * <p>
 	 * Locking: read.
 	 */
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
-
-	/**
-	 * Returns true if the given message is marked as read.
-	 * <p>
-	 * Locking: read.
-	 */
-	boolean getReadFlag(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns all remote properties for the given transport.
@@ -476,13 +479,6 @@ interface Database<T> {
 			int maxLatency) throws DbException;
 
 	/**
-	 * Returns the number of unread messages in each subscribed group.
-	 * <p>
-	 * Locking: read.
-	 */
-	Map<GroupId, Integer> getUnreadMessageCounts(T txn) throws DbException;
-
-	/**
 	 * Returns the IDs of all contacts to which the given group is visible.
 	 * <p>
 	 * Locking: read.
@@ -523,6 +519,15 @@ interface Database<T> {
 	 * Locking: write.
 	 */
 	void mergeLocalProperties(T txn, TransportId t, TransportProperties p)
+			throws DbException;
+
+	/*
+	 * Merges the given metadata with the existing metadata for the given
+	 * message.
+	 * <p>
+	 * Locking: write.
+	 */
+	void mergeMessageMetadata(T txn, MessageId m, Metadata meta)
 			throws DbException;
 
 	/**
@@ -624,6 +629,10 @@ interface Database<T> {
 	 */
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
+	/** Marks the given message as valid or invalid. */
+	void setMessageValidity(T txn, MessageId m, boolean valid)
+			throws DbException;
+
 	/**
 	 * Sets the reordering window for the given contact and transport in the
 	 * given rotation period.
@@ -634,29 +643,14 @@ interface Database<T> {
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
-	 * Updates the groups to which the given contact subscribes and returns
-	 * true, unless an update with an equal or higher version number has
-	 * already been received from the contact.
+	 * Updates the given contact's subscriptions and returns true, unless an
+	 * update with an equal or higher version number has already been received
+	 * from the contact.
 	 * <p>
 	 * Locking: write.
 	 */
 	boolean setGroups(T txn, ContactId c, Collection<Group> groups,
 			long version) throws DbException;
-
-	/**
-	 * Makes a group visible to the given contact, adds it to the contact's
-	 * subscriptions, and sets it as the inbox group for the contact.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setInboxGroup(T txn, ContactId c, Group g) throws DbException;
-
-	/**
-	 * Marks a message as read or unread.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setReadFlag(T txn, MessageId m, boolean read) throws DbException;
 
 	/**
 	 * Sets the remote transport properties for the given contact, replacing

@@ -70,6 +70,19 @@ public class ByteUtils {
 				| (src[offset + 3] & 0xFFL);
 	}
 
+	public static long readUint64(byte[] src, int offset) {
+		if (src.length < offset + INT_64_BYTES)
+			throw new IllegalArgumentException();
+		return ((src[offset] & 0xFFL) << 56)
+				| ((src[offset + 1] & 0xFFL) << 48)
+				| ((src[offset + 2] & 0xFFL) << 40)
+				| ((src[offset + 3] & 0xFFL) << 32)
+				| ((src[offset + 4] & 0xFFL) << 24)
+				| ((src[offset + 5] & 0xFFL) << 16)
+				| ((src[offset + 6] & 0xFFL) << 8)
+				| (src[offset + 7] & 0xFFL);
+	}
+
 	public static int readUint(byte[] src, int bits) {
 		if (src.length << 3 < bits) throw new IllegalArgumentException();
 		int dest = 0;

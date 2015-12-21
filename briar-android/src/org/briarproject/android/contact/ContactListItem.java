@@ -10,15 +10,15 @@ import java.util.Collection;
 class ContactListItem {
 
 	private final Contact contact;
-	private final GroupId conversation;
+	private final GroupId groupId;
 	private boolean connected, empty;
 	private long timestamp;
 	private int unread;
 
-	ContactListItem(Contact contact, boolean connected, GroupId conversation,
+	ContactListItem(Contact contact, boolean connected, GroupId groupId,
 			Collection<PrivateMessageHeader> headers) {
 		this.contact = contact;
-		this.conversation = conversation;
+		this.groupId = groupId;
 		this.connected = connected;
 		setHeaders(headers);
 	}
@@ -39,8 +39,8 @@ class ContactListItem {
 		return contact;
 	}
 
-	GroupId getConversationId() {
-		return conversation;
+	GroupId getGroupId() {
+		return groupId;
 	}
 
 	boolean isConnected() {

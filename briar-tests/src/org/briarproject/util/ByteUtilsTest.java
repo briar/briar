@@ -12,11 +12,13 @@ public class ByteUtilsTest extends BriarTestCase {
 
 	@Test
 	public void testReadUint16() {
-		byte[] b = StringUtils.fromHexString("000000");
+		byte[] b = StringUtils.fromHexString("00000000");
 		assertEquals(0, ByteUtils.readUint16(b, 1));
-		b = StringUtils.fromHexString("000001");
+		b = StringUtils.fromHexString("00000100");
 		assertEquals(1, ByteUtils.readUint16(b, 1));
-		b = StringUtils.fromHexString("00FFFF");
+		b = StringUtils.fromHexString("007FFF00");
+		assertEquals(Short.MAX_VALUE, ByteUtils.readUint16(b, 1));
+		b = StringUtils.fromHexString("00FFFF00");
 		assertEquals(65535, ByteUtils.readUint16(b, 1));
 	}
 
@@ -32,11 +34,13 @@ public class ByteUtilsTest extends BriarTestCase {
 
 	@Test
 	public void testReadUint32() {
-		byte[] b = StringUtils.fromHexString("0000000000");
+		byte[] b = StringUtils.fromHexString("000000000000");
 		assertEquals(0, ByteUtils.readUint32(b, 1));
-		b = StringUtils.fromHexString("0000000001");
+		b = StringUtils.fromHexString("000000000100");
 		assertEquals(1, ByteUtils.readUint32(b, 1));
-		b = StringUtils.fromHexString("00FFFFFFFF");
+		b = StringUtils.fromHexString("007FFFFFFF00");
+		assertEquals(Integer.MAX_VALUE, ByteUtils.readUint32(b, 1));
+		b = StringUtils.fromHexString("00FFFFFFFF00");
 		assertEquals(4294967295L, ByteUtils.readUint32(b, 1));
 	}
 
@@ -48,6 +52,30 @@ public class ByteUtilsTest extends BriarTestCase {
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadUint32ValidatesArguments2() {
 		ByteUtils.readUint32(new byte[4], 1);
+	}
+
+	@Test
+	public void testReadUint64() {
+		byte[] b = StringUtils.fromHexString("00000000000000000000");
+		assertEquals(0L, ByteUtils.readUint64(b, 1));
+		b = StringUtils.fromHexString("00000000000000000100");
+		assertEquals(1L, ByteUtils.readUint64(b, 1));
+		b = StringUtils.fromHexString("007FFFFFFFFFFFFFFF00");
+		assertEquals(Long.MAX_VALUE, ByteUtils.readUint64(b, 1));
+		b = StringUtils.fromHexString("00800000000000000000");
+		assertEquals(Long.MIN_VALUE, ByteUtils.readUint64(b, 1));
+		b = StringUtils.fromHexString("00FFFFFFFFFFFFFFFF00");
+		assertEquals(-1L, ByteUtils.readUint64(b, 1));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadUint64ValidatesArguments1() {
+		ByteUtils.readUint64(new byte[7], 0);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadUint64ValidatesArguments2() {
+		ByteUtils.readUint64(new byte[8], 1);
 	}
 
 	@Test

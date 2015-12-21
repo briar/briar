@@ -4,10 +4,13 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.sync.Ack;
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketReader;
@@ -16,7 +19,6 @@ import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportAck;
 import org.briarproject.api.sync.TransportUpdate;
-import org.briarproject.api.sync.UnverifiedMessage;
 import org.briarproject.util.ByteUtils;
 
 import java.io.ByteArrayInputStream;
@@ -31,9 +33,6 @@ import java.util.Map;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
-import static org.briarproject.api.sync.MessagingConstants.HEADER_LENGTH;
-import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;
-import static org.briarproject.api.sync.MessagingConstants.PROTOCOL_VERSION;
 import static org.briarproject.api.sync.PacketTypes.ACK;
 import static org.briarproject.api.sync.PacketTypes.MESSAGE;
 import static org.briarproject.api.sync.PacketTypes.OFFER;
@@ -42,14 +41,18 @@ import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.sync.PacketTypes.TRANSPORT_ACK;
 import static org.briarproject.api.sync.PacketTypes.TRANSPORT_UPDATE;
+import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.PROTOCOL_VERSION;
 
 // This class is not thread-safe
 class PacketReaderImpl implements PacketReader {
 
 	private enum State { BUFFER_EMPTY, BUFFER_FULL, EOF }
 
+	private final CryptoComponent crypto;
 	private final BdfReaderFactory bdfReaderFactory;
-	private final ObjectReader<UnverifiedMessage> messageReader;
 	private final ObjectReader<SubscriptionUpdate> subscriptionUpdateReader;
 	private final InputStream in;
 	private final byte[] header, payload;
@@ -57,24 +60,23 @@ class PacketReaderImpl implements PacketReader {
 	private State state = State.BUFFER_EMPTY;
 	private int payloadLength = 0;
 
-	PacketReaderImpl(BdfReaderFactory bdfReaderFactory,
-			ObjectReader<UnverifiedMessage> messageReader,
+	PacketReaderImpl(CryptoComponent crypto, BdfReaderFactory bdfReaderFactory,
 			ObjectReader<SubscriptionUpdate> subscriptionUpdateReader,
 			InputStream in) {
+		this.crypto = crypto;
 		this.bdfReaderFactory = bdfReaderFactory;
-		this.messageReader = messageReader;
 		this.subscriptionUpdateReader = subscriptionUpdateReader;
 		this.in = in;
-		header = new byte[HEADER_LENGTH];
-		payload = new byte[MAX_PAYLOAD_LENGTH];
+		header = new byte[PACKET_HEADER_LENGTH];
+		payload = new byte[MAX_PACKET_PAYLOAD_LENGTH];
 	}
 
 	private void readPacket() throws IOException {
-		assert state == State.BUFFER_EMPTY;
+		if (state != State.BUFFER_EMPTY) throw new IllegalStateException();
 		// Read the header
 		int offset = 0;
-		while (offset < HEADER_LENGTH) {
-			int read = in.read(header, offset, HEADER_LENGTH - offset);
+		while (offset < PACKET_HEADER_LENGTH) {
+			int read = in.read(header, offset, PACKET_HEADER_LENGTH - offset);
 			if (read == -1) {
 				if (offset > 0) throw new FormatException();
 				state = State.EOF;
@@ -86,7 +88,7 @@ class PacketReaderImpl implements PacketReader {
 		if (header[0] != PROTOCOL_VERSION) throw new FormatException();
 		// Read the payload length
 		payloadLength = ByteUtils.readUint16(header, 2);
-		if (payloadLength > MAX_PAYLOAD_LENGTH) throw new FormatException();
+		if (payloadLength > MAX_PACKET_PAYLOAD_LENGTH) throw new FormatException();
 		// Read the payload
 		offset = 0;
 		while (offset < payloadLength) {
@@ -99,7 +101,7 @@ class PacketReaderImpl implements PacketReader {
 
 	public boolean eof() throws IOException {
 		if (state == State.BUFFER_EMPTY) readPacket();
-		assert state != State.BUFFER_EMPTY;
+		if (state == State.BUFFER_EMPTY) throw new IllegalStateException();
 		return state == State.EOF;
 	}
 
@@ -109,44 +111,43 @@ class PacketReaderImpl implements PacketReader {
 
 	public Ack readAck() throws IOException {
 		if (!hasAck()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the message IDs
-		List<MessageId> acked = new ArrayList<MessageId>();
-		r.readListStart();
-		while (!r.hasListEnd()) {
-			byte[] b = r.readRaw(UniqueId.LENGTH);
-			if (b.length != UniqueId.LENGTH)
-				throw new FormatException();
-			acked.add(new MessageId(b));
+		return new Ack(Collections.unmodifiableList(readMessageIds()));
+	}
+
+	private List<MessageId> readMessageIds() throws IOException {
+		if (payloadLength == 0) throw new FormatException();
+		if (payloadLength % UniqueId.LENGTH != 0) throw new FormatException();
+		List<MessageId> ids = new ArrayList<MessageId>();
+		for (int off = 0; off < payloadLength; off += UniqueId.LENGTH) {
+			byte[] id = new byte[UniqueId.LENGTH];
+			System.arraycopy(payload, off, id, 0, UniqueId.LENGTH);
+			ids.add(new MessageId(id));
 		}
-		if (acked.isEmpty()) throw new FormatException();
-		r.readListEnd();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
-		// Build and return the ack
-		return new Ack(Collections.unmodifiableList(acked));
+		return ids;
 	}
 
 	public boolean hasMessage() throws IOException {
 		return !eof() && header[1] == MESSAGE;
 	}
 
-	public UnverifiedMessage readMessage() throws IOException {
+	public Message readMessage() throws IOException {
 		if (!hasMessage()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read and build the message
-		UnverifiedMessage m = messageReader.readObject(r);
-		if (!r.eof()) throw new FormatException();
+		if (payloadLength <= MESSAGE_HEADER_LENGTH) throw new FormatException();
+		// Group ID
+		byte[] id = new byte[UniqueId.LENGTH];
+		System.arraycopy(payload, 0, id, 0, UniqueId.LENGTH);
+		GroupId groupId = new GroupId(id);
+		// Timestamp
+		long timestamp = ByteUtils.readUint64(payload, UniqueId.LENGTH);
+		if (timestamp < 0) throw new FormatException();
+		// Raw message
+		byte[] raw = new byte[payloadLength];
+		System.arraycopy(payload, 0, raw, 0, payloadLength);
 		state = State.BUFFER_EMPTY;
-		return m;
+		// Message ID
+		MessageId messageId = new MessageId(crypto.hash(MessageId.LABEL, raw));
+		return new Message(messageId, groupId, timestamp, raw);
 	}
 
 	public boolean hasOffer() throws IOException {
@@ -155,28 +156,7 @@ class PacketReaderImpl implements PacketReader {
 
 	public Offer readOffer() throws IOException {
 		if (!hasOffer()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the message IDs
-		List<MessageId> offered = new ArrayList<MessageId>();
-		r.readListStart();
-		while (!r.hasListEnd()) {
-			byte[] b = r.readRaw(UniqueId.LENGTH);
-			if (b.length != UniqueId.LENGTH)
-				throw new FormatException();
-			offered.add(new MessageId(b));
-		}
-		if (offered.isEmpty()) throw new FormatException();
-		r.readListEnd();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		// Build and return the offer
-		return new Offer(Collections.unmodifiableList(offered));
+		return new Offer(Collections.unmodifiableList(readMessageIds()));
 	}
 
 	public boolean hasRequest() throws IOException {
@@ -185,28 +165,7 @@ class PacketReaderImpl implements PacketReader {
 
 	public Request readRequest() throws IOException {
 		if (!hasRequest()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the message IDs
-		r.readListStart();
-		List<MessageId> requested = new ArrayList<MessageId>();
-		while (!r.hasListEnd()) {
-			byte[] b = r.readRaw(UniqueId.LENGTH);
-			if (b.length != UniqueId.LENGTH)
-				throw new FormatException();
-			requested.add(new MessageId(b));
-		}
-		if (requested.isEmpty()) throw new FormatException();
-		r.readListEnd();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		// Build and return the request
-		return new Request(Collections.unmodifiableList(requested));
+		return new Request(Collections.unmodifiableList(readMessageIds()));
 	}
 
 	public boolean hasSubscriptionAck() throws IOException {

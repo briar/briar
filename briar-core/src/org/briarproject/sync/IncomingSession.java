@@ -13,37 +13,30 @@ import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageVerifier;
-import org.briarproject.api.sync.MessagingSession;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.TransportAck;
 import org.briarproject.api.sync.TransportUpdate;
-import org.briarproject.api.sync.UnverifiedMessage;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 
-/**
- * An incoming {@link org.briarproject.api.sync.MessagingSession
- * MessagingSession}.
- */
-class IncomingSession implements MessagingSession, EventListener {
+/** An incoming {@link org.briarproject.api.sync.SyncSession SyncSession}. */
+class IncomingSession implements SyncSession, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(IncomingSession.class.getName());
 
 	private final DatabaseComponent db;
-	private final Executor dbExecutor, cryptoExecutor;
+	private final Executor dbExecutor;
 	private final EventBus eventBus;
-	private final MessageVerifier messageVerifier;
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final PacketReader packetReader;
@@ -51,14 +44,11 @@ class IncomingSession implements MessagingSession, EventListener {
 	private volatile boolean interrupted = false;
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
-			Executor cryptoExecutor, EventBus eventBus,
-			MessageVerifier messageVerifier, ContactId contactId,
-			TransportId transportId, PacketReader packetReader) {
+			EventBus eventBus, ContactId contactId, TransportId transportId,
+			PacketReader packetReader) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
-		this.cryptoExecutor = cryptoExecutor;
 		this.eventBus = eventBus;
-		this.messageVerifier = messageVerifier;
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.packetReader = packetReader;
@@ -73,8 +63,8 @@ class IncomingSession implements MessagingSession, EventListener {
 					Ack a = packetReader.readAck();
 					dbExecutor.execute(new ReceiveAck(a));
 				} else if (packetReader.hasMessage()) {
-					UnverifiedMessage m = packetReader.readMessage();
-					cryptoExecutor.execute(new VerifyMessage(m));
+					Message m = packetReader.readMessage();
+					dbExecutor.execute(new ReceiveMessage(m));
 				} else if (packetReader.hasOffer()) {
 					Offer o = packetReader.readOffer();
 					dbExecutor.execute(new ReceiveOffer(o));
@@ -131,25 +121,6 @@ class IncomingSession implements MessagingSession, EventListener {
 			try {
 				db.receiveAck(contactId, ack);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	private class VerifyMessage implements Runnable {
-
-		private final UnverifiedMessage message;
-
-		private VerifyMessage(UnverifiedMessage message) {
-			this.message = message;
-		}
-
-		public void run() {
-			try {
-				Message m = messageVerifier.verifyMessage(message);
-				dbExecutor.execute(new ReceiveMessage(m));
-			} catch (GeneralSecurityException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
 			}

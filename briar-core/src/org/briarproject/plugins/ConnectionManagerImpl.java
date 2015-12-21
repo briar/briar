@@ -8,8 +8,8 @@ import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.sync.MessagingSession;
-import org.briarproject.api.sync.MessagingSessionFactory;
+import org.briarproject.api.sync.SyncSession;
+import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
@@ -36,20 +36,20 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private final KeyManager keyManager;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
-	private final MessagingSessionFactory messagingSessionFactory;
+	private final SyncSessionFactory syncSessionFactory;
 	private final ConnectionRegistry connectionRegistry;
 
 	@Inject
 	ConnectionManagerImpl(@IoExecutor Executor ioExecutor,
 			KeyManager keyManager, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
-			MessagingSessionFactory messagingSessionFactory,
+			SyncSessionFactory syncSessionFactory,
 			ConnectionRegistry connectionRegistry) {
 		this.ioExecutor = ioExecutor;
 		this.keyManager = keyManager;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
-		this.messagingSessionFactory = messagingSessionFactory;
+		this.syncSessionFactory = syncSessionFactory;
 		this.connectionRegistry = connectionRegistry;
 	}
 
@@ -87,28 +87,28 @@ class ConnectionManagerImpl implements ConnectionManager {
 		return tag;
 	}
 
-	private MessagingSession createIncomingSession(StreamContext ctx,
+	private SyncSession createIncomingSession(StreamContext ctx,
 			TransportConnectionReader r) throws IOException {
 		InputStream streamReader = streamReaderFactory.createStreamReader(
 				r.getInputStream(), ctx);
-		return messagingSessionFactory.createIncomingSession(
+		return syncSessionFactory.createIncomingSession(
 				ctx.getContactId(), ctx.getTransportId(), streamReader);
 	}
 
-	private MessagingSession createSimplexOutgoingSession(StreamContext ctx,
+	private SyncSession createSimplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
-		return messagingSessionFactory.createSimplexOutgoingSession(
+		return syncSessionFactory.createSimplexOutgoingSession(
 				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
 				streamWriter);
 	}
 
-	private MessagingSession createDuplexOutgoingSession(StreamContext ctx,
+	private SyncSession createDuplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
-		return messagingSessionFactory.createDuplexOutgoingSession(
+		return syncSessionFactory.createDuplexOutgoingSession(
 				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
 				w.getMaxIdleTime(), streamWriter);
 	}
@@ -214,8 +214,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private final TransportConnectionWriter writer;
 
 		private volatile ContactId contactId = null;
-		private volatile MessagingSession incomingSession = null;
-		private volatile MessagingSession outgoingSession = null;
+		private volatile SyncSession incomingSession = null;
+		private volatile SyncSession outgoingSession = null;
 
 		private ManageIncomingDuplexConnection(TransportId transportId,
 				DuplexTransportConnection transport) {
@@ -309,8 +309,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private final TransportConnectionReader reader;
 		private final TransportConnectionWriter writer;
 
-		private volatile MessagingSession incomingSession = null;
-		private volatile MessagingSession outgoingSession = null;
+		private volatile SyncSession incomingSession = null;
+		private volatile SyncSession outgoingSession = null;
 
 		private ManageOutgoingDuplexConnection(ContactId contactId,
 				TransportId transportId, DuplexTransportConnection transport) {

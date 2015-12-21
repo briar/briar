@@ -10,21 +10,21 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
-import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
+import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
-import org.briarproject.api.sync.MessagingSession;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.TransportAck;
 import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.system.Clock;
@@ -39,15 +39,15 @@ import java.util.logging.Logger;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 
 /**
- * An outgoing {@link org.briarproject.api.sync.MessagingSession
- * MessagingSession} suitable for duplex transports. The session offers
- * messages before sending them, keeps its output stream open when there are no
- * packets to send, and reacts to events that make packets available to send.
+ * An outgoing {@link org.briarproject.api.sync.SyncSession SyncSession}
+ * suitable for duplex transports. The session offers messages before sending
+ * them, keeps its output stream open when there are no packets to send, and
+ * reacts to events that make packets available to send.
  */
-class DuplexOutgoingSession implements MessagingSession, EventListener {
+class DuplexOutgoingSession implements SyncSession, EventListener {
 
 	// Check for retransmittable packets once every 60 seconds
 	private static final int RETX_QUERY_INTERVAL = 60 * 1000;
@@ -161,8 +161,9 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) interrupt();
-		} else if (e instanceof MessageAddedEvent) {
-			dbExecutor.execute(new GenerateOffer());
+		} else if (e instanceof MessageValidatedEvent) {
+			if (((MessageValidatedEvent) e).isValid())
+				dbExecutor.execute(new GenerateOffer());
 		} else if (e instanceof LocalSubscriptionsUpdatedEvent) {
 			LocalSubscriptionsUpdatedEvent l =
 					(LocalSubscriptionsUpdatedEvent) e;
@@ -243,7 +244,7 @@ class DuplexOutgoingSession implements MessagingSession, EventListener {
 			if (interrupted) return;
 			try {
 				Collection<byte[]> b = db.generateRequestedBatch(contactId,
-						MAX_PAYLOAD_LENGTH, maxLatency);
+						MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
 				if (b != null) writerTasks.add(new WriteBatch(b));

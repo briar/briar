@@ -128,6 +128,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		return scopedObjects;
 	}
 
+	// FIXME: Factor out prefs code so it can be used by SplashScreenActivity
 	private SharedPreferences getSharedPrefs() {
 		return getSharedPreferences(PREFS_DB, MODE_PRIVATE);
 	}

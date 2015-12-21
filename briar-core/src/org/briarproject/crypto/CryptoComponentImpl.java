@@ -73,8 +73,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	// KDF labels for signature nonce derivation
 	private static final byte[] A_NONCE = ascii("ALICE_SIGNATURE_NONCE");
 	private static final byte[] B_NONCE = ascii("BOB_SIGNATURE_NONCE");
-	// KDF label for group salt derivation
-	private static final byte[] SALT = ascii("SALT");
 	// KDF labels for tag key derivation
 	private static final byte[] A_TAG = ascii("ALICE_TAG_KEY");
 	private static final byte[] B_TAG = ascii("BOB_TAG_KEY");
@@ -233,10 +231,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		return macKdf(master, alice ? A_NONCE : B_NONCE);
 	}
 
-	public byte[] deriveGroupSalt(SecretKey master) {
-		return macKdf(master, SALT);
-	}
-
 	public TransportKeys deriveTransportKeys(TransportId t,
 			SecretKey master, long rotationPeriod, boolean alice) {
 		// Keys for the previous period are derived from the master secret
@@ -323,6 +317,17 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.doFinal(mac, 0);
 		// The output is the first TAG_LENGTH bytes of the MAC
 		System.arraycopy(mac, 0, tag, 0, TAG_LENGTH);
+	}
+
+	public byte[] hash(byte[]... inputs) {
+		MessageDigest digest = getMessageDigest();
+		byte[] length = new byte[INT_32_BYTES];
+		for (byte[] input : inputs) {
+			ByteUtils.writeUint32(input.length, length, 0);
+			digest.update(length);
+			digest.update(input);
+		}
+		return digest.digest();
 	}
 
 	public byte[] encryptWithPassword(byte[] input, String password) {

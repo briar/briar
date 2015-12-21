@@ -3,7 +3,6 @@ package org.briarproject.android.contact;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
@@ -23,10 +22,11 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageAddedEvent;
+import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -105,18 +106,16 @@ public class ContactListActivity extends BriarActivity
 					for (Contact c : contactManager.getContacts()) {
 						try {
 							ContactId id = c.getId();
-							GroupId conversation =
+							GroupId groupId =
 									messagingManager.getConversationId(id);
 							Collection<PrivateMessageHeader> headers =
 									messagingManager.getMessageHeaders(id);
-
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
 							contacts.add(new ContactListItem(c, connected,
-									conversation,
-									headers));
+									groupId, headers));
 						} catch (NoSuchContactException e) {
-							// Continue
+							LOG.info("Contact removed");
 						}
 					}
 					displayContacts(contacts);
@@ -141,7 +140,7 @@ public class ContactListActivity extends BriarActivity
 						// sorting criteria and cause duplicates
 						for (ContactListItem contact : contacts) {
 							int position = adapter.findItemPosition(contact);
-							if (position == SortedList.INVALID_POSITION) {
+							if (position == INVALID_POSITION) {
 								adapter.add(contact);
 							} else {
 								adapter.updateItem(position, contact);
@@ -169,19 +168,22 @@ public class ContactListActivity extends BriarActivity
 		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed");
 			removeItem(((ContactRemovedEvent) e).getContactId());
-		} else if (e instanceof MessageAddedEvent) {
-			LOG.info("Message added, reloading");
-			ContactId source = ((MessageAddedEvent) e).getContactId();
-			if (source == null) loadContacts();
-			else reloadContact(source);
+		} else if (e instanceof MessageValidatedEvent) {
+			MessageValidatedEvent m = (MessageValidatedEvent) e;
+			ClientId c = m.getClientId();
+			if (m.isValid() && c.equals(messagingManager.getClientId())) {
+				LOG.info("Message added, reloading");
+				reloadConversation(m.getMessage().getGroupId());
+			}
 		}
 	}
 
-	private void reloadContact(final ContactId c) {
+	private void reloadConversation(final GroupId g) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
+					ContactId c = messagingManager.getContactId(g);
 					Collection<PrivateMessageHeader> headers =
 							messagingManager.getMessageHeaders(c);
 					long duration = System.currentTimeMillis() - now;
@@ -189,7 +191,7 @@ public class ContactListActivity extends BriarActivity
 						LOG.info("Partial load took " + duration + " ms");
 					updateItem(c, headers);
 				} catch (NoSuchContactException e) {
-					removeItem(c);
+					LOG.info("Contact removed");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

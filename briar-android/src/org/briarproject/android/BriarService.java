@@ -11,22 +11,11 @@ import android.support.v4.app.NotificationCompat;
 
 import org.briarproject.R;
 import org.briarproject.api.android.AndroidExecutor;
-import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.api.db.DatabaseExecutor;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.LifecycleManager.StartResult;
-import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.sync.GroupId;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -34,6 +23,7 @@ import javax.inject.Inject;
 
 import roboguice.service.RoboService;
 
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
@@ -41,7 +31,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 
-public class BriarService extends RoboService implements EventListener {
+public class BriarService extends RoboService {
 
 	private static final int ONGOING_NOTIFICATION_ID = 1;
 	private static final int FAILURE_NOTIFICATION_ID = 2;
@@ -53,14 +43,10 @@ public class BriarService extends RoboService implements EventListener {
 	private final Binder binder = new BriarBinder();
 
 	@Inject private DatabaseConfig databaseConfig;
-	@Inject private AndroidNotificationManager notificationManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile AndroidExecutor androidExecutor;
-	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
-	@Inject private volatile MessagingManager messagingManager;
-	@Inject private volatile EventBus eventBus;
 	private volatile boolean started = false;
 
 	@Override
@@ -95,7 +81,6 @@ public class BriarService extends RoboService implements EventListener {
 			public void run() {
 				StartResult result = lifecycleManager.startServices();
 				if (result == SUCCESS) {
-					eventBus.addListener(BriarService.this);
 					started = true;
 				} else if (result == ALREADY_RUNNING) {
 					LOG.info("Already running");
@@ -110,25 +95,34 @@ public class BriarService extends RoboService implements EventListener {
 		}.start();
 	}
 
-	private void showStartupFailureNotification(StartResult result) {
-		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
-		b.setSmallIcon(android.R.drawable.stat_notify_error);
-		b.setContentTitle(getText(R.string.startup_failed_notification_title));
-		b.setContentText(getText(R.string.startup_failed_notification_text));
-		Intent i = new Intent(this, StartupFailureActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-		i.putExtra("briar.START_RESULT", result);
-		i.putExtra("briar.FAILURE_NOTIFICATION_ID", FAILURE_NOTIFICATION_ID);
-		b.setContentIntent(PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
-		Object o = getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.notify(FAILURE_NOTIFICATION_ID, b.build());
-
-		// Bring the dashboard to the front to clear all other activities
-		i = new Intent(this, DashboardActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-		i.putExtra("briar.STARTUP_FAILED", true);
-		startActivity(i);
+	private void showStartupFailureNotification(final StartResult result) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				NotificationCompat.Builder b =
+						new NotificationCompat.Builder(BriarService.this);
+				b.setSmallIcon(android.R.drawable.stat_notify_error);
+				b.setContentTitle(getText(
+						R.string.startup_failed_notification_title));
+				b.setContentText(getText(
+						R.string.startup_failed_notification_text));
+				Intent i = new Intent(BriarService.this,
+						StartupFailureActivity.class);
+				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
+				i.putExtra("briar.START_RESULT", result);
+				i.putExtra("briar.FAILURE_NOTIFICATION_ID",
+						FAILURE_NOTIFICATION_ID);
+				b.setContentIntent(PendingIntent.getActivity(BriarService.this,
+						0, i, FLAG_UPDATE_CURRENT));
+				Object o = getSystemService(NOTIFICATION_SERVICE);
+				NotificationManager nm = (NotificationManager) o;
+				nm.notify(FAILURE_NOTIFICATION_ID, b.build());
+				// Bring the dashboard to the front to clear the back stack
+				i = new Intent(BriarService.this, DashboardActivity.class);
+				i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+				i.putExtra("briar.STARTUP_FAILED", true);
+				startActivity(i);
+			}
+		});
 	}
 
 	@Override
@@ -146,16 +140,11 @@ public class BriarService extends RoboService implements EventListener {
 		super.onDestroy();
 		LOG.info("Destroyed");
 		stopForeground(true);
-		notificationManager.clearNotifications();
 		// Stop the services in a background thread
 		new Thread() {
 			@Override
 			public void run() {
-				if (started) {
-					eventBus.removeListener(BriarService.this);
-					lifecycleManager.stopServices();
-				}
-				androidExecutor.shutdown();
+				if (started) lifecycleManager.stopServices();
 			}
 		}.start();
 	}
@@ -165,39 +154,6 @@ public class BriarService extends RoboService implements EventListener {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
 		// FIXME: Work out what to do about it
-	}
-
-	public void eventOccurred(Event e) {
-		if (e instanceof MessageAddedEvent) {
-			MessageAddedEvent m = (MessageAddedEvent) e;
-			GroupId g = m.getGroupId();
-			ContactId c = m.getContactId();
-			if (c != null) showMessageNotification(g, c);
-		}
-	}
-
-	private void showMessageNotification(final GroupId g, final ContactId c) {
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					lifecycleManager.waitForDatabase();
-					if (g.equals(messagingManager.getConversationId(c)))
-						notificationManager.showPrivateMessageNotification(c);
-					else notificationManager.showForumPostNotification(g);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch (InterruptedException e) {
-					LOG.info("Interruped while waiting for database");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	/** Waits for the database to be opened before returning. */
-	public void waitForDatabase() throws InterruptedException {
-		lifecycleManager.waitForDatabase();
 	}
 
 	/** Waits for all services to start before returning. */

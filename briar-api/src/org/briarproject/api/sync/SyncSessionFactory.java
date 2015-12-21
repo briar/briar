@@ -6,14 +6,14 @@ import org.briarproject.api.contact.ContactId;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface MessagingSessionFactory {
+public interface SyncSessionFactory {
 
-	MessagingSession createIncomingSession(ContactId c, TransportId t,
+	SyncSession createIncomingSession(ContactId c, TransportId t,
 			InputStream in);
 
-	MessagingSession createSimplexOutgoingSession(ContactId c, TransportId t,
+	SyncSession createSimplexOutgoingSession(ContactId c, TransportId t,
 			int maxLatency, OutputStream out);
 
-	MessagingSession createDuplexOutgoingSession(ContactId c, TransportId t,
+	SyncSession createDuplexOutgoingSession(ContactId c, TransportId t,
 			int maxLatency, int maxIdleTime, OutputStream out);
 }

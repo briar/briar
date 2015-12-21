@@ -1,23 +1,51 @@
 package org.briarproject.api.messaging;
 
-import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.MessageId;
 
-public interface PrivateMessageHeader {
+public class PrivateMessageHeader {
 
-	enum Status { STORED, SENT, DELIVERED }
+	private final MessageId id;
+	private final long timestamp;
+	private final String contentType;
+	private final boolean local, read, sent, seen;
 
-	MessageId getId();
+	public PrivateMessageHeader(MessageId id, long timestamp,
+			String contentType, boolean local, boolean read, boolean sent,
+			boolean seen) {
+		this.id = id;
+		this.timestamp = timestamp;
+		this.contentType = contentType;
+		this.local = local;
+		this.read = read;
+		this.sent = sent;
+		this.seen = seen;
+	}
 
-	Author getAuthor();
+	public MessageId getId() {
+		return id;
+	}
 
-	String getContentType();
+	public String getContentType() {
+		return contentType;
+	}
 
-	long getTimestamp();
+	public long getTimestamp() {
+		return timestamp;
+	}
 
-	boolean isLocal();
+	public boolean isLocal() {
+		return local;
+	}
 
-	boolean isRead();
+	public boolean isRead() {
+		return read;
+	}
 
-	Status getStatus();
+	public boolean isSent() {
+		return sent;
+	}
+
+	public boolean isSeen() {
+		return seen;
+	}
 }

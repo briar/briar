@@ -6,18 +6,14 @@ import com.google.inject.Injector;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.Ack;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.MessageVerifier;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.PacketReaderFactory;
@@ -26,7 +22,6 @@ import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportUpdate;
-import org.briarproject.api.sync.UnverifiedMessage;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
@@ -46,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -58,7 +54,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final StreamWriterFactory streamWriterFactory;
 	private final PacketReaderFactory packetReaderFactory;
 	private final PacketWriterFactory packetWriterFactory;
-	private final MessageVerifier messageVerifier;
 
 	private final ContactId contactId;
 	private final SecretKey tagKey, headerKey;
@@ -78,29 +73,22 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		streamWriterFactory = i.getInstance(StreamWriterFactory.class);
 		packetReaderFactory = i.getInstance(PacketReaderFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
-		messageVerifier = i.getInstance(MessageVerifier.class);
 		contactId = new ContactId(234);
 		// Create the transport keys
 		tagKey = TestUtils.createSecretKey();
 		headerKey = TestUtils.createSecretKey();
 		// Create a group
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
-		group = groupFactory.createGroup("Group");
-		// Create an author
-		AuthorFactory authorFactory = i.getInstance(AuthorFactory.class);
-		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		KeyPair authorKeyPair = crypto.generateSignatureKeyPair();
-		Author author = authorFactory.createAuthor("Alice",
-				authorKeyPair.getPublic().getEncoded());
-		// Create two messages to the group: one anonymous, one pseudonymous
+		ClientId clientId = new ClientId(TestUtils.getRandomId());
+		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
+		group = groupFactory.createGroup(clientId, descriptor);
+		// Add two messages to the group
 		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
-		String contentType = "text/plain";
 		long timestamp = System.currentTimeMillis();
 		String messageBody = "Hello world";
-		message = messageFactory.createAnonymousMessage(null, group,
-				"text/plain", timestamp, messageBody.getBytes("UTF-8"));
-		message1 = messageFactory.createPseudonymousMessage(null, group,
-				author, authorKeyPair.getPrivate(), contentType, timestamp,
+		message = messageFactory.createMessage(group.getId(), timestamp,
+				messageBody.getBytes("UTF-8"));
+		message1 = messageFactory.createMessage(group.getId(), timestamp,
 				messageBody.getBytes("UTF-8"));
 		messageIds = Arrays.asList(message.getId(), message1.getId());
 		// Create some transport properties
@@ -125,8 +113,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 		packetWriter.writeAck(new Ack(messageIds));
 
-		packetWriter.writeMessage(message.getSerialised());
-		packetWriter.writeMessage(message1.getSerialised());
+		packetWriter.writeMessage(message.getRaw());
+		packetWriter.writeMessage(message1.getRaw());
 
 		packetWriter.writeOffer(new Offer(messageIds));
 
@@ -163,11 +151,11 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 		// Read and verify the messages
 		assertTrue(packetReader.hasMessage());
-		UnverifiedMessage m = packetReader.readMessage();
-		checkMessageEquality(message, messageVerifier.verifyMessage(m));
+		Message m = packetReader.readMessage();
+		checkMessageEquality(message, m);
 		assertTrue(packetReader.hasMessage());
 		m = packetReader.readMessage();
-		checkMessageEquality(message1, messageVerifier.verifyMessage(m));
+		checkMessageEquality(message1, m);
 		assertFalse(packetReader.hasMessage());
 
 		// Read the offer
@@ -198,10 +186,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private void checkMessageEquality(Message m1, Message m2) {
 		assertEquals(m1.getId(), m2.getId());
-		assertEquals(m1.getParent(), m2.getParent());
-		assertEquals(m1.getGroup(), m2.getGroup());
-		assertEquals(m1.getAuthor(), m2.getAuthor());
 		assertEquals(m1.getTimestamp(), m2.getTimestamp());
-		assertArrayEquals(m1.getSerialised(), m2.getSerialised());
+		assertArrayEquals(m1.getRaw(), m2.getRaw());
 	}
 }

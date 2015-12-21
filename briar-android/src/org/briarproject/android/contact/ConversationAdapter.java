@@ -14,9 +14,6 @@ import org.briarproject.R;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
 
-import static org.briarproject.api.messaging.PrivateMessageHeader.Status.DELIVERED;
-import static org.briarproject.api.messaging.PrivateMessageHeader.Status.SENT;
-
 class ConversationAdapter extends
 		RecyclerView.Adapter<ConversationAdapter.MessageHolder> {
 
@@ -113,18 +110,18 @@ class ConversationAdapter extends
 		PrivateMessageHeader header = item.getHeader();
 
 		if (header.isLocal()) {
-			if (item.getStatus() == DELIVERED) {
+			if (item.isSeen()) {
 				ui.status.setImageResource(R.drawable.message_delivered);
-			} else if (item.getStatus() == SENT) {
+			} else if (item.isSent()) {
 				ui.status.setImageResource(R.drawable.message_sent);
 			} else {
 				ui.status.setImageResource(R.drawable.message_stored);
 			}
 		} else if (!header.isRead()) {
-			int bottom = ui.layout.getPaddingBottom();
+			int left = ui.layout.getPaddingLeft();
 			int top = ui.layout.getPaddingTop();
 			int right = ui.layout.getPaddingRight();
-			int left = ui.layout.getPaddingLeft();
+			int bottom = ui.layout.getPaddingBottom();
 
 			// show unread messages in different color to not miss them
 			ui.layout.setBackgroundResource(R.drawable.msg_in_unread);
@@ -185,7 +182,9 @@ class ConversationAdapter extends
 		this.messages.endBatchedUpdates();
 	}
 
+	// TODO: Does this class need to be public?
 	public static class MessageHolder extends RecyclerView.ViewHolder {
+
 		public ViewGroup layout;
 		public TextView body;
 		public TextView date;

@@ -14,10 +14,11 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.List;
+
+import static android.support.v7.util.SortedList.INVALID_POSITION;
 
 public class ContactListAdapter
 		extends RecyclerView.Adapter<ContactListAdapter.ContactHolder> {
@@ -130,17 +131,9 @@ public class ContactListAdapter
 		ui.layout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ContactId contactId = item.getContact().getId();
-				String contactName = item.getContact().getAuthor().getName();
-				GroupId groupId = item.getConversationId();
-				AuthorId localAuthorId = item.getContact().getLocalAuthorId();
-
+				GroupId groupId = item.getGroupId();
 				Intent i = new Intent(ctx, ConversationActivity.class);
-				i.putExtra("briar.CONTACT_ID", contactId.getInt());
-				i.putExtra("briar.CONTACT_NAME", contactName);
 				i.putExtra("briar.GROUP_ID", groupId.getBytes());
-				i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
-
 				ctx.startActivity(i);
 			}
 		});
@@ -156,8 +149,7 @@ public class ContactListAdapter
 	}
 
 	public ContactListItem getItem(int position) {
-		if (position == SortedList.INVALID_POSITION ||
-				contacts.size() <= position) {
+		if (position == INVALID_POSITION || contacts.size() <= position) {
 			return null; // Not found
 		}
 		return contacts.get(position);
@@ -186,7 +178,7 @@ public class ContactListAdapter
 			ContactListItem item = getItem(i);
 			if (item.getContact().getId().equals(c)) return i;
 		}
-		return SortedList.INVALID_POSITION; // Not found
+		return INVALID_POSITION; // Not found
 	}
 
 	public void addAll(final List<ContactListItem> contacts) {

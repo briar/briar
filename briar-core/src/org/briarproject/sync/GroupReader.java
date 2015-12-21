@@ -1,39 +1,31 @@
 package org.briarproject.sync;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.MessageDigest;
+import org.briarproject.api.UniqueId;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.GroupFactory;
 
 import java.io.IOException;
 
-import static org.briarproject.api.sync.MessagingConstants.GROUP_SALT_LENGTH;
-import static org.briarproject.api.sync.MessagingConstants.MAX_GROUP_NAME_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 
 class GroupReader implements ObjectReader<Group> {
 
-	private final MessageDigest messageDigest;
+	private final GroupFactory groupFactory;
 
-	GroupReader(CryptoComponent crypto) {
-		messageDigest = crypto.getMessageDigest();
+	GroupReader(GroupFactory groupFactory) {
+		this.groupFactory = groupFactory;
 	}
 
 	public Group readObject(BdfReader r) throws IOException {
-		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
-		// Read and digest the data
-		r.addConsumer(digesting);
 		r.readListStart();
-		String name = r.readString(MAX_GROUP_NAME_LENGTH);
-		if (name.length() == 0) throw new FormatException();
-		byte[] salt = r.readRaw(GROUP_SALT_LENGTH);
-		if (salt.length != GROUP_SALT_LENGTH) throw new FormatException();
+		byte[] id = r.readRaw(UniqueId.LENGTH);
+		if (id.length != UniqueId.LENGTH) throw new FormatException();
+		byte[] descriptor = r.readRaw(MAX_GROUP_DESCRIPTOR_LENGTH);
 		r.readListEnd();
-		r.removeConsumer(digesting);
-		// Build and return the group
-		GroupId id = new GroupId(messageDigest.digest());
-		return new Group(id, name, salt);
+		return groupFactory.createGroup(new ClientId(id), descriptor);
 	}
 }

@@ -22,16 +22,14 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.messaging.PrivateConversation;
+import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageVerifier;
-import org.briarproject.api.sync.MessagingSession;
 import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.PacketReaderFactory;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.PacketWriterFactory;
+import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
@@ -73,6 +71,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final TransportId transportId = new TransportId("id");
 	private final SecretKey master = TestUtils.createSecretKey();
 	private final long timestamp = System.currentTimeMillis();
+	private final AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
+	private final AuthorId bobId = new AuthorId(TestUtils.getRandomId());
 
 	private Injector alice, bob;
 
@@ -106,14 +106,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		KeyManager keyManager = alice.getInstance(KeyManager.class);
 		keyManager.start();
 		// Add an identity for Alice
-		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], timestamp);
 		IdentityManager identityManager =
 				alice.getInstance(IdentityManager.class);
 		identityManager.addLocalAuthor(aliceAuthor);
 		// Add Bob as a contact
-		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
 		Author bobAuthor = new Author(bobId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactManager contactManager = alice.getInstance(ContactManager.class);
@@ -121,19 +119,17 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Create the private conversation
 		MessagingManager messagingManager =
 				alice.getInstance(MessagingManager.class);
-		messagingManager.addContact(contactId, master);
+		messagingManager.addContact(contactId);
 		// Derive and store the transport keys
 		keyManager.addContact(contactId, Collections.singletonList(transportId),
 				master, timestamp, true);
 		// Send Bob a message
-		byte[] body = "Hi Bob!".getBytes("UTF-8");
-		PrivateMessageFactory messageFactory =
+		PrivateMessageFactory privateMessageFactory =
 				alice.getInstance(PrivateMessageFactory.class);
 		GroupId groupId = messagingManager.getConversationId(contactId);
-		PrivateConversation conversation =
-				messagingManager.getConversation(groupId);
-		Message message = messageFactory.createPrivateMessage(null,
-				conversation, "text/plain", timestamp, body);
+		byte[] body = "Hi Bob!".getBytes("UTF-8");
+		PrivateMessage message = privateMessageFactory.createPrivateMessage(
+				groupId, timestamp, null, "text/plain", body);
 		messagingManager.addLocalMessage(message);
 		// Get a stream context
 		StreamContext ctx = keyManager.getStreamContext(contactId, transportId);
@@ -150,7 +146,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				alice.getInstance(PacketWriterFactory.class);
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
 				streamWriter);
-		MessagingSession session = new SimplexOutgoingSession(db,
+		SyncSession session = new SimplexOutgoingSession(db,
 				new ImmediateExecutor(), eventBus, contactId, transportId,
 				MAX_LATENCY, packetWriter);
 		// Write whatever needs to be written
@@ -173,14 +169,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		KeyManager keyManager = bob.getInstance(KeyManager.class);
 		keyManager.start();
 		// Add an identity for Bob
-		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], timestamp);
 		IdentityManager identityManager =
 				bob.getInstance(IdentityManager.class);
 		identityManager.addLocalAuthor(bobAuthor);
 		// Add Alice as a contact
-		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
 		Author aliceAuthor = new Author(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactManager contactManager = bob.getInstance(ContactManager.class);
@@ -188,7 +182,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Create the private conversation
 		MessagingManager messagingManager =
 				bob.getInstance(MessagingManager.class);
-		messagingManager.addContact(contactId, master);
+		messagingManager.addContact(contactId);
 		// Derive and store the transport keys
 		keyManager.addContact(contactId, Collections.singletonList(transportId),
 				master, timestamp, false);
@@ -209,15 +203,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				streamReaderFactory.createStreamReader(in, ctx);
 		// Create an incoming sync session
 		EventBus eventBus = bob.getInstance(EventBus.class);
-		MessageVerifier messageVerifier =
-				bob.getInstance(MessageVerifier.class);
 		PacketReaderFactory packetReaderFactory =
 				bob.getInstance(PacketReaderFactory.class);
 		PacketReader packetReader = packetReaderFactory.createPacketReader(
 				streamReader);
-		MessagingSession session = new IncomingSession(db,
-				new ImmediateExecutor(), new ImmediateExecutor(), eventBus,
-				messageVerifier, contactId, transportId, packetReader);
+		SyncSession session = new IncomingSession(db,
+				new ImmediateExecutor(), eventBus, contactId, transportId,
+				packetReader);
 		// No messages should have been added yet
 		assertFalse(listener.messageAdded);
 		// Read whatever needs to be read

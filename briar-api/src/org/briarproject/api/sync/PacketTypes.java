@@ -1,6 +1,6 @@
 package org.briarproject.api.sync;
 
-/** Packet types for the messaging protocol. */
+/** Packet types for the sync protocol. */
 public interface PacketTypes {
 
 	byte ACK = 0;

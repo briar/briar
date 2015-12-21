@@ -7,9 +7,6 @@ public interface BdfReader {
 	boolean eof() throws IOException;
 	void close() throws IOException;
 
-	void addConsumer(Consumer c);
-	void removeConsumer(Consumer c);
-
 	boolean hasNull() throws IOException;
 	void readNull() throws IOException;
 	void skipNull() throws IOException;
