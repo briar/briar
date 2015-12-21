@@ -39,9 +39,7 @@
 		android:layout_height="wrap_content"
 		android:background="@color/button_bar_background"
 		android:paddingLeft="@dimen/margin_medium"
-		android:paddingStart="@dimen/margin_medium"
-		android:paddingRight="@dimen/margin_medium"
-		android:paddingEnd="@dimen/margin_medium">
+		android:paddingStart="@dimen/margin_medium">
 
 		<EditText
 			android:id="@+id/contentView"
@@ -53,12 +51,16 @@
 
 		<ImageButton
 			android:id="@+id/sendButton"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_width="38dp"
+			android:layout_height="38dp"
+			android:layout_gravity="bottom"
 			android:src="@drawable/social_send_now"
-			android:background="@color/button_bar_background"
+			android:background="?attr/selectableItemBackground"
+			android:scaleType="fitEnd"
 			android:contentDescription="@string/send"
-			android:layout_gravity="center"/>
+			android:paddingRight="@dimen/margin_medium"
+			android:paddingEnd="@dimen/margin_medium"
+			android:paddingBottom="@dimen/margin_medium"/>
 	</LinearLayout>
 
 </LinearLayout>

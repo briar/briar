@@ -40,6 +40,7 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
+@Deprecated
 public class ReadPrivateMessageActivity extends BriarActivity
 implements OnClickListener {
 

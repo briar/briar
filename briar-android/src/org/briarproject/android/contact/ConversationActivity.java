@@ -142,14 +142,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			}
 		};
 		list.setLayoutParams(MATCH_WRAP_1);
-		int pad = LayoutUtils.getPadding(this);
-		list.setPadding(0, pad, 0, pad);
-		list.setClipToPadding(false);
-		// Make the dividers the same colour as the background
-		Resources res = getResources();
-		int background = res.getColor(android.R.color.transparent);
-		list.setDivider(new ColorDrawable(background));
-		list.setDividerHeight(pad);
+		list.setDivider(null);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 		list.setEmptyView(loading);

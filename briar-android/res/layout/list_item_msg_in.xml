@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:paddingRight="@dimen/margin_medium"
+	android:paddingEnd="@dimen/margin_medium"
+	android:paddingTop="@dimen/margin_small"
+	android:paddingBottom="@dimen/margin_small">
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="left|start"
+		android:background="@drawable/msg_in"
+		android:paddingLeft="17dp"
+		android:paddingTop="5dp"
+		android:paddingRight="7dp"
+		android:paddingBottom="5dp">
+
+		<TextView
+			android:id="@+id/msgBody"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:minWidth="80dp"
+			android:textIsSelectable="true"
+			tools:text="Short message"/>
+
+		<TextView
+			android:id="@+id/msgTime"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="10sp"
+			android:textColor="@color/private_message_date"
+			android:layout_below="@+id/msgBody"
+			tools:text="Dec 24, 13:37"/>
+
+	</RelativeLayout>
+
+</LinearLayout>
