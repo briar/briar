@@ -1,28 +1,20 @@
 package org.briarproject.android.contact;
 
 import android.content.Intent;
-import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.invitation.AddContactActivity;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -36,43 +28,34 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Menu.NONE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class ContactListActivity extends BriarActivity
-implements OnClickListener, OnItemClickListener, OnCreateContextMenuListener,
-EventListener {
+		implements OnCreateContextMenuListener, EventListener {
 
-	private static final int MENU_ITEM_DELETE = 1;
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
 
 	@Inject private ConnectionRegistry connectionRegistry;
 	private TextView empty = null;
 	private ContactListAdapter adapter = null;
-	private ListView list = null;
-	private ListLoadingProgressBar loading = null;
+	private RecyclerView list = null;
+	private ProgressBar loading = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile ContactManager contactManager;
@@ -82,47 +65,28 @@ EventListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
 
-		empty = new TextView(this);
-		empty.setLayoutParams(MATCH_WRAP_1);
-		empty.setGravity(CENTER);
-		empty.setTextSize(18);
-		empty.setText(R.string.no_contacts);
-		empty.setVisibility(GONE);
-		layout.addView(empty);
+		setContentView(R.layout.activity_contact_list);
 
 		adapter = new ContactListAdapter(this);
-		list = new ListView(this);
-		list.setLayoutParams(MATCH_WRAP_1);
+		list = (RecyclerView) findViewById(R.id.contactList);
+		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
-		list.setOnItemClickListener(this);
 		list.setOnCreateContextMenuListener(this);
 		list.setVisibility(GONE);
-		layout.addView(list);
+
+		// Show a notice when there are no contacts
+		empty = (TextView) findViewById(R.id.emptyView);
 
 		// Show a progress bar while the list is loading
-		loading = new ListLoadingProgressBar(this);
-		layout.addView(loading);
+		loading = (ProgressBar) findViewById(R.id.progressBar);
+		loading.setVisibility(VISIBLE);
+	}
 
-		layout.addView(new HorizontalBorder(this));
-
-		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(MATCH_WRAP);
-		footer.setGravity(CENTER);
-		Resources res = getResources();
-		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		ImageButton addContactButton = new ImageButton(this);
-		addContactButton.setBackgroundResource(0);
-		addContactButton.setImageResource(R.drawable.social_add_person);
-		addContactButton.setOnClickListener(this);
-		footer.addView(addContactButton);
-		layout.addView(footer);
-
-		setContentView(layout);
+	@Override
+	public void onPause() {
+		super.onPause();
+		eventBus.removeListener(this);
 	}
 
 	@Override
@@ -132,12 +96,47 @@ EventListener {
 		loadContacts();
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.contact_list_actions, menu);
+
+		// adapt icon color to dark action bar
+		menu.findItem(R.id.action_social_add_person).getIcon().setColorFilter(
+				getResources().getColor(R.color.action_bar_text),
+				PorterDuff.Mode.SRC_IN);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case R.id.action_social_add_person:
+				startActivity(new Intent(this, AddContactActivity.class));
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+
 	private void loadContacts() {
-		clearContacts();
+		runOnUiThread(new Runnable() {
+			public void run() {
+				empty.setVisibility(GONE);
+				list.setVisibility(GONE);
+				loading.setVisibility(VISIBLE);
+			}
+		});
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
+					List<ContactListItem> contacts =
+							new ArrayList<ContactListItem>();
 					for (Contact c : contactManager.getContacts()) {
 						try {
 							ContactId id = c.getId();
@@ -145,15 +144,20 @@ EventListener {
 									messagingManager.getConversationId(id);
 							Collection<PrivateMessageHeader> headers =
 									messagingManager.getMessageHeaders(id);
-							displayContact(c, conversation, headers);
+
+							boolean connected =
+									connectionRegistry.isConnected(c.getId());
+							contacts.add(new ContactListItem(c, connected,
+									conversation,
+									headers));
 						} catch (NoSuchContactException e) {
 							// Continue
 						}
 					}
+					displayContacts(contacts);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
-					hideProgressBar();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -162,110 +166,19 @@ EventListener {
 		});
 	}
 
-	private void clearContacts() {
+	private void displayContacts(final List<ContactListItem> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				empty.setVisibility(GONE);
-				list.setVisibility(GONE);
-				loading.setVisibility(VISIBLE);
-				adapter.clear();
-				adapter.notifyDataSetChanged();
-			}
-		});
-	}
-
-	private void displayContact(final Contact c, final GroupId conversation,
-			final Collection<PrivateMessageHeader> headers) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				list.setVisibility(VISIBLE);
-				loading.setVisibility(GONE);
-				boolean connected = connectionRegistry.isConnected(c.getId());
-				// Remove the old item, if any
-				ContactListItem item = findItem(c.getId());
-				if (item != null) adapter.remove(item);
-				// Add a new item
-				adapter.add(new ContactListItem(c, connected, conversation,
-						headers));
-				adapter.sort(ContactListItemComparator.INSTANCE);
-				adapter.notifyDataSetChanged();
-			}
-		});
-	}
-
-	private void hideProgressBar() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				if (adapter.isEmpty()) empty.setVisibility(VISIBLE);
-				else list.setVisibility(VISIBLE);
-				loading.setVisibility(GONE);
-			}
-		});
-	}
-
-	private ContactListItem findItem(ContactId c) {
-		int count = adapter.getCount();
-		for (int i = 0; i < count; i++) {
-			ContactListItem item = adapter.getItem(i);
-			if (item.getContact().getId().equals(c)) return item;
-		}
-		return null; // Not found
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		eventBus.removeListener(this);
-	}
-
-	public void onClick(View view) {
-		startActivity(new Intent(this, AddContactActivity.class));
-	}
-
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		ContactListItem item = adapter.getItem(position);
-		ContactId contactId = item.getContact().getId();
-		String contactName = item.getContact().getAuthor().getName();
-		GroupId groupId = item.getConversationId();
-		AuthorId localAuthorId = item.getContact().getLocalAuthorId();
-		Intent i = new Intent(this, ConversationActivity.class);
-		i.putExtra("briar.CONTACT_ID", contactId.getInt());
-		i.putExtra("briar.CONTACT_NAME", contactName);
-		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
-		startActivity(i);
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View view,
-			ContextMenu.ContextMenuInfo info) {
-		String delete = getString(R.string.delete_contact);
-		menu.add(NONE, MENU_ITEM_DELETE, NONE, delete);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem menuItem) {
-		if (menuItem.getItemId() == MENU_ITEM_DELETE) {
-			ContextMenuInfo info = menuItem.getMenuInfo();
-			int position = ((AdapterContextMenuInfo) info).position;
-			ContactListItem item = adapter.getItem(position);
-			removeContact(item.getContact().getId());
-			String deleted = getString(R.string.contact_deleted_toast);
-			Toast.makeText(this, deleted, LENGTH_SHORT).show();
-		}
-		return true;
-	}
-
-	private void removeContact(final ContactId c) {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					contactManager.removeContact(c);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+				if(contacts.size() > 0) {
+					list.setVisibility(VISIBLE);
+					empty.setVisibility(GONE);
+				} else {
+					list.setVisibility(GONE);
+					empty.setVisibility(VISIBLE);
 				}
+				loading.setVisibility(GONE);
+
+				adapter.addAll(contacts);
 			}
 		});
 	}
@@ -314,7 +227,7 @@ EventListener {
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ContactListItem item = findItem(c);
+				ContactListItem item = adapter.findItem(c);
 				if (item != null) {
 					item.setHeaders(headers);
 					adapter.notifyDataSetChanged();
@@ -326,10 +239,10 @@ EventListener {
 	private void removeItem(final ContactId c) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ContactListItem item = findItem(c);
+				ContactListItem item = adapter.findItem(c);
 				if (item != null) {
 					adapter.remove(item);
-					adapter.notifyDataSetChanged();
+
 					if (adapter.isEmpty()) {
 						empty.setVisibility(VISIBLE);
 						list.setVisibility(GONE);
@@ -342,7 +255,7 @@ EventListener {
 	private void setConnected(final ContactId c, final boolean connected) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ContactListItem item = findItem(c);
+				ContactListItem item = adapter.findItem(c);
 				if (item != null) {
 					item.setConnected(connected);
 					adapter.notifyDataSetChanged();

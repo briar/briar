@@ -1,80 +1,194 @@
 package org.briarproject.android.contact;
 
-import static android.text.TextUtils.TruncateAt.END;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
-
-import java.util.ArrayList;
-
-import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
-
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.support.v7.util.SortedList;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class ContactListAdapter extends ArrayAdapter<ContactListItem> {
+import org.briarproject.R;
+import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.sync.GroupId;
 
-	private final int pad;
+import java.util.List;
 
-	ContactListAdapter(Context ctx) {
-		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<ContactListItem>());
-		pad = LayoutUtils.getPadding(ctx);
+public class ContactListAdapter
+		extends RecyclerView.Adapter<ContactListAdapter.ContactHolder> {
+
+	private SortedList<ContactListItem> contacts =
+			new SortedList<ContactListItem>(ContactListItem.class,
+					new SortedList.Callback<ContactListItem>() {
+						@Override
+						public void onInserted(int position, int count) {
+							notifyItemRangeInserted(position, count);
+						}
+
+						@Override
+						public void onChanged(int position, int count) {
+							notifyItemRangeChanged(position, count);
+						}
+
+						@Override
+						public void onMoved(int fromPosition, int toPosition) {
+							notifyItemMoved(fromPosition, toPosition);
+						}
+
+						@Override
+						public void onRemoved(int position, int count) {
+							notifyItemRangeRemoved(position, count);
+						}
+
+						@Override
+						public int compare(ContactListItem c1,
+								ContactListItem c2) {
+							return (int) (c1.getTimestamp() -
+									c2.getTimestamp());
+						}
+
+						@Override
+						public boolean areItemsTheSame(ContactListItem c1,
+								ContactListItem c2) {
+							return c1.getContact().getId().equals(c2.getContact().getId());
+						}
+
+						@Override
+						public boolean areContentsTheSame(ContactListItem c1,
+								ContactListItem c2) {
+							return c1.equals(c2);
+						}
+					});
+	private Context ctx;
+
+	public ContactListAdapter(Context context) {
+		ctx = context;
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		ContactListItem item = getItem(position);
-		Context ctx = getContext();
+	public ContactHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+		View v = LayoutInflater.from(viewGroup.getContext())
+				.inflate(R.layout.list_item_contact, viewGroup, false);
+
+		return new ContactHolder(v);
+	}
+
+	@Override
+	public void onBindViewHolder(final ContactHolder ui, final int position) {
+		final ContactListItem item = getItem(position);
 		Resources res = ctx.getResources();
 
-		LinearLayout layout = new LinearLayout(ctx);
-		layout.setOrientation(HORIZONTAL);
-		layout.setGravity(CENTER_VERTICAL);
 		int unread = item.getUnreadCount();
-		if (unread > 0)
-			layout.setBackgroundColor(res.getColor(R.color.unread_background));
-
-		ImageView bulb = new ImageView(ctx);
-		bulb.setPadding(pad, pad, pad, pad);
-		if (item.isConnected())
-			bulb.setImageResource(R.drawable.contact_connected);
-		else bulb.setImageResource(R.drawable.contact_disconnected);
-		layout.addView(bulb);
-
-		TextView name = new TextView(ctx);
-		name.setLayoutParams(WRAP_WRAP_1);
-		name.setTextSize(18);
-		name.setSingleLine();
-		name.setEllipsize(END);
-		name.setPadding(0, pad, pad, pad);
-		String contactName = item.getContact().getAuthor().getName();
-		if (unread > 0) name.setText(contactName + " (" + unread + ")");
-		else name.setText(contactName);
-		layout.addView(name);
-
-		if (item.isEmpty()) {
-			TextView noMessages = new TextView(ctx);
-			noMessages.setPadding(pad, pad, pad, pad);
-			noMessages.setTextColor(res.getColor(R.color.no_private_messages));
-			noMessages.setText(R.string.no_private_messages);
-			layout.addView(noMessages);
-		} else {
-			TextView date = new TextView(ctx);
-			date.setPadding(pad, pad, pad, pad);
-			long timestamp = item.getTimestamp();
-			date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
-			layout.addView(date);
+		if (unread > 0) {
+			ui.layout.setBackgroundColor(
+					res.getColor(R.color.unread_background));
 		}
 
-		return layout;
+		if (item.isConnected()) {
+			ui.bulb.setImageResource(R.drawable.contact_connected);
+		} else {
+			ui.bulb.setImageResource(R.drawable.contact_disconnected);
+		}
+
+		String contactName = item.getContact().getAuthor().getName();
+		if (unread > 0) {
+			ui.name.setText(contactName + " (" + unread + ")");
+		} else {
+			ui.name.setText(contactName);
+		}
+
+		if (item.isEmpty()) {
+			ui.date.setText(R.string.no_private_messages);
+		} else {
+			long timestamp = item.getTimestamp();
+			ui.date.setText(
+					DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+		}
+
+		ui.layout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ContactId contactId = item.getContact().getId();
+				String contactName = item.getContact().getAuthor().getName();
+				GroupId groupId = item.getConversationId();
+				AuthorId localAuthorId = item.getContact().getLocalAuthorId();
+
+				Intent i = new Intent(ctx, ConversationActivity.class);
+				i.putExtra("briar.CONTACT_ID", contactId.getInt());
+				i.putExtra("briar.CONTACT_NAME", contactName);
+				i.putExtra("briar.GROUP_ID", groupId.getBytes());
+				i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
+
+				ctx.startActivity(i);
+			}
+		});
+	}
+
+	@Override
+	public int getItemCount() {
+		return contacts == null ? 0 : contacts.size();
+	}
+
+	public boolean isEmpty() {
+		return contacts == null || contacts.size() == 0;
+	}
+
+	public ContactListItem getItem(int position) {
+		if (position == -1 || contacts.size() <= position) {
+			return null; // Not found
+		}
+		return contacts.get(position);
+	}
+
+	public ContactListItem findItem(ContactId c) {
+		int count = getItemCount();
+		for (int i = 0; i < count; i++) {
+			ContactListItem item = getItem(i);
+			if (item.getContact().getId().equals(c)) return item;
+		}
+		return null; // Not found
+	}
+
+	public void addAll(final List<ContactListItem> contacts) {
+		this.contacts.addAll(contacts);
+	}
+
+	public void add(final ContactListItem contact) {
+		this.contacts.add(contact);
+	}
+
+	public void remove(final ContactListItem contact) {
+		this.contacts.remove(contact);
+	}
+
+	public void clear() {
+		contacts.beginBatchedUpdates();
+
+		while(contacts.size() != 0) {
+			contacts.removeItemAt(0);
+		}
+
+		contacts.endBatchedUpdates();
+	}
+
+	public static class ContactHolder extends RecyclerView.ViewHolder {
+		public ViewGroup layout;
+		public ImageView bulb;
+		public TextView name;
+		public TextView date;
+
+		public ContactHolder(View v) {
+			super(v);
+
+			layout = (ViewGroup) v;
+			bulb = (ImageView) v.findViewById(R.id.bulbView);
+			name = (TextView) v.findViewById(R.id.nameView);
+			date = (TextView) v.findViewById(R.id.dateView);
+		}
 	}
 }
