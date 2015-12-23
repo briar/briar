@@ -282,7 +282,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			inCurr = inNext;
 			SecretKey inNextTag = rotateKey(inNext.getTagKey(), p + 1);
 			SecretKey inNextHeader = rotateKey(inNext.getHeaderKey(), p + 1);
-			inNext = new IncomingKeys(inNextTag, inNextHeader, p);
+			inNext = new IncomingKeys(inNextTag, inNextHeader, p + 1);
 			SecretKey outCurrTag = rotateKey(outCurr.getTagKey(), p);
 			SecretKey outCurrHeader = rotateKey(outCurr.getHeaderKey(), p);
 			outCurr = new OutgoingKeys(outCurrTag, outCurrHeader, p);

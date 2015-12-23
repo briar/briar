@@ -11,6 +11,12 @@ public class TransportKeys {
 
 	public TransportKeys(TransportId transportId, IncomingKeys inPrev,
 			IncomingKeys inCurr, IncomingKeys inNext, OutgoingKeys outCurr) {
+		if (inPrev.getRotationPeriod() != inCurr.getRotationPeriod() - 1)
+			throw new IllegalArgumentException();
+		if (inNext.getRotationPeriod() != inCurr.getRotationPeriod() + 1)
+			throw new IllegalArgumentException();
+		if (outCurr.getRotationPeriod() != inCurr.getRotationPeriod())
+			throw new IllegalArgumentException();
 		this.transportId = transportId;
 		this.inPrev = inPrev;
 		this.inCurr = inCurr;
