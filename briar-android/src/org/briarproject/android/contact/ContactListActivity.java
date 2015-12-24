@@ -227,10 +227,11 @@ public class ContactListActivity extends BriarActivity
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ContactListItem item = adapter.findItem(c);
+				int position = adapter.findItemPosition(c);
+				ContactListItem item = adapter.getItem(position);
 				if (item != null) {
 					item.setHeaders(headers);
-					adapter.notifyDataSetChanged();
+					adapter.updateItem(position, item);
 				}
 			}
 		});
@@ -255,10 +256,11 @@ public class ContactListActivity extends BriarActivity
 	private void setConnected(final ContactId c, final boolean connected) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ContactListItem item = adapter.findItem(c);
+				int position = adapter.findItemPosition(c);
+				ContactListItem item = adapter.getItem(position);
 				if (item != null) {
 					item.setConnected(connected);
-					adapter.notifyDataSetChanged();
+					adapter.notifyItemChanged(position);
 				}
 			}
 		});

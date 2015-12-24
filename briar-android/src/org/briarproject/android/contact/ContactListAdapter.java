@@ -48,8 +48,13 @@ public class ContactListAdapter
 						@Override
 						public int compare(ContactListItem c1,
 								ContactListItem c2) {
-							return (int) (c1.getTimestamp() -
-									c2.getTimestamp());
+							// sort items by time
+							// and do not take unread messages into account
+							long time1 = c1.getTimestamp();
+							long time2 = c2.getTimestamp();
+							if (time1 < time2) return 1;
+							if (time1 > time2) return -1;
+							return 0;
 						}
 
 						@Override
@@ -145,6 +150,10 @@ public class ContactListAdapter
 		return contacts.get(position);
 	}
 
+	public void updateItem(int position, ContactListItem item) {
+		contacts.updateItemAt(position, item);
+	}
+
 	public ContactListItem findItem(ContactId c) {
 		int count = getItemCount();
 		for (int i = 0; i < count; i++) {
@@ -152,6 +161,15 @@ public class ContactListAdapter
 			if (item.getContact().getId().equals(c)) return item;
 		}
 		return null; // Not found
+	}
+
+	public int findItemPosition(ContactId c) {
+		int count = getItemCount();
+		for (int i = 0; i < count; i++) {
+			ContactListItem item = getItem(i);
+			if (item.getContact().getId().equals(c)) return i;
+		}
+		return -1; // Not found
 	}
 
 	public void addAll(final List<ContactListItem> contacts) {
