@@ -103,18 +103,15 @@
 			<test name="org.briarproject.crypto.PasswordStrengthEstimatorImplTest"/>
 			<test name='org.briarproject.crypto.StreamDecrypterImplTest'/>
 			<test name='org.briarproject.crypto.StreamEncrypterImplTest'/>
+			<test name='org.briarproject.crypto.XSalsa20Poly1305AuthenticatedCipherTest'/>
 			<test name='org.briarproject.data.ReaderImplTest'/>
 			<test name='org.briarproject.data.WriterImplTest'/>
 			<test name='org.briarproject.db.BasicH2Test'/>
 			<test name='org.briarproject.db.DatabaseComponentImplTest'/>
 			<test name='org.briarproject.db.ExponentialBackoffTest'/>
+			<test name='org.briarproject.db.H2DatabaseTest'/>
 			<test name='org.briarproject.lifecycle.ShutdownManagerImplTest'/>
 			<test name='org.briarproject.lifecycle.WindowsShutdownManagerImplTest'/>
-			<test name='org.briarproject.sync.ConstantsTest'/>
-			<test name='org.briarproject.sync.ConsumersTest'/>
-			<test name='org.briarproject.sync.PacketReaderImplTest'/>
-			<test name='org.briarproject.sync.SimplexMessagingIntegrationTest'/>
-			<test name='org.briarproject.sync.SimplexOutgoingSessionTest'/>
 			<test name='org.briarproject.plugins.ConnectionRegistryImplTest'/>
 			<test name='org.briarproject.plugins.PluginManagerImplTest'/>
 			<test name='org.briarproject.plugins.file.LinuxRemovableDriveFinderTest'/>
@@ -125,35 +122,20 @@
 			<test name='org.briarproject.plugins.modem.CountryCodesTest'/>
 			<test name='org.briarproject.plugins.modem.ModemPluginTest'/>
 			<test name='org.briarproject.plugins.tcp.LanTcpPluginTest'/>
+			<test name='org.briarproject.sync.ConstantsTest'/>
+			<test name='org.briarproject.sync.ConsumersTest'/>
+			<test name='org.briarproject.sync.PacketReaderImplTest'/>
+			<test name='org.briarproject.sync.SimplexMessagingIntegrationTest'/>
+			<test name='org.briarproject.sync.SimplexOutgoingSessionTest'/>
 			<test name='org.briarproject.system.LinuxSeedProviderTest'/>
 			<test name='org.briarproject.transport.KeyManagerImplTest'/>
-			<test name='org.briarproject.transport.KeyRotationIntegrationTest'/>
 			<test name='org.briarproject.transport.ReorderingWindowTest'/>
 			<test name='org.briarproject.transport.StreamReaderImplTest'/>
 			<test name='org.briarproject.transport.StreamWriterImplTest'/>
 			<test name='org.briarproject.transport.TransportIntegrationTest'/>
-			<test name='org.briarproject.transport.TransportTagRecogniserTest'/>
+			<test name='org.briarproject.transport.TransportKeyManagerTest'/>
 			<test name='org.briarproject.util.ByteUtilsTest'/>
 			<test name='org.briarproject.util.StringUtilsTest'/>
-		</junit>
-	</target>
-	<target name='test-slow' depends='compile'>
-		<junit printsummary='on' fork='yes' forkmode='once'>
-			<assertions>
-				<enable/>
-			</assertions>
-			<classpath>
-				<fileset refid='test-jars'/>
-				<fileset refid='desktop-jars'/>
-				<fileset refid='core-jars'/>
-				<fileset refid='api-jars'/>
-				<path refid='test-classes'/>
-				<path refid='desktop-classes'/>
-				<path refid='core-classes'/>
-				<path refid='api-classes'/>
-			</classpath>
-			<sysproperty key='java.library.path' value='../briar-desktop/libs'/>
-			<test name='org.briarproject.db.H2DatabaseTest'/>
 		</junit>
 	</target>
 </project>
