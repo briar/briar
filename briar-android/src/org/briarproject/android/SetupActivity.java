@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -55,6 +57,9 @@ OnEditorActionListener {
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	@Inject private PasswordStrengthEstimator strengthEstimator;
+	@InjectView(R.id.nickname_entry_wrapper) TextInputLayout nicknameEntryWrapper;
+	@InjectView(R.id.password_entry_wrapper) TextInputLayout passwordEntryWrapper;
+	@InjectView(R.id.password_confirm_wrapper) TextInputLayout passwordConfirmationWrapper;
 	@InjectView(R.id.nickname_entry) EditText nicknameEntry;
 	@InjectView(R.id.password_entry) EditText passwordEntry;
 	@InjectView(R.id.password_confirm) EditText passwordConfirmation;
@@ -99,7 +104,7 @@ OnEditorActionListener {
 
 	private void enableOrDisableContinueButton() {
 		if (progress == null) return; // Not created yet
-		if (passwordEntry.getText().length() > 0 && passwordEntry.hasFocus())
+		if (passwordEntry.getText().length() > 0)
 			strengthMeter.setVisibility(VISIBLE);
 		else strengthMeter.setVisibility(INVISIBLE);
 		String nickname = nicknameEntry.getText().toString();
@@ -109,12 +114,12 @@ OnEditorActionListener {
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength = strengthEstimator.estimateStrength(firstPassword);
 		strengthMeter.setStrength(strength);
-		if (nicknameLength > MAX_AUTHOR_NAME_LENGTH)
-			nicknameEntry.setError(getString(R.string.name_too_long));
-		if (firstPassword.length() > 0 && strength < WEAK)
-			passwordEntry.setError(getString(R.string.password_too_weak));
-		if (secondPassword.length() > 0 && !passwordsMatch)
-			passwordConfirmation.setError(getString(R.string.passwords_do_not_match));
+		AndroidUtils.setError(nicknameEntryWrapper, getString(R.string.name_too_long),
+				nicknameLength > MAX_AUTHOR_NAME_LENGTH);
+		AndroidUtils.setError(passwordEntryWrapper, getString(R.string.password_too_weak),
+				firstPassword.length() > 0 && strength < WEAK);
+		AndroidUtils.setError(passwordConfirmationWrapper, getString(R.string.passwords_do_not_match),
+				secondPassword.length() > 0 && !passwordsMatch);
 		createAccountButton.setEnabled(nicknameLength > 0
 				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
 				&& passwordsMatch && strength >= WEAK);

@@ -2,6 +2,7 @@ package org.briarproject.android.util;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.support.design.widget.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,5 +23,13 @@ public class AndroidUtils {
 			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
 		}
 		return Collections.unmodifiableList(abis);
+	}
+
+	public static void setError(TextInputLayout til, String error, boolean condition) {
+		if (condition) {
+			if (til.getError() == null)
+				til.setError(error);
+		} else
+			til.setError(null);
 	}
 }
