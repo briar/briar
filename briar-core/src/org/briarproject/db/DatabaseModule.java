@@ -55,8 +55,13 @@ public class DatabaseModule extends AbstractModule {
 	}
 
 	@Provides @Singleton @DatabaseExecutor
-	Executor getDatabaseExecutor(LifecycleManager lifecycleManager) {
+	ExecutorService getDatabaseExecutor(LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(databaseExecutor);
 		return databaseExecutor;
+	}
+
+	@Provides @Singleton @DatabaseExecutor
+	Executor getDatabaseExecutor(@DatabaseExecutor ExecutorService dbExecutor) {
+		return dbExecutor;
 	}
 }
