@@ -33,4 +33,13 @@
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
+
+    <style name="Divider">
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="Divider.Horizontal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1px</item>
+    </style>
 </resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackground"
+		android:padding="12dp">
+
+	<ImageView
+		android:id="@+id/bulbView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginRight="@dimen/margin_medium"
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_gravity="center_vertical"
+		tools:src="@drawable/contact_disconnected"/>
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:layout_gravity="center_vertical"
+		android:layout_marginRight="@dimen/margin_small"
+		android:layout_marginEnd="@dimen/margin_small"
+		android:textSize="@dimen/text_size_medium"
+		android:gravity="center_vertical"
+		tools:text="This is a name of a contact. It can be quite long."/>
+
+	<TextView
+		android:id="@+id/dateView"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_marginRight="@dimen/margin_small"
+		android:layout_marginEnd="@dimen/margin_small"
+		android:gravity="center_vertical"
+		android:textColor="@color/no_private_messages"
+		tools:text="Dec 24"/>
+
+	</LinearLayout>
+
+	<View style="@style/Divider.Horizontal"/>
+
+</LinearLayout>

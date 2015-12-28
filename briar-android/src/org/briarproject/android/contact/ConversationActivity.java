@@ -1,10 +1,16 @@
 package org.briarproject.android.contact;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -15,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -66,6 +73,7 @@ import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
@@ -159,6 +167,33 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		eventBus.addListener(this);
 		loadContactAndGroup();
 		loadHeaders();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.contact_actions, menu);
+
+		// adapt icon color to dark action bar
+		menu.findItem(R.id.action_social_remove_person).getIcon().setColorFilter(
+				getResources().getColor(R.color.action_bar_text),
+				PorterDuff.Mode.SRC_IN);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case R.id.action_social_remove_person:
+				askToRemoveContact();
+
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	private void loadContactAndGroup() {
@@ -478,4 +513,59 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		i.putExtra("briar.POSITION", position);
 		startActivityForResult(i, REQUEST_READ);
 	}
+
+	private void askToRemoveContact() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				DialogInterface.OnClickListener okListener =
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								removeContact();
+							}
+						};
+
+				AlertDialog.Builder builder =
+						new AlertDialog.Builder(ConversationActivity.this);
+				builder.setTitle(
+						getString(R.string.dialog_title_delete_contact));
+				builder.setMessage(
+						getString(R.string.dialog_message_delete_contact));
+				builder.setPositiveButton(android.R.string.ok, okListener);
+				builder.setNegativeButton(android.R.string.cancel, null);
+				builder.show();
+			}
+		});
+	}
+
+	private void removeContact() {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					contactManager.removeContact(contactId);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} finally {
+					finishAfterContactRemoved();
+				}
+			}
+		});
+	}
+
+	private void finishAfterContactRemoved() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				String deleted = getString(R.string.contact_deleted_toast);
+				Toast.makeText(ConversationActivity.this, deleted, LENGTH_SHORT)
+						.show();
+
+				finish();
+			}
+		});
+	}
+
 }
