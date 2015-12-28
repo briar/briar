@@ -3,6 +3,7 @@ package org.briarproject.android.contact;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -133,21 +134,24 @@ public class ConversationActivity extends BriarActivity
 		list.setAdapter(adapter);
 		list.setVisibility(GONE);
 		// scroll down when opening keyboard
-		list.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			@Override
-			public void onLayoutChange(View v,
-					int left, int top, int right, int bottom,
-					int oldLeft, int oldTop, int oldRight, int oldBottom) {
-				if (bottom < oldBottom) {
-					list.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							list.scrollToPosition(adapter.getItemCount() - 1);
-						}
-					}, 100);
+		if (Build.VERSION.SDK_INT >= 11) {
+			list.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				@Override
+				public void onLayoutChange(View v,
+						int left, int top, int right, int bottom,
+						int oldLeft, int oldTop, int oldRight, int oldBottom) {
+					if (bottom < oldBottom) {
+						list.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								list.scrollToPosition(
+										adapter.getItemCount() - 1);
+							}
+						}, 100);
+					}
 				}
-			}
-		});
+			});
+		}
 
 		content = (EditText) findViewById(R.id.contentView);
 		sendButton = (ImageButton) findViewById(R.id.sendButton);

@@ -121,8 +121,17 @@ class ConversationAdapter extends
 				ui.status.setImageResource(R.drawable.message_stored);
 			}
 		} else if (!header.isRead()) {
+			int bottom = ui.layout.getPaddingBottom();
+			int top = ui.layout.getPaddingTop();
+			int right = ui.layout.getPaddingRight();
+			int left = ui.layout.getPaddingLeft();
+
 			// show unread messages in different color to not miss them
 			ui.layout.setBackgroundResource(R.drawable.msg_in_unread);
+
+			// re-apply the previous padding due to bug in some Android versions
+			// see: https://code.google.com/p/android/issues/detail?id=17885
+			ui.layout.setPadding(left, top, right, bottom);
 		}
 
 		if (item.getBody() == null) {
@@ -150,12 +159,12 @@ class ConversationAdapter extends
 		return messages.get(position);
 	}
 
-	public void add(final ConversationItem contact) {
-		this.messages.add(contact);
+	public void add(final ConversationItem message) {
+		this.messages.add(message);
 	}
 
-	public void remove(final ConversationItem contact) {
-		this.messages.remove(contact);
+	public void remove(final ConversationItem message) {
+		this.messages.remove(message);
 	}
 
 	public void clear() {
