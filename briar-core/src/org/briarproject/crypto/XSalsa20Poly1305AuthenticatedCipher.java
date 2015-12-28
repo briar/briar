@@ -24,7 +24,8 @@ import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
  *     <li>http://cr.yp.to/highspeed/naclcrypto-20090310.pdf</li>
  * </ul>
  */
-public class XSalsa20Poly1305AC implements AuthenticatedCipher {
+public class XSalsa20Poly1305AuthenticatedCipher
+		implements AuthenticatedCipher {
 
 	/** Length of the padding to be used to generate the Poly1305 key */
 	private static final int SUBKEY_LENGTH = 32;
@@ -34,13 +35,14 @@ public class XSalsa20Poly1305AC implements AuthenticatedCipher {
 
 	private boolean encrypting;
 
-	XSalsa20Poly1305AC() {
+	XSalsa20Poly1305AuthenticatedCipher() {
 		xSalsa20Engine = new XSalsa20Engine();
 		poly1305 = new Poly1305();
 	}
 
 	@Override
-	public void init(boolean encrypt, SecretKey key, byte[] iv) throws GeneralSecurityException {
+	public void init(boolean encrypt, SecretKey key, byte[] iv)
+			throws GeneralSecurityException {
 		encrypting = encrypt;
 		KeyParameter k = new KeyParameter(key.getBytes());
 		ParametersWithIV params = new ParametersWithIV(k, iv);
@@ -52,12 +54,10 @@ public class XSalsa20Poly1305AC implements AuthenticatedCipher {
 	}
 
 	@Override
-	public int process(byte[] input, int inputOff, int len, byte[] output, int outputOff) throws GeneralSecurityException {
-		if (len == 0)
-			return 0;
-		else if (!encrypting && len < MAC_LENGTH)
+	public int process(byte[] input, int inputOff, int len, byte[] output,
+			int outputOff) throws GeneralSecurityException {
+		if (!encrypting && len < MAC_LENGTH)
 			throw new GeneralSecurityException("Invalid MAC");
-
 		try {
 			// Generate the Poly1305 subkey from an empty array
 			byte[] zero = new byte[SUBKEY_LENGTH];
@@ -100,7 +100,7 @@ public class XSalsa20Poly1305AC implements AuthenticatedCipher {
 					throw new GeneralSecurityException("Invalid MAC");
 			}
 
-			// Invert the stream encryption
+			// Apply or invert the stream encryption
 			int processed = xSalsa20Engine.processBytes(
 					input, encrypting ? inputOff : inputOff + MAC_LENGTH,
 					encrypting ? len : len - MAC_LENGTH,
@@ -112,7 +112,7 @@ public class XSalsa20Poly1305AC implements AuthenticatedCipher {
 				poly1305.doFinal(output, outputOff);
 			}
 
-			return processed;
+			return encrypting ? processed + MAC_LENGTH : processed;
 		} catch (DataLengthException e) {
 			throw new GeneralSecurityException(e.getMessage());
 		}

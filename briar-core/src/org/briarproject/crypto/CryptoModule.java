@@ -1,6 +1,14 @@
 package org.briarproject.crypto;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.api.crypto.StreamDecrypterFactory;
+import org.briarproject.api.crypto.StreamEncrypterFactory;
+import org.briarproject.api.lifecycle.LifecycleManager;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -11,15 +19,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.inject.Singleton;
 
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.api.crypto.StreamDecrypterFactory;
-import org.briarproject.api.crypto.StreamEncrypterFactory;
-import org.briarproject.api.lifecycle.LifecycleManager;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class CryptoModule extends AbstractModule {
 
@@ -42,7 +42,8 @@ public class CryptoModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(AuthenticatedCipher.class).to(AuthenticatedCipherImpl.class);
+		bind(AuthenticatedCipher.class).to(
+				XSalsa20Poly1305AuthenticatedCipher.class);
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);
 		bind(PasswordStrengthEstimator.class).to(
