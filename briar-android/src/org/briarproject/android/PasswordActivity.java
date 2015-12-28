@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.KeyEvent;
@@ -24,6 +25,8 @@ import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
+import static android.content.Intent.ACTION_MAIN;
+import static android.content.Intent.CATEGORY_HOME;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
@@ -67,6 +70,14 @@ public class PasswordActivity extends BaseActivity {
 				return false;
 			}
 		});
+	}
+
+	@Override
+	public void onBackPressed() {
+		// Show the home screen rather than another password prompt
+		Intent intent = new Intent(ACTION_MAIN);
+		intent.addCategory(CATEGORY_HOME);
+		startActivity(intent);
 	}
 
 	@Override
