@@ -342,7 +342,6 @@ public class DashboardActivity extends BriarActivity implements EventListener {
 
 				TextView text = (TextView) view.findViewById(R.id.textView);
 				text.setText(getString(t.textId));
-				text.setTextColor(c);
 
 				return view;
 			}
