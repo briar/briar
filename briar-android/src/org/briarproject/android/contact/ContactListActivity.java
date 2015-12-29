@@ -1,13 +1,11 @@
 package org.briarproject.android.contact;
 
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -81,6 +79,19 @@ public class ContactListActivity extends BriarActivity
 		// Show a progress bar while the list is loading
 		loading = (ProgressBar) findViewById(R.id.progressBar);
 		loading.setVisibility(VISIBLE);
+
+		// Show a floating action button
+		FloatingActionButton fab = (FloatingActionButton) findViewById(
+				R.id.addContactFAB);
+
+		// handle FAB click
+		fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(ContactListActivity.this,
+						AddContactActivity.class));
+			}
+		});
 	}
 
 	@Override
@@ -94,32 +105,6 @@ public class ContactListActivity extends BriarActivity
 		super.onResume();
 		eventBus.addListener(this);
 		loadContacts();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu items for use in the action bar
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.contact_list_actions, menu);
-
-		// adapt icon color to dark action bar
-		menu.findItem(R.id.action_social_add_person).getIcon().setColorFilter(
-				getResources().getColor(R.color.action_bar_text),
-				PorterDuff.Mode.SRC_IN);
-
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case R.id.action_social_add_person:
-				startActivity(new Intent(this, AddContactActivity.class));
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
 	}
 
 
@@ -169,7 +154,7 @@ public class ContactListActivity extends BriarActivity
 	private void displayContacts(final List<ContactListItem> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(contacts.size() > 0) {
+				if (contacts.size() > 0) {
 					list.setVisibility(VISIBLE);
 					empty.setVisibility(GONE);
 				} else {
