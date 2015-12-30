@@ -5,6 +5,7 @@
         <item name="actionBarStyle">@style/BriarActionBar</item>
         <item name="colorPrimary">@color/briar_primary</item>
         <item name="colorPrimaryDark">@color/briar_primary_dark</item>
+        <item name="colorAccent">@color/briar_primary</item>
         <item name="android:textColorPrimary">@color/briar_text_primary</item>
         <item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
         <item name="android:textColorSecondary">@color/briar_text_primary</item>
