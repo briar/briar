@@ -133,7 +133,12 @@ public class ContactListActivity extends BriarActivity
 	private void displayContacts(final List<ContactListItem> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				adapter.addAll(contacts);
+				if (contacts.size() > 0) {
+					adapter.addAll(contacts);
+				} else {
+					// no contacts to display, make sure progress bar is hidden
+					list.showData();
+				}
 			}
 		});
 	}

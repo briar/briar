@@ -49,9 +49,7 @@ public class BriarRecyclerView extends FrameLayout {
 		emptyView = (TextView) v.findViewById(R.id.emptyView);
 		progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
 
-		recyclerView.setVisibility(View.INVISIBLE);
-		emptyView.setVisibility(View.INVISIBLE);
-		progressBar.setVisibility(View.VISIBLE);
+		showProgressBar();
 
 		emptyObserver = new RecyclerView.AdapterDataObserver() {
 			@Override
@@ -72,6 +70,11 @@ public class BriarRecyclerView extends FrameLayout {
 	}
 
 	public void setAdapter(RecyclerView.Adapter adapter) {
+		RecyclerView.Adapter oldAdapter = recyclerView.getAdapter();
+		if (oldAdapter != null) {
+			oldAdapter.unregisterAdapterDataObserver(emptyObserver);
+		}
+
 		recyclerView.setAdapter(adapter);
 
 		if (adapter != null) {
@@ -95,7 +98,7 @@ public class BriarRecyclerView extends FrameLayout {
 		progressBar.setVisibility(View.VISIBLE);
 	}
 
-	private void showData() {
+	public void showData() {
 		RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
 		if (adapter != null) {
 			if (adapter.getItemCount() == 0) {
@@ -107,6 +110,10 @@ public class BriarRecyclerView extends FrameLayout {
 			}
 			progressBar.setVisibility(View.INVISIBLE);
 		}
+	}
+
+	public RecyclerView getRecyclerView() {
+		return recyclerView;
 	}
 
 }
