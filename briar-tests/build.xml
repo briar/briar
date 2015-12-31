@@ -93,6 +93,7 @@
 			<sysproperty key='java.library.path' value='../briar-desktop/libs'/>
 			<test name='org.briarproject.LockFairnessTest'/>
 			<test name='org.briarproject.ProtocolIntegrationTest'/>
+			<test name='org.briarproject.crypto.Blake2sDigestTest'/>
 			<test name='org.briarproject.crypto.EllipticCurveMultiplicationTest'/>
 			<test name='org.briarproject.crypto.FortunaGeneratorTest'/>
 			<test name='org.briarproject.crypto.FortunaSecureRandomTest'/>
