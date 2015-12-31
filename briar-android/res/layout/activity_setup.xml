@@ -22,7 +22,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="center"
 			android:text="@string/choose_nickname"
-			android:textSize="18sp"/>
+			android:textSize="@dimen/text_size_medium"/>
 
 		<android.support.design.widget.TextInputLayout
 			android:id="@+id/nickname_entry_wrapper"
@@ -43,7 +43,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="center"
 			android:text="@string/choose_password"
-			android:textSize="18sp"/>
+			android:textSize="@dimen/text_size_medium"/>
 
 		<android.support.design.widget.TextInputLayout
 			android:id="@+id/password_entry_wrapper"
@@ -64,7 +64,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="center"
 			android:text="@string/confirm_password"
-			android:textSize="18sp"/>
+			android:textSize="@dimen/text_size_medium"/>
 
 		<android.support.design.widget.TextInputLayout
 			android:id="@+id/password_confirm_wrapper"
@@ -77,6 +77,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:inputType="textPassword"
+				android:imeOptions="actionDone"
 				android:maxLines="1"/>
 		</android.support.design.widget.TextInputLayout>
 
@@ -88,7 +89,7 @@
 
 		<Button
 			android:id="@+id/create_account"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:enabled="false"
 			android:text="@string/create_account_button"/>

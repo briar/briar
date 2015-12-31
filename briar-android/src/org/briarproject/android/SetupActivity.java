@@ -10,7 +10,6 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -43,14 +42,13 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 public class SetupActivity extends BaseActivity implements OnClickListener,
-OnEditorActionListener {
+		OnEditorActionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(SetupActivity.class.getName());
@@ -82,11 +80,13 @@ OnEditorActionListener {
 
 		TextWatcher tw = new TextWatcher() {
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
 			}
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
 				enableOrDisableContinueButton();
 			}
 
@@ -104,7 +104,7 @@ OnEditorActionListener {
 
 	private void enableOrDisableContinueButton() {
 		if (progress == null) return; // Not created yet
-		if (passwordEntry.getText().length() > 0)
+		if (passwordEntry.getText().length() > 0 && passwordEntry.hasFocus())
 			strengthMeter.setVisibility(VISIBLE);
 		else strengthMeter.setVisibility(INVISIBLE);
 		String nickname = nicknameEntry.getText().toString();
@@ -114,11 +114,14 @@ OnEditorActionListener {
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength = strengthEstimator.estimateStrength(firstPassword);
 		strengthMeter.setStrength(strength);
-		AndroidUtils.setError(nicknameEntryWrapper, getString(R.string.name_too_long),
+		AndroidUtils.setError(nicknameEntryWrapper,
+				getString(R.string.name_too_long),
 				nicknameLength > MAX_AUTHOR_NAME_LENGTH);
-		AndroidUtils.setError(passwordEntryWrapper, getString(R.string.password_too_weak),
+		AndroidUtils.setError(passwordEntryWrapper,
+				getString(R.string.password_too_weak),
 				firstPassword.length() > 0 && strength < WEAK);
-		AndroidUtils.setError(passwordConfirmationWrapper, getString(R.string.passwords_do_not_match),
+		AndroidUtils.setError(passwordConfirmationWrapper,
+				getString(R.string.passwords_do_not_match),
 				secondPassword.length() > 0 && !passwordsMatch);
 		createAccountButton.setEnabled(nicknameLength > 0
 				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
@@ -126,9 +129,7 @@ OnEditorActionListener {
 	}
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		hideSoftKeyboard();
 		return true;
 	}
 

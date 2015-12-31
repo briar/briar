@@ -29,7 +29,6 @@ import static android.content.Intent.ACTION_MAIN;
 import static android.content.Intent.CATEGORY_HOME;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 
 public class PasswordActivity extends BaseActivity {
 
@@ -63,11 +62,11 @@ public class PasswordActivity extends BaseActivity {
 		password = (EditText) findViewById(R.id.edit_password);
 		password.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == IME_ACTION_DONE) {
-					validatePassword(encrypted, password.getText());
-				}
-				return false;
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
+				hideSoftKeyboard();
+				validatePassword(encrypted, password.getText());
+				return true;
 			}
 		});
 	}
