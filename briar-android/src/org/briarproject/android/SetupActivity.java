@@ -4,20 +4,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -35,38 +35,35 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import roboguice.inject.InjectView;
+
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
-import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
-import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 public class SetupActivity extends BaseActivity implements OnClickListener,
-OnEditorActionListener {
+		OnEditorActionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(SetupActivity.class.getName());
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	@Inject private PasswordStrengthEstimator strengthEstimator;
-	private EditText nicknameEntry = null;
-	private EditText passwordEntry = null, passwordConfirmation = null;
-	private StrengthMeter strengthMeter = null;
-	private Button createAccountButton = null;
-	private ProgressBar progress = null;
+	@InjectView(R.id.nickname_entry_wrapper) TextInputLayout nicknameEntryWrapper;
+	@InjectView(R.id.password_entry_wrapper) TextInputLayout passwordEntryWrapper;
+	@InjectView(R.id.password_confirm_wrapper) TextInputLayout passwordConfirmationWrapper;
+	@InjectView(R.id.nickname_entry) EditText nicknameEntry;
+	@InjectView(R.id.password_entry) EditText passwordEntry;
+	@InjectView(R.id.password_confirm) EditText passwordConfirmation;
+	@InjectView(R.id.strength_meter) StrengthMeter strengthMeter;
+	@InjectView(R.id.create_account) Button createAccountButton;
+	@InjectView(R.id.progress_wheel) ProgressBar progress;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
@@ -77,99 +74,32 @@ OnEditorActionListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		setContentView(R.layout.activity_setup);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
-		int pad = LayoutUtils.getPadding(this);
-		layout.setPadding(pad, pad, pad, pad);
-
-		TextView chooseNickname = new TextView(this);
-		chooseNickname.setGravity(CENTER);
-		chooseNickname.setTextSize(18);
-		chooseNickname.setText(R.string.choose_nickname);
-		layout.addView(chooseNickname);
-
-		nicknameEntry = new EditText(this) {
+		TextWatcher tw = new TextWatcher() {
 			@Override
-			protected void onTextChanged(CharSequence text, int start,
-					int lengthBefore, int lengthAfter) {
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
 				enableOrDisableContinueButton();
 			}
-		};
-		nicknameEntry.setId(1);
-		nicknameEntry.setMaxLines(1);
-		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
-		nicknameEntry.setInputType(inputType);
-		layout.addView(nicknameEntry);
 
-		TextView choosePassword = new TextView(this);
-		choosePassword.setGravity(CENTER);
-		choosePassword.setTextSize(18);
-		choosePassword.setPadding(0, pad, 0, 0);
-		choosePassword.setText(R.string.choose_password);
-		layout.addView(choosePassword);
-
-		passwordEntry = new EditText(this) {
 			@Override
-			protected void onTextChanged(CharSequence text, int start,
-					int lengthBefore, int lengthAfter) {
-				enableOrDisableContinueButton();
+			public void afterTextChanged(Editable s) {
 			}
 		};
-		passwordEntry.setId(2);
-		passwordEntry.setMaxLines(1);
-		inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
-		passwordEntry.setInputType(inputType);
-		layout.addView(passwordEntry);
 
-		TextView confirmPassword = new TextView(this);
-		confirmPassword.setGravity(CENTER);
-		confirmPassword.setTextSize(18);
-		confirmPassword.setPadding(0, pad, 0, 0);
-		confirmPassword.setText(R.string.confirm_password);
-		layout.addView(confirmPassword);
-
-		passwordConfirmation = new EditText(this) {
-			@Override
-			protected void onTextChanged(CharSequence text, int start,
-					int lengthBefore, int lengthAfter) {
-				enableOrDisableContinueButton();
-			}
-		};
-		passwordConfirmation.setId(3);
-		passwordConfirmation.setMaxLines(1);
-		inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
-		passwordConfirmation.setInputType(inputType);
+		nicknameEntry.addTextChangedListener(tw);
+		passwordEntry.addTextChangedListener(tw);
+		passwordConfirmation.addTextChangedListener(tw);
 		passwordConfirmation.setOnEditorActionListener(this);
-		layout.addView(passwordConfirmation);
-
-		strengthMeter = new StrengthMeter(this);
-		strengthMeter.setPadding(pad, pad, pad, pad);
-		strengthMeter.setVisibility(INVISIBLE);
-		layout.addView(strengthMeter);
-
-		createAccountButton = new Button(this);
-		createAccountButton.setLayoutParams(WRAP_WRAP);
-		createAccountButton.setText(R.string.create_account_button);
-		createAccountButton.setEnabled(false);
 		createAccountButton.setOnClickListener(this);
-		layout.addView(createAccountButton);
-
-		progress = new ProgressBar(this);
-		progress.setLayoutParams(WRAP_WRAP);
-		progress.setPadding(0, pad, 0, 0);
-		progress.setIndeterminate(true);
-		progress.setVisibility(GONE);
-		layout.addView(progress);
-
-		ScrollView scroll = new ScrollView(this);
-		scroll.addView(layout);
-
-		setContentView(scroll);
 	}
 
 	private void enableOrDisableContinueButton() {
@@ -184,21 +114,22 @@ OnEditorActionListener {
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength = strengthEstimator.estimateStrength(firstPassword);
 		strengthMeter.setStrength(strength);
-		if (nicknameLength > MAX_AUTHOR_NAME_LENGTH)
-			nicknameEntry.setError(getString(R.string.name_too_long));
-		if (firstPassword.length() > 0 && strength < WEAK)
-			passwordEntry.setError(getString(R.string.password_too_weak));
-		if (secondPassword.length() > 0 && !passwordsMatch)
-			passwordConfirmation.setError(getString(R.string.passwords_do_not_match));
+		AndroidUtils.setError(nicknameEntryWrapper,
+				getString(R.string.name_too_long),
+				nicknameLength > MAX_AUTHOR_NAME_LENGTH);
+		AndroidUtils.setError(passwordEntryWrapper,
+				getString(R.string.password_too_weak),
+				firstPassword.length() > 0 && strength < WEAK);
+		AndroidUtils.setError(passwordConfirmationWrapper,
+				getString(R.string.passwords_do_not_match),
+				secondPassword.length() > 0 && !passwordsMatch);
 		createAccountButton.setEnabled(nicknameLength > 0
 				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
 				&& passwordsMatch && strength >= WEAK);
 	}
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		hideSoftKeyboard();
 		return true;
 	}
 

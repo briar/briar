@@ -1,5 +1,15 @@
 package org.briarproject.android.util;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.util.AttributeSet;
+import android.widget.ProgressBar;
+
 import static android.graphics.Color.BLACK;
 import static android.graphics.Paint.Style.FILL;
 import static android.graphics.Paint.Style.STROKE;
@@ -9,14 +19,6 @@ import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_STRONG
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.STRONG;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.ClipDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.widget.ProgressBar;
 
 public class StrengthMeter extends ProgressBar {
 
@@ -30,7 +32,11 @@ public class StrengthMeter extends ProgressBar {
 	private final ShapeDrawable bar;
 
 	public StrengthMeter(Context context) {
-		super(context, null, android.R.attr.progressBarStyleHorizontal);
+		this(context, null);
+	}
+
+	public StrengthMeter(Context context, AttributeSet attrs) {
+		super(context, attrs, android.R.attr.progressBarStyleHorizontal);
 		bar = new ShapeDrawable();
 		bar.getPaint().setColor(RED);
 		ClipDrawable clip = new ClipDrawable(bar, LEFT, HORIZONTAL);
