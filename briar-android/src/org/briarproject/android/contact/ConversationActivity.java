@@ -2,30 +2,27 @@ package org.briarproject.android.contact;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -77,12 +74,11 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static org.briarproject.api.messaging.PrivateMessageHeader.Status.DELIVERED;
 import static org.briarproject.api.messaging.PrivateMessageHeader.Status.SENT;
 
 public class ConversationActivity extends BriarActivity
-implements EventListener, OnClickListener, OnItemClickListener {
+		implements EventListener, OnClickListener {
 
 	private static final int REQUEST_READ = 2;
 	private static final Logger LOG =
@@ -95,7 +91,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private TextView empty = null;
 	private ProgressBar loading = null;
 	private ConversationAdapter adapter = null;
-	private ListView list = null;
+	private RecyclerView list = null;
 	private EditText content = null;
 	private ImageButton sendButton = null;
 
@@ -133,27 +129,29 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		loading.setVisibility(VISIBLE);
 
 		adapter = new ConversationAdapter(this);
-		list = new ListView(this) {
-			@Override
-			public void onSizeChanged(int w, int h, int oldw, int oldh) {
-				// Scroll to the bottom when the keyboard is shown
-				super.onSizeChanged(w, h, oldw, oldh);
-				setSelection(getCount() - 1);
-			}
-		};
-		list.setLayoutParams(MATCH_WRAP_1);
-		int pad = LayoutUtils.getPadding(this);
-		list.setPadding(0, pad, 0, pad);
-		list.setClipToPadding(false);
-		// Make the dividers the same colour as the background
-		Resources res = getResources();
-		int background = res.getColor(android.R.color.transparent);
-		list.setDivider(new ColorDrawable(background));
-		list.setDividerHeight(pad);
+		list = (RecyclerView) findViewById(R.id.conversationView);
+		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
-		list.setOnItemClickListener(this);
-		list.setEmptyView(loading);
-		layout.addView(list, 0);
+		list.setVisibility(GONE);
+		// scroll down when opening keyboard
+		if (Build.VERSION.SDK_INT >= 11) {
+			list.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				@Override
+				public void onLayoutChange(View v,
+						int left, int top, int right, int bottom,
+						int oldLeft, int oldTop, int oldRight, int oldBottom) {
+					if (bottom < oldBottom) {
+						list.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								list.scrollToPosition(
+										adapter.getItemCount() - 1);
+							}
+						}, 100);
+					}
+				}
+			});
+		}
 
 		content = (EditText) findViewById(R.id.contentView);
 		sendButton = (ImageButton) findViewById(R.id.sendButton);
@@ -267,12 +265,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				loading.setVisibility(GONE);
-				empty.setVisibility(VISIBLE);
-				list.setEmptyView(empty);
-				displayContactDetails();
 				sendButton.setEnabled(true);
-				adapter.clear();
 				if (!headers.isEmpty()) {
+					list.setVisibility(VISIBLE);
+					empty.setVisibility(GONE);
 					for (PrivateMessageHeader h : headers) {
 						ConversationItem item = new ConversationItem(h);
 						byte[] body = bodyCache.get(h.getId());
@@ -280,11 +276,12 @@ implements EventListener, OnClickListener, OnItemClickListener {
 						else item.setBody(body);
 						adapter.add(item);
 					}
-					adapter.sort(ConversationItemComparator.INSTANCE);
 					// Scroll to the bottom
-					list.setSelection(adapter.getCount() - 1);
+					list.scrollToPosition(adapter.getItemCount() - 1);
+				} else {
+					empty.setVisibility(VISIBLE);
+					list.setVisibility(GONE);
 				}
-				adapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -313,14 +310,18 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				bodyCache.put(m, body);
-				int count = adapter.getCount();
+				int count = adapter.getItemCount();
+
 				for (int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
+
 					if (item.getHeader().getId().equals(m)) {
 						item.setBody(body);
-						adapter.notifyDataSetChanged();
+						adapter.notifyItemChanged(i);
+
 						// Scroll to the bottom
-						list.setSelection(count - 1);
+						list.scrollToPosition(count - 1);
+
 						return;
 					}
 				}
@@ -333,7 +334,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);
-			if (position >= 0 && position < adapter.getCount())
+			if (position >= 0 && position < adapter.getItemCount())
 				displayMessage(position);
 		}
 	}
@@ -348,7 +349,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private void markMessagesRead() {
 		notificationManager.clearPrivateMessageNotification(contactId);
 		List<MessageId> unread = new ArrayList<MessageId>();
-		int count = adapter.getCount();
+		int count = adapter.getItemCount();
 		for (int i = 0; i < count; i++) {
 			PrivateMessageHeader h = adapter.getItem(i).getHeader();
 			if (!h.isRead()) unread.add(h.getId());
@@ -388,6 +389,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			GroupId g = ((MessageAddedEvent) e).getGroupId();
 			if (g.equals(groupId)) {
 				LOG.info("Message added, reloading");
+				// TODO: find a way of not needing to reload the entire
+				// conversation just because one message was added
 				loadHeaders();
 			}
 		} else if (e instanceof MessagesSentEvent) {
@@ -424,16 +427,14 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				Set<MessageId> messages = new HashSet<MessageId>(messageIds);
-				boolean changed = false;
-				int count = adapter.getCount();
+				int count = adapter.getItemCount();
 				for (int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
 					if (messages.contains(item.getHeader().getId())) {
 						item.setStatus(status);
-						changed = true;
+						adapter.notifyItemChanged(i);
 					}
 				}
-				if (changed) adapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -451,7 +452,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private long getMinTimestampForNewMessage() {
 		// Don't use an earlier timestamp than the newest message
 		long timestamp = 0;
-		int count = adapter.getCount();
+		int count = adapter.getItemCount();
 		for (int i = 0; i < count; i++) {
 			long t = adapter.getItem(i).getHeader().getTimestamp();
 			if (t > timestamp) timestamp = t;
@@ -490,11 +491,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				}
 			}
 		});
-	}
-
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		displayMessage(position);
 	}
 
 	private void displayMessage(int position) {

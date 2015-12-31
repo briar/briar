@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:paddingLeft="@dimen/margin_medium"
+	android:paddingStart="@dimen/margin_medium"
+	android:paddingTop="@dimen/margin_small"
+	android:paddingBottom="@dimen/margin_small">
+
+	<RelativeLayout
+		android:id="@+id/msgLayout"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right|end"
+		android:background="@drawable/msg_out"
+		android:paddingLeft="7dp"
+		android:paddingTop="5dp"
+		android:paddingRight="17dp"
+		android:paddingBottom="5dp">
+
+		<TextView
+			android:id="@+id/msgBody"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textIsSelectable="true"
+			android:minWidth="80dp"
+			tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
+
+		<TextView
+			android:id="@+id/msgTime"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/msgBody"
+			android:layout_toLeftOf="@+id/msgStatus"
+			android:textSize="10sp"
+			android:textColor="@color/private_message_date"
+			android:singleLine="true"
+			tools:text="Dec 24, 13:37"/>
+
+		<ImageView
+			android:id="@+id/msgStatus"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@+id/msgTime"
+			android:layout_alignRight="@+id/msgBody"
+			android:layout_alignEnd="@+id/msgBody"
+			android:layout_marginLeft="3dp"
+			tools:src="@drawable/message_delivered"/>
+
+	</RelativeLayout>
+
+</LinearLayout>
