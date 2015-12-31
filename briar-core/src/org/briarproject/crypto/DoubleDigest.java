@@ -3,6 +3,15 @@ package org.briarproject.crypto;
 import org.briarproject.api.crypto.MessageDigest;
 import org.spongycastle.crypto.Digest;
 
+/**
+ * A message digest that prevents length extension attacks - see Ferguson and
+ * Schneier, <i>Practical Cryptography</i>, chapter 6.
+ * <p>
+ * "Let h be an interative hash function. The hash function h<sub>d</sub> is
+ * defined by h<sub>d</sub> := h(h(m)), and has a claimed security level of
+ * min(k, n/2) where k is the security level of h and n is the size of the hash
+ * result."
+ */
 class DoubleDigest implements MessageDigest {
 
 	private final Digest delegate;
