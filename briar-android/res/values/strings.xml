@@ -128,4 +128,5 @@
     <string name="dialog_message_lost_password">Password recovery is not possible. Do you wish to delete your user, all contacts, and re-register ?</string>
     <string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
     <string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
+    <string name="no_data">No data</string>
 </resources>

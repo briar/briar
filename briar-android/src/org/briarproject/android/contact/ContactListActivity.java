@@ -4,15 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -38,22 +35,18 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 public class ContactListActivity extends BriarActivity
-		implements OnCreateContextMenuListener, EventListener {
+		implements EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
 
 	@Inject private ConnectionRegistry connectionRegistry;
-	private TextView empty = null;
 	private ContactListAdapter adapter = null;
-	private RecyclerView list = null;
-	private ProgressBar loading = null;
+	private BriarRecyclerView list = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile ContactManager contactManager;
@@ -67,18 +60,10 @@ public class ContactListActivity extends BriarActivity
 		setContentView(R.layout.activity_contact_list);
 
 		adapter = new ContactListAdapter(this);
-		list = (RecyclerView) findViewById(R.id.contactList);
+		list = (BriarRecyclerView) findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
-		list.setOnCreateContextMenuListener(this);
-		list.setVisibility(GONE);
-
-		// Show a notice when there are no contacts
-		empty = (TextView) findViewById(R.id.emptyView);
-
-		// Show a progress bar while the list is loading
-		loading = (ProgressBar) findViewById(R.id.progressBar);
-		loading.setVisibility(VISIBLE);
+		list.setEmptyText(getString(R.string.no_contacts));
 
 		// Show a floating action button
 		FloatingActionButton fab = (FloatingActionButton) findViewById(
@@ -104,18 +89,12 @@ public class ContactListActivity extends BriarActivity
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
+
 		loadContacts();
 	}
 
 
 	private void loadContacts() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				empty.setVisibility(GONE);
-				list.setVisibility(GONE);
-				loading.setVisibility(VISIBLE);
-			}
-		});
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -155,15 +134,11 @@ public class ContactListActivity extends BriarActivity
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if (contacts.size() > 0) {
-					list.setVisibility(VISIBLE);
-					empty.setVisibility(GONE);
+					adapter.addAll(contacts);
 				} else {
-					list.setVisibility(GONE);
-					empty.setVisibility(VISIBLE);
+					// no contacts to display, make sure progress bar is hidden
+					list.showData();
 				}
-				loading.setVisibility(GONE);
-
-				adapter.addAll(contacts);
 			}
 		});
 	}
@@ -228,11 +203,6 @@ public class ContactListActivity extends BriarActivity
 				ContactListItem item = adapter.findItem(c);
 				if (item != null) {
 					adapter.remove(item);
-
-					if (adapter.isEmpty()) {
-						empty.setVisibility(VISIBLE);
-						list.setVisibility(GONE);
-					}
 				}
 			}
 		});
