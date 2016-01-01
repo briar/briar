@@ -26,8 +26,9 @@ class DigestWrapper implements MessageDigest {
 
 	@Override
 	public int digest(byte[] buf, int offset, int len) {
-		if (len != digest.getDigestSize()) throw new IllegalArgumentException();
-		digest.doFinal(buf, offset);
+		byte[] hash = digest();
+		len = Math.min(len, hash.length);
+		System.arraycopy(hash, 0, buf, offset, len);
 		return len;
 	}
 
