@@ -20,14 +20,11 @@ import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.Mac;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
-import org.spongycastle.crypto.digests.Blake2bDigest;
 import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
-import org.spongycastle.crypto.macs.HMac;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
@@ -123,7 +120,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public MessageDigest getMessageDigest() {
-		return new DoubleDigest(new SHA256Digest());
+		return new DigestWrapper(new Blake2sDigest());
 	}
 
 	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
@@ -390,7 +387,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Key derivation function based on a hash function - see NIST SP 800-56A,
 	// section 5.8
 	private byte[] hashKdf(byte[]... inputs) {
-		Digest digest = new Blake2bDigest();
+		Digest digest = new Blake2sDigest();
 		// The output of the hash function must be long enough to use as a key
 		int hashLength = digest.getDigestSize();
 		if (hashLength < SecretKey.LENGTH) throw new IllegalStateException();
@@ -414,10 +411,9 @@ class CryptoComponentImpl implements CryptoComponent {
 	// NIST SP 800-108, section 5.1
 	private byte[] macKdf(SecretKey key, byte[]... inputs) {
 		// Initialise the PRF
-		Mac prf = new HMac(new Blake2bDigest());
-		prf.init(new KeyParameter(key.getBytes()));
+		Digest prf = new Blake2sDigest(key.getBytes());
 		// The output of the PRF must be long enough to use as a key
-		int macLength = prf.getMacSize();
+		int macLength = prf.getDigestSize();
 		if (macLength < SecretKey.LENGTH) throw new IllegalStateException();
 		// Calculate the PRF over the concatenated length-prefixed inputs
 		byte[] length = new byte[4];
