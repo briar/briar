@@ -17,12 +17,10 @@ import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.util.ByteUtils;
 import org.briarproject.util.StringUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
-import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.SHA256Digest;
-import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
@@ -30,6 +28,7 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.KeyParameter;
 
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -57,33 +56,31 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int PBKDF_TARGET_MILLIS = 500;
 	private static final int PBKDF_SAMPLES = 30;
 
+	private static byte[] ascii(String s) {
+		return s.getBytes(Charset.forName("US-ASCII"));
+	}
+
 	// KDF label for master key derivation
-	private static final byte[] MASTER = { 'M', 'A', 'S', 'T', 'E', 'R' };
+	private static final byte[] MASTER = ascii("MASTER");
 	// KDF labels for confirmation code derivation
-	private static final byte[] A_CONFIRM =
-			{ 'A', '_', 'C', 'O', 'N', 'F', 'I', 'R', 'M' };
-	private static final byte[] B_CONFIRM =
-			{ 'B', '_', 'C', 'O', 'N', 'F', 'I', 'R', 'M' };
+	private static final byte[] A_CONFIRM = ascii("ALICE_CONFIRMATION_CODE");
+	private static final byte[] B_CONFIRM = ascii("BOB_CONFIRMATION_CODE");
 	// KDF labels for invitation stream header key derivation
-	private static final byte[] A_INVITE =
-			{ 'A', '_', 'I', 'N', 'V', 'I', 'T', 'E' };
-	private static final byte[] B_INVITE =
-			{ 'B', '_', 'I', 'N', 'V', 'I', 'T', 'E' };
+	private static final byte[] A_INVITE = ascii("ALICE_INVITATION_KEY");
+	private static final byte[] B_INVITE = ascii("BOB_INVITATION_KEY");
 	// KDF labels for signature nonce derivation
-	private static final byte[] A_NONCE = { 'A', '_', 'N', 'O', 'N', 'C', 'E' };
-	private static final byte[] B_NONCE = { 'B', '_', 'N', 'O', 'N', 'C', 'E' };
+	private static final byte[] A_NONCE = ascii("ALICE_SIGNATURE_NONCE");
+	private static final byte[] B_NONCE = ascii("BOB_SIGNATURE_NONCE");
 	// KDF label for group salt derivation
-	private static final byte[] SALT = { 'S', 'A', 'L', 'T' };
+	private static final byte[] SALT = ascii("SALT");
 	// KDF labels for tag key derivation
-	private static final byte[] A_TAG = { 'A', '_', 'T', 'A', 'G' };
-	private static final byte[] B_TAG = { 'B', '_', 'T', 'A', 'G' };
+	private static final byte[] A_TAG = ascii("ALICE_TAG_KEY");
+	private static final byte[] B_TAG = ascii("BOB_TAG_KEY");
 	// KDF labels for header key derivation
-	private static final byte[] A_HEADER =
-			{ 'A', '_', 'H', 'E', 'A', 'D', 'E', 'R' };
-	private static final byte[] B_HEADER =
-			{ 'B', '_', 'H', 'E', 'A', 'D', 'E', 'R' };
+	private static final byte[] A_HEADER = ascii("ALICE_HEADER_KEY");
+	private static final byte[] B_HEADER = ascii("BOB_HEADER_KEY");
 	// KDF label for key rotation
-	private static final byte[] ROTATE = { 'R', 'O', 'T', 'A', 'T', 'E' };
+	private static final byte[] ROTATE = ascii("ROTATE");
 
 	private final SecureRandom secureRandom;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
@@ -290,8 +287,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
-		byte[] period = new byte[4];
-		ByteUtils.writeUint32(rotationPeriod, period, 0);
+		byte[] period = new byte[8];
+		ByteUtils.writeUint64(rotationPeriod, period, 0);
 		return new SecretKey(macKdf(k, ROTATE, period));
 	}
 
@@ -311,14 +308,19 @@ class CryptoComponentImpl implements CryptoComponent {
 		if (tag.length < TAG_LENGTH) throw new IllegalArgumentException();
 		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		for (int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
-		ByteUtils.writeUint32(streamNumber, tag, 0);
-		BlockCipher cipher = new AESLightEngine();
-		if (cipher.getBlockSize() != TAG_LENGTH)
-			throw new IllegalStateException();
-		KeyParameter k = new KeyParameter(tagKey.getBytes());
-		cipher.init(true, k);
-		cipher.processBlock(tag, 0, tag, 0);
+		// Initialise the PRF
+		Digest prf = new Blake2sDigest(tagKey.getBytes());
+		// The output of the PRF must be long enough to use as a key
+		int macLength = prf.getDigestSize();
+		if (macLength < TAG_LENGTH) throw new IllegalStateException();
+		// The input is the stream number as a 64-bit integer
+		byte[] input = new byte[8];
+		ByteUtils.writeUint64(streamNumber, input, 0);
+		prf.update(input, 0, input.length);
+		byte[] mac = new byte[macLength];
+		prf.doFinal(mac, 0);
+		// The output is the first TAG_LENGTH bytes of the MAC
+		System.arraycopy(mac, 0, tag, 0, TAG_LENGTH);
 	}
 
 	public byte[] encryptWithPassword(byte[] input, String password) {

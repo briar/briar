@@ -37,6 +37,19 @@ public class ByteUtils {
 		b[offset + 3] = (byte) (i & 0xFF);
 	}
 
+	public static void writeUint64(long i, byte[] b, int offset) {
+		if (i < 0) throw new IllegalArgumentException();
+		if (b.length < offset + 8) throw new IllegalArgumentException();
+		b[offset] = (byte) (i >> 56);
+		b[offset + 1] = (byte) (i >> 48 & 0xFF);
+		b[offset + 2] = (byte) (i >> 40 & 0xFF);
+		b[offset + 3] = (byte) (i >> 32 & 0xFF);
+		b[offset + 4] = (byte) (i >> 24 & 0xFF);
+		b[offset + 5] = (byte) (i >> 16 & 0xFF);
+		b[offset + 6] = (byte) (i >> 8 & 0xFF);
+		b[offset + 7] = (byte) (i & 0xFF);
+	}
+
 	public static int readUint16(byte[] b, int offset) {
 		if (b.length < offset + 2) throw new IllegalArgumentException();
 		return ((b[offset] & 0xFF) << 8) | (b[offset + 1] & 0xFF);

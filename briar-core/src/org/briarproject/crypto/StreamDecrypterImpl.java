@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 
 import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_PAYLOAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.FRAME_IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
@@ -34,7 +35,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		this.cipher = cipher;
 		this.streamHeaderKey = streamHeaderKey;
 		frameIv = new byte[FRAME_IV_LENGTH];
-		frameHeader = new byte[FRAME_HEADER_LENGTH];
+		frameHeader = new byte[FRAME_HEADER_PAYLOAD_LENGTH];
 		frameCiphertext = new byte[MAX_FRAME_LENGTH];
 		frameKey = null;
 		frameNumber = 0;
@@ -46,6 +47,8 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		if (payload.length < MAX_PAYLOAD_LENGTH)
 			throw new IllegalArgumentException();
 		if (finalFrame) return -1;
+		// Don't allow the frame counter to wrap
+		if (frameNumber < 0) throw new IOException();
 		// Read the stream header if required
 		if (frameKey == null) readStreamHeader();
 		// Read the frame header
@@ -62,7 +65,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			cipher.init(false, frameKey, frameIv);
 			int decrypted = cipher.process(frameCiphertext, 0,
 					FRAME_HEADER_LENGTH, frameHeader, 0);
-			if (decrypted != FRAME_HEADER_LENGTH - MAC_LENGTH)
+			if (decrypted != FRAME_HEADER_PAYLOAD_LENGTH)
 				throw new RuntimeException();
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
