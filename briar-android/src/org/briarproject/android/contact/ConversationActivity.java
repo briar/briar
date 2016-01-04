@@ -3,26 +3,22 @@ package org.briarproject.android.contact;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -68,8 +64,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -88,10 +82,8 @@ public class ConversationActivity extends BriarActivity
 	@Inject private ConnectionRegistry connectionRegistry;
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
-	private TextView empty = null;
-	private ProgressBar loading = null;
 	private ConversationAdapter adapter = null;
-	private RecyclerView list = null;
+	private BriarRecyclerView list = null;
 	private EditText content = null;
 	private ImageButton sendButton = null;
 
@@ -121,37 +113,12 @@ public class ConversationActivity extends BriarActivity
 		setResult(RESULT_OK, data);
 
 		setContentView(R.layout.activity_conversation);
-		ViewGroup layout = (ViewGroup) findViewById(R.id.layout);
-		empty = (TextView) findViewById(R.id.emptyView);
-		empty.setVisibility(GONE);
-		// Show a progress bar while the list is loading
-		loading = (ProgressBar) findViewById(R.id.listLoadingProgressBar);
-		loading.setVisibility(VISIBLE);
 
 		adapter = new ConversationAdapter(this);
-		list = (RecyclerView) findViewById(R.id.conversationView);
+		list = (BriarRecyclerView) findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
-		list.setVisibility(GONE);
-		// scroll down when opening keyboard
-		if (Build.VERSION.SDK_INT >= 11) {
-			list.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-				@Override
-				public void onLayoutChange(View v,
-						int left, int top, int right, int bottom,
-						int oldLeft, int oldTop, int oldRight, int oldBottom) {
-					if (bottom < oldBottom) {
-						list.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								list.scrollToPosition(
-										adapter.getItemCount() - 1);
-							}
-						}, 100);
-					}
-				}
-			});
-		}
+		list.setEmptyText(getString(R.string.no_private_messages));
 
 		content = (EditText) findViewById(R.id.contentView);
 		sendButton = (ImageButton) findViewById(R.id.sendButton);
@@ -165,6 +132,23 @@ public class ConversationActivity extends BriarActivity
 		eventBus.addListener(this);
 		loadContactAndGroup();
 		loadHeaders();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		eventBus.removeListener(this);
+		if (isFinishing()) markMessagesRead();
+	}
+
+	@Override
+	protected void onActivityResult(int request, int result, Intent data) {
+		super.onActivityResult(request, result, data);
+		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
+			int position = data.getIntExtra("briar.POSITION", -1);
+			if (position >= 0 && position < adapter.getItemCount())
+				displayMessage(position);
+		}
 	}
 
 	@Override
@@ -264,11 +248,8 @@ public class ConversationActivity extends BriarActivity
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				loading.setVisibility(GONE);
 				sendButton.setEnabled(true);
 				if (!headers.isEmpty()) {
-					list.setVisibility(VISIBLE);
-					empty.setVisibility(GONE);
 					for (PrivateMessageHeader h : headers) {
 						ConversationItem item = new ConversationItem(h);
 						byte[] body = bodyCache.get(h.getId());
@@ -279,8 +260,9 @@ public class ConversationActivity extends BriarActivity
 					// Scroll to the bottom
 					list.scrollToPosition(adapter.getItemCount() - 1);
 				} else {
-					empty.setVisibility(VISIBLE);
-					list.setVisibility(GONE);
+					// we have no messages,
+					// so let the list know to hide progress bar
+					list.showData();
 				}
 			}
 		});
@@ -327,23 +309,6 @@ public class ConversationActivity extends BriarActivity
 				}
 			}
 		});
-	}
-
-	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
-		super.onActivityResult(request, result, data);
-		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
-			int position = data.getIntExtra("briar.POSITION", -1);
-			if (position >= 0 && position < adapter.getItemCount())
-				displayMessage(position);
-		}
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		eventBus.removeListener(this);
-		if (isFinishing()) markMessagesRead();
 	}
 
 	private void markMessagesRead() {

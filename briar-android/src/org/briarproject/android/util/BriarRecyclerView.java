@@ -1,6 +1,7 @@
 package org.briarproject.android.util;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -50,6 +51,26 @@ public class BriarRecyclerView extends FrameLayout {
 		progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
 
 		showProgressBar();
+
+		// scroll down when opening keyboard
+		if (Build.VERSION.SDK_INT >= 11) {
+			recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				@Override
+				public void onLayoutChange(View v,
+						int left, int top, int right, int bottom,
+						int oldLeft, int oldTop, int oldRight, int oldBottom) {
+					if (bottom < oldBottom) {
+						recyclerView.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								scrollToPosition(
+										recyclerView.getAdapter().getItemCount() - 1);
+							}
+						}, 100);
+					}
+				}
+			});
+		}
 
 		emptyObserver = new RecyclerView.AdapterDataObserver() {
 			@Override
@@ -110,6 +131,10 @@ public class BriarRecyclerView extends FrameLayout {
 			}
 			progressBar.setVisibility(View.INVISIBLE);
 		}
+	}
+
+	public void scrollToPosition(int position) {
+		recyclerView.scrollToPosition(position);
 	}
 
 	public RecyclerView getRecyclerView() {
