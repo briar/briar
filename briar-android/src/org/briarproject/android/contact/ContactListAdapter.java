@@ -60,13 +60,25 @@ public class ContactListAdapter
 						@Override
 						public boolean areItemsTheSame(ContactListItem c1,
 								ContactListItem c2) {
-							return c1.getContact().getId().equals(c2.getContact().getId());
+							return c1.getContact().getId()
+									.equals(c2.getContact().getId());
 						}
 
 						@Override
 						public boolean areContentsTheSame(ContactListItem c1,
 								ContactListItem c2) {
-							return c1.equals(c2);
+							// check for all properties that influence visual
+							// representation of contact
+							if (c1.isConnected() != c2.isConnected()) {
+								return false;
+							}
+							if (c1.getUnreadCount() != c2.getUnreadCount()) {
+								return false;
+							}
+							if (c1.getTimestamp() != c2.getTimestamp()) {
+								return false;
+							}
+							return true;
 						}
 					});
 	private Context ctx;
@@ -144,7 +156,8 @@ public class ContactListAdapter
 	}
 
 	public ContactListItem getItem(int position) {
-		if (position == -1 || contacts.size() <= position) {
+		if (position == SortedList.INVALID_POSITION ||
+				contacts.size() <= position) {
 			return null; // Not found
 		}
 		return contacts.get(position);
@@ -163,13 +176,17 @@ public class ContactListAdapter
 		return null; // Not found
 	}
 
+	public int findItemPosition(ContactListItem item) {
+		return contacts.indexOf(item);
+	}
+
 	public int findItemPosition(ContactId c) {
 		int count = getItemCount();
 		for (int i = 0; i < count; i++) {
 			ContactListItem item = getItem(i);
 			if (item.getContact().getId().equals(c)) return i;
 		}
-		return -1; // Not found
+		return SortedList.INVALID_POSITION; // Not found
 	}
 
 	public void addAll(final List<ContactListItem> contacts) {

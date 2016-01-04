@@ -3,6 +3,7 @@ package org.briarproject.android.contact;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
@@ -134,7 +135,21 @@ public class ContactListActivity extends BriarActivity
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if (contacts.size() > 0) {
-					adapter.addAll(contacts);
+					if (adapter.getItemCount() > 0) {
+						// update existing items rather than just adding them,
+						// because different timestamps in added items change
+						// sorting criteria and cause duplicates
+						for (ContactListItem contact : contacts) {
+							int position = adapter.findItemPosition(contact);
+							if (position == SortedList.INVALID_POSITION) {
+								adapter.add(contact);
+							} else {
+								adapter.updateItem(position, contact);
+							}
+						}
+					} else {
+						adapter.addAll(contacts);
+					}
 				} else {
 					// no contacts to display, make sure progress bar is hidden
 					list.showData();
