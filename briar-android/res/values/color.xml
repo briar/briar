@@ -16,10 +16,14 @@
 
     <color name="briar_primary">#2D3E50</color>
     <color name="briar_primary_dark">#0f1720</color>
+    <color name="briar_accent">#2D3E50</color>
 
     <color name="briar_text_link">#75ab0d</color>
     <color name="briar_green_light">#95d220</color>
     <color name="briar_green_dark">#75ab0d</color>
     <color name="briar_text_primary">#333333</color>
     <color name="briar_text_primary_inverse">#ffffff</color>
+
+    <!-- this is needed as preference_category_material layout uses this color as the text color -->
+    <color name="preference_fallback_accent_color">@color/briar_accent</color>
 </resources>

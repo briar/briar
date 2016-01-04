@@ -16,6 +16,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.util.FixedVerticalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
@@ -68,6 +69,7 @@ OnClickListener {
 	private CheckBox notifyPrivateMessages = null, notifyForumPosts = null;
 	private CheckBox notifyVibration = null;
 	private TextView torOverWifi = null, torOverWifiHint = null;
+	private TextView panicSettings = null, panicSettingsHint = null;
 	private TextView notifySound = null, notifySoundHint = null;
 	private ListLoadingProgressBar progress = null;
 	private ImageButton testingButton = null;
@@ -140,6 +142,30 @@ OnClickListener {
 		torOverWifiHint.setPadding(pad, 0, pad, pad);
 		torOverWifiHint.setOnClickListener(this);
 		settings.addView(torOverWifiHint);
+
+		TextView panicTitle = new TextView(this);
+		panicTitle.setPadding(pad, 0, pad, 0);
+		panicTitle.setTypeface(DEFAULT_BOLD);
+		panicTitle.setTextColor(titleText);
+		panicTitle.setText(R.string.panic_setting_title);
+		settings.addView(panicTitle);
+
+		underline = new HorizontalBorder(this);
+		underline.setBackgroundColor(titleUnderline);
+		settings.addView(underline);
+
+		panicSettings = new TextView(this);
+		panicSettings.setPadding(pad, pad, pad, 0);
+		panicSettings.setTextSize(18);
+		panicSettings.setText(R.string.panic_setting);
+		panicSettings.setOnClickListener(this);
+		settings.addView(panicSettings);
+
+		panicSettingsHint = new TextView(this);
+		panicSettingsHint.setText(R.string.panic_setting_hint);
+		panicSettingsHint.setPadding(pad, 0, pad, pad);
+		panicSettingsHint.setOnClickListener(this);
+		settings.addView(panicSettingsHint);
 
 		TextView notificationsTitle = new TextView(this);
 		notificationsTitle.setPadding(pad, 0, pad, 0);
@@ -317,6 +343,8 @@ OnClickListener {
 			s.putBoolean("notifyPrivateMessages",
 					notifyPrivateMessages.isChecked());
 			storeSettings(s);
+		} else if (view == panicSettings || view == panicSettingsHint) {
+			startActivity(new Intent(this, PanicPreferencesActivity.class));
 		} else if (view == notifyForumPosts) {
 			Settings s = new Settings();
 			s.putBoolean("notifyForumPosts", notifyForumPosts.isChecked());

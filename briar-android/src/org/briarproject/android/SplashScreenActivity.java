@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
+import android.support.v7.preference.PreferenceManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -63,6 +64,9 @@ public class SplashScreenActivity extends RoboSplashActivity {
 		logo.setPadding(pad, pad, pad, pad);
 		logo.setImageResource(R.drawable.briar_logo_large);
 		layout.addView(logo);
+
+		PreferenceManager
+				.setDefaultValues(this, R.xml.panic_preferences, false);
 
 		setContentView(layout);
 	}
