@@ -1,15 +1,15 @@
 package org.briarproject.data;
 
-import org.briarproject.api.data.ReaderFactory;
-import org.briarproject.api.data.WriterFactory;
-
 import com.google.inject.AbstractModule;
+
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriterFactory;
 
 public class DataModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(ReaderFactory.class).to(ReaderFactoryImpl.class);
-		bind(WriterFactory.class).to(WriterFactoryImpl.class);
+		bind(BdfReaderFactory.class).to(BdfReaderFactoryImpl.class);
+		bind(BdfWriterFactory.class).to(BdfWriterFactoryImpl.class);
 	}
 }

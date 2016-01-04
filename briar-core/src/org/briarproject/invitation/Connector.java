@@ -12,10 +12,10 @@ import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.crypto.Signature;
-import org.briarproject.api.data.Reader;
-import org.briarproject.api.data.ReaderFactory;
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfReader;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
@@ -56,8 +56,8 @@ abstract class Connector extends Thread {
 			Logger.getLogger(Connector.class.getName());
 
 	protected final CryptoComponent crypto;
-	protected final ReaderFactory readerFactory;
-	protected final WriterFactory writerFactory;
+	protected final BdfReaderFactory bdfReaderFactory;
+	protected final BdfWriterFactory bdfWriterFactory;
 	protected final StreamReaderFactory streamReaderFactory;
 	protected final StreamWriterFactory streamWriterFactory;
 	protected final AuthorFactory authorFactory;
@@ -83,7 +83,7 @@ abstract class Connector extends Thread {
 	private volatile ContactId contactId = null;
 
 	Connector(CryptoComponent crypto,
-			ReaderFactory readerFactory, WriterFactory writerFactory,
+			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
@@ -96,8 +96,8 @@ abstract class Connector extends Thread {
 			PseudoRandom random) {
 		super("Connector");
 		this.crypto = crypto;
-		this.readerFactory = readerFactory;
-		this.writerFactory = writerFactory;
+		this.bdfReaderFactory = bdfReaderFactory;
+		this.bdfWriterFactory = bdfWriterFactory;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
@@ -126,13 +126,13 @@ abstract class Connector extends Thread {
 		return plugin.createInvitationConnection(random, CONNECTION_TIMEOUT);
 	}
 
-	protected void sendPublicKeyHash(Writer w) throws IOException {
+	protected void sendPublicKeyHash(BdfWriter w) throws IOException {
 		w.writeRaw(messageDigest.digest(keyPair.getPublic().getEncoded()));
 		w.flush();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent hash");
 	}
 
-	protected byte[] receivePublicKeyHash(Reader r) throws IOException {
+	protected byte[] receivePublicKeyHash(BdfReader r) throws IOException {
 		int hashLength = messageDigest.getDigestLength();
 		byte[] b = r.readRaw(hashLength);
 		if (b.length < hashLength) throw new FormatException();
@@ -140,14 +140,14 @@ abstract class Connector extends Thread {
 		return b;
 	}
 
-	protected void sendPublicKey(Writer w) throws IOException {
+	protected void sendPublicKey(BdfWriter w) throws IOException {
 		byte[] key = keyPair.getPublic().getEncoded();
 		w.writeRaw(key);
 		w.flush();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent key");
 	}
 
-	protected byte[] receivePublicKey(Reader r) throws GeneralSecurityException,
+	protected byte[] receivePublicKey(BdfReader r) throws GeneralSecurityException,
 	IOException {
 		byte[] b = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		keyParser.parsePublicKey(b);
@@ -169,7 +169,7 @@ abstract class Connector extends Thread {
 		return crypto.deriveMasterSecret(key, keyPair, alice);
 	}
 
-	protected void sendConfirmation(Writer w, boolean confirmed)
+	protected void sendConfirmation(BdfWriter w, boolean confirmed)
 			throws IOException {
 		w.writeBoolean(confirmed);
 		w.flush();
@@ -177,14 +177,14 @@ abstract class Connector extends Thread {
 			LOG.info(pluginName + " sent confirmation: " + confirmed);
 	}
 
-	protected boolean receiveConfirmation(Reader r) throws IOException {
+	protected boolean receiveConfirmation(BdfReader r) throws IOException {
 		boolean confirmed = r.readBoolean();
 		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " received confirmation: " + confirmed);
 		return confirmed;
 	}
 
-	protected void sendPseudonym(Writer w, byte[] nonce)
+	protected void sendPseudonym(BdfWriter w, byte[] nonce)
 			throws GeneralSecurityException, IOException {
 		// Sign the nonce
 		Signature signature = crypto.getSignature();
@@ -201,7 +201,7 @@ abstract class Connector extends Thread {
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent pseudonym");
 	}
 
-	protected Author receivePseudonym(Reader r, byte[] nonce)
+	protected Author receivePseudonym(BdfReader r, byte[] nonce)
 			throws GeneralSecurityException, IOException {
 		// Read the name, public key and signature
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
@@ -221,24 +221,24 @@ abstract class Connector extends Thread {
 		return authorFactory.createAuthor(name, publicKey);
 	}
 
-	protected void sendTimestamp(Writer w, long timestamp) throws IOException {
+	protected void sendTimestamp(BdfWriter w, long timestamp) throws IOException {
 		w.writeInteger(timestamp);
 		w.flush();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent timestamp");
 	}
 
-	protected long receiveTimestamp(Reader r) throws IOException {
+	protected long receiveTimestamp(BdfReader r) throws IOException {
 		long timestamp = r.readInteger();
 		if (timestamp < 0) throw new FormatException();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received timestamp");
 		return timestamp;
 	}
 
-	protected void sendTransportProperties(Writer w) throws IOException {
+	protected void sendTransportProperties(BdfWriter w) throws IOException {
 		w.writeListStart();
 		for (Entry<TransportId, TransportProperties> e : localProps.entrySet()) {
 			w.writeString(e.getKey().getString());
-			w.writeMap(e.getValue());
+			w.writeDictionary(e.getValue());
 		}
 		w.writeListEnd();
 		w.flush();
@@ -247,7 +247,7 @@ abstract class Connector extends Thread {
 	}
 
 	protected Map<TransportId, TransportProperties> receiveTransportProperties(
-			Reader r) throws IOException {
+			BdfReader r) throws IOException {
 		Map<TransportId, TransportProperties> remoteProps =
 				new HashMap<TransportId, TransportProperties>();
 		r.readListStart();
@@ -256,15 +256,15 @@ abstract class Connector extends Thread {
 			if (idString.length() == 0) throw new FormatException();
 			TransportId id = new TransportId(idString);
 			Map<String, String> p = new HashMap<String, String>();
-			r.readMapStart();
-			for (int i = 0; !r.hasMapEnd(); i++) {
+			r.readDictionaryStart();
+			for (int i = 0; !r.hasDictionaryEnd(); i++) {
 				if (i == MAX_PROPERTIES_PER_TRANSPORT)
 					throw new FormatException();
 				String key = r.readString(MAX_PROPERTY_LENGTH);
 				String value = r.readString(MAX_PROPERTY_LENGTH);
 				p.put(key, value);
 			}
-			r.readMapEnd();
+			r.readDictionaryEnd();
 			remoteProps.put(id, new TransportProperties(p));
 		}
 		r.readListEnd();

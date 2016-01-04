@@ -1,6 +1,6 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.PacketWriterFactory;
 
@@ -10,14 +10,14 @@ import javax.inject.Inject;
 
 class PacketWriterFactoryImpl implements PacketWriterFactory {
 
-	private final WriterFactory writerFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 
 	@Inject
-	PacketWriterFactoryImpl(WriterFactory writerFactory) {
-		this.writerFactory = writerFactory;
+	PacketWriterFactoryImpl(BdfWriterFactory bdfWriterFactory) {
+		this.bdfWriterFactory = bdfWriterFactory;
 	}
 
 	public PacketWriter createPacketWriter(OutputStream out) {
-		return new PacketWriterImpl(writerFactory, out);
+		return new PacketWriterImpl(bdfWriterFactory, out);
 	}
 }

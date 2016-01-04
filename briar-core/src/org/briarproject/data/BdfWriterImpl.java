@@ -1,22 +1,9 @@
 package org.briarproject.data;
 
-import static org.briarproject.data.Types.END;
-import static org.briarproject.data.Types.FALSE;
-import static org.briarproject.data.Types.FLOAT_64;
-import static org.briarproject.data.Types.INT_16;
-import static org.briarproject.data.Types.INT_32;
-import static org.briarproject.data.Types.INT_64;
-import static org.briarproject.data.Types.INT_8;
-import static org.briarproject.data.Types.LIST;
-import static org.briarproject.data.Types.MAP;
-import static org.briarproject.data.Types.NULL;
-import static org.briarproject.data.Types.RAW_16;
-import static org.briarproject.data.Types.RAW_32;
-import static org.briarproject.data.Types.RAW_8;
-import static org.briarproject.data.Types.STRING_16;
-import static org.briarproject.data.Types.STRING_32;
-import static org.briarproject.data.Types.STRING_8;
-import static org.briarproject.data.Types.TRUE;
+import org.briarproject.api.Bytes;
+import org.briarproject.api.FormatException;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.Consumer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,17 +13,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.briarproject.api.Bytes;
-import org.briarproject.api.data.Consumer;
-import org.briarproject.api.data.Writer;
+import static org.briarproject.data.Types.DICTIONARY;
+import static org.briarproject.data.Types.END;
+import static org.briarproject.data.Types.FALSE;
+import static org.briarproject.data.Types.FLOAT_64;
+import static org.briarproject.data.Types.INT_16;
+import static org.briarproject.data.Types.INT_32;
+import static org.briarproject.data.Types.INT_64;
+import static org.briarproject.data.Types.INT_8;
+import static org.briarproject.data.Types.LIST;
+import static org.briarproject.data.Types.NULL;
+import static org.briarproject.data.Types.RAW_16;
+import static org.briarproject.data.Types.RAW_32;
+import static org.briarproject.data.Types.RAW_8;
+import static org.briarproject.data.Types.STRING_16;
+import static org.briarproject.data.Types.STRING_32;
+import static org.briarproject.data.Types.STRING_8;
+import static org.briarproject.data.Types.TRUE;
 
 // This class is not thread-safe
-class WriterImpl implements Writer {
+class BdfWriterImpl implements BdfWriter {
 
 	private final OutputStream out;
 	private final Collection<Consumer> consumers = new ArrayList<Consumer>(0);
 
-	WriterImpl(OutputStream out) {
+	BdfWriterImpl(OutputStream out) {
 		this.out = out;
 	}
 
@@ -145,7 +146,8 @@ class WriterImpl implements Writer {
 	}
 
 	private void writeObject(Object o) throws IOException {
-		if (o instanceof Boolean) writeBoolean((Boolean) o);
+		if (o == null) writeNull();
+		else if (o instanceof Boolean) writeBoolean((Boolean) o);
 		else if (o instanceof Byte) writeInteger((Byte) o);
 		else if (o instanceof Short) writeInteger((Short) o);
 		else if (o instanceof Integer) writeInteger((Integer) o);
@@ -155,10 +157,9 @@ class WriterImpl implements Writer {
 		else if (o instanceof String) writeString((String) o);
 		else if (o instanceof byte[]) writeRaw((byte[]) o);
 		else if (o instanceof Bytes) writeRaw(((Bytes) o).getBytes());
-		else if (o instanceof List<?>) writeList((List<?>) o);
-		else if (o instanceof Map<?, ?>) writeMap((Map<?, ?>) o);
-		else if (o == null) writeNull();
-		else throw new IllegalStateException();
+		else if (o instanceof List) writeList((List) o);
+		else if (o instanceof Map) writeDictionary((Map) o);
+		else throw new FormatException();
 	}
 
 	public void writeListStart() throws IOException {
@@ -169,20 +170,21 @@ class WriterImpl implements Writer {
 		write(END);
 	}
 
-	public void writeMap(Map<?, ?> m) throws IOException {
-		write(MAP);
+	public void writeDictionary(Map<?, ?> m) throws IOException {
+		write(DICTIONARY);
 		for (Entry<?, ?> e : m.entrySet()) {
-			writeObject(e.getKey());
+			if (!(e.getKey() instanceof String)) throw new FormatException();
+			writeString((String) e.getKey());
 			writeObject(e.getValue());
 		}
 		write(END);
 	}
 
-	public void writeMapStart() throws IOException {
-		write(MAP);
+	public void writeDictionaryStart() throws IOException {
+		write(DICTIONARY);
 	}
 
-	public void writeMapEnd() throws IOException {
+	public void writeDictionaryEnd() throws IOException {
 		write(END);
 	}
 

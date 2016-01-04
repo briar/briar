@@ -2,7 +2,7 @@ package org.briarproject.api.data;
 
 import java.io.IOException;
 
-public interface Reader {
+public interface BdfReader {
 
 	boolean eof() throws IOException;
 	void close() throws IOException;
@@ -40,9 +40,9 @@ public interface Reader {
 	void readListEnd() throws IOException;
 	void skipList() throws IOException;
 
-	boolean hasMap() throws IOException;
-	void readMapStart() throws IOException;
-	boolean hasMapEnd() throws IOException;
-	void readMapEnd() throws IOException;
-	void skipMap() throws IOException;
+	boolean hasDictionary() throws IOException;
+	void readDictionaryStart() throws IOException;
+	boolean hasDictionaryEnd() throws IOException;
+	void readDictionaryEnd() throws IOException;
+	void skipDictionary() throws IOException;
 }

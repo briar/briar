@@ -14,10 +14,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class ReaderImplTest extends BriarTestCase {
+public class BdfReaderImplTest extends BriarTestCase {
 
-	private ByteArrayInputStream in = null;
-	private ReaderImpl r = null;
+	private BdfReaderImpl r = null;
 
 	@Test
 	public void testReadEmptyInput() throws Exception {
@@ -128,49 +127,6 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testIntegersMustHaveMinimalLength() throws Exception {
-		// INTEGER_16 could be encoded as INTEGER_8
-		setContents("21" + "7F" + "22" + "007F");
-		assertEquals(Byte.MAX_VALUE, r.readInteger());
-		try {
-			r.readInteger();
-			fail();
-		} catch (FormatException expected) {}
-		setContents("21" + "80" + "22" + "FF80");
-		assertEquals(Byte.MIN_VALUE, r.readInteger());
-		try {
-			r.readInteger();
-			fail();
-		} catch (FormatException expected) {}
-		// INTEGER_32 could be encoded as INTEGER_16
-		setContents("22" + "7FFF" + "24" + "00007FFF");
-		assertEquals(Short.MAX_VALUE, r.readInteger());
-		try {
-			r.readInteger();
-			fail();
-		} catch (FormatException expected) {}
-		setContents("22" + "8000" + "24" + "FFFF8000");
-		assertEquals(Short.MIN_VALUE, r.readInteger());
-		try {
-			r.readInteger();
-			fail();
-		} catch (FormatException expected) {}
-		// INTEGER_64 could be encoded as INTEGER_32
-		setContents("24" + "7FFFFFFF" + "28" + "000000007FFFFFFF");
-		assertEquals(Integer.MAX_VALUE, r.readInteger());
-		try {
-			r.readInteger();
-			fail();
-		} catch (FormatException expected) {}
-		setContents("24" + "80000000" + "28" + "FFFFFFFF80000000");
-		assertEquals(Integer.MIN_VALUE, r.readInteger());
-		try {
-			r.readInteger();
-			fail();
-		} catch (FormatException expected) {}
-	}
-
-	@Test
 	public void testReadFloat() throws Exception {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
 		// http://steve.hollasch.net/cgindex/coding/ieeefloat.html
@@ -218,7 +174,9 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(2);
 			fail();
-		} catch (FormatException expected) {}
+		} catch (FormatException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -258,7 +216,9 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(Byte.MAX_VALUE);
 			fail();
-		} catch (FormatException expected) {}
+		} catch (FormatException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -296,7 +256,9 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readString(Short.MAX_VALUE);
 			fail();
-		} catch (FormatException expected) {}
+		} catch (FormatException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -309,28 +271,6 @@ public class ReaderImplTest extends BriarTestCase {
 		r.skipString();
 		r.skipString();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testStringsMustHaveMinimalLength() throws Exception {
-		// STRING_16 could be encoded as STRING_8
-		String longest8 = TestUtils.createRandomString(Byte.MAX_VALUE);
-		String long8Hex = StringUtils.toHexString(longest8.getBytes("UTF-8"));
-		setContents("41" + "7F" + long8Hex + "42" + "007F" + long8Hex);
-		assertEquals(longest8, r.readString(Integer.MAX_VALUE));
-		try {
-			r.readString(Integer.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {}
-		// STRING_32 could be encoded as STRING_16
-		String longest16 = TestUtils.createRandomString(Short.MAX_VALUE);
-		String long16Hex = StringUtils.toHexString(longest16.getBytes("UTF-8"));
-		setContents("42" + "7FFF" + long16Hex + "44" + "00007FFF" + long16Hex);
-		assertEquals(longest16, r.readString(Integer.MAX_VALUE));
-		try {
-			r.readString(Integer.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -355,7 +295,9 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(2);
 			fail();
-		} catch (FormatException expected) {}
+		} catch (FormatException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -395,7 +337,9 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(Byte.MAX_VALUE);
 			fail();
-		} catch (FormatException expected) {}
+		} catch (FormatException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -433,7 +377,9 @@ public class ReaderImplTest extends BriarTestCase {
 		try {
 			r.readRaw(Short.MAX_VALUE);
 			fail();
-		} catch (FormatException expected) {}
+		} catch (FormatException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -446,28 +392,6 @@ public class ReaderImplTest extends BriarTestCase {
 		r.skipRaw();
 		r.skipRaw();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testRawMustHaveMinimalLength() throws Exception {
-		// RAW_16 could be encoded as RAW_8
-		byte[] longest8 = new byte[Byte.MAX_VALUE];
-		String long8Hex = StringUtils.toHexString(longest8);
-		setContents("51" + "7F" + long8Hex + "52" + "007F" + long8Hex);
-		assertArrayEquals(longest8, r.readRaw(Integer.MAX_VALUE));
-		try {
-			r.readRaw(Integer.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {}
-		// RAW_32 could be encoded as RAW_16
-		byte[] longest16 = new byte[Short.MAX_VALUE];
-		String long16Hex = StringUtils.toHexString(longest16);
-		setContents("52" + "7FFF" + long16Hex + "54" + "00007FFF" + long16Hex);
-		assertArrayEquals(longest16, r.readRaw(Integer.MAX_VALUE));
-		try {
-			r.readRaw(Integer.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {}
 	}
 
 	@Test
@@ -499,44 +423,45 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReadMap() throws Exception {
-		// A map containing "foo" -> 123 and "bar" -> null
+	public void testReadDictionary() throws Exception {
+		// A dictionary containing "foo" -> 123 and "bar" -> null
 		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
 				"41" + "03" + "626172" + "00" + "80");
-		r.readMapStart();
-		assertFalse(r.hasMapEnd());
+		r.readDictionaryStart();
+		assertFalse(r.hasDictionaryEnd());
 		assertEquals("foo", r.readString(1000));
-		assertFalse(r.hasMapEnd());
+		assertFalse(r.hasDictionaryEnd());
 		assertEquals(123, r.readInteger());
-		assertFalse(r.hasMapEnd());
+		assertFalse(r.hasDictionaryEnd());
 		assertEquals("bar", r.readString(1000));
-		assertFalse(r.hasMapEnd());
+		assertFalse(r.hasDictionaryEnd());
 		assertTrue(r.hasNull());
 		r.readNull();
-		assertTrue(r.hasMapEnd());
-		r.readMapEnd();
+		assertTrue(r.hasDictionaryEnd());
+		r.readDictionaryEnd();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testSkipMap() throws Exception {
+	public void testSkipDictionary() throws Exception {
 		// A map containing "foo" -> 123 and "bar" -> null
 		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
 				"41" + "03" + "626172" + "00" + "80");
-		r.skipMap();
+		r.skipDictionary();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testSkipNestedListsAndMaps() throws Exception {
-		// A list containing a map containing two empty lists
-		setContents("60" + "70" + "60" + "80" + "60" + "80" + "80" + "80");
+	public void testSkipNestedListsAndDictionaries() throws Exception {
+		// A list containing a dictionary containing "" -> an empty list
+		setContents("60" + "70" + "4100" + "60" + "80" + "80" + "80");
 		r.skipList();
 		assertTrue(r.eof());
 	}
 
 	private void setContents(String hex) {
-		in = new ByteArrayInputStream(StringUtils.fromHexString(hex));
-		r = new ReaderImpl(in);
+		ByteArrayInputStream in = new ByteArrayInputStream(
+				StringUtils.fromHexString(hex));
+		r = new BdfReaderImpl(in);
 	}
 }

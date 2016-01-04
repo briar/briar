@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-public interface Writer {
+public interface BdfWriter {
 
 	void flush() throws IOException;
 	void close() throws IOException;
@@ -23,7 +23,7 @@ public interface Writer {
 	void writeListStart() throws IOException;
 	void writeListEnd() throws IOException;
 
-	void writeMap(Map<?, ?> m) throws IOException;
-	void writeMapStart() throws IOException;
-	void writeMapEnd() throws IOException;
+	void writeDictionary(Map<?, ?> m) throws IOException;
+	void writeDictionaryStart() throws IOException;
+	void writeDictionaryEnd() throws IOException;
 }

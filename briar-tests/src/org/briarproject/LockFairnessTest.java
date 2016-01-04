@@ -108,7 +108,7 @@ public class LockFairnessTest extends BriarTestCase {
 			}
 		};
 		first.start();
-		// Writer
+		// BdfWriter
 		Thread writer = new Thread() {
 			@Override
 			public void run() {

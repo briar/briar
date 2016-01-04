@@ -1,5 +1,15 @@
 package org.briarproject.data;
 
+import org.briarproject.api.FormatException;
+import org.briarproject.api.data.BdfReader;
+import org.briarproject.api.data.Consumer;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
 import static org.briarproject.data.Types.FALSE;
 import static org.briarproject.data.Types.FLOAT_64;
@@ -8,7 +18,6 @@ import static org.briarproject.data.Types.INT_32;
 import static org.briarproject.data.Types.INT_64;
 import static org.briarproject.data.Types.INT_8;
 import static org.briarproject.data.Types.LIST;
-import static org.briarproject.data.Types.MAP;
 import static org.briarproject.data.Types.NULL;
 import static org.briarproject.data.Types.RAW_16;
 import static org.briarproject.data.Types.RAW_32;
@@ -18,17 +27,8 @@ import static org.briarproject.data.Types.STRING_32;
 import static org.briarproject.data.Types.STRING_8;
 import static org.briarproject.data.Types.TRUE;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.briarproject.api.FormatException;
-import org.briarproject.api.data.Consumer;
-import org.briarproject.api.data.Reader;
-
 // This class is not thread-safe
-class ReaderImpl implements Reader {
+class BdfReaderImpl implements BdfReader {
 
 	private static final byte[] EMPTY_BUFFER = new byte[] {};
 
@@ -39,7 +39,7 @@ class ReaderImpl implements Reader {
 	private byte next;
 	private byte[] buf = new byte[8];
 
-	ReaderImpl(InputStream in) {
+	BdfReaderImpl(InputStream in) {
 		this.in = in;
 	}
 
@@ -88,14 +88,14 @@ class ReaderImpl implements Reader {
 	}
 
 	private void skipObject() throws IOException {
-		if (hasBoolean()) skipBoolean();
+		if (hasNull()) skipNull();
+		else if (hasBoolean()) skipBoolean();
 		else if (hasInteger()) skipInteger();
 		else if (hasFloat()) skipFloat();
 		else if (hasString()) skipString();
 		else if (hasRaw()) skipRaw();
 		else if (hasList()) skipList();
-		else if (hasMap()) skipMap();
-		else if (hasNull()) skipNull();
+		else if (hasDictionary()) skipDictionary();
 		else throw new FormatException();
 	}
 
@@ -173,18 +173,13 @@ class ReaderImpl implements Reader {
 
 	private short readInt16(boolean consume) throws IOException {
 		readIntoBuffer(2, consume);
-		short value = (short) (((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF));
-		if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
-			throw new FormatException();
-		return value;
+		return (short) (((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF));
 	}
 
 	private int readInt32(boolean consume) throws IOException {
 		readIntoBuffer(4, consume);
 		int value = 0;
 		for (int i = 0; i < 4; i++) value |= (buf[i] & 0xFF) << (24 - i * 8);
-		if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE)
-			throw new FormatException();
 		return value;
 	}
 
@@ -192,8 +187,6 @@ class ReaderImpl implements Reader {
 		readIntoBuffer(8, consume);
 		long value = 0;
 		for (int i = 0; i < 8; i++) value |= (buf[i] & 0xFFL) << (56 - i * 8);
-		if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE)
-			throw new FormatException();
 		return value;
 	}
 
@@ -327,30 +320,30 @@ class ReaderImpl implements Reader {
 		hasLookahead = false;
 	}
 
-	public boolean hasMap() throws IOException {
+	public boolean hasDictionary() throws IOException {
 		if (!hasLookahead) readLookahead();
 		if (eof) return false;
-		return next == MAP;
+		return next == DICTIONARY;
 	}
 
-	public void readMapStart() throws IOException {
-		if (!hasMap()) throw new FormatException();
+	public void readDictionaryStart() throws IOException {
+		if (!hasDictionary()) throw new FormatException();
 		consumeLookahead();
 	}
 
-	public boolean hasMapEnd() throws IOException {
+	public boolean hasDictionaryEnd() throws IOException {
 		return hasEnd();
 	}
 
-	public void readMapEnd() throws IOException {
+	public void readDictionaryEnd() throws IOException {
 		readEnd();
 	}
 
-	public void skipMap() throws IOException {
-		if (!hasMap()) throw new FormatException();
+	public void skipDictionary() throws IOException {
+		if (!hasDictionary()) throw new FormatException();
 		hasLookahead = false;
-		while (!hasMapEnd()) {
-			skipObject();
+		while (!hasDictionaryEnd()) {
+			skipString();
 			skipObject();
 		}
 		hasLookahead = false;

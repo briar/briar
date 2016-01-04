@@ -4,9 +4,9 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.data.BdfReader;
+import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.ObjectReader;
-import org.briarproject.api.data.Reader;
-import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
@@ -48,7 +48,7 @@ class PacketReaderImpl implements PacketReader {
 
 	private enum State { BUFFER_EMPTY, BUFFER_FULL, EOF }
 
-	private final ReaderFactory readerFactory;
+	private final BdfReaderFactory bdfReaderFactory;
 	private final ObjectReader<UnverifiedMessage> messageReader;
 	private final ObjectReader<SubscriptionUpdate> subscriptionUpdateReader;
 	private final InputStream in;
@@ -57,11 +57,11 @@ class PacketReaderImpl implements PacketReader {
 	private State state = State.BUFFER_EMPTY;
 	private int payloadLength = 0;
 
-	PacketReaderImpl(ReaderFactory readerFactory,
+	PacketReaderImpl(BdfReaderFactory bdfReaderFactory,
 			ObjectReader<UnverifiedMessage> messageReader,
 			ObjectReader<SubscriptionUpdate> subscriptionUpdateReader,
 			InputStream in) {
-		this.readerFactory = readerFactory;
+		this.bdfReaderFactory = bdfReaderFactory;
 		this.messageReader = messageReader;
 		this.subscriptionUpdateReader = subscriptionUpdateReader;
 		this.in = in;
@@ -111,7 +111,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasAck()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read the start of the payload
 		r.readListStart();
 		// Read the message IDs
@@ -141,7 +141,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasMessage()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read and build the message
 		UnverifiedMessage m = messageReader.readObject(r);
 		if (!r.eof()) throw new FormatException();
@@ -157,7 +157,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasOffer()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read the start of the payload
 		r.readListStart();
 		// Read the message IDs
@@ -187,7 +187,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasRequest()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read the start of the payload
 		r.readListStart();
 		// Read the message IDs
@@ -217,7 +217,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasSubscriptionAck()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read the start of the payload
 		r.readListStart();
 		// Read the version
@@ -239,7 +239,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasSubscriptionUpdate()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read and build the subscription update
 		SubscriptionUpdate u = subscriptionUpdateReader.readObject(r);
 		if (!r.eof()) throw new FormatException();
@@ -255,7 +255,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasTransportAck()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read the start of the payload
 		r.readListStart();
 		// Read the transport ID and version
@@ -280,7 +280,7 @@ class PacketReaderImpl implements PacketReader {
 		if (!hasTransportUpdate()) throw new FormatException();
 		// Set up the reader
 		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		Reader r = readerFactory.createReader(bais);
+		BdfReader r = bdfReaderFactory.createReader(bais);
 		// Read the start of the payload
 		r.readListStart();
 		// Read the transport ID
@@ -289,15 +289,15 @@ class PacketReaderImpl implements PacketReader {
 		TransportId id = new TransportId(idString);
 		// Read the transport properties
 		Map<String, String> p = new HashMap<String, String>();
-		r.readMapStart();
-		for (int i = 0; !r.hasMapEnd(); i++) {
+		r.readDictionaryStart();
+		for (int i = 0; !r.hasDictionaryEnd(); i++) {
 			if (i == MAX_PROPERTIES_PER_TRANSPORT)
 				throw new FormatException();
 			String key = r.readString(MAX_PROPERTY_LENGTH);
 			String value = r.readString(MAX_PROPERTY_LENGTH);
 			p.put(key, value);
 		}
-		r.readMapEnd();
+		r.readDictionaryEnd();
 		// Read the version number
 		long version = r.readInteger();
 		if (version < 0) throw new FormatException();

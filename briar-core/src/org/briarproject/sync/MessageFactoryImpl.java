@@ -4,9 +4,9 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.Signature;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.Consumer;
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
@@ -32,14 +32,14 @@ class MessageFactoryImpl implements MessageFactory {
 	private final Signature signature;
 	private final SecureRandom random;
 	private final MessageDigest messageDigest;
-	private final WriterFactory writerFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 
 	@Inject
-	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory) {
+	MessageFactoryImpl(CryptoComponent crypto, BdfWriterFactory bdfWriterFactory) {
 		signature = crypto.getSignature();
 		random = crypto.getSecureRandom();
 		messageDigest = crypto.getMessageDigest();
-		this.writerFactory = writerFactory;
+		this.bdfWriterFactory = bdfWriterFactory;
 	}
 
 	public Message createAnonymousMessage(MessageId parent, Group group,
@@ -69,7 +69,7 @@ class MessageFactoryImpl implements MessageFactory {
 			throw new IllegalArgumentException();
 		// Serialise the message to a buffer
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		// Initialise the consumers
 		CountingConsumer counting = new CountingConsumer(MAX_PAYLOAD_LENGTH);
 		w.addConsumer(counting);
@@ -113,14 +113,14 @@ class MessageFactoryImpl implements MessageFactory {
 				timestamp, out.toByteArray(), bodyStart, body.length);
 	}
 
-	private void writeGroup(Writer w, Group g) throws IOException {
+	private void writeGroup(BdfWriter w, Group g) throws IOException {
 		w.writeListStart();
 		w.writeString(g.getName());
 		w.writeRaw(g.getSalt());
 		w.writeListEnd();
 	}
 
-	private void writeAuthor(Writer w, Author a) throws IOException {
+	private void writeAuthor(BdfWriter w, Author a) throws IOException {
 		w.writeListStart();
 		w.writeString(a.getName());
 		w.writeRaw(a.getPublicKey());

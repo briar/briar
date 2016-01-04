@@ -2,8 +2,8 @@ package org.briarproject.sync;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
@@ -18,12 +18,12 @@ import static org.briarproject.api.sync.MessagingConstants.GROUP_SALT_LENGTH;
 class GroupFactoryImpl implements GroupFactory {
 
 	private final CryptoComponent crypto;
-	private final WriterFactory writerFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 
 	@Inject
-	GroupFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory) {
+	GroupFactoryImpl(CryptoComponent crypto, BdfWriterFactory bdfWriterFactory) {
 		this.crypto = crypto;
-		this.writerFactory = writerFactory;
+		this.bdfWriterFactory = bdfWriterFactory;
 	}
 
 	public Group createGroup(String name) {
@@ -34,7 +34,7 @@ class GroupFactoryImpl implements GroupFactory {
 
 	public Group createGroup(String name, byte[] salt) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
 			w.writeListStart();
 			w.writeString(name);

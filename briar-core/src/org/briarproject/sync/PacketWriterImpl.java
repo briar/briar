@@ -1,7 +1,7 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.MessageId;
@@ -36,13 +36,13 @@ import static org.briarproject.api.sync.PacketTypes.TRANSPORT_UPDATE;
 // This class is not thread-safe
 class PacketWriterImpl implements PacketWriter {
 
-	private final WriterFactory writerFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 	private final OutputStream out;
 	private final byte[] header;
 	private final ByteArrayOutputStream payload;
 
-	PacketWriterImpl(WriterFactory writerFactory, OutputStream out) {
-		this.writerFactory = writerFactory;
+	PacketWriterImpl(BdfWriterFactory bdfWriterFactory, OutputStream out) {
+		this.bdfWriterFactory = bdfWriterFactory;
 		this.out = out;
 		header = new byte[HEADER_LENGTH];
 		header[0] = PROTOCOL_VERSION;
@@ -78,7 +78,7 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeAck(Ack a) throws IOException {
 		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
+		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
 		for (MessageId m : a.getMessageIds()) w.writeRaw(m.getBytes());
@@ -96,7 +96,7 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeOffer(Offer o) throws IOException {
 		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
+		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
 		for (MessageId m : o.getMessageIds()) w.writeRaw(m.getBytes());
@@ -107,7 +107,7 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeRequest(Request r) throws IOException {
 		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
+		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
 		for (MessageId m : r.getMessageIds()) w.writeRaw(m.getBytes());
@@ -118,7 +118,7 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
 		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
+		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeInteger(a.getVersion());
 		w.writeListEnd();
@@ -128,7 +128,7 @@ class PacketWriterImpl implements PacketWriter {
 	public void writeSubscriptionUpdate(SubscriptionUpdate u)
 			throws IOException {
 		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
+		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
 		for (Group g : u.getGroups()) {
@@ -145,7 +145,7 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeTransportAck(TransportAck a) throws IOException {
 		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
+		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeString(a.getId().getString());
 		w.writeInteger(a.getVersion());
@@ -155,10 +155,10 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeTransportUpdate(TransportUpdate u) throws IOException {
 		assert payload.size() == 0;
-		Writer w = writerFactory.createWriter(payload);
+		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeString(u.getId().getString());
-		w.writeMap(u.getProperties());
+		w.writeDictionary(u.getProperties());
 		w.writeInteger(u.getVersion());
 		w.writeListEnd();
 		writePacket(TRANSPORT_UPDATE);

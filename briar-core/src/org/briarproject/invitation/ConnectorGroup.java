@@ -5,8 +5,8 @@ import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PseudoRandom;
-import org.briarproject.api.data.ReaderFactory;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
@@ -48,8 +48,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			Logger.getLogger(ConnectorGroup.class.getName());
 
 	private final CryptoComponent crypto;
-	private final ReaderFactory readerFactory;
-	private final WriterFactory writerFactory;
+	private final BdfReaderFactory bdfReaderFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 	private final AuthorFactory authorFactory;
@@ -78,7 +78,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private String remoteName = null;
 
 	ConnectorGroup(CryptoComponent crypto,
-			ReaderFactory readerFactory, WriterFactory writerFactory,
+			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
@@ -91,8 +91,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			boolean reuseConnection) {
 		super("ConnectorGroup");
 		this.crypto = crypto;
-		this.readerFactory = readerFactory;
-		this.writerFactory = writerFactory;
+		this.bdfReaderFactory = bdfReaderFactory;
+		this.bdfWriterFactory = bdfWriterFactory;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
@@ -197,7 +197,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			Map<TransportId, TransportProperties> localProps) {
 		PseudoRandom random = crypto.getPseudoRandom(localInvitationCode,
 				remoteInvitationCode);
-		return new AliceConnector(crypto, readerFactory, writerFactory,
+		return new AliceConnector(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, contactManager,
 				messagingManager, transportPropertyManager, clock,
@@ -209,7 +209,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			Map<TransportId, TransportProperties> localProps) {
 		PseudoRandom random = crypto.getPseudoRandom(remoteInvitationCode,
 				localInvitationCode);
-		return new BobConnector(crypto, readerFactory, writerFactory,
+		return new BobConnector(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, contactManager,
 				messagingManager, transportPropertyManager, clock,
