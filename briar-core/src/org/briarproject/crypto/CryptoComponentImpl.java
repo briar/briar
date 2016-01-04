@@ -310,7 +310,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		// Initialise the PRF
 		Digest prf = new Blake2sDigest(tagKey.getBytes());
-		// The output of the PRF must be long enough to use as a key
+		// The output of the PRF must be long enough to use as a tag
 		int macLength = prf.getDigestSize();
 		if (macLength < TAG_LENGTH) throw new IllegalStateException();
 		// The input is the stream number as a 64-bit integer
