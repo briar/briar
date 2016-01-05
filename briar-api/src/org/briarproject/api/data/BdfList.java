@@ -1,8 +1,9 @@
 package org.briarproject.api.data;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
-public class BdfList extends Vector<Object> {
+// This class is not thread-safe
+public class BdfList extends ArrayList<Object> {
 
 	public Boolean getBoolean(int index, Boolean defaultValue) {
 		Object o = get(index);

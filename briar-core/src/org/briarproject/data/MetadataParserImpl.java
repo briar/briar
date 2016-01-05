@@ -8,7 +8,7 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
@@ -33,7 +33,7 @@ class MetadataParserImpl implements MetadataParser {
 	@Override
 	public BdfDictionary parse(Metadata m) throws FormatException {
 		BdfDictionary dict = new BdfDictionary();
-		for (Map.Entry<String, byte[]> e : m.entrySet())
+		for (Entry<String, byte[]> e : m.entrySet())
 			dict.put(e.getKey(), parseObject(e.getValue()));
 		return dict;
 	}

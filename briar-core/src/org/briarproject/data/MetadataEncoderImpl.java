@@ -2,14 +2,16 @@ package org.briarproject.data;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.data.BdfDictionary;
-import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
 import static org.briarproject.data.Types.FALSE;
@@ -34,10 +36,10 @@ class MetadataEncoderImpl implements MetadataEncoder {
 	public Metadata encode(BdfDictionary d) throws FormatException {
 		Metadata m = new Metadata();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		for (Map.Entry<String, Object> e : d.entrySet()) {
+		for (Entry<String, Object> e : d.entrySet()) {
 			if (e.getValue() == null) {
 				// Special case: if the value is null, the key is being removed
-				m.put(e.getKey(), null);
+				m.put(e.getKey(), REMOVE);
 			} else {
 				encodeObject(out, e.getValue());
 				m.put(e.getKey(), out.toByteArray());
@@ -59,9 +61,8 @@ class MetadataEncoderImpl implements MetadataEncoder {
 		else if (o instanceof Double) encodeFloat(out, (Double) o);
 		else if (o instanceof String) encodeString(out, (String) o);
 		else if (o instanceof byte[]) encodeRaw(out, (byte[]) o);
-		else if (o instanceof BdfList) encodeList(out, (BdfList) o);
-		else if (o instanceof BdfDictionary) encodeDictionary(out,
-				(BdfDictionary) o);
+		else if (o instanceof List) encodeList(out, (List) o);
+		else if (o instanceof Map) encodeDictionary(out, (Map) o);
 		else throw new FormatException();
 	}
 
@@ -154,18 +155,19 @@ class MetadataEncoderImpl implements MetadataEncoder {
 		out.write(b, 0, b.length);
 	}
 
-	private void encodeList(ByteArrayOutputStream out, BdfList list)
+	private void encodeList(ByteArrayOutputStream out, List list)
 			throws FormatException {
 		out.write(LIST);
 		for (Object o : list) encodeObject(out, o);
 		out.write(END);
 	}
 
-	private void encodeDictionary(ByteArrayOutputStream out,
-			BdfDictionary dict) throws FormatException {
+	private void encodeDictionary(ByteArrayOutputStream out, Map<?, ?> map)
+			throws FormatException {
 		out.write(DICTIONARY);
-		for (Map.Entry<String, Object> e : dict.entrySet()) {
-			encodeString(out, e.getKey());
+		for (Entry<?, ?> e : map.entrySet()) {
+			if (!(e.getKey() instanceof String)) throw new FormatException();
+			encodeString(out, (String) e.getKey());
 			encodeObject(out, e.getValue());
 		}
 		out.write(END);

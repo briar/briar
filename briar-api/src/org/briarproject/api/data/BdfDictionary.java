@@ -1,8 +1,9 @@
 package org.briarproject.api.data;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
-public class BdfDictionary extends Hashtable<String, Object> {
+// This class is not thread-safe
+public class BdfDictionary extends HashMap<String, Object> {
 
 	public Boolean getBoolean(String key, Boolean defaultValue) {
 		Object o = get(key);
