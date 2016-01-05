@@ -1,42 +1,62 @@
 package org.briarproject.android.util;
 
 import android.content.Context;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.api.identity.Author;
 
-import static android.text.TextUtils.TruncateAt.END;
+import im.delight.android.identicons.IdenticonView;
 
-public class AuthorView extends RelativeLayout {
+public class AuthorView extends FrameLayout {
+
+	private IdenticonView identiconView;
+	private TextView nameView;
+	private ImageView statusView;
 
 	public AuthorView(Context ctx) {
 		super(ctx);
+
+		initViews();
 	}
 
-	public void init(String name, Author.Status status) {
-		Context ctx = getContext();
-		int pad = LayoutUtils.getPadding(ctx);
+	public AuthorView(Context context, AttributeSet attrs) {
+		super(context, attrs);
 
-		TextView nameView = new TextView(ctx);
-		nameView.setId(1);
-		nameView.setTextSize(18);
-		nameView.setSingleLine();
-		nameView.setEllipsize(END);
-		nameView.setPadding(pad, pad, pad, pad);
-		if (name == null) nameView.setText(R.string.anonymous);
-		else nameView.setText(name);
-		LayoutParams leftOf = CommonLayoutParams.relative();
-		leftOf.addRule(ALIGN_PARENT_LEFT);
-		leftOf.addRule(CENTER_VERTICAL);
-		leftOf.addRule(LEFT_OF, 2);
-		addView(nameView, leftOf);
+		initViews();
+	}
 
-		ImageView statusView = new ImageView(ctx);
-		statusView.setId(2);
-		statusView.setPadding(0, pad, pad, pad);
+	public AuthorView(Context context, AttributeSet attrs,
+							 int defStyle) {
+		super(context, attrs, defStyle);
+
+		initViews();
+	}
+
+	private void initViews() {
+		if (isInEditMode())
+			return;
+
+		View v = LayoutInflater.from(getContext()).inflate(
+				R.layout.author_view, this, true);
+
+		identiconView = (IdenticonView) v.findViewById(R.id.identiconView);
+		nameView = (TextView) v.findViewById(R.id.nameView);
+		statusView = (ImageView) v.findViewById(R.id.statusView);
+	}
+
+	public void init(Author author, Author.Status status) {
+		if (author == null) nameView.setText(R.string.anonymous);
+		else {
+			identiconView.show(author.getId().getBytes());
+			nameView.setText(author.getName());
+		}
+
 		switch(status) {
 		case ANONYMOUS:
 			statusView.setImageResource(R.drawable.identity_anonymous);
@@ -51,9 +71,5 @@ public class AuthorView extends RelativeLayout {
 			statusView.setImageResource(R.drawable.identity_verified);
 			break;
 		}
-		LayoutParams right = CommonLayoutParams.relative();
-		right.addRule(ALIGN_PARENT_RIGHT);
-		right.addRule(CENTER_VERTICAL);
-		addView(statusView, right);
 	}
 }

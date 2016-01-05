@@ -17,6 +17,7 @@ import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.forum.ForumManager;
@@ -56,6 +57,8 @@ implements OnClickListener {
 	private TextView content = null;
 	private int position = -1;
 
+	@Inject private ReferenceManager referenceManager;
+
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile ForumManager forumManager;
 	private volatile MessageId messageId = null;
@@ -82,7 +85,9 @@ implements OnClickListener {
 		if (minTimestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
 		if (position == -1) throw new IllegalStateException();
-		String authorName = i.getStringExtra("briar.AUTHOR_NAME");
+		long authorHandle = i.getLongExtra("briar.AUTHOR_HANDLE", -1);
+		if (authorHandle == -1) throw new IllegalStateException();
+		Author author = referenceManager.removeReference(authorHandle, Author.class);
 		String s = i.getStringExtra("briar.AUTHOR_STATUS");
 		if (s == null) throw new IllegalStateException();
 		Author.Status authorStatus = Author.Status.valueOf(s);
@@ -102,10 +107,10 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
-		AuthorView author = new AuthorView(this);
-		author.setLayoutParams(WRAP_WRAP_1);
-		author.init(authorName, authorStatus);
-		header.addView(author);
+		AuthorView authorView = new AuthorView(this);
+		authorView.setLayoutParams(WRAP_WRAP_1);
+		authorView.init(author, authorStatus);
+		header.addView(authorView);
 
 		int pad = LayoutUtils.getPadding(this);
 
