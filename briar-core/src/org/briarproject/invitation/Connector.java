@@ -83,7 +83,8 @@ abstract class Connector extends Thread {
 	private volatile ContactId contactId = null;
 
 	Connector(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
+			BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
@@ -147,8 +148,8 @@ abstract class Connector extends Thread {
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent key");
 	}
 
-	protected byte[] receivePublicKey(BdfReader r) throws GeneralSecurityException,
-	IOException {
+	protected byte[] receivePublicKey(BdfReader r)
+			throws GeneralSecurityException, IOException {
 		byte[] b = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		keyParser.parsePublicKey(b);
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received key");
@@ -221,7 +222,8 @@ abstract class Connector extends Thread {
 		return authorFactory.createAuthor(name, publicKey);
 	}
 
-	protected void sendTimestamp(BdfWriter w, long timestamp) throws IOException {
+	protected void sendTimestamp(BdfWriter w, long timestamp)
+			throws IOException {
 		w.writeInteger(timestamp);
 		w.flush();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent timestamp");
@@ -236,7 +238,8 @@ abstract class Connector extends Thread {
 
 	protected void sendTransportProperties(BdfWriter w) throws IOException {
 		w.writeListStart();
-		for (Entry<TransportId, TransportProperties> e : localProps.entrySet()) {
+		for (Entry<TransportId, TransportProperties> e :
+				localProps.entrySet()) {
 			w.writeString(e.getKey().getString());
 			w.writeDictionary(e.getValue());
 		}

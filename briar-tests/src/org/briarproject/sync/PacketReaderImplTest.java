@@ -43,9 +43,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readAck();
@@ -59,9 +57,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		reader.readAck();
 	}
@@ -70,9 +66,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testEmptyAck() throws Exception {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readAck();
@@ -86,9 +80,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testFormatExceptionIfOfferIsTooLarge() throws Exception {
 		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readOffer();
@@ -102,8 +94,8 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testNoFormatExceptionIfOfferIsMaximumSize() throws Exception {
 		byte[] b = createOffer(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
+		PacketReaderImpl
+				reader = new PacketReaderImpl(
 				bdfReaderFactory, null,
 				null, in);
 		reader.readOffer();
@@ -113,9 +105,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testEmptyOffer() throws Exception {
 		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readOffer();
@@ -129,9 +119,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readRequest();
@@ -145,9 +133,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		reader.readRequest();
 	}
@@ -156,9 +142,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testEmptyRequest() throws Exception {
 		byte[] b = createEmptyRequest();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(
-				bdfReaderFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readRequest();

@@ -42,7 +42,8 @@ class BobConnector extends Connector {
 			Logger.getLogger(BobConnector.class.getName());
 
 	BobConnector(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
+			BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,

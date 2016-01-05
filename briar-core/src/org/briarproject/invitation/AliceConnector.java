@@ -42,7 +42,8 @@ class AliceConnector extends Connector {
 			Logger.getLogger(AliceConnector.class.getName());
 
 	AliceConnector(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
+			BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,

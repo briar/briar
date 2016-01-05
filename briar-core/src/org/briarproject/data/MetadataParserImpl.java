@@ -10,6 +10,7 @@ import org.briarproject.util.StringUtils;
 import java.io.ByteArrayInputStream;
 import java.util.Map.Entry;
 
+import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
 import static org.briarproject.data.Types.FALSE;
@@ -39,7 +40,7 @@ class MetadataParserImpl implements MetadataParser {
 	}
 
 	private Object parseObject(byte[] b) throws FormatException {
-		if (b == null) return null;
+		if (b == REMOVE) return null;
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Object o = parseObject(in);
 		if (in.available() > 0) throw new FormatException();

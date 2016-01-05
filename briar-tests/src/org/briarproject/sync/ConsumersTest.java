@@ -23,8 +23,7 @@ public class ConsumersTest extends BriarTestCase {
 		messageDigest.update(data);
 		byte[] dig = messageDigest.digest();
 		// Check that feeding a DigestingConsumer generates the same digest
-		org.briarproject.sync.DigestingConsumer
-				dc = new org.briarproject.sync.DigestingConsumer(messageDigest);
+		DigestingConsumer dc = new DigestingConsumer(messageDigest);
 		dc.write(data[0]);
 		dc.write(data, 1, data.length - 2);
 		dc.write(data[data.length - 1]);
@@ -35,8 +34,7 @@ public class ConsumersTest extends BriarTestCase {
 	@Test
 	public void testCountingConsumer() throws Exception {
 		byte[] data = new byte[1234];
-		org.briarproject.sync.CountingConsumer
-				cc = new org.briarproject.sync.CountingConsumer(data.length);
+		CountingConsumer cc = new CountingConsumer(data.length);
 		cc.write(data[0]);
 		cc.write(data, 1, data.length - 2);
 		cc.write(data[data.length - 1]);
@@ -54,8 +52,7 @@ public class ConsumersTest extends BriarTestCase {
 		byte[] data = new byte[1234];
 		new Random().nextBytes(data);
 		// Check that a CopyingConsumer creates a faithful copy
-		org.briarproject.sync.CopyingConsumer
-				cc = new org.briarproject.sync.CopyingConsumer();
+		CopyingConsumer cc = new CopyingConsumer();
 		cc.write(data[0]);
 		cc.write(data, 1, data.length - 2);
 		cc.write(data[data.length - 1]);

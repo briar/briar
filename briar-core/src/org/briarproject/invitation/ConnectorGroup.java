@@ -78,7 +78,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private String remoteName = null;
 
 	ConnectorGroup(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
+			BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
