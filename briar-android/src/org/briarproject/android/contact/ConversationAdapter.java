@@ -14,6 +14,8 @@ import org.briarproject.R;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
 
+import im.delight.android.identicons.IdenticonView;
+
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
 class ConversationAdapter extends
@@ -70,9 +72,15 @@ class ConversationAdapter extends
 						}
 					});
 	private Context ctx;
+	private byte[] identiconKey;
 
 	public ConversationAdapter(Context context) {
 		ctx = context;
+	}
+
+	public void setIdenticonKey(byte[] key) {
+		this.identiconKey = key;
+		notifyDataSetChanged();
 	}
 
 	@Override
@@ -119,18 +127,22 @@ class ConversationAdapter extends
 			} else {
 				ui.status.setImageResource(R.drawable.message_stored);
 			}
-		} else if (!header.isRead()) {
-			int left = ui.layout.getPaddingLeft();
-			int top = ui.layout.getPaddingTop();
-			int right = ui.layout.getPaddingRight();
-			int bottom = ui.layout.getPaddingBottom();
+		} else {
+			if (identiconKey != null)
+				ui.identicon.show(identiconKey);
+			if (!header.isRead()) {
+				int left = ui.layout.getPaddingLeft();
+				int top = ui.layout.getPaddingTop();
+				int right = ui.layout.getPaddingRight();
+				int bottom = ui.layout.getPaddingBottom();
 
-			// show unread messages in different color to not miss them
-			ui.layout.setBackgroundResource(R.drawable.msg_in_unread);
+				// show unread messages in different color to not miss them
+				ui.layout.setBackgroundResource(R.drawable.msg_in_unread);
 
-			// re-apply the previous padding due to bug in some Android versions
-			// see: https://code.google.com/p/android/issues/detail?id=17885
-			ui.layout.setPadding(left, top, right, bottom);
+				// re-apply the previous padding due to bug in some Android versions
+				// see: https://code.google.com/p/android/issues/detail?id=17885
+				ui.layout.setPadding(left, top, right, bottom);
+			}
 		}
 
 		if (item.getBody() == null) {
@@ -186,6 +198,7 @@ class ConversationAdapter extends
 		public TextView body;
 		public TextView date;
 		public ImageView status;
+		public IdenticonView identicon;
 
 		public MessageHolder(View v, int type) {
 			super(v);
@@ -197,6 +210,8 @@ class ConversationAdapter extends
 			// outgoing message (local)
 			if (type == MSG_OUT) {
 				status = (ImageView) v.findViewById(R.id.msgStatus);
+			} else {
+				identicon = (IdenticonView) v.findViewById(R.id.msgIdenticon);
 			}
 		}
 	}

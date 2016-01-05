@@ -88,6 +88,7 @@ public class ConversationActivity extends BriarActivity
 	private volatile GroupId groupId = null;
 	private volatile ContactId contactId = null;
 	private volatile String contactName = null;
+	private volatile byte[] contactIdenticonKey = null;
 	private volatile boolean connected = false;
 
 	@Override
@@ -165,6 +166,7 @@ public class ConversationActivity extends BriarActivity
 					contactId = messagingManager.getContactId(groupId);
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
+					contactIdenticonKey = contact.getAuthor().getId().getBytes();
 					connected = connectionRegistry.isConnected(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -192,6 +194,7 @@ public class ConversationActivity extends BriarActivity
 						actionBar.setSubtitle(getString(R.string.offline));
 					}
 				}
+				adapter.setIdenticonKey(contactIdenticonKey);
 			}
 		});
 	}
