@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriterFactory;
+import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.MetadataParser;
 
 public class DataModule extends AbstractModule {
@@ -13,5 +14,6 @@ public class DataModule extends AbstractModule {
 		bind(BdfReaderFactory.class).to(BdfReaderFactoryImpl.class);
 		bind(BdfWriterFactory.class).to(BdfWriterFactoryImpl.class);
 		bind(MetadataParser.class).to(MetadataParserImpl.class);
+		bind(MetadataEncoder.class).to(MetadataEncoderImpl.class);
 	}
 }

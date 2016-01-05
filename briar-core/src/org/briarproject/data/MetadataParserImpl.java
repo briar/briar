@@ -5,9 +5,9 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import static org.briarproject.data.Types.DICTIONARY;
@@ -129,11 +129,7 @@ class MetadataParserImpl implements MetadataParser {
 		if (len < 0) throw new FormatException();
 		byte[] b = new byte[len];
 		if (in.read(b, 0, len) != len) throw new FormatException();
-		try {
-			return new String(b, 0, len, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException();
-		}
+		return StringUtils.fromUtf8(b, 0, len);
 	}
 
 	private byte[] parseRaw(ByteArrayInputStream in, int len)
