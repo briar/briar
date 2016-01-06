@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
@@ -36,6 +39,7 @@ public class PasswordActivity extends BaseActivity {
 	private Button signInButton;
 	private ProgressBar progress;
 	private TextView title;
+	private TextInputLayout input;
 	private EditText password;
 
 	private byte[] encrypted;
@@ -59,15 +63,30 @@ public class PasswordActivity extends BaseActivity {
 		signInButton = (Button) findViewById(R.id.btn_sign_in);
 		progress = (ProgressBar) findViewById(R.id.progress_wheel);
 		title = (TextView) findViewById(R.id.title_password);
+		input = (TextInputLayout) findViewById(R.id.password_layout);
 		password = (EditText) findViewById(R.id.edit_password);
 		password.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
-				hideSoftKeyboard();
+				toggleSoftKeyboard();
 				validatePassword(encrypted, password.getText());
 				return true;
 			}
+		});
+		password.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				if (count > 0) AndroidUtils.setError(input, null, false);
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
 		});
 	}
 
@@ -107,7 +126,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
-		hideSoftKeyboard();
+		toggleSoftKeyboard();
 		// Replace the button with a progress bar
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
@@ -129,10 +148,14 @@ public class PasswordActivity extends BaseActivity {
 	private void tryAgain() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				title.setText(R.string.try_again);
+				AndroidUtils.setError(input, getString(R.string.try_again),
+						true);
 				signInButton.setVisibility(VISIBLE);
 				progress.setVisibility(INVISIBLE);
 				password.setText("");
+
+				// show the keyboard again
+				showSoftKeyboard(password);
 			}
 		});
 	}

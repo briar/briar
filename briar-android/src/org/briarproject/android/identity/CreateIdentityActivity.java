@@ -118,7 +118,7 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		hideSoftKeyboard();
+		toggleSoftKeyboard();
 		return true;
 	}
 
@@ -134,7 +134,7 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	public void onClick(View view) {
-		hideSoftKeyboard();
+		toggleSoftKeyboard();
 		if (!validateNickname()) return;
 		// Replace the button with a progress bar
 		createIdentityButton.setVisibility(GONE);

@@ -129,7 +129,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 	}
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		hideSoftKeyboard();
+		toggleSoftKeyboard();
 		return true;
 	}
 
