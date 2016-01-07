@@ -110,7 +110,7 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		toggleSoftKeyboard();
+		hideSoftKeyboard(textView);
 		return true;
 	}
 
@@ -126,7 +126,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	public void onClick(View view) {
 		if (view == createForumButton) {
-			toggleSoftKeyboard();
+			hideSoftKeyboard(view);
 			if (!validateName()) return;
 			createForumButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);

@@ -166,4 +166,10 @@ public abstract class BaseActivity extends AppCompatActivity
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).showSoftInput(view, SHOW_IMPLICIT);
 	}
+
+	protected void hideSoftKeyboard(View view) {
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).hideSoftInputFromWindow(view.getWindowToken(),
+				0);
+	}
 }

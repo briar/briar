@@ -69,7 +69,7 @@ public class PasswordActivity extends BaseActivity {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
-				toggleSoftKeyboard();
+				hideSoftKeyboard(password);
 				validatePassword(encrypted, password.getText());
 				return true;
 			}
@@ -126,7 +126,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
-		toggleSoftKeyboard();
+		hideSoftKeyboard(password);
 		// Replace the button with a progress bar
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
