@@ -8,4 +8,22 @@
 		android:summary="@string/lock_setting_summary"
 		android:defaultValue="true"/>
 
+	<PreferenceCategory
+		android:title="Destructive Actions">
+
+		<ListPreference
+			android:key="pref_key_panic_app"
+			android:title="@string/panic_app_setting_title"
+			android:summary="@string/panic_app_setting_summary"
+			android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+
+		<CheckBoxPreference
+			android:key="pref_key_purge"
+			android:title="@string/purge_setting_title"
+			android:summary="@string/purge_setting_summary"
+			android:enabled="false"
+			android:defaultValue="false"/>
+
+	</PreferenceCategory>
+
 </PreferenceScreen>
