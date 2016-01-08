@@ -37,7 +37,6 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateConversation;
 import org.briarproject.api.messaging.PrivateMessageFactory;
@@ -67,14 +66,12 @@ import javax.inject.Inject;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
 import static org.briarproject.api.messaging.PrivateMessageHeader.Status.DELIVERED;
 import static org.briarproject.api.messaging.PrivateMessageHeader.Status.SENT;
 
 public class ConversationActivity extends BriarActivity
 		implements EventListener, OnClickListener {
 
-	private static final int REQUEST_READ = 2;
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
@@ -96,7 +93,6 @@ public class ConversationActivity extends BriarActivity
 	private volatile String contactName = null;
 	private volatile GroupId groupId = null;
 	private volatile PrivateConversation conversation = null;
-	private volatile AuthorId localAuthorId = null;
 	private volatile boolean connected;
 
 	@Override
@@ -107,10 +103,6 @@ public class ConversationActivity extends BriarActivity
 		int id = i.getIntExtra("briar.CONTACT_ID", -1);
 		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
-
-		Intent data = new Intent();
-		data.putExtra("briar.CONTACT_ID", id);
-		setResult(RESULT_OK, data);
 
 		setContentView(R.layout.activity_conversation);
 
@@ -142,22 +134,12 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
-		super.onActivityResult(request, result, data);
-		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
-			int position = data.getIntExtra("briar.POSITION", -1);
-			if (position >= 0 && position < adapter.getItemCount())
-				displayMessage(position);
-		}
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.contact_actions, menu);
 
-		// adapt icon color to dark action bar
+		// Adapt icon color to dark action bar
 		menu.findItem(R.id.action_social_remove_person).getIcon().setColorFilter(
 				getResources().getColor(R.color.action_bar_text),
 				PorterDuff.Mode.SRC_IN);
@@ -171,7 +153,6 @@ public class ConversationActivity extends BriarActivity
 		switch (item.getItemId()) {
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
-
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -185,7 +166,6 @@ public class ConversationActivity extends BriarActivity
 					long now = System.currentTimeMillis();
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
-					localAuthorId = contact.getLocalAuthorId();
 					groupId = messagingManager.getConversationId(contactId);
 					conversation = messagingManager.getConversation(groupId);
 					connected = connectionRegistry.isConnected(contactId);
@@ -458,23 +438,6 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void displayMessage(int position) {
-		ConversationItem item = adapter.getItem(position);
-		PrivateMessageHeader header = item.getHeader();
-		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
-		i.putExtra("briar.CONTACT_ID", contactId.getInt());
-		i.putExtra("briar.CONTACT_NAME", contactName);
-		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
-		i.putExtra("briar.AUTHOR_NAME", header.getAuthor().getName());
-		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
-		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
-		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
-		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewMessage());
-		i.putExtra("briar.POSITION", position);
-		startActivityForResult(i, REQUEST_READ);
-	}
-
 	private void askToRemoveContact() {
 		runOnUiThread(new Runnable() {
 			@Override
@@ -523,10 +486,8 @@ public class ConversationActivity extends BriarActivity
 				String deleted = getString(R.string.contact_deleted_toast);
 				Toast.makeText(ConversationActivity.this, deleted, LENGTH_SHORT)
 						.show();
-
 				finish();
 			}
 		});
 	}
-
 }
