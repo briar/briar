@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.inject.Inject;
@@ -31,6 +32,7 @@ import roboguice.util.RoboContext;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
+import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 public abstract class BaseActivity extends AppCompatActivity
@@ -155,8 +157,19 @@ public abstract class BaseActivity extends AppCompatActivity
 		gotoAndFinish(classInstance, Integer.MIN_VALUE);
 	}
 
-	protected void hideSoftKeyboard() {
+	protected void toggleSoftKeyboard() {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+	}
+
+	protected void showSoftKeyboard(View view) {
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).showSoftInput(view, SHOW_IMPLICIT);
+	}
+
+	protected void hideSoftKeyboard(View view) {
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).hideSoftInputFromWindow(view.getWindowToken(),
+				0);
 	}
 }

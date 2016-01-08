@@ -19,7 +19,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="forgotten_password">I have forgotten my password</string>
-    <string name="try_again">Wrong password, try again:</string>
+    <string name="try_again">Wrong password, try again!</string>
     <string name="sign_in_button">Sign In</string>
     <string name="startup_failed_notification_title">Briar could not start</string>
     <string name="startup_failed_notification_text">You may need to reinstall Briar.</string>
