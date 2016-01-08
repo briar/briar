@@ -1,8 +1,6 @@
 package org.briarproject.android;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
@@ -38,7 +36,6 @@ import javax.inject.Inject;
 import roboguice.inject.InjectView;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
@@ -134,8 +131,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 	}
 
 	public void onClick(View view) {
-		// Replace the feedback text and button with a progress bar
-		createAccountButton.setVisibility(GONE);
+		// Replace the button with a progress bar
+		createAccountButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
 		final String nickname = nicknameEntry.getText().toString();
 		final String password = passwordEntry.getText().toString();
@@ -144,8 +141,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 			public void run() {
 				SecretKey key = crypto.generateSecretKey();
 				databaseConfig.setEncryptionKey(key);
-				byte[] encrypted = encryptDatabaseKey(key, password);
-				storeEncryptedDatabaseKey(encrypted);
+				String hex = encryptDatabaseKey(key, password);
+				storeEncryptedDatabaseKey(hex);
 				LocalAuthor localAuthor = createLocalAuthor(nickname);
 				showDashboard(referenceManager.putReference(localAuthor,
 						LocalAuthor.class));
@@ -153,24 +150,13 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		});
 	}
 
-	private void storeEncryptedDatabaseKey(final byte[] encrypted) {
-		long now = System.currentTimeMillis();
-		SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
-		Editor editor = prefs.edit();
-		editor.putString("key", StringUtils.toHexString(encrypted));
-		editor.commit();
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Key storage took " + duration + " ms");
-	}
-
-	private byte[] encryptDatabaseKey(SecretKey key, String password) {
+	private String encryptDatabaseKey(SecretKey key, String password) {
 		long now = System.currentTimeMillis();
 		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Key derivation took " + duration + " ms");
-		return encrypted;
+		return StringUtils.toHexString(encrypted);
 	}
 
 	private LocalAuthor createLocalAuthor(String nickname) {

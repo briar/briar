@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,7 +32,6 @@ import roboguice.inject.RoboInjector;
 import roboguice.util.RoboContext;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
@@ -39,7 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		implements RoboContext {
 
 	private final static String PREFS_DB = "db";
-	private final static String KEY_DB_KEY = "key";
+	private final static String PREFS_KEY = "key";
 
 	private final HashMap<Key<?>, Object> scopedObjects =
 			new HashMap<Key<?>, Object>();
@@ -128,38 +128,24 @@ public abstract class BaseActivity extends AppCompatActivity
 		return scopedObjects;
 	}
 
-	private SharedPreferences getBriarPrefs(String prefsName) {
-		return getSharedPreferences(prefsName, MODE_PRIVATE);
+	private SharedPreferences getSharedPrefs() {
+		return getSharedPreferences(PREFS_DB, MODE_PRIVATE);
 	}
 
-	protected String getDbKeyInHex() {
-		return getBriarPrefs(PREFS_DB).getString(KEY_DB_KEY, null);
+	protected String getEncryptedDatabaseKey() {
+		return getSharedPrefs().getString(PREFS_KEY, null);
 	}
 
-	private void clearPrefs(String prefsName) {
-		SharedPreferences.Editor editor = getBriarPrefs(prefsName).edit();
-		editor.clear();
+	protected void storeEncryptedDatabaseKey(final String hex) {
+		SharedPreferences.Editor editor = getSharedPrefs().edit();
+		editor.putString(PREFS_KEY, hex);
 		editor.apply();
 	}
 
-	protected void clearDbPrefs() {
-		clearPrefs(PREFS_DB);
-	}
-
-	protected void gotoAndFinish(Class classInstance, int resultCode) {
-		if (resultCode != Integer.MIN_VALUE)
-			setResult(resultCode);
-		startActivity(new Intent(this, classInstance));
-		finish();
-	}
-
-	protected void gotoAndFinish(Class classInstance) {
-		gotoAndFinish(classInstance, Integer.MIN_VALUE);
-	}
-
-	protected void toggleSoftKeyboard() {
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+	protected void clearSharedPrefs() {
+		SharedPreferences.Editor editor = getSharedPrefs().edit();
+		editor.clear();
+		editor.apply();
 	}
 
 	protected void showSoftKeyboard(View view) {
@@ -168,8 +154,8 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	protected void hideSoftKeyboard(View view) {
+		IBinder token = view.getWindowToken();
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).hideSoftInputFromWindow(view.getWindowToken(),
-				0);
+		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
 }
