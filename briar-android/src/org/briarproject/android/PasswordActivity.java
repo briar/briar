@@ -38,7 +38,6 @@ public class PasswordActivity extends BaseActivity {
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Button signInButton;
 	private ProgressBar progress;
-	private TextView title;
 	private TextInputLayout input;
 	private EditText password;
 
@@ -52,9 +51,9 @@ public class PasswordActivity extends BaseActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		String hex = getDbKeyInHex();
+		String hex = getEncryptedDatabaseKey();
 		if (hex == null || !databaseConfig.databaseExists()) {
-			clearDbPrefs();
+			clearSharedPrefsAndDeleteDatabase();
 			return;
 		}
 		encrypted = StringUtils.fromHexString(hex);
@@ -62,7 +61,6 @@ public class PasswordActivity extends BaseActivity {
 		setContentView(R.layout.activity_password);
 		signInButton = (Button) findViewById(R.id.btn_sign_in);
 		progress = (ProgressBar) findViewById(R.id.progress_wheel);
-		title = (TextView) findViewById(R.id.title_password);
 		input = (TextInputLayout) findViewById(R.id.password_layout);
 		password = (EditText) findViewById(R.id.edit_password);
 		password.setOnEditorActionListener(new OnEditorActionListener() {
@@ -98,11 +96,12 @@ public class PasswordActivity extends BaseActivity {
 		startActivity(intent);
 	}
 
-	@Override
-	protected void clearDbPrefs() {
-		super.clearDbPrefs();
+	private void clearSharedPrefsAndDeleteDatabase() {
+		clearSharedPrefs();
 		FileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
-		gotoAndFinish(SetupActivity.class, RESULT_CANCELED);
+		setResult(RESULT_CANCELED);
+		startActivity(new Intent(this, SetupActivity.class));
+		finish();
 	}
 
 	public void onSignInClick(View v) {
@@ -115,12 +114,13 @@ public class PasswordActivity extends BaseActivity {
 		builder.setTitle(R.string.dialog_title_lost_password);
 		builder.setMessage(R.string.dialog_message_lost_password);
 		builder.setNegativeButton(R.string.no, null);
-		builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				clearDbPrefs();
-			}
-		});
+		builder.setPositiveButton(R.string.yes,
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						clearSharedPrefsAndDeleteDatabase();
+					}
+				});
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}

@@ -5,10 +5,9 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<LinearLayout
+	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
 		android:orientation="vertical"
 		android:paddingBottom="@dimen/margin_activity_vertical"
 		android:paddingEnd="@dimen/margin_activity_horizontal"
@@ -18,9 +17,11 @@
 		android:paddingTop="@dimen/margin_activity_vertical">
 
 		<TextView
+			android:id="@+id/nickname_title"
+			style="@style/BriarTextTitle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:gravity="center"
+			android:layout_centerHorizontal="true"
 			android:text="@string/choose_nickname"
 			android:textSize="@dimen/text_size_medium"/>
 
@@ -28,6 +29,8 @@
 			android:id="@+id/nickname_entry_wrapper"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_below="@id/nickname_title"
 			app:errorEnabled="true">
 
 			<EditText
@@ -39,9 +42,12 @@
 		</android.support.design.widget.TextInputLayout>
 
 		<TextView
+			android:id="@+id/password_title"
+			style="@style/BriarTextTitle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:gravity="center"
+			android:layout_centerHorizontal="true"
+			android:layout_below="@id/nickname_entry_wrapper"
 			android:text="@string/choose_password"
 			android:textSize="@dimen/text_size_medium"/>
 
@@ -49,6 +55,8 @@
 			android:id="@+id/password_entry_wrapper"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_below="@id/password_title"
 			app:errorEnabled="true">
 
 			<EditText
@@ -60,9 +68,12 @@
 		</android.support.design.widget.TextInputLayout>
 
 		<TextView
+			android:id="@+id/password_confirm_title"
+			style="@style/BriarTextTitle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:gravity="center"
+			android:layout_centerHorizontal="true"
+			android:layout_below="@id/password_entry_wrapper"
 			android:text="@string/confirm_password"
 			android:textSize="@dimen/text_size_medium"/>
 
@@ -70,6 +81,8 @@
 			android:id="@+id/password_confirm_wrapper"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_below="@id/password_confirm_title"
 			app:errorEnabled="true">
 
 			<EditText
@@ -85,20 +98,31 @@
 			android:id="@+id/strength_meter"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_below="@id/password_confirm_wrapper"
 			android:visibility="invisible"/>
 
 		<Button
 			android:id="@+id/create_account"
+			style="@style/BriarButton.Default"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_below="@id/strength_meter"
+			android:layout_marginTop="@dimen/margin_medium"
 			android:enabled="false"
 			android:text="@string/create_account_button"/>
 
 		<ProgressBar
 			android:id="@+id/progress_wheel"
+			style="?android:attr/progressBarStyleInverse"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:indeterminate="true"
-			android:visibility="gone"/>
-	</LinearLayout>
+			android:layout_alignTop="@id/create_account"
+			android:layout_alignBottom="@id/create_account"
+			android:layout_centerHorizontal="true"
+			android:visibility="invisible" />
+
+	</RelativeLayout>
+
 </ScrollView>
