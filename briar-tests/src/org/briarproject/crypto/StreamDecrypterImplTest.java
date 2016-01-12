@@ -16,6 +16,7 @@ import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LEN
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.util.ByteUtils.INT_16_BYTES;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
@@ -119,7 +120,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 		// The payload length plus padding length is invalid
 		int payloadLength = MAX_PAYLOAD_LENGTH - 1, paddingLength = 2;
 		ByteUtils.writeUint16(payloadLength, frameHeader, 0);
-		ByteUtils.writeUint16(paddingLength, frameHeader, 2);
+		ByteUtils.writeUint16(paddingLength, frameHeader, INT_16_BYTES);
 		byte[] payload = new byte[payloadLength];
 		random.nextBytes(payload);
 

@@ -12,50 +12,72 @@ public class ByteUtils {
 	 */
 	public static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
 
-	public static void writeUint8(int i, byte[] b, int offset) {
-		if (i < 0) throw new IllegalArgumentException();
-		if (i > 255) throw new IllegalArgumentException();
-		if (b.length < offset) throw new IllegalArgumentException();
-		b[offset] = (byte) i;
+	/** The number of bytes needed to encode a 16-bit integer. */
+	public static final int INT_16_BYTES = 2;
+
+	/** The number of bytes needed to encode a 32-bit integer. */
+	public static final int INT_32_BYTES = 4;
+
+	/** The number of bytes needed to encode a 64-bit integer. */
+	public static final int INT_64_BYTES = 8;
+
+	public static void writeUint16(int src, byte[] dest, int offset) {
+		if (src < 0) throw new IllegalArgumentException();
+		if (src > MAX_16_BIT_UNSIGNED) throw new IllegalArgumentException();
+		if (dest.length < offset + INT_16_BYTES)
+			throw new IllegalArgumentException();
+		dest[offset] = (byte) (src >> 8);
+		dest[offset + 1] = (byte) (src & 0xFF);
 	}
 
-	public static void writeUint16(int i, byte[] b, int offset) {
-		if (i < 0) throw new IllegalArgumentException();
-		if (i > MAX_16_BIT_UNSIGNED) throw new IllegalArgumentException();
-		if (b.length < offset + 2) throw new IllegalArgumentException();
-		b[offset] = (byte) (i >> 8);
-		b[offset + 1] = (byte) (i & 0xFF);
+	public static void writeUint32(long src, byte[] dest, int offset) {
+		if (src < 0) throw new IllegalArgumentException();
+		if (src > MAX_32_BIT_UNSIGNED) throw new IllegalArgumentException();
+		if (dest.length < offset + INT_32_BYTES)
+			throw new IllegalArgumentException();
+		dest[offset] = (byte) (src >> 24);
+		dest[offset + 1] = (byte) (src >> 16 & 0xFF);
+		dest[offset + 2] = (byte) (src >> 8 & 0xFF);
+		dest[offset + 3] = (byte) (src & 0xFF);
 	}
 
-	public static void writeUint32(long i, byte[] b, int offset) {
-		if (i < 0) throw new IllegalArgumentException();
-		if (i > MAX_32_BIT_UNSIGNED) throw new IllegalArgumentException();
-		if (b.length < offset + 4) throw new IllegalArgumentException();
-		b[offset] = (byte) (i >> 24);
-		b[offset + 1] = (byte) (i >> 16 & 0xFF);
-		b[offset + 2] = (byte) (i >> 8 & 0xFF);
-		b[offset + 3] = (byte) (i & 0xFF);
+	public static void writeUint64(long src, byte[] dest, int offset) {
+		if (src < 0) throw new IllegalArgumentException();
+		if (dest.length < offset + INT_64_BYTES)
+			throw new IllegalArgumentException();
+		dest[offset] = (byte) (src >> 56);
+		dest[offset + 1] = (byte) (src >> 48 & 0xFF);
+		dest[offset + 2] = (byte) (src >> 40 & 0xFF);
+		dest[offset + 3] = (byte) (src >> 32 & 0xFF);
+		dest[offset + 4] = (byte) (src >> 24 & 0xFF);
+		dest[offset + 5] = (byte) (src >> 16 & 0xFF);
+		dest[offset + 6] = (byte) (src >> 8 & 0xFF);
+		dest[offset + 7] = (byte) (src & 0xFF);
 	}
 
-	public static int readUint16(byte[] b, int offset) {
-		if (b.length < offset + 2) throw new IllegalArgumentException();
-		return ((b[offset] & 0xFF) << 8) | (b[offset + 1] & 0xFF);
+	public static int readUint16(byte[] src, int offset) {
+		if (src.length < offset + INT_16_BYTES)
+			throw new IllegalArgumentException();
+		return ((src[offset] & 0xFF) << 8) | (src[offset + 1] & 0xFF);
 	}
 
-	public static long readUint32(byte[] b, int offset) {
-		if (b.length < offset + 4) throw new IllegalArgumentException();
-		return ((b[offset] & 0xFFL) << 24) | ((b[offset + 1] & 0xFFL) << 16)
-				| ((b[offset + 2] & 0xFFL) << 8) | (b[offset + 3] & 0xFFL);
+	public static long readUint32(byte[] src, int offset) {
+		if (src.length < offset + INT_32_BYTES)
+			throw new IllegalArgumentException();
+		return ((src[offset] & 0xFFL) << 24)
+				| ((src[offset + 1] & 0xFFL) << 16)
+				| ((src[offset + 2] & 0xFFL) << 8)
+				| (src[offset + 3] & 0xFFL);
 	}
 
-	public static int readUint(byte[] b, int bits) {
-		if (b.length << 3 < bits) throw new IllegalArgumentException();
-		int result = 0;
+	public static int readUint(byte[] src, int bits) {
+		if (src.length << 3 < bits) throw new IllegalArgumentException();
+		int dest = 0;
 		for (int i = 0; i < bits; i++) {
-			if ((b[i >> 3] & 128 >> (i & 7)) != 0) result |= 1 << bits - i - 1;
+			if ((src[i >> 3] & 128 >> (i & 7)) != 0) dest |= 1 << bits - i - 1;
 		}
-		assert result >= 0;
-		assert result < 1 << bits;
-		return result;
+		assert dest >= 0;
+		assert dest < 1 << bits;
+		return dest;
 	}
 }

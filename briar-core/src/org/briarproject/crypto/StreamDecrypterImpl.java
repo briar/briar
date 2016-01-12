@@ -10,7 +10,8 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 
 import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.FRAME_IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_PLAINTEXT_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_NONCE_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
@@ -22,7 +23,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 	private final InputStream in;
 	private final AuthenticatedCipher cipher;
 	private final SecretKey streamHeaderKey;
-	private final byte[] frameIv, frameHeader, frameCiphertext;
+	private final byte[] frameNonce, frameHeader, frameCiphertext;
 
 	private SecretKey frameKey;
 	private long frameNumber;
@@ -33,8 +34,8 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		this.in = in;
 		this.cipher = cipher;
 		this.streamHeaderKey = streamHeaderKey;
-		frameIv = new byte[FRAME_IV_LENGTH];
-		frameHeader = new byte[FRAME_HEADER_LENGTH];
+		frameNonce = new byte[FRAME_NONCE_LENGTH];
+		frameHeader = new byte[FRAME_HEADER_PLAINTEXT_LENGTH];
 		frameCiphertext = new byte[MAX_FRAME_LENGTH];
 		frameKey = null;
 		frameNumber = 0;
@@ -46,6 +47,8 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		if (payload.length < MAX_PAYLOAD_LENGTH)
 			throw new IllegalArgumentException();
 		if (finalFrame) return -1;
+		// Don't allow the frame counter to wrap
+		if (frameNumber < 0) throw new IOException();
 		// Read the stream header if required
 		if (frameKey == null) readStreamHeader();
 		// Read the frame header
@@ -57,12 +60,12 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			offset += read;
 		}
 		// Decrypt and authenticate the frame header
-		FrameEncoder.encodeIv(frameIv, frameNumber, true);
+		FrameEncoder.encodeNonce(frameNonce, frameNumber, true);
 		try {
-			cipher.init(false, frameKey, frameIv);
+			cipher.init(false, frameKey, frameNonce);
 			int decrypted = cipher.process(frameCiphertext, 0,
 					FRAME_HEADER_LENGTH, frameHeader, 0);
-			if (decrypted != FRAME_HEADER_LENGTH - MAC_LENGTH)
+			if (decrypted != FRAME_HEADER_PLAINTEXT_LENGTH)
 				throw new RuntimeException();
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
@@ -82,9 +85,9 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			offset += read;
 		}
 		// Decrypt and authenticate the payload and padding
-		FrameEncoder.encodeIv(frameIv, frameNumber, false);
+		FrameEncoder.encodeNonce(frameNonce, frameNumber, false);
 		try {
-			cipher.init(false, frameKey, frameIv);
+			cipher.init(false, frameKey, frameNonce);
 			int decrypted = cipher.process(frameCiphertext, FRAME_HEADER_LENGTH,
 					payloadLength + paddingLength + MAC_LENGTH, payload, 0);
 			if (decrypted != payloadLength + paddingLength)

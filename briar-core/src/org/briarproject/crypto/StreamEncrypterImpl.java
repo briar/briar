@@ -8,13 +8,13 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
 import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.FRAME_IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_PLAINTEXT_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_NONCE_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
-import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 class StreamEncrypterImpl implements StreamEncrypter {
 
@@ -22,7 +22,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	private final AuthenticatedCipher cipher;
 	private final SecretKey streamHeaderKey, frameKey;
 	private final byte[] tag, streamHeaderIv;
-	private final byte[] frameIv, framePlaintext, frameCiphertext;
+	private final byte[] frameNonce, frameHeader, framePlaintext, frameCiphertext;
 
 	private long frameNumber;
 	private boolean writeTag, writeStreamHeader;
@@ -36,8 +36,9 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		this.streamHeaderIv = streamHeaderIv;
 		this.streamHeaderKey = streamHeaderKey;
 		this.frameKey = frameKey;
-		frameIv = new byte[FRAME_IV_LENGTH];
-		framePlaintext = new byte[FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH];
+		frameNonce = new byte[FRAME_NONCE_LENGTH];
+		frameHeader = new byte[FRAME_HEADER_PLAINTEXT_LENGTH];
+		framePlaintext = new byte[MAX_PAYLOAD_LENGTH];
 		frameCiphertext = new byte[MAX_FRAME_LENGTH];
 		frameNumber = 0;
 		writeTag = (tag != null);
@@ -49,34 +50,33 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		if (payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
 			throw new IllegalArgumentException();
 		// Don't allow the frame counter to wrap
-		if (frameNumber > MAX_32_BIT_UNSIGNED) throw new IOException();
+		if (frameNumber < 0) throw new IOException();
 		// Write the tag if required
 		if (writeTag) writeTag();
 		// Write the stream header if required
 		if (writeStreamHeader) writeStreamHeader();
 		// Encode the frame header
-		FrameEncoder.encodeHeader(framePlaintext, finalFrame, payloadLength,
+		FrameEncoder.encodeHeader(frameHeader, finalFrame, payloadLength,
 				paddingLength);
 		// Encrypt and authenticate the frame header
-		FrameEncoder.encodeIv(frameIv, frameNumber, true);
+		FrameEncoder.encodeNonce(frameNonce, frameNumber, true);
 		try {
-			cipher.init(true, frameKey, frameIv);
-			int encrypted = cipher.process(framePlaintext, 0,
-					FRAME_HEADER_LENGTH - MAC_LENGTH, frameCiphertext, 0);
+			cipher.init(true, frameKey, frameNonce);
+			int encrypted = cipher.process(frameHeader, 0,
+					FRAME_HEADER_PLAINTEXT_LENGTH, frameCiphertext, 0);
 			if (encrypted != FRAME_HEADER_LENGTH) throw new RuntimeException();
 		} catch (GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
 		// Combine the payload and padding
-		System.arraycopy(payload, 0, framePlaintext, FRAME_HEADER_LENGTH,
-				payloadLength);
+		System.arraycopy(payload, 0, framePlaintext, 0, payloadLength);
 		for (int i = 0; i < paddingLength; i++)
-			framePlaintext[FRAME_HEADER_LENGTH + payloadLength + i] = 0;
+			framePlaintext[payloadLength + i] = 0;
 		// Encrypt and authenticate the payload and padding
-		FrameEncoder.encodeIv(frameIv, frameNumber, false);
+		FrameEncoder.encodeNonce(frameNonce, frameNumber, false);
 		try {
-			cipher.init(true, frameKey, frameIv);
-			int encrypted = cipher.process(framePlaintext, FRAME_HEADER_LENGTH,
+			cipher.init(true, frameKey, frameNonce);
+			int encrypted = cipher.process(framePlaintext, 0,
 					payloadLength + paddingLength, frameCiphertext,
 					FRAME_HEADER_LENGTH);
 			if (encrypted != payloadLength + paddingLength + MAC_LENGTH)

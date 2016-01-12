@@ -11,6 +11,7 @@ import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LEN
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
+import static org.briarproject.util.ByteUtils.INT_16_BYTES;
 
 class TestStreamDecrypter implements StreamDecrypter {
 
@@ -35,7 +36,7 @@ class TestStreamDecrypter implements StreamDecrypter {
 		}
 		finalFrame = (frame[0] & 0x80) == 0x80;
 		int payloadLength = ByteUtils.readUint16(frame, 0) & 0x7FFF;
-		int paddingLength = ByteUtils.readUint16(frame, 2);
+		int paddingLength = ByteUtils.readUint16(frame, INT_16_BYTES);
 		int frameLength = FRAME_HEADER_LENGTH + payloadLength + paddingLength
 				+ MAC_LENGTH;
 		while (offset < frameLength) {

@@ -8,23 +8,29 @@ public interface TransportConstants {
 	/** The length of the pseudo-random tag in bytes. */
 	int TAG_LENGTH = 16;
 
-	/** The length of the stream header IV in bytes. */
-	int STREAM_HEADER_IV_LENGTH = 24;
-
 	/** The length of the message authentication code (MAC) in bytes. */
 	int MAC_LENGTH = 16;
+
+	/** The length of the stream header initialisation vector (IV) in bytes. */
+	int STREAM_HEADER_IV_LENGTH = 24;
 
 	/** The length of the stream header in bytes. */
 	int STREAM_HEADER_LENGTH = STREAM_HEADER_IV_LENGTH + SecretKey.LENGTH
 			+ MAC_LENGTH;
 
-	/** The length of the frame initalisation vector (IV) in bytes. */
-	int FRAME_IV_LENGTH = 24;
+	/** The length of the frame nonce in bytes. */
+	int FRAME_NONCE_LENGTH = 24;
 
-	/** The length of the frame header in bytes. */
-	int FRAME_HEADER_LENGTH = 4 + MAC_LENGTH;
+	/** The length of the plaintext frame header in bytes. */
+	int FRAME_HEADER_PLAINTEXT_LENGTH = 4;
 
-	/** The maximum length of a frame in bytes, including the header and MAC. */
+	/** The length of the encrypted and authenticated frame header in bytes. */
+	int FRAME_HEADER_LENGTH = FRAME_HEADER_PLAINTEXT_LENGTH + MAC_LENGTH;
+
+	/**
+	 * The maximum length of an encrypted and authenticated frame in bytes,
+	 * including the header.
+	 */
 	int MAX_FRAME_LENGTH = 1024;
 
 	/** The maximum total length of the frame payload and padding in bytes. */
