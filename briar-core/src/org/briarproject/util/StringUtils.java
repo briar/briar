@@ -39,6 +39,14 @@ public class StringUtils {
 		}
 	}
 
+	public static String fromUtf8(byte[] bytes, int off, int len) {
+		try {
+			return new String(bytes, off, len, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	/** Converts the given byte array to a hex character array. */
 	public static char[] toHexChars(byte[] bytes) {
 		char[] hex = new char[bytes.length * 2];

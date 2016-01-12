@@ -2,8 +2,8 @@ package org.briarproject.sync;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.ObjectReader;
-import org.briarproject.api.data.Reader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.MessageId;
@@ -28,7 +28,7 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		this.authorReader = authorReader;
 	}
 
-	public UnverifiedMessage readObject(Reader r) throws IOException {
+	public UnverifiedMessage readObject(BdfReader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
 		CountingConsumer counting = new CountingConsumer(MAX_PAYLOAD_LENGTH);
 		r.addConsumer(copying);

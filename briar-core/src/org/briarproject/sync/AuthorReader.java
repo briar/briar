@@ -3,8 +3,8 @@ package org.briarproject.sync;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
+import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.ObjectReader;
-import org.briarproject.api.data.Reader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 
@@ -21,7 +21,7 @@ class AuthorReader implements ObjectReader<Author> {
 		messageDigest = crypto.getMessageDigest();
 	}
 
-	public Author readObject(Reader r) throws IOException {
+	public Author readObject(BdfReader r) throws IOException {
 		// Set up the reader
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		r.addConsumer(digesting);

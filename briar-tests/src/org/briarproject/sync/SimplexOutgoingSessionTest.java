@@ -46,8 +46,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 
 	@Test
 	public void testNothingToSend() throws Exception {
-		final org.briarproject.sync.SimplexOutgoingSession
-				session = new org.briarproject.sync.SimplexOutgoingSession(db,
+		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, transportId, maxLatency,
 				packetWriter);
 		context.checking(new Expectations() {{
@@ -87,8 +86,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 	public void testSomethingToSend() throws Exception {
 		final Ack ack = new Ack(Collections.singletonList(messageId));
 		final byte[] raw = new byte[1234];
-		final org.briarproject.sync.SimplexOutgoingSession
-				session = new org.briarproject.sync.SimplexOutgoingSession(db,
+		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, transportId, maxLatency,
 				packetWriter);
 		context.checking(new Expectations() {{

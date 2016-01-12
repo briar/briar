@@ -16,15 +16,15 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
-public class WriterImplTest extends BriarTestCase {
+public class BdfWriterImplTest extends BriarTestCase {
 
 	private ByteArrayOutputStream out = null;
-	private WriterImpl w = null;
+	private BdfWriterImpl w = null;
 
 	@Before
 	public void setUp() {
 		out = new ByteArrayOutputStream();
-		w = new WriterImpl(out);
+		w = new BdfWriterImpl(out);
 	}
 
 	@Test
@@ -165,12 +165,12 @@ public class WriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteMap() throws IOException {
+	public void testWriteDictionary() throws IOException {
 		// Use LinkedHashMap to get predictable iteration order
 		Map<String, Object> m = new LinkedHashMap<String, Object>();
 		for (int i = 0; i < 4; i++) m.put(String.valueOf(i), i);
-		w.writeMap(m);
-		// MAP tag, keys as strings and values as integers, END tag
+		w.writeDictionary(m);
+		// DICTIONARY tag, keys as strings and values as integers, END tag
 		checkContents("70" + "41" + "01" + "30" + "21" + "00" +
 				"41" + "01" + "31" + "21" + "01" +
 				"41" + "01" + "32" + "21" + "02" +
@@ -191,21 +191,21 @@ public class WriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteDelimitedMap() throws IOException {
-		w.writeMapStart();
+	public void testWriteDelimitedDictionary() throws IOException {
+		w.writeDictionaryStart();
 		w.writeString("foo");
 		w.writeInteger(123);
 		w.writeString("bar");
 		w.writeNull();
-		w.writeMapEnd();
-		// MAP tag, "foo" as string, 123 as integer, "bar" as string,
+		w.writeDictionaryEnd();
+		// DICTIONARY tag, "foo" as string, 123 as integer, "bar" as string,
 		// NULL tag, END tag
 		checkContents("70" + "41" + "03" + "666F6F" +
 				"21" + "7B" + "41" + "03" + "626172" + "00" + "80");
 	}
 
 	@Test
-	public void testWriteNestedMapsAndLists() throws IOException {
+	public void testWriteNestedDictionariesAndLists() throws IOException {
 		Map<String, Object> inner = new LinkedHashMap<String, Object>();
 		inner.put("bar", new byte[0]);
 		List<Object> list = new ArrayList<Object>();
@@ -213,9 +213,9 @@ public class WriterImplTest extends BriarTestCase {
 		list.add(inner);
 		Map<String, Object> outer = new LinkedHashMap<String, Object>();
 		outer.put("foo", list);
-		w.writeMap(outer);
-		// MAP tag, "foo" as string, LIST tag, 1 as integer, MAP tag,
-		// "bar" as string, {} as raw, END tag, END tag, END tag
+		w.writeDictionary(outer);
+		// DICTIONARY tag, "foo" as string, LIST tag, 1 as integer,
+		// DICTIONARY tag, "bar" as string, {} as raw, END tag, END tag, END tag
 		checkContents("70" + "41" + "03" + "666F6F" + "60" +
 				"21" + "01" + "70" + "41" + "03" + "626172" + "51" + "00" +
 				"80" + "80" + "80");

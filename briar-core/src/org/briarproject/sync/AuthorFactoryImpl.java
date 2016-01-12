@@ -2,8 +2,8 @@ package org.briarproject.sync;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
@@ -18,14 +18,14 @@ import javax.inject.Inject;
 class AuthorFactoryImpl implements AuthorFactory {
 
 	private final CryptoComponent crypto;
-	private final WriterFactory writerFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 	private final Clock clock;
 
 	@Inject
-	AuthorFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory,
+	AuthorFactoryImpl(CryptoComponent crypto, BdfWriterFactory bdfWriterFactory,
 			Clock clock) {
 		this.crypto = crypto;
-		this.writerFactory = writerFactory;
+		this.bdfWriterFactory = bdfWriterFactory;
 		this.clock = clock;
 	}
 
@@ -41,7 +41,7 @@ class AuthorFactoryImpl implements AuthorFactory {
 
 	private AuthorId getId(String name, byte[] publicKey) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
 			w.writeListStart();
 			w.writeString(name);

@@ -6,10 +6,10 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.data.Reader;
-import org.briarproject.api.data.ReaderFactory;
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfReader;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
@@ -42,7 +42,8 @@ class AliceConnector extends Connector {
 			Logger.getLogger(AliceConnector.class.getName());
 
 	AliceConnector(CryptoComponent crypto,
-			ReaderFactory readerFactory, WriterFactory writerFactory,
+			BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
@@ -53,7 +54,7 @@ class AliceConnector extends Connector {
 			LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
-		super(crypto, readerFactory, writerFactory, streamReaderFactory,
+		super(crypto, bdfReaderFactory, bdfWriterFactory, streamReaderFactory,
 				streamWriterFactory, authorFactory, groupFactory,
 				keyManager, connectionManager, contactManager,
 				messagingManager, transportPropertyManager, clock,
@@ -76,14 +77,14 @@ class AliceConnector extends Connector {
 		// Carry out the key agreement protocol
 		InputStream in;
 		OutputStream out;
-		Reader r;
-		Writer w;
+		BdfReader r;
+		BdfWriter w;
 		SecretKey master;
 		try {
 			in = conn.getReader().getInputStream();
 			out = conn.getWriter().getOutputStream();
-			r = readerFactory.createReader(in);
-			w = writerFactory.createWriter(out);
+			r = bdfReaderFactory.createReader(in);
+			w = bdfWriterFactory.createWriter(out);
 			// Alice goes first
 			sendPublicKeyHash(w);
 			byte[] hash = receivePublicKeyHash(r);
@@ -144,12 +145,12 @@ class AliceConnector extends Connector {
 		InputStream streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
 						bobHeaderKey);
-		r = readerFactory.createReader(streamReader);
+		r = bdfReaderFactory.createReader(streamReader);
 		// Create the writers
 		OutputStream streamWriter =
 				streamWriterFactory.createInvitationStreamWriter(out,
 						aliceHeaderKey);
-		w = writerFactory.createWriter(streamWriter);
+		w = bdfWriterFactory.createWriter(streamWriter);
 		// Derive the invitation nonces
 		byte[] aliceNonce = crypto.deriveSignatureNonce(master, true);
 		byte[] bobNonce = crypto.deriveSignatureNonce(master, false);

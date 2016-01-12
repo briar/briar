@@ -6,9 +6,9 @@ import com.google.inject.Injector;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
-import org.briarproject.api.data.ReaderFactory;
-import org.briarproject.api.data.Writer;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.data.DataModule;
 import org.briarproject.util.ByteUtils;
 import org.junit.Test;
@@ -30,21 +30,20 @@ public class PacketReaderImplTest extends BriarTestCase {
 
 	// FIXME: This is an integration test, not a unit test
 
-	private final ReaderFactory readerFactory;
-	private final WriterFactory writerFactory;
+	private final BdfReaderFactory bdfReaderFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 
 	public PacketReaderImplTest() throws Exception {
 		Injector i = Guice.createInjector(new DataModule());
-		readerFactory = i.getInstance(ReaderFactory.class);
-		writerFactory = i.getInstance(WriterFactory.class);
+		bdfReaderFactory = i.getInstance(BdfReaderFactory.class);
+		bdfWriterFactory = i.getInstance(BdfWriterFactory.class);
 	}
 
 	@Test
 	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readAck();
@@ -58,8 +57,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		reader.readAck();
 	}
@@ -68,8 +66,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testEmptyAck() throws Exception {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readAck();
@@ -83,8 +80,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testFormatExceptionIfOfferIsTooLarge() throws Exception {
 		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readOffer();
@@ -98,8 +94,9 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testNoFormatExceptionIfOfferIsMaximumSize() throws Exception {
 		byte[] b = createOffer(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl
+				reader = new PacketReaderImpl(
+				bdfReaderFactory, null,
 				null, in);
 		reader.readOffer();
 	}
@@ -108,8 +105,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testEmptyOffer() throws Exception {
 		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readOffer();
@@ -123,8 +119,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readRequest();
@@ -138,8 +133,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		reader.readRequest();
 	}
@@ -148,8 +142,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	public void testEmptyRequest() throws Exception {
 		byte[] b = createEmptyRequest();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		org.briarproject.sync.PacketReaderImpl
-				reader = new org.briarproject.sync.PacketReaderImpl(readerFactory, null,
+		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
 		try {
 			reader.readRequest();
@@ -162,7 +155,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(new byte[HEADER_LENGTH]);
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
 		while (out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
@@ -182,7 +175,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createEmptyAck() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(new byte[HEADER_LENGTH]);
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
 		w.writeListEnd();
@@ -196,7 +189,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createOffer(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(new byte[HEADER_LENGTH]);
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
 		while (out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
@@ -216,7 +209,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createEmptyOffer() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(new byte[HEADER_LENGTH]);
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
 		w.writeListEnd();
@@ -230,7 +223,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(new byte[HEADER_LENGTH]);
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
 		while (out.size() + UNIQUE_ID_LENGTH + LIST_END_LENGTH * 2
@@ -250,7 +243,7 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createEmptyRequest() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(new byte[HEADER_LENGTH]);
-		Writer w = writerFactory.createWriter(out);
+		BdfWriter w = bdfWriterFactory.createWriter(out);
 		w.writeListStart();
 		w.writeListStart();
 		w.writeListEnd();

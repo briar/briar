@@ -2,8 +2,8 @@ package org.briarproject.invitation;
 
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.data.ReaderFactory;
-import org.briarproject.api.data.WriterFactory;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
@@ -24,8 +24,8 @@ import javax.inject.Inject;
 class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 
 	private final CryptoComponent crypto;
-	private final ReaderFactory readerFactory;
-	private final WriterFactory writerFactory;
+	private final BdfReaderFactory bdfReaderFactory;
+	private final BdfWriterFactory bdfWriterFactory;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 	private final AuthorFactory authorFactory;
@@ -41,7 +41,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 
 	@Inject
 	InvitationTaskFactoryImpl(CryptoComponent crypto,
-			ReaderFactory readerFactory, WriterFactory writerFactory,
+			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
@@ -51,8 +51,8 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			TransportPropertyManager transportPropertyManager,
 			Clock clock, PluginManager pluginManager) {
 		this.crypto = crypto;
-		this.readerFactory = readerFactory;
-		this.writerFactory = writerFactory;
+		this.bdfReaderFactory = bdfReaderFactory;
+		this.bdfWriterFactory = bdfWriterFactory;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
@@ -69,7 +69,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 
 	public InvitationTask createTask(AuthorId localAuthorId, int localCode,
 			int remoteCode, boolean reuseConnection) {
-		return new ConnectorGroup(crypto, readerFactory, writerFactory,
+		return new ConnectorGroup(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, identityManager,
 				contactManager, messagingManager, transportPropertyManager,

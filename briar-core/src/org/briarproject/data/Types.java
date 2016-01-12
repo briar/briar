@@ -17,6 +17,6 @@ interface Types {
 	byte RAW_16 = 0x52;
 	byte RAW_32 = 0x54;
 	byte LIST = 0x60;
-	byte MAP = 0x70;
+	byte DICTIONARY = 0x70;
 	byte END = (byte) 0x80;
 }

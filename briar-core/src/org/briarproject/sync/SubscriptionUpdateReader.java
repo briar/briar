@@ -1,9 +1,9 @@
 package org.briarproject.sync;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.Consumer;
 import org.briarproject.api.data.ObjectReader;
-import org.briarproject.api.data.Reader;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.SubscriptionUpdate;
@@ -26,7 +26,7 @@ class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 		this.groupReader = groupReader;
 	}
 
-	public SubscriptionUpdate readObject(Reader r) throws IOException {
+	public SubscriptionUpdate readObject(BdfReader r) throws IOException {
 		// Set up the reader
 		Consumer counting = new CountingConsumer(MAX_PAYLOAD_LENGTH);
 		r.addConsumer(counting);
