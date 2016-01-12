@@ -20,20 +20,14 @@ public class ByteUtilsTest extends BriarTestCase {
 		assertEquals(65535, ByteUtils.readUint16(b, 1));
 	}
 
-	@Test
-	public void testReadUint16ValidatesArguments() {
-		try {
-			ByteUtils.readUint16(new byte[1], 0);
-			fail();
-		} catch (IllegalArgumentException expected) {
-			// Expected
-		}
-		try {
-			ByteUtils.readUint16(new byte[2], 1);
-			fail();
-		} catch (IllegalArgumentException expected) {
-			// Expected
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadUint16ValidatesArguments1() {
+		ByteUtils.readUint16(new byte[1], 0);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadUint16ValidatesArguments2() {
+		ByteUtils.readUint16(new byte[2], 1);
 	}
 
 	@Test
@@ -46,20 +40,14 @@ public class ByteUtilsTest extends BriarTestCase {
 		assertEquals(4294967295L, ByteUtils.readUint32(b, 1));
 	}
 
-	@Test
-	public void testReadUint32ValidatesArguments() {
-		try {
-			ByteUtils.readUint32(new byte[3], 0);
-			fail();
-		} catch (IllegalArgumentException expected) {
-			// Expected
-		}
-		try {
-			ByteUtils.readUint32(new byte[4], 1);
-			fail();
-		} catch (IllegalArgumentException expected) {
-			// Expected
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadUint32ValidatesArguments1() {
+		ByteUtils.readUint32(new byte[3], 0);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadUint32ValidatesArguments2() {
+		ByteUtils.readUint32(new byte[4], 1);
 	}
 
 	@Test

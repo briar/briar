@@ -165,18 +165,13 @@ public class BdfReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testReadString8ChecksMaxLength() throws Exception {
 		// "foo" twice
 		setContents("41" + "03" + "666F6F" + "41" + "03" + "666F6F");
 		assertEquals("foo", r.readString(3));
 		assertTrue(r.hasString());
-		try {
-			r.readString(2);
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		r.readString(2);
 	}
 
 	@Test
@@ -205,7 +200,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testReadString16ChecksMaxLength() throws Exception {
 		String shortest = TestUtils.createRandomString(Byte.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
@@ -213,12 +208,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 		setContents("42" + "0080" + shortHex + "42" + "0080" + shortHex);
 		assertEquals(shortest, r.readString(Byte.MAX_VALUE + 1));
 		assertTrue(r.hasString());
-		try {
-			r.readString(Byte.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		r.readString(Byte.MAX_VALUE);
 	}
 
 	@Test
@@ -244,7 +234,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testReadString32ChecksMaxLength() throws Exception {
 		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
@@ -253,12 +243,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 				"44" + "00008000" + shortHex);
 		assertEquals(shortest, r.readString(Short.MAX_VALUE + 1));
 		assertTrue(r.hasString());
-		try {
-			r.readString(Short.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		r.readString(Short.MAX_VALUE);
 	}
 
 	@Test
@@ -286,18 +271,13 @@ public class BdfReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testReadRaw8ChecksMaxLength() throws Exception {
 		// {1, 2, 3} twice
 		setContents("51" + "03" + "010203" + "51" + "03" + "010203");
 		assertArrayEquals(new byte[] {1, 2, 3}, r.readRaw(3));
 		assertTrue(r.hasRaw());
-		try {
-			r.readRaw(2);
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		r.readRaw(2);
 	}
 
 	@Test
@@ -326,7 +306,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testReadRaw16ChecksMaxLength() throws Exception {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
@@ -334,12 +314,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 		setContents("52" + "0080" + shortHex + "52" + "0080" + shortHex);
 		assertArrayEquals(shortest, r.readRaw(Byte.MAX_VALUE + 1));
 		assertTrue(r.hasRaw());
-		try {
-			r.readRaw(Byte.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		r.readRaw(Byte.MAX_VALUE);
 	}
 
 	@Test
@@ -365,7 +340,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testReadRaw32ChecksMaxLength() throws Exception {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
@@ -374,12 +349,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 				"54" + "00008000" + shortHex);
 		assertArrayEquals(shortest, r.readRaw(Short.MAX_VALUE + 1));
 		assertTrue(r.hasRaw());
-		try {
-			r.readRaw(Short.MAX_VALUE);
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		r.readRaw(Short.MAX_VALUE);
 	}
 
 	@Test
