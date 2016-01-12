@@ -274,6 +274,19 @@ public class BdfReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testReadUtf8String() throws Exception {
+		String str = "������ \uFDD0\uFDD1\uFDD2\uFDD3\uFDD1 ������";
+		String strHex = StringUtils.toHexString(str.getBytes("UTF-8"));
+		// STRING_8 tag, "foo", the empty string, and the test string
+		setContents("41" + "03" + "666F6F" + "41" + "00" +
+				"41" + "35" + strHex);
+		assertEquals("foo", r.readString(Integer.MAX_VALUE));
+		assertEquals("", r.readString(Integer.MAX_VALUE));
+		assertEquals(str, r.readString(Integer.MAX_VALUE));
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadRaw8() throws Exception {
 		byte[] longest = new byte[Byte.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);

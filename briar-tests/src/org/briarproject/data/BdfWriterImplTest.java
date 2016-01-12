@@ -9,12 +9,11 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 
 public class BdfWriterImplTest extends BriarTestCase {
 
@@ -111,6 +110,15 @@ public class BdfWriterImplTest extends BriarTestCase {
 		w.writeString(shortest);
 		// STRING_32 tag, length 2^15, UTF-8 bytes
 		checkContents("44" + "00008000" + shortHex);
+	}
+
+	@Test
+	public void testWriteUtf8String() throws IOException {
+		String str = "������ \uFDD0\uFDD1\uFDD2\uFDD3\uFDD1 ������";
+		String strHex = StringUtils.toHexString(str.getBytes("UTF-8"));
+		w.writeString(str);
+		// STRING_8 tag, length 53, UTF-8 bytes
+		checkContents("41" + "35" + strHex);
 	}
 
 	@Test
@@ -225,7 +233,7 @@ public class BdfWriterImplTest extends BriarTestCase {
 		out.flush();
 		out.close();
 		byte[] expected = StringUtils.fromHexString(hex);
-		assertTrue(StringUtils.toHexString(out.toByteArray()),
-				Arrays.equals(expected, out.toByteArray()));
+		assertArrayEquals(StringUtils.toHexString(out.toByteArray()),
+				expected, out.toByteArray());
 	}
 }
