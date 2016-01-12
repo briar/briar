@@ -25,7 +25,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", true);
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getBoolean("test", false), true);
+		assertEquals(true, p.parse(metadata).getBoolean("test", false));
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", 1337);
 		Metadata metadata = e.encode(d);
 
-		assertEquals((long) p.parse(metadata).getInteger("test", 0L), 1337L);
+		assertEquals(1337L, (long) p.parse(metadata).getInteger("test", 0L));
 	}
 
 	@Test
@@ -41,8 +41,8 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", Long.MAX_VALUE);
 		Metadata metadata = e.encode(d);
 
-		assertEquals((long) p.parse(metadata).getInteger("test", 0L),
-				Long.MAX_VALUE);
+		assertEquals(Long.MAX_VALUE,
+				(long) p.parse(metadata).getInteger("test", 0L));
 	}
 
 	@Test
@@ -50,8 +50,8 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", Double.MAX_VALUE);
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getFloat("test", 0.0),
-				Double.MAX_VALUE, 0);
+		assertEquals(Double.MAX_VALUE,
+				p.parse(metadata).getFloat("test", 0.0), 0);
 	}
 
 	@Test
@@ -59,8 +59,8 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", Float.MIN_NORMAL);
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getFloat("test", 0.0),
-				Float.MIN_NORMAL, 0);
+		assertEquals(Float.MIN_NORMAL,
+				p.parse(metadata).getFloat("test", 0.0), 0);
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", "abc");
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getString("test", null), "abc");
+		assertEquals("abc", p.parse(metadata).getString("test", null));
 	}
 
 	@Test
@@ -76,8 +76,8 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", "abcdefghilkmnopqrst ������ \uFDD0\uFDD1\uFDD2\uFDD3");
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getString("test", null),
-				"abcdefghilkmnopqrst ������ \uFDD0\uFDD1\uFDD2\uFDD3");
+		assertEquals("abcdefghilkmnopqrst ������ \uFDD0\uFDD1\uFDD2\uFDD3",
+				p.parse(metadata).getString("test", null));
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", b);
 		Metadata metadata = e.encode(d);
 
-		assertArrayEquals(p.parse(metadata).getRaw("test", null), b);
+		assertArrayEquals(b, p.parse(metadata).getRaw("test", null));
 	}
 
 	@Test
@@ -100,8 +100,8 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", l);
 		Metadata metadata = e.encode(d);
 
-		assertArrayEquals(p.parse(metadata).getList("test", null).toArray(),
-				l.toArray());
+		assertArrayEquals(l.toArray(),
+				p.parse(metadata).getList("test", null).toArray());
 	}
 
 	@Test
@@ -113,11 +113,11 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", m);
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getBoolean("1", false), true);
+		assertEquals(true, p.parse(metadata).getDictionary("test", null)
+				.getBoolean("1", false));
 
-		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getBoolean("2", true), false);
+		assertEquals(false, p.parse(metadata).getDictionary("test", null)
+				.getBoolean("2", true));
 	}
 
 	@Test
@@ -140,19 +140,19 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getList("One", null).get(0), "����");
-		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getList("One", null).get(1), "������");
-		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getList("One", null).get(2), "����");
-		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getList("Two", null).get(0), "\u0080");
-		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getList("Two", null).get(1), "\uD800\uDC00");
+		assertEquals("����", p.parse(metadata).getDictionary("test", null)
+				.getList("One", null).get(0));
+		assertEquals("������", p.parse(metadata).getDictionary("test", null)
+				.getList("One", null).get(1));
+		assertEquals("����", p.parse(metadata).getDictionary("test", null)
+				.getList("One", null).get(2));
+		assertEquals("\u0080", p.parse(metadata).getDictionary("test", null)
+				.getList("Two", null).get(0));
+		assertEquals("\uD800\uDC00", p.parse(metadata).getDictionary("test", null)
+				.getList("Two", null).get(1));
 
-		assertEquals(p.parse(metadata).getDictionary("another test", null)
-				.getBoolean("should be true", false), true);
+		assertEquals(true, p.parse(metadata).getDictionary("another test", null)
+				.getBoolean("should be true", false));
 	}
 
 }
