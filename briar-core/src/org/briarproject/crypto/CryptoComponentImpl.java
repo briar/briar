@@ -42,6 +42,8 @@ import static java.util.logging.Level.INFO;
 import static org.briarproject.api.invitation.InvitationConstants.CODE_BITS;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
+import static org.briarproject.util.ByteUtils.INT_32_BYTES;
+import static org.briarproject.util.ByteUtils.INT_64_BYTES;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 class CryptoComponentImpl implements CryptoComponent {
@@ -287,7 +289,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
-		byte[] period = new byte[8];
+		byte[] period = new byte[INT_64_BYTES];
 		ByteUtils.writeUint64(rotationPeriod, period, 0);
 		return new SecretKey(macKdf(k, ROTATE, period));
 	}
@@ -314,7 +316,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		int macLength = prf.getDigestSize();
 		if (macLength < TAG_LENGTH) throw new IllegalStateException();
 		// The input is the stream number as a 64-bit integer
-		byte[] input = new byte[8];
+		byte[] input = new byte[INT_64_BYTES];
 		ByteUtils.writeUint64(streamNumber, input, 0);
 		prf.update(input, 0, input.length);
 		byte[] mac = new byte[macLength];
@@ -337,15 +339,16 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
 		// The output contains the salt, iterations, IV, ciphertext and MAC
-		int outputLen = salt.length + 4 + iv.length + input.length + macBytes;
+		int outputLen = salt.length + INT_32_BYTES + iv.length + input.length
+				+ macBytes;
 		byte[] output = new byte[outputLen];
 		System.arraycopy(salt, 0, output, 0, salt.length);
 		ByteUtils.writeUint32(iterations, output, salt.length);
-		System.arraycopy(iv, 0, output, salt.length + 4, iv.length);
+		System.arraycopy(iv, 0, output, salt.length + INT_32_BYTES, iv.length);
 		// Initialise the cipher and encrypt the plaintext
 		try {
 			cipher.init(true, key, iv);
-			int outputOff = salt.length + 4 + iv.length;
+			int outputOff = salt.length + INT_32_BYTES + iv.length;
 			cipher.process(input, 0, input.length, output, outputOff);
 			return output;
 		} catch (GeneralSecurityException e) {
@@ -357,7 +360,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
 		// The input contains the salt, iterations, IV, ciphertext and MAC
-		if (input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + macBytes)
+		if (input.length < PBKDF_SALT_BYTES + INT_32_BYTES + STORAGE_IV_BYTES
+				+ macBytes)
 			return null; // Invalid input
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		System.arraycopy(input, 0, salt, 0, salt.length);
@@ -365,7 +369,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		if (iterations < 0 || iterations > Integer.MAX_VALUE)
 			return null; // Invalid iteration count
 		byte[] iv = new byte[STORAGE_IV_BYTES];
-		System.arraycopy(input, salt.length + 4, iv, 0, iv.length);
+		System.arraycopy(input, salt.length + INT_32_BYTES, iv, 0, iv.length);
 		// Derive the key from the password
 		SecretKey key = new SecretKey(pbkdf2(password, salt, (int) iterations));
 		// Initialise the cipher
@@ -376,7 +380,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		// Try to decrypt the ciphertext (may be invalid)
 		try {
-			int inputOff = salt.length + 4 + iv.length;
+			int inputOff = salt.length + INT_32_BYTES + iv.length;
 			int inputLen = input.length - inputOff;
 			byte[] output = new byte[inputLen - macBytes];
 			cipher.process(input, inputOff, inputLen, output, 0);
@@ -394,7 +398,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		int hashLength = digest.getDigestSize();
 		if (hashLength < SecretKey.LENGTH) throw new IllegalStateException();
 		// Calculate the hash over the concatenated length-prefixed inputs
-		byte[] length = new byte[4];
+		byte[] length = new byte[INT_32_BYTES];
 		for (byte[] input : inputs) {
 			ByteUtils.writeUint32(input.length, length, 0);
 			digest.update(length, 0, length.length);
@@ -418,7 +422,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		int macLength = prf.getDigestSize();
 		if (macLength < SecretKey.LENGTH) throw new IllegalStateException();
 		// Calculate the PRF over the concatenated length-prefixed inputs
-		byte[] length = new byte[4];
+		byte[] length = new byte[INT_32_BYTES];
 		for (byte[] input : inputs) {
 			ByteUtils.writeUint32(input.length, length, 0);
 			prf.update(length, 0, length.length);

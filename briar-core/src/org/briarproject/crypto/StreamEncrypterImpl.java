@@ -8,8 +8,8 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
 import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_PAYLOAD_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.FRAME_IV_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_PLAINTEXT_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.FRAME_NONCE_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
@@ -22,7 +22,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	private final AuthenticatedCipher cipher;
 	private final SecretKey streamHeaderKey, frameKey;
 	private final byte[] tag, streamHeaderIv;
-	private final byte[] frameIv, frameHeader, framePlaintext, frameCiphertext;
+	private final byte[] frameNonce, frameHeader, framePlaintext, frameCiphertext;
 
 	private long frameNumber;
 	private boolean writeTag, writeStreamHeader;
@@ -36,8 +36,8 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		this.streamHeaderIv = streamHeaderIv;
 		this.streamHeaderKey = streamHeaderKey;
 		this.frameKey = frameKey;
-		frameIv = new byte[FRAME_IV_LENGTH];
-		frameHeader = new byte[FRAME_HEADER_PAYLOAD_LENGTH];
+		frameNonce = new byte[FRAME_NONCE_LENGTH];
+		frameHeader = new byte[FRAME_HEADER_PLAINTEXT_LENGTH];
 		framePlaintext = new byte[MAX_PAYLOAD_LENGTH];
 		frameCiphertext = new byte[MAX_FRAME_LENGTH];
 		frameNumber = 0;
@@ -59,11 +59,11 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		FrameEncoder.encodeHeader(frameHeader, finalFrame, payloadLength,
 				paddingLength);
 		// Encrypt and authenticate the frame header
-		FrameEncoder.encodeIv(frameIv, frameNumber, true);
+		FrameEncoder.encodeNonce(frameNonce, frameNumber, true);
 		try {
-			cipher.init(true, frameKey, frameIv);
+			cipher.init(true, frameKey, frameNonce);
 			int encrypted = cipher.process(frameHeader, 0,
-					FRAME_HEADER_PAYLOAD_LENGTH, frameCiphertext, 0);
+					FRAME_HEADER_PLAINTEXT_LENGTH, frameCiphertext, 0);
 			if (encrypted != FRAME_HEADER_LENGTH) throw new RuntimeException();
 		} catch (GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
@@ -73,9 +73,9 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		for (int i = 0; i < paddingLength; i++)
 			framePlaintext[payloadLength + i] = 0;
 		// Encrypt and authenticate the payload and padding
-		FrameEncoder.encodeIv(frameIv, frameNumber, false);
+		FrameEncoder.encodeNonce(frameNonce, frameNumber, false);
 		try {
-			cipher.init(true, frameKey, frameIv);
+			cipher.init(true, frameKey, frameNonce);
 			int encrypted = cipher.process(framePlaintext, 0,
 					payloadLength + paddingLength, frameCiphertext,
 					FRAME_HEADER_LENGTH);

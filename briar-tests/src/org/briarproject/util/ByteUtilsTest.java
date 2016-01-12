@@ -3,7 +3,10 @@ package org.briarproject.util;
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
 
+import static org.briarproject.util.ByteUtils.MAX_16_BIT_UNSIGNED;
+import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ByteUtilsTest extends BriarTestCase {
 
@@ -18,6 +21,22 @@ public class ByteUtilsTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testReadUint16ValidatesArguments() {
+		try {
+			ByteUtils.readUint16(new byte[1], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.readUint16(new byte[2], 1);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+	}
+
+	@Test
 	public void testReadUint32() {
 		byte[] b = StringUtils.fromHexString("0000000000");
 		assertEquals(0, ByteUtils.readUint32(b, 1));
@@ -27,6 +46,21 @@ public class ByteUtilsTest extends BriarTestCase {
 		assertEquals(4294967295L, ByteUtils.readUint32(b, 1));
 	}
 
+	@Test
+	public void testReadUint32ValidatesArguments() {
+		try {
+			ByteUtils.readUint32(new byte[3], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.readUint32(new byte[4], 1);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+	}
 
 	@Test
 	public void testWriteUint16() {
@@ -37,8 +71,36 @@ public class ByteUtilsTest extends BriarTestCase {
 		assertEquals("00000100", StringUtils.toHexString(b));
 		ByteUtils.writeUint16(Short.MAX_VALUE, b, 1);
 		assertEquals("007FFF00", StringUtils.toHexString(b));
-		ByteUtils.writeUint16(ByteUtils.MAX_16_BIT_UNSIGNED, b, 1);
+		ByteUtils.writeUint16(MAX_16_BIT_UNSIGNED, b, 1);
 		assertEquals("00FFFF00", StringUtils.toHexString(b));
+	}
+
+	@Test
+	public void testWriteUint16ValidatesArguments() {
+		try {
+			ByteUtils.writeUint16(0, new byte[1], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint16(0, new byte[2], 1);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint16(-1, new byte[2], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint16(MAX_16_BIT_UNSIGNED + 1, new byte[2], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -50,8 +112,36 @@ public class ByteUtilsTest extends BriarTestCase {
 		assertEquals("000000000100", StringUtils.toHexString(b));
 		ByteUtils.writeUint32(Integer.MAX_VALUE, b, 1);
 		assertEquals("007FFFFFFF00", StringUtils.toHexString(b));
-		ByteUtils.writeUint32(ByteUtils.MAX_32_BIT_UNSIGNED, b, 1);
+		ByteUtils.writeUint32(MAX_32_BIT_UNSIGNED, b, 1);
 		assertEquals("00FFFFFFFF00", StringUtils.toHexString(b));
+	}
+
+	@Test
+	public void testWriteUint32ValidatesArguments() {
+		try {
+			ByteUtils.writeUint32(0, new byte[3], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint32(0, new byte[4], 1);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint32(-1, new byte[4], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint32(MAX_32_BIT_UNSIGNED + 1, new byte[4], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
 	}
 
 	@Test
@@ -63,6 +153,28 @@ public class ByteUtilsTest extends BriarTestCase {
 		assertEquals("00000000000000000100", StringUtils.toHexString(b));
 		ByteUtils.writeUint64(Long.MAX_VALUE, b, 1);
 		assertEquals("007FFFFFFFFFFFFFFF00", StringUtils.toHexString(b));
+	}
+
+	@Test
+	public void testWriteUint64ValidatesArguments() {
+		try {
+			ByteUtils.writeUint64(0, new byte[7], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint64(0, new byte[8], 1);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
+		try {
+			ByteUtils.writeUint64(-1, new byte[8], 0);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
 	}
 
 	@Test

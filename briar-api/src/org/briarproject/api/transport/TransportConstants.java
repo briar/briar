@@ -18,16 +18,19 @@ public interface TransportConstants {
 	int STREAM_HEADER_LENGTH = STREAM_HEADER_IV_LENGTH + SecretKey.LENGTH
 			+ MAC_LENGTH;
 
-	/** The length of the frame initalisation vector (IV) in bytes. */
-	int FRAME_IV_LENGTH = 24;
+	/** The length of the frame nonce in bytes. */
+	int FRAME_NONCE_LENGTH = 24;
 
-	/** The length of the frame header payload in bytes. */
-	int FRAME_HEADER_PAYLOAD_LENGTH = 4;
+	/** The length of the plaintext frame header in bytes. */
+	int FRAME_HEADER_PLAINTEXT_LENGTH = 4;
 
-	/** The length of the frame header in bytes. */
-	int FRAME_HEADER_LENGTH = FRAME_HEADER_PAYLOAD_LENGTH + MAC_LENGTH;
+	/** The length of the encrypted and authenticated frame header in bytes. */
+	int FRAME_HEADER_LENGTH = FRAME_HEADER_PLAINTEXT_LENGTH + MAC_LENGTH;
 
-	/** The maximum length of a frame in bytes, including the header and MAC. */
+	/**
+	 * The maximum length of an encrypted and authenticated frame in bytes,
+	 * including the header.
+	 */
 	int MAX_FRAME_LENGTH = 1024;
 
 	/** The maximum total length of the frame payload and padding in bytes. */
