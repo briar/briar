@@ -4,6 +4,7 @@ import org.briarproject.api.Bytes;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.system.Clock;
@@ -98,9 +99,9 @@ class TransportKeyManager extends TimerTask {
 		} finally {
 			lock.unlock();
 		}
-		// Schedule a periodic task to rotate the keys
+		// Schedule the next key rotation
 		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		timer.scheduleAtFixedRate(this, delay, rotationPeriodLength);
+		timer.schedule(this, delay);
 	}
 
 	// Locking: lock
@@ -136,14 +137,38 @@ class TransportKeyManager extends TimerTask {
 		});
 	}
 
-	void addContact(ContactId c, TransportKeys k) {
+	void addContact(ContactId c, SecretKey master, long timestamp,
+			boolean alice) {
+		// Work out what rotation period the timestamp belongs to
+		long rotationPeriod = timestamp / rotationPeriodLength;
+		// Derive the transport keys
+		TransportKeys k = crypto.deriveTransportKeys(transportId, master,
+				rotationPeriod, alice);
+		// Rotate the keys to the current rotation period if necessary
+		rotationPeriod = clock.currentTimeMillis() / rotationPeriodLength;
+		k = crypto.rotateTransportKeys(k, rotationPeriod);
 		lock.lock();
 		try {
 			// Initialise mutable state for the contact
 			addKeys(c, new MutableTransportKeys(k));
+			// Write the keys back to the DB
+			saveTransportKeys(c, k);
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	private void saveTransportKeys(final ContactId c, final TransportKeys k) {
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					db.addTransportKeys(c, k);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
 	}
 
 	void removeContact(ContactId c) {
@@ -308,6 +333,10 @@ class TransportKeyManager extends TimerTask {
 		} finally {
 			lock.unlock();
 		}
+		// Schedule the next key rotation
+		long now = clock.currentTimeMillis();
+		long delay = rotationPeriodLength - now % rotationPeriodLength;
+		timer.schedule(this, delay);
 	}
 
 	private static class TagContext {

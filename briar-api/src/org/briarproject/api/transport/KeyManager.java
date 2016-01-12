@@ -2,7 +2,7 @@ package org.briarproject.api.transport;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DbException;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.lifecycle.Service;
 
 import java.util.Collection;
@@ -14,11 +14,13 @@ import java.util.Collection;
 public interface KeyManager extends Service {
 
 	/**
-	 * Informs the key manager that a new contact has been added.
+	 * Informs the key manager that a new contact has been added. Derives and
+	 * stores transport keys for communicating with the contact.
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
 	 */
-	void contactAdded(ContactId c, Collection<TransportKeys> keys);
+	void addContact(ContactId c, Collection<TransportId> transports,
+			SecretKey master, long timestamp, boolean alice);
 
 	/**
 	 * Returns a {@link StreamContext} for sending a stream to the given
@@ -29,8 +31,8 @@ public interface KeyManager extends Service {
 
 	/**
 	 * Looks up the given tag and returns a {@link StreamContext} for reading
-	 * from the corresponding stream if the tag was expected, or null if the
-	 * tag was unexpected.
+	 * from the corresponding stream, or null if an error occurs or the tag was
+	 * unexpected.
 	 */
-	StreamContext recogniseTag(TransportId t, byte[] tag) throws DbException;
+	StreamContext getStreamContext(TransportId t, byte[] tag);
 }

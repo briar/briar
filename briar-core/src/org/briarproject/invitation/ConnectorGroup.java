@@ -2,22 +2,25 @@ package org.briarproject.invitation;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.data.ReaderFactory;
 import org.briarproject.api.data.WriterFactory;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
+import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.KeyManager;
@@ -45,7 +48,6 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			Logger.getLogger(ConnectorGroup.class.getName());
 
 	private final CryptoComponent crypto;
-	private final DatabaseComponent db;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final StreamReaderFactory streamReaderFactory;
@@ -54,6 +56,10 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final GroupFactory groupFactory;
 	private final KeyManager keyManager;
 	private final ConnectionManager connectionManager;
+	private final IdentityManager identityManager;
+	private final ContactManager contactManager;
+	private final MessagingManager messagingManager;
+	private final TransportPropertyManager transportPropertyManager;
 	private final Clock clock;
 	private final PluginManager pluginManager;
 	private final AuthorId localAuthorId;
@@ -71,18 +77,20 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private boolean localMatched = false, remoteMatched = false;
 	private String remoteName = null;
 
-	ConnectorGroup(CryptoComponent crypto, DatabaseComponent db,
+	ConnectorGroup(CryptoComponent crypto,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
-			Clock clock, PluginManager pluginManager, AuthorId localAuthorId,
+			IdentityManager identityManager, ContactManager contactManager,
+			MessagingManager messagingManager,
+			TransportPropertyManager transportPropertyManager, Clock clock,
+			PluginManager pluginManager, AuthorId localAuthorId,
 			int localInvitationCode, int remoteInvitationCode,
 			boolean reuseConnection) {
 		super("ConnectorGroup");
 		this.crypto = crypto;
-		this.db = db;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
 		this.streamReaderFactory = streamReaderFactory;
@@ -91,6 +99,10 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
 		this.connectionManager = connectionManager;
+		this.identityManager = identityManager;
+		this.contactManager = contactManager;
+		this.messagingManager = messagingManager;
+		this.transportPropertyManager = transportPropertyManager;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
 		this.localAuthorId = localAuthorId;
@@ -130,8 +142,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		Map<TransportId, TransportProperties> localProps;
 		// Load the local pseudonym and transport properties
 		try {
-			localAuthor = db.getLocalAuthor(localAuthorId);
-			localProps = db.getLocalProperties();
+			localAuthor = identityManager.getLocalAuthor(localAuthorId);
+			localProps = transportPropertyManager.getLocalProperties();
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			lock.lock();
@@ -185,9 +197,10 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			Map<TransportId, TransportProperties> localProps) {
 		PseudoRandom random = crypto.getPseudoRandom(localInvitationCode,
 				remoteInvitationCode);
-		return new AliceConnector(crypto, db, readerFactory, writerFactory,
+		return new AliceConnector(crypto, readerFactory, writerFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
-				groupFactory, keyManager, connectionManager, clock,
+				groupFactory, keyManager, connectionManager, contactManager,
+				messagingManager, transportPropertyManager, clock,
 				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}
 
@@ -196,9 +209,10 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			Map<TransportId, TransportProperties> localProps) {
 		PseudoRandom random = crypto.getPseudoRandom(remoteInvitationCode,
 				localInvitationCode);
-		return new BobConnector(crypto, db, readerFactory, writerFactory,
+		return new BobConnector(crypto, readerFactory, writerFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
-				groupFactory, keyManager, connectionManager, clock,
+				groupFactory, keyManager, connectionManager, contactManager,
+				messagingManager, transportPropertyManager, clock,
 				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}
 

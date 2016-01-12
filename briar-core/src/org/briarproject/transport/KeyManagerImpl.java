@@ -3,6 +3,7 @@ package org.briarproject.transport;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -16,7 +17,6 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.TransportKeys;
 
 import java.util.Collection;
 import java.util.Map;
@@ -73,10 +73,11 @@ class KeyManagerImpl implements KeyManager, EventListener {
 		return true;
 	}
 
-	public void contactAdded(ContactId c, Collection<TransportKeys> keys) {
-		for (TransportKeys k : keys) {
-			TransportKeyManager m = managers.get(k.getTransportId());
-			if (m != null) m.addContact(c, k);
+	public void addContact(ContactId c, Collection<TransportId> transports,
+			SecretKey master, long timestamp, boolean alice) {
+		for (TransportId t : transports) {
+			TransportKeyManager m = managers.get(t);
+			if (m != null) m.addContact(c, master, timestamp, alice);
 		}
 	}
 
@@ -85,8 +86,7 @@ class KeyManagerImpl implements KeyManager, EventListener {
 		return m == null ? null : m.getStreamContext(c);
 	}
 
-	public StreamContext recogniseTag(TransportId t, byte[] tag)
-			throws DbException {
+	public StreamContext getStreamContext(TransportId t, byte[] tag) {
 		TransportKeyManager m = managers.get(t);
 		return m == null ? null : m.recogniseTag(tag);
 	}

@@ -4,7 +4,6 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -14,6 +13,7 @@ import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
+import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 import org.briarproject.system.SystemClock;
@@ -41,8 +41,10 @@ public class PluginManagerImplTest extends BriarTestCase {
 				context.mock(DuplexPluginConfig.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Poller poller = context.mock(Poller.class);
-		final ConnectionManager dispatcher =
+		final ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
+		final TransportPropertyManager transportPropertyManager =
+				context.mock(TransportPropertyManager.class);
 		final UiCallback uiCallback = context.mock(UiCallback.class);
 		// Two simplex plugin factories: both create plugins, one fails to start
 		final SimplexPluginFactory simplexFactory =
@@ -126,7 +128,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 		}});
 		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, eventBus,
 				simplexPluginConfig, duplexPluginConfig, clock, db, poller,
-				dispatcher, uiCallback);
+				connectionManager, transportPropertyManager, uiCallback);
 
 		// Two plugins should be started and stopped
 		assertTrue(p.start());

@@ -2,7 +2,7 @@ package org.briarproject.api.sync;
 
 import java.util.Collection;
 
-/** A packet offering the recipient one or more {@link Message}s. */
+/** A packet offering the recipient one or more {@link Message Messages}. */
 public class Offer {
 
 	private final Collection<MessageId> offered;

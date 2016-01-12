@@ -2,7 +2,6 @@ package org.briarproject.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
@@ -130,12 +129,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			StreamContext ctx;
 			try {
 				byte[] tag = readTag(transportId, reader);
-				ctx = keyManager.recogniseTag(transportId, tag);
+				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, false);
-				return;
-			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
@@ -234,12 +229,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			StreamContext ctx;
 			try {
 				byte[] tag = readTag(transportId, reader);
-				ctx = keyManager.recogniseTag(transportId, tag);
+				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, false);
-				return;
-			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
@@ -363,12 +354,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			StreamContext ctx;
 			try {
 				byte[] tag = readTag(transportId, reader);
-				ctx = keyManager.recogniseTag(transportId, tag);
+				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, true);
-				return;
-			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 				return;
