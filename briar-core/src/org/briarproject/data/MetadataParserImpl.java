@@ -143,16 +143,18 @@ class MetadataParserImpl implements MetadataParser {
 
 	private BdfList parseList(ByteArrayInputStream in) throws FormatException {
 		BdfList list = new BdfList();
-		while (peek(in) != END) list.add(parseObject(in));
-		if (in.read() != END) throw new FormatException();
+		for (int b = peek(in); b != -1 && b != (END & 0xFF); b = peek(in))
+			list.add(parseObject(in));
+		if (in.read() != (END & 0xFF)) throw new FormatException();
 		return list;
 	}
 
 	private BdfDictionary parseDictionary(ByteArrayInputStream in)
 			throws FormatException {
 		BdfDictionary dict = new BdfDictionary();
-		while (peek(in) != END) dict.put(parseString(in), parseObject(in));
-		if (in.read() != END) throw new FormatException();
+		for (int b = peek(in); b != -1 && b != (END & 0xFF); b = peek(in))
+			dict.put(parseString(in), parseObject(in));
+		if (in.read() != (END & 0xFF)) throw new FormatException();
 		return dict;
 	}
 

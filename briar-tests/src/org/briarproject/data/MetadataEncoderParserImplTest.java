@@ -86,7 +86,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", b);
 		Metadata metadata = e.encode(d);
 
-		assertEquals(p.parse(metadata).getRaw("test", null), b);
+		assertArrayEquals(p.parse(metadata).getRaw("test", null), b);
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		assertEquals(p.parse(metadata).getDictionary("test", null)
 				.getList("Two", null).get(0), "\u0080");
 		assertEquals(p.parse(metadata).getDictionary("test", null)
-				.getList("Two", null).get(0), "\uD800\uDC00");
+				.getList("Two", null).get(1), "\uD800\uDC00");
 
 		assertEquals(p.parse(metadata).getDictionary("another test", null)
 				.getBoolean("should be true", false), true);
