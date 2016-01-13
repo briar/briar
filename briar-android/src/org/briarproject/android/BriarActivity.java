@@ -2,11 +2,13 @@ package org.briarproject.android;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 
 import org.briarproject.android.BriarService.BriarBinder;
 import org.briarproject.android.BriarService.BriarServiceConnection;
+import org.briarproject.android.panic.ExitActivity;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -78,7 +80,7 @@ public class BriarActivity extends BaseActivity {
 		if (bound) unbindService(serviceConnection);
 	}
 
-	protected void signOut() {
+	protected void signOut(final boolean removeFromRecentApps) {
 		new Thread() {
 			@Override
 			public void run() {
@@ -95,15 +97,28 @@ public class BriarActivity extends BaseActivity {
 					LOG.warning("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
-				finishAndExit();
+
+				if(removeFromRecentApps){
+					ExitActivity.exitAndRemoveFromRecentApps(BriarActivity.this);
+				} else {
+					finishAndExit();
+				}
 			}
 		}.start();
+	}
+
+	protected void signOut() {
+		signOut(false);
 	}
 
 	private void finishAndExit() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				finish();
+				if (Build.VERSION.SDK_INT >= 21) {
+					finishAndRemoveTask();
+				} else {
+					finish();
+				}
 				LOG.info("Exiting");
 				System.exit(0);
 			}

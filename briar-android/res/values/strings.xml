@@ -106,6 +106,9 @@
     <string name="tor_wifi_setting">Connect via Tor</string>
     <string name="tor_wifi_setting_enabled">Only when using Wi-Fi</string>
     <string name="tor_wifi_setting_disabled">When using Wi-Fi or mobile data</string>
+    <string name="panic_setting">Panic Button Setup</string>
+    <string name="panic_setting_title">Panic Button</string>
+    <string name="panic_setting_hint">Configure how Briar will react when you use a Panic Button app</string>
     <string name="notification_settings_title">NOTIFICATIONS</string>
     <string name="notify_private_messages_setting">Show alerts for private messages</string>
     <string name="notify_forum_posts_setting">Show alerts for forum posts</string>
@@ -114,6 +117,13 @@
     <string name="notify_sound_setting_default">Default ringtone</string>
     <string name="notify_sound_setting_disabled">None</string>
     <string name="choose_ringtone_title">Choose ringtone</string>
+    <string name="panic_app_setting_title">Accept from App</string>
+    <string name="panic_app_setting_summary">No app set, don\'t do destructive actions</string>
+    <string name="panic_app_setting_none">None</string>
+    <string name="lock_setting_title">Lock Briar</string>
+    <string name="lock_setting_summary">Signs you out and require password to access data</string>
+    <string name="purge_setting_title">Delete Data</string>
+    <string name="purge_setting_summary">Caution: This irrevocably deletes your contacts and all other data</string>
     <string name="step">Step %1$d/%2$d</string>
     <string name="online">Online</string>
     <string name="offline">Offline</string>
@@ -122,11 +132,14 @@
     <string name="transport_tor">Internet</string>
     <string name="transport_bt">Bluetooth</string>
     <string name="transport_lan">Wi-Fi</string>
+    <string name="no_data">No data</string>
+    <string name="unknown_app">an unknown App</string>
 
     <!-- Dialogs -->
     <string name="dialog_title_lost_password">Lost password</string>
     <string name="dialog_message_lost_password">Password recovery is not possible. Do you wish to delete your user, all contacts, and re-register ?</string>
     <string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
     <string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
-    <string name="no_data">No data</string>
+    <string name="dialog_title_connect_panic_app">Confirm Panic App</string>
+    <string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic actions?</string>
 </resources>

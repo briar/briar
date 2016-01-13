@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="BriarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="BriarBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="actionBarStyle">@style/BriarActionBar</item>
         <item name="colorPrimary">@color/briar_primary</item>
         <item name="colorPrimaryDark">@color/briar_primary_dark</item>
-        <item name="colorAccent">@color/briar_primary</item>
+        <item name="colorAccent">@color/briar_accent</item>
         <item name="android:textColorPrimary">@color/briar_text_primary</item>
         <item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
         <item name="android:textColorSecondary">@color/briar_text_primary</item>
         <item name="android:textColorLink">@color/briar_text_link</item>
+    </style>
 
-        <!-- The rest of your attributes -->
+    <style name="BriarTheme" parent="BriarBaseTheme">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:listSeparatorTextViewStyle">@style/BriarTheme.ListSeparatorTextView</item>
     </style>
 
     <style name="BriarActionBar" parent="Base.Widget.AppCompat.Light.ActionBar.Solid">
@@ -43,4 +46,14 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1px</item>
     </style>
+
+    <!-- This fixes a UI bug in the support preference library -->
+    <style name="BriarTheme.ListSeparatorTextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/briar_accent</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
 </resources>

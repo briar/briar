@@ -7,6 +7,9 @@
 	<uses-sdk
 		android:minSdkVersion="9"
 		android:targetSdkVersion="22"
+
+		xmlns:tools="http://schemas.android.com/tools"
+		tools:overrideLibrary="android.support.v14.preference"
 	/>
 
 	<uses-feature android:name="android.hardware.bluetooth" />
@@ -188,5 +191,22 @@
 			android:name=".android.StartupFailureActivity"
 			android:label="@string/startup_failed_activity_title" >
 		</activity>
+		<activity
+			android:name=".android.panic.PanicPreferencesActivity"
+			android:label="@string/panic_setting" >
+		</activity>
+		<activity
+			android:name=".android.panic.PanicResponderActivity"
+			android:noHistory="true"
+			android:theme="@android:style/Theme.NoDisplay">
+			<!-- this can never have launchMode singleTask or singleInstance! -->
+			<intent-filter>
+				<action android:name="info.guardianproject.panic.action.TRIGGER" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+		<activity
+			android:name=".android.panic.ExitActivity"
+			android:theme="@android:style/Theme.NoDisplay" />
 	</application>
 </manifest>
