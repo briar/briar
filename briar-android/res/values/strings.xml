@@ -16,10 +16,8 @@
     <string name="create_account_button">Create Account</string>
     <string name="enter_password">Enter your password:</string>
     <string name="password_hint">Password</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="forgotten_password">I have forgotten my password</string>
-    <string name="try_again">Wrong password, try again!</string>
+    <string name="try_again">Wrong password, try again</string>
     <string name="sign_in_button">Sign In</string>
     <string name="startup_failed_notification_title">Briar could not start</string>
     <string name="startup_failed_notification_text">You may need to reinstall Briar.</string>
@@ -87,6 +85,7 @@
     <string name="add_button">Add</string>
     <string name="cancel_button">Cancel</string>
     <string name="done_button">Done</string>
+    <string name="delete_button">Delete</string>
     <string name="post_sent_toast">Forum post sent</string>
     <plurals name="private_message_notification_text">
         <item quantity="one">New private message.</item>
@@ -117,7 +116,7 @@
     <string name="notify_sound_setting_disabled">None</string>
     <string name="choose_ringtone_title">Choose ringtone</string>
     <string name="panic_app_setting_title">Panic Button App</string>
-    <string name="panic_app_setting_summary">No panic button app has been set</string>
+    <string name="panic_app_setting_summary">No app has been set</string>
     <string name="panic_app_setting_none">None</string>
     <string name="lock_setting_title">Sign Out</string>
     <string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
@@ -127,7 +126,6 @@
     <string name="online">Online</string>
     <string name="offline">Offline</string>
     <string name="send">Send</string>
-    <string name="data_transports">Data Transports</string>
     <string name="transport_tor">Internet</string>
     <string name="transport_bt">Bluetooth</string>
     <string name="transport_lan">Wi-Fi</string>
@@ -140,5 +138,5 @@
     <string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
     <string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
     <string name="dialog_title_connect_panic_app">Confirm Panic App</string>
-    <string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic actions?</string>
+    <string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
 </resources>
