@@ -82,7 +82,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 		assertEquals(-1, s.readFrame(buffer));
 	}
 
-	@Test
+	@Test(expected = IOException.class)
 	public void testTruncatedFrameThrowsException() throws Exception {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
 		int payloadLength = 123, paddingLength = 234;
@@ -105,15 +105,10 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		// Try to read the truncated frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];
-		try {
-			s.readFrame(buffer);
-			fail();
-		} catch (IOException expected) {
-			// Expected
-		}
+		s.readFrame(buffer);
 	}
 
-	@Test
+	@Test(expected = IOException.class)
 	public void testInvalidPayloadAndPaddingLengthThrowsException()
 			throws Exception {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
@@ -139,15 +134,10 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		// Try to read the invalid frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];
-		try {
-			s.readFrame(buffer);
-			fail();
-		} catch (IOException expected) {
-			// Expected
-		}
+		s.readFrame(buffer);
 	}
 
-	@Test
+	@Test(expected = IOException.class)
 	public void testNonZeroPaddingThrowsException() throws Exception {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
 		int payloadLength = 123, paddingLength = 234;
@@ -174,12 +164,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		// Try to read the invalid frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];
-		try {
-			s.readFrame(buffer);
-			fail();
-		} catch (IOException expected) {
-			// Expected
-		}
+		s.readFrame(buffer);
 	}
 
 	@Test

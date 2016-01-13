@@ -31,7 +31,7 @@ public class ConsumersTest extends BriarTestCase {
 		assertArrayEquals(dig, dig1);
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testCountingConsumer() throws Exception {
 		byte[] data = new byte[1234];
 		CountingConsumer cc = new CountingConsumer(data.length);
@@ -39,12 +39,7 @@ public class ConsumersTest extends BriarTestCase {
 		cc.write(data, 1, data.length - 2);
 		cc.write(data[data.length - 1]);
 		assertEquals(data.length, cc.getCount());
-		try {
-			cc.write((byte) 0);
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		cc.write((byte) 0);
 	}
 
 	@Test

@@ -39,18 +39,13 @@ public class PacketReaderImplTest extends BriarTestCase {
 		bdfWriterFactory = i.getInstance(BdfWriterFactory.class);
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
-		try {
-			reader.readAck();
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		reader.readAck();
 	}
 
 	@Test
@@ -62,32 +57,22 @@ public class PacketReaderImplTest extends BriarTestCase {
 		reader.readAck();
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testEmptyAck() throws Exception {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
-		try {
-			reader.readAck();
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		reader.readAck();
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testFormatExceptionIfOfferIsTooLarge() throws Exception {
 		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
-		try {
-			reader.readOffer();
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		reader.readOffer();
 	}
 
 	@Test
@@ -101,32 +86,22 @@ public class PacketReaderImplTest extends BriarTestCase {
 		reader.readOffer();
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testEmptyOffer() throws Exception {
 		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
-		try {
-			reader.readOffer();
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		reader.readOffer();
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
-		try {
-			reader.readRequest();
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		reader.readRequest();
 	}
 
 	@Test
@@ -138,18 +113,13 @@ public class PacketReaderImplTest extends BriarTestCase {
 		reader.readRequest();
 	}
 
-	@Test
+	@Test(expected = FormatException.class)
 	public void testEmptyRequest() throws Exception {
 		byte[] b = createEmptyRequest();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		PacketReaderImpl reader = new PacketReaderImpl(bdfReaderFactory, null,
 				null, in);
-		try {
-			reader.readRequest();
-			fail();
-		} catch (FormatException expected) {
-			// Expected
-		}
+		reader.readRequest();
 	}
 
 	private byte[] createAck(boolean tooBig) throws Exception {
