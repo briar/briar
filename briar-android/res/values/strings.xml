@@ -36,7 +36,7 @@
     <string name="contact_list_title">Contacts</string>
     <string name="no_contacts">No contacts</string>
     <string name="add_contact_title">Add a Contact</string>
-    <string name="your_nickname">Please select the identity you want to use:</string>
+    <string name="your_nickname">Choose the identity you want to use:</string>
     <string name="face_to_face">You must be face-to-face with the person you want to add as a contact. This will prevent anyone from impersonating you or reading your messages in future.</string>
     <string name="continue_button">Continue</string>
     <string name="your_invitation_code">Your invitation code is</string>
@@ -57,7 +57,6 @@
     <string name="no_private_messages">No messages</string>
     <string name="private_message_hint">Type message</string>
     <string name="message_sent_toast">Message sent</string>
-    <string name="format_from">From: %s</string>
     <string name="forums_title">Forums</string>
     <string name="no_forums">No forums</string>
     <plurals name="forums_shared">
@@ -107,8 +106,8 @@
     <string name="tor_wifi_setting_enabled">Only when using Wi-Fi</string>
     <string name="tor_wifi_setting_disabled">When using Wi-Fi or mobile data</string>
     <string name="panic_setting">Panic Button Setup</string>
-    <string name="panic_setting_title">Panic Button</string>
-    <string name="panic_setting_hint">Configure how Briar will react when you use a Panic Button app</string>
+    <string name="panic_setting_title">PANIC BUTTON</string>
+    <string name="panic_setting_hint">Configure how Briar will react when you use a panic button app</string>
     <string name="notification_settings_title">NOTIFICATIONS</string>
     <string name="notify_private_messages_setting">Show alerts for private messages</string>
     <string name="notify_forum_posts_setting">Show alerts for forum posts</string>
@@ -117,13 +116,13 @@
     <string name="notify_sound_setting_default">Default ringtone</string>
     <string name="notify_sound_setting_disabled">None</string>
     <string name="choose_ringtone_title">Choose ringtone</string>
-    <string name="panic_app_setting_title">Accept from App</string>
-    <string name="panic_app_setting_summary">No app set, don\'t do destructive actions</string>
+    <string name="panic_app_setting_title">Panic Button App</string>
+    <string name="panic_app_setting_summary">No panic button app has been set</string>
     <string name="panic_app_setting_none">None</string>
-    <string name="lock_setting_title">Lock Briar</string>
-    <string name="lock_setting_summary">Signs you out and require password to access data</string>
-    <string name="purge_setting_title">Delete Data</string>
-    <string name="purge_setting_summary">Caution: This irrevocably deletes your contacts and all other data</string>
+    <string name="lock_setting_title">Sign Out</string>
+    <string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
+    <string name="purge_setting_title">Delete Account</string>
+    <string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
     <string name="step">Step %1$d/%2$d</string>
     <string name="online">Online</string>
     <string name="offline">Offline</string>
@@ -133,11 +132,11 @@
     <string name="transport_bt">Bluetooth</string>
     <string name="transport_lan">Wi-Fi</string>
     <string name="no_data">No data</string>
-    <string name="unknown_app">an unknown App</string>
+    <string name="unknown_app">an unknown app</string>
 
     <!-- Dialogs -->
-    <string name="dialog_title_lost_password">Lost password</string>
-    <string name="dialog_message_lost_password">Password recovery is not possible. Do you wish to delete your user, all contacts, and re-register ?</string>
+    <string name="dialog_title_lost_password">Lost Password</string>
+    <string name="dialog_message_lost_password">Password recovery is not possible. Do you want to delete your account?\n\nCaution: This will permanently delete your identities, contacts and messages</string>
     <string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
     <string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
     <string name="dialog_title_connect_panic_app">Confirm Panic App</string>
