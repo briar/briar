@@ -331,11 +331,21 @@ public class ConversationActivity extends BriarActivity
 				finishOnUiThread();
 			}
 		} else if (e instanceof MessageAddedEvent) {
-			GroupId g = ((MessageAddedEvent) e).getGroupId();
+			MessageAddedEvent mEvent = (MessageAddedEvent) e;
+			GroupId g = mEvent.getGroupId();
 			if (g.equals(groupId)) {
+				// mark new incoming messages as read directly
+				if (mEvent.getContactId() != null) {
+					ConversationItem item = adapter.getLastItem();
+					if (item != null) {
+						markIncomingMessageRead(mEvent.getMessage(),
+								item.getHeader().getTimestamp());
+					}
+				}
+
 				LOG.info("Message added, reloading");
-				// TODO: find a way of not needing to reload the entire
-				// conversation just because one message was added
+				// TODO: get and add the ConversationItem here to prevent
+				//       reloading the entire conversation
 				loadHeaders();
 			}
 		} else if (e instanceof MessagesSentEvent) {
@@ -384,7 +394,41 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	private void markIncomingMessageRead(final Message m,
+			final long lastMsgTime) {
+
+		// stop here if message is older than latest message we have
+		long newMsgTime = m.getTimestamp();
+		if (newMsgTime < lastMsgTime) return;
+
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					// mark messages as read, because is latest
+					messagingManager.setReadFlag(m.getId(), true);
+					showIncomingMessageRead();
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+			// TODO else: smooth-scroll up to unread messages if out of view
+		});
+	}
+
+	private void showIncomingMessageRead() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				// this is only called from markIncomingMessageRead()
+				// so we can assume that it was the last message that changed
+				adapter.notifyItemChanged(adapter.getItemCount() - 1);
+			}
+		});
+	}
+
 	public void onClick(View view) {
+		markMessagesRead();
+
 		String message = content.getText().toString();
 		if (message.equals("")) return;
 		long timestamp = System.currentTimeMillis();
@@ -397,10 +441,9 @@ public class ConversationActivity extends BriarActivity
 	private long getMinTimestampForNewMessage() {
 		// Don't use an earlier timestamp than the newest message
 		long timestamp = 0;
-		int count = adapter.getItemCount();
-		for (int i = 0; i < count; i++) {
-			long t = adapter.getItem(i).getHeader().getTimestamp();
-			if (t > timestamp) timestamp = t;
+		ConversationItem item = adapter.getLastItem();
+		if (item != null) {
+			timestamp = item.getHeader().getTimestamp();
 		}
 		return timestamp + 1;
 	}

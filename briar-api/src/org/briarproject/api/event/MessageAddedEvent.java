@@ -2,21 +2,27 @@ package org.briarproject.api.event;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
 
 /** An event that is broadcast when a message is added to the database. */
 public class MessageAddedEvent extends Event {
 
-	private final GroupId groupId;
+	private final Message message;
 	private final ContactId contactId;
 
-	public MessageAddedEvent(GroupId groupId, ContactId contactId) {
-		this.groupId = groupId;
+	public MessageAddedEvent(Message message, ContactId contactId) {
+		this.message = message;
 		this.contactId = contactId;
+	}
+
+	/** Returns the message that was added. */
+	public Message getMessage() {
+		return message;
 	}
 
 	/** Returns the ID of the group to which the message belongs. */
 	public GroupId getGroupId() {
-		return groupId;
+		return message.getGroup().getId();
 	}
 
 	/**

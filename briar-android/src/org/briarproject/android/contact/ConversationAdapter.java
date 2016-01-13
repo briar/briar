@@ -159,6 +159,14 @@ class ConversationAdapter extends
 		return messages.get(position);
 	}
 
+	public ConversationItem getLastItem() {
+		if (messages.size() > 0) {
+			return messages.get(messages.size() - 1);
+		} else {
+			return null;
+		}
+	}
+
 	public void add(final ConversationItem message) {
 		this.messages.add(message);
 	}
