@@ -68,7 +68,7 @@ class MetadataEncoderImpl implements MetadataEncoder {
 
 	private void encodeInteger(ByteArrayOutputStream out, byte i) {
 		out.write(INT_8);
-		out.write(i);
+		encodeInt8(out, i);
 	}
 
 	private void encodeInteger(ByteArrayOutputStream out, short i) {
@@ -76,8 +76,7 @@ class MetadataEncoderImpl implements MetadataEncoder {
 			encodeInteger(out, (byte) i);
 		} else {
 			out.write(INT_16);
-			out.write((byte) (i >> 8));
-			out.write((byte) ((i << 8) >> 8));
+			encodeInt16(out, i);
 		}
 	}
 
@@ -86,10 +85,7 @@ class MetadataEncoderImpl implements MetadataEncoder {
 			encodeInteger(out, (short) i);
 		} else {
 			out.write(INT_32);
-			out.write((byte) (i >> 24));
-			out.write((byte) ((i << 8) >> 24));
-			out.write((byte) ((i << 16) >> 24));
-			out.write((byte) ((i << 24) >> 24));
+			encodeInt32(out, i);
 		}
 	}
 
@@ -98,24 +94,27 @@ class MetadataEncoderImpl implements MetadataEncoder {
 			encodeInteger(out, (int) i);
 		} else {
 			out.write(INT_64);
-			out.write((byte) (i >> 56));
-			out.write((byte) ((i << 8) >> 56));
-			out.write((byte) ((i << 16) >> 56));
-			out.write((byte) ((i << 24) >> 56));
-			out.write((byte) ((i << 32) >> 56));
-			out.write((byte) ((i << 40) >> 56));
-			out.write((byte) ((i << 48) >> 56));
-			out.write((byte) ((i << 56) >> 56));
+			encodeInt64(out, i);
 		}
 	}
 
-	private void encodeFloat(ByteArrayOutputStream out, float f) {
-		encodeFloat(out, (double) f);
+	private void encodeInt8(ByteArrayOutputStream out, byte i) {
+		out.write(i);
 	}
 
-	private void encodeFloat(ByteArrayOutputStream out, double d) {
-		long i = Double.doubleToLongBits(d);
-		out.write(FLOAT_64);
+	private void encodeInt16(ByteArrayOutputStream out, short i) {
+		out.write((byte) (i >> 8));
+		out.write((byte) ((i << 8) >> 8));
+	}
+
+	private void encodeInt32(ByteArrayOutputStream out, int i) {
+		out.write((byte) (i >> 24));
+		out.write((byte) ((i << 8) >> 24));
+		out.write((byte) ((i << 16) >> 24));
+		out.write((byte) ((i << 24) >> 24));
+	}
+
+	private void encodeInt64(ByteArrayOutputStream out, long i) {
 		out.write((byte) (i >> 56));
 		out.write((byte) ((i << 8) >> 56));
 		out.write((byte) ((i << 16) >> 56));
@@ -126,17 +125,26 @@ class MetadataEncoderImpl implements MetadataEncoder {
 		out.write((byte) ((i << 56) >> 56));
 	}
 
+	private void encodeFloat(ByteArrayOutputStream out, float f) {
+		encodeFloat(out, (double) f);
+	}
+
+	private void encodeFloat(ByteArrayOutputStream out, double d) {
+		out.write(FLOAT_64);
+		encodeInt64(out, Double.doubleToLongBits(d));
+	}
+
 	private void encodeString(ByteArrayOutputStream out, String s) {
 		byte[] b = StringUtils.toUtf8(s);
 		if (b.length <= Byte.MAX_VALUE) {
 			out.write(STRING_8);
-			encodeInteger(out, (byte) b.length);
+			encodeInt8(out, (byte) b.length);
 		} else if (b.length <= Short.MAX_VALUE) {
 			out.write(STRING_16);
-			encodeInteger(out, (short) b.length);
+			encodeInt16(out, (short) b.length);
 		} else {
 			out.write(STRING_32);
-			encodeInteger(out, b.length);
+			encodeInt32(out, b.length);
 		}
 		out.write(b, 0, b.length);
 	}
@@ -144,13 +152,13 @@ class MetadataEncoderImpl implements MetadataEncoder {
 	private void encodeRaw(ByteArrayOutputStream out, byte[] b) {
 		if (b.length <= Byte.MAX_VALUE) {
 			out.write(RAW_8);
-			encodeInteger(out, (byte) b.length);
+			encodeInt8(out, (byte) b.length);
 		} else if (b.length <= Short.MAX_VALUE) {
 			out.write(RAW_16);
-			encodeInteger(out, (short) b.length);
+			encodeInt16(out, (short) b.length);
 		} else {
 			out.write(RAW_32);
-			encodeInteger(out, b.length);
+			encodeInt32(out, b.length);
 		}
 		out.write(b, 0, b.length);
 	}
