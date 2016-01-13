@@ -122,6 +122,7 @@ public class ConversationActivity extends BriarActivity
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
+		notificationManager.blockPrivateMessageNotification(contactId);
 		loadContactAndGroup();
 		loadHeaders();
 
@@ -133,6 +134,7 @@ public class ConversationActivity extends BriarActivity
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
+		notificationManager.unblockPrivateMessageNotification(contactId);
 		if (isFinishing()) markMessagesRead();
 	}
 

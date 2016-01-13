@@ -69,6 +69,7 @@ EventListener {
 			new HashMap<GroupId, Integer>();
 	private int contactTotal = 0, forumTotal = 0;
 	private int nextRequestId = 0;
+	private ContactId activeContact;
 
 	private volatile Settings settings = new Settings();
 
@@ -113,11 +114,14 @@ EventListener {
 	public void showPrivateMessageNotification(ContactId c) {
 		lock.lock();
 		try {
-			Integer count = contactCounts.get(c);
-			if (count == null) contactCounts.put(c, 1);
-			else contactCounts.put(c, count + 1);
-			contactTotal++;
-			updatePrivateMessageNotification();
+			// check first if user has this conversation open at the moment
+			if (activeContact == null || !activeContact.equals(c)) {
+				Integer count = contactCounts.get(c);
+				if (count == null) contactCounts.put(c, 1);
+				else contactCounts.put(c, count + 1);
+				contactTotal++;
+				updatePrivateMessageNotification();
+			}
 		} finally {
 			lock.unlock();
 		}
@@ -130,6 +134,26 @@ EventListener {
 			if (count == null) return; // Already cleared
 			contactTotal -= count;
 			updatePrivateMessageNotification();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void blockPrivateMessageNotification(ContactId c) {
+		lock.lock();
+		try {
+			activeContact = c;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void unblockPrivateMessageNotification(ContactId c) {
+		lock.lock();
+		try {
+			if (activeContact != null && activeContact.equals(c)) {
+				activeContact = null;
+			}
 		} finally {
 			lock.unlock();
 		}
