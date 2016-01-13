@@ -26,4 +26,8 @@
 
     <!-- this is needed as preference_category_material layout uses this color as the text color -->
     <color name="preference_fallback_accent_color">@color/briar_accent</color>
+    <color name="default_background">#ffffff</color>
+    <color name="default_seperator">#000000</color>
+    <color name="default_seperator_inverted">#ffffff</color>
+    <color name="menu_background">#FFFFFF</color>
 </resources>

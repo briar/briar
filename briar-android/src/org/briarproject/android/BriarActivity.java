@@ -14,6 +14,7 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -22,7 +23,10 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
 @SuppressLint("Registered")
-public class BriarActivity extends BaseActivity {
+public abstract class BriarActivity extends BaseActivity {
+
+	public static final String KEY_LOCAL_AUTHOR_HANDLE = "briar.LOCAL_AUTHOR_HANDLE";
+	public static final String KEY_STARTUP_FAILED = "briar.STARTUP_FAILED";
 
 	public static final int REQUEST_PASSWORD = 1;
 
@@ -125,7 +129,7 @@ public class BriarActivity extends BaseActivity {
 		});
 	}
 
-	protected void runOnDbThread(final Runnable task) {
+	public void runOnDbThread(final Runnable task) {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

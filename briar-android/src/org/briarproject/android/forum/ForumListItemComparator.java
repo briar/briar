@@ -2,9 +2,9 @@ package org.briarproject.android.forum;
 
 import java.util.Comparator;
 
-class ForumListItemComparator implements Comparator<ForumListItem> {
+public class ForumListItemComparator implements Comparator<ForumListItem> {
 
-	static final ForumListItemComparator INSTANCE =
+	public static final ForumListItemComparator INSTANCE =
 			new ForumListItemComparator();
 
 	public int compare(ForumListItem a, ForumListItem b) {

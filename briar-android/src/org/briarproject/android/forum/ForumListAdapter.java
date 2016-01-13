@@ -18,11 +18,11 @@ import static android.text.TextUtils.TruncateAt.END;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
-class ForumListAdapter extends ArrayAdapter<ForumListItem> {
+public class ForumListAdapter extends ArrayAdapter<ForumListItem> {
 
 	private final int pad;
 
-	ForumListAdapter(Context ctx) {
+	public ForumListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
 				new ArrayList<ForumListItem>());
 		pad = LayoutUtils.getPadding(ctx);

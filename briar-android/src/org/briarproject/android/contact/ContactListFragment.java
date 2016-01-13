@@ -2,12 +2,15 @@ package org.briarproject.android.contact;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import org.briarproject.R;
-import org.briarproject.android.BriarActivity;
+import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
@@ -21,7 +24,6 @@ import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
@@ -39,63 +41,82 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public class ContactListActivity extends BriarActivity
-		implements EventListener {
+public class ContactListFragment extends BaseEventFragment {
 
 	private static final Logger LOG =
-			Logger.getLogger(ContactListActivity.class.getName());
+			Logger.getLogger(ContactListFragment.class.getName());
 
-	@Inject private ConnectionRegistry connectionRegistry;
+	public final static String TAG = "ContactListFragment";
+
+	public static ContactListFragment newInstance() {
+
+		Bundle args = new Bundle();
+
+		ContactListFragment fragment = new ContactListFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	@Override
+	public String getUniqueTag() {
+		return TAG;
+	}
+
+	@Inject
+	private ConnectionRegistry connectionRegistry;
 	private ContactListAdapter adapter = null;
 	private BriarRecyclerView list = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ContactManager contactManager;
-	@Inject private volatile MessagingManager messagingManager;
-	@Inject private volatile EventBus eventBus;
+	@Inject
+	private volatile ContactManager contactManager;
+	@Inject
+	private volatile MessagingManager messagingManager;
+	@Inject
+	private volatile EventBus eventBus;
 
+	@Nullable
 	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View contentView =
+				inflater.inflate(R.layout.activity_contact_list, container,
+						false);
 
-		setContentView(R.layout.activity_contact_list);
-
-		adapter = new ContactListAdapter(this);
-		list = (BriarRecyclerView) findViewById(R.id.contactList);
-		list.setLayoutManager(new LinearLayoutManager(this));
+		adapter = new ContactListAdapter(getContext());
+		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
+		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));
 
 		// Show a floating action button
-		FloatingActionButton fab = (FloatingActionButton) findViewById(
-				R.id.addContactFAB);
+		FloatingActionButton fab =
+				(FloatingActionButton) contentView.findViewById(
+						R.id.addContactFAB);
 
 		// handle FAB click
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(ContactListActivity.this,
+				startActivity(new Intent(getContext(),
 						AddContactActivity.class));
 			}
 		});
+
+		return contentView;
 	}
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		eventBus.removeListener(this);
-	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		eventBus.addListener(this);
+
 		loadContacts();
 	}
 
 
 	private void loadContacts() {
-		runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -113,7 +134,7 @@ public class ContactListActivity extends BriarActivity
 							contacts.add(new ContactListItem(c, connected,
 									groupId, headers));
 						} catch (NoSuchContactException e) {
-							LOG.info("Contact removed");
+							// Continue
 						}
 					}
 					displayContacts(contacts);
@@ -129,7 +150,7 @@ public class ContactListActivity extends BriarActivity
 	}
 
 	private void displayContacts(final List<ContactListItem> contacts) {
-		runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
 				if (contacts.size() == 0) list.showData();
@@ -160,7 +181,7 @@ public class ContactListActivity extends BriarActivity
 	}
 
 	private void reloadConversation(final GroupId g) {
-		runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -183,7 +204,7 @@ public class ContactListActivity extends BriarActivity
 
 	private void updateItem(final ContactId c,
 			final Collection<PrivateMessageHeader> headers) {
-		runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);
@@ -196,7 +217,7 @@ public class ContactListActivity extends BriarActivity
 	}
 
 	private void removeItem(final ContactId c) {
-		runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);
@@ -206,7 +227,7 @@ public class ContactListActivity extends BriarActivity
 	}
 
 	private void setConnected(final ContactId c, final boolean connected) {
-		runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);

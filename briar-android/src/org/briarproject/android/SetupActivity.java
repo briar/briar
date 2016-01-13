@@ -176,8 +176,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		runOnUiThread(new Runnable() {
 			public void run() {
 				Intent i = new Intent(SetupActivity.this,
-						DashboardActivity.class);
-				i.putExtra("briar.LOCAL_AUTHOR_HANDLE", handle);
+						NavDrawerActivity.class);
+				i.putExtra(BriarActivity.KEY_LOCAL_AUTHOR_HANDLE, handle);
 				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 				startActivity(i);
 				finish();

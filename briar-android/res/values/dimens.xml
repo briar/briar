@@ -17,5 +17,7 @@
 	<dimen name="text_size_medium">16sp</dimen>
 	<dimen name="text_size_large">20sp</dimen>
 	<dimen name="text_size_xlarge">34sp</dimen>
+	<dimen name="nav_drawer_width">300dp</dimen>
+	<dimen name="nav_seperator_height">1dp</dimen>
 
 </resources>

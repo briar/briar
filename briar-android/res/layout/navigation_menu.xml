@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="@dimen/nav_drawer_width"
+	android:layout_height="match_parent"
+	android:background="@color/menu_background"
+	android:orientation="vertical">
+
+	<TextView
+		android:id="@+id/nav_menu_header"
+		style="@style/BriarTextTitleInverted"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/briar_primary"
+		android:paddingBottom="@dimen/margin_large"
+		android:paddingLeft="@dimen/margin_large"
+		android:paddingTop="@dimen/margin_xlarge"
+		android:textStyle="bold"
+		tools:text="Username"
+		/>
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:fadingEdge="none"
+		android:fillViewport="true">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<android.support.v7.widget.AppCompatButton
+				android:id="@+id/nav_btn_contacts"
+				style="@style/NavMenuButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/social_person"
+				android:onClick="onNavigationClick"
+				android:text="@string/contact_list_button"/>
+
+			<View
+				style="@style/Divider"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/nav_seperator_height"
+				android:layout_marginLeft="@dimen/margin_large"/>
+
+			<android.support.v7.widget.AppCompatButton
+				android:id="@+id/nav_btn_forums"
+				style="@style/NavMenuButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/social_chat"
+				android:onClick="onNavigationClick"
+				android:text="@string/forums_button"/>
+
+			<View
+				style="@style/Divider"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/margin_seperator"
+				android:layout_marginLeft="@dimen/margin_large"/>
+
+			<android.support.v7.widget.AppCompatButton
+				android:id="@+id/nav_btn_settings"
+				style="@style/NavMenuButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/action_settings"
+				android:onClick="onNavigationClick"
+				android:text="@string/settings_button"/>
+
+			<View
+				style="@style/Divider"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/margin_seperator"
+				android:layout_marginLeft="@dimen/margin_large"/>
+
+			<android.support.v7.widget.AppCompatButton
+				android:id="@+id/nav_btn_signout"
+				style="@style/NavMenuButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/device_access_accounts"
+				android:onClick="onNavigationClick"
+				android:text="@string/sign_out_button"/>
+
+			<View
+				style="@style/Divider"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/margin_seperator"
+				android:layout_marginLeft="@dimen/margin_large"/>
+
+			<FrameLayout
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:layout_weight="1.0"/>
+
+			<include
+				layout="@layout/transports_list"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				/>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+
+</LinearLayout>
