@@ -2,8 +2,13 @@ apply plugin: 'java'
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
+apply plugin: 'witness'
+
+repositories {
+    jcenter()
+}
+
 dependencies {
-    compile fileTree(dir: '../briar-api/libs', include: '*.jar')
     compile project(':briar-api')
     compile fileTree(dir: '../briar-core/libs', include: '*.jar')
     compile project(':briar-core')

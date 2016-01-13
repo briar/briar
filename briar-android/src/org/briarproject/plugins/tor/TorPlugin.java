@@ -46,8 +46,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
-import socks.Socks5Proxy;
-import socks.SocksSocket;
+import net.sourceforge.jsocks.Socks5Proxy;
+import net.sourceforge.jsocks.SocksSocket;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
