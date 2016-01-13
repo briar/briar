@@ -194,6 +194,11 @@
 		<activity
 			android:name=".android.panic.PanicPreferencesActivity"
 			android:label="@string/panic_setting" >
+			<intent-filter>
+				<action android:name="info.guardianproject.panic.action.CONNECT" />
+				<action android:name="info.guardianproject.panic.action.DISCONNECT" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
 		</activity>
 		<activity
 			android:name=".android.panic.PanicResponderActivity"
