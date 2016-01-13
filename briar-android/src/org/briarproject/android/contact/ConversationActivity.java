@@ -124,6 +124,9 @@ public class ConversationActivity extends BriarActivity
 		eventBus.addListener(this);
 		loadContactAndGroup();
 		loadHeaders();
+
+		// remove the notification for this conversation since we see it now
+		notificationManager.clearPrivateMessageNotification(contactId);
 	}
 
 	@Override
