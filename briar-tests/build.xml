@@ -107,8 +107,7 @@
 			<test name='org.briarproject.crypto.XSalsa20Poly1305AuthenticatedCipherTest'/>
 			<test name='org.briarproject.data.BdfReaderImplTest'/>
 			<test name='org.briarproject.data.BdfWriterImplTest'/>
-			<test name='org.briarproject.data.MetadataEncoderImplTest'/>
-			<test name='org.briarproject.data.MetadataParserImplTest'/>
+			<test name='org.briarproject.data.MetadataEncoderParserImplTest'/>
 			<test name='org.briarproject.db.BasicH2Test'/>
 			<test name='org.briarproject.db.DatabaseComponentImplTest'/>
 			<test name='org.briarproject.db.ExponentialBackoffTest'/>
