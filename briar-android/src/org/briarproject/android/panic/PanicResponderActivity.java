@@ -89,14 +89,14 @@ public class PanicResponderActivity extends BriarActivity {
 	}
 
 	private void deleteAllData() {
-		runOnDbThread(new Runnable() {
+		new Thread() {
 			@Override
 			public void run() {
+				clearSharedPrefs();
 				// TODO somehow delete/shred the database more thoroughly
 				FileUtils
 						.deleteFileOrDir(
 								databaseConfig.getDatabaseDirectory());
-				clearSharedPrefs();
 				PanicResponder.deleteAllAppData(PanicResponderActivity.this);
 
 				// nothing left to do after everything is deleted,
@@ -104,6 +104,7 @@ public class PanicResponderActivity extends BriarActivity {
 				LOG.info("Signing out...");
 				signOut(true);
 			}
-		});
+		}.start();
 	}
+
 }
