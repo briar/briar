@@ -223,8 +223,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		if (!duplicate && subscribed) {
-			GroupId g = m.getGroup().getId();
-			eventBus.broadcast(new MessageAddedEvent(g, null));
+			eventBus.broadcast(new MessageAddedEvent(m, null));
 		}
 	}
 
@@ -1053,8 +1052,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 		if (visible) {
 			if (!duplicate) {
-				GroupId g = m.getGroup().getId();
-				eventBus.broadcast(new MessageAddedEvent(g, c));
+				eventBus.broadcast(new MessageAddedEvent(m, c));
 			}
 			eventBus.broadcast(new MessageToAckEvent(c));
 		}
