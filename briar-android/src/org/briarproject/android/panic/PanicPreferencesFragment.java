@@ -27,13 +27,17 @@ import info.guardianproject.panic.PanicResponder;
 public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+	public static final String KEY_LOCK = "pref_key_lock";
+	public static final String KEY_PANIC_APP = "pref_key_panic_app";
+	public static final String KEY_PURGE = "pref_key_purge";
+	public static final String KEY_UNINSTALL = "pref_key_uninstall";
+
 	private static final Logger LOG =
 			Logger.getLogger(PanicPreferencesFragment.class.getName());
 
 	private PackageManager pm;
-	private CheckBoxPreference lockPref;
+	private CheckBoxPreference lockPref, purgePref, uninstallPref;
 	private ListPreference panicAppPref;
-	private CheckBoxPreference purgePref;
 
 	@Override
 	public void onCreatePreferences(Bundle bundle, String s) {
@@ -41,9 +45,10 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 		pm = getActivity().getPackageManager();
 
-		lockPref = (CheckBoxPreference) findPreference("pref_key_lock");
-		panicAppPref = (ListPreference) findPreference("pref_key_panic_app");
-		purgePref = (CheckBoxPreference) findPreference("pref_key_purge");
+		lockPref = (CheckBoxPreference) findPreference(KEY_LOCK);
+		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
+		purgePref = (CheckBoxPreference) findPreference(KEY_PURGE);
+		uninstallPref = (CheckBoxPreference) findPreference(KEY_UNINSTALL);
 
 		// check for connect/disconnect intents from panic trigger apps
 		if (PanicResponder.checkForDisconnectIntent(getActivity())) {
@@ -98,9 +103,12 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 						if (packageName.equals(Panic.PACKAGE_NAME_NONE)) {
 							purgePref.setChecked(false);
 							purgePref.setEnabled(false);
+							uninstallPref.setChecked(false);
+							uninstallPref.setEnabled(false);
 							getActivity().setResult(Activity.RESULT_CANCELED);
 						} else {
 							purgePref.setEnabled(true);
+							uninstallPref.setEnabled(true);
 						}
 
 						return true;
@@ -141,16 +149,27 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
-		// enable locking if purging gets enabled
-		if (key.equals("pref_key_purge")
-				&& sharedPreferences.getBoolean("pref_key_purge", false)) {
-			lockPref.setChecked(true);
+		if (key.equals(KEY_PURGE)) {
+			// enable locking if purging gets enabled
+			if (sharedPreferences.getBoolean(KEY_PURGE, false)) {
+				lockPref.setChecked(true);
+			}
+			// disable uninstall if purging gets disabled
+			else {
+				uninstallPref.setChecked(false);
+			}
 		}
-		// disable purging if locking gets disabled
-		if (key.equals("pref_key_lock")
-				&& !sharedPreferences.getBoolean("pref_key_lock",  true)
-				&&  sharedPreferences.getBoolean("pref_key_purge", false)) {
+		// enable purging and locking if uninstall gets enabled
+		if (key.equals(KEY_UNINSTALL) &&
+				sharedPreferences.getBoolean(KEY_UNINSTALL, false)) {
+			lockPref.setChecked(true);
+			purgePref.setChecked(true);
+		}
+		// disable purging and uninstalling if locking gets disabled
+		if (key.equals(KEY_LOCK) &&
+				!sharedPreferences.getBoolean(KEY_LOCK, true)) {
 			purgePref.setChecked(false);
+			uninstallPref.setChecked(false);
 		}
 	}
 
@@ -163,7 +182,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 					.setSummary(getString(R.string.panic_app_setting_summary));
 			panicAppPref.setIcon(
 					android.R.drawable.ic_menu_close_clear_cancel);
+
 			purgePref.setEnabled(false);
+			uninstallPref.setEnabled(false);
 		} else {
 			// display connected panic app
 			try {
@@ -172,7 +193,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 						pm.getApplicationInfo(triggerPackageName, 0)));
 				panicAppPref.setIcon(
 						pm.getApplicationIcon(triggerPackageName));
+
 				purgePref.setEnabled(true);
+				uninstallPref.setEnabled(true);
 			} catch (PackageManager.NameNotFoundException e) {
 				// revert back to no app, just to be safe
 				PanicResponder.setTriggerPackageName(getActivity(),

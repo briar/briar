@@ -2,6 +2,7 @@ package org.briarproject.android.panic;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
@@ -19,6 +20,10 @@ import info.guardianproject.GuardianProjectRSA4096;
 import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
+
+import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_LOCK;
+import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_PURGE;
+import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_UNINSTALL;
 
 public class PanicResponderActivity extends BriarActivity {
 
@@ -50,23 +55,29 @@ public class PanicResponderActivity extends BriarActivity {
 					LOG.info("Performing destructive responses...");
 
 					// Performing destructive panic responses
-					if (sharedPref.getBoolean("pref_key_purge", false)) {
+					if (sharedPref.getBoolean(KEY_UNINSTALL, false)) {
+						LOG.info("Purging all data...");
+						deleteAllData();
+
+						LOG.info("Uninstalling...");
+						Intent uninstall = new Intent(Intent.ACTION_DELETE);
+						uninstall.setData(
+								Uri.parse("package:" + getPackageName()));
+						startActivity(uninstall);
+					}
+					else if (sharedPref.getBoolean(KEY_PURGE, false)) {
 						LOG.info("Purging all data...");
 						deleteAllData();
 					}
-					// still sign out if enabled
-					else if (sharedPref.getBoolean("pref_key_lock", true)) {
+					else if (sharedPref.getBoolean(KEY_LOCK, true)) {
 						LOG.info("Signing out...");
 						signOut(true);
 					}
 
-					// TODO add other panic behavior such as:
-					// * send a pre-defined message to certain contacts (#212)
-					// * uninstall the app (#211)
-
+					// TODO send a pre-defined message to certain contacts (#212)
 				}
 				// Performing non-destructive default panic response
-				else if (sharedPref.getBoolean("pref_key_lock", true)) {
+				else if (sharedPref.getBoolean(KEY_LOCK, true)) {
 					LOG.info("Signing out...");
 					signOut(true);
 				}
