@@ -1,6 +1,6 @@
 package org.briarproject.plugins.bluetooth;
 
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.plugins.DuplexClientTest;
@@ -25,7 +25,7 @@ public class BluetoothClientTest extends DuplexClientTest {
 		Map<ContactId, TransportProperties> remote =
 				Collections.singletonMap(contactId, p);
 		// Create the plugin
-		callback = new ClientCallback(new TransportConfig(),
+		callback = new ClientCallback(new Settings(),
 				new TransportProperties(), remote);
 		plugin = new BluetoothPlugin(executor, new SystemClock(),
 				new SecureRandom(), callback, 0, 0);

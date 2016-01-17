@@ -17,5 +17,6 @@
 		<item>org.briarproject.sync.SyncModule</item>
 		<item>org.briarproject.system.AndroidSystemModule</item>
 		<item>org.briarproject.transport.TransportModule</item>
+		<item>org.briarproject.settings.SettingsModule</item>
 	</string-array>
 </resources>

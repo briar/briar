@@ -1,7 +1,6 @@
 package org.briarproject.api.db;
 
 import org.briarproject.api.Settings;
-import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
@@ -139,9 +138,6 @@ public interface DatabaseComponent {
 	/** Returns all groups to which the user could subscribe. */
 	Collection<Group> getAvailableGroups() throws DbException;
 
-	/** Returns the configuration for the given transport. */
-	TransportConfig getConfig(TransportId t) throws DbException;
-
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;
 
@@ -194,8 +190,8 @@ public interface DatabaseComponent {
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
 			throws DbException;
 
-	/** Returns all settings. */
-	Settings getSettings() throws DbException;
+	/** Returns all settings for a given namespace. */
+	Settings getSettings(String namespace) throws DbException;
 
 	/** Returns all contacts who subscribe to the given group. */
 	Collection<Contact> getSubscribers(GroupId g) throws DbException;
@@ -221,12 +217,6 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Merges the given configuration with existing configuration for the
-	 * given transport.
-	 */
-	void mergeConfig(TransportId t, TransportConfig c) throws DbException;
-
-	/**
 	 * Merges the given properties with the existing local properties for the
 	 * given transport.
 	 */
@@ -234,7 +224,7 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/** Merges the given settings with the existing settings. */
-	void mergeSettings(Settings s) throws DbException;
+	void mergeSettings(Settings s, String namespace) throws DbException;
 
 	/** Processes an ack from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;

@@ -1,6 +1,6 @@
 package org.briarproject.plugins.tcp;
 
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.plugins.DuplexServerTest;
 
@@ -18,7 +18,7 @@ public class LanTcpServerTest extends DuplexServerTest {
 	private static final int POLLING_INTERVAL = 60 * 1000;
 
 	private LanTcpServerTest(Executor executor) {
-		callback = new ServerCallback(new TransportConfig(),
+		callback = new ServerCallback(new Settings(),
 				new TransportProperties(),
 				Collections.singletonMap(contactId, new TransportProperties()));
 		plugin = new LanTcpPlugin(executor, callback, MAX_LATENCY,

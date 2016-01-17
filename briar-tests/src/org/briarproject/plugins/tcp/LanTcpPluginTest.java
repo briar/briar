@@ -1,7 +1,7 @@
 package org.briarproject.plugins.tcp;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
@@ -176,8 +176,8 @@ public class LanTcpPluginTest extends BriarTestCase {
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();
 
-		public TransportConfig getConfig() {
-			return new TransportConfig();
+		public Settings getSettings() {
+			return new Settings();
 		}
 
 		public TransportProperties getLocalProperties() {
@@ -188,7 +188,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 			return remote;
 		}
 
-		public void mergeConfig(TransportConfig c) {}
+		public void mergeSettings(Settings s) {}
 
 		public void mergeLocalProperties(TransportProperties p) {
 			local.putAll(p);

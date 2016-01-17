@@ -28,7 +28,7 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		// This plugin is not enabled by default
-		String enabled = callback.getConfig().get("enabled");
+		String enabled = callback.getSettings().get("enabled");
 		if (StringUtils.isNullOrEmpty(enabled)) return null;
 		return new ModemPlugin(modemFactory, serialPortList, callback,
 				MAX_LATENCY);

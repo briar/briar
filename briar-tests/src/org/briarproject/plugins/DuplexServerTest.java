@@ -1,6 +1,6 @@
 package org.briarproject.plugins;
 
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -57,19 +57,19 @@ public abstract class DuplexServerTest extends DuplexTest {
 
 		private final CountDownLatch latch = new CountDownLatch(1);
 
-		private TransportConfig config;
+		private Settings settings;
 		private TransportProperties local;
 		private Map<ContactId, TransportProperties> remote;
 
-		public ServerCallback(TransportConfig config, TransportProperties local,
+		public ServerCallback(Settings settings, TransportProperties local,
 				Map<ContactId, TransportProperties> remote) {
-			this.config = config;
+			this.settings = settings;
 			this.local = local;
 			this.remote = remote;
 		}
 
-		public TransportConfig getConfig() {
-			return config;
+		public Settings getSettings() {
+			return settings;
 		}
 
 		public TransportProperties getLocalProperties() {
@@ -80,8 +80,8 @@ public abstract class DuplexServerTest extends DuplexTest {
 			return remote;
 		}
 
-		public void mergeConfig(TransportConfig c) {
-			config = c;
+		public void mergeSettings(Settings s) {
+			settings = s;
 		}
 
 		public void mergeLocalProperties(TransportProperties p) {

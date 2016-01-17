@@ -8,7 +8,7 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -170,12 +170,12 @@ implements InvitationListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					TransportConfig c = db.getConfig(new TransportId("bt"));
+					Settings s = db.getSettings("bt");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading setting took " + duration + " ms");
 					leaveBluetoothEnabled = bluetoothWasEnabled
-							|| c.getBoolean("enable", false);
+							|| s.getBoolean("enable", false);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
