@@ -9,6 +9,7 @@ import org.briarproject.plugins.ImmediateExecutor;
 import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +43,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 	public void testWriterIsNullIfNoDrivesAreFound() throws Exception {
 		final List<File> drives = Collections.emptyList();
 
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -74,7 +77,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		drives.add(drive1);
 		drives.add(drive2);
 
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -88,7 +93,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String[].class)),
-					with(any(String.class)));
+					with(any(String[].class)));
 			will(returnValue(-1)); // The user cancelled the choice
 		}});
 
@@ -111,7 +116,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		drives.add(drive1);
 		drives.add(drive2);
 
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -125,7 +132,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String[].class)),
-					with(any(String.class)));
+					with(any(String[].class)));
 			will(returnValue(0)); // The user chose drive1 but it doesn't exist
 		}});
 
@@ -150,7 +157,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		// Create drive1 as a file rather than a directory
 		assertTrue(drive1.createNewFile());
 
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -164,7 +173,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String[].class)),
-					with(any(String.class)));
+					with(any(String[].class)));
 			will(returnValue(0)); // The user chose drive1 but it's not a dir
 		}});
 
@@ -189,7 +198,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		// Create drive1 as a directory
 		assertTrue(drive1.mkdir());
 
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -203,7 +214,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String[].class)),
-					with(any(String.class)));
+					with(any(String[].class)));
 			will(returnValue(0)); // The user chose drive1
 		}});
 
@@ -231,7 +242,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		// Create drive1 as a directory
 		assertTrue(drive1.mkdir());
 
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -245,9 +258,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String[].class)),
-					with(any(String.class)));
+					with(any(String[].class)));
 			will(returnValue(0)); // The user chose drive1
-			oneOf(callback).showMessage(with(any(String.class)));
+			oneOf(callback).showMessage(with(any(String[].class)));
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
@@ -276,7 +289,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 	@Test
 	public void testEmptyDriveIsIgnored() throws Exception {
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -300,7 +315,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 	@Test
 	public void testFilenames() {
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor executor = context.mock(Executor.class);
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
@@ -324,7 +341,9 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 	@Test
 	public void testReaderIsCreated() throws Exception {
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =

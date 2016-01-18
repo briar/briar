@@ -19,6 +19,7 @@ import org.briarproject.api.ui.UiCallback;
 import org.briarproject.system.SystemClock;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -32,7 +33,9 @@ public class PluginManagerImplTest extends BriarTestCase {
 	@Test
 	public void testStartAndStop() throws Exception {
 		Clock clock = new SystemClock();
-		Mockery context = new Mockery();
+		Mockery context = new Mockery() {{
+			setThreadingPolicy(new Synchroniser());
+		}};
 		final Executor ioExecutor = Executors.newCachedThreadPool();
 		final EventBus eventBus = context.mock(EventBus.class);
 		final SimplexPluginConfig simplexPluginConfig =
