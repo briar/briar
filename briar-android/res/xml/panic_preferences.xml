@@ -24,6 +24,13 @@
 			android:enabled="false"
 			android:defaultValue="false"/>
 
+		<CheckBoxPreference
+			android:key="pref_key_uninstall"
+			android:title="@string/uninstall_setting_title"
+			android:summary="@string/uninstall_setting_summary"
+			android:enabled="false"
+			android:defaultValue="false"/>
+
 	</PreferenceCategory>
 
 </PreferenceScreen>

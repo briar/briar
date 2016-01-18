@@ -122,6 +122,8 @@
     <string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
     <string name="purge_setting_title">Delete Account</string>
     <string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
+    <string name="uninstall_setting_title">Uninstall Briar</string>
+    <string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
     <string name="step">Step %1$d/%2$d</string>
     <string name="online">Online</string>
     <string name="offline">Offline</string>
