@@ -122,14 +122,19 @@ public class ConversationActivity extends BriarActivity
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
+		notificationManager.blockPrivateMessageNotification(contactId);
 		loadContactAndGroup();
 		loadHeaders();
+
+		// remove the notification for this conversation since we see it now
+		notificationManager.clearPrivateMessageNotification(contactId);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
+		notificationManager.unblockPrivateMessageNotification(contactId);
 		if (isFinishing()) markMessagesRead();
 	}
 

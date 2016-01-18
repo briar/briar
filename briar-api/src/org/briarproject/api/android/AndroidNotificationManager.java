@@ -14,6 +14,10 @@ public interface AndroidNotificationManager extends Service {
 
 	void clearPrivateMessageNotification(ContactId c);
 
+	void blockPrivateMessageNotification(ContactId c);
+
+	void unblockPrivateMessageNotification(ContactId c);
+
 	void showForumPostNotification(GroupId g);
 
 	void clearForumPostNotification(GroupId g);
