@@ -9,6 +9,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.MessageExistsException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
@@ -166,7 +167,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
 			// getGroups()
-			oneOf(database).getGroups(txn);
+			oneOf(database).getGroups(txn, clientId);
 			will(returnValue(Collections.singletonList(group)));
 			// removeGroup()
 			oneOf(database).containsGroup(txn, groupId);
@@ -205,7 +206,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				db.getRemoteProperties(transportId));
 		db.addGroup(group); // First time - listeners called
 		db.addGroup(group); // Second time - not called
-		assertEquals(Collections.singletonList(group), db.getGroups());
+		assertEquals(Collections.singletonList(group), db.getGroups(clientId));
 		db.removeGroup(group);
 		db.removeContact(contactId);
 		db.removeLocalAuthor(localAuthorId);
@@ -226,14 +227,17 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
-			oneOf(database).containsGroup(txn, groupId);
-			will(returnValue(true));
-			oneOf(database).commitTransaction(txn);
+			oneOf(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.addLocalMessage(message, clientId, metadata);
+		try {
+			db.addLocalMessage(message, clientId, metadata);
+			fail();
+		} catch (MessageExistsException expected) {
+			// Expected
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -253,12 +257,17 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			oneOf(database).commitTransaction(txn);
+			oneOf(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.addLocalMessage(message, clientId, metadata);
+		try {
+			db.addLocalMessage(message, clientId, metadata);
+			fail();
+		} catch (NoSuchSubscriptionException expected) {
+			// Expected
+		}
 
 		context.assertIsSatisfied();
 	}

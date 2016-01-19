@@ -58,6 +58,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final Random random = new Random();
+	private final ClientId clientId;
 	private final GroupId groupId;
 	private final Group group;
 	private final Author author;
@@ -72,8 +73,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	private final ContactId contactId;
 
 	public H2DatabaseTest() throws Exception {
+		clientId = new ClientId(TestUtils.getRandomId());
 		groupId = new GroupId(TestUtils.getRandomId());
-		ClientId clientId = new ClientId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);
 		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
@@ -901,31 +902,34 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setGroups(txn, contactId1, Collections.singletonList(group), 1);
 
 		// The group should be available
-		assertEquals(Collections.emptyList(), db.getGroups(txn));
+		assertEquals(Collections.emptyList(), db.getGroups(txn, clientId));
 		assertEquals(Collections.singletonList(group),
-				db.getAvailableGroups(txn));
+				db.getAvailableGroups(txn, clientId));
 
 		// Subscribe to the group - it should no longer be available
 		db.addGroup(txn, group);
-		assertEquals(Collections.singletonList(group), db.getGroups(txn));
-		assertEquals(Collections.emptyList(), db.getAvailableGroups(txn));
+		assertEquals(Collections.singletonList(group),
+				db.getGroups(txn, clientId));
+		assertEquals(Collections.emptyList(),
+				db.getAvailableGroups(txn, clientId));
 
 		// Unsubscribe from the group - it should be available again
 		db.removeGroup(txn, groupId);
-		assertEquals(Collections.emptyList(), db.getGroups(txn));
+		assertEquals(Collections.emptyList(), db.getGroups(txn, clientId));
 		assertEquals(Collections.singletonList(group),
-				db.getAvailableGroups(txn));
+				db.getAvailableGroups(txn, clientId));
 
 		// The first contact unsubscribes - it should still be available
 		db.setGroups(txn, contactId, Collections.<Group>emptyList(), 2);
-		assertEquals(Collections.emptyList(), db.getGroups(txn));
+		assertEquals(Collections.emptyList(), db.getGroups(txn, clientId));
 		assertEquals(Collections.singletonList(group),
-				db.getAvailableGroups(txn));
+				db.getAvailableGroups(txn, clientId));
 
 		// The second contact unsubscribes - it should no longer be available
 		db.setGroups(txn, contactId1, Collections.<Group>emptyList(), 2);
-		assertEquals(Collections.emptyList(), db.getGroups(txn));
-		assertEquals(Collections.emptyList(), db.getAvailableGroups(txn));
+		assertEquals(Collections.emptyList(), db.getGroups(txn, clientId));
+		assertEquals(Collections.emptyList(),
+				db.getAvailableGroups(txn, clientId));
 
 		db.commitTransaction(txn);
 		db.close();

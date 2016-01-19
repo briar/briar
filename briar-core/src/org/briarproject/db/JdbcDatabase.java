@@ -647,7 +647,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addGroup(Connection txn, ContactId c, Group g)
+	public void addContactGroup(Connection txn, ContactId c, Group g)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1155,28 +1155,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<Group> getAvailableGroups(Connection txn)
+	public Collection<Group> getAvailableGroups(Connection txn, ClientId c)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT DISTINCT"
-					+ " cg.groupId, cg.clientId, cg.descriptor"
+			String sql = "SELECT DISTINCT cg.groupId, cg.descriptor"
 					+ " FROM contactGroups AS cg"
 					+ " LEFT OUTER JOIN groups AS g"
 					+ " ON cg.groupId = g.groupId"
-					+ " WHERE g.groupId IS NULL"
+					+ " WHERE cg.clientId = ?"
+					+ " AND g.groupId IS NULL"
 					+ " GROUP BY cg.groupId";
 			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, c.getBytes());
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<Group>();
 			Set<GroupId> ids = new HashSet<GroupId>();
 			while (rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				if (!ids.add(id)) throw new DbStateException();
-				ClientId clientId = new ClientId(rs.getBytes(2));
-				byte[] descriptor = rs.getBytes(3);
-				groups.add(new Group(id, clientId, descriptor));
+				byte[] descriptor = rs.getBytes(2);
+				groups.add(new Group(id, c, descriptor));
 			}
 			rs.close();
 			ps.close();
@@ -1308,19 +1308,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<Group> getGroups(Connection txn) throws DbException {
+	public Collection<Group> getGroups(Connection txn, ClientId c)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, clientId, descriptor FROM groups";
+			String sql = "SELECT groupId, descriptor FROM groups"
+					+ " WHERE clientId = ?";
 			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, c.getBytes());
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<Group>();
 			while (rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
-				ClientId clientId = new ClientId(rs.getBytes(2));
-				byte[] descriptor = rs.getBytes(3);
-				groups.add(new Group(id, clientId, descriptor));
+				byte[] descriptor = rs.getBytes(2);
+				groups.add(new Group(id, c, descriptor));
 			}
 			rs.close();
 			ps.close();

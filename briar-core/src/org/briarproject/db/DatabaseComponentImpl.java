@@ -9,6 +9,7 @@ import org.briarproject.api.db.ContactExistsException;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.LocalAuthorExistsException;
+import org.briarproject.api.db.MessageExistsException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
@@ -168,12 +169,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return c;
 	}
 
-	public void addGroup(ContactId c, Group g) throws DbException {
+	public void addContactGroup(ContactId c, Group g) throws DbException {
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				db.addGroup(txn, c, g);
+				db.addContactGroup(txn, c, g);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -225,17 +226,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void addLocalMessage(Message m, ClientId c, Metadata meta)
 			throws DbException {
-		boolean duplicate, subscribed;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				duplicate = db.containsMessage(txn, m.getId());
-				subscribed = db.containsGroup(txn, m.getGroupId());
-				if (!duplicate && subscribed) {
-					addMessage(txn, m, null);
-					db.mergeMessageMetadata(txn, m.getId(), meta);
-				}
+				if (db.containsMessage(txn, m.getId()))
+					throw new MessageExistsException();
+				if (!db.containsGroup(txn, m.getGroupId()))
+					throw new NoSuchSubscriptionException();
+				addMessage(txn, m, null);
+				db.mergeMessageMetadata(txn, m.getId(), meta);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -244,10 +244,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if (!duplicate && subscribed) {
-			eventBus.broadcast(new MessageAddedEvent(m, null));
-			eventBus.broadcast(new MessageValidatedEvent(m, c, true, true));
-		}
+		eventBus.broadcast(new MessageAddedEvent(m, null));
+		eventBus.broadcast(new MessageValidatedEvent(m, c, true, true));
 	}
 
 	/**
@@ -524,12 +522,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public Collection<Group> getAvailableGroups() throws DbException {
+	public Collection<Group> getAvailableGroups(ClientId c) throws DbException {
 		lock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Collection<Group> groups = db.getAvailableGroups(txn);
+				Collection<Group> groups = db.getAvailableGroups(txn, c);
 				db.commitTransaction(txn);
 				return groups;
 			} catch (DbException e) {
@@ -596,12 +594,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public Collection<Group> getGroups() throws DbException {
+	public Collection<Group> getGroups(ClientId c) throws DbException {
 		lock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Collection<Group> groups = db.getGroups(txn);
+				Collection<Group> groups = db.getGroups(txn, c);
 				db.commitTransaction(txn);
 				return groups;
 			} catch (DbException e) {

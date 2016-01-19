@@ -82,7 +82,7 @@ class MessagingManagerImpl implements MessagingManager {
 		Group conversation = createConversationGroup(db.getContact(c));
 		// Subscribe to the group and share it with the contact
 		db.addGroup(conversation);
-		db.addGroup(c, conversation);
+		db.addContactGroup(c, conversation);
 		db.setVisibility(conversation.getId(), Collections.singletonList(c));
 	}
 
@@ -141,7 +141,6 @@ class MessagingManagerImpl implements MessagingManager {
 
 	@Override
 	public GroupId getConversationId(ContactId c) throws DbException {
-		// TODO: Make this more efficient
 		return createConversationGroup(db.getContact(c)).getId();
 	}
 

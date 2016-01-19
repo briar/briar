@@ -46,7 +46,7 @@ public interface DatabaseComponent {
 	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
 	/** Adds a group to the given contact's subscriptions. */
-	void addGroup(ContactId c, Group g) throws DbException;
+	void addContactGroup(ContactId c, Group g) throws DbException;
 
 	/**
 	 * Subscribes to a group, or returns false if the user already has the
@@ -140,8 +140,11 @@ public interface DatabaseComponent {
 	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
 			int maxLatency) throws DbException;
 
-	/** Returns all groups to which the user could subscribe. */
-	Collection<Group> getAvailableGroups() throws DbException;
+	/**
+	 * Returns all groups belonging to the given client to which the user could
+	 * subscribe.
+	 */
+	Collection<Group> getAvailableGroups(ClientId c) throws DbException;
 
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;
@@ -152,8 +155,11 @@ public interface DatabaseComponent {
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
-	/** Returns all groups to which the user subscribes. */
-	Collection<Group> getGroups() throws DbException;
+	/**
+	 * Returns all groups belonging to the given client to which the user
+	 * subscribes.
+	 */
+	Collection<Group> getGroups(ClientId c) throws DbException;
 
 	/** Returns the local pseudonym with the given ID. */
 	LocalAuthor getLocalAuthor(AuthorId a) throws DbException;

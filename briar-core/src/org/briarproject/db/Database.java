@@ -92,7 +92,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	void addGroup(T txn, ContactId c, Group g) throws DbException;
+	void addContactGroup(T txn, ContactId c, Group g) throws DbException;
 
 	/**
 	 * Subscribes to a group, or returns false if the user already has the
@@ -225,11 +225,12 @@ interface Database<T> {
 	int countOfferedMessages(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns all groups to which the user could subscribe.
+	 * Returns all groups belonging to the given client to which the user could
+	 * subscribe.
 	 * <p>
 	 * Locking: read.
 	 */
-	Collection<Group> getAvailableGroups(T txn) throws DbException;
+	Collection<Group> getAvailableGroups(T txn, ClientId c) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.
@@ -274,11 +275,12 @@ interface Database<T> {
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns all groups to which the user subscribes.
+	 * Returns all groups belonging to the given client to which the user
+	 * subscribes.
 	 * <p>
 	 * Locking: read.
 	 */
-	Collection<Group> getGroups(T txn) throws DbException;
+	Collection<Group> getGroups(T txn, ClientId c) throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.

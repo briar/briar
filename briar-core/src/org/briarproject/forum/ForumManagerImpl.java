@@ -143,17 +143,13 @@ class ForumManagerImpl implements ForumManager {
 
 	@Override
 	public Collection<Forum> getAvailableForums() throws DbException {
-		// TODO: Get groups by client ID
-		Collection<Group> groups = db.getAvailableGroups();
+		Collection<Group> groups = db.getAvailableGroups(CLIENT_ID);
 		List<Forum> forums = new ArrayList<Forum>(groups.size());
 		for (Group g : groups) {
-			if (g.getClientId().equals(CLIENT_ID)) {
-				try {
-					forums.add(parseForum(g));
-				} catch (FormatException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+			try {
+				forums.add(parseForum(g));
+			} catch (FormatException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		return Collections.unmodifiableList(forums);
@@ -193,17 +189,13 @@ class ForumManagerImpl implements ForumManager {
 
 	@Override
 	public Collection<Forum> getForums() throws DbException {
-		// TODO: Get groups by client ID
-		Collection<Group> groups = db.getGroups();
+		Collection<Group> groups = db.getGroups(CLIENT_ID);
 		List<Forum> forums = new ArrayList<Forum>(groups.size());
 		for (Group g : groups) {
-			if (g.getClientId().equals(CLIENT_ID)) {
-				try {
-					forums.add(parseForum(g));
-				} catch (FormatException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+			try {
+				forums.add(parseForum(g));
+			} catch (FormatException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		return Collections.unmodifiableList(forums);
