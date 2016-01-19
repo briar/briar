@@ -15,11 +15,9 @@ import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageValidator;
-import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
 import java.io.ByteArrayInputStream;
@@ -35,15 +33,13 @@ import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENG
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
-import static org.briarproject.forum.ForumManagerImpl.CLIENT_ID;
 
-class ForumPostValidator implements MessageValidator, Service {
+class ForumPostValidator implements MessageValidator {
 
 	private static final Logger LOG =
 			Logger.getLogger(ForumPostValidator.class.getName());
 
 	private final CryptoComponent crypto;
-	private final ValidationManager validationManager;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final BdfWriterFactory bdfWriterFactory;
 	private final ObjectReader<Author> authorReader;
@@ -53,30 +49,17 @@ class ForumPostValidator implements MessageValidator, Service {
 
 	@Inject
 	ForumPostValidator(CryptoComponent crypto,
-			ValidationManager validationManager,
 			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory,
 			ObjectReader<Author> authorReader,
 			MetadataEncoder metadataEncoder, Clock clock) {
 		this.crypto = crypto;
-		this.validationManager = validationManager;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.bdfWriterFactory = bdfWriterFactory;
 		this.authorReader = authorReader;
 		this.metadataEncoder = metadataEncoder;
 		this.clock = clock;
 		keyParser = crypto.getSignatureKeyParser();
-	}
-
-	@Override
-	public boolean start() {
-		validationManager.setMessageValidator(CLIENT_ID, this);
-		return true;
-	}
-
-	@Override
-	public boolean stop() {
-		return true;
 	}
 
 	@Override

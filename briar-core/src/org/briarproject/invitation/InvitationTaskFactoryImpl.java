@@ -9,7 +9,6 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
-import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.property.TransportPropertyManager;
@@ -34,7 +33,6 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	private final ConnectionManager connectionManager;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
-	private final MessagingManager messagingManager;
 	private final TransportPropertyManager transportPropertyManager;
 	private final Clock clock;
 	private final PluginManager pluginManager;
@@ -47,7 +45,6 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
 			IdentityManager identityManager, ContactManager contactManager,
-			MessagingManager messagingManager,
 			TransportPropertyManager transportPropertyManager,
 			Clock clock, PluginManager pluginManager) {
 		this.crypto = crypto;
@@ -61,7 +58,6 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.connectionManager = connectionManager;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
-		this.messagingManager = messagingManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
@@ -72,8 +68,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		return new ConnectorGroup(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, identityManager,
-				contactManager, messagingManager, transportPropertyManager,
-				clock, pluginManager, localAuthorId, localCode, remoteCode,
-				reuseConnection);
+				contactManager, transportPropertyManager, clock, pluginManager,
+				localAuthorId, localCode, remoteCode, reuseConnection);
 	}
 }

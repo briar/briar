@@ -13,12 +13,6 @@ public interface MessagingManager {
 	/** Returns the unique ID of the messaging client. */
 	ClientId getClientId();
 
-	/**
-	 * Informs the messaging manager that a new contact has been added.
-	 * Creates a private conversation with the contact.
-	 */
-	void addContact(ContactId c) throws DbException;
-
 	/** Stores a local private message. */
 	void addLocalMessage(PrivateMessage m) throws DbException;
 

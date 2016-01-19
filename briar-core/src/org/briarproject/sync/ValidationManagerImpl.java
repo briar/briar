@@ -11,10 +11,8 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -31,8 +29,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
-class ValidationManagerImpl implements ValidationManager, Service,
-		EventListener {
+class ValidationManagerImpl implements ValidationManager, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ValidationManagerImpl.class.getName());
@@ -40,30 +37,16 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final Executor cryptoExecutor;
-	private final EventBus eventBus;
 	private final Map<ClientId, MessageValidator> validators;
 
 	@Inject
 	ValidationManagerImpl(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus) {
+			@CryptoExecutor Executor cryptoExecutor) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
-		this.eventBus = eventBus;
 		validators = new ConcurrentHashMap<ClientId, MessageValidator>();
-	}
-
-	@Override
-	public boolean start() {
-		eventBus.addListener(this);
-		return true;
-	}
-
-	@Override
-	public boolean stop() {
-		eventBus.removeListener(this);
-		return true;
 	}
 
 	@Override

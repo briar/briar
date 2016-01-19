@@ -35,6 +35,7 @@ import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportUpdate;
+import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
@@ -73,9 +74,9 @@ public class ConstantsTest extends BriarTestCase {
 	public ConstantsTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
-				new CryptoModule(), new DatabaseModule(), new DataModule(),
-				new EventModule(), new ForumModule(), new MessagingModule(),
-				new SyncModule());
+				new ContactModule(), new CryptoModule(), new DatabaseModule(),
+				new DataModule(), new EventModule(), new ForumModule(),
+				new MessagingModule(), new SyncModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);

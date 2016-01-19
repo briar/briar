@@ -6,6 +6,8 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.contact.ContactManager.ContactAddedHook;
+import org.briarproject.api.contact.ContactManager.ContactRemovedHook;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
@@ -42,7 +44,8 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
-class MessagingManagerImpl implements MessagingManager {
+class MessagingManagerImpl implements MessagingManager, ContactAddedHook,
+		ContactRemovedHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"6bcdc006c0910b0f44e40644c3b31f1a"
@@ -72,18 +75,17 @@ class MessagingManagerImpl implements MessagingManager {
 	}
 
 	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
-	}
-
-	@Override
-	public void addContact(ContactId c) throws DbException {
-		// Create the conversation group
-		Group conversation = createConversationGroup(db.getContact(c));
-		// Subscribe to the group and share it with the contact
-		db.addGroup(conversation);
-		db.addContactGroup(c, conversation);
-		db.setVisibility(conversation.getId(), Collections.singletonList(c));
+	public void contactAdded(ContactId c) {
+		try {
+			// Create the conversation group
+			Group g = createConversationGroup(db.getContact(c));
+			// Subscribe to the group and share it with the contact
+			db.addGroup(g);
+			db.addContactGroup(c, g);
+			db.setVisibility(g.getId(), Collections.singletonList(c));
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
 	}
 
 	private Group createConversationGroup(Contact c) {
@@ -114,6 +116,20 @@ class MessagingManagerImpl implements MessagingManager {
 	}
 
 	@Override
+	public void contactRemoved(ContactId c) {
+		try {
+			db.removeGroup(createConversationGroup(db.getContact(c)));
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+	}
+
+	@Override
+	public ClientId getClientId() {
+		return CLIENT_ID;
+	}
+
+	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
 		BdfDictionary d = new BdfDictionary();
 		d.put("timestamp", m.getMessage().getTimestamp());
@@ -131,7 +147,7 @@ class MessagingManagerImpl implements MessagingManager {
 
 	@Override
 	public ContactId getContactId(GroupId g) throws DbException {
-		// TODO: Make this more efficient
+		// TODO: Use metadata to attach the contact ID to the group
 		for (Contact c : db.getContacts()) {
 			Group conversation = createConversationGroup(c);
 			if (conversation.getId().equals(g)) return c.getId();

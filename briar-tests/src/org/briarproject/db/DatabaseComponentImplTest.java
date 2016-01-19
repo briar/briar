@@ -16,8 +16,6 @@ import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.event.ContactAddedEvent;
-import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalAuthorAddedEvent;
 import org.briarproject.api.event.LocalAuthorRemovedEvent;
@@ -59,6 +57,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.briarproject.api.contact.Contact.Status.ACTIVE;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
@@ -113,7 +112,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				"bar", "baz"));
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, localAuthorId);
+		contact = new Contact(contactId, author, localAuthorId, ACTIVE);
 	}
 
 	private <T> DatabaseComponent createDatabaseComponent(Database<T> database,
@@ -150,7 +149,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
-			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
@@ -183,7 +181,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).removeContact(txn, contactId);
-			oneOf(eventBus).broadcast(with(any(ContactRemovedEvent.class)));
 			// removeLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
@@ -671,7 +668,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// Check whether the transport is in the DB (which it's not)
 			exactly(6).of(database).startTransaction();
 			will(returnValue(txn));

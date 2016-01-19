@@ -631,7 +631,19 @@ interface Database<T> {
 	 */
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
-	/** Marks the given message as valid or invalid. */
+	/**
+	 * Sets the status of the given contact.
+	 * <p>
+	 * Locking: write.
+	 */
+	void setContactStatus(T txn, ContactId c, Contact.Status s)
+			throws DbException;
+
+	/**
+	 * Marks the given message as valid or invalid.
+	 * <p>
+	 * Locking: write.
+	 */
 	void setMessageValidity(T txn, MessageId m, boolean valid)
 			throws DbException;
 

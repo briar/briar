@@ -16,7 +16,6 @@ import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalAuthorAddedEvent;
@@ -147,7 +146,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public ContactId addContact(Author remote, AuthorId local)
 			throws DbException {
-		ContactId c;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
@@ -156,8 +154,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 					throw new ContactExistsException();
 				if (!db.containsLocalAuthor(txn, local))
 					throw new NoSuchLocalAuthorException();
-				c = db.addContact(txn, remote, local);
+				ContactId c = db.addContact(txn, remote, local);
 				db.commitTransaction(txn);
+				return c;
 			} catch (DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -165,8 +164,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		eventBus.broadcast(new ContactAddedEvent(c));
-		return c;
 	}
 
 	public void addContactGroup(ContactId c, Group g) throws DbException {
@@ -1219,7 +1216,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		eventBus.broadcast(new ContactRemovedEvent(c));
 	}
 
 	public void removeGroup(Group g) throws DbException {
@@ -1285,6 +1281,25 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		eventBus.broadcast(new TransportRemovedEvent(t));
+	}
+
+	public void setContactStatus(ContactId c, Contact.Status s)
+			throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsContact(txn, c))
+					throw new NoSuchContactException();
+				db.setContactStatus(txn, c, s);
+				db.commitTransaction(txn);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
 	}
 
 	public void setMessageValidity(Message m, ClientId c, boolean valid)

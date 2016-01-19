@@ -297,6 +297,9 @@ public interface DatabaseComponent {
 	 */
 	void removeTransport(TransportId t) throws DbException;
 
+	/** Sets the status of the given contact. */
+	void setContactStatus(ContactId c, Contact.Status s) throws DbException;
+
 	/** Marks the given message as valid or invalid. */
 	void setMessageValidity(Message m, ClientId c, boolean valid)
 			throws DbException;

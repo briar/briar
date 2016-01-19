@@ -129,8 +129,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author bobAuthor = new Author(bobId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(bobAuthor, aliceId);
-		// Create a private conversation
-		messagingManager.addContact(contactId);
 		// Derive and store the transport keys
 		keyManager.addContact(contactId, Collections.singletonList(transportId),
 				master, timestamp, true);
@@ -174,14 +172,14 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		IdentityManager identityManager =
 				bob.getInstance(IdentityManager.class);
 		ContactManager contactManager = bob.getInstance(ContactManager.class);
-		MessagingManager messagingManager =
-				bob.getInstance(MessagingManager.class);
 		KeyManager keyManager = bob.getInstance(KeyManager.class);
 		StreamReaderFactory streamReaderFactory =
 				bob.getInstance(StreamReaderFactory.class);
 		PacketReaderFactory packetReaderFactory =
 				bob.getInstance(PacketReaderFactory.class);
 		EventBus eventBus = bob.getInstance(EventBus.class);
+		// Bob needs a MessagingManager even though we're not using it directly
+		bob.getInstance(MessagingManager.class);
 
 		// Start the lifecyle manager
 		lifecycleManager.startServices();
@@ -196,8 +194,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author aliceAuthor = new Author(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(aliceAuthor, bobId);
-		// Create a private conversation
-		messagingManager.addContact(contactId);
 		// Derive and store the transport keys
 		keyManager.addContact(contactId, Collections.singletonList(transportId),
 				master, timestamp, false);

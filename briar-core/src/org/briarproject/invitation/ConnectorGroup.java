@@ -16,7 +16,6 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
-import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
@@ -58,7 +57,6 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final ConnectionManager connectionManager;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
-	private final MessagingManager messagingManager;
 	private final TransportPropertyManager transportPropertyManager;
 	private final Clock clock;
 	private final PluginManager pluginManager;
@@ -85,7 +83,6 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
 			IdentityManager identityManager, ContactManager contactManager,
-			MessagingManager messagingManager,
 			TransportPropertyManager transportPropertyManager, Clock clock,
 			PluginManager pluginManager, AuthorId localAuthorId,
 			int localInvitationCode, int remoteInvitationCode,
@@ -102,7 +99,6 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		this.connectionManager = connectionManager;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
-		this.messagingManager = messagingManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
@@ -201,8 +197,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		return new AliceConnector(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, contactManager,
-				messagingManager, transportPropertyManager, clock,
-				reuseConnection, this, plugin, localAuthor, localProps, random);
+				transportPropertyManager, clock, reuseConnection, this, plugin,
+				localAuthor, localProps, random);
 	}
 
 	private Connector createBobConnector(DuplexPlugin plugin,
@@ -213,8 +209,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		return new BobConnector(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, contactManager,
-				messagingManager, transportPropertyManager, clock,
-				reuseConnection, this, plugin, localAuthor, localProps, random);
+				transportPropertyManager, clock, reuseConnection, this, plugin,
+				localAuthor, localProps, random);
 	}
 
 	public void localConfirmationSucceeded() {

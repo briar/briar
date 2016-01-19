@@ -20,7 +20,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
@@ -61,7 +60,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
-	private final EventBus eventBus;
 	private final MessagingManager messagingManager;
 	private final ForumManager forumManager;
 	private final AndroidExecutor androidExecutor;
@@ -80,12 +78,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Inject
 	public AndroidNotificationManagerImpl(DatabaseComponent db,
-			@DatabaseExecutor Executor dbExecutor, EventBus eventBus,
+			@DatabaseExecutor Executor dbExecutor,
 			MessagingManager messagingManager, ForumManager forumManager,
 			AndroidExecutor androidExecutor, Application app) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
-		this.eventBus = eventBus;
 		this.messagingManager = messagingManager;
 		this.forumManager = forumManager;
 		this.androidExecutor = androidExecutor;
@@ -94,7 +91,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public boolean start() {
-		eventBus.addListener(this);
 		loadSettings();
 		return true;
 	}
@@ -114,7 +110,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public boolean stop() {
-		eventBus.removeListener(this);
 		clearNotifications();
 		return true;
 	}

@@ -3,6 +3,7 @@ package org.briarproject.transport;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
@@ -20,8 +21,9 @@ public class TransportModule extends AbstractModule {
 
 	@Provides @Singleton
 	KeyManager getKeyManager(LifecycleManager lifecycleManager,
-			KeyManagerImpl keyManager) {
+			EventBus eventBus, KeyManagerImpl keyManager) {
 		lifecycleManager.register(keyManager);
+		eventBus.addListener(keyManager);
 		return keyManager;
 	}
 }

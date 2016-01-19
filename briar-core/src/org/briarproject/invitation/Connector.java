@@ -20,7 +20,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -65,7 +64,6 @@ abstract class Connector extends Thread {
 	protected final KeyManager keyManager;
 	protected final ConnectionManager connectionManager;
 	protected final ContactManager contactManager;
-	protected final MessagingManager messagingManager;
 	protected final TransportPropertyManager transportPropertyManager;
 	protected final Clock clock;
 	protected final boolean reuseConnection;
@@ -89,7 +87,7 @@ abstract class Connector extends Thread {
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
-			ContactManager contactManager, MessagingManager messagingManager,
+			ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager, Clock clock,
 			boolean reuseConnection, ConnectorGroup group, DuplexPlugin plugin,
 			LocalAuthor localAuthor,
@@ -106,7 +104,6 @@ abstract class Connector extends Thread {
 		this.keyManager = keyManager;
 		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
-		this.messagingManager = messagingManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.clock = clock;
 		this.reuseConnection = reuseConnection;
@@ -287,8 +284,6 @@ abstract class Connector extends Thread {
 		// Derive transport keys for each transport shared with the contact
 		keyManager.addContact(contactId, remoteProps.keySet(), master,
 				timestamp, alice);
-		// Create a private messaging conversation
-		messagingManager.addContact(contactId);
 	}
 
 	protected void tryToClose(DuplexTransportConnection conn,

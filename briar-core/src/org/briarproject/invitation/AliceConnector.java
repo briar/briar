@@ -14,7 +14,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -48,7 +47,7 @@ class AliceConnector extends Connector {
 			StreamWriterFactory streamWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
-			ContactManager contactManager, MessagingManager messagingManager,
+			ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager, Clock clock,
 			boolean reuseConnection, ConnectorGroup group, DuplexPlugin plugin,
 			LocalAuthor localAuthor,
@@ -57,9 +56,8 @@ class AliceConnector extends Connector {
 		super(crypto, bdfReaderFactory, bdfWriterFactory, streamReaderFactory,
 				streamWriterFactory, authorFactory, groupFactory,
 				keyManager, connectionManager, contactManager,
-				messagingManager, transportPropertyManager, clock,
-				reuseConnection, group, plugin, localAuthor, localProps,
-				random);
+				transportPropertyManager, clock, reuseConnection, group,
+				plugin, localAuthor, localProps, random);
 	}
 
 	@Override
