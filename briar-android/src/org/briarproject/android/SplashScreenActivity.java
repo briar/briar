@@ -65,8 +65,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 		logo.setImageResource(R.drawable.briar_logo_large);
 		layout.addView(logo);
 
-		PreferenceManager
-				.setDefaultValues(this, R.xml.panic_preferences, false);
+		setPreferencesDefaults();
 
 		setContentView(layout);
 	}
@@ -110,5 +109,16 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	private void delete(File f) {
 		if (f.isFile()) f.delete();
 		else if (f.isDirectory()) for (File child : f.listFiles()) delete(child);
+	}
+
+	private void setPreferencesDefaults() {
+		new Thread() {
+			@Override
+			public void run() {
+				PreferenceManager
+						.setDefaultValues(SplashScreenActivity.this,
+								R.xml.panic_preferences, false);
+			}
+		}.start();
 	}
 }

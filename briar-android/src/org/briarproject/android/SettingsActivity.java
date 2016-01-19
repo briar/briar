@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.panic.PanicPreferencesActivity;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.FixedVerticalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
@@ -330,8 +331,7 @@ OnClickListener {
 			bluetoothSetting = !bluetoothSetting;
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 			if (adapter != null) {
-				if (bluetoothSetting) adapter.enable();
-				else adapter.disable();
+				AndroidUtils.setBluetooth(adapter, bluetoothSetting);
 			}
 			storeBluetoothSetting();
 			displaySettings();
