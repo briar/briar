@@ -1,6 +1,7 @@
 package org.briarproject.android.util;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.os.Build;
 import android.support.design.widget.TextInputLayout;
 
@@ -31,5 +32,17 @@ public class AndroidUtils {
 				til.setError(error);
 		} else
 			til.setError(null);
+	}
+
+	public static void setBluetooth(final BluetoothAdapter adapter,
+			final boolean activate) {
+
+		new Thread() {
+			@Override
+			public void run() {
+				if (activate) adapter.enable();
+				else adapter.disable();
+			}
+		}.start();
 	}
 }

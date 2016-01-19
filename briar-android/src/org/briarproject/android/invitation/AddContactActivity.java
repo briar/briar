@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
@@ -333,7 +334,7 @@ implements InvitationListener {
 			if (LOG.isLoggable(INFO)) LOG.info("Turning off Bluetooth again");
 
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			if (adapter != null) adapter.disable();
+			if (adapter != null) AndroidUtils.setBluetooth(adapter, false);
 		}
 	}
 
