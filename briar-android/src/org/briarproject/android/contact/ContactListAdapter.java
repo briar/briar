@@ -1,8 +1,12 @@
 package org.briarproject.android.contact;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -14,9 +18,8 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.identity.AuthorId;
 
 import java.util.List;
 
@@ -53,13 +56,23 @@ public class ContactListAdapter
 						@Override
 						public int compare(ContactListItem c1,
 								ContactListItem c2) {
-							// sort items by time
-							// and do not take unread messages into account
-							long time1 = c1.getTimestamp();
-							long time2 = c2.getTimestamp();
-							if (time1 < time2) return 1;
-							if (time1 > time2) return -1;
-							return 0;
+							int authorCompare = 0;
+							if (chooser) {
+								authorCompare = c1.getLocalAuthor().getName()
+										.compareTo(
+												c2.getLocalAuthor().getName());
+							}
+							if (authorCompare == 0) {
+								// sort items by time
+								// and do not take unread messages into account
+								long time1 = c1.getTimestamp();
+								long time2 = c2.getTimestamp();
+								if (time1 < time2) return 1;
+								if (time1 > time2) return -1;
+								return 0;
+							} else {
+								return authorCompare;
+							}
 						}
 
 						@Override
@@ -86,10 +99,16 @@ public class ContactListAdapter
 							return true;
 						}
 					});
+	private final OnItemClickListener listener;
+	private final boolean chooser;
 	private Context ctx;
+	private AuthorId localAuthorId;
 
-	public ContactListAdapter(Context context) {
+	public ContactListAdapter(Context context, OnItemClickListener listener,
+			boolean chooser) {
 		ctx = context;
+		this.listener = listener;
+		this.chooser = chooser;
 	}
 
 	@Override
@@ -103,12 +122,11 @@ public class ContactListAdapter
 	@Override
 	public void onBindViewHolder(final ContactHolder ui, final int position) {
 		final ContactListItem item = getItem(position);
-		Resources res = ctx.getResources();
 
 		int unread = item.getUnreadCount();
-		if (unread > 0) {
+		if (!chooser && unread > 0) {
 			ui.layout.setBackgroundColor(
-					res.getColor(R.color.unread_background));
+					ContextCompat.getColor(ctx, R.color.unread_background));
 		}
 
 		if (item.isConnected()) {
@@ -121,27 +139,37 @@ public class ContactListAdapter
 		ui.avatar.setImageDrawable(
 				new IdenticonDrawable(author.getId().getBytes()));
 		String contactName = author.getName();
-		if (unread > 0) {
+
+		if (!chooser && unread > 0) {
+			// TODO show these in a bubble on top of the avatar
 			ui.name.setText(contactName + " (" + unread + ")");
 		} else {
 			ui.name.setText(contactName);
 		}
 
+		if (chooser) {
+			ui.identity.setText(item.getLocalAuthor().getName());
+		} else {
+			ui.identity.setVisibility(View.GONE);
+		}
+
 		if (item.isEmpty()) {
 			ui.date.setText(R.string.no_private_messages);
 		} else {
+			// TODO show this as X units ago
 			long timestamp = item.getTimestamp();
 			ui.date.setText(
 					DateUtils.getRelativeTimeSpanString(ctx, timestamp));
 		}
 
+		if (chooser && !item.getLocalAuthor().getId().equals(localAuthorId)) {
+			grayOutItem(ui);
+		}
+
 		ui.layout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				GroupId groupId = item.getGroupId();
-				Intent i = new Intent(ctx, ConversationActivity.class);
-				i.putExtra("briar.GROUP_ID", groupId.getBytes());
-				ctx.startActivity(i);
+				listener.onItemClick(ui.avatar, item);
 			}
 		});
 	}
@@ -149,6 +177,34 @@ public class ContactListAdapter
 	@Override
 	public int getItemCount() {
 		return contacts.size();
+	}
+
+	/**
+	 * Set the identity from whose perspective the contact shall be chosen.
+	 * This is only used if chooser is true.
+	 * @param authorId The ID of the local Author
+	 */
+	public void setLocalAuthor(AuthorId authorId) {
+		localAuthorId = authorId;
+		notifyDataSetChanged();
+	}
+
+	private void grayOutItem(final ContactHolder ui) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			float alpha = 0.25f;
+			ui.bulb.setAlpha(alpha);
+			ui.avatar.setAlpha(alpha);
+			ui.name.setAlpha(alpha);
+			ui.date.setAlpha(alpha);
+			ui.identity.setAlpha(alpha);
+		} else {
+			ColorFilter colorFilter = new PorterDuffColorFilter(Color.GRAY,
+					PorterDuff.Mode.MULTIPLY);
+			ui.bulb.setColorFilter(colorFilter);
+			ui.avatar.setColorFilter(colorFilter);
+			ui.name.setEnabled(false);
+			ui.date.setEnabled(false);
+		}
 	}
 
 	public ContactListItem getItem(int position) {
@@ -160,10 +216,6 @@ public class ContactListAdapter
 
 	public void updateItem(int position, ContactListItem item) {
 		contacts.updateItemAt(position, item);
-	}
-
-	public int findItemPosition(ContactListItem item) {
-		return contacts.indexOf(item);
 	}
 
 	public int findItemPosition(ContactId c) {
@@ -202,6 +254,7 @@ public class ContactListAdapter
 		public ImageView bulb;
 		public ImageView avatar;
 		public TextView name;
+		public TextView identity;
 		public TextView date;
 
 		public ContactHolder(View v) {
@@ -211,7 +264,13 @@ public class ContactListAdapter
 			bulb = (ImageView) v.findViewById(R.id.bulbView);
 			avatar = (ImageView) v.findViewById(R.id.avatarView);
 			name = (TextView) v.findViewById(R.id.nameView);
+			identity = (TextView) v.findViewById(R.id.identityView);
 			date = (TextView) v.findViewById(R.id.dateView);
 		}
 	}
+
+	public interface OnItemClickListener {
+		void onItemClick(View view, ContactListItem item);
+	}
+
 }

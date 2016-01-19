@@ -54,7 +54,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 		((InputMethodManager) o).showSoftInput(view, SHOW_IMPLICIT);
 	}
 
-	protected void hideSoftKeyboard(View view) {
+	public void hideSoftKeyboard(View view) {
 		IBinder token = view.getWindowToken();
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);

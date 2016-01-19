@@ -51,12 +51,30 @@
 		<item name="elevation">1dp</item>
 	</style>
 
-	<style name="BriarButton">
+	<style name="BriarDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+		<item name="colorPrimary">@color/briar_primary</item>
+		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
+		<item name="colorAccent">@color/briar_accent</item>
+	</style>
+
+	<style name="BriarButton" parent="Widget.AppCompat.Button.Colored">
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:padding">@dimen/margin_large</item>
 	</style>
 
 	<style name="BriarButton.Default"/>
+
+	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
+		<item name="android:textColor">#ff0000</item>
+		<item name="android:textSize">@dimen/text_size_medium</item>
+		<item name="android:padding">@dimen/margin_large</item>
+	</style>
+
+	<style name="BriarButtonFlat.Positive" parent="Widget.AppCompat.Button.Borderless">
+		<item name="android:textColor">#06b9ff</item>
+		<item name="android:textSize">@dimen/text_size_medium</item>
+		<item name="android:padding">@dimen/margin_large</item>
+	</style>
 
 	<style name="BriarTextTitle">
 		<item name="android:textSize">@dimen/text_size_medium</item>
@@ -76,9 +94,15 @@
 		<item name="android:background">?android:attr/listDivider</item>
 	</style>
 
-	<style name="Divider.Horizontal">
+	<style name="Divider.Horizontal" parent="Divider">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">1px</item>
+	</style>
+
+	<style name="Divider.ContactListDevider" parent="Divider">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">2dp</item>
+		<item name="android:layout_marginLeft">@dimen/margin_large</item>
 	</style>
 
 	<style name="NavMenuButton" parent="Widget.AppCompat.Button.Borderless.Colored">

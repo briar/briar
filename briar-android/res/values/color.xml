@@ -8,11 +8,13 @@
 	<color name="briar_red">#C1392B</color>
 
 	<color name="window_background">#EEEEEE</color>
+	<color name="conversation_background">#efebe9</color>
 	<color name="action_bar_text">#FFFFFF</color>
 	<color name="action_bar_background">@color/briar_blue</color>
 	<color name="button_bar_background">#FFFFFF</color>
 	<color name="dashboard_background">#FFFFFF</color>
 	<color name="private_message_date">#AAAAAA</color>
+	<color name="private_message_date_inverse">#e0e0e0</color>
 	<color name="unread_background">#FFFFFF</color>
 	<color name="horizontal_border">#CCCCCC</color>
 	<color name="forums_available_background">@color/briar_gold</color>
@@ -28,6 +30,8 @@
 	<color name="briar_text_link">@color/briar_green_dark</color>
 	<color name="briar_text_primary">@color/briar_primary</color>
 	<color name="briar_text_primary_inverse">#ffffff</color>
+	<color name="briar_text_secondary">#333333</color>
+	<color name="briar_text_tertiary">#333333</color>
 
 	<!-- this is needed as preference_category_material layout uses this color as the text color -->
 	<color name="preference_fallback_accent_color">@color/briar_accent</color>

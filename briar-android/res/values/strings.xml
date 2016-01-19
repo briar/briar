@@ -141,6 +141,26 @@
 	<string name="transport_lan">Wi-Fi</string>
 	<string name="no_data">No data</string>
 	<string name="unknown_app">an unknown app</string>
+	<string name="make_introduction">Make Introduction</string>
+	<string name="introduction_activity_title">Select contact</string>
+	<string name="introduction_message_title">Introduce Contacts</string>
+	<string name="introduction_message_text">You can compose a message that will be sent to %1$s and %2$s along with your introduction:</string>
+	<string name="introduction_message_hint">Type message (optional)</string>
+	<string name="introduction_button">Make Introduction</string>
+	<string name="introduction_error">There was an error making the introduction.</string>
+	<string name="introduction_response_error">Error when responding to introduction</string>
+	<string name="introduction_warn_different_identities_title">Warning: Different Identities</string>
+	<string name="introduction_warn_different_identities_text">You are trying to introduce two contacts that you have added with different identities. This might reveal that both identities are yours.</string>
+	<string name="introduction_request_sent">You have introduced %1$s to %2$s.</string>
+	<string name="introduction_request_received">%1$s introduced you to %2$s. Do you want to add %2$s to your contact list?</string>
+	<string name="introduction_request_exists_received">%1$s introduced you to %2$s, but %2$s is already in your contact list. Since %1$s might not know that, you can still respond:</string>
+	<string name="introduction_request_answered_received">%1$s introduced you to %2$s.</string>
+	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
+	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
+	<string name="introduction_response_accepted_received">%1$s accepted to be introduced to %2$s.</string>
+	<string name="introduction_response_declined_received">%1$s declined to be introduced to %2$s.</string>
+	<string name="introduction_success_title">Introduced contact was added</string>
+	<string name="introduction_success_text">You have been successfully introduced to %1$s who was now added to your contact list.</string>
 
 	<!-- Dialogs -->
 	<string name="dialog_title_lost_password">Lost Password</string>
@@ -152,6 +172,9 @@
 	<string name="dialog_title_welcome">Welcome to Briar</string>
 	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
 	<string name="dialog_button_ok">OK</string>
+	<string name="dialog_button_introduce">Introduce</string>
+	<string name="dialog_button_accept">Accept</string>
+	<string name="dialog_button_decline">Decline</string>
 	<!-- Toolbar headers -->
 	<string name="dashboard_toolbar_header">Briar</string>
 	<string name="settings_toolbar_header">Settings</string>

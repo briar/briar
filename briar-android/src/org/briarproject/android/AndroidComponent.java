@@ -12,6 +12,9 @@ import org.briarproject.android.forum.ReadForumPostActivity;
 import org.briarproject.android.forum.ShareForumActivity;
 import org.briarproject.android.forum.WriteForumPostActivity;
 import org.briarproject.android.identity.CreateIdentityActivity;
+import org.briarproject.android.introduction.ContactChooserFragment;
+import org.briarproject.android.introduction.IntroductionActivity;
+import org.briarproject.android.introduction.IntroductionMessageFragment;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.keyagreement.ChooseIdentityFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
@@ -79,6 +82,12 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	void inject(ChooseIdentityFragment fragment);
 
 	void inject(ShowQrCodeFragment fragment);
+
+	void inject(IntroductionActivity activity);
+
+	void inject(ContactChooserFragment fragment);
+
+	void inject(IntroductionMessageFragment fragment);
 
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);

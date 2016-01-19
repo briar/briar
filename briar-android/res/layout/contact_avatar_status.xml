@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="32dp"
+	android:layout_height="32dp"
+	tools:showIn="@layout/activity_conversation">
+
+	<de.hdodenhof.circleimageview.CircleImageView
+		android:id="@+id/contactAvatar"
+		android:layout_width="30dp"
+		android:layout_height="30dp"
+		android:transitionName="avatar"
+		app:civ_border_color="@color/action_bar_text"
+		app:civ_border_width="@dimen/avatar_border_width"
+		tools:src="@drawable/ic_launcher"/>
+
+	<ImageView
+		android:id="@+id/contactStatus"
+		android:layout_width="15dp"
+		android:layout_height="15dp"
+		android:layout_gravity="bottom|right"
+		android:scaleType="fitCenter"
+		tools:src="@drawable/contact_online"
+		tools:ignore="ContentDescription"/>
+
+</FrameLayout>
