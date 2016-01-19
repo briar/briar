@@ -13,6 +13,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportAddedEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
+import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
@@ -29,7 +30,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-class KeyManagerImpl implements KeyManager, EventListener {
+class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyManagerImpl.class.getName());
@@ -55,6 +56,7 @@ class KeyManagerImpl implements KeyManager, EventListener {
 		managers = new ConcurrentHashMap<TransportId, TransportKeyManager>();
 	}
 
+	@Override
 	public boolean start() {
 		eventBus.addListener(this);
 		try {
@@ -68,6 +70,7 @@ class KeyManagerImpl implements KeyManager, EventListener {
 		return true;
 	}
 
+	@Override
 	public boolean stop() {
 		eventBus.removeListener(this);
 		return true;

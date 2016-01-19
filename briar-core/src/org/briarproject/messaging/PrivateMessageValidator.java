@@ -7,6 +7,7 @@ import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageValidator;
@@ -25,7 +26,7 @@ import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.messaging.MessagingManagerImpl.CLIENT_ID;
 
-class PrivateMessageValidator implements MessageValidator {
+class PrivateMessageValidator implements MessageValidator, Service {
 
 	private static final Logger LOG =
 			Logger.getLogger(PrivateMessageValidator.class.getName());

@@ -25,6 +25,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
@@ -46,7 +47,7 @@ import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.WARNING;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
-		EventListener {
+		Service, EventListener {
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
 	private static final int FORUM_POST_NOTIFICATION_ID = 4;
@@ -91,6 +92,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		appContext = app.getApplicationContext();
 	}
 
+	@Override
 	public boolean start() {
 		eventBus.addListener(this);
 		loadSettings();
@@ -110,6 +112,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@Override
 	public boolean stop() {
 		eventBus.removeListener(this);
 		clearNotifications();
