@@ -10,6 +10,7 @@ import org.briarproject.util.StringUtils;
 import java.io.ByteArrayInputStream;
 import java.util.Map.Entry;
 
+import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
@@ -40,7 +41,7 @@ class MetadataParserImpl implements MetadataParser {
 	}
 
 	private Object parseValue(byte[] b) throws FormatException {
-		if (b == REMOVE) return null;
+		if (b == REMOVE) return NULL_VALUE;
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Object o = parseObject(in);
 		if (in.available() > 0) throw new FormatException();
@@ -50,7 +51,7 @@ class MetadataParserImpl implements MetadataParser {
 	private Object parseObject(ByteArrayInputStream in) throws FormatException {
 		switch(in.read()) {
 			case NULL:
-				return null;
+				return NULL_VALUE;
 			case TRUE:
 				return Boolean.TRUE;
 			case FALSE:

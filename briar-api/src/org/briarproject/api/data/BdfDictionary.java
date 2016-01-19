@@ -2,10 +2,11 @@ package org.briarproject.api.data;
 
 import org.briarproject.api.FormatException;
 
-import java.util.HashMap;
+import java.util.Hashtable;
 
-// This class is not thread-safe
-public class BdfDictionary extends HashMap<String, Object> {
+public class BdfDictionary extends Hashtable<String, Object> {
+
+	public static final Object NULL_VALUE = new Object();
 
 	public Boolean getBoolean(String key) throws FormatException {
 		Object o = get(key);

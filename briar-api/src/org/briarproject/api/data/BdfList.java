@@ -2,10 +2,9 @@ package org.briarproject.api.data;
 
 import org.briarproject.api.FormatException;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
-// This class is not thread-safe
-public class BdfList extends ArrayList<Object> {
+public class BdfList extends Vector<Object> {
 
 	public Boolean getBoolean(int index) throws FormatException {
 		Object o = get(index);
