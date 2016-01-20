@@ -607,6 +607,25 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	public Metadata getGroupMetadata(GroupId g) throws DbException {
+		lock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsGroup(txn, g))
+					throw new NoSuchSubscriptionException();
+				Metadata metadata = db.getGroupMetadata(txn, g);
+				db.commitTransaction(txn);
+				return metadata;
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
 	public Collection<Group> getGroups(ClientId c) throws DbException {
 		lock.readLock().lock();
 		try {
@@ -944,6 +963,25 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				if (!db.containsTransport(txn, t))
 					throw new NoSuchTransportException();
 				db.incrementStreamCounter(txn, c, t, rotationPeriod);
+				db.commitTransaction(txn);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	public void mergeGroupMetadata(GroupId g, Metadata meta)
+			throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsGroup(txn, g))
+					throw new NoSuchSubscriptionException();
+				db.mergeGroupMetadata(txn, g, meta);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);

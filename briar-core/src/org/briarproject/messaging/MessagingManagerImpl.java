@@ -83,8 +83,14 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			db.addGroup(g);
 			db.addContactGroup(c, g);
 			db.setVisibility(g.getId(), Collections.singletonList(c));
+			// Attach the contact ID to the group
+			BdfDictionary d = new BdfDictionary();
+			d.put("contactId", c.getInt());
+			db.mergeGroupMetadata(g.getId(), metadataEncoder.encode(d));
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -141,18 +147,20 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			Metadata meta = metadataEncoder.encode(d);
 			db.addLocalMessage(m.getMessage(), CLIENT_ID, meta);
 		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public ContactId getContactId(GroupId g) throws DbException {
-		// TODO: Use metadata to attach the contact ID to the group
-		for (Contact c : db.getContacts()) {
-			Group conversation = getConversationGroup(c);
-			if (conversation.getId().equals(g)) return c.getId();
+		try {
+			BdfDictionary d = metadataParser.parse(db.getGroupMetadata(g));
+			long id = d.getInteger("contactId");
+			return new ContactId((int) id);
+		} catch (FormatException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			throw new NoSuchContactException();
 		}
-		throw new NoSuchContactException();
 	}
 
 	@Override
