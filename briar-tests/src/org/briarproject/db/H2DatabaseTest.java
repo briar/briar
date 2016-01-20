@@ -43,6 +43,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
@@ -1032,6 +1033,44 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testGroupMetadata() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group
+		db.addGroup(txn, group);
+
+		// Attach some metadata to the group
+		Metadata metadata = new Metadata();
+		metadata.put("foo", new byte[]{'b', 'a', 'r'});
+		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		db.mergeGroupMetadata(txn, groupId, metadata);
+
+		// Retrieve the metadata for the group
+		Metadata retrieved = db.getGroupMetadata(txn, groupId);
+		assertEquals(2, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+
+		// Update the metadata
+		metadata.put("foo", REMOVE);
+		metadata.put("baz", new byte[] {'q', 'u', 'x'});
+		db.mergeGroupMetadata(txn, groupId, metadata);
+
+		// Retrieve the metadata again
+		retrieved = db.getGroupMetadata(txn, groupId);
+		assertEquals(1, retrieved.size());
+		assertFalse(retrieved.containsKey("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testMessageMetadata() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -1043,22 +1082,49 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Attach some metadata to the message
 		Metadata metadata = new Metadata();
 		metadata.put("foo", new byte[]{'b', 'a', 'r'});
+		metadata.put("baz", new byte[]{'b', 'a', 'm'});
 		db.mergeMessageMetadata(txn, messageId, metadata);
 
 		// Retrieve the metadata for the message
 		Metadata retrieved = db.getMessageMetadata(txn, messageId);
-		assertEquals(1, retrieved.size());
+		assertEquals(2, retrieved.size());
 		assertTrue(retrieved.containsKey("foo"));
 		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
 
 		// Retrieve the metadata for the group
 		Map<MessageId, Metadata> all = db.getMessageMetadata(txn, groupId);
 		assertEquals(1, all.size());
 		assertTrue(all.containsKey(messageId));
 		retrieved = all.get(messageId);
-		assertEquals(1, retrieved.size());
+		assertEquals(2, retrieved.size());
 		assertTrue(retrieved.containsKey("foo"));
 		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+
+		// Update the metadata
+		metadata.put("foo", REMOVE);
+		metadata.put("baz", new byte[] {'q', 'u', 'x'});
+		db.mergeMessageMetadata(txn, messageId, metadata);
+
+		// Retrieve the metadata again
+		retrieved = db.getMessageMetadata(txn, messageId);
+		assertEquals(1, retrieved.size());
+		assertFalse(retrieved.containsKey("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+
+		// Retrieve the metadata for the group again
+		all = db.getMessageMetadata(txn, groupId);
+		assertEquals(1, all.size());
+		assertTrue(all.containsKey(messageId));
+		retrieved = all.get(messageId);
+		assertEquals(1, retrieved.size());
+		assertFalse(retrieved.containsKey("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
 
 		db.commitTransaction(txn);
 		db.close();

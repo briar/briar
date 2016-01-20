@@ -65,8 +65,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 16;
-	private static final int MIN_SCHEMA_VERSION = 16;
+	private static final int SCHEMA_VERSION = 17;
+	private static final int MIN_SCHEMA_VERSION = 17;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -106,6 +106,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " descriptor BINARY NOT NULL,"
 					+ " visibleToAll BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
+
+	private static final String CREATE_GROUP_METADATA =
+			"CREATE TABLE groupMetadata"
+					+ " (groupId HASH NOT NULL,"
+					+ " key VARCHAR NOT NULL,"
+					+ " value BINARY NOT NULL,"
+					+ " PRIMARY KEY (groupId, key),"
+					+ " FOREIGN KEY (groupId)"
+					+ " REFERENCES groups (groupId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_GROUP_VISIBILITIES =
 			"CREATE TABLE groupVisibilities"
@@ -386,6 +396,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_LOCAL_AUTHORS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
+			s.executeUpdate(insertTypeNames(CREATE_GROUP_METADATA));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
@@ -1496,16 +1507,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Metadata getGroupMetadata(Connection txn, GroupId g)
+			throws DbException {
+		return getMetadata(txn, g.getBytes(), "groupMetadata", "groupId");
+	}
+
 	public Metadata getMessageMetadata(Connection txn, MessageId m)
 			throws DbException {
+		return getMetadata(txn, m.getBytes(), "messageMetadata", "messageId");
+	}
+
+	private Metadata getMetadata(Connection txn, byte[] id, String tableName,
+			String columnName) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT key, value"
-					+ " FROM messageMetadata"
-					+ " WHERE messageId = ?";
+			String sql = "SELECT key, value FROM " + tableName
+					+ " WHERE " + columnName + " = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
+			ps.setBytes(1, id);
 			rs = ps.executeQuery();
 			Metadata metadata = new Metadata();
 			while (rs.next()) metadata.put(rs.getString(1), rs.getBytes(2));
@@ -2329,8 +2349,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void mergeGroupMetadata(Connection txn, GroupId g, Metadata meta)
+			throws DbException {
+		mergeMetadata(txn, g.getBytes(), meta, "groupMetadata", "groupId");
+	}
+
 	public void mergeMessageMetadata(Connection txn, MessageId m, Metadata meta)
 			throws DbException {
+		mergeMetadata(txn, m.getBytes(), meta, "messageMetadata", "messageId");
+	}
+
+	private void mergeMetadata(Connection txn, byte[] id, Metadata meta,
+			String tableName, String columnName) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			// Determine which keys are being removed
@@ -2342,10 +2372,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			// Delete any keys that are being removed
 			if (!removed.isEmpty()) {
-				String sql = "DELETE FROM messageMetadata"
-						+ " WHERE messageId = ? AND key = ?";
+				String sql = "DELETE FROM " + tableName
+						+ " WHERE " + columnName + " = ? AND key = ?";
 				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, m.getBytes());
+				ps.setBytes(1, id);
 				for (String key : removed) {
 					ps.setString(2, key);
 					ps.addBatch();
@@ -2361,10 +2391,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			if (retained.isEmpty()) return;
 			// Update any keys that already exist
-			String sql = "UPDATE messageMetadata SET value = ?"
-					+ " WHERE messageId = ? AND key = ?";
+			String sql = "UPDATE " + tableName + " SET value = ?"
+					+ " WHERE " + columnName + " = ? AND key = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(2, m.getBytes());
+			ps.setBytes(2, id);
 			for (Entry<String, byte[]> e : retained.entrySet()) {
 				ps.setBytes(1, e.getValue());
 				ps.setString(3, e.getKey());
@@ -2378,10 +2408,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (batchAffected[i] > 1) throw new DbStateException();
 			}
 			// Insert any keys that don't already exist
-			sql = "INSERT INTO messageMetadata (messageId, key, value)"
+			sql = "INSERT INTO " + tableName
+					+ " (" + columnName + ", key, value)"
 					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
+			ps.setBytes(1, id);
 			int updateIndex = 0, inserted = 0;
 			for (Entry<String, byte[]> e : retained.entrySet()) {
 				if (batchAffected[updateIndex] == 0) {

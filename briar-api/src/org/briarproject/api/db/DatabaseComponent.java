@@ -158,6 +158,9 @@ public interface DatabaseComponent {
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
+	/** Returns the metadata for the given group. */
+	Metadata getGroupMetadata(GroupId g) throws DbException;
+
 	/**
 	 * Returns all groups belonging to the given client to which the user
 	 * subscribes.
@@ -233,6 +236,12 @@ public interface DatabaseComponent {
 	 */
 	void incrementStreamCounter(ContactId c, TransportId t, long rotationPeriod)
 			throws DbException;
+
+	/**
+	 * Merges the given metadata with the existing metadata for the given
+	 * group.
+	 */
+	void mergeGroupMetadata(GroupId g, Metadata meta) throws DbException;
 
 	/**
 	 * Merges the given properties with the existing local properties for the

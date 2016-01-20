@@ -533,11 +533,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the subscription is in the DB (which it's not)
-			exactly(5).of(database).startTransaction();
+			exactly(7).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(5).of(database).containsGroup(txn, groupId);
+			exactly(7).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			exactly(5).of(database).abortTransaction(txn);
+			exactly(7).of(database).abortTransaction(txn);
 			// This is needed for getMessageStatus() to proceed
 			exactly(1).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -553,6 +553,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		}
 
 		try {
+			db.getGroupMetadata(groupId);
+			fail();
+		} catch (NoSuchSubscriptionException expected) {
+			// Expected
+		}
+
+		try {
 			db.getMessageStatus(contactId, groupId);
 			fail();
 		} catch (NoSuchSubscriptionException expected) {
@@ -561,6 +568,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.getVisibility(groupId);
+			fail();
+		} catch (NoSuchSubscriptionException expected) {
+			// Expected
+		}
+
+		try {
+			db.mergeGroupMetadata(groupId, metadata);
 			fail();
 		} catch (NoSuchSubscriptionException expected) {
 			// Expected

@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-// FIXME: Document the preconditions for calling each method
-
 /**
  * A low-level interface to the database (DatabaseComponent provides a
  * high-level interface). Most operations take a transaction argument, which is
@@ -276,6 +274,13 @@ interface Database<T> {
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns the metadata for the given group.
+	 * <p>
+	 * Locking: read.
+	 */
+	Metadata getGroupMetadata(T txn, GroupId g) throws DbException;
+
+	/**
 	 * Returns all groups belonging to the given client to which the user
 	 * subscribes.
 	 * <p>
@@ -513,6 +518,15 @@ interface Database<T> {
 	 * Locking: write.
 	 */
 	void lowerRequestedFlag(T txn, ContactId c, Collection<MessageId> requested)
+			throws DbException;
+
+	/*
+	 * Merges the given metadata with the existing metadata for the given
+	 * group.
+	 * <p>
+	 * Locking: write.
+	 */
+	void mergeGroupMetadata(T txn, GroupId g, Metadata meta)
 			throws DbException;
 
 	/**
