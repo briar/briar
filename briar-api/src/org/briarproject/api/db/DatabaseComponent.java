@@ -152,6 +152,9 @@ public interface DatabaseComponent {
 	/** Returns all contacts. */
 	Collection<Contact> getContacts() throws DbException;
 
+	/** Returns all contacts associated with the given local pseudonym. */
+	Collection<ContactId> getContacts(AuthorId a) throws DbException;
+
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
@@ -299,6 +302,10 @@ public interface DatabaseComponent {
 
 	/** Sets the status of the given contact. */
 	void setContactStatus(ContactId c, Contact.Status s) throws DbException;
+
+	/** Sets the status of the given local pseudonym. */
+	void setLocalAuthorStatus(AuthorId a, LocalAuthor.Status s)
+		throws DbException;
 
 	/** Marks the given message as valid or invalid. */
 	void setMessageValidity(Message m, ClientId c, boolean valid)

@@ -123,7 +123,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, MAX_LATENCY);
 		// Add an identity for Alice
 		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], timestamp);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
+				LocalAuthor.Status.ADDING);
 		identityManager.addLocalAuthor(aliceAuthor);
 		// Add Bob as a contact
 		Author bobAuthor = new Author(bobId, "Bob",
@@ -188,7 +189,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, MAX_LATENCY);
 		// Add an identity for Bob
 		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], timestamp);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
+				LocalAuthor.Status.ADDING);
 		identityManager.addLocalAuthor(bobAuthor);
 		// Add Alice as a contact
 		Author aliceAuthor = new Author(aliceId, "Alice",

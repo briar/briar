@@ -16,10 +16,7 @@ import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.LocalAuthorAddedEvent;
-import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
@@ -218,7 +215,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		eventBus.broadcast(new LocalAuthorAddedEvent(a.getId()));
 	}
 
 	public void addLocalMessage(Message m, ClientId c, Metadata meta)
@@ -561,6 +557,25 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			T txn = db.startTransaction();
 			try {
 				Collection<Contact> contacts = db.getContacts(txn);
+				db.commitTransaction(txn);
+				return contacts;
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
+	public Collection<ContactId> getContacts(AuthorId a) throws DbException {
+		lock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsLocalAuthor(txn, a))
+					throw new NoSuchLocalAuthorException();
+				Collection<ContactId> contacts = db.getContacts(txn, a);
 				db.commitTransaction(txn);
 				return contacts;
 			} catch (DbException e) {
@@ -1242,14 +1257,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	public void removeLocalAuthor(AuthorId a) throws DbException {
-		Collection<ContactId> affected;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
 				if (!db.containsLocalAuthor(txn, a))
 					throw new NoSuchLocalAuthorException();
-				affected = db.getContacts(txn, a);
 				db.removeLocalAuthor(txn, a);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
@@ -1259,9 +1272,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		for (ContactId c : affected)
-			eventBus.broadcast(new ContactRemovedEvent(c));
-		eventBus.broadcast(new LocalAuthorRemovedEvent(a));
 	}
 
 	public void removeTransport(TransportId t) throws DbException {
@@ -1292,6 +1302,25 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				if (!db.containsContact(txn, c))
 					throw new NoSuchContactException();
 				db.setContactStatus(txn, c, s);
+				db.commitTransaction(txn);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	public void setLocalAuthorStatus(AuthorId a, LocalAuthor.Status s)
+			throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsLocalAuthor(txn, a))
+					throw new NoSuchLocalAuthorException();
+				db.setLocalAuthorStatus(txn, a, s);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);

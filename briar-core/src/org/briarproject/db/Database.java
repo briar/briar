@@ -334,7 +334,7 @@ interface Database<T> {
 	 * Locking: read
 	 */
 	Collection<MessageStatus> getMessageStatus(T txn, ContactId c, GroupId g)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns the status of the given message with respect to the given
@@ -343,7 +343,7 @@ interface Database<T> {
 	 * Locking: read
 	 */
 	MessageStatus getMessageStatus(T txn, ContactId c, MessageId m)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns the IDs of some messages received from the given contact that
@@ -388,7 +388,7 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns the message with the given ID, in serialised form.
@@ -637,6 +637,14 @@ interface Database<T> {
 	 * Locking: write.
 	 */
 	void setContactStatus(T txn, ContactId c, Contact.Status s)
+			throws DbException;
+
+	/**
+	 * Sets the status of the given local pseudonym.
+	 * <p>
+	 * Locking: write.
+	 */
+	void setLocalAuthorStatus(T txn, AuthorId a, LocalAuthor.Status s)
 			throws DbException;
 
 	/**

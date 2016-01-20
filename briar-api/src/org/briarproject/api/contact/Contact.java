@@ -61,7 +61,6 @@ public class Contact {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof Contact) return id.equals(((Contact) o).id);
-		return false;
+		return o instanceof Contact && id.equals(((Contact) o).id);
 	}
 }

@@ -64,8 +64,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 15;
-	private static final int MIN_SCHEMA_VERSION = 15;
+	private static final int SCHEMA_VERSION = 16;
+	private static final int MIN_SCHEMA_VERSION = 16;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -81,6 +81,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " publicKey BINARY NOT NULL,"
 					+ " privateKey BINARY NOT NULL,"
 					+ " created BIGINT NOT NULL,"
+					+ " status INT NOT NULL,"
 					+ " PRIMARY KEY (authorId))";
 
 	private static final String CREATE_CONTACTS =
@@ -719,15 +720,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO localAuthors"
-					+ " (authorId, name, publicKey, privateKey, created)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO localAuthors (authorId, name, publicKey,"
+					+ " privateKey, created, status)"
+					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getId().getBytes());
 			ps.setString(2, a.getName());
 			ps.setBytes(3, a.getPublicKey());
 			ps.setBytes(4, a.getPrivateKey());
 			ps.setLong(5, a.getTimeCreated());
+			ps.setInt(6, a.getStatus().getValue());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1345,7 +1347,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, publicKey, privateKey, created"
+			String sql = "SELECT name, publicKey, privateKey, created, status"
 					+ " FROM localAuthors"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1356,8 +1358,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] publicKey = rs.getBytes(2);
 			byte[] privateKey = rs.getBytes(3);
 			long created = rs.getLong(4);
+			LocalAuthor.Status status = LocalAuthor.Status.fromValue(
+					rs.getInt(5));
 			LocalAuthor localAuthor = new LocalAuthor(a, name, publicKey,
-					privateKey, created);
+					privateKey, created, status);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -1374,7 +1378,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, privateKey, created"
+			String sql = "SELECT authorId, name, publicKey, privateKey,"
+					+ " created, status"
 					+ " FROM localAuthors";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1385,8 +1390,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(3);
 				byte[] privateKey = rs.getBytes(4);
 				long created = rs.getLong(5);
+				LocalAuthor.Status status = LocalAuthor.Status.fromValue(
+						rs.getInt(6));
 				authors.add(new LocalAuthor(authorId, name, publicKey,
-						privateKey, created));
+						privateKey, created, status));
 			}
 			rs.close();
 			ps.close();
@@ -2398,7 +2405,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void mergeSettings(Connection txn, Settings s, String namespace) throws DbException {
+	public void mergeSettings(Connection txn, Settings s, String namespace)
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			// Update any settings that already exist
@@ -2703,6 +2711,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, s.getValue());
 			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setLocalAuthorStatus(Connection txn, AuthorId a,
+			LocalAuthor.Status s) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE localAuthors SET status = ?"
+					+ " WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, s.getValue());
+			ps.setBytes(2, a.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

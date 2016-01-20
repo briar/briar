@@ -3,6 +3,7 @@ package org.briarproject.db;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseConfig;
 import org.briarproject.TestUtils;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
@@ -21,7 +22,6 @@ import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
-import org.briarproject.api.Settings;
 import org.briarproject.system.SystemClock;
 import org.junit.After;
 import org.junit.Before;
@@ -80,10 +80,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
-		localAuthor = new LocalAuthor(localAuthorId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
-		messageId = new MessageId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
+		localAuthor = new LocalAuthor(localAuthorId, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
+				LocalAuthor.Status.ACTIVE);
+		messageId = new MessageId(TestUtils.getRandomId());
 		size = 1234;
 		raw = new byte[size];
 		random.nextBytes(raw);
@@ -94,7 +95,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Before
 	public void setUp() {
-		testDir.mkdirs();
+		assertTrue(testDir.mkdirs());
 	}
 
 	@Test

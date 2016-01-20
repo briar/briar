@@ -2,7 +2,6 @@ package org.briarproject.db;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
-import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
@@ -17,8 +16,6 @@ import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.LocalAuthorAddedEvent;
-import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
@@ -57,7 +54,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.briarproject.api.contact.Contact.Status.ACTIVE;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
@@ -97,11 +93,12 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
+		long timestamp = System.currentTimeMillis();
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
+				LocalAuthor.Status.ACTIVE);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
-		long timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
 		message = new Message(messageId, groupId, timestamp, raw);
@@ -112,7 +109,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				"bar", "baz"));
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, localAuthorId, ACTIVE);
+		contact = new Contact(contactId, author, localAuthorId,
+				Contact.Status.ACTIVE);
 	}
 
 	private <T> DatabaseComponent createDatabaseComponent(Database<T> database,
@@ -141,7 +139,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
 			oneOf(database).containsContact(txn, authorId);
 			will(returnValue(false));
@@ -184,10 +181,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// removeLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
-			oneOf(database).getContacts(txn, localAuthorId);
-			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeLocalAuthor(txn, localAuthorId);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorRemovedEvent.class)));
 			// close()
 			oneOf(shutdown).removeShutdownHook(shutdownHandle);
 			oneOf(database).close();
@@ -657,7 +651,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
 			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));

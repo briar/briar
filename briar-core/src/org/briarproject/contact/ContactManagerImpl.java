@@ -13,6 +13,7 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.IdentityManager.IdentityRemovedHook;
 import org.briarproject.api.lifecycle.Service;
 
 import java.util.ArrayList;
@@ -27,7 +28,8 @@ import static org.briarproject.api.contact.Contact.Status.ACTIVE;
 import static org.briarproject.api.contact.Contact.Status.ADDING;
 import static org.briarproject.api.contact.Contact.Status.REMOVING;
 
-class ContactManagerImpl implements ContactManager, Service {
+class ContactManagerImpl implements ContactManager, Service,
+		IdentityRemovedHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactManagerImpl.class.getName());
@@ -117,5 +119,15 @@ class ContactManagerImpl implements ContactManager, Service {
 		for (ContactRemovedHook hook : removeHooks) hook.contactRemoved(c);
 		db.removeContact(c);
 		eventBus.broadcast(new ContactRemovedEvent(c));
+	}
+
+	@Override
+	public void identityRemoved(AuthorId a) {
+		// Remove any contacts of the local pseudonym that's being removed
+		try {
+			for (ContactId c : db.getContacts(a)) removeContact(c);
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
 	}
 }

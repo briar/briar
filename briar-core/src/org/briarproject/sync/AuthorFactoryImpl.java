@@ -14,6 +14,8 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.identity.LocalAuthor.Status.ADDING;
+
 class AuthorFactoryImpl implements AuthorFactory {
 
 	private final CryptoComponent crypto;
@@ -35,7 +37,7 @@ class AuthorFactoryImpl implements AuthorFactory {
 	public LocalAuthor createLocalAuthor(String name, byte[] publicKey,
 			byte[] privateKey) {
 		return new LocalAuthor(getId(name, publicKey), name, publicKey,
-				privateKey, clock.currentTimeMillis());
+				privateKey, clock.currentTimeMillis(), ADDING);
 	}
 
 	private AuthorId getId(String name, byte[] publicKey) {
