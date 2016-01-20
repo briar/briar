@@ -190,7 +190,7 @@ public interface DatabaseComponent {
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
 			throws DbException;
 
-	/** Returns all settings for a given namespace. */
+	/** Returns all settings in the given namespace. */
 	Settings getSettings(String namespace) throws DbException;
 
 	/** Returns all contacts who subscribe to the given group. */
@@ -223,7 +223,10 @@ public interface DatabaseComponent {
 	void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException;
 
-	/** Merges the given settings with the existing settings. */
+	/**
+	 * Merges the given settings with the existing settings in the given
+	 * namespace.
+	 */
 	void mergeSettings(Settings s, String namespace) throws DbException;
 
 	/** Processes an ack from the given contact. */

@@ -1,20 +1,16 @@
 package org.briarproject.api.settings;
 
-import org.briarproject.api.db.DbException;
 import org.briarproject.api.Settings;
+import org.briarproject.api.db.DbException;
 
 public interface SettingsManager {
 
-	/**
-	* Returns the settings object identified by the provided namespace
-	* string
-	*/
+	/** Returns all settings in the given namespace. */
 	Settings getSettings(String namespace) throws DbException;
 
 	/**
-	* Merges (read syncs) the provided settings identified by the provided namespace
-	* string
-	*/
+	 * Merges the given settings with the existing settings in the given
+	 * namespace.
+	 */
 	void mergeSettings(Settings s, String namespace) throws DbException;
-
 }

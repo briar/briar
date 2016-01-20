@@ -23,14 +23,13 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.Settings;
-import org.briarproject.api.settings.SettingsManager;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
@@ -263,8 +262,8 @@ OnClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					settings = settingsManager.getSettings("settings-activity");
 					long now = System.currentTimeMillis();
+					settings = settingsManager.getSettings("settings-activity");
 					Settings btSettings = settingsManager.getSettings("bt");
 					Settings torSettings = settingsManager.getSettings("tor");
 					long duration = System.currentTimeMillis() - now;
@@ -335,7 +334,7 @@ OnClickListener {
 			if (adapter != null) {
 				AndroidUtils.setBluetooth(adapter, bluetoothSetting);
 			}
-			storeBluetoothSetting();
+			storeBluetoothSettings();
 			displaySettings();
 		} else if (view == torOverWifi || view == torOverWifiHint) {
 			torSetting = !torSetting;
@@ -385,7 +384,7 @@ OnClickListener {
 					settingsManager.mergeSettings(s, "tor");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Merging config took " + duration + " ms");
+						LOG.info("Merging settings took " + duration + " ms");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -394,7 +393,7 @@ OnClickListener {
 		});
 	}
 
-	private void storeBluetoothSetting() {
+	private void storeBluetoothSettings() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -404,7 +403,7 @@ OnClickListener {
 					settingsManager.mergeSettings(s, "bt");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Merging config took " + duration + " ms");
+						LOG.info("Merging settings took " + duration + " ms");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

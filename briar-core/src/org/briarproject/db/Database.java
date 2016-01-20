@@ -411,7 +411,7 @@ interface Database<T> {
 			int maxLength) throws DbException;
 
 	/**
-	 * Returns all settings that belong to a namespace.
+	 * Returns all settings in the given namespace.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -526,11 +526,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Merges the given settings with the existing settings.
+	 * Merges the given settings with the existing settings in the given
+	 * namespace.
 	 * <p>
 	 * Locking: write.
 	 */
-	void mergeSettings(T txn, Settings s, String Namespace) throws DbException;
+	void mergeSettings(T txn, Settings s, String namespace) throws DbException;
 
 	/**
 	 * Marks a message as needing to be acknowledged to the given contact.
