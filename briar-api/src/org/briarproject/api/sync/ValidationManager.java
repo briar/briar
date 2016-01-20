@@ -27,5 +27,5 @@ public interface ValidationManager {
 	}
 
 	/** Sets the message validator for the given client. */
-	void setMessageValidator(ClientId c, MessageValidator v);
+	void registerMessageValidator(ClientId c, MessageValidator v);
 }

@@ -13,6 +13,7 @@ import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
+import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -29,7 +30,8 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
-class ValidationManagerImpl implements ValidationManager, EventListener {
+class ValidationManagerImpl implements ValidationManager, Service,
+		EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ValidationManagerImpl.class.getName());
@@ -50,9 +52,19 @@ class ValidationManagerImpl implements ValidationManager, EventListener {
 	}
 
 	@Override
-	public void setMessageValidator(ClientId c, MessageValidator v) {
+	public boolean start() {
+		for (ClientId c : validators.keySet()) getMessagesToValidate(c);
+		return true;
+	}
+
+	@Override
+	public boolean stop() {
+		return true;
+	}
+
+	@Override
+	public void registerMessageValidator(ClientId c, MessageValidator v) {
 		validators.put(c, v);
-		getMessagesToValidate(c);
 	}
 
 	private void getMessagesToValidate(final ClientId c) {

@@ -7,6 +7,7 @@ import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
@@ -48,8 +49,9 @@ public class SyncModule extends AbstractModule {
 	}
 
 	@Provides @Singleton
-	ValidationManager getValidationManager(EventBus eventBus,
-			ValidationManagerImpl validationManager) {
+	ValidationManager getValidationManager(LifecycleManager lifecycleManager,
+			EventBus eventBus, ValidationManagerImpl validationManager) {
+		lifecycleManager.register(validationManager);
 		eventBus.addListener(validationManager);
 		return validationManager;
 	}

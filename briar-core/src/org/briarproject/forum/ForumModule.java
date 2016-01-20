@@ -34,7 +34,7 @@ public class ForumModule extends AbstractModule {
 		ForumPostValidator validator = new ForumPostValidator(crypto,
 				bdfReaderFactory, bdfWriterFactory, authorReader,
 				metadataEncoder, clock);
-		validationManager.setMessageValidator(forumManager.getClientId(),
+		validationManager.registerMessageValidator(forumManager.getClientId(),
 				validator);
 		return validator;
 	}

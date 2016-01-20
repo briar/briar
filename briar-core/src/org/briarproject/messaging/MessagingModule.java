@@ -27,7 +27,8 @@ public class MessagingModule extends AbstractModule {
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
 				bdfReaderFactory, metadataEncoder, clock);
-		validationManager.setMessageValidator(messagingManager.getClientId(),
+		validationManager.registerMessageValidator(
+				messagingManager.getClientId(),
 				validator);
 		return validator;
 	}
