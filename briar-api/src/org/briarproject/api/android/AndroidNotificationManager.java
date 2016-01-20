@@ -1,10 +1,9 @@
 package org.briarproject.api.android;
 
-import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.GroupId;
 
 /** Manages notifications for private messages and forum posts. */
-public interface AndroidNotificationManager extends Service {
+public interface AndroidNotificationManager {
 
 	void showPrivateMessageNotification(GroupId g);
 

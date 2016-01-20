@@ -6,6 +6,12 @@ import java.util.Collection;
 
 public interface IdentityManager {
 
+	/** Registers a hook to be called whenever a local pseudonym is added. */
+	void registerAddIdentityHook(AddIdentityHook hook);
+
+	/** Registers a hook to be called whenever a local pseudonym is removed. */
+	void registerRemoveIdentityHook(RemoveIdentityHook hook);
+
 	/** Stores a local pseudonym. */
 	void addLocalAuthor(LocalAuthor a) throws DbException;
 
@@ -17,4 +23,12 @@ public interface IdentityManager {
 
 	/** Removes a local pseudonym and all associated state. */
 	void removeLocalAuthor(AuthorId a) throws DbException;
+
+	interface AddIdentityHook {
+		void addingIdentity(AuthorId a);
+	}
+
+	interface RemoveIdentityHook {
+		void removingIdentity(AuthorId a);
+	}
 }

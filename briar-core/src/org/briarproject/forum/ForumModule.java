@@ -11,7 +11,6 @@ import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
@@ -26,16 +25,17 @@ public class ForumModule extends AbstractModule {
 	}
 
 	@Provides @Singleton
-	ForumPostValidator getValidator(LifecycleManager lifecycleManager,
-			CryptoComponent crypto, ValidationManager validationManager,
+	ForumPostValidator getValidator(ValidationManager validationManager,
+			ForumManager forumManager, CryptoComponent crypto,
 			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory,
 			ObjectReader<Author> authorReader, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		ForumPostValidator validator = new ForumPostValidator(crypto,
-				validationManager, bdfReaderFactory, bdfWriterFactory,
-				authorReader, metadataEncoder, clock);
-		lifecycleManager.register(validator);
+				bdfReaderFactory, bdfWriterFactory, authorReader,
+				metadataEncoder, clock);
+		validationManager.setMessageValidator(forumManager.getClientId(),
+				validator);
 		return validator;
 	}
 }

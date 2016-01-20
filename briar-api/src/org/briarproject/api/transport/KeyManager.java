@@ -3,7 +3,6 @@ package org.briarproject.api.transport;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.lifecycle.Service;
 
 import java.util.Collection;
 
@@ -11,7 +10,7 @@ import java.util.Collection;
  * Responsible for managing transport keys and recognising the pseudo-random
  * tags of incoming streams.
  */
-public interface KeyManager extends Service {
+public interface KeyManager {
 
 	/**
 	 * Informs the key manager that a new contact has been added. Derives and

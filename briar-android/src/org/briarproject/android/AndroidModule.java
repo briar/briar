@@ -1,23 +1,24 @@
 package org.briarproject.android;
 
-import static android.content.Context.MODE_PRIVATE;
+import android.app.Application;
 
-import java.io.File;
-
-import javax.inject.Singleton;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.ui.UiCallback;
 
-import android.app.Application;
+import java.io.File;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import javax.inject.Singleton;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class AndroidModule extends AbstractModule {
 
@@ -81,9 +82,10 @@ public class AndroidModule extends AbstractModule {
 
 	@Provides @Singleton
 	AndroidNotificationManager getAndroidNotificationManager(
-			LifecycleManager lifecycleManager,
+			LifecycleManager lifecycleManager, EventBus eventBus,
 			AndroidNotificationManagerImpl notificationManager) {
 		lifecycleManager.register(notificationManager);
+		eventBus.addListener(notificationManager);
 		return notificationManager;
 	}
 }

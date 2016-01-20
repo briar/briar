@@ -1,9 +1,8 @@
 package org.briarproject.api.sync;
 
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.lifecycle.Service;
 
-public interface MessageValidator extends Service {
+public interface MessageValidator {
 
 	/**
 	 * Validates the given message and returns its metadata if the message

@@ -11,7 +11,6 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.sync.ClientId;
@@ -38,30 +37,16 @@ class ValidationManagerImpl implements ValidationManager, EventListener {
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final Executor cryptoExecutor;
-	private final EventBus eventBus;
 	private final Map<ClientId, MessageValidator> validators;
 
 	@Inject
 	ValidationManagerImpl(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus) {
+			@CryptoExecutor Executor cryptoExecutor) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
-		this.eventBus = eventBus;
 		validators = new ConcurrentHashMap<ClientId, MessageValidator>();
-	}
-
-	@Override
-	public boolean start() {
-		eventBus.addListener(this);
-		return true;
-	}
-
-	@Override
-	public boolean stop() {
-		eventBus.removeListener(this);
-		return true;
 	}
 
 	@Override

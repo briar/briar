@@ -9,6 +9,7 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbClosedException;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -51,7 +52,11 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.Metadata.REMOVE;
+import static org.briarproject.api.db.StorageStatus.ADDING;
 import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
+import static org.briarproject.api.sync.ValidationManager.Status.INVALID;
+import static org.briarproject.api.sync.ValidationManager.Status.UNKNOWN;
+import static org.briarproject.api.sync.ValidationManager.Status.VALID;
 import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
 
 /**
@@ -60,12 +65,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 14;
-	private static final int MIN_SCHEMA_VERSION = 14;
-
-	private static final int VALIDATION_UNKNOWN = 0;
-	private static final int VALIDATION_INVALID = 1;
-	private static final int VALIDATION_VALID = 2;
+	private static final int SCHEMA_VERSION = 16;
+	private static final int MIN_SCHEMA_VERSION = 16;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -81,6 +82,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " publicKey BINARY NOT NULL,"
 					+ " privateKey BINARY NOT NULL,"
 					+ " created BIGINT NOT NULL,"
+					+ " status INT NOT NULL,"
 					+ " PRIMARY KEY (authorId))";
 
 	private static final String CREATE_CONTACTS =
@@ -90,6 +92,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " name VARCHAR NOT NULL,"
 					+ " publicKey BINARY NOT NULL,"
 					+ " localAuthorId HASH NOT NULL,"
+					+ " status INT NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " UNIQUE (authorId),"
 					+ " FOREIGN KEY (localAuthorId)"
@@ -533,13 +536,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
-					+ " (authorId, name, publicKey, localAuthorId)"
-					+ " VALUES (?, ?, ?, ?)";
+					+ " (authorId, name, publicKey, localAuthorId, status)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setString(2, remote.getName());
 			ps.setBytes(3, remote.getPublicKey());
 			ps.setBytes(4, local.getBytes());
+			ps.setInt(5, ADDING.getValue());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -717,15 +721,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO localAuthors"
-					+ " (authorId, name, publicKey, privateKey, created)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO localAuthors (authorId, name, publicKey,"
+					+ " privateKey, created, status)"
+					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getId().getBytes());
 			ps.setString(2, a.getName());
 			ps.setBytes(3, a.getPublicKey());
 			ps.setBytes(4, a.getPrivateKey());
 			ps.setLong(5, a.getTimeCreated());
+			ps.setInt(6, a.getStatus().getValue());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -747,7 +752,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(2, m.getGroupId().getBytes());
 			ps.setLong(3, m.getTimestamp());
 			ps.setBoolean(4, local);
-			ps.setInt(5, local ? VALIDATION_VALID : VALIDATION_UNKNOWN);
+			ps.setInt(5, local ? VALID.getValue() : UNKNOWN.getValue());
 			byte[] raw = m.getRaw();
 			ps.setInt(6, raw.length);
 			ps.setBytes(7, raw);
@@ -1192,7 +1197,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, localAuthorId"
+			String sql = "SELECT authorId, name, publicKey, localAuthorId,"
+					+ " status"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1203,10 +1209,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
+			StorageStatus status = StorageStatus.fromValue(rs.getInt(5));
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, localAuthorId);
+			return new Contact(c, author, localAuthorId, status);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1240,7 +1247,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, name, publicKey,"
-					+ " localAuthorId"
+					+ " localAuthorId, status"
 					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1252,7 +1259,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(4);
 				Author author = new Author(authorId, name, publicKey);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				contacts.add(new Contact(contactId, author, localAuthorId));
+				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
+				contacts.add(new Contact(contactId, author, localAuthorId,
+						status));
 			}
 			rs.close();
 			ps.close();
@@ -1339,7 +1348,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, publicKey, privateKey, created"
+			String sql = "SELECT name, publicKey, privateKey, created, status"
 					+ " FROM localAuthors"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1350,8 +1359,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] publicKey = rs.getBytes(2);
 			byte[] privateKey = rs.getBytes(3);
 			long created = rs.getLong(4);
+			StorageStatus status = StorageStatus.fromValue(rs.getInt(5));
 			LocalAuthor localAuthor = new LocalAuthor(a, name, publicKey,
-					privateKey, created);
+					privateKey, created, status);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -1368,7 +1378,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, privateKey, created"
+			String sql = "SELECT authorId, name, publicKey, privateKey,"
+					+ " created, status"
 					+ " FROM localAuthors";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1379,8 +1390,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(3);
 				byte[] privateKey = rs.getBytes(4);
 				long created = rs.getLong(5);
+				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
 				authors.add(new LocalAuthor(authorId, name, publicKey,
-						privateKey, created));
+						privateKey, created, status));
 			}
 			rs.close();
 			ps.close();
@@ -1612,7 +1624,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, VALIDATION_VALID);
+			ps.setInt(2, VALID.getValue());
 			ps.setLong(3, now);
 			ps.setInt(4, maxMessages);
 			rs = ps.executeQuery();
@@ -1674,7 +1686,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, VALIDATION_VALID);
+			ps.setInt(2, VALID.getValue());
 			ps.setLong(3, now);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
@@ -1704,7 +1716,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groups AS g ON m.groupId = g.groupId"
 					+ " WHERE valid = ? AND clientId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, VALIDATION_UNKNOWN);
+			ps.setInt(1, UNKNOWN.getValue());
 			ps.setBytes(2, c.getBytes());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
@@ -1799,7 +1811,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, VALIDATION_VALID);
+			ps.setInt(2, VALID.getValue());
 			ps.setLong(3, now);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
@@ -1846,7 +1858,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT c.contactId, authorId, c.name, publicKey,"
-					+ " localAuthorId"
+					+ " localAuthorId, status"
 					+ " FROM contacts AS c"
 					+ " JOIN contactGroups AS cg"
 					+ " ON c.contactId = cg.contactId"
@@ -1862,7 +1874,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(4);
 				Author author = new Author(authorId, name, publicKey);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				contacts.add(new Contact(contactId, author, localAuthorId));
+				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
+				contacts.add(new Contact(contactId, author, localAuthorId,
+						status));
 			}
 			rs.close();
 			ps.close();
@@ -2390,7 +2404,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void mergeSettings(Connection txn, Settings s, String namespace) throws DbException {
+	public void mergeSettings(Connection txn, Settings s, String namespace)
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			// Update any settings that already exist
@@ -2687,13 +2702,48 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void setContactStatus(Connection txn, ContactId c, StorageStatus s)
+		throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE contacts SET status = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, s.getValue());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setLocalAuthorStatus(Connection txn, AuthorId a,
+			StorageStatus s) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE localAuthors SET status = ?"
+					+ " WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, s.getValue());
+			ps.setBytes(2, a.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void setMessageValidity(Connection txn, MessageId m, boolean valid)
 		throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE messages SET valid = ? WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, valid ? VALIDATION_VALID : VALIDATION_INVALID);
+			ps.setInt(1, valid ? VALID.getValue() : INVALID.getValue());
 			ps.setBytes(2, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();

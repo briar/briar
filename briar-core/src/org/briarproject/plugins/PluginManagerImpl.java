@@ -10,6 +10,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.lifecycle.IoExecutor;
+import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
@@ -46,7 +47,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-class PluginManagerImpl implements PluginManager {
+class PluginManagerImpl implements PluginManager, Service {
 
 	private static final Logger LOG =
 			Logger.getLogger(PluginManagerImpl.class.getName());
@@ -88,6 +89,7 @@ class PluginManagerImpl implements PluginManager {
 		duplexPlugins = new CopyOnWriteArrayList<DuplexPlugin>();
 	}
 
+	@Override
 	public boolean start() {
 		// Instantiate and start the simplex plugins
 		LOG.info("Starting simplex plugins");
@@ -115,6 +117,7 @@ class PluginManagerImpl implements PluginManager {
 		return true;
 	}
 
+	@Override
 	public boolean stop() {
 		// Stop the poller
 		LOG.info("Stopping poller");

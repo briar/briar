@@ -35,11 +35,13 @@ import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.TransportUpdate;
+import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.forum.ForumModule;
+import org.briarproject.identity.IdentityModule;
 import org.briarproject.messaging.MessagingModule;
 import org.junit.Test;
 
@@ -63,6 +65,8 @@ import static org.junit.Assert.assertTrue;
 
 public class ConstantsTest extends BriarTestCase {
 
+	// TODO: Break this up into tests that are relevant for each package
+
 	private final CryptoComponent crypto;
 	private final GroupFactory groupFactory;
 	private final AuthorFactory authorFactory;
@@ -73,9 +77,9 @@ public class ConstantsTest extends BriarTestCase {
 	public ConstantsTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
-				new CryptoModule(), new DatabaseModule(), new DataModule(),
-				new EventModule(), new ForumModule(), new MessagingModule(),
-				new SyncModule());
+				new ContactModule(), new CryptoModule(), new DatabaseModule(),
+				new DataModule(), new EventModule(), new ForumModule(),
+				new IdentityModule(), new MessagingModule(), new SyncModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);

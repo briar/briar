@@ -7,6 +7,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -334,7 +335,7 @@ interface Database<T> {
 	 * Locking: read
 	 */
 	Collection<MessageStatus> getMessageStatus(T txn, ContactId c, GroupId g)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns the status of the given message with respect to the given
@@ -343,7 +344,7 @@ interface Database<T> {
 	 * Locking: read
 	 */
 	MessageStatus getMessageStatus(T txn, ContactId c, MessageId m)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns the IDs of some messages received from the given contact that
@@ -388,7 +389,7 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns the message with the given ID, in serialised form.
@@ -631,7 +632,27 @@ interface Database<T> {
 	 */
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
-	/** Marks the given message as valid or invalid. */
+	/**
+	 * Sets the status of the given contact.
+	 * <p>
+	 * Locking: write.
+	 */
+	void setContactStatus(T txn, ContactId c, StorageStatus s)
+			throws DbException;
+
+	/**
+	 * Sets the status of the given local pseudonym.
+	 * <p>
+	 * Locking: write.
+	 */
+	void setLocalAuthorStatus(T txn, AuthorId a, StorageStatus s)
+			throws DbException;
+
+	/**
+	 * Marks the given message as valid or invalid.
+	 * <p>
+	 * Locking: write.
+	 */
 	void setMessageValidity(T txn, MessageId m, boolean valid)
 			throws DbException;
 

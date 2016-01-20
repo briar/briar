@@ -20,11 +20,11 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
@@ -46,7 +46,7 @@ import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.WARNING;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
-		EventListener {
+		Service, EventListener {
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
 	private static final int FORUM_POST_NOTIFICATION_ID = 4;
@@ -60,7 +60,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
-	private final EventBus eventBus;
 	private final MessagingManager messagingManager;
 	private final ForumManager forumManager;
 	private final AndroidExecutor androidExecutor;
@@ -79,20 +78,19 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Inject
 	public AndroidNotificationManagerImpl(DatabaseComponent db,
-			@DatabaseExecutor Executor dbExecutor, EventBus eventBus,
+			@DatabaseExecutor Executor dbExecutor,
 			MessagingManager messagingManager, ForumManager forumManager,
 			AndroidExecutor androidExecutor, Application app) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
-		this.eventBus = eventBus;
 		this.messagingManager = messagingManager;
 		this.forumManager = forumManager;
 		this.androidExecutor = androidExecutor;
 		appContext = app.getApplicationContext();
 	}
 
+	@Override
 	public boolean start() {
-		eventBus.addListener(this);
 		loadSettings();
 		return true;
 	}
@@ -110,8 +108,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@Override
 	public boolean stop() {
-		eventBus.removeListener(this);
 		clearNotifications();
 		return true;
 	}

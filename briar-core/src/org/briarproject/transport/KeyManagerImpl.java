@@ -9,10 +9,10 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportAddedEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
+import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-class KeyManagerImpl implements KeyManager, EventListener {
+class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyManagerImpl.class.getName());
@@ -37,26 +37,24 @@ class KeyManagerImpl implements KeyManager, EventListener {
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
 	private final ExecutorService dbExecutor;
-	private final EventBus eventBus;
 	private final Timer timer;
 	private final Clock clock;
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
 
 	@Inject
 	KeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			@DatabaseExecutor ExecutorService dbExecutor, EventBus eventBus,
-			Timer timer, Clock clock) {
+			@DatabaseExecutor ExecutorService dbExecutor, Timer timer,
+			Clock clock) {
 		this.db = db;
 		this.crypto = crypto;
 		this.dbExecutor = dbExecutor;
-		this.eventBus = eventBus;
 		this.timer = timer;
 		this.clock = clock;
 		managers = new ConcurrentHashMap<TransportId, TransportKeyManager>();
 	}
 
+	@Override
 	public boolean start() {
-		eventBus.addListener(this);
 		try {
 			Map<TransportId, Integer> latencies = db.getTransportLatencies();
 			for (Entry<TransportId, Integer> e : latencies.entrySet())
@@ -68,8 +66,8 @@ class KeyManagerImpl implements KeyManager, EventListener {
 		return true;
 	}
 
+	@Override
 	public boolean stop() {
-		eventBus.removeListener(this);
 		return true;
 	}
 

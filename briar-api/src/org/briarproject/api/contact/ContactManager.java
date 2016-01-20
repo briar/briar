@@ -8,6 +8,12 @@ import java.util.Collection;
 
 public interface ContactManager {
 
+	/** Registers a hook to be called whenever a contact is added. */
+	void registerAddContactHook(AddContactHook hook);
+
+	/** Registers a hook to be called whenever a contact is removed. */
+	void registerRemoveContactHook(RemoveContactHook hook);
+
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
@@ -22,4 +28,12 @@ public interface ContactManager {
 
 	/** Removes a contact and all associated state. */
 	void removeContact(ContactId c) throws DbException;
+
+	interface AddContactHook {
+		void addingContact(ContactId c);
+	}
+
+	interface RemoveContactHook {
+		void removingContact(ContactId c);
+	}
 }

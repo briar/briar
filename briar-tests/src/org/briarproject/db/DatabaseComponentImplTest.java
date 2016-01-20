@@ -2,7 +2,6 @@ package org.briarproject.db;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
-import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
@@ -16,11 +15,8 @@ import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.event.ContactAddedEvent;
-import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.LocalAuthorAddedEvent;
-import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
@@ -98,11 +94,12 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
+		long timestamp = System.currentTimeMillis();
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
+				StorageStatus.ACTIVE);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
-		long timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
 		message = new Message(messageId, groupId, timestamp, raw);
@@ -113,7 +110,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				"bar", "baz"));
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, localAuthorId);
+		contact = new Contact(contactId, author, localAuthorId,
+				StorageStatus.ACTIVE);
 	}
 
 	private <T> DatabaseComponent createDatabaseComponent(Database<T> database,
@@ -142,7 +140,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
 			oneOf(database).containsContact(txn, authorId);
 			will(returnValue(false));
@@ -150,7 +147,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
-			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
@@ -183,14 +179,10 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).removeContact(txn, contactId);
-			oneOf(eventBus).broadcast(with(any(ContactRemovedEvent.class)));
 			// removeLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
-			oneOf(database).getContacts(txn, localAuthorId);
-			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeLocalAuthor(txn, localAuthorId);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorRemovedEvent.class)));
 			// close()
 			oneOf(shutdown).removeShutdownHook(shutdownHandle);
 			oneOf(database).close();
@@ -660,7 +652,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
 			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -671,7 +662,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// Check whether the transport is in the DB (which it's not)
 			exactly(6).of(database).startTransaction();
 			will(returnValue(txn));

@@ -10,7 +10,6 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageValidator;
-import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
 import java.io.ByteArrayInputStream;
@@ -23,37 +22,22 @@ import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
-import static org.briarproject.messaging.MessagingManagerImpl.CLIENT_ID;
 
 class PrivateMessageValidator implements MessageValidator {
 
 	private static final Logger LOG =
 			Logger.getLogger(PrivateMessageValidator.class.getName());
 
-	private final ValidationManager validationManager;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final MetadataEncoder metadataEncoder;
 	private final Clock clock;
 
 	@Inject
-	PrivateMessageValidator(ValidationManager validationManager,
-			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
-			Clock clock) {
-		this.validationManager = validationManager;
+	PrivateMessageValidator(BdfReaderFactory bdfReaderFactory,
+			MetadataEncoder metadataEncoder, Clock clock) {
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.metadataEncoder = metadataEncoder;
 		this.clock = clock;
-	}
-
-	@Override
-	public boolean start() {
-		validationManager.setMessageValidator(CLIENT_ID, this);
-		return true;
-	}
-
-	@Override
-	public boolean stop() {
-		return true;
 	}
 
 	@Override
