@@ -14,6 +14,8 @@ import org.briarproject.R;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
 
+import static android.support.v7.util.SortedList.INVALID_POSITION;
+
 class ConversationAdapter extends
 		RecyclerView.Adapter<ConversationAdapter.MessageHolder> {
 
@@ -21,7 +23,7 @@ class ConversationAdapter extends
 	private static final int MSG_IN = 1;
 	private static final int MSG_IN_UNREAD = 2;
 
-	private SortedList<ConversationItem> messages =
+	private final SortedList<ConversationItem> messages =
 			new SortedList<ConversationItem>(ConversationItem.class,
 					new SortedList.Callback<ConversationItem>() {
 						@Override
@@ -145,14 +147,13 @@ class ConversationAdapter extends
 
 	@Override
 	public int getItemCount() {
-		return messages == null ? 0 : messages.size();
-	}
-
-	public boolean isEmpty() {
-		return messages == null || messages.size() == 0;
+		return messages.size();
 	}
 
 	public ConversationItem getItem(int position) {
+		if (position == INVALID_POSITION || messages.size() <= position) {
+			return null; // Not found
+		}
 		return messages.get(position);
 	}
 
@@ -166,10 +167,6 @@ class ConversationAdapter extends
 
 	public void add(final ConversationItem message) {
 		this.messages.add(message);
-	}
-
-	public void remove(final ConversationItem message) {
-		this.messages.remove(message);
 	}
 
 	public void clear() {

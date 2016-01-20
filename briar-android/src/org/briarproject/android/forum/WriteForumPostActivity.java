@@ -192,7 +192,6 @@ implements OnItemSelectedListener, OnClickListener {
 				for (LocalAuthor a : localAuthors)
 					adapter.add(new LocalAuthorItem(a));
 				adapter.sort(LocalAuthorItemComparator.INSTANCE);
-				adapter.notifyDataSetChanged();
 				int count = adapter.getCount();
 				for (int i = 0; i < count; i++) {
 					LocalAuthorItem item = adapter.getItem(i);

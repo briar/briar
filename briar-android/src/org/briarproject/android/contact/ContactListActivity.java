@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -91,7 +90,6 @@ public class ContactListActivity extends BriarActivity
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
-
 		loadContacts();
 	}
 
@@ -133,26 +131,9 @@ public class ContactListActivity extends BriarActivity
 	private void displayContacts(final List<ContactListItem> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if (contacts.size() > 0) {
-					if (adapter.getItemCount() > 0) {
-						// update existing items rather than just adding them,
-						// because different timestamps in added items change
-						// sorting criteria and cause duplicates
-						for (ContactListItem contact : contacts) {
-							int position = adapter.findItemPosition(contact);
-							if (position == INVALID_POSITION) {
-								adapter.add(contact);
-							} else {
-								adapter.updateItem(position, contact);
-							}
-						}
-					} else {
-						adapter.addAll(contacts);
-					}
-				} else {
-					// no contacts to display, make sure progress bar is hidden
-					list.showData();
-				}
+				adapter.clear();
+				if (contacts.size() == 0) list.showData();
+				else adapter.addAll(contacts);
 			}
 		});
 	}
@@ -217,10 +198,9 @@ public class ContactListActivity extends BriarActivity
 	private void removeItem(final ContactId c) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ContactListItem item = adapter.findItem(c);
-				if (item != null) {
-					adapter.remove(item);
-				}
+				int position = adapter.findItemPosition(c);
+				ContactListItem item = adapter.getItem(position);
+				if (item != null) adapter.remove(item);
 			}
 		});
 	}
