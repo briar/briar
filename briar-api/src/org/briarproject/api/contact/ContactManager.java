@@ -9,10 +9,10 @@ import java.util.Collection;
 public interface ContactManager {
 
 	/** Registers a hook to be called whenever a contact is added. */
-	void registerContactAddedHook(ContactAddedHook hook);
+	void registerAddContactHook(AddContactHook hook);
 
 	/** Registers a hook to be called whenever a contact is removed. */
-	void registerContactRemovedHook(ContactRemovedHook hook);
+	void registerRemoveContactHook(RemoveContactHook hook);
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
@@ -29,11 +29,11 @@ public interface ContactManager {
 	/** Removes a contact and all associated state. */
 	void removeContact(ContactId c) throws DbException;
 
-	interface ContactAddedHook {
-		void contactAdded(ContactId c);
+	interface AddContactHook {
+		void addingContact(ContactId c);
 	}
 
-	interface ContactRemovedHook {
-		void contactRemoved(ContactId c);
+	interface RemoveContactHook {
+		void removingContact(ContactId c);
 	}
 }

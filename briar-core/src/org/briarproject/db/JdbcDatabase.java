@@ -9,6 +9,7 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbClosedException;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -50,8 +51,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.contact.Contact.Status.ADDING;
 import static org.briarproject.api.db.Metadata.REMOVE;
+import static org.briarproject.api.db.StorageStatus.ADDING;
 import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
 import static org.briarproject.api.sync.ValidationManager.Status.INVALID;
 import static org.briarproject.api.sync.ValidationManager.Status.UNKNOWN;
@@ -1208,7 +1209,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
-			Contact.Status status = Contact.Status.fromValue(rs.getInt(5));
+			StorageStatus status = StorageStatus.fromValue(rs.getInt(5));
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
@@ -1258,7 +1259,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(4);
 				Author author = new Author(authorId, name, publicKey);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				Contact.Status status = Contact.Status.fromValue(rs.getInt(6));
+				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
 				contacts.add(new Contact(contactId, author, localAuthorId,
 						status));
 			}
@@ -1358,8 +1359,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] publicKey = rs.getBytes(2);
 			byte[] privateKey = rs.getBytes(3);
 			long created = rs.getLong(4);
-			LocalAuthor.Status status = LocalAuthor.Status.fromValue(
-					rs.getInt(5));
+			StorageStatus status = StorageStatus.fromValue(rs.getInt(5));
 			LocalAuthor localAuthor = new LocalAuthor(a, name, publicKey,
 					privateKey, created, status);
 			if (rs.next()) throw new DbStateException();
@@ -1390,8 +1390,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(3);
 				byte[] privateKey = rs.getBytes(4);
 				long created = rs.getLong(5);
-				LocalAuthor.Status status = LocalAuthor.Status.fromValue(
-						rs.getInt(6));
+				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
 				authors.add(new LocalAuthor(authorId, name, publicKey,
 						privateKey, created, status));
 			}
@@ -1875,7 +1874,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(4);
 				Author author = new Author(authorId, name, publicKey);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				Contact.Status status = Contact.Status.fromValue(rs.getInt(6));
+				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
 				contacts.add(new Contact(contactId, author, localAuthorId,
 						status));
 			}
@@ -2703,7 +2702,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setContactStatus(Connection txn, ContactId c, Contact.Status s)
+	public void setContactStatus(Connection txn, ContactId c, StorageStatus s)
 		throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2721,7 +2720,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setLocalAuthorStatus(Connection txn, AuthorId a,
-			LocalAuthor.Status s) throws DbException {
+			StorageStatus s) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE localAuthors SET status = ?"

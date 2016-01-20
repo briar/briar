@@ -7,6 +7,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -636,7 +637,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	void setContactStatus(T txn, ContactId c, Contact.Status s)
+	void setContactStatus(T txn, ContactId c, StorageStatus s)
 			throws DbException;
 
 	/**
@@ -644,7 +645,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	void setLocalAuthorStatus(T txn, AuthorId a, LocalAuthor.Status s)
+	void setLocalAuthorStatus(T txn, AuthorId a, StorageStatus s)
 			throws DbException;
 
 	/**

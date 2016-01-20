@@ -15,6 +15,7 @@ import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
@@ -96,7 +97,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		long timestamp = System.currentTimeMillis();
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
-				LocalAuthor.Status.ACTIVE);
+				StorageStatus.ACTIVE);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
 		size = 1234;
@@ -110,7 +111,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthorId,
-				Contact.Status.ACTIVE);
+				StorageStatus.ACTIVE);
 	}
 
 	private <T> DatabaseComponent createDatabaseComponent(Database<T> database,

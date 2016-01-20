@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.identity.LocalAuthor.Status.ADDING;
+import static org.briarproject.api.db.StorageStatus.ADDING;
 
 class AuthorFactoryImpl implements AuthorFactory {
 

@@ -301,10 +301,10 @@ public interface DatabaseComponent {
 	void removeTransport(TransportId t) throws DbException;
 
 	/** Sets the status of the given contact. */
-	void setContactStatus(ContactId c, Contact.Status s) throws DbException;
+	void setContactStatus(ContactId c, StorageStatus s) throws DbException;
 
 	/** Sets the status of the given local pseudonym. */
-	void setLocalAuthorStatus(AuthorId a, LocalAuthor.Status s)
+	void setLocalAuthorStatus(AuthorId a, StorageStatus s)
 		throws DbException;
 
 	/** Marks the given message as valid or invalid. */

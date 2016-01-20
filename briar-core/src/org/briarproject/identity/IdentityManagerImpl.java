@@ -21,9 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.identity.LocalAuthor.Status.ACTIVE;
-import static org.briarproject.api.identity.LocalAuthor.Status.ADDING;
-import static org.briarproject.api.identity.LocalAuthor.Status.REMOVING;
+import static org.briarproject.api.db.StorageStatus.ACTIVE;
+import static org.briarproject.api.db.StorageStatus.ADDING;
+import static org.briarproject.api.db.StorageStatus.REMOVING;
 
 class IdentityManagerImpl implements IdentityManager, Service {
 
@@ -32,15 +32,15 @@ class IdentityManagerImpl implements IdentityManager, Service {
 
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
-	private final List<IdentityAddedHook> addHooks;
-	private final List<IdentityRemovedHook> removeHooks;
+	private final List<AddIdentityHook> addHooks;
+	private final List<RemoveIdentityHook> removeHooks;
 
 	@Inject
 	IdentityManagerImpl(DatabaseComponent db, EventBus eventBus) {
 		this.db = db;
 		this.eventBus = eventBus;
-		addHooks = new CopyOnWriteArrayList<IdentityAddedHook>();
-		removeHooks = new CopyOnWriteArrayList<IdentityRemovedHook>();
+		addHooks = new CopyOnWriteArrayList<AddIdentityHook>();
+		removeHooks = new CopyOnWriteArrayList<RemoveIdentityHook>();
 	}
 
 	@Override
@@ -49,13 +49,13 @@ class IdentityManagerImpl implements IdentityManager, Service {
 		try {
 			for (LocalAuthor a : db.getLocalAuthors()) {
 				if (a.getStatus().equals(ADDING)) {
-					for (IdentityAddedHook hook : addHooks)
-						hook.identityAdded(a.getId());
+					for (AddIdentityHook hook : addHooks)
+						hook.addingIdentity(a.getId());
 					db.setLocalAuthorStatus(a.getId(), ACTIVE);
 					eventBus.broadcast(new LocalAuthorAddedEvent(a.getId()));
 				} else if (a.getStatus().equals(REMOVING)) {
-					for (IdentityRemovedHook hook : removeHooks)
-						hook.identityRemoved(a.getId());
+					for (RemoveIdentityHook hook : removeHooks)
+						hook.removingIdentity(a.getId());
 					db.removeLocalAuthor(a.getId());
 					eventBus.broadcast(new LocalAuthorRemovedEvent(a.getId()));
 				}
@@ -73,19 +73,19 @@ class IdentityManagerImpl implements IdentityManager, Service {
 	}
 
 	@Override
-	public void registerIdentityAddedHook(IdentityAddedHook hook) {
+	public void registerAddIdentityHook(AddIdentityHook hook) {
 		addHooks.add(hook);
 	}
 
 	@Override
-	public void registerIdentityRemovedHook(IdentityRemovedHook hook) {
+	public void registerRemoveIdentityHook(RemoveIdentityHook hook) {
 		removeHooks.add(hook);
 	}
 
 	@Override
 	public void addLocalAuthor(LocalAuthor a) throws DbException {
 		db.addLocalAuthor(a);
-		for (IdentityAddedHook hook : addHooks) hook.identityAdded(a.getId());
+		for (AddIdentityHook hook : addHooks) hook.addingIdentity(a.getId());
 		db.setLocalAuthorStatus(a.getId(), ACTIVE);
 		eventBus.broadcast(new LocalAuthorAddedEvent(a.getId()));
 	}
@@ -110,7 +110,7 @@ class IdentityManagerImpl implements IdentityManager, Service {
 	@Override
 	public void removeLocalAuthor(AuthorId a) throws DbException {
 		db.setLocalAuthorStatus(a, REMOVING);
-		for (IdentityRemovedHook hook : removeHooks) hook.identityRemoved(a);
+		for (RemoveIdentityHook hook : removeHooks) hook.removingIdentity(a);
 		db.removeLocalAuthor(a);
 		eventBus.broadcast(new LocalAuthorRemovedEvent(a));
 	}

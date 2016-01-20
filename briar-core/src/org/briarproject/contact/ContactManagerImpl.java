@@ -13,7 +13,7 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.identity.IdentityManager.IdentityRemovedHook;
+import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
 import org.briarproject.api.lifecycle.Service;
 
 import java.util.ArrayList;
@@ -24,27 +24,27 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.contact.Contact.Status.ACTIVE;
-import static org.briarproject.api.contact.Contact.Status.ADDING;
-import static org.briarproject.api.contact.Contact.Status.REMOVING;
+import static org.briarproject.api.db.StorageStatus.ACTIVE;
+import static org.briarproject.api.db.StorageStatus.ADDING;
+import static org.briarproject.api.db.StorageStatus.REMOVING;
 
 class ContactManagerImpl implements ContactManager, Service,
-		IdentityRemovedHook {
+		RemoveIdentityHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
-	private final List<ContactAddedHook> addHooks;
-	private final List<ContactRemovedHook> removeHooks;
+	private final List<AddContactHook> addHooks;
+	private final List<RemoveContactHook> removeHooks;
 
 	@Inject
 	ContactManagerImpl(DatabaseComponent db, EventBus eventBus) {
 		this.db = db;
 		this.eventBus = eventBus;
-		addHooks = new CopyOnWriteArrayList<ContactAddedHook>();
-		removeHooks = new CopyOnWriteArrayList<ContactRemovedHook>();
+		addHooks = new CopyOnWriteArrayList<AddContactHook>();
+		removeHooks = new CopyOnWriteArrayList<RemoveContactHook>();
 	}
 
 	@Override
@@ -53,13 +53,13 @@ class ContactManagerImpl implements ContactManager, Service,
 		try {
 			for (Contact c : db.getContacts()) {
 				if (c.getStatus().equals(ADDING)) {
-					for (ContactAddedHook hook : addHooks)
-						hook.contactAdded(c.getId());
+					for (AddContactHook hook : addHooks)
+						hook.addingContact(c.getId());
 					db.setContactStatus(c.getId(), ACTIVE);
 					eventBus.broadcast(new ContactAddedEvent(c.getId()));
 				} else if (c.getStatus().equals(REMOVING)) {
-					for (ContactRemovedHook hook : removeHooks)
-						hook.contactRemoved(c.getId());
+					for (RemoveContactHook hook : removeHooks)
+						hook.removingContact(c.getId());
 					db.removeContact(c.getId());
 					eventBus.broadcast(new ContactRemovedEvent(c.getId()));
 				}
@@ -77,12 +77,12 @@ class ContactManagerImpl implements ContactManager, Service,
 	}
 
 	@Override
-	public void registerContactAddedHook(ContactAddedHook hook) {
+	public void registerAddContactHook(AddContactHook hook) {
 		addHooks.add(hook);
 	}
 
 	@Override
-	public void registerContactRemovedHook(ContactRemovedHook hook) {
+	public void registerRemoveContactHook(RemoveContactHook hook) {
 		removeHooks.add(hook);
 	}
 
@@ -90,7 +90,7 @@ class ContactManagerImpl implements ContactManager, Service,
 	public ContactId addContact(Author remote, AuthorId local)
 			throws DbException {
 		ContactId c = db.addContact(remote, local);
-		for (ContactAddedHook hook : addHooks) hook.contactAdded(c);
+		for (AddContactHook hook : addHooks) hook.addingContact(c);
 		db.setContactStatus(c, ACTIVE);
 		eventBus.broadcast(new ContactAddedEvent(c));
 		return c;
@@ -116,13 +116,13 @@ class ContactManagerImpl implements ContactManager, Service,
 	@Override
 	public void removeContact(ContactId c) throws DbException {
 		db.setContactStatus(c, REMOVING);
-		for (ContactRemovedHook hook : removeHooks) hook.contactRemoved(c);
+		for (RemoveContactHook hook : removeHooks) hook.removingContact(c);
 		db.removeContact(c);
 		eventBus.broadcast(new ContactRemovedEvent(c));
 	}
 
 	@Override
-	public void identityRemoved(AuthorId a) {
+	public void removingIdentity(AuthorId a) {
 		// Remove any contacts of the local pseudonym that's being removed
 		try {
 			for (ContactId c : db.getContacts(a)) removeContact(c);

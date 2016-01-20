@@ -19,7 +19,7 @@ public class ContactModule extends AbstractModule {
 			IdentityManager identityManager,
 			ContactManagerImpl contactManager) {
 		lifecycleManager.register(contactManager);
-		identityManager.registerIdentityRemovedHook(contactManager);
+		identityManager.registerRemoveIdentityHook(contactManager);
 		return contactManager;
 	}
 }

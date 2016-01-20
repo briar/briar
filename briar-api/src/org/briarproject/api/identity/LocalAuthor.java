@@ -1,34 +1,16 @@
 package org.briarproject.api.identity;
 
+import org.briarproject.api.db.StorageStatus;
+
 /** A pseudonym for the local user. */
 public class LocalAuthor extends Author {
 
-	public enum Status {
-
-		ADDING(0), ACTIVE(1), REMOVING(2);
-
-		private final int value;
-
-		Status(int value) {
-			this.value = value;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-		public static Status fromValue(int value) {
-			for (Status s : values()) if (s.value == value) return s;
-			throw new IllegalArgumentException();
-		}
-	}
-
 	private final byte[] privateKey;
 	private final long created;
-	private final Status status;
+	private final StorageStatus status;
 
 	public LocalAuthor(AuthorId id, String name, byte[] publicKey,
-			byte[] privateKey, long created, Status status) {
+			byte[] privateKey, long created, StorageStatus status) {
 		super(id, name, publicKey);
 		this.privateKey = privateKey;
 		this.created = created;
@@ -49,7 +31,7 @@ public class LocalAuthor extends Author {
 	}
 
 	/** Returns the status of the pseudonym. */
-	public Status getStatus() {
+	public StorageStatus getStatus() {
 		return status;
 	}
 }

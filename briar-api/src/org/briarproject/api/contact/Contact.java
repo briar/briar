@@ -1,37 +1,18 @@
 package org.briarproject.api.contact;
 
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 
 public class Contact {
 
-	public enum Status {
-
-		ADDING(0), ACTIVE(1), REMOVING(2);
-
-		private final int value;
-
-		Status(int value) {
-			this.value = value;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-		public static Status fromValue(int value) {
-			for (Status s : values()) if (s.value == value) return s;
-			throw new IllegalArgumentException();
-		}
-	}
-
 	private final ContactId id;
 	private final Author author;
 	private final AuthorId localAuthorId;
-	private final Status status;
+	private final StorageStatus status;
 
 	public Contact(ContactId id, Author author, AuthorId localAuthorId,
-			Status status) {
+			StorageStatus status) {
 		this.id = id;
 		this.author = author;
 		this.localAuthorId = localAuthorId;
@@ -50,7 +31,7 @@ public class Contact {
 		return localAuthorId;
 	}
 
-	public Status getStatus() {
+	public StorageStatus getStatus() {
 		return status;
 	}
 

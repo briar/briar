@@ -35,8 +35,8 @@ public class MessagingModule extends AbstractModule {
 	@Provides @Singleton
 	MessagingManager getMessagingManager(ContactManager contactManager,
 			MessagingManagerImpl messagingManager) {
-		contactManager.registerContactAddedHook(messagingManager);
-		contactManager.registerContactRemovedHook(messagingManager);
+		contactManager.registerAddContactHook(messagingManager);
+		contactManager.registerRemoveContactHook(messagingManager);
 		return messagingManager;
 	}
 }

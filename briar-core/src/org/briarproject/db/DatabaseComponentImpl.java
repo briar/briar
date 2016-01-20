@@ -16,6 +16,7 @@ import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
+import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.LocalTransportsUpdatedEvent;
@@ -1293,7 +1294,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		eventBus.broadcast(new TransportRemovedEvent(t));
 	}
 
-	public void setContactStatus(ContactId c, Contact.Status s)
+	public void setContactStatus(ContactId c, StorageStatus s)
 			throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -1312,7 +1313,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void setLocalAuthorStatus(AuthorId a, LocalAuthor.Status s)
+	public void setLocalAuthorStatus(AuthorId a, StorageStatus s)
 			throws DbException {
 		lock.writeLock().lock();
 		try {
