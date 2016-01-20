@@ -96,18 +96,17 @@
 		<item quantity="other">%d new forum posts.</item>
 	</plurals>
 	<string name="settings_title">Settings</string>
-	<string name="bluetooth_setting_title">BLUETOOTH</string>
+	<string name="network_settings_title">Networks</string>
 	<string name="bluetooth_setting">Connect via Bluetooth</string>
 	<string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
 	<string name="bluetooth_setting_disabled">Only when adding contacts</string>
-	<string name="tor_wifi_setting_title">TOR</string>
-	<string name="tor_wifi_setting">Connect via Tor</string>
-	<string name="tor_wifi_setting_enabled">Only when using Wi-Fi</string>
-	<string name="tor_wifi_setting_disabled">When using Wi-Fi or mobile data</string>
-	<string name="panic_setting">Panic Button Setup</string>
-	<string name="panic_setting_title">PANIC BUTTON</string>
+	<string name="tor_mobile_setting">Connect via Tor</string>
+	<string name="tor_mobile_setting_enabled">When using Wi-Fi or mobile data</string>
+	<string name="tor_mobile_setting_disabled">Only when using Wi-Fi</string>
+	<string name="panic_setting">Panic button setup</string>
+	<string name="panic_setting_title">Panic button</string>
 	<string name="panic_setting_hint">Configure how Briar will react when you use a panic button app</string>
-	<string name="notification_settings_title">NOTIFICATIONS</string>
+	<string name="notification_settings_title">Notifications</string>
 	<string name="notify_private_messages_setting">Show alerts for private messages</string>
 	<string name="notify_forum_posts_setting">Show alerts for forum posts</string>
 	<string name="notify_vibration_setting">Vibrate</string>

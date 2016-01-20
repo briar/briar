@@ -22,7 +22,6 @@ import org.briarproject.R;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.fragment.SettingsFragment;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
@@ -225,7 +224,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 				startFragment(ForumListFragment.newInstance());
 				break;
 			case R.id.nav_btn_settings:
-				startFragment(SettingsFragment.newInstance());
+				startActivity(new Intent(this, SettingsActivity.class));
 				break;
 			case R.id.nav_btn_signout:
 				signOut();
