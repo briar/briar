@@ -3,7 +3,7 @@ package org.briarproject.db;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestMessage;
 import org.briarproject.TestUtils;
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
@@ -611,26 +611,19 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// Check whether the transport is in the DB (which it's not)
-			exactly(8).of(database).startTransaction();
+			exactly(6).of(database).startTransaction();
 			will(returnValue(txn));
 			exactly(2).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			exactly(8).of(database).containsTransport(txn, transportId);
+			exactly(6).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
-			exactly(8).of(database).abortTransaction(txn);
+			exactly(6).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
 		db.addLocalAuthor(localAuthor);
 		assertEquals(contactId, db.addContact(author, localAuthorId));
-
-		try {
-			db.getConfig(transportId);
-			fail();
-		} catch (NoSuchTransportException expected) {
-			// Expected
-		}
 
 		try {
 			db.getLocalProperties(transportId);
@@ -641,13 +634,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.getTransportKeys(transportId);
-			fail();
-		} catch (NoSuchTransportException expected) {
-			// Expected
-		}
-
-		try {
-			db.mergeConfig(transportId, new TransportConfig());
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected

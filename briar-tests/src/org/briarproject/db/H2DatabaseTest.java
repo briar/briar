@@ -4,7 +4,6 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseConfig;
 import org.briarproject.TestMessage;
 import org.briarproject.TestUtils;
-import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
@@ -21,6 +20,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
+import org.briarproject.api.Settings;
 import org.briarproject.system.SystemClock;
 import org.junit.After;
 import org.junit.Before;
@@ -568,7 +568,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testUpdateTransportConfig() throws Exception {
+	public void testUpdateSettings() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -576,22 +576,22 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addTransport(txn, transportId, 123);
 
 		// Set the transport config
-		TransportConfig c = new TransportConfig();
-		c.put("foo", "foo");
-		c.put("bar", "bar");
-		db.mergeConfig(txn, transportId, c);
-		assertEquals(c, db.getConfig(txn, transportId));
+		Settings s = new Settings();
+		s.put("foo", "foo");
+		s.put("bar", "bar");
+		db.mergeSettings(txn, s, "test");
+		assertEquals(s, db.getSettings(txn, "test"));
 
 		// Update one of the properties and add another
-		TransportConfig c1 = new TransportConfig();
-		c1.put("bar", "baz");
-		c1.put("bam", "bam");
-		db.mergeConfig(txn, transportId, c1);
-		TransportConfig merged = new TransportConfig();
+		Settings s1 = new Settings();
+		s1.put("bar", "baz");
+		s1.put("bam", "bam");
+		db.mergeSettings(txn, s1, "test");
+		Settings merged = new Settings();
 		merged.put("foo", "foo");
 		merged.put("bar", "baz");
 		merged.put("bam", "bam");
-		assertEquals(merged, db.getConfig(txn, transportId));
+		assertEquals(merged, db.getSettings(txn, "test"));
 
 		db.commitTransaction(txn);
 		db.close();

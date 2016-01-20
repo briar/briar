@@ -93,7 +93,7 @@ EventListener {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					settings = db.getSettings();
+					settings = db.getSettings("settings-activity");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

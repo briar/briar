@@ -1,7 +1,6 @@
 package org.briarproject.db;
 
 import org.briarproject.api.Settings;
-import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
@@ -64,14 +63,15 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 11;
-	private static final int MIN_SCHEMA_VERSION = 10;
+	private static final int SCHEMA_VERSION = 12;
+	private static final int MIN_SCHEMA_VERSION = 12;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
 					+ " (key VARCHAR NOT NULL,"
 					+ " value VARCHAR NOT NULL,"
-					+ " PRIMARY KEY (key))";
+					+ " namespace VARCHAR NOT NULL,"
+					+ " PRIMARY KEY (key, namespace))";
 
 	private static final String CREATE_LOCAL_AUTHORS =
 			"CREATE TABLE localAuthors"
@@ -343,7 +343,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				Settings s = new Settings();
 				s.put("schemaVersion", String.valueOf(SCHEMA_VERSION));
 				s.put("minSchemaVersion", String.valueOf(MIN_SCHEMA_VERSION));
-				mergeSettings(txn, s);
+				mergeSettings(txn, s, "db");
 			}
 			commitTransaction(txn);
 		} catch (DbException e) {
@@ -354,7 +354,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
 		try {
-			Settings s = getSettings(txn);
+			Settings s = getSettings(txn, "db");
 			int schemaVersion = Integer.valueOf(s.get("schemaVersion"));
 			if (schemaVersion == SCHEMA_VERSION) return true;
 			if (schemaVersion < MIN_SCHEMA_VERSION) return false;
@@ -1179,28 +1179,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public TransportConfig getConfig(Connection txn, TransportId t)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT key, value FROM transportConfigs"
-					+ " WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, t.getString());
-			rs = ps.executeQuery();
-			TransportConfig c = new TransportConfig();
-			while (rs.next()) c.put(rs.getString(1), rs.getString(2));
-			rs.close();
-			ps.close();
-			return c;
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Contact getContact(Connection txn, ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1921,12 +1899,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Settings getSettings(Connection txn) throws DbException {
+	public Settings getSettings(Connection txn, String namespace) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT key, value FROM settings";
+			String sql = "SELECT key, value FROM settings WHERE namespace = ?";
 			ps = txn.prepareStatement(sql);
+			ps.setString(1, namespace);
 			rs = ps.executeQuery();
 			Settings s = new Settings();
 			while (rs.next()) s.put(rs.getString(1), rs.getString(2));
@@ -2373,12 +2352,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void mergeConfig(Connection txn, TransportId t, TransportConfig c)
-			throws DbException {
-		// Merge the new configuration with the existing one
-		mergeStringMap(txn, t, c, "transportConfigs");
-	}
-
 	public void mergeLocalProperties(Connection txn, TransportId t,
 			TransportProperties p) throws DbException {
 		// Merge the new properties with the existing ones
@@ -2446,15 +2419,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void mergeSettings(Connection txn, Settings s) throws DbException {
+	public void mergeSettings(Connection txn, Settings s, String namespace) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			// Update any settings that already exist
-			String sql = "UPDATE settings SET value = ? WHERE key = ?";
+			String sql = "UPDATE settings SET value = ? WHERE key = ? AND namespace = ?";
 			ps = txn.prepareStatement(sql);
 			for (Entry<String, String> e : s.entrySet()) {
 				ps.setString(1, e.getValue());
 				ps.setString(2, e.getKey());
+				ps.setString(3, namespace);
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -2464,13 +2438,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (batchAffected[i] > 1) throw new DbStateException();
 			}
 			// Insert any settings that don't already exist
-			sql = "INSERT INTO settings (key, value) VALUES (?, ?)";
+			sql = "INSERT INTO settings (key, value, namespace) VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			int updateIndex = 0, inserted = 0;
 			for (Entry<String, String> e : s.entrySet()) {
 				if (batchAffected[updateIndex] == 0) {
 					ps.setString(1, e.getKey());
 					ps.setString(2, e.getValue());
+					ps.setString(3, namespace);
 					ps.addBatch();
 					inserted++;
 				}

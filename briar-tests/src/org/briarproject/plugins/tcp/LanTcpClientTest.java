@@ -1,6 +1,6 @@
 package org.briarproject.plugins.tcp;
 
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.plugins.DuplexClientTest;
@@ -28,7 +28,7 @@ public class LanTcpClientTest extends DuplexClientTest {
 		Map<ContactId, TransportProperties> remote =
 				Collections.singletonMap(contactId, p);
 		// Create the plugin
-		callback = new ClientCallback(new TransportConfig(),
+		callback = new ClientCallback(new Settings(),
 				new TransportProperties(), remote);
 		plugin = new LanTcpPlugin(executor, callback,  MAX_LATENCY,
 				MAX_IDLE_TIME, POLLING_INTERVAL);

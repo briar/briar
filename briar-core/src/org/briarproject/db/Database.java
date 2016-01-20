@@ -1,7 +1,6 @@
 package org.briarproject.db;
 
 import org.briarproject.api.Settings;
-import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
@@ -224,13 +223,6 @@ interface Database<T> {
 	Collection<Group> getAvailableGroups(T txn) throws DbException;
 
 	/**
-	 * Returns the configuration for the given transport.
-	 * <p>
-	 * Locking: read.
-	 */
-	TransportConfig getConfig(T txn, TransportId t) throws DbException;
-
-	/**
 	 * Returns the contact with the given ID.
 	 * <p>
 	 * Locking: read.
@@ -419,11 +411,11 @@ interface Database<T> {
 			int maxLength) throws DbException;
 
 	/**
-	 * Returns all settings.
+	 * Returns all settings that belong to a namespace.
 	 * <p>
 	 * Locking: read.
 	 */
-	Settings getSettings(T txn) throws DbException;
+	Settings getSettings(T txn, String namespace) throws DbException;
 
 	/**
 	 * Returns all contacts who subscribe to the given group.
@@ -525,15 +517,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Merges the given configuration with the existing configuration for the
-	 * given transport.
-	 * <p>
-	 * Locking: write.
-	 */
-	void mergeConfig(T txn, TransportId t, TransportConfig config)
-			throws DbException;
-
-	/**
 	 * Merges the given properties with the existing local properties for the
 	 * given transport.
 	 * <p>
@@ -547,7 +530,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	void mergeSettings(T txn, Settings s) throws DbException;
+	void mergeSettings(T txn, Settings s, String Namespace) throws DbException;
 
 	/**
 	 * Marks a message as needing to be acknowledged to the given contact.

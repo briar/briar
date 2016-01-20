@@ -11,7 +11,7 @@ import android.os.FileObserver;
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
@@ -23,6 +23,7 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.system.LocationUtils;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.util.StringUtils;
 
 import java.io.EOFException;
@@ -349,7 +350,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		ioExecutor.execute(new Runnable() {
 			public void run() {
 				// If there's already a port number stored in config, reuse it
-				String portString = callback.getConfig().get("port");
+				String portString = callback.getSettings().get("port");
 				int port;
 				if (StringUtils.isNullOrEmpty(portString)) port = 0;
 				else port = Integer.parseInt(portString);
@@ -371,9 +372,9 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 				socket = ss;
 				// Store the port number
 				final String localPort = String.valueOf(ss.getLocalPort());
-				TransportConfig c  = new TransportConfig();
-				c.put("port", localPort);
-				callback.mergeConfig(c);
+				Settings s = new Settings();
+				s.put("port", localPort);
+				callback.mergeSettings(s);
 				// Create a hidden service if necessary
 				ioExecutor.execute(new Runnable() {
 					public void run() {
@@ -614,8 +615,8 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 				}
 				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
 						country);
-				TransportConfig c = callback.getConfig();
-				boolean wifiOnly = c.getBoolean("torOverWifi", false);
+				Settings s = callback.getSettings();
+				boolean wifiOnly = s.getBoolean("torOverWifi", false);
 
 				try {
 					if (!online) {

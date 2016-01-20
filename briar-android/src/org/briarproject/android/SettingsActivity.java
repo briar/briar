@@ -23,7 +23,7 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.Settings;
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -77,6 +77,7 @@ OnClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile SettingsManager settingsManager;
 	@Inject private volatile EventBus eventBus;
 	private volatile Settings settings;
 	private volatile boolean bluetoothSetting = true, torSetting = false;
@@ -262,14 +263,15 @@ OnClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
+					settings = settingsManager.getSettings("settings-activity");
 					long now = System.currentTimeMillis();
-					TransportConfig c = db.getConfig(new TransportId("bt"));
-					settings = db.getSettings();
+					Settings btSettings = settingsManager.getSettings("bt");
+					Settings torSettings = settingsManager.getSettings("tor");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading settings took " + duration + " ms");
-					bluetoothSetting = c.getBoolean("enable", false);
-					torSetting = settings.getBoolean("torOverWifi", false);
+					bluetoothSetting = btSettings.getBoolean("enable", false);
+					torSetting = torSettings.getBoolean("torOverWifi", false);
 					displaySettings();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -338,6 +340,7 @@ OnClickListener {
 		} else if (view == torOverWifi || view == torOverWifiHint) {
 			torSetting = !torSetting;
 			storeTorSettings();
+			displaySettings();
 		} else if (view == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean("notifyPrivateMessages",
@@ -378,11 +381,8 @@ OnClickListener {
 				try {
 					Settings s = new Settings();
 					s.putBoolean("torOverWifi", torSetting);
-					TransportConfig c = new TransportConfig();
-					c.putBoolean("torOverWifi", torSetting);
 					long now = System.currentTimeMillis();
-					db.mergeSettings(s);
-					db.mergeConfig(new TransportId("tor"), c);
+					settingsManager.mergeSettings(s, "tor");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Merging config took " + duration + " ms");
@@ -398,10 +398,10 @@ OnClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					TransportConfig c = new TransportConfig();
-					c.putBoolean("enable", bluetoothSetting);
+					Settings s = new Settings();
+					s.putBoolean("enable", bluetoothSetting);
 					long now = System.currentTimeMillis();
-					db.mergeConfig(new TransportId("bt"), c);
+					settingsManager.mergeSettings(s, "bt");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Merging config took " + duration + " ms");
@@ -418,7 +418,7 @@ OnClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					db.mergeSettings(settings);
+					settingsManager.mergeSettings(settings, "settings-activity");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Merging settings took " + duration + " ms");

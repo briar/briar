@@ -1,6 +1,6 @@
 package org.briarproject.plugins.bluetooth;
 
-import org.briarproject.api.TransportConfig;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.plugins.DuplexServerTest;
 import org.briarproject.system.SystemClock;
@@ -20,7 +20,7 @@ public class BluetoothServerTest extends DuplexServerTest {
 		TransportProperties local = new TransportProperties();
 		local.put("uuid", BluetoothTest.EMPTY_UUID);
 		// Create the plugin
-		callback = new ServerCallback(new TransportConfig(), local,
+		callback = new ServerCallback(new Settings(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
 		plugin = new BluetoothPlugin(executor, new SystemClock(),
 				new SecureRandom(), callback, 0, 0);

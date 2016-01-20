@@ -1,7 +1,6 @@
 package org.briarproject.db;
 
 import org.briarproject.api.Settings;
-import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
@@ -524,25 +523,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public TransportConfig getConfig(TransportId t) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				TransportConfig config = db.getConfig(txn, t);
-				db.commitTransaction(txn);
-				return config;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
 	public Contact getContact(ContactId c) throws DbException {
 		lock.readLock().lock();
 		try {
@@ -808,12 +788,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public Settings getSettings() throws DbException {
+	public Settings getSettings(String namespace) throws DbException {
 		lock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Settings s = db.getSettings(txn);
+				Settings s = db.getSettings(txn, namespace);
 				db.commitTransaction(txn);
 				return s;
 			} catch (DbException e) {
@@ -939,25 +919,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void mergeConfig(TransportId t, TransportConfig c)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				db.mergeConfig(txn, t, c);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
 	public void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException {
 		boolean changed = false;
@@ -982,14 +943,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (changed) eventBus.broadcast(new LocalTransportsUpdatedEvent());
 	}
 
-	public void mergeSettings(Settings s) throws DbException {
+	public void mergeSettings(Settings s, String namespace) throws DbException {
 		boolean changed = false;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				if (!s.equals(db.getSettings(txn))) {
-					db.mergeSettings(txn, s);
+				if (!s.equals(db.getSettings(txn, namespace))) {
+					db.mergeSettings(txn, s, namespace);
 					changed = true;
 				}
 				db.commitTransaction(txn);

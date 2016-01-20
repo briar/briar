@@ -1,6 +1,5 @@
 package org.briarproject.plugins;
 
-import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
@@ -28,6 +27,8 @@ import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
+import org.briarproject.api.Settings;
+import org.briarproject.api.settings.SettingsManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -167,7 +168,9 @@ class PluginManagerImpl implements PluginManager {
 		public void run() {
 			try {
 				TransportId id = factory.getId();
-				SimplexCallback callback = new SimplexCallback(id);
+				String namespace = id.toString();
+
+				SimplexCallback callback = new SimplexCallback(id, namespace);
 				SimplexPlugin plugin = factory.createPlugin(callback);
 				if (plugin == null) {
 					if (LOG.isLoggable(INFO)) {
@@ -230,7 +233,8 @@ class PluginManagerImpl implements PluginManager {
 		public void run() {
 			try {
 				TransportId id = factory.getId();
-				DuplexCallback callback = new DuplexCallback(id);
+				String namespace = id.toString();
+				DuplexCallback callback = new DuplexCallback(id, namespace);
 				DuplexPlugin plugin = factory.createPlugin(callback);
 				if (plugin == null) {
 					if (LOG.isLoggable(INFO)) {
@@ -309,18 +313,22 @@ class PluginManagerImpl implements PluginManager {
 	private abstract class PluginCallbackImpl implements PluginCallback {
 
 		protected final TransportId id;
+		protected final String namespace;
 
-		protected PluginCallbackImpl(TransportId id) {
+		protected PluginCallbackImpl(TransportId id, String namespace) {
 			this.id = id;
+			this.namespace = namespace;
 		}
 
-		public TransportConfig getConfig() {
+		public Settings getSettings() {
+
 			try {
-				return db.getConfig(id);
+				return db.getSettings(namespace);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				return new TransportConfig();
+				return new Settings();
 			}
+
 		}
 
 		public TransportProperties getLocalProperties() {
@@ -343,12 +351,14 @@ class PluginManagerImpl implements PluginManager {
 			}
 		}
 
-		public void mergeConfig(TransportConfig c) {
+		public void mergeSettings(Settings s) {
+
 			try {
-				db.mergeConfig(id, c);
+				db.mergeSettings(s, namespace);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
+
 		}
 
 		public void mergeLocalProperties(TransportProperties p) {
@@ -386,8 +396,8 @@ class PluginManagerImpl implements PluginManager {
 	private class SimplexCallback extends PluginCallbackImpl
 			implements SimplexPluginCallback {
 
-		private SimplexCallback(TransportId id) {
-			super(id);
+		private SimplexCallback(TransportId id, String namespace) {
+			super(id, namespace);
 		}
 
 		public void readerCreated(TransportConnectionReader r) {
@@ -402,8 +412,8 @@ class PluginManagerImpl implements PluginManager {
 	private class DuplexCallback extends PluginCallbackImpl
 			implements DuplexPluginCallback {
 
-		private DuplexCallback(TransportId id) {
-			super(id);
+		private DuplexCallback(TransportId id, String namespace) {
+			super(id, namespace);
 		}
 
 		public void incomingConnectionCreated(DuplexTransportConnection d) {

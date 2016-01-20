@@ -1,8 +1,8 @@
 package org.briarproject.api.plugins;
 
-import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.Settings;
 
 import java.util.Map;
 
@@ -12,8 +12,8 @@ import java.util.Map;
  */
 public interface PluginCallback {
 
-	/** Returns the plugin's configuration. */
-	TransportConfig getConfig();
+	/** Returns the plugin's settings */
+	Settings getSettings();
 
 	/** Returns the plugin's local transport properties. */
 	TransportProperties getLocalProperties();
@@ -21,8 +21,8 @@ public interface PluginCallback {
 	/** Returns the plugin's remote transport properties. */
 	Map<ContactId, TransportProperties> getRemoteProperties();
 
-	/** Merges the given configuration with the plugin's configuration. */
-	void mergeConfig(TransportConfig c);
+	/** Merges the given settings with the namespaced settings */
+	void mergeSettings(Settings s);
 
 	/**
 	 * Merges the given properties with the plugin's local transport properties.
