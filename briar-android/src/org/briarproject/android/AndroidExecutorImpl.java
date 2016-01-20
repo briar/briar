@@ -1,87 +1,48 @@
 package org.briarproject.android;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.briarproject.api.android.AndroidExecutor;
-
+import android.app.Application;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import org.briarproject.api.android.AndroidExecutor;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+
+import javax.inject.Inject;
+
 class AndroidExecutorImpl implements AndroidExecutor {
 
-	private static final int SHUTDOWN = 0, RUN = 1;
-
-	private static final Logger LOG =
-			Logger.getLogger(AndroidExecutorImpl.class.getName());
-
-	private final Runnable loop;
-	private final AtomicBoolean started = new AtomicBoolean(false);
-	private final CountDownLatch startLatch = new CountDownLatch(1);
-
-	private volatile Handler handler = null;
+	private final Handler handler;
 
 	@Inject
-	AndroidExecutorImpl() {
-		loop = new Runnable() {
-			public void run() {
-				Looper.prepare();
-				handler = new FutureTaskHandler();
-				startLatch.countDown();
-				Looper.loop();
-			}
-		};
+	AndroidExecutorImpl(Application app) {
+		Context ctx = app.getApplicationContext();
+		handler = new FutureTaskHandler(ctx.getMainLooper());
 	}
 
-	private void startIfNecessary() {
-		if (started.getAndSet(true)) return;
-		new Thread(loop, "AndroidExecutor").start();
-		try {
-			startLatch.await();
-		} catch (InterruptedException e) {
-			LOG.warning("Interrupted while starting executor thread");
-			Thread.currentThread().interrupt();
-		}
-	}
-
-	public <V> V call(Callable<V> c) throws InterruptedException,
-	ExecutionException {
-		startIfNecessary();
+	public <V> Future<V> submit(Callable<V> c) {
 		Future<V> f = new FutureTask<V>(c);
-		Message m = Message.obtain(handler, RUN, f);
-		handler.sendMessage(m);
-		return f.get();
+		handler.sendMessage(Message.obtain(handler, 0, f));
+		return f;
 	}
 
-	public void shutdown() {
-		if (handler != null) {
-			Message m = Message.obtain(handler, SHUTDOWN);
-			handler.sendMessage(m);
-		}
+	public void execute(Runnable r) {
+		handler.post(r);
 	}
 
 	private static class FutureTaskHandler extends Handler {
 
+		private FutureTaskHandler(Looper looper) {
+			super(looper);
+		}
+
 		@Override
 		public void handleMessage(Message m) {
-			switch(m.what) {
-			case SHUTDOWN:
-				Looper.myLooper().quit();
-				break;
-			case RUN:
-				((FutureTask<?>) m.obj).run();
-				break;
-			default:
-				throw new IllegalArgumentException();
-			}
+			((FutureTask<?>) m.obj).run();
 		}
 	}
 }

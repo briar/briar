@@ -30,12 +30,12 @@ import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
@@ -267,35 +267,35 @@ implements OnItemSelectedListener, OnClickListener {
 				// Don't use an earlier timestamp than the newest post
 				long timestamp = System.currentTimeMillis();
 				timestamp = Math.max(timestamp, minTimestamp);
-				Message m;
+				ForumPost p;
 				try {
 					if (localAuthor == null) {
-						m = forumPostFactory.createAnonymousPost(parentId,
-								forum, "text/plain", timestamp, body);
+						p = forumPostFactory.createAnonymousPost(groupId,
+								timestamp, parentId, "text/plain", body);
 					} else {
 						KeyParser keyParser = crypto.getSignatureKeyParser();
 						byte[] b = localAuthor.getPrivateKey();
 						PrivateKey authorKey = keyParser.parsePrivateKey(b);
-						m = forumPostFactory.createPseudonymousPost(parentId,
-								forum, localAuthor, authorKey, "text/plain",
-								timestamp, body);
+						p = forumPostFactory.createPseudonymousPost(groupId,
+								timestamp, parentId, localAuthor, "text/plain",
+								body, authorKey);
 					}
 				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
-				storePost(m);
+				storePost(p);
 			}
 		});
 	}
 
-	private void storePost(final Message m) {
+	private void storePost(final ForumPost p) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					forumManager.addLocalPost(m);
+					forumManager.addLocalPost(p);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");

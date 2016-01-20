@@ -10,7 +10,7 @@ public interface PacketReader {
 	Ack readAck() throws IOException;
 
 	boolean hasMessage() throws IOException;
-	UnverifiedMessage readMessage() throws IOException;
+	Message readMessage() throws IOException;
 
 	boolean hasOffer() throws IOException;
 	Offer readOffer() throws IOException;

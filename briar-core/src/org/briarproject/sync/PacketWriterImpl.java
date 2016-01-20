@@ -1,5 +1,6 @@
 package org.briarproject.sync;
 
+import org.briarproject.api.UniqueId;
 import org.briarproject.api.data.BdfWriter;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.sync.Ack;
@@ -19,12 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static org.briarproject.api.data.DataConstants.LIST_END_LENGTH;
-import static org.briarproject.api.data.DataConstants.LIST_START_LENGTH;
-import static org.briarproject.api.data.DataConstants.UNIQUE_ID_LENGTH;
-import static org.briarproject.api.sync.MessagingConstants.HEADER_LENGTH;
-import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;
-import static org.briarproject.api.sync.MessagingConstants.PROTOCOL_VERSION;
 import static org.briarproject.api.sync.PacketTypes.ACK;
 import static org.briarproject.api.sync.PacketTypes.OFFER;
 import static org.briarproject.api.sync.PacketTypes.REQUEST;
@@ -32,6 +27,9 @@ import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.sync.PacketTypes.TRANSPORT_ACK;
 import static org.briarproject.api.sync.PacketTypes.TRANSPORT_UPDATE;
+import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.PROTOCOL_VERSION;
 
 // This class is not thread-safe
 class PacketWriterImpl implements PacketWriter {
@@ -44,9 +42,9 @@ class PacketWriterImpl implements PacketWriter {
 	PacketWriterImpl(BdfWriterFactory bdfWriterFactory, OutputStream out) {
 		this.bdfWriterFactory = bdfWriterFactory;
 		this.out = out;
-		header = new byte[HEADER_LENGTH];
+		header = new byte[PACKET_HEADER_LENGTH];
 		header[0] = PROTOCOL_VERSION;
-		payload = new ByteArrayOutputStream(MAX_PAYLOAD_LENGTH);
+		payload = new ByteArrayOutputStream(MAX_PACKET_PAYLOAD_LENGTH);
 	}
 
 	public int getMaxMessagesForAck(long capacity) {
@@ -62,10 +60,9 @@ class PacketWriterImpl implements PacketWriter {
 	}
 
 	private int getMaxMessagesForPacket(long capacity) {
-		int payload = (int) Math.min(capacity - HEADER_LENGTH,
-				MAX_PAYLOAD_LENGTH);
-		int overhead = LIST_START_LENGTH * 2 + LIST_END_LENGTH * 2;
-		return (payload - overhead) / UNIQUE_ID_LENGTH;
+		int payload = (int) Math.min(capacity - PACKET_HEADER_LENGTH,
+				MAX_PACKET_PAYLOAD_LENGTH);
+		return payload / UniqueId.LENGTH;
 	}
 
 	private void writePacket(byte packetType) throws IOException {
@@ -77,13 +74,8 @@ class PacketWriterImpl implements PacketWriter {
 	}
 
 	public void writeAck(Ack a) throws IOException {
-		assert payload.size() == 0;
-		BdfWriter w = bdfWriterFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeListStart();
-		for (MessageId m : a.getMessageIds()) w.writeRaw(m.getBytes());
-		w.writeListEnd();
-		w.writeListEnd();
+		if (payload.size() != 0) throw new IllegalStateException();
+		for (MessageId m : a.getMessageIds()) payload.write(m.getBytes());
 		writePacket(ACK);
 	}
 
@@ -95,29 +87,19 @@ class PacketWriterImpl implements PacketWriter {
 	}
 
 	public void writeOffer(Offer o) throws IOException {
-		assert payload.size() == 0;
-		BdfWriter w = bdfWriterFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeListStart();
-		for (MessageId m : o.getMessageIds()) w.writeRaw(m.getBytes());
-		w.writeListEnd();
-		w.writeListEnd();
+		if (payload.size() != 0) throw new IllegalStateException();
+		for (MessageId m : o.getMessageIds()) payload.write(m.getBytes());
 		writePacket(OFFER);
 	}
 
 	public void writeRequest(Request r) throws IOException {
-		assert payload.size() == 0;
-		BdfWriter w = bdfWriterFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeListStart();
-		for (MessageId m : r.getMessageIds()) w.writeRaw(m.getBytes());
-		w.writeListEnd();
-		w.writeListEnd();
+		if (payload.size() != 0) throw new IllegalStateException();
+		for (MessageId m : r.getMessageIds()) payload.write(m.getBytes());
 		writePacket(REQUEST);
 	}
 
 	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
-		assert payload.size() == 0;
+		if (payload.size() != 0) throw new IllegalStateException();
 		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeInteger(a.getVersion());
@@ -127,14 +109,14 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeSubscriptionUpdate(SubscriptionUpdate u)
 			throws IOException {
-		assert payload.size() == 0;
+		if (payload.size() != 0) throw new IllegalStateException();
 		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeListStart();
 		for (Group g : u.getGroups()) {
 			w.writeListStart();
-			w.writeString(g.getName());
-			w.writeRaw(g.getSalt());
+			w.writeRaw(g.getClientId().getBytes());
+			w.writeRaw(g.getDescriptor());
 			w.writeListEnd();
 		}
 		w.writeListEnd();
@@ -144,7 +126,7 @@ class PacketWriterImpl implements PacketWriter {
 	}
 
 	public void writeTransportAck(TransportAck a) throws IOException {
-		assert payload.size() == 0;
+		if (payload.size() != 0) throw new IllegalStateException();
 		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeString(a.getId().getString());
@@ -154,7 +136,7 @@ class PacketWriterImpl implements PacketWriter {
 	}
 
 	public void writeTransportUpdate(TransportUpdate u) throws IOException {
-		assert payload.size() == 0;
+		if (payload.size() != 0) throw new IllegalStateException();
 		BdfWriter w = bdfWriterFactory.createWriter(payload);
 		w.writeListStart();
 		w.writeString(u.getId().getString());

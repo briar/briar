@@ -28,19 +28,18 @@ import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageAddedEvent;
+import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostHeader;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -60,15 +59,12 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class ForumListActivity extends BriarActivity
-implements EventListener, OnClickListener, OnItemClickListener,
-OnCreateContextMenuListener {
+		implements EventListener, OnClickListener, OnItemClickListener,
+		OnCreateContextMenuListener {
 
 	private static final int MENU_ITEM_UNSUBSCRIBE = 1;
 	private static final Logger LOG =
 			Logger.getLogger(ForumListActivity.class.getName());
-
-	private final Map<GroupId, GroupId> groupIds =
-			new ConcurrentHashMap<GroupId, GroupId>();
 
 	private TextView empty = null;
 	private ForumListAdapter adapter = null;
@@ -179,7 +175,6 @@ OnCreateContextMenuListener {
 	private void clearHeaders() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				groupIds.clear();
 				empty.setVisibility(GONE);
 				list.setVisibility(GONE);
 				available.setVisibility(GONE);
@@ -194,12 +189,10 @@ OnCreateContextMenuListener {
 			final Collection<ForumPostHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				GroupId id = f.getId();
-				groupIds.put(id, id);
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				// Remove the old item, if any
-				ForumListItem item = findForum(id);
+				ForumListItem item = findForum(f.getId());
 				if (item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new ForumListItem(f, headers));
@@ -255,11 +248,12 @@ OnCreateContextMenuListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if (e instanceof MessageAddedEvent) {
-			GroupId g = ((MessageAddedEvent) e).getGroupId();
-			if (groupIds.containsKey(g)) {
+		if (e instanceof MessageValidatedEvent) {
+			MessageValidatedEvent m = (MessageValidatedEvent) e;
+			ClientId c = m.getClientId();
+			if (m.isValid() && c.equals(forumManager.getClientId())) {
 				LOG.info("Message added, reloading");
-				loadHeaders(g);
+				loadHeaders(m.getMessage().getGroupId());
 			}
 		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
 			LOG.info("Remote subscriptions changed, reloading");
@@ -269,7 +263,7 @@ OnCreateContextMenuListener {
 			loadHeaders();
 		} else if (e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if (groupIds.containsKey(g.getId())) {
+			if (g.getClientId().equals(forumManager.getClientId())) {
 				LOG.info("Group removed, reloading");
 				loadHeaders();
 			}
@@ -303,7 +297,6 @@ OnCreateContextMenuListener {
 			public void run() {
 				ForumListItem item = findForum(g);
 				if (item != null) {
-					groupIds.remove(g);
 					adapter.remove(item);
 					adapter.notifyDataSetChanged();
 					if (adapter.isEmpty()) {

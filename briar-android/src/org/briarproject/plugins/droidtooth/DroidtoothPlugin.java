@@ -110,11 +110,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
 		try {
-			adapter = androidExecutor.call(new Callable<BluetoothAdapter>() {
+			adapter = androidExecutor.submit(new Callable<BluetoothAdapter>() {
 				public BluetoothAdapter call() throws Exception {
 					return BluetoothAdapter.getDefaultAdapter();
 				}
-			});
+			}).get();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while getting BluetoothAdapter");

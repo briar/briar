@@ -1,7 +1,6 @@
 package org.briarproject.sync;
 
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.data.BdfWriter;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.identity.Author;
@@ -49,10 +48,8 @@ class AuthorFactoryImpl implements AuthorFactory {
 			w.writeListEnd();
 		} catch (IOException e) {
 			// Shouldn't happen with ByteArrayOutputStream
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
-		MessageDigest messageDigest = crypto.getMessageDigest();
-		messageDigest.update(out.toByteArray());
-		return new AuthorId(messageDigest.digest());
+		return new AuthorId(crypto.hash(AuthorId.LABEL, out.toByteArray()));
 	}
 }

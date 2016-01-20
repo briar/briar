@@ -1,19 +1,19 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.messaging.PrivateMessageHeader;
-import org.briarproject.api.messaging.PrivateMessageHeader.Status;
 
 // This class is not thread-safe
 class ConversationItem {
 
 	private final PrivateMessageHeader header;
 	private byte[] body;
-	private Status status;
+	private boolean sent, seen;
 
 	ConversationItem(PrivateMessageHeader header) {
 		this.header = header;
 		body = null;
-		status = header.getStatus();
+		sent = header.isSent();
+		seen = header.isSeen();
 	}
 
 	PrivateMessageHeader getHeader() {
@@ -28,11 +28,19 @@ class ConversationItem {
 		this.body = body;
 	}
 
-	Status getStatus() {
-		return status;
+	boolean isSent() {
+		return sent;
 	}
 
-	void setStatus(Status status) {
-		this.status = status;
+	void setSent(boolean sent) {
+		this.sent = sent;
+	}
+
+	boolean isSeen() {
+		return seen;
+	}
+
+	void setSeen(boolean seen) {
+		this.seen = seen;
 	}
 }

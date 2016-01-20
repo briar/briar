@@ -18,7 +18,6 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.util.StringUtils;
 
@@ -38,7 +37,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
-import static org.briarproject.api.sync.MessagingConstants.MAX_GROUP_NAME_LENGTH;
+import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 
 public class CreateForumActivity extends BriarActivity
 implements OnEditorActionListener, OnClickListener {
@@ -52,7 +51,6 @@ implements OnEditorActionListener, OnClickListener {
 	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumFactory forumFactory;
 	@Inject private volatile ForumManager forumManager;
 
 	@Override
@@ -115,8 +113,9 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	private boolean validateName() {
-		int length = StringUtils.toUtf8(nameEntry.getText().toString()).length;
-		if (length > MAX_GROUP_NAME_LENGTH) {
+		String name = nameEntry.getText().toString();
+		int length = StringUtils.toUtf8(name).length;
+		if (length > MAX_FORUM_NAME_LENGTH) {
 			feedback.setText(R.string.name_too_long);
 			return false;
 		}
@@ -138,8 +137,8 @@ implements OnEditorActionListener, OnClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					Forum f = forumFactory.createForum(name);
 					long now = System.currentTimeMillis();
+					Forum f = forumManager.createForum(name);
 					forumManager.addForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))

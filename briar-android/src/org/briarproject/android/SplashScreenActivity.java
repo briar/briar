@@ -16,8 +16,8 @@ import com.google.inject.Injector;
 import org.briarproject.R;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.util.FileUtils;
 
-import java.io.File;
 import java.util.logging.Logger;
 
 import roboguice.RoboGuice;
@@ -86,8 +86,9 @@ public class SplashScreenActivity extends RoboSplashActivity {
 			if (hex != null && databaseConfig.databaseExists()) {
 				startActivity(new Intent(this, DashboardActivity.class));
 			} else {
-				prefs.edit().clear().commit();
-				delete(databaseConfig.getDatabaseDirectory());
+				prefs.edit().clear().apply();
+				FileUtils.deleteFileOrDir(
+						databaseConfig.getDatabaseDirectory());
 				startActivity(new Intent(this, SetupActivity.class));
 			}
 		}
@@ -106,17 +107,11 @@ public class SplashScreenActivity extends RoboSplashActivity {
 		}
 	}
 
-	private void delete(File f) {
-		if (f.isFile()) f.delete();
-		else if (f.isDirectory()) for (File child : f.listFiles()) delete(child);
-	}
-
 	private void setPreferencesDefaults() {
 		new Thread() {
 			@Override
 			public void run() {
-				PreferenceManager
-						.setDefaultValues(SplashScreenActivity.this,
+				PreferenceManager.setDefaultValues(SplashScreenActivity.this,
 								R.xml.panic_preferences, false);
 			}
 		}.start();

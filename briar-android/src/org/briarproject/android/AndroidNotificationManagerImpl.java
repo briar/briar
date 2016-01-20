@@ -14,23 +14,25 @@ import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.android.forum.ForumListActivity;
 import org.briarproject.api.Settings;
+import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
+import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.messaging.MessagingManager;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -44,7 +46,7 @@ import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.WARNING;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
-EventListener {
+		EventListener {
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
 	private static final int FORUM_POST_NOTIFICATION_ID = 4;
@@ -59,27 +61,33 @@ EventListener {
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
+	private final MessagingManager messagingManager;
+	private final ForumManager forumManager;
+	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
-	private final Lock lock = new ReentrantLock();
 
-	// The following are locking: lock
-	private final Map<ContactId, Integer> contactCounts =
-			new HashMap<ContactId, Integer>();
+	// The following must only be accessed on the main UI thread
+	private final Map<GroupId, Integer> contactCounts =
+			new HashMap<GroupId, Integer>();
 	private final Map<GroupId, Integer> forumCounts =
 			new HashMap<GroupId, Integer>();
 	private int contactTotal = 0, forumTotal = 0;
 	private int nextRequestId = 0;
-	private ContactId activeContact;
+	private GroupId visibleGroup = null;
 
 	private volatile Settings settings = new Settings();
 
 	@Inject
 	public AndroidNotificationManagerImpl(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor, EventBus eventBus,
-			Application app) {
+			MessagingManager messagingManager, ForumManager forumManager,
+			AndroidExecutor androidExecutor, Application app) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
+		this.messagingManager = messagingManager;
+		this.forumManager = forumManager;
+		this.androidExecutor = androidExecutor;
 		appContext = app.getApplicationContext();
 	}
 
@@ -104,62 +112,71 @@ EventListener {
 
 	public boolean stop() {
 		eventBus.removeListener(this);
+		clearNotifications();
 		return true;
 	}
 
-	public void eventOccurred(Event e) {
-		if (e instanceof SettingsUpdatedEvent) loadSettings();
+	private void clearNotifications() {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				clearPrivateMessageNotification();
+				clearForumPostNotification();
+			}
+		});
 	}
 
-	public void showPrivateMessageNotification(ContactId c) {
-		lock.lock();
-		try {
-			// check first if user has this conversation open at the moment
-			if (activeContact == null || !activeContact.equals(c)) {
-				Integer count = contactCounts.get(c);
-				if (count == null) contactCounts.put(c, 1);
-				else contactCounts.put(c, count + 1);
+	private void clearPrivateMessageNotification() {
+		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
+	}
+
+	private void clearForumPostNotification() {
+		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.cancel(FORUM_POST_NOTIFICATION_ID);
+	}
+
+	public void eventOccurred(Event e) {
+		if (e instanceof SettingsUpdatedEvent) {
+			loadSettings();
+		} else if (e instanceof MessageValidatedEvent) {
+			MessageValidatedEvent m = (MessageValidatedEvent) e;
+			if (m.isValid() && !m.isLocal()) {
+				ClientId c = m.getClientId();
+				if (c.equals(messagingManager.getClientId()))
+					showPrivateMessageNotification(m.getMessage().getGroupId());
+				else if (c.equals(forumManager.getClientId()))
+					showForumPostNotification(m.getMessage().getGroupId());
+			}
+		}
+	}
+
+	public void showPrivateMessageNotification(final GroupId g) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				Integer count = contactCounts.get(g);
+				if (count == null) contactCounts.put(g, 1);
+				else contactCounts.put(g, count + 1);
 				contactTotal++;
+				if (!g.equals(visibleGroup))
+					updatePrivateMessageNotification();
+			}
+		});
+	}
+
+	public void clearPrivateMessageNotification(final GroupId g) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				Integer count = contactCounts.remove(g);
+				if (count == null) return; // Already cleared
+				contactTotal -= count;
+				// FIXME: If the notification isn't showing, this may show it
 				updatePrivateMessageNotification();
 			}
-		} finally {
-			lock.unlock();
-		}
+		});
 	}
 
-	public void clearPrivateMessageNotification(ContactId c) {
-		lock.lock();
-		try {
-			Integer count = contactCounts.remove(c);
-			if (count == null) return; // Already cleared
-			contactTotal -= count;
-			updatePrivateMessageNotification();
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	public void blockPrivateMessageNotification(ContactId c) {
-		lock.lock();
-		try {
-			activeContact = c;
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	public void unblockPrivateMessageNotification(ContactId c) {
-		lock.lock();
-		try {
-			if (activeContact != null && activeContact.equals(c)) {
-				activeContact = null;
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	// Locking: lock
 	private void updatePrivateMessageNotification() {
 		if (contactTotal == 0) {
 			clearPrivateMessageNotification();
@@ -180,9 +197,10 @@ EventListener {
 			b.setAutoCancel(true);
 			if (contactCounts.size() == 1) {
 				Intent i = new Intent(appContext, ConversationActivity.class);
-				ContactId c = contactCounts.keySet().iterator().next();
-				i.putExtra("briar.CONTACT_ID", c.getInt());
-				i.setData(Uri.parse(CONTACT_URI + "/" + c.getInt()));
+				GroupId g = contactCounts.keySet().iterator().next();
+				i.putExtra("briar.GROUP_ID", g.getBytes());
+				String idHex = StringUtils.toHexString(g.getBytes());
+				i.setData(Uri.parse(CONTACT_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ConversationActivity.class);
@@ -202,13 +220,6 @@ EventListener {
 		}
 	}
 
-	// Locking: lock
-	private void clearPrivateMessageNotification() {
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
-	}
-
 	private int getDefaults() {
 		int defaults = DEFAULT_LIGHTS;
 		boolean sound = settings.getBoolean("notifySound", true);
@@ -220,32 +231,31 @@ EventListener {
 		return defaults;
 	}
 
-	public void showForumPostNotification(GroupId g) {
-		lock.lock();
-		try {
-			Integer count = forumCounts.get(g);
-			if (count == null) forumCounts.put(g, 1);
-			else forumCounts.put(g, count + 1);
-			forumTotal++;
-			updateForumPostNotification();
-		} finally {
-			lock.unlock();
-		}
+	public void showForumPostNotification(final GroupId g) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				Integer count = forumCounts.get(g);
+				if (count == null) forumCounts.put(g, 1);
+				else forumCounts.put(g, count + 1);
+				forumTotal++;
+				if (!g.equals(visibleGroup))
+					updateForumPostNotification();
+			}
+		});
 	}
 
-	public void clearForumPostNotification(GroupId g) {
-		lock.lock();
-		try {
-			Integer count = forumCounts.remove(g);
-			if (count == null) return; // Already cleared
-			forumTotal -= count;
-			updateForumPostNotification();
-		} finally {
-			lock.unlock();
-		}
+	public void clearForumPostNotification(final GroupId g) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				Integer count = forumCounts.remove(g);
+				if (count == null) return; // Already cleared
+				forumTotal -= count;
+				// FIXME: If the notification isn't showing, this may show it
+				updateForumPostNotification();
+			}
+		});
 	}
 
-	// Locking: lock
 	private void updateForumPostNotification() {
 		if (forumTotal == 0) {
 			clearForumPostNotification();
@@ -288,23 +298,19 @@ EventListener {
 		}
 	}
 
-	// Locking: lock
-	private void clearForumPostNotification() {
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(FORUM_POST_NOTIFICATION_ID);
+	public void blockNotification(final GroupId g) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				visibleGroup = g;
+			}
+		});
 	}
 
-	public void clearNotifications() {
-		lock.lock();
-		try {
-			contactCounts.clear();
-			forumCounts.clear();
-			contactTotal = forumTotal = 0;
-			clearPrivateMessageNotification();
-			clearForumPostNotification();
-		} finally {
-			lock.unlock();
-		}
+	public void unblockNotification(final GroupId g) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				if (g.equals(visibleGroup)) visibleGroup = null;
+			}
+		});
 	}
 }

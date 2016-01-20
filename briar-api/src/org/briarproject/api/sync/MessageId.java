@@ -2,6 +2,7 @@ package org.briarproject.api.sync;
 
 import org.briarproject.api.UniqueId;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -10,14 +11,16 @@ import java.util.Arrays;
  */
 public class MessageId extends UniqueId {
 
+	/** Label for hashing messages to calculate their identifiers. */
+	public static final byte[] LABEL =
+			"MESSAGE_ID".getBytes(Charset.forName("US-ASCII"));
+
 	public MessageId(byte[] id) {
 		super(id);
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof MessageId)
-			return Arrays.equals(id, ((MessageId) o).id);
-		return false;
+		return o instanceof MessageId && Arrays.equals(id, ((MessageId) o).id);
 	}
 }

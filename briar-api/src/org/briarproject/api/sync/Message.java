@@ -1,42 +1,58 @@
 package org.briarproject.api.sync;
 
-import org.briarproject.api.identity.Author;
+import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
-public interface Message {
+public class Message {
+
+	private final MessageId id;
+	private final GroupId groupId;
+	private final long timestamp;
+	private final byte[] raw;
+
+	public Message(MessageId id, GroupId groupId, long timestamp, byte[] raw) {
+		if (raw.length <= MESSAGE_HEADER_LENGTH)
+			throw new IllegalArgumentException();
+		if (raw.length > MAX_MESSAGE_LENGTH)
+			throw new IllegalArgumentException();
+		this.id = id;
+		this.groupId = groupId;
+		this.timestamp = timestamp;
+		this.raw = raw;
+	}
 
 	/** Returns the message's unique identifier. */
-	MessageId getId();
+	public MessageId getId() {
+		return id;
+	}
 
-	/**
-	 * Returns the identifier of the message's parent, or null if this is the
-	 * first message in a thread.
-	 */
-	MessageId getParent();
-
-	/**
-	 * Returns the {@link Group} to which the message belongs, or null if this
-	 * is a private message.
-	 */
-	Group getGroup();
-
-	/**
-	 * Returns the message's {@link Author Author}, or null
-	 * if this is an anonymous message.
-	 */
-	Author getAuthor();
-
-	/** Returns the message's content type. */
-	String getContentType();
+	/** Returns the ID of the {@link Group} to which the message belongs. */
+	public GroupId getGroupId() {
+		return groupId;
+	}
 
 	/** Returns the message's timestamp in milliseconds since the Unix epoch. */
-	long getTimestamp();
+	public long getTimestamp() {
+		return timestamp;
+	}
 
-	/** Returns the serialised message. */
-	byte[] getSerialised();
+	/** Returns the length of the raw message in bytes. */
+	public int getLength() {
+		return raw.length;
+	}
 
-	/** Returns the offset of the message body within the serialised message. */
-	int getBodyStart();
+	/** Returns the raw message. */
+	public byte[] getRaw() {
+		return raw;
+	}
 
-	/** Returns the length of the message body in bytes. */
-	int getBodyLength();
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof Message && id.equals(((Message) o).getId());
+	}
 }

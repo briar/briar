@@ -2,9 +2,6 @@ package org.briarproject.api.sync;
 
 public interface GroupFactory {
 
-	/** Creates a group with the given name and a random salt. */
-	Group createGroup(String name);
-
-	/** Creates a group with the given name and salt. */
-	Group createGroup(String name, byte[] salt);
+	/** Creates a group with the given client ID and descriptor. */
+	Group createGroup(ClientId c, byte[] descriptor);
 }

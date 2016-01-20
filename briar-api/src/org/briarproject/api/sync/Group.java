@@ -1,28 +1,20 @@
 package org.briarproject.api.sync;
 
-import java.io.UnsupportedEncodingException;
+import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 
 /** A group to which users may subscribe. */
 public class Group {
 
 	private final GroupId id;
-	private final String name;
-	private final byte[] salt;
+	private final ClientId clientId;
+	private final byte[] descriptor;
 
-	public Group(GroupId id, String name, byte[] salt) {
-		int length;
-		try {
-			length = name.getBytes("UTF-8").length;
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-		if (length == 0 || length > MessagingConstants.MAX_GROUP_NAME_LENGTH)
-			throw new IllegalArgumentException();
-		if (salt.length != MessagingConstants.GROUP_SALT_LENGTH)
+	public Group(GroupId id, ClientId clientId, byte[] descriptor) {
+		if (descriptor.length > MAX_GROUP_DESCRIPTOR_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
-		this.name = name;
-		this.salt = salt;
+		this.clientId = clientId;
+		this.descriptor = descriptor;
 	}
 
 	/** Returns the group's unique identifier. */
@@ -30,17 +22,14 @@ public class Group {
 		return id;
 	}
 
-	/** Returns the group's name. */
-	public String getName() {
-		return name;
+	/** Returns the ID of the client to which the group belongs. */
+	public ClientId getClientId() {
+		return clientId;
 	}
 
-	/**
-	 * Returns the salt used to distinguish the group from other groups with
-	 * the same name.
-	 */
-	public byte[] getSalt() {
-		return salt;
+	/** Returns the group's descriptor. */
+	public byte[] getDescriptor() {
+		return descriptor;
 	}
 
 	@Override

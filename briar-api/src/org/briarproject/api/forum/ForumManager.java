@@ -3,13 +3,19 @@ package org.briarproject.api.forum;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
 public interface ForumManager {
+
+	/** Returns the unique ID of the forum client. */
+	ClientId getClientId();
+
+	/** Creates a forum with the given name. */
+	Forum createForum(String name);
 
 	/**
 	 * Subscribes to a forum, or returns false if the user already has the
@@ -18,7 +24,7 @@ public interface ForumManager {
 	boolean addForum(Forum f) throws DbException;
 
 	/** Stores a local forum post. */
-	void addLocalPost(Message m) throws DbException;
+	void addLocalPost(ForumPost p) throws DbException;
 
 	/** Returns all forums to which the user could subscribe. */
 	Collection<Forum> getAvailableForums() throws DbException;

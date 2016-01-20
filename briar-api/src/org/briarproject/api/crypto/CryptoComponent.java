@@ -57,9 +57,6 @@ public interface CryptoComponent {
 	 */
 	byte[] deriveSignatureNonce(SecretKey master, boolean alice);
 
-	/** Derives a group salt from the given master secret. */
-	byte[] deriveGroupSalt(SecretKey master);
-
 	/**
 	 * Derives initial transport keys for the given transport in the given
 	 * rotation period from the given master secret.
@@ -76,6 +73,12 @@ public interface CryptoComponent {
 
 	/** Encodes the pseudo-random tag that is used to recognise a stream. */
 	void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber);
+
+	/**
+	 * Returns the hash of the given inputs. The inputs are unambiguously
+	 * combined by prefixing each input with its length.
+	 */
+	byte[] hash(byte[]... inputs);
 
 	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to

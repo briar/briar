@@ -2,13 +2,18 @@ package org.briarproject.api.identity;
 
 import org.briarproject.api.UniqueId;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
  * Type-safe wrapper for a byte array that uniquely identifies an
- * {@link Author}.
+ * {@link org.briarproject.api.identity.Author Author}.
  */
 public class AuthorId extends UniqueId {
+
+	/** Label for hashing authors to calculate their identities. */
+	public static final byte[] LABEL =
+			"AUTHOR_ID".getBytes(Charset.forName("US-ASCII"));
 
 	public AuthorId(byte[] id) {
 		super(id);
@@ -16,8 +21,6 @@ public class AuthorId extends UniqueId {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof AuthorId)
-			return Arrays.equals(id, ((AuthorId) o).id);
-		return false;
+		return o instanceof AuthorId && Arrays.equals(id, ((AuthorId) o).id);
 	}
 }

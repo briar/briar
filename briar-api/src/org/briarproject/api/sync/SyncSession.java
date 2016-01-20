@@ -2,7 +2,7 @@ package org.briarproject.api.sync;
 
 import java.io.IOException;
 
-public interface MessagingSession {
+public interface SyncSession {
 
 	/**
 	 * Runs the session. This method returns when there are no more packets to

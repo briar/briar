@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
@@ -37,7 +38,7 @@ class MetadataEncoderImpl implements MetadataEncoder {
 		Metadata m = new Metadata();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		for (Entry<String, Object> e : d.entrySet()) {
-			if (e.getValue() == null) {
+			if (e.getValue() == NULL_VALUE) {
 				// Special case: if the value is null, the key is being removed
 				m.put(e.getKey(), REMOVE);
 			} else {
@@ -51,7 +52,7 @@ class MetadataEncoderImpl implements MetadataEncoder {
 
 	private void encodeObject(ByteArrayOutputStream out, Object o)
 			throws FormatException {
-		if (o == null) out.write(NULL);
+		if (o == NULL_VALUE) out.write(NULL);
 		else if (o instanceof Boolean) out.write((Boolean) o ? TRUE : FALSE);
 		else if (o instanceof Byte) encodeInteger(out, (Byte) o);
 		else if (o instanceof Short) encodeInteger(out, (Short) o);

@@ -282,13 +282,13 @@ abstract class Connector extends Thread {
 		// Add the contact to the database
 		contactId = contactManager.addContact(remoteAuthor,
 				localAuthor.getId());
-		// Create a private messaging conversation
-		messagingManager.addContact(contactId, master);
 		// Store the remote transport properties
 		transportPropertyManager.setRemoteProperties(contactId, remoteProps);
 		// Derive transport keys for each transport shared with the contact
 		keyManager.addContact(contactId, remoteProps.keySet(), master,
 				timestamp, alice);
+		// Create a private messaging conversation
+		messagingManager.addContact(contactId);
 	}
 
 	protected void tryToClose(DuplexTransportConnection conn,

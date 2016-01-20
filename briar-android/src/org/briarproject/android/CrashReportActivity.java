@@ -74,12 +74,12 @@ public class CrashReportActivity extends AppCompatActivity implements OnClickLis
 	private static final Logger LOG =
 			Logger.getLogger(CrashReportActivity.class.getName());
 
-	private final AndroidExecutor androidExecutor = new AndroidExecutorImpl();
+	private final AndroidExecutor androidExecutor =
+			new AndroidExecutorImpl(getApplication());
 
 	private ScrollView scroll = null;
 	private ListLoadingProgressBar progress = null;
 	private LinearLayout status = null;
-	private ImageButton share = null;
 	private File temp = null;
 
 	private volatile String stack = null;
@@ -120,7 +120,7 @@ public class CrashReportActivity extends AppCompatActivity implements OnClickLis
 			Resources res = getResources();
 			int background = res.getColor(R.color.button_bar_background);
 			footer.setBackgroundColor(background);
-			share = new ImageButton(this);
+			ImageButton share = new ImageButton(this);
 			share.setBackgroundResource(0);
 			share.setImageResource(R.drawable.social_share);
 			share.setOnClickListener(this);
@@ -323,11 +323,11 @@ public class CrashReportActivity extends AppCompatActivity implements OnClickLis
 		// Is Bluetooth available?
 		BluetoothAdapter bt = null;
 		try {
-			bt = androidExecutor.call(new Callable<BluetoothAdapter>() {
+			bt = androidExecutor.submit(new Callable<BluetoothAdapter>() {
 				public BluetoothAdapter call() throws Exception {
 					return BluetoothAdapter.getDefaultAdapter();
 				}
-			});
+			}).get();
 		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while getting BluetoothAdapter");
 			Thread.currentThread().interrupt();

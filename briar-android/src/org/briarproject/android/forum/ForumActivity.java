@@ -24,7 +24,7 @@ import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageAddedEvent;
+import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
@@ -56,7 +56,7 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class ForumActivity extends BriarActivity implements EventListener,
-OnClickListener, OnItemClickListener {
+		OnClickListener, OnItemClickListener {
 
 	private static final int REQUEST_READ = 2;
 	private static final Logger LOG =
@@ -143,6 +143,8 @@ OnClickListener, OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
+		notificationManager.blockNotification(groupId);
+		notificationManager.clearForumPostNotification(groupId);
 		loadForum();
 		loadHeaders();
 	}
@@ -276,11 +278,11 @@ OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
+		notificationManager.unblockNotification(groupId);
 		if (isFinishing()) markPostsRead();
 	}
 
 	private void markPostsRead() {
-		notificationManager.clearForumPostNotification(groupId);
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
@@ -312,8 +314,9 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if (e instanceof MessageAddedEvent) {
-			if (((MessageAddedEvent) e).getGroupId().equals(groupId)) {
+		if (e instanceof MessageValidatedEvent) {
+			MessageValidatedEvent m = (MessageValidatedEvent) e;
+			if (m.isValid() && m.getMessage().getGroupId().equals(groupId)) {
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}

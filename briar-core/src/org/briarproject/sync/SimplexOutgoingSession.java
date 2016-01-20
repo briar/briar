@@ -11,10 +11,10 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
-import org.briarproject.api.sync.MessagingSession;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.TransportAck;
 import org.briarproject.api.sync.TransportUpdate;
 
@@ -28,15 +28,15 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.sync.MessagingConstants.MAX_PAYLOAD_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 
 /**
- * An outgoing {@link org.briarproject.api.sync.MessagingSession
- * MessagingSession} suitable for simplex transports. The session sends
- * messages without offering them, and closes its output stream when there are
- * no more packets to send.
+ * An outgoing {@link org.briarproject.api.sync.SyncSession SyncSession}
+ * suitable for simplex transports. The session sends messages without offering
+ * them first, and closes its output stream when there are no more packets to
+ * send.
  */
-class SimplexOutgoingSession implements MessagingSession, EventListener {
+class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(SimplexOutgoingSession.class.getName());
@@ -163,7 +163,7 @@ class SimplexOutgoingSession implements MessagingSession, EventListener {
 			if (interrupted) return;
 			try {
 				Collection<byte[]> b = db.generateBatch(contactId,
-						MAX_PAYLOAD_LENGTH, maxLatency);
+						MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
 				if (b == null) decrementOutstandingQueries();

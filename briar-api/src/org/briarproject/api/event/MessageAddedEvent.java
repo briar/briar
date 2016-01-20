@@ -22,7 +22,7 @@ public class MessageAddedEvent extends Event {
 
 	/** Returns the ID of the group to which the message belongs. */
 	public GroupId getGroupId() {
-		return message.getGroup().getId();
+		return message.getGroupId();
 	}
 
 	/**
