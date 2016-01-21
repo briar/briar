@@ -1,0 +1,173 @@
+package org.briarproject.introduction;
+
+import org.briarproject.api.DeviceId;
+import org.briarproject.api.FormatException;
+import org.briarproject.api.TransportId;
+import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.data.BdfList;
+import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Message;
+import org.briarproject.api.system.Clock;
+import org.briarproject.clients.BdfMessageValidator;
+
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
+import static org.briarproject.api.introduction.IntroductionConstants.DEVICE_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
+import static org.briarproject.api.introduction.IntroductionConstants.MSG;
+import static org.briarproject.api.introduction.IntroductionConstants.NAME;
+import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.TIME;
+import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+
+class IntroductionValidator extends BdfMessageValidator {
+
+	IntroductionValidator(ClientHelper clientHelper,
+			MetadataEncoder metadataEncoder, Clock clock) {
+		super(clientHelper, metadataEncoder, clock);
+	}
+
+	@Override
+	protected BdfDictionary validateMessage(Message m, Group g, BdfList body)
+			throws FormatException {
+
+		BdfDictionary d;
+		long type = body.getLong(0);
+		byte[] id = body.getRaw(1);
+		checkLength(id, SessionId.LENGTH);
+
+		if (type == TYPE_REQUEST) {
+			d = validateRequest(body);
+		} else if (type == TYPE_RESPONSE) {
+			d = validateResponse(body);
+		} else if (type == TYPE_ACK) {
+			d = validateAck(body);
+		} else if (type == TYPE_ABORT) {
+			d = validateAbort(body);
+		} else {
+			throw new FormatException();
+		}
+
+		d.put(TYPE, type);
+		d.put(SESSION_ID, id);
+		d.put(MESSAGE_ID, m.getId());
+		d.put(MESSAGE_TIME, m.getTimestamp());
+		return d;
+	}
+
+	private BdfDictionary validateRequest(BdfList message)
+			throws FormatException {
+
+		checkSize(message, 4, 5);
+
+		// parse contact name
+		String name = message.getString(2);
+		checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
+
+		// parse contact's public key
+		byte[] key = message.getRaw(3);
+		checkLength(key, 0, MAX_PUBLIC_KEY_LENGTH);
+
+		// parse (optional) message
+		String msg = null;
+		if (message.size() == 5) {
+			msg = message.getString(4);
+			checkLength(msg, 0, MAX_MESSAGE_BODY_LENGTH);
+		}
+
+		// Return the metadata
+		BdfDictionary d = new BdfDictionary();
+		d.put(NAME, name);
+		d.put(PUBLIC_KEY, key);
+		if (msg != null) {
+			d.put(MSG, msg);
+		}
+		return d;
+	}
+
+	private BdfDictionary validateResponse(BdfList message)
+			throws FormatException {
+
+		checkSize(message, 3, 7);
+
+		// parse accept/decline
+		boolean accept = message.getBoolean(2);
+
+		long time = 0;
+		byte[] pubkey = null;
+		byte[] deviceId = null;
+		BdfDictionary tp = new BdfDictionary();
+		if (accept) {
+			checkSize(message, 7);
+
+			// parse timestamp
+			time = message.getLong(3);
+
+			// parse ephemeral public key
+			pubkey = message.getRaw(4);
+			checkLength(pubkey, 0, MAX_PUBLIC_KEY_LENGTH);
+
+			// parse device ID
+			deviceId = message.getRaw(5);
+			checkLength(deviceId, DeviceId.LENGTH);
+
+			// parse transport properties
+			tp = message.getDictionary(6);
+			if (tp.size() < 1) throw new FormatException();
+			for (String tId : tp.keySet()) {
+				checkLength(tId, 1, TransportId.MAX_TRANSPORT_ID_LENGTH);
+				BdfDictionary tProps = tp.getDictionary(tId);
+				for (String propId : tProps.keySet()) {
+					checkLength(propId, 0, MAX_PROPERTY_LENGTH);
+					String prop = tProps.getString(propId);
+					checkLength(prop, 0, MAX_PROPERTY_LENGTH);
+				}
+			}
+		} else {
+			checkSize(message, 3);
+		}
+
+		// Return the metadata
+		BdfDictionary d = new BdfDictionary();
+		d.put(ACCEPT, accept);
+		if (accept) {
+			d.put(TIME, time);
+			d.put(E_PUBLIC_KEY, pubkey);
+			d.put(DEVICE_ID, deviceId);
+			d.put(TRANSPORT, tp);
+		}
+		return d;
+	}
+
+	private BdfDictionary validateAck(BdfList message)
+			throws FormatException {
+
+		checkSize(message, 2);
+
+		// Return the metadata
+		return new BdfDictionary();
+	}
+
+	private BdfDictionary validateAbort(BdfList message)
+			throws FormatException {
+
+		checkSize(message, 2);
+
+		// Return the metadata
+		return new BdfDictionary();
+	}
+}

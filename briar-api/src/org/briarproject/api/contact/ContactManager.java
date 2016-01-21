@@ -5,7 +5,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.identity.LocalAuthor;
 
 import java.util.Collection;
 

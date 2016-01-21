@@ -4,6 +4,7 @@ import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.forum.ForumModule;
+import org.briarproject.introduction.IntroductionModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
@@ -16,6 +17,7 @@ public interface CoreEagerSingletons {
 	void inject(CryptoModule.EagerSingletons init);
 	void inject(DatabaseModule.EagerSingletons init);
 	void inject(ForumModule.EagerSingletons init);
+	void inject(IntroductionModule.EagerSingletons init);
 	void inject(LifecycleModule.EagerSingletons init);
 	void inject(MessagingModule.EagerSingletons init);
 	void inject(PluginsModule.EagerSingletons init);
