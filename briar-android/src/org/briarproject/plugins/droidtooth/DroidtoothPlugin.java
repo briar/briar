@@ -72,7 +72,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final int maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
-	private volatile boolean wasDisabled = false;
+	private volatile boolean wasEnabledByUs = false;
 	private volatile BluetoothStateReceiver receiver = null;
 	private volatile BluetoothServerSocket socket = null;
 
@@ -132,12 +132,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 		filter.addAction(ACTION_SCAN_MODE_CHANGED);
 		receiver = new BluetoothStateReceiver();
 		appContext.registerReceiver(receiver, filter);
-		// If Bluetooth is enabled, bind a socket - otherwise enable it
+		// If Bluetooth is enabled, bind a socket
 		if (adapter.isEnabled()) {
 			bind();
 		} else {
-			wasDisabled = true;
+			// Enable Bluetooth if settings allow
 			if (callback.getSettings().getBoolean("enable", false)) {
+				wasEnabledByUs = true;
 				if (adapter.enable()) LOG.info("Enabling Bluetooth");
 				else LOG.info("Could not enable Bluetooth");
 			} else {
@@ -228,7 +229,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		if (receiver != null) appContext.unregisterReceiver(receiver);
 		tryToClose(socket);
 		// Disable Bluetooth if we enabled it and it's still enabled
-		if (wasDisabled && adapter.isEnabled()) {
+		if (wasEnabledByUs && adapter.isEnabled()) {
 			if (adapter.disable()) LOG.info("Disabling Bluetooth");
 			else LOG.info("Could not disable Bluetooth");
 		}
