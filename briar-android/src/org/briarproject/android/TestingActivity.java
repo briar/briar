@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -359,6 +360,13 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		if (btDiscoverable) btStatus += "discoverable";
 		else btStatus += "not discoverable";
 		if (bt != null) btStatus += "\nAddress: " + bt.getAddress();
+		try {
+			String btAddr = Settings.Secure.getString(getContentResolver(),
+					"bluetooth_address");
+			btStatus += "\nAddress from settings: " + btAddr;
+		} catch (SecurityException e) {
+			btStatus += "\nCould not get address from settings";
+		}
 		statusMap.put("Bluetooth:", btStatus);
 
 		Map<TransportId, TransportProperties> props = Collections.emptyMap();
