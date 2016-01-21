@@ -10,6 +10,8 @@ import android.os.FileObserver;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
+import net.sourceforge.jsocks.socks.Socks5Proxy;
+import net.sourceforge.jsocks.socks.SocksSocket;
 
 import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
@@ -23,7 +25,6 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.system.LocationUtils;
-import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.util.StringUtils;
 
 import java.io.EOFException;
@@ -46,9 +47,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
-
-import net.sourceforge.jsocks.Socks5Proxy;
-import net.sourceforge.jsocks.SocksSocket;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
@@ -538,7 +536,8 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + onion);
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
-			if (LOG.isLoggable(INFO)) LOG.info("Could not connect to " + onion);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Could not connect to " + onion + ": " + e);
 			return null;
 		}
 	}
