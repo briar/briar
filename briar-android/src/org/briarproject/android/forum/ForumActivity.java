@@ -220,7 +220,6 @@ public class ForumActivity extends BriarActivity implements EventListener,
 					// Scroll to the bottom
 					list.setSelection(adapter.getCount() - 1);
 				}
-				adapter.notifyDataSetChanged();
 			}
 		});
 	}

@@ -111,7 +111,6 @@ implements EventListener, OnItemClickListener {
 					for (ForumContacts f : available)
 						adapter.add(new AvailableForumsItem(f));
 					adapter.sort(AvailableForumsItemComparator.INSTANCE);
-					adapter.notifyDataSetChanged();
 				}
 			}
 		});

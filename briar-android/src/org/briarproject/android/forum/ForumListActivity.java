@@ -180,7 +180,6 @@ public class ForumListActivity extends BriarActivity
 				available.setVisibility(GONE);
 				loading.setVisibility(VISIBLE);
 				adapter.clear();
-				adapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -197,7 +196,6 @@ public class ForumListActivity extends BriarActivity
 				// Add a new item
 				adapter.add(new ForumListItem(f, headers));
 				adapter.sort(ForumListItemComparator.INSTANCE);
-				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			}
 		});
@@ -298,7 +296,6 @@ public class ForumListActivity extends BriarActivity
 				ForumListItem item = findForum(g);
 				if (item != null) {
 					adapter.remove(item);
-					adapter.notifyDataSetChanged();
 					if (adapter.isEmpty()) {
 						empty.setVisibility(VISIBLE);
 						list.setVisibility(GONE);

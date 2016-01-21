@@ -66,7 +66,6 @@ implements OnItemSelectedListener, OnClickListener {
 		adapter.clear();
 		for (LocalAuthor a : authors) adapter.add(new LocalAuthorItem(a));
 		adapter.sort(LocalAuthorItemComparator.INSTANCE);
-		adapter.notifyDataSetChanged();
 		// If a local author has been selected, select it again
 		AuthorId localAuthorId = container.getLocalAuthorId();
 		if (localAuthorId == null) return;

@@ -23,7 +23,7 @@ import static android.support.v7.util.SortedList.INVALID_POSITION;
 public class ContactListAdapter
 		extends RecyclerView.Adapter<ContactListAdapter.ContactHolder> {
 
-	private SortedList<ContactListItem> contacts =
+	private final SortedList<ContactListItem> contacts =
 			new SortedList<ContactListItem>(ContactListItem.class,
 					new SortedList.Callback<ContactListItem>() {
 						@Override
@@ -141,11 +141,7 @@ public class ContactListAdapter
 
 	@Override
 	public int getItemCount() {
-		return contacts == null ? 0 : contacts.size();
-	}
-
-	public boolean isEmpty() {
-		return contacts == null || contacts.size() == 0;
+		return contacts.size();
 	}
 
 	public ContactListItem getItem(int position) {
@@ -157,15 +153,6 @@ public class ContactListAdapter
 
 	public void updateItem(int position, ContactListItem item) {
 		contacts.updateItemAt(position, item);
-	}
-
-	public ContactListItem findItem(ContactId c) {
-		int count = getItemCount();
-		for (int i = 0; i < count; i++) {
-			ContactListItem item = getItem(i);
-			if (item.getContact().getId().equals(c)) return item;
-		}
-		return null; // Not found
 	}
 
 	public int findItemPosition(ContactListItem item) {
@@ -181,16 +168,16 @@ public class ContactListAdapter
 		return INVALID_POSITION; // Not found
 	}
 
-	public void addAll(final List<ContactListItem> contacts) {
+	public void addAll(List<ContactListItem> contacts) {
 		this.contacts.addAll(contacts);
 	}
 
-	public void add(final ContactListItem contact) {
-		this.contacts.add(contact);
+	public void add(ContactListItem contact) {
+		contacts.add(contact);
 	}
 
-	public void remove(final ContactListItem contact) {
-		this.contacts.remove(contact);
+	public void remove(ContactListItem contact) {
+		contacts.remove(contact);
 	}
 
 	public void clear() {

@@ -1,23 +1,23 @@
 package org.briarproject.android.identity;
 
-import static android.text.TextUtils.TruncateAt.END;
-import static org.briarproject.android.identity.LocalAuthorItem.ANONYMOUS;
-import static org.briarproject.android.identity.LocalAuthorItem.NEW;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+
+import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import static android.text.TextUtils.TruncateAt.END;
+import static org.briarproject.android.identity.LocalAuthorItem.ANONYMOUS;
+import static org.briarproject.android.identity.LocalAuthorItem.NEW;
 
 public class LocalAuthorSpinnerAdapter extends BaseAdapter
 implements SpinnerAdapter {
@@ -33,10 +33,12 @@ implements SpinnerAdapter {
 
 	public void add(LocalAuthorItem item) {
 		list.add(item);
+		notifyDataSetChanged();
 	}
 
 	public void clear() {
 		list.clear();
+		notifyDataSetChanged();
 	}
 
 	public int getCount() {
@@ -94,5 +96,6 @@ implements SpinnerAdapter {
 
 	public void sort(Comparator<LocalAuthorItem> comparator) {
 		Collections.sort(list, comparator);
+		notifyDataSetChanged();
 	}
 }
