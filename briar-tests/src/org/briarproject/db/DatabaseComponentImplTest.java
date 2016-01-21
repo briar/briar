@@ -3,7 +3,6 @@ package org.briarproject.db;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
@@ -18,7 +17,6 @@ import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
@@ -42,8 +40,6 @@ import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
@@ -60,7 +56,6 @@ import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGT
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
@@ -80,7 +75,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	private final Message message;
 	private final Metadata metadata;
 	private final TransportId transportId;
-	private final TransportProperties transportProperties;
 	private final int maxLatency;
 	private final ContactId contactId;
 	private final Contact contact;
@@ -88,7 +82,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	public DatabaseComponentImplTest() {
 		clientId = new ClientId(TestUtils.getRandomId());
 		groupId = new GroupId(TestUtils.getRandomId());
-		ClientId clientId = new ClientId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);
 		authorId = new AuthorId(TestUtils.getRandomId());
@@ -106,8 +99,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		metadata = new Metadata();
 		metadata.put("foo", new byte[] {'b', 'a', 'r'});
 		transportId = new TransportId("id");
-		transportProperties = new TransportProperties(Collections.singletonMap(
-				"bar", "baz"));
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthorId,
@@ -128,9 +119,9 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			exactly(10).of(database).startTransaction();
+			exactly(9).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(10).of(database).commitTransaction(txn);
+			exactly(9).of(database).commitTransaction(txn);
 			// open()
 			oneOf(database).open();
 			will(returnValue(false));
@@ -150,9 +141,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
-			// getRemoteProperties()
-			oneOf(database).getRemoteProperties(txn, transportId);
-			will(returnValue(Collections.emptyMap()));
 			// addGroup()
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(false));
@@ -194,8 +182,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		db.addLocalAuthor(localAuthor);
 		assertEquals(contactId, db.addContact(author, localAuthorId));
 		assertEquals(Collections.singletonList(contact), db.getContacts());
-		assertEquals(Collections.emptyMap(),
-				db.getRemoteProperties(transportId));
 		db.addGroup(group); // First time - listeners called
 		db.addGroup(group); // Second time - not called
 		assertEquals(Collections.singletonList(group), db.getGroups(clientId));
@@ -310,11 +296,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(21).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(21).of(database).containsContact(txn, contactId);
+			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(21).of(database).abortTransaction(txn);
+			exactly(17).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -356,20 +342,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.generateSubscriptionUpdate(contactId, 123);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			db.generateTransportAcks(contactId);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			db.generateTransportUpdates(contactId, 123);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -438,23 +410,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			SubscriptionUpdate u = new SubscriptionUpdate(
 					Collections.<Group>emptyList(), 1);
 			db.receiveSubscriptionUpdate(contactId, u);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			TransportAck a = new TransportAck(transportId, 0);
-			db.receiveTransportAck(contactId, a);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			TransportUpdate u = new TransportUpdate(transportId,
-					transportProperties, 1);
-			db.receiveTransportUpdate(contactId, u);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -677,13 +632,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
-			exactly(6).of(database).startTransaction();
+			exactly(4).of(database).startTransaction();
 			will(returnValue(txn));
 			exactly(2).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			exactly(6).of(database).containsTransport(txn, transportId);
+			exactly(4).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
-			exactly(6).of(database).abortTransaction(txn);
+			exactly(4).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -692,21 +647,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(author, localAuthorId));
 
 		try {
-			db.getLocalProperties(transportId);
-			fail();
-		} catch (NoSuchTransportException expected) {
-			// Expected
-		}
-
-		try {
 			db.getTransportKeys(transportId);
-			fail();
-		} catch (NoSuchTransportException expected) {
-			// Expected
-		}
-
-		try {
-			db.mergeLocalProperties(transportId, new TransportProperties());
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
@@ -953,62 +894,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGenerateTransportUpdatesNoUpdatesDue() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getTransportUpdates(txn, contactId, maxLatency);
-			will(returnValue(null));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		assertNull(db.generateTransportUpdates(contactId, maxLatency));
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testGenerateTransportUpdates() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getTransportUpdates(txn, contactId, maxLatency);
-			will(returnValue(Collections.singletonList(new TransportUpdate(
-					transportId, transportProperties, 1))));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		Collection<TransportUpdate> updates =
-				db.generateTransportUpdates(contactId, maxLatency);
-		assertNotNull(updates);
-		assertEquals(1, updates.size());
-		TransportUpdate u = updates.iterator().next();
-		assertEquals(transportId, u.getId());
-		assertEquals(transportProperties, u.getProperties());
-		assertEquals(1, u.getVersion());
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testReceiveAck() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -1249,116 +1134,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		SubscriptionUpdate u = new SubscriptionUpdate(
 				Collections.singletonList(group), 1);
 		db.receiveSubscriptionUpdate(contactId, u);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testReceiveTransportAck() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).containsTransport(txn, transportId);
-			will(returnValue(true));
-			oneOf(database).setTransportUpdateAcked(txn, contactId,
-					transportId, 1);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		TransportAck a = new TransportAck(transportId, 1);
-		db.receiveTransportAck(contactId, a);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testReceiveTransportUpdate() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).setRemoteProperties(txn, contactId, transportId,
-					transportProperties, 1);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		TransportUpdate u = new TransportUpdate(transportId,
-				transportProperties, 1);
-		db.receiveTransportUpdate(contactId, u);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testChangingLocalTransportPropertiesCallsListeners()
-			throws Exception {
-		final TransportProperties properties =
-				new TransportProperties(Collections.singletonMap("bar", "baz"));
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsTransport(txn, transportId);
-			will(returnValue(true));
-			oneOf(database).getLocalProperties(txn, transportId);
-			will(returnValue(new TransportProperties()));
-			oneOf(database).mergeLocalProperties(txn, transportId, properties);
-			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(
-					LocalTransportsUpdatedEvent.class)));
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		db.mergeLocalProperties(transportId, properties);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testNotChangingLocalTransportPropertiesDoesNotCallListeners()
-			throws Exception {
-		final TransportProperties properties =
-				new TransportProperties(Collections.singletonMap("bar", "baz"));
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsTransport(txn, transportId);
-			will(returnValue(true));
-			oneOf(database).getLocalProperties(txn, transportId);
-			will(returnValue(properties));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		db.mergeLocalProperties(transportId, properties);
 
 		context.assertIsSatisfied();
 	}

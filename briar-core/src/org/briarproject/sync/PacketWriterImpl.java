@@ -12,8 +12,6 @@ import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.util.ByteUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -25,8 +23,6 @@ import static org.briarproject.api.sync.PacketTypes.OFFER;
 import static org.briarproject.api.sync.PacketTypes.REQUEST;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
-import static org.briarproject.api.sync.PacketTypes.TRANSPORT_ACK;
-import static org.briarproject.api.sync.PacketTypes.TRANSPORT_UPDATE;
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.PROTOCOL_VERSION;
@@ -123,27 +119,6 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeInteger(u.getVersion());
 		w.writeListEnd();
 		writePacket(SUBSCRIPTION_UPDATE);
-	}
-
-	public void writeTransportAck(TransportAck a) throws IOException {
-		if (payload.size() != 0) throw new IllegalStateException();
-		BdfWriter w = bdfWriterFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeString(a.getId().getString());
-		w.writeInteger(a.getVersion());
-		w.writeListEnd();
-		writePacket(TRANSPORT_ACK);
-	}
-
-	public void writeTransportUpdate(TransportUpdate u) throws IOException {
-		if (payload.size() != 0) throw new IllegalStateException();
-		BdfWriter w = bdfWriterFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeString(u.getId().getString());
-		w.writeDictionary(u.getProperties());
-		w.writeInteger(u.getVersion());
-		w.writeListEnd();
-		writePacket(TRANSPORT_UPDATE);
 	}
 
 	public void flush() throws IOException {

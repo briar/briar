@@ -9,6 +9,4 @@ public interface PacketTypes {
 	byte REQUEST = 3;
 	byte SUBSCRIPTION_ACK = 6;
 	byte SUBSCRIPTION_UPDATE = 7;
-	byte TRANSPORT_ACK = 8;
-	byte TRANSPORT_UPDATE = 9;
 }

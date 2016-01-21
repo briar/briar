@@ -2,7 +2,6 @@ package org.briarproject.db;
 
 import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.ContactExistsException;
@@ -19,7 +18,6 @@ import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
@@ -28,7 +26,6 @@ import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
@@ -49,8 +46,6 @@ import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -475,47 +470,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public Collection<TransportAck> generateTransportAcks(ContactId c)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				Collection<TransportAck> acks = db.getTransportAcks(txn, c);
-				db.commitTransaction(txn);
-				return acks;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public Collection<TransportUpdate> generateTransportUpdates(ContactId c,
-			int maxLatency) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				Collection<TransportUpdate> updates =
-						db.getTransportUpdates(txn, c, maxLatency);
-				db.commitTransaction(txn);
-				return updates;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
 	public Collection<Group> getAvailableGroups(ClientId c) throws DbException {
 		lock.readLock().lock();
 		try {
@@ -679,45 +633,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public Map<TransportId, TransportProperties> getLocalProperties()
-			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Map<TransportId, TransportProperties> properties =
-						db.getLocalProperties(txn);
-				db.commitTransaction(txn);
-				return properties;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public TransportProperties getLocalProperties(TransportId t)
-			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				TransportProperties properties = db.getLocalProperties(txn, t);
-				db.commitTransaction(txn);
-				return properties;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
 	public Collection<MessageId> getMessagesToValidate(ClientId c)
 			throws DbException {
 		lock.readLock().lock();
@@ -831,25 +746,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				MessageStatus status = db.getMessageStatus(txn, c, m);
 				db.commitTransaction(txn);
 				return status;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Map<ContactId, TransportProperties> getRemoteProperties(
-			TransportId t) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Map<ContactId, TransportProperties> properties =
-						db.getRemoteProperties(txn, t);
-				db.commitTransaction(txn);
-				return properties;
 			} catch (DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -990,30 +886,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-	}
-
-	public void mergeLocalProperties(TransportId t, TransportProperties p)
-			throws DbException {
-		boolean changed = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				if (!p.equals(db.getLocalProperties(txn, t))) {
-					db.mergeLocalProperties(txn, t, p);
-					changed = true;
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (changed) eventBus.broadcast(new LocalTransportsUpdatedEvent());
 	}
 
 	public void mergeMessageMetadata(MessageId m, Metadata meta)
@@ -1208,52 +1080,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (updated) eventBus.broadcast(new RemoteSubscriptionsUpdatedEvent(c));
 	}
 
-	public void receiveTransportAck(ContactId c, TransportAck a)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsTransport(txn, a.getId()))
-					throw new NoSuchTransportException();
-				db.setTransportUpdateAcked(txn, c, a.getId(), a.getVersion());
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public void receiveTransportUpdate(ContactId c, TransportUpdate u)
-			throws DbException {
-		boolean updated;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				TransportId t = u.getId();
-				TransportProperties p = u.getProperties();
-				long version = u.getVersion();
-				updated = db.setRemoteProperties(txn, c, t, p, version);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (updated)
-			eventBus.broadcast(new RemoteTransportsUpdatedEvent(c, u.getId()));
-	}
-
 	public void removeContact(ContactId c) throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -1388,25 +1214,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		eventBus.broadcast(new MessageValidatedEvent(m, c, false, valid));
-	}
-
-	public void setRemoteProperties(ContactId c,
-			Map<TransportId, TransportProperties> p) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				db.setRemoteProperties(txn, c, p);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
 	}
 
 	public void setReorderingWindow(ContactId c, TransportId t,

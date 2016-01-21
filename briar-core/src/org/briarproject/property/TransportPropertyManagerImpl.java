@@ -9,6 +9,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.property.TransportPropertyManager;
 
+import java.util.Collections;
 import java.util.Map;
 
 // Temporary facade during sync protocol refactoring
@@ -24,30 +25,33 @@ class TransportPropertyManagerImpl implements TransportPropertyManager {
 	@Override
 	public Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException {
-		return db.getLocalProperties();
+		// TODO
+		return Collections.emptyMap();
 	}
 
 	@Override
 	public TransportProperties getLocalProperties(TransportId t)
 			throws DbException {
-		return db.getLocalProperties(t);
+		// TODO
+		return new TransportProperties();
 	}
 
 	@Override
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			TransportId t) throws DbException {
-		return db.getRemoteProperties(t);
+		// TODO
+		return Collections.emptyMap();
 	}
 
 	@Override
 	public void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException {
-		db.mergeLocalProperties(t, p);
+		// TODO
 	}
 
 	@Override
 	public void setRemoteProperties(ContactId c,
 			Map<TransportId, TransportProperties> p) throws DbException {
-		db.setRemoteProperties(c, p);
+		// TODO
 	}
 }

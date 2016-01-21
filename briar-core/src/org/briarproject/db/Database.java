@@ -2,7 +2,6 @@ package org.briarproject.db;
 
 import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -19,8 +18,6 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -303,22 +300,6 @@ interface Database<T> {
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
-	 * Returns the local transport properties for all transports.
-	 * <p>
-	 * Locking: read.
-	 */
-	Map<TransportId, TransportProperties> getLocalProperties(T txn)
-			throws DbException;
-
-	/**
-	 * Returns the local transport properties for the given transport.
-	 * <p>
-	 * Locking: read.
-	 */
-	TransportProperties getLocalProperties(T txn, TransportId t)
-			throws DbException;
-
-	/**
 	 * Returns the metadata for all messages in the given group.
 	 * <p>
 	 * Locking: read.
@@ -404,14 +385,6 @@ interface Database<T> {
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns all remote properties for the given transport.
-	 * <p>
-	 * Locking: read.
-	 */
-	Map<ContactId, TransportProperties> getRemoteProperties(T txn,
-			TransportId t) throws DbException;
-
-	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact and have been requested by the contact, up to the given
 	 * total length.
@@ -453,15 +426,6 @@ interface Database<T> {
 			int maxLatency) throws DbException;
 
 	/**
-	 * Returns a collection of transport acks for the given contact, or null if
-	 * no acks are due.
-	 * <p>
-	 * Locking: write.
-	 */
-	Collection<TransportAck> getTransportAcks(T txn, ContactId c)
-			throws DbException;
-
-	/**
 	 * Returns all transport keys for the given transport.
 	 * <p>
 	 * Locking: read.
@@ -475,16 +439,6 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	Map<TransportId, Integer> getTransportLatencies(T txn) throws DbException;
-
-	/**
-	 * Returns a collection of transport updates for the given contact and
-	 * updates their expiry times using the given latency, or returns null if
-	 * no updates are due.
-	 * <p>
-	 * Locking: write.
-	 */
-	Collection<TransportUpdate> getTransportUpdates(T txn, ContactId c,
-			int maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of all contacts to which the given group is visible.
@@ -527,15 +481,6 @@ interface Database<T> {
 	 * Locking: write.
 	 */
 	void mergeGroupMetadata(T txn, GroupId g, Metadata meta)
-			throws DbException;
-
-	/**
-	 * Merges the given properties with the existing local properties for the
-	 * given transport.
-	 * <p>
-	 * Locking: write.
-	 */
-	void mergeLocalProperties(T txn, TransportId t, TransportProperties p)
 			throws DbException;
 
 	/*
@@ -690,26 +635,6 @@ interface Database<T> {
 			long version) throws DbException;
 
 	/**
-	 * Sets the remote transport properties for the given contact, replacing
-	 * any existing properties.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setRemoteProperties(T txn, ContactId c,
-			Map<TransportId, TransportProperties> p) throws DbException;
-
-	/**
-	 * Updates the remote transport properties for the given contact and the
-	 * given transport, replacing any existing properties, and returns true,
-	 * unless an update with an equal or higher version number has already been
-	 * received from the contact.
-	 * <p>
-	 * Locking: write.
-	 */
-	boolean setRemoteProperties(T txn, ContactId c, TransportId t,
-			TransportProperties p, long version) throws DbException;
-
-	/**
 	 * Records a subscription ack from the given contact for the given version,
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
@@ -717,15 +642,6 @@ interface Database<T> {
 	 */
 	void setSubscriptionUpdateAcked(T txn, ContactId c, long version)
 			throws DbException;
-
-	/**
-	 * Records a transport ack from the give contact for the given version,
-	 * unless the contact has already acked an equal or higher version.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setTransportUpdateAcked(T txn, ContactId c, TransportId t,
-			long version) throws DbException;
 
 	/**
 	 * Makes a group visible or invisible to future contacts by default.

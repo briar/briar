@@ -15,8 +15,6 @@ import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.SyncSession;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -68,7 +66,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.packetWriter = packetWriter;
-		outstandingQueries = new AtomicInteger(6); // One per type of packet
+		outstandingQueries = new AtomicInteger(4); // One per type of packet
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
@@ -76,8 +74,6 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		eventBus.addListener(this);
 		try {
 			// Start a query for each type of packet, in order of urgency
-			dbExecutor.execute(new GenerateTransportAcks());
-			dbExecutor.execute(new GenerateTransportUpdates());
 			dbExecutor.execute(new GenerateSubscriptionAck());
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
 			dbExecutor.execute(new GenerateAck());
@@ -262,80 +258,6 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			packetWriter.writeSubscriptionUpdate(update);
 			LOG.info("Sent subscription update");
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateTransportAcks implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				Collection<TransportAck> acks =
-						db.generateTransportAcks(contactId);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated transport acks: " + (acks != null));
-				if (acks == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteTransportAcks(acks));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This tasks runs on the writer thread
-	private class WriteTransportAcks implements ThrowingRunnable<IOException> {
-
-		private final Collection<TransportAck> acks;
-
-		private WriteTransportAcks(Collection<TransportAck> acks) {
-			this.acks = acks;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			for (TransportAck a : acks) packetWriter.writeTransportAck(a);
-			LOG.info("Sent transport acks");
-			dbExecutor.execute(new GenerateTransportAcks());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateTransportUpdates implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				Collection<TransportUpdate> t =
-						db.generateTransportUpdates(contactId, maxLatency);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated transport updates: " + (t != null));
-				if (t == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteTransportUpdates(t));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteTransportUpdates
-	implements ThrowingRunnable<IOException> {
-
-		private final Collection<TransportUpdate> updates;
-
-		private WriteTransportUpdates(Collection<TransportUpdate> updates) {
-			this.updates = updates;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			for (TransportUpdate u : updates)
-				packetWriter.writeTransportUpdate(u);
-			LOG.info("Sent transport updates");
-			dbExecutor.execute(new GenerateTransportUpdates());
 		}
 	}
 }

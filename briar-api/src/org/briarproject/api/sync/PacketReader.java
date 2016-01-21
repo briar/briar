@@ -23,10 +23,4 @@ public interface PacketReader {
 
 	boolean hasSubscriptionUpdate() throws IOException;
 	SubscriptionUpdate readSubscriptionUpdate() throws IOException;
-
-	boolean hasTransportAck() throws IOException;
-	TransportAck readTransportAck() throws IOException;
-
-	boolean hasTransportUpdate() throws IOException;
-	TransportUpdate readTransportUpdate() throws IOException;
 }

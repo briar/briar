@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.sync.Ack;
@@ -21,7 +20,6 @@ import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
@@ -56,12 +54,11 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final PacketWriterFactory packetWriterFactory;
 
 	private final ContactId contactId;
+	private final TransportId transportId;
 	private final SecretKey tagKey, headerKey;
 	private final Group group;
 	private final Message message, message1;
 	private final Collection<MessageId> messageIds;
-	private final TransportId transportId;
-	private final TransportProperties transportProperties;
 
 	public ProtocolIntegrationTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
@@ -74,6 +71,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		packetReaderFactory = i.getInstance(PacketReaderFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		contactId = new ContactId(234);
+		transportId = new TransportId("id");
 		// Create the transport keys
 		tagKey = TestUtils.createSecretKey();
 		headerKey = TestUtils.createSecretKey();
@@ -91,10 +89,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		message1 = messageFactory.createMessage(group.getId(), timestamp,
 				messageBody.getBytes("UTF-8"));
 		messageIds = Arrays.asList(message.getId(), message1.getId());
-		// Create some transport properties
-		transportId = new TransportId("id");
-		transportProperties = new TransportProperties(Collections.singletonMap(
-				"bar", "baz"));
 	}
 
 	@Test
@@ -123,10 +117,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		SubscriptionUpdate su = new SubscriptionUpdate(
 				Collections.singletonList(group), 1);
 		packetWriter.writeSubscriptionUpdate(su);
-
-		TransportUpdate tu = new TransportUpdate(transportId,
-				transportProperties, 1);
-		packetWriter.writeTransportUpdate(tu);
 
 		streamWriter.flush();
 		return out.toByteArray();
@@ -173,13 +163,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		SubscriptionUpdate su = packetReader.readSubscriptionUpdate();
 		assertEquals(Collections.singletonList(group), su.getGroups());
 		assertEquals(1, su.getVersion());
-
-		// Read the transport update
-		assertTrue(packetReader.hasTransportUpdate());
-		TransportUpdate tu = packetReader.readTransportUpdate();
-		assertEquals(transportId, tu.getId());
-		assertEquals(transportProperties, tu.getProperties());
-		assertEquals(1, tu.getVersion());
 
 		in.close();
 	}

@@ -19,8 +19,6 @@ import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.SyncSession;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -77,12 +75,6 @@ class IncomingSession implements SyncSession, EventListener {
 				} else if (packetReader.hasSubscriptionUpdate()) {
 					SubscriptionUpdate u = packetReader.readSubscriptionUpdate();
 					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
-				} else if (packetReader.hasTransportAck()) {
-					TransportAck a = packetReader.readTransportAck();
-					dbExecutor.execute(new ReceiveTransportAck(a));
-				} else if (packetReader.hasTransportUpdate()) {
-					TransportUpdate u = packetReader.readTransportUpdate();
-					dbExecutor.execute(new ReceiveTransportUpdate(u));
 				} else {
 					throw new FormatException();
 				}
@@ -210,42 +202,6 @@ class IncomingSession implements SyncSession, EventListener {
 		public void run() {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	private class ReceiveTransportAck implements Runnable {
-
-		private final TransportAck ack;
-
-		private ReceiveTransportAck(TransportAck ack) {
-			this.ack = ack;
-		}
-
-		public void run() {
-			try {
-				db.receiveTransportAck(contactId, ack);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	private class ReceiveTransportUpdate implements Runnable {
-
-		private final TransportUpdate update;
-
-		private ReceiveTransportUpdate(TransportUpdate update) {
-			this.update = update;
-		}
-
-		public void run() {
-			try {
-				db.receiveTransportUpdate(contactId, update);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
