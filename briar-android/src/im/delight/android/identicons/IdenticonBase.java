@@ -4,15 +4,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import java.security.MessageDigest;
+import org.briarproject.api.crypto.CryptoComponent;
 
 /**
  * Created by saiimons on 05/10/14.
  */
 public abstract class IdenticonBase {
-    private static final String HASH_ALGORITHM = "SHA-256";
-
-
+    private final CryptoComponent mCrypto;
     private final int mRowCount;
     private final int mColumnCount;
     private final Paint mPaint;
@@ -23,6 +21,7 @@ public abstract class IdenticonBase {
     private volatile boolean mReady;
 
     public IdenticonBase() {
+        mCrypto = getCrypto();
         mRowCount = getRowCount();
         mColumnCount = getColumnCount();
         mPaint = new Paint();
@@ -32,20 +31,16 @@ public abstract class IdenticonBase {
         mPaint.setDither(true);
     }
 
-    public static byte[] getHash(String input) {
+    public byte[] getHash(byte[] input) {
         byte[] mHash;
         // if the input was null
         if (input == null) {
             // we can't create a hash value and have nothing to show (draw to the view)
             mHash = null;
-        }
-        // if the input was a proper string (non-null)
-        else {
-            // generate a hash from the string to get unique but deterministic byte values
+        } else {
+            // generate a hash from the input to get unique but deterministic byte values
             try {
-                final MessageDigest digest = java.security.MessageDigest.getInstance(HASH_ALGORITHM);
-                digest.update(input == null ? new byte[0] : input.getBytes());
-                mHash = digest.digest();
+                mHash = mCrypto.hash(input);
             } catch (Exception e) {
                 mHash = null;
             }
@@ -68,9 +63,9 @@ public abstract class IdenticonBase {
         }
     }
 
-    public void show(String input) {
+    public void show(byte[] input) {
         if(input != null) {
-            mHash = IdenticonBase.getHash(input);
+            mHash = getHash(input);
         } else {
             mHash = null;
         }
@@ -88,6 +83,8 @@ public abstract class IdenticonBase {
             return mHash[index % mHash.length];
         }
     }
+
+    abstract protected CryptoComponent getCrypto();
 
     abstract protected int getRowCount();
 

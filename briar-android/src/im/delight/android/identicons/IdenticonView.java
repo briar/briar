@@ -49,9 +49,13 @@ abstract public class IdenticonView extends View {
         }
     }
 
-    public void show(String input) {
+    public void show(byte[] input) {
         getDelegate().show(input);
         invalidate();
+    }
+
+    public void show(String input) {
+        show(input.getBytes());
     }
 
     public void show(int input) {
@@ -71,7 +75,7 @@ abstract public class IdenticonView extends View {
     }
 
     public void show(byte input) {
-        show(String.valueOf(input));
+        show(new byte[] { input });
     }
 
     public void show(char input) {
