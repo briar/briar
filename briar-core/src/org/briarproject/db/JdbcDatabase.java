@@ -256,8 +256,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	protected abstract void flushBuffersToDisk(Statement s) throws SQLException;
-
 	private final Lock connectionsLock = new ReentrantLock();
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
@@ -419,14 +417,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void commitTransaction(Connection txn) throws DbException {
-		Statement s = null;
 		try {
 			txn.commit();
-			s = txn.createStatement();
-			flushBuffersToDisk(s);
-			s.close();
 		} catch (SQLException e) {
-			tryToClose(s);
 			throw new DbException(e);
 		}
 		connectionsLock.lock();

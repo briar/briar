@@ -9,7 +9,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
 import javax.inject.Inject;
@@ -31,9 +30,8 @@ class H2Database extends JdbcDatabase {
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();
-		// FIXME: Remove WRITE_DELAY=0 after implementing BTPv2?
 		url = "jdbc:h2:split:" + path + ";CIPHER=AES;MULTI_THREADED=1"
-				+ ";WRITE_DELAY=0;DB_CLOSE_ON_EXIT=false";
+				+ ";DB_CLOSE_ON_EXIT=false";
 	}
 
 	public boolean open() throws DbException {
@@ -82,11 +80,5 @@ class H2Database extends JdbcDatabase {
 		// Separate the file password from the user password with a space
 		props.put("password", StringUtils.toHexString(key) + " password");
 		return DriverManager.getConnection(url, props);
-	}
-
-	@Override
-	protected void flushBuffersToDisk(Statement s) throws SQLException {
-		// FIXME: Remove this after implementing BTPv2?
-		s.execute("CHECKPOINT SYNC");
 	}
 }
