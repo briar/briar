@@ -6,7 +6,6 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,7 +17,7 @@ import javax.inject.Inject;
 /** Contains all the H2-specific code for the database. */
 class H2Database extends JdbcDatabase {
 
-	private static final String HASH_TYPE = "BINARY(48)";
+	private static final String HASH_TYPE = "BINARY(32)";
 	private static final String BINARY_TYPE = "BINARY";
 	private static final String COUNTER_TYPE = "INT NOT NULL AUTO_INCREMENT";
 	private static final String SECRET_TYPE = "BINARY(32)";
@@ -30,13 +29,14 @@ class H2Database extends JdbcDatabase {
 	H2Database(DatabaseConfig config, Clock clock) {
 		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, clock);
 		this.config = config;
-		String path = new File(config.getDatabaseDirectory(), "db").getAbsolutePath();
+		File dir = config.getDatabaseDirectory();
+		String path = new File(dir, "db").getAbsolutePath();
 		// FIXME: Remove WRITE_DELAY=0 after implementing BTPv2?
 		url = "jdbc:h2:split:" + path + ";CIPHER=AES;MULTI_THREADED=1"
 				+ ";WRITE_DELAY=0;DB_CLOSE_ON_EXIT=false";
 	}
 
-	public boolean open() throws DbException, IOException {
+	public boolean open() throws DbException {
 		boolean reopen = config.databaseExists();
 		if (!reopen) config.getDatabaseDirectory().mkdirs();
 		super.open("org.h2.Driver", reopen);

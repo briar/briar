@@ -31,7 +31,7 @@ import java.util.Map;
 public interface DatabaseComponent {
 
 	/** Opens the database and returns true if the database already existed. */
-	boolean open() throws DbException, IOException;
+	boolean open() throws DbException;
 
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException, IOException;

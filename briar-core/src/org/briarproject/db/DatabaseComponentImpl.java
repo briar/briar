@@ -94,7 +94,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		this.shutdown = shutdown;
 	}
 
-	public boolean open() throws DbException, IOException {
+	public boolean open() throws DbException {
 		Runnable shutdownHook = new Runnable() {
 			public void run() {
 				lock.writeLock().lock();

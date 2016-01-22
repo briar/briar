@@ -25,7 +25,6 @@ import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -271,8 +270,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		this.clock = clock;
 	}
 
-	protected void open(String driverClass, boolean reopen) throws DbException,
-			IOException {
+	protected void open(String driverClass, boolean reopen) throws DbException {
 		// Load the JDBC driver
 		try {
 			Class.forName(driverClass);
@@ -286,10 +284,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (!checkSchemaVersion(txn)) throw new DbException();
 			} else {
 				createTables(txn);
-				Settings s = new Settings();
-				s.put("schemaVersion", String.valueOf(SCHEMA_VERSION));
-				s.put("minSchemaVersion", String.valueOf(MIN_SCHEMA_VERSION));
-				mergeSettings(txn, s, "db");
+				storeSchemaVersion(txn);
 			}
 			commitTransaction(txn);
 		} catch (DbException e) {
@@ -299,16 +294,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
-		try {
-			Settings s = getSettings(txn, "db");
-			int schemaVersion = Integer.valueOf(s.get("schemaVersion"));
-			if (schemaVersion == SCHEMA_VERSION) return true;
-			if (schemaVersion < MIN_SCHEMA_VERSION) return false;
-			int minSchemaVersion = Integer.valueOf(s.get("minSchemaVersion"));
-			return SCHEMA_VERSION >= minSchemaVersion;
-		} catch (NumberFormatException e) {
-			throw new DbException(e);
-		}
+		Settings s = getSettings(txn, "db");
+		int schemaVersion = s.getInt("schemaVersion", -1);
+		if (schemaVersion == SCHEMA_VERSION) return true;
+		if (schemaVersion < MIN_SCHEMA_VERSION) return false;
+		int minSchemaVersion = s.getInt("minSchemaVersion", -1);
+		return SCHEMA_VERSION >= minSchemaVersion;
+	}
+
+	private void storeSchemaVersion(Connection txn) throws DbException {
+		Settings s = new Settings();
+		s.putInt("schemaVersion", SCHEMA_VERSION);
+		s.putInt("minSchemaVersion", MIN_SCHEMA_VERSION);
+		mergeSettings(txn, s, "db");
 	}
 
 	private void tryToClose(ResultSet rs) {
@@ -2352,7 +2350,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setContactStatus(Connection txn, ContactId c, StorageStatus s)
-		throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE contacts SET status = ? WHERE contactId = ?";
@@ -2387,7 +2385,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setMessageValidity(Connection txn, MessageId m, boolean valid)
-		throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE messages SET valid = ? WHERE messageId = ?";

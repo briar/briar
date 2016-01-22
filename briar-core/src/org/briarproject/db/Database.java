@@ -40,7 +40,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	boolean open() throws DbException, IOException;
+	boolean open() throws DbException;
 
 	/**
 	 * Prevents new transactions from starting, waits for all current
