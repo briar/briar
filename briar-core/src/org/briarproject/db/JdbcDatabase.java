@@ -514,9 +514,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != ids.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] != 1) throw new DbStateException();
-				}
+				for (int rows : batchAffected)
+					if (rows != 1) throw new DbStateException();
 				ps.close();
 			}
 			// Make groups that are visible to everyone visible to this contact
@@ -539,9 +538,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != ids.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] != 1) throw new DbStateException();
-				}
+				for (int rows : batchAffected)
+					if (rows != 1) throw new DbStateException();
 				ps.close();
 			}
 			// Create a group version row
@@ -796,9 +794,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.addBatch();
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != 3) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 			// Store the outgoing keys
 			sql = "INSERT INTO outgoingKeys (contactId, transportId, period,"
@@ -1921,9 +1918,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != acked.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
+			for (int rows : batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			ps.close();
 		} catch (SQLException e) {
@@ -1947,9 +1944,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != requested.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
+			for (int rows: batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			ps.close();
 		} catch (SQLException e) {
@@ -1992,9 +1989,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != removed.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] < 0) throw new DbStateException();
-					if (batchAffected[i] > 1) throw new DbStateException();
+				for (int rows : batchAffected) {
+					if (rows < 0) throw new DbStateException();
+					if (rows > 1) throw new DbStateException();
 				}
 				ps.close();
 			}
@@ -2012,9 +2009,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != retained.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
+			for (int rows : batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			// Insert any keys that don't already exist
 			sql = "INSERT INTO " + tableName
@@ -2034,9 +2031,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			batchAffected = ps.executeBatch();
 			if (batchAffected.length != inserted) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2060,9 +2056,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != s.size()) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
+			for (int rows : batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			// Insert any settings that don't already exist
 			sql = "INSERT INTO settings (key, value, namespace)"
@@ -2081,9 +2077,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			batchAffected = ps.executeBatch();
 			if (batchAffected.length != inserted) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2195,9 +2190,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != visible.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2271,9 +2265,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != requested.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2465,9 +2458,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != removed.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] < 0) throw new DbStateException();
-				}
+				for (int rows : batchAffected)
+					if (rows < 0) throw new DbStateException();
 				ps.close();
 			}
 			// Delete the existing subscriptions, if any
@@ -2491,9 +2483,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != groups.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 			return true;
 		} catch (SQLException e) {
