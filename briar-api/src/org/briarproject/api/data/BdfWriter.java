@@ -9,9 +9,6 @@ public interface BdfWriter {
 	void flush() throws IOException;
 	void close() throws IOException;
 
-	void addConsumer(Consumer c);
-	void removeConsumer(Consumer c);
-
 	void writeNull() throws IOException;
 	void writeBoolean(boolean b) throws IOException;
 	void writeInteger(long l) throws IOException;
