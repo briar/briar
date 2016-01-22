@@ -25,12 +25,12 @@ import org.briarproject.android.util.FixedVerticalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.Settings;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.SettingsUpdatedEvent;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.util.StringUtils;
 

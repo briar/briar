@@ -13,7 +13,7 @@ import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
-import org.briarproject.api.property.TransportPropertyManager;
+import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 import org.briarproject.system.SystemClock;

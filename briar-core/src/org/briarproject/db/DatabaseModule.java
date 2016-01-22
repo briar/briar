@@ -9,8 +9,9 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
-import org.briarproject.system.SystemClock;
+import org.briarproject.api.system.Clock;
 
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -39,13 +40,12 @@ public class DatabaseModule extends AbstractModule {
 	}
 
 	@Override
-	protected void configure() {
-		// Nothing to bind
-	}
+	protected void configure() {}
 
 	@Provides @Singleton
-	Database<Connection> getDatabase(DatabaseConfig config) {
-		return new H2Database(config, new SystemClock());
+	Database<Connection> getDatabase(DatabaseConfig config,
+			SecureRandom random, Clock clock) {
+		return new H2Database(config, random, clock);
 	}
 
 	@Provides @Singleton

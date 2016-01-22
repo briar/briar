@@ -29,13 +29,13 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
-import org.briarproject.api.property.TransportPropertyManager;
+import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;

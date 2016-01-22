@@ -1,7 +1,7 @@
 package org.briarproject.db;
 
-import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.UniqueId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
@@ -12,6 +12,7 @@ import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -24,7 +25,9 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
+import org.briarproject.util.StringUtils;
 
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,6 +56,11 @@ import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
 import static org.briarproject.api.sync.ValidationManager.Status.INVALID;
 import static org.briarproject.api.sync.ValidationManager.Status.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.Status.VALID;
+import static org.briarproject.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
+import static org.briarproject.db.DatabaseConstants.DEVICE_ID_KEY;
+import static org.briarproject.db.DatabaseConstants.DEVICE_SETTINGS_NAMESPACE;
+import static org.briarproject.db.DatabaseConstants.MIN_SCHEMA_VERSION_KEY;
+import static org.briarproject.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
 
 /**
@@ -61,8 +69,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 17;
-	private static final int MIN_SCHEMA_VERSION = 17;
+	private static final int SCHEMA_VERSION = 18;
+	private static final int MIN_SCHEMA_VERSION = 18;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -244,6 +252,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
+	private final SecureRandom random;
 	private final Clock clock;
 
 	private final LinkedList<Connection> connections =
@@ -260,11 +269,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
 	JdbcDatabase(String hashType, String binaryType, String counterType,
-			String secretType, Clock clock) {
+			String secretType, SecureRandom random, Clock clock) {
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
 		this.secretType = secretType;
+		this.random = random;
 		this.clock = clock;
 	}
 
@@ -283,6 +293,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			} else {
 				createTables(txn);
 				storeSchemaVersion(txn);
+				storeDeviceId(txn);
 			}
 			commitTransaction(txn);
 		} catch (DbException e) {
@@ -292,19 +303,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
-		Settings s = getSettings(txn, "db");
-		int schemaVersion = s.getInt("schemaVersion", -1);
+		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
+		int schemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
 		if (schemaVersion == SCHEMA_VERSION) return true;
 		if (schemaVersion < MIN_SCHEMA_VERSION) return false;
-		int minSchemaVersion = s.getInt("minSchemaVersion", -1);
+		int minSchemaVersion = s.getInt(MIN_SCHEMA_VERSION_KEY, -1);
 		return SCHEMA_VERSION >= minSchemaVersion;
 	}
 
 	private void storeSchemaVersion(Connection txn) throws DbException {
 		Settings s = new Settings();
-		s.putInt("schemaVersion", SCHEMA_VERSION);
-		s.putInt("minSchemaVersion", MIN_SCHEMA_VERSION);
-		mergeSettings(txn, s, "db");
+		s.putInt(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
+		s.putInt(MIN_SCHEMA_VERSION_KEY, MIN_SCHEMA_VERSION);
+		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
+	}
+
+	private void storeDeviceId(Connection txn) throws DbException {
+		byte[] deviceId = new byte[UniqueId.LENGTH];
+		random.nextBytes(deviceId);
+		Settings s = new Settings();
+		s.put(DEVICE_ID_KEY, StringUtils.toHexString(deviceId));
+		mergeSettings(txn, s, DEVICE_SETTINGS_NAMESPACE);
 	}
 
 	private void tryToClose(ResultSet rs) {

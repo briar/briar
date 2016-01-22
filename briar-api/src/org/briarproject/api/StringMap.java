@@ -3,7 +3,7 @@ package org.briarproject.api;
 import java.util.Hashtable;
 import java.util.Map;
 
-abstract class StringMap extends Hashtable<String, String> {
+public abstract class StringMap extends Hashtable<String, String> {
 
 	private static final long serialVersionUID = 2497176435908100448L;
 

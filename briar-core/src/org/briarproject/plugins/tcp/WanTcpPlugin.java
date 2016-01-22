@@ -1,5 +1,9 @@
 package org.briarproject.plugins.tcp;
 
+import org.briarproject.api.TransportId;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.properties.TransportProperties;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -7,10 +11,6 @@ import java.net.SocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
-
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 
 class WanTcpPlugin extends TcpPlugin {
 

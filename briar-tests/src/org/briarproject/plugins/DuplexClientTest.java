@@ -1,11 +1,11 @@
 package org.briarproject.plugins;
 
-import org.briarproject.api.Settings;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.settings.Settings;
 
 import java.io.IOException;
 import java.util.Map;

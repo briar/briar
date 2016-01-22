@@ -1,7 +1,6 @@
-package org.briarproject.api.property;
+package org.briarproject.api.properties;
 
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 
@@ -26,11 +25,4 @@ public interface TransportPropertyManager {
 	 */
 	void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException;
-
-	/**
-	 * Sets the remote transport properties for the given contact, replacing
-	 * any existing properties.
-	 */
-	void setRemoteProperties(ContactId c,
-			Map<TransportId, TransportProperties> p) throws DbException;
 }

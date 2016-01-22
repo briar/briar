@@ -13,6 +13,8 @@ import org.briarproject.api.system.Clock;
 
 import javax.inject.Singleton;
 
+import static org.briarproject.messaging.MessagingManagerImpl.CLIENT_ID;
+
 public class MessagingModule extends AbstractModule {
 
 	@Override
@@ -22,14 +24,11 @@ public class MessagingModule extends AbstractModule {
 
 	@Provides @Singleton
 	PrivateMessageValidator getValidator(ValidationManager validationManager,
-			MessagingManager messagingManager,
 			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
 				bdfReaderFactory, metadataEncoder, clock);
-		validationManager.registerMessageValidator(
-				messagingManager.getClientId(),
-				validator);
+		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}
 

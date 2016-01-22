@@ -13,9 +13,7 @@ import net.freehaven.tor.control.TorControlConnection;
 import net.sourceforge.jsocks.socks.Socks5Proxy;
 import net.sourceforge.jsocks.socks.SocksSocket;
 
-import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.event.Event;
@@ -24,6 +22,8 @@ import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.util.StringUtils;
 

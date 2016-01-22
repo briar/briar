@@ -3,7 +3,6 @@ package org.briarproject.db;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseConfig;
 import org.briarproject.TestUtils;
-import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
@@ -13,6 +12,7 @@ import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1121,7 +1122,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
-				MAX_SIZE), new SystemClock());
+				MAX_SIZE), new SecureRandom(), new SystemClock());
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;

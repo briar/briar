@@ -18,7 +18,6 @@ import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,12 +70,10 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		return true;
 	}
 
-	public void addContact(ContactId c, Collection<TransportId> transports,
-			SecretKey master, long timestamp, boolean alice) {
-		for (TransportId t : transports) {
-			TransportKeyManager m = managers.get(t);
-			if (m != null) m.addContact(c, master, timestamp, alice);
-		}
+	public void addContact(ContactId c, SecretKey master, long timestamp,
+			boolean alice) {
+		for (TransportKeyManager m : managers.values())
+			m.addContact(c, master, timestamp, alice);
 	}
 
 	public StreamContext getStreamContext(ContactId c, TransportId t) {

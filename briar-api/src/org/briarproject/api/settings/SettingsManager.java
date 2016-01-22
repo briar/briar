@@ -1,6 +1,5 @@
 package org.briarproject.api.settings;
 
-import org.briarproject.api.Settings;
 import org.briarproject.api.db.DbException;
 
 public interface SettingsManager {

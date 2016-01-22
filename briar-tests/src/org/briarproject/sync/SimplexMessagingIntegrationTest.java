@@ -54,7 +54,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collections;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
@@ -132,8 +131,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(bobAuthor, aliceId);
 		// Derive and store the transport keys
-		keyManager.addContact(contactId, Collections.singletonList(transportId),
-				master, timestamp, true);
+		keyManager.addContact(contactId, master, timestamp, true);
 
 		// Send Bob a message
 		GroupId groupId = messagingManager.getConversationId(contactId);
@@ -198,8 +196,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(aliceAuthor, bobId);
 		// Derive and store the transport keys
-		keyManager.addContact(contactId, Collections.singletonList(transportId),
-				master, timestamp, false);
+		keyManager.addContact(contactId, master, timestamp, false);
 
 		// Set up an event listener
 		MessageListener listener = new MessageListener();

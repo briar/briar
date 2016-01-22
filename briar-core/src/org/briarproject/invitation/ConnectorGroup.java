@@ -1,7 +1,5 @@
 package org.briarproject.invitation;
 
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PseudoRandom;
@@ -19,7 +17,6 @@ import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.KeyManager;
@@ -28,7 +25,6 @@ import org.briarproject.api.transport.StreamWriterFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,12 +53,10 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final ConnectionManager connectionManager;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
-	private final TransportPropertyManager transportPropertyManager;
 	private final Clock clock;
 	private final PluginManager pluginManager;
 	private final AuthorId localAuthorId;
 	private final int localInvitationCode, remoteInvitationCode;
-	private final boolean reuseConnection;
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
@@ -83,10 +77,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
 			IdentityManager identityManager, ContactManager contactManager,
-			TransportPropertyManager transportPropertyManager, Clock clock,
-			PluginManager pluginManager, AuthorId localAuthorId,
-			int localInvitationCode, int remoteInvitationCode,
-			boolean reuseConnection) {
+			Clock clock, PluginManager pluginManager, AuthorId localAuthorId,
+			int localInvitationCode, int remoteInvitationCode) {
 		super("ConnectorGroup");
 		this.crypto = crypto;
 		this.bdfReaderFactory = bdfReaderFactory;
@@ -99,13 +91,11 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		this.connectionManager = connectionManager;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
-		this.transportPropertyManager = transportPropertyManager;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
 		this.localAuthorId = localAuthorId;
 		this.localInvitationCode = localInvitationCode;
 		this.remoteInvitationCode = remoteInvitationCode;
-		this.reuseConnection = reuseConnection;
 		listeners = new CopyOnWriteArrayList<InvitationListener>();
 		connected = new AtomicBoolean(false);
 		localConfirmationLatch = new CountDownLatch(1);
@@ -136,11 +126,9 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	@Override
 	public void run() {
 		LocalAuthor localAuthor;
-		Map<TransportId, TransportProperties> localProps;
-		// Load the local pseudonym and transport properties
+		// Load the local pseudonym
 		try {
 			localAuthor = identityManager.getLocalAuthor(localAuthorId);
-			localProps = transportPropertyManager.getLocalProperties();
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			lock.lock();
@@ -157,15 +145,13 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		// Alice is the party with the smaller invitation code
 		if (localInvitationCode < remoteInvitationCode) {
 			for (DuplexPlugin plugin : pluginManager.getInvitationPlugins()) {
-				Connector c = createAliceConnector(plugin, localAuthor,
-						localProps);
+				Connector c = createAliceConnector(plugin, localAuthor);
 				connectors.add(c);
 				c.start();
 			}
 		} else {
 			for (DuplexPlugin plugin: pluginManager.getInvitationPlugins()) {
-				Connector c = createBobConnector(plugin, localAuthor,
-						localProps);
+				Connector c = createBobConnector(plugin, localAuthor);
 				connectors.add(c);
 				c.start();
 			}
@@ -190,27 +176,23 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	}
 
 	private Connector createAliceConnector(DuplexPlugin plugin,
-			LocalAuthor localAuthor,
-			Map<TransportId, TransportProperties> localProps) {
+			LocalAuthor localAuthor) {
 		PseudoRandom random = crypto.getPseudoRandom(localInvitationCode,
 				remoteInvitationCode);
 		return new AliceConnector(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, contactManager,
-				transportPropertyManager, clock, reuseConnection, this, plugin,
-				localAuthor, localProps, random);
+				clock, this, plugin, localAuthor, random);
 	}
 
 	private Connector createBobConnector(DuplexPlugin plugin,
-			LocalAuthor localAuthor,
-			Map<TransportId, TransportProperties> localProps) {
+			LocalAuthor localAuthor) {
 		PseudoRandom random = crypto.getPseudoRandom(remoteInvitationCode,
 				localInvitationCode);
 		return new BobConnector(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, contactManager,
-				transportPropertyManager, clock, reuseConnection, this, plugin,
-				localAuthor, localProps, random);
+				clock, this, plugin, localAuthor, random);
 	}
 
 	public void localConfirmationSucceeded() {
