@@ -9,10 +9,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import org.briarproject.R;
-import org.briarproject.android.contact.ContactListActivity;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
-import org.briarproject.android.forum.ForumListActivity;
 import org.briarproject.api.Settings;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
@@ -205,10 +203,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			} else {
-				Intent i = new Intent(appContext, ContactListActivity.class);
+				Intent i = new Intent(appContext, NavDrawerActivity.class);
+				i.putExtra(NavDrawerActivity.INTENT_CONTACTS, true);
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
-				t.addParentStack(ContactListActivity.class);
+				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
@@ -283,10 +282,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			} else {
-				Intent i = new Intent(appContext, ForumListActivity.class);
+				Intent i = new Intent(appContext, NavDrawerActivity.class);
+				i.putExtra(NavDrawerActivity.INTENT_FORUMS, true);
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
-				t.addParentStack(ForumListActivity.class);
+				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}

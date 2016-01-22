@@ -84,7 +84,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 			Injector i = RoboGuice.getBaseApplicationInjector(getApplication());
 			DatabaseConfig databaseConfig = i.getInstance(DatabaseConfig.class);
 			if (hex != null && databaseConfig.databaseExists()) {
-				startActivity(new Intent(this, DashboardActivity.class));
+				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
 				prefs.edit().clear().apply();
 				FileUtils.deleteFileOrDir(

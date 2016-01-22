@@ -70,7 +70,7 @@ public class BriarService extends RoboService {
 		b.setContentText(getText(R.string.ongoing_notification_text));
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
-		Intent i = new Intent(this, DashboardActivity.class);
+		Intent i = new Intent(this, NavDrawerActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_SINGLE_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
@@ -117,7 +117,7 @@ public class BriarService extends RoboService {
 				NotificationManager nm = (NotificationManager) o;
 				nm.notify(FAILURE_NOTIFICATION_ID, b.build());
 				// Bring the dashboard to the front to clear the back stack
-				i = new Intent(BriarService.this, DashboardActivity.class);
+				i = new Intent(BriarService.this, NavDrawerActivity.class);
 				i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra("briar.STARTUP_FAILED", true);
 				startActivity(i);

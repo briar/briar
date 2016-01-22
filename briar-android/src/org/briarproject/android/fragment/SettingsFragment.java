@@ -1,4 +1,4 @@
-package org.briarproject.android;
+package org.briarproject.android.fragment;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -7,8 +7,10 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -16,6 +18,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.TestingActivity;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.FixedVerticalSpace;
@@ -27,7 +30,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.util.StringUtils;
@@ -53,16 +55,19 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.TestingConstants.SHOW_TESTING_ACTIVITY;
+import static android.app.Activity.RESULT_OK;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
-public class SettingsActivity extends BriarActivity implements EventListener,
-OnClickListener {
+public class SettingsFragment extends BaseFragment implements
+		View.OnClickListener {
+
+	public final static String TAG = "SettingsFragment";
 
 	public static final int REQUEST_RINGTONE = 2;
 
 	private static final Logger LOG =
-			Logger.getLogger(SettingsActivity.class.getName());
+			Logger.getLogger(SettingsFragment.class.getName());
 
 	private ScrollView scroll = null;
 	private TextView enableBluetooth = null, enableBluetoothHint = null;
@@ -81,21 +86,36 @@ OnClickListener {
 	private volatile Settings settings;
 	private volatile boolean bluetoothSetting = true, torSetting = false;
 
-	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
+	public static SettingsFragment newInstance() {
 
-		LinearLayout layout = new LinearLayout(this);
+		Bundle args = new Bundle();
+
+		SettingsFragment fragment = new SettingsFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	@Override
+	public String getUniqueTag() {
+		return TAG;
+	}
+
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		LinearLayout layout = new LinearLayout(getContext());
 		layout.setOrientation(VERTICAL);
 
-		scroll = new ScrollView(this);
+		scroll = new ScrollView(getContext());
 
-		LinearLayout settings = new LinearLayout(this);
+		LinearLayout settings = new LinearLayout(getContext());
 		settings.setOrientation(VERTICAL);
-		int pad = LayoutUtils.getPadding(this);
+		int pad = LayoutUtils.getPadding(getContext());
 		settings.setPadding(pad, pad, pad, pad);
 
-		TextView bluetoothTitle = new TextView(this);
+		TextView bluetoothTitle = new TextView(getContext());
 		bluetoothTitle.setPadding(pad, 0, pad, 0);
 		bluetoothTitle.setTypeface(DEFAULT_BOLD);
 		Resources res = getResources();
@@ -104,143 +124,143 @@ OnClickListener {
 		bluetoothTitle.setText(R.string.bluetooth_setting_title);
 		settings.addView(bluetoothTitle);
 
-		HorizontalBorder underline = new HorizontalBorder(this);
+		HorizontalBorder underline = new HorizontalBorder(getContext());
 		int titleUnderline = res.getColor(R.color.settings_title_underline);
 		underline.setBackgroundColor(titleUnderline);
 		settings.addView(underline);
 
-		enableBluetooth = new TextView(this);
+		enableBluetooth = new TextView(getContext());
 		enableBluetooth.setPadding(pad, pad, pad, 0);
 		enableBluetooth.setTextSize(18);
 		enableBluetooth.setText(R.string.bluetooth_setting);
 		enableBluetooth.setOnClickListener(this);
 		settings.addView(enableBluetooth);
 
-		enableBluetoothHint = new TextView(this);
+		enableBluetoothHint = new TextView(getContext());
 		enableBluetoothHint.setPadding(pad, 0, pad, pad);
 		enableBluetoothHint.setOnClickListener(this);
 		settings.addView(enableBluetoothHint);
 
-		TextView torTitle = new TextView(this);
+		TextView torTitle = new TextView(getContext());
 		torTitle.setPadding(pad, 0, pad, 0);
 		torTitle.setTypeface(DEFAULT_BOLD);
 		torTitle.setTextColor(titleText);
 		torTitle.setText(R.string.tor_wifi_setting_title);
 		settings.addView(torTitle);
 
-		underline = new HorizontalBorder(this);
+		underline = new HorizontalBorder(getContext());
 		underline.setBackgroundColor(titleUnderline);
 		settings.addView(underline);
 
-		torOverWifi = new TextView(this);
+		torOverWifi = new TextView(getContext());
 		torOverWifi.setPadding(pad, pad, pad, 0);
 		torOverWifi.setTextSize(18);
 		torOverWifi.setText(R.string.tor_wifi_setting);
 		torOverWifi.setOnClickListener(this);
 		settings.addView(torOverWifi);
 
-		torOverWifiHint = new TextView(this);
+		torOverWifiHint = new TextView(getContext());
 		torOverWifiHint.setPadding(pad, 0, pad, pad);
 		torOverWifiHint.setOnClickListener(this);
 		settings.addView(torOverWifiHint);
 
-		TextView panicTitle = new TextView(this);
+		TextView panicTitle = new TextView(getContext());
 		panicTitle.setPadding(pad, 0, pad, 0);
 		panicTitle.setTypeface(DEFAULT_BOLD);
 		panicTitle.setTextColor(titleText);
 		panicTitle.setText(R.string.panic_setting_title);
 		settings.addView(panicTitle);
 
-		underline = new HorizontalBorder(this);
+		underline = new HorizontalBorder(getContext());
 		underline.setBackgroundColor(titleUnderline);
 		settings.addView(underline);
 
-		panicSettings = new TextView(this);
+		panicSettings = new TextView(getContext());
 		panicSettings.setPadding(pad, pad, pad, 0);
 		panicSettings.setTextSize(18);
 		panicSettings.setText(R.string.panic_setting);
 		panicSettings.setOnClickListener(this);
 		settings.addView(panicSettings);
 
-		panicSettingsHint = new TextView(this);
+		panicSettingsHint = new TextView(getContext());
 		panicSettingsHint.setText(R.string.panic_setting_hint);
 		panicSettingsHint.setPadding(pad, 0, pad, pad);
 		panicSettingsHint.setOnClickListener(this);
 		settings.addView(panicSettingsHint);
 
-		TextView notificationsTitle = new TextView(this);
+		TextView notificationsTitle = new TextView(getContext());
 		notificationsTitle.setPadding(pad, 0, pad, 0);
 		notificationsTitle.setTypeface(DEFAULT_BOLD);
 		notificationsTitle.setTextColor(titleText);
 		notificationsTitle.setText(R.string.notification_settings_title);
 		settings.addView(notificationsTitle);
 
-		underline = new HorizontalBorder(this);
+		underline = new HorizontalBorder(getContext());
 		underline.setBackgroundColor(titleUnderline);
 		settings.addView(underline);
 
-		settings.addView(new FixedVerticalSpace(this));
+		settings.addView(new FixedVerticalSpace(getContext()));
 
-		notifyPrivateMessages = new CheckBox(this);
+		notifyPrivateMessages = new CheckBox(getContext());
 		notifyPrivateMessages.setTextSize(18);
 		notifyPrivateMessages.setText(R.string.notify_private_messages_setting);
 		notifyPrivateMessages.setOnClickListener(this);
 		settings.addView(notifyPrivateMessages);
 
-		settings.addView(new FixedVerticalSpace(this));
-		settings.addView(new HorizontalBorder(this));
-		settings.addView(new FixedVerticalSpace(this));
+		settings.addView(new FixedVerticalSpace(getContext()));
+		settings.addView(new HorizontalBorder(getContext()));
+		settings.addView(new FixedVerticalSpace(getContext()));
 
-		notifyForumPosts = new CheckBox(this);
+		notifyForumPosts = new CheckBox(getContext());
 		notifyForumPosts.setTextSize(18);
 		notifyForumPosts.setText(R.string.notify_forum_posts_setting);
 		notifyForumPosts.setOnClickListener(this);
 		settings.addView(notifyForumPosts);
 
-		settings.addView(new FixedVerticalSpace(this));
-		settings.addView(new HorizontalBorder(this));
-		settings.addView(new FixedVerticalSpace(this));
+		settings.addView(new FixedVerticalSpace(getContext()));
+		settings.addView(new HorizontalBorder(getContext()));
+		settings.addView(new FixedVerticalSpace(getContext()));
 
-		notifyVibration = new CheckBox(this);
+		notifyVibration = new CheckBox(getContext());
 		notifyVibration.setTextSize(18);
 		notifyVibration.setText(R.string.notify_vibration_setting);
 		notifyVibration.setOnClickListener(this);
 		settings.addView(notifyVibration);
 
-		settings.addView(new FixedVerticalSpace(this));
-		settings.addView(new HorizontalBorder(this));
+		settings.addView(new FixedVerticalSpace(getContext()));
+		settings.addView(new HorizontalBorder(getContext()));
 
-		notifySound = new TextView(this);
+		notifySound = new TextView(getContext());
 		notifySound.setPadding(pad, pad, pad, 0);
 		notifySound.setTextSize(18);
 		notifySound.setText(R.string.notify_sound_setting);
 		notifySound.setOnClickListener(this);
 		settings.addView(notifySound);
 
-		notifySoundHint = new TextView(this);
+		notifySoundHint = new TextView(getContext());
 		notifySoundHint.setPadding(pad, 0, pad, pad);
 		notifySoundHint.setOnClickListener(this);
 		settings.addView(notifySoundHint);
 
-		settings.addView(new HorizontalBorder(this));
+		settings.addView(new HorizontalBorder(getContext()));
 
 		scroll.addView(settings);
 		scroll.setLayoutParams(MATCH_WRAP_1);
 		scroll.setVisibility(GONE);
 		layout.addView(scroll);
 
-		progress = new ListLoadingProgressBar(this);
+		progress = new ListLoadingProgressBar(getContext());
 		layout.addView(progress);
 
-		layout.addView(new HorizontalBorder(this));
+		layout.addView(new HorizontalBorder(getContext()));
 
 		if (SHOW_TESTING_ACTIVITY) {
-			LinearLayout footer = new LinearLayout(this);
+			LinearLayout footer = new LinearLayout(getContext());
 			footer.setLayoutParams(MATCH_WRAP);
 			footer.setGravity(CENTER);
 			int background = res.getColor(R.color.button_bar_background);
 			footer.setBackgroundColor(background);
-			testingButton = new ImageButton(this);
+			testingButton = new ImageButton(getContext());
 			testingButton.setBackgroundResource(0);
 			testingButton.setImageResource(R.drawable.action_about);
 			testingButton.setOnClickListener(this);
@@ -248,18 +268,17 @@ OnClickListener {
 			layout.addView(footer);
 		}
 
-		setContentView(layout);
+		return layout;
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		eventBus.addListener(this);
 		loadSettings();
 	}
 
 	private void loadSettings() {
-		runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -281,13 +300,14 @@ OnClickListener {
 	}
 
 	private void displaySettings() {
-		runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			public void run() {
 				scroll.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
 
 				int resId;
-				if (bluetoothSetting) resId = R.string.bluetooth_setting_enabled;
+				if (bluetoothSetting)
+					resId = R.string.bluetooth_setting_enabled;
 				else resId = R.string.bluetooth_setting_disabled;
 				enableBluetoothHint.setText(resId);
 
@@ -318,16 +338,10 @@ OnClickListener {
 		});
 	}
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		eventBus.removeListener(this);
-	}
-
 	public void onClick(View view) {
 		if (progress == null) return; // Not created yet
 		if (view == testingButton) {
-			startActivity(new Intent(this, TestingActivity.class));
+			startActivity(new Intent(getActivity(), TestingActivity.class));
 		} else if (view == enableBluetooth || view == enableBluetoothHint) {
 			bluetoothSetting = !bluetoothSetting;
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
@@ -346,7 +360,7 @@ OnClickListener {
 					notifyPrivateMessages.isChecked());
 			storeSettings(s);
 		} else if (view == panicSettings || view == panicSettingsHint) {
-			startActivity(new Intent(this, PanicPreferencesActivity.class));
+			startActivity(new Intent(getActivity(), PanicPreferencesActivity.class));
 		} else if (view == notifyForumPosts) {
 			Settings s = new Settings();
 			s.putBoolean("notifyForumPosts", notifyForumPosts.isChecked());
@@ -375,7 +389,7 @@ OnClickListener {
 	}
 
 	private void storeTorSettings() {
-		runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					Settings s = new Settings();
@@ -394,7 +408,7 @@ OnClickListener {
 	}
 
 	private void storeBluetoothSettings() {
-		runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					Settings s = new Settings();
@@ -413,11 +427,12 @@ OnClickListener {
 	}
 
 	private void storeSettings(final Settings settings) {
-		runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					settingsManager.mergeSettings(settings, "settings-activity");
+					settingsManager
+							.mergeSettings(settings, "settings-activity");
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Merging settings took " + duration + " ms");
@@ -449,8 +464,8 @@ OnClickListener {
 				s.put("notifyRingtoneUri", "");
 			} else {
 				// The user chose a ringtone other than the default
-				Ringtone r = RingtoneManager.getRingtone(this, uri);
-				String name = r.getTitle(this);
+				Ringtone r = RingtoneManager.getRingtone(getContext(), uri);
+				String name = r.getTitle(getContext());
 				notifySoundHint.setText(name);
 				s.putBoolean("notifySound", true);
 				s.put("notifyRingtoneName", name);

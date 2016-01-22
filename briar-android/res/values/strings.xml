@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-
+    <string name="nav_drawer_open_description">Open the navigation drawer</string>
+    <string name="nav_drawer_close_description">Close the navigation drawer</string>
     <string name="app_name">Briar</string>
     <string name="crash_report_title">Briar Crash Report</string>
     <string name="ongoing_notification_title">Signed into Briar</string>
@@ -141,4 +141,15 @@
     <string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
     <string name="dialog_title_connect_panic_app">Confirm Panic App</string>
     <string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
+    <string name="dialog_title_welcome">Welcome to Briar</string>
+    <string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
+    <string name="dialog_button_ok">OK</string>
+    <!-- Toolbar headers -->
+    <string name="dashboard_toolbar_header">Briar</string>
+    <string name="settings_toolbar_header">Settings</string>
+    <string name="contacts_toolbar_header">Contacts</string>
+    <string name="forums_toolbar_header">Forums</string>
+    <!-- Progress titles -->
+    <string name="progress_title_logout">Signing out of Briar..</string>
+    <string name="progress_title_please_wait">Please wait..</string>
 </resources>

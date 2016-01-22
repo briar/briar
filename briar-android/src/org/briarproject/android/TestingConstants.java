@@ -5,7 +5,7 @@ import static java.util.logging.Level.OFF;
 
 import java.util.logging.Level;
 
-interface TestingConstants {
+public interface TestingConstants {
 
 	/**
 	 * Whether this is an alpha or beta build. This should be set to false for
@@ -25,7 +25,7 @@ interface TestingConstants {
 	boolean PREVENT_SCREENSHOTS = TESTING ? false : true;
 
 	/**
-	 * Whether to allow TestingActivity to be launched from SettingsActivity.
+	 * Whether to allow TestingActivity to be launched from SettingsFragment.
 	 */
 	boolean SHOW_TESTING_ACTIVITY = TESTING ? true : false;
 
