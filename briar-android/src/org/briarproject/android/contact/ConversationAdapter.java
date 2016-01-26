@@ -11,10 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
 
-import im.delight.android.identicons.IdenticonView;
+import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
@@ -72,10 +73,12 @@ class ConversationAdapter extends
 						}
 					});
 	private Context ctx;
+	private CryptoComponent crypto;
 	private byte[] identiconKey;
 
-	public ConversationAdapter(Context context) {
+	public ConversationAdapter(Context context, CryptoComponent cryptoComponent) {
 		ctx = context;
+		crypto = cryptoComponent;
 	}
 
 	public void setIdenticonKey(byte[] key) {
@@ -129,7 +132,8 @@ class ConversationAdapter extends
 			}
 		} else {
 			if (identiconKey != null)
-				ui.identicon.show(identiconKey);
+				ui.avatar.setImageDrawable(
+						new IdenticonDrawable(crypto, identiconKey));
 			if (!header.isRead()) {
 				int left = ui.layout.getPaddingLeft();
 				int top = ui.layout.getPaddingTop();
@@ -198,7 +202,7 @@ class ConversationAdapter extends
 		public TextView body;
 		public TextView date;
 		public ImageView status;
-		public IdenticonView identicon;
+		public ImageView avatar;
 
 		public MessageHolder(View v, int type) {
 			super(v);
@@ -211,7 +215,7 @@ class ConversationAdapter extends
 			if (type == MSG_OUT) {
 				status = (ImageView) v.findViewById(R.id.msgStatus);
 			} else {
-				identicon = (IdenticonView) v.findViewById(R.id.msgIdenticon);
+				avatar = (ImageView) v.findViewById(R.id.msgAvatar);
 			}
 		}
 	}

@@ -11,8 +11,8 @@
 		android:layout_height="@dimen/listitem_height_one_line_avatar"
 		android:background="?attr/selectableItemBackground">
 
-		<im.delight.android.identicons.SymmetricIdenticon
-			android:id="@+id/identiconView"
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:id="@+id/avatarView"
 			android:layout_width="@dimen/listitem_picture_size"
 			android:layout_height="@dimen/listitem_picture_size"
 			android:layout_alignParentLeft="true"

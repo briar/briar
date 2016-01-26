@@ -10,8 +10,8 @@
 	android:paddingTop="@dimen/margin_small"
 	android:paddingBottom="@dimen/margin_small">
 
-	<im.delight.android.identicons.SymmetricIdenticon
-		android:id="@+id/msgIdenticon"
+	<de.hdodenhof.circleimageview.CircleImageView
+		android:id="@+id/msgAvatar"
 		android:layout_width="@dimen/listitem_picture_size"
 		android:layout_height="@dimen/listitem_picture_size"
 		android:layout_marginLeft="@dimen/listitem_horizontal_margin"

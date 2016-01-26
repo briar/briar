@@ -5,17 +5,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.api.crypto.CryptoComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import im.delight.android.identicons.IdenticonView;
+import im.delight.android.identicons.IdenticonDrawable;
 
 import static org.briarproject.android.identity.LocalAuthorItem.ANONYMOUS;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
@@ -24,11 +26,14 @@ public class LocalAuthorSpinnerAdapter extends BaseAdapter
 implements SpinnerAdapter {
 
 	private final Context ctx;
+	private final CryptoComponent crypto;
 	private final boolean includeAnonymous;
 	private final List<LocalAuthorItem> list = new ArrayList<LocalAuthorItem>();
 
-	public LocalAuthorSpinnerAdapter(Context ctx, boolean includeAnonymous) {
+	public LocalAuthorSpinnerAdapter(Context ctx,
+			CryptoComponent crypto, boolean includeAnonymous) {
 		this.ctx = ctx;
+		this.crypto = crypto;
 		this.includeAnonymous = includeAnonymous;
 	}
 
@@ -60,20 +65,21 @@ implements SpinnerAdapter {
 			view = convertView;
 
 		TextView name = (TextView) view.findViewById(R.id.nameView);
-		IdenticonView identicon =
-				(IdenticonView) view.findViewById(R.id.identiconView);
+		ImageView avatar =
+				(ImageView) view.findViewById(R.id.avatarView);
 
 		LocalAuthorItem item = getItem(position);
 		if (item == ANONYMOUS) {
 			name.setText(R.string.anonymous);
-			identicon.setVisibility(View.INVISIBLE);
+			avatar.setVisibility(View.INVISIBLE);
 		} else if (item == NEW) {
 			name.setText(R.string.new_identity_item);
-			identicon.setVisibility(View.INVISIBLE);
+			avatar.setVisibility(View.INVISIBLE);
 		} else {
 			name.setText(item.getLocalAuthor().getName());
-			identicon.setVisibility(View.VISIBLE);
-			identicon.show(item.getLocalAuthor().getId().getBytes());
+			avatar.setVisibility(View.VISIBLE);
+			avatar.setImageDrawable(new IdenticonDrawable(crypto,
+					item.getLocalAuthor().getId().getBytes()));
 		}
 		return view;
 	}

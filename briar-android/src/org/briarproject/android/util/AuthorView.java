@@ -9,13 +9,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.identity.Author;
 
-import im.delight.android.identicons.IdenticonView;
+import javax.inject.Inject;
+
+import im.delight.android.identicons.IdenticonDrawable;
+import roboguice.RoboGuice;
 
 public class AuthorView extends FrameLayout {
 
-	private IdenticonView identiconView;
+	@Inject private CryptoComponent crypto;
+	private ImageView avatarView;
 	private TextView nameView;
 	private ImageView statusView;
 
@@ -39,13 +44,14 @@ public class AuthorView extends FrameLayout {
 	}
 
 	private void initViews() {
+		RoboGuice.injectMembers(getContext(), this);
 		if (isInEditMode())
 			return;
 
 		View v = LayoutInflater.from(getContext()).inflate(
 				R.layout.author_view, this, true);
 
-		identiconView = (IdenticonView) v.findViewById(R.id.identiconView);
+		avatarView = (ImageView) v.findViewById(R.id.avatarView);
 		nameView = (TextView) v.findViewById(R.id.nameView);
 		statusView = (ImageView) v.findViewById(R.id.statusView);
 	}
@@ -53,7 +59,8 @@ public class AuthorView extends FrameLayout {
 	public void init(Author author, Author.Status status) {
 		if (author == null) nameView.setText(R.string.anonymous);
 		else {
-			identiconView.show(author.getId().getBytes());
+			avatarView.setImageDrawable(
+					new IdenticonDrawable(crypto, author.getId().getBytes()));
 			nameView.setText(author.getName());
 		}
 

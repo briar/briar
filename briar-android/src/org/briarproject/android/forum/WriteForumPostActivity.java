@@ -123,7 +123,7 @@ implements OnItemSelectedListener, OnClickListener {
 		left.addRule(CENTER_VERTICAL);
 		header.addView(from, left);
 
-		adapter = new LocalAuthorSpinnerAdapter(this, true);
+		adapter = new LocalAuthorSpinnerAdapter(this, crypto, true);
 		spinner = new Spinner(this);
 		spinner.setId(2);
 		spinner.setAdapter(adapter);

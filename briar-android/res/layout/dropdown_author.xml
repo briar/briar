@@ -6,8 +6,8 @@
 	android:layout_height="match_parent"
 	android:gravity="center_vertical">
 
-	<im.delight.android.identicons.SymmetricIdenticon
-		android:id="@+id/identiconView"
+	<de.hdodenhof.circleimageview.CircleImageView
+		android:id="@+id/avatarView"
 		android:layout_width="@dimen/dropdown_picture_size"
 		android:layout_height="@dimen/dropdown_picture_size"/>
 

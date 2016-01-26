@@ -23,6 +23,7 @@ import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
@@ -71,6 +72,7 @@ public class ConversationActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
+	@Inject private CryptoComponent crypto;
 	@Inject private AndroidNotificationManager notificationManager;
 	@Inject private ConnectionRegistry connectionRegistry;
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
@@ -102,7 +104,7 @@ public class ConversationActivity extends BriarActivity
 
 		setContentView(R.layout.activity_conversation);
 
-		adapter = new ConversationAdapter(this);
+		adapter = new ConversationAdapter(this, crypto);
 		list = (BriarRecyclerView) findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);

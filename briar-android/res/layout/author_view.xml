@@ -4,8 +4,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<im.delight.android.identicons.SymmetricIdenticon
-		android:id="@+id/identiconView"
+	<de.hdodenhof.circleimageview.CircleImageView
+		android:id="@+id/avatarView"
 		android:layout_width="@dimen/listitem_picture_size"
 		android:layout_height="@dimen/listitem_picture_size"
 		android:layout_centerVertical="true"

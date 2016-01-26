@@ -49,6 +49,16 @@ public class IdenticonDrawable extends Drawable {
     }
 
     @Override
+    public int getIntrinsicHeight() {
+        return 200;
+    }
+
+    @Override
+    public int getIntrinsicWidth() {
+        return 200;
+    }
+
+    @Override
     public void setBounds(Rect bounds) {
         super.setBounds(bounds);
         Log.d("IDENTICON", "SIZE : " + (bounds.right - bounds.left) + " " + (bounds.bottom - bounds.top));

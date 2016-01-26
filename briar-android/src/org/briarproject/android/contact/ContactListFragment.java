@@ -16,6 +16,7 @@ import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
@@ -63,6 +64,8 @@ public class ContactListFragment extends BaseEventFragment {
 	}
 
 	@Inject
+	private CryptoComponent crypto;
+	@Inject
 	private ConnectionRegistry connectionRegistry;
 	private ContactListAdapter adapter = null;
 	private BriarRecyclerView list = null;
@@ -83,7 +86,7 @@ public class ContactListFragment extends BaseEventFragment {
 				inflater.inflate(R.layout.activity_contact_list, container,
 						false);
 
-		adapter = new ContactListAdapter(getContext());
+		adapter = new ContactListAdapter(getContext(), crypto);
 		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);

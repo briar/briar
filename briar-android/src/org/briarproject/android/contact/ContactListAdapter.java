@@ -14,12 +14,13 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.List;
 
-import im.delight.android.identicons.IdenticonView;
+import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
@@ -86,9 +87,11 @@ public class ContactListAdapter
 						}
 					});
 	private Context ctx;
+	private CryptoComponent crypto;
 
-	public ContactListAdapter(Context context) {
+	public ContactListAdapter(Context context, CryptoComponent cryptoComponent) {
 		ctx = context;
+		crypto = cryptoComponent;
 	}
 
 	@Override
@@ -117,7 +120,8 @@ public class ContactListAdapter
 		}
 
 		Author author = item.getContact().getAuthor();
-		ui.identicon.show(author.getId().getBytes());
+		ui.avatar.setImageDrawable(
+				new IdenticonDrawable(crypto, author.getId().getBytes()));
 		String contactName = author.getName();
 		if (unread > 0) {
 			ui.name.setText(contactName + " (" + unread + ")");
@@ -198,7 +202,7 @@ public class ContactListAdapter
 	public static class ContactHolder extends RecyclerView.ViewHolder {
 		public ViewGroup layout;
 		public ImageView bulb;
-		public IdenticonView identicon;
+		public ImageView avatar;
 		public TextView name;
 		public TextView date;
 
@@ -207,7 +211,7 @@ public class ContactListAdapter
 
 			layout = (ViewGroup) v;
 			bulb = (ImageView) v.findViewById(R.id.bulbView);
-			identicon = (IdenticonView) v.findViewById(R.id.identiconView);
+			avatar = (ImageView) v.findViewById(R.id.avatarView);
 			name = (TextView) v.findViewById(R.id.nameView);
 			date = (TextView) v.findViewById(R.id.dateView);
 		}
