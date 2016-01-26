@@ -26,4 +26,6 @@
 
 	<dimen name="listitem_height_one_line_avatar">56dp</dimen>
 
+	<dimen name="dropdown_picture_size">32dp</dimen>
+
 </resources>
