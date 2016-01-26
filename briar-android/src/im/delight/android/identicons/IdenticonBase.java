@@ -51,13 +51,14 @@ public abstract class IdenticonBase {
     protected void setupColors() {
         mColors = new int[mRowCount][mColumnCount];
         int colorVisible = getIconColor();
+        int colorInvisible = getBackgroundColor();
 
         for (int r = 0; r < mRowCount; r++) {
             for (int c = 0; c < mColumnCount; c++) {
                 if (isCellVisible(r, c)) {
                     mColors[r][c] = colorVisible;
                 } else {
-                    mColors[r][c] = Color.TRANSPARENT;
+                    mColors[r][c] = colorInvisible;
                 }
             }
         }
@@ -93,6 +94,15 @@ public abstract class IdenticonBase {
     abstract protected boolean isCellVisible(int row, int column);
 
     abstract protected int getIconColor();
+
+    protected int getBackgroundColor() {
+        float[] hsv = new float[3];
+        Color.colorToHSV(getIconColor(), hsv);
+        if (hsv[2] < 0.5)
+            return Color.parseColor("#ffeeeeee"); // @color/background_material_light
+        else
+            return Color.parseColor("#ff303030"); // @color/background_material_dark
+    }
 
     public void updateSize(int w, int h) {
         mCellWidth = w / mColumnCount;
