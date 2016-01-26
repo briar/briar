@@ -28,7 +28,7 @@ import roboguice.RoboGuice;
 
 public class SymmetricIdenticon extends IdenticonView {
 
-    private static final int CENTER_COLUMN_INDEX = 3;
+    private static final int CENTER_COLUMN_INDEX = 5;
 
     @Inject private CryptoComponent mCrypto;
     private IdenticonBase mDelegate;
@@ -58,12 +58,12 @@ public class SymmetricIdenticon extends IdenticonView {
 
             @Override
             protected int getRowCount() {
-                return 5;
+                return 9;
             }
 
             @Override
             protected int getColumnCount() {
-                return 5;
+                return 9;
             }
 
             @Override

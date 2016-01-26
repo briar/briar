@@ -15,7 +15,7 @@ import org.briarproject.api.crypto.CryptoComponent;
 public class IdenticonDrawable extends Drawable {
     private IdenticonBase mDelegate;
 
-    private static final int CENTER_COLUMN_INDEX = 3;
+    private static final int CENTER_COLUMN_INDEX = 5;
 
     public IdenticonDrawable(final CryptoComponent crypto, byte[] toShow) {
         super();
@@ -27,12 +27,12 @@ public class IdenticonDrawable extends Drawable {
 
             @Override
             protected int getRowCount() {
-                return 5;
+                return 9;
             }
 
             @Override
             protected int getColumnCount() {
-                return 5;
+                return 9;
             }
 
             @Override
