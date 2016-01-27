@@ -45,9 +45,6 @@ public interface DatabaseComponent {
 	 */
 	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
-	/** Adds a group to the given contact's subscriptions. */
-	void addContactGroup(ContactId c, Group g) throws DbException;
-
 	/**
 	 * Subscribes to a group, or returns false if the user already has the
 	 * maximum number of subscriptions.
@@ -111,12 +108,6 @@ public interface DatabaseComponent {
 	Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
 			int maxLatency) throws DbException;
 
-	/**
-	 * Returns all groups belonging to the given client to which the user could
-	 * subscribe.
-	 */
-	Collection<Group> getAvailableGroups(ClientId c) throws DbException;
-
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;
 
@@ -179,9 +170,6 @@ public interface DatabaseComponent {
 
 	/** Returns all settings in the given namespace. */
 	Settings getSettings(String namespace) throws DbException;
-
-	/** Returns all contacts who subscribe to the given group. */
-	Collection<Contact> getSubscribers(GroupId g) throws DbException;
 
 	/** Returns all transport keys for the given transport. */
 	Map<ContactId, TransportKeys> getTransportKeys(TransportId t)

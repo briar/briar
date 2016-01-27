@@ -98,7 +98,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Group g = getContactGroup(db.getContact(c));
 			// Subscribe to the group and share it with the contact
 			db.addGroup(g);
-			db.addContactGroup(c, g);
 			db.setVisibility(g.getId(), Collections.singletonList(c));
 			// Copy the latest local properties into the group
 			DeviceId dev = db.getDeviceId();

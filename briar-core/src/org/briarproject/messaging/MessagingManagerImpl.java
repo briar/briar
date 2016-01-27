@@ -75,7 +75,6 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			Group g = getConversationGroup(db.getContact(c));
 			// Subscribe to the group and share it with the contact
 			db.addGroup(g);
-			db.addContactGroup(c, g);
 			db.setVisibility(g.getId(), Collections.singletonList(c));
 			// Attach the contact ID to the group
 			BdfDictionary d = new BdfDictionary();

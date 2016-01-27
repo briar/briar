@@ -84,13 +84,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Adds a group to the given contact's subscriptions.
-	 * <p>
-	 * Locking: write.
-	 */
-	void addContactGroup(T txn, ContactId c, Group g) throws DbException;
-
-	/**
 	 * Subscribes to a group, or returns false if the user already has the
 	 * maximum number of subscriptions.
 	 * <p>
@@ -222,14 +215,6 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	int countOfferedMessages(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns all groups belonging to the given client to which the user could
-	 * subscribe.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<Group> getAvailableGroups(T txn, ClientId c) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.
@@ -410,13 +395,6 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	Settings getSettings(T txn, String namespace) throws DbException;
-
-	/**
-	 * Returns all contacts who subscribe to the given group.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<Contact> getSubscribers(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns all transport keys for the given transport.
@@ -623,25 +601,6 @@ interface Database<T> {
 	 */
 	void setReorderingWindow(T txn, ContactId c, TransportId t,
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
-
-	/**
-	 * Updates the given contact's subscriptions and returns true, unless an
-	 * update with an equal or higher version number has already been received
-	 * from the contact.
-	 * <p>
-	 * Locking: write.
-	 */
-	boolean setGroups(T txn, ContactId c, Collection<Group> groups,
-			long version) throws DbException;
-
-	/**
-	 * Records a subscription ack from the given contact for the given version,
-	 * unless the contact has already acked an equal or higher version.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setSubscriptionUpdateAcked(T txn, ContactId c, long version)
-			throws DbException;
 
 	/**
 	 * Makes a group visible or invisible to future contacts by default.

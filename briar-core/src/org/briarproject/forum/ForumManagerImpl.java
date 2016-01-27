@@ -143,16 +143,8 @@ class ForumManagerImpl implements ForumManager {
 
 	@Override
 	public Collection<Forum> getAvailableForums() throws DbException {
-		Collection<Group> groups = db.getAvailableGroups(CLIENT_ID);
-		List<Forum> forums = new ArrayList<Forum>(groups.size());
-		for (Group g : groups) {
-			try {
-				forums.add(parseForum(g));
-			} catch (FormatException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
-		}
-		return Collections.unmodifiableList(forums);
+		// TODO
+		return Collections.emptyList();
 	}
 
 	private Forum parseForum(Group g) throws FormatException {
@@ -272,7 +264,8 @@ class ForumManagerImpl implements ForumManager {
 
 	@Override
 	public Collection<Contact> getSubscribers(GroupId g) throws DbException {
-		return db.getSubscribers(g);
+		// TODO
+		return Collections.emptyList();
 	}
 
 	@Override

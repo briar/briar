@@ -161,22 +161,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void addContactGroup(ContactId c, Group g) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				db.addContactGroup(txn, c, g);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
 	public boolean addGroup(Group g) throws DbException {
 		boolean added = false;
 		lock.writeLock().lock();
@@ -429,23 +413,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (messages.isEmpty()) return null;
 		if (!ids.isEmpty()) eventBus.broadcast(new MessagesSentEvent(c, ids));
 		return Collections.unmodifiableList(messages);
-	}
-
-	public Collection<Group> getAvailableGroups(ClientId c) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Group> groups = db.getAvailableGroups(txn, c);
-				db.commitTransaction(txn);
-				return groups;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
 	}
 
 	public Contact getContact(ContactId c) throws DbException {
@@ -741,23 +708,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				Settings s = db.getSettings(txn, namespace);
 				db.commitTransaction(txn);
 				return s;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Collection<Contact> getSubscribers(GroupId g) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Contact> contacts = db.getSubscribers(txn, g);
-				db.commitTransaction(txn);
-				return contacts;
 			} catch (DbException e) {
 				db.abortTransaction(txn);
 				throw e;
