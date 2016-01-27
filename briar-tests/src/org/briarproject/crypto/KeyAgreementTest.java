@@ -13,15 +13,15 @@ import static org.junit.Assert.assertArrayEquals;
 public class KeyAgreementTest extends BriarTestCase {
 
 	@Test
-	public void testKeyAgreement() throws Exception {
+	public void testBTKeyAgreement() throws Exception {
 		SeedProvider seedProvider = new TestSeedProvider();
 		CryptoComponent crypto = new CryptoComponentImpl(seedProvider);
 		KeyPair aPair = crypto.generateAgreementKeyPair();
 		byte[] aPub = aPair.getPublic().getEncoded();
 		KeyPair bPair = crypto.generateAgreementKeyPair();
 		byte[] bPub = bPair.getPublic().getEncoded();
-		SecretKey aMaster = crypto.deriveMasterSecret(aPub, bPair, true);
-		SecretKey bMaster = crypto.deriveMasterSecret(bPub, aPair, false);
+		SecretKey aMaster = crypto.deriveBTMasterSecret(aPub, bPair, true);
+		SecretKey bMaster = crypto.deriveBTMasterSecret(bPub, aPair, false);
 		assertArrayEquals(aMaster.getBytes(), bMaster.getBytes());
 	}
 }

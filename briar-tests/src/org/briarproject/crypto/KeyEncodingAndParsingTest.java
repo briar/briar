@@ -27,12 +27,12 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		KeyPair bPair = crypto.generateAgreementKeyPair();
 		// Derive the shared secret
 		PublicKey aPub = aPair.getPublic();
-		byte[] secret = crypto.deriveSharedSecret(bPair.getPrivate(), aPub);
+		byte[] secret = crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
 		// Encode and parse the public key - no exceptions should be thrown
 		aPub = parser.parsePublicKey(aPub.getEncoded());
 		aPub = parser.parsePublicKey(aPub.getEncoded());
 		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.deriveSharedSecret(bPair.getPrivate(), aPub);
+		byte[] secret1 = crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
 		assertArrayEquals(secret, secret1);
 	}
 
@@ -44,12 +44,12 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		KeyPair bPair = crypto.generateAgreementKeyPair();
 		// Derive the shared secret
 		PrivateKey bPriv = bPair.getPrivate();
-		byte[] secret = crypto.deriveSharedSecret(bPriv, aPair.getPublic());
+		byte[] secret = crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
 		// Encode and parse the private key - no exceptions should be thrown
 		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
 		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
 		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.deriveSharedSecret(bPriv, aPair.getPublic());
+		byte[] secret1 = crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
 		assertArrayEquals(secret, secret1);
 	}
 
@@ -90,12 +90,12 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		KeyPair bPair = crypto.generateSignatureKeyPair();
 		// Derive the shared secret
 		PublicKey aPub = aPair.getPublic();
-		byte[] secret = crypto.deriveSharedSecret(bPair.getPrivate(), aPub);
+		byte[] secret = crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
 		// Encode and parse the public key - no exceptions should be thrown
 		aPub = parser.parsePublicKey(aPub.getEncoded());
 		aPub = parser.parsePublicKey(aPub.getEncoded());
 		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.deriveSharedSecret(bPair.getPrivate(), aPub);
+		byte[] secret1 = crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
 		assertArrayEquals(secret, secret1);
 	}
 
@@ -107,12 +107,12 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		KeyPair bPair = crypto.generateSignatureKeyPair();
 		// Derive the shared secret
 		PrivateKey bPriv = bPair.getPrivate();
-		byte[] secret = crypto.deriveSharedSecret(bPriv, aPair.getPublic());
+		byte[] secret = crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
 		// Encode and parse the private key - no exceptions should be thrown
 		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
 		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
 		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.deriveSharedSecret(bPriv, aPair.getPublic());
+		byte[] secret1 = crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
 		assertArrayEquals(secret, secret1);
 	}
 

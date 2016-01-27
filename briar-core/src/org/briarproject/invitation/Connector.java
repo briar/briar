@@ -146,7 +146,7 @@ abstract class Connector extends Thread {
 		//  Derive the master secret
 		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " deriving master secret");
-		return crypto.deriveMasterSecret(key, keyPair, alice);
+		return crypto.deriveBTMasterSecret(key, keyPair, alice);
 	}
 
 	protected void sendConfirmation(BdfWriter w, boolean confirmed)

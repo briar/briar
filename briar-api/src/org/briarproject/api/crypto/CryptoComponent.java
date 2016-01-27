@@ -27,35 +27,35 @@ public interface CryptoComponent {
 	KeyParser getSignatureKeyParser();
 
 	/** Generates a random invitation code. */
-	int generateInvitationCode();
+	int generateBTInvitationCode();
 
 	/**
 	 * Derives a shared master secret from two public keys and one of the
 	 * corresponding private keys.
 	 * @param alice whether the private key belongs to Alice or Bob.
 	 */
-	SecretKey deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+	SecretKey deriveBTMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
 			boolean alice) throws GeneralSecurityException;
 
 	/**
 	 * Derives a confirmation code from the given master secret.
 	 * @param alice whether the code is for use by Alice or Bob.
 	 */
-	int deriveConfirmationCode(SecretKey master, boolean alice);
+	int deriveBTConfirmationCode(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a header key for an invitation stream from the given master
 	 * secret.
 	 * @param alice whether the key is for use by Alice or Bob.
 	 */
-	SecretKey deriveInvitationKey(SecretKey master, boolean alice);
+	SecretKey deriveBTInvitationKey(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a nonce from the given master secret for one of the parties to
 	 * sign.
 	 * @param alice whether the nonce is for use by Alice or Bob.
 	 */
-	byte[] deriveSignatureNonce(SecretKey master, boolean alice);
+	byte[] deriveBTSignatureNonce(SecretKey master, boolean alice);
 
 	/**
 	 * Derives initial transport keys for the given transport in the given
