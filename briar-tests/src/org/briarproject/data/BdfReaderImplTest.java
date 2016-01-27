@@ -12,7 +12,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class BdfReaderImplTest extends BriarTestCase {
 
@@ -260,14 +259,13 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadUtf8String() throws Exception {
-		String str = "������ \uFDD0\uFDD1\uFDD2\uFDD3\uFDD1 ������";
-		String strHex = StringUtils.toHexString(str.getBytes("UTF-8"));
+		String unicode = "\uFDD0\uFDD1\uFDD2\uFDD3";
+		String hex = StringUtils.toHexString(unicode.getBytes("UTF-8"));
 		// STRING_8 tag, "foo", the empty string, and the test string
-		setContents("41" + "03" + "666F6F" + "41" + "00" +
-				"41" + "35" + strHex);
+		setContents("41" + "03" + "666F6F" +"41" + "00" + "41" + "0C" + hex);
 		assertEquals("foo", r.readString(Integer.MAX_VALUE));
 		assertEquals("", r.readString(Integer.MAX_VALUE));
-		assertEquals(str, r.readString(Integer.MAX_VALUE));
+		assertEquals(unicode, r.readString(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
 

@@ -73,10 +73,10 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 
 	@Test
 	public void testUtf8String() throws FormatException {
-		d.put("test", "abcdefghilkmnopqrst ������ \uFDD0\uFDD1\uFDD2\uFDD3");
+		d.put("test", "abcdefghilkmnopqrst \uFDD0\uFDD1\uFDD2\uFDD3");
 		Metadata metadata = e.encode(d);
 
-		assertEquals("abcdefghilkmnopqrst ������ \uFDD0\uFDD1\uFDD2\uFDD3",
+		assertEquals("abcdefghilkmnopqrst \uFDD0\uFDD1\uFDD2\uFDD3",
 				p.parse(metadata).getString("test", null));
 	}
 
@@ -124,9 +124,9 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 	public void testComplexDictionary() throws FormatException {
 		Map<String, List> m = new HashMap<String, List>();
 		List<String> one = new ArrayList<String>(3);
-		one.add("����");
-		one.add("������");
-		one.add("����");
+		one.add("\uFDD0");
+		one.add("\uFDD1");
+		one.add("\uFDD2");
 		m.put("One", one);
 		List<String> two = new ArrayList<String>(2);
 		two.add("\u0080");
@@ -140,11 +140,11 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 
 		Metadata metadata = e.encode(d);
 
-		assertEquals("����", p.parse(metadata).getDictionary("test", null)
+		assertEquals("\uFDD0", p.parse(metadata).getDictionary("test", null)
 				.getList("One", null).get(0));
-		assertEquals("������", p.parse(metadata).getDictionary("test", null)
+		assertEquals("\uFDD1", p.parse(metadata).getDictionary("test", null)
 				.getList("One", null).get(1));
-		assertEquals("����", p.parse(metadata).getDictionary("test", null)
+		assertEquals("\uFDD2", p.parse(metadata).getDictionary("test", null)
 				.getList("One", null).get(2));
 		assertEquals("\u0080", p.parse(metadata).getDictionary("test", null)
 				.getList("Two", null).get(0));
@@ -154,5 +154,4 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		assertEquals(true, p.parse(metadata).getDictionary("another test", null)
 				.getBoolean("should be true", false));
 	}
-
 }

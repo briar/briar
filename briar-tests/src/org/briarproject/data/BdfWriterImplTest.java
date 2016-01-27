@@ -114,11 +114,11 @@ public class BdfWriterImplTest extends BriarTestCase {
 
 	@Test
 	public void testWriteUtf8String() throws IOException {
-		String str = "������ \uFDD0\uFDD1\uFDD2\uFDD3\uFDD1 ������";
-		String strHex = StringUtils.toHexString(str.getBytes("UTF-8"));
-		w.writeString(str);
-		// STRING_8 tag, length 53, UTF-8 bytes
-		checkContents("41" + "35" + strHex);
+		String unicode = "\uFDD0\uFDD1\uFDD2\uFDD3";
+		String hex = StringUtils.toHexString(unicode.getBytes("UTF-8"));
+		w.writeString(unicode);
+		// STRING_8 tag, length 12, UTF-8 bytes
+		checkContents("41" + "0C" + hex);
 	}
 
 	@Test
