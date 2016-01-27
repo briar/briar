@@ -1,6 +1,7 @@
 package org.briarproject.properties;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.UniqueId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
@@ -53,10 +54,11 @@ class TransportPropertyValidator implements MessageValidator {
 			ByteArrayInputStream in = new ByteArrayInputStream(raw,
 					MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 			BdfReader r = bdfReaderFactory.createReader(in);
-			// TODO: Device ID
 			r.readListStart();
-			String id = r.readString(MAX_TRANSPORT_ID_LENGTH);
-			if (id.length() == 0) throw new FormatException();
+			byte[] deviceId = r.readRaw(UniqueId.LENGTH);
+			if (deviceId.length != UniqueId.LENGTH) throw new FormatException();
+			String transportId = r.readString(MAX_TRANSPORT_ID_LENGTH);
+			if (transportId.length() == 0) throw new FormatException();
 			long version = r.readInteger();
 			if (version < 0) throw new FormatException();
 			r.readDictionaryStart();
@@ -71,7 +73,7 @@ class TransportPropertyValidator implements MessageValidator {
 			if (!r.eof()) throw new FormatException();
 			// Return the metadata
 			BdfDictionary d = new BdfDictionary();
-			d.put("transportId", id);
+			d.put("transportId", transportId);
 			d.put("version", version);
 			d.put("local", false);
 			return metadataEncoder.encode(d);

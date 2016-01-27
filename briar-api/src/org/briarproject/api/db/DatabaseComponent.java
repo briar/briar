@@ -1,5 +1,6 @@
 package org.briarproject.api.db;
 
+import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -136,6 +137,9 @@ public interface DatabaseComponent {
 
 	/** Returns all contacts associated with the given local pseudonym. */
 	Collection<ContactId> getContacts(AuthorId a) throws DbException;
+
+	/** Returns the unique ID for this device. */
+	DeviceId getDeviceId() throws DbException;
 
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;

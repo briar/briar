@@ -1,5 +1,6 @@
 package org.briarproject.db;
 
+import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -533,6 +534,23 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				Collection<ContactId> contacts = db.getContacts(txn, a);
 				db.commitTransaction(txn);
 				return contacts;
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
+	public DeviceId getDeviceId() throws DbException {
+		lock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				DeviceId id = db.getDeviceId(txn);
+				db.commitTransaction(txn);
+				return id;
 			} catch (DbException e) {
 				db.abortTransaction(txn);
 				throw e;

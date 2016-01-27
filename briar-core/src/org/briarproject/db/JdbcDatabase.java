@@ -1,5 +1,6 @@
 package org.briarproject.db;
 
+import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.contact.Contact;
@@ -482,6 +483,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 
 		if (interrupted) Thread.currentThread().interrupt();
+	}
+
+	public DeviceId getDeviceId(Connection txn) throws DbException {
+		Settings s = getSettings(txn, DEVICE_SETTINGS_NAMESPACE);
+		return new DeviceId(StringUtils.fromHexString(s.get(DEVICE_ID_KEY)));
 	}
 
 	public ContactId addContact(Connection txn, Author remote, AuthorId local)

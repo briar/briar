@@ -2,6 +2,7 @@ package org.briarproject.properties;
 
 import com.google.inject.Inject;
 
+import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.UniqueId;
@@ -43,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
@@ -100,9 +102,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			db.addContactGroup(c, g);
 			db.setVisibility(g.getId(), Collections.singletonList(c));
 			// Copy the latest local properties into the group
+			DeviceId dev = db.getDeviceId();
 			Map<TransportId, TransportProperties> local = getLocalProperties();
 			for (Entry<TransportId, TransportProperties> e : local.entrySet())
-				storeMessage(g.getId(), e.getKey(), e.getValue(), 0);
+				storeMessage(g.getId(), dev, e.getKey(), e.getValue(), 0);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch (FormatException e) {
@@ -141,9 +144,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		return out.toByteArray();
 	}
 
-	private void storeMessage(GroupId g, TransportId t, TransportProperties p,
-			long version) throws DbException, IOException {
-		byte[] body = encodeProperties(t, p, version);
+	private void storeMessage(GroupId g, DeviceId dev, TransportId t,
+			TransportProperties p, long version) throws DbException,
+			IOException {
+		byte[] body = encodeProperties(dev, t, p, version);
 		long now = clock.currentTimeMillis();
 		Message m = messageFactory.createMessage(g, now, body);
 		BdfDictionary d = new BdfDictionary();
@@ -153,13 +157,13 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		db.addLocalMessage(m, CLIENT_ID, metadataEncoder.encode(d));
 	}
 
-	private byte[] encodeProperties(TransportId t, TransportProperties p,
-			long version) {
+	private byte[] encodeProperties(DeviceId dev, TransportId t,
+			TransportProperties p, long version) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
-			// TODO: Device ID
 			w.writeListStart();
+			w.writeRaw(dev.getBytes());
 			w.writeString(t.getString());
 			w.writeInteger(version);
 			w.writeDictionary(p);
@@ -232,8 +236,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		ByteArrayInputStream in = new ByteArrayInputStream(raw,
 				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 		BdfReader r = bdfReaderFactory.createReader(in);
-		// TODO: Device ID
 		r.readListStart();
+		r.skipRaw(); // Device ID
 		r.skipString(); // Transport ID
 		r.skipInteger(); // Version
 		r.readDictionaryStart();
@@ -242,9 +246,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			String value = r.readString(MAX_PROPERTY_LENGTH);
 			p.put(key, value);
 		}
-		r.readDictionaryEnd();
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
 		return p;
 	}
 
@@ -310,14 +311,19 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				p = old;
 			}
 			// Store the merged properties in the local group
+			DeviceId dev = db.getDeviceId();
 			long version = latest == null ? 0 : latest.version + 1;
-			storeMessage(localGroup.getId(), t, p, version);
+			storeMessage(localGroup.getId(), dev, t, p, version);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Stored local properties for " + t.getString()
+						+ ", version " + version);
+			}
 			// Store the merged properties in each contact's group
 			for (Contact c : db.getContacts()) {
 				Group g = getContactGroup(c);
 				latest = findLatest(g.getId(), true).get(t);
 				version = latest == null ? 0 : latest.version + 1;
-				storeMessage(g.getId(), t, p, version);
+				storeMessage(g.getId(), dev, t, p, version);
 			}
 		} catch (IOException e) {
 			throw new DbException(e);

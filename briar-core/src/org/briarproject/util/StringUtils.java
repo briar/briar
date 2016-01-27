@@ -65,7 +65,8 @@ public class StringUtils {
 	/** Converts the given hex string to a byte array. */
 	public static byte[] fromHexString(String hex) {
 		int len = hex.length();
-		if (len % 2 != 0) throw new IllegalArgumentException("Not a hex string");
+		if (len % 2 != 0)
+			throw new IllegalArgumentException("Not a hex string");
 		byte[] bytes = new byte[len / 2];
 		for (int i = 0, j = 0; i < len; i += 2, j++) {
 			int high = hexDigitToInt(hex.charAt(i));
