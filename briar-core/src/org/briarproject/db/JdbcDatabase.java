@@ -50,7 +50,6 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.api.db.StorageStatus.ADDING;
-import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
 import static org.briarproject.api.sync.ValidationManager.Validity.INVALID;
 import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
@@ -544,21 +543,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addGroup(Connection txn, Group g) throws DbException {
+	public void addGroup(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT (groupId) FROM groups";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			if (!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if (count > MAX_SUBSCRIPTIONS) throw new DbStateException();
-			if (count == MAX_SUBSCRIPTIONS) return false;
-			sql = "INSERT INTO groups"
+			String sql = "INSERT INTO groups"
 					+ " (groupId, clientId, descriptor, visibleToAll)"
 					+ " VALUES (?, ?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
@@ -568,9 +556,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
-			return true;
 		} catch (SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}

@@ -8,13 +8,12 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
+import org.briarproject.api.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
-import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
@@ -155,10 +154,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof MessageValidatedEvent) {
 			if (((MessageValidatedEvent) e).isValid())
 				dbExecutor.execute(new GenerateOffer());
-		} else if (e instanceof LocalSubscriptionsUpdatedEvent) {
-			LocalSubscriptionsUpdatedEvent l =
-					(LocalSubscriptionsUpdatedEvent) e;
-			if (l.getAffectedContacts().contains(contactId))
+		} else if (e instanceof GroupVisibilityUpdatedEvent) {
+			GroupVisibilityUpdatedEvent g = (GroupVisibilityUpdatedEvent) e;
+			if (g.getAffectedContacts().contains(contactId))
 				dbExecutor.execute(new GenerateOffer());
 		} else if (e instanceof MessageRequestedEvent) {
 			if (((MessageRequestedEvent) e).getContactId().equals(contactId))
@@ -169,11 +167,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof MessageToRequestEvent) {
 			if (((MessageToRequestEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateRequest());
-		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
-			RemoteSubscriptionsUpdatedEvent r =
-					(RemoteSubscriptionsUpdatedEvent) e;
-			if (r.getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateOffer());
 		} else if (e instanceof ShutdownEvent) {
 			interrupt();
 		} else if (e instanceof TransportRemovedEvent) {

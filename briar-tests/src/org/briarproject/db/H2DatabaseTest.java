@@ -146,15 +146,15 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testUnsubscribingRemovesMessage() throws Exception {
+	public void testRemovingGroupRemovesMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Subscribe to a group and store a message
+		// Add a group and a message
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, VALID, true);
 
-		// Unsubscribing from the group should remove the message
+		// Removing the group should remove the message
 		assertTrue(db.containsMessage(txn, messageId));
 		db.removeGroup(txn, groupId);
 		assertFalse(db.containsMessage(txn, messageId));
@@ -168,7 +168,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store a message
+		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -281,7 +281,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store a message
+		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -307,14 +307,14 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store a message
+		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, VALID, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
-		// The subscription is not visible to the contact, so the message
+		// The group is not visible to the contact, so the message
 		// should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
 				ONE_MEGABYTE);
@@ -322,7 +322,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertTrue(ids.isEmpty());
 
-		// Making the subscription visible should make the message sendable
+		// Making the group visible should make the message sendable
 		db.addVisibility(txn, contactId, groupId);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertEquals(Collections.singletonList(messageId), ids);
@@ -345,7 +345,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and subscribe to a group
+		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -381,7 +381,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store a message
+		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -545,7 +545,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and subscribe to a group
+		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -559,7 +559,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testContainsVisibleMessageRequiresLocalSubscription()
+	public void testContainsVisibleMessageRequiresGroupInDatabase()
 			throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -568,7 +568,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 
-		// There's no local subscription for the group
+		// The group is not in the database
 		assertFalse(db.containsVisibleMessage(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
@@ -576,19 +576,19 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testContainsVisibleMessageRequiresVisibileSubscription()
+	public void testContainsVisibleMessageRequiresVisibileGroup()
 			throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store a message
+		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, VALID, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
-		// The subscription is not visible
+		// The group is not visible
 		assertFalse(db.containsVisibleMessage(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
@@ -600,7 +600,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and subscribe to a group
+		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -622,7 +622,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testMultipleSubscriptionsAndUnsubscriptions() throws Exception {
+	public void testMultipleGroupChanges() throws Exception {
 		// Create some groups
 		List<Group> groups = new ArrayList<Group>();
 		for (int i = 0; i < 100; i++) {
@@ -635,7 +635,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and subscribe to the groups
+		// Add a contact and the groups
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		for (Group g : groups) db.addGroup(txn, g);
@@ -951,7 +951,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 
-		// Subscribe to a group and make it visible to the contact
+		// Add a group and make it visible to the contact
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 

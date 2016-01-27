@@ -19,7 +19,7 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.db.NoSuchSubscriptionException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
@@ -96,7 +96,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		try {
 			// Create a group to share with the contact
 			Group g = getContactGroup(db.getContact(c));
-			// Subscribe to the group and share it with the contact
+			// Store the group and share it with the contact
 			db.addGroup(g);
 			db.setVisibility(g.getId(), Collections.singletonList(c));
 			// Copy the latest local properties into the group
@@ -197,7 +197,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				local.put(e.getKey(), decodeProperties(raw));
 			}
 			return Collections.unmodifiableMap(local);
-		} catch (NoSuchSubscriptionException e) {
+		} catch (NoSuchGroupException e) {
 			// Local group doesn't exist - there are no local properties
 			return Collections.emptyMap();
 		} catch (IOException e) {
@@ -254,7 +254,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			if (latest == null) return null;
 			// Retrieve and decode the latest local properties
 			return decodeProperties(db.getRawMessage(latest.messageId));
-		} catch (NoSuchSubscriptionException e) {
+		} catch (NoSuchGroupException e) {
 			// Local group doesn't exist - there are no local properties
 			return null;
 		} catch (IOException e) {

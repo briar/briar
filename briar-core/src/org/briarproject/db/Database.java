@@ -84,12 +84,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Subscribes to a group, or returns false if the user already has the
-	 * maximum number of subscriptions.
+	 * Stores a group.
 	 * <p>
 	 * Locking: write.
 	 */
-	boolean addGroup(T txn, Group g) throws DbException;
+	void addGroup(T txn, Group g) throws DbException;
 
 	/**
 	 * Stores a local pseudonym.
@@ -164,7 +163,7 @@ interface Database<T> {
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns true if the user subscribes to the given group.
+	 * Returns true if the database contains the given group.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -192,7 +191,7 @@ interface Database<T> {
 	boolean containsTransport(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Returns true if the user subscribes to the given group and the group is
+	 * Returns true if the database contains the given group and the group is
 	 * visible to the given contact.
 	 * <p>
 	 * Locking: read.
@@ -259,7 +258,7 @@ interface Database<T> {
 	long getFreeSpace() throws DbException;
 
 	/**
-	 * Returns the group with the given ID, if the user subscribes to it.
+	 * Returns the group with the given ID.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -273,8 +272,7 @@ interface Database<T> {
 	Metadata getGroupMetadata(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns all groups belonging to the given client to which the user
-	 * subscribes.
+	 * Returns all groups belonging to the given client.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -500,16 +498,14 @@ interface Database<T> {
 	void removeContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Unsubscribes from a group. Any messages belonging to the group are
-	 * deleted from the database.
+	 * Removes a group (and all associated state) from the database.
 	 * <p>
 	 * Locking: write.
 	 */
 	void removeGroup(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Removes a local pseudonym (and all associated contacts) from the
-	 * database.
+	 * Removes a local pseudonym (and all associated state) from the database.
 	 * <p>
 	 * Locking: write.
 	 */

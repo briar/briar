@@ -45,11 +45,8 @@ public interface DatabaseComponent {
 	 */
 	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
-	/**
-	 * Subscribes to a group, or returns false if the user already has the
-	 * maximum number of subscriptions.
-	 */
-	boolean addGroup(Group g) throws DbException;
+	/** Stores a group. */
+	void addGroup(Group g) throws DbException;
 
 	/** Stores a local pseudonym. */
 	void addLocalAuthor(LocalAuthor a) throws DbException;
@@ -120,16 +117,13 @@ public interface DatabaseComponent {
 	/** Returns the unique ID for this device. */
 	DeviceId getDeviceId() throws DbException;
 
-	/** Returns the group with the given ID, if the user subscribes to it. */
+	/** Returns the group with the given ID. */
 	Group getGroup(GroupId g) throws DbException;
 
 	/** Returns the metadata for the given group. */
 	Metadata getGroupMetadata(GroupId g) throws DbException;
 
-	/**
-	 * Returns all groups belonging to the given client to which the user
-	 * subscribes.
-	 */
+	/** Returns all groups belonging to the given client. */
 	Collection<Group> getGroups(ClientId c) throws DbException;
 
 	/** Returns the local pseudonym with the given ID. */
@@ -221,10 +215,7 @@ public interface DatabaseComponent {
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;
 
-	/**
-	 * Unsubscribes from a group. Any messages belonging to the group
-	 * are deleted from the database.
-	 */
+	/** Removes a group (and all associated state) from the database. */
 	void removeGroup(Group g) throws DbException;
 
 	/**
@@ -232,10 +223,7 @@ public interface DatabaseComponent {
 	 */
 	void removeLocalAuthor(AuthorId a) throws DbException;
 
-	/**
-	 * Removes a transport (and any associated configuration and local
-	 * properties) from the database.
-	 */
+	/** Removes a transport (and all associated state) from the database. */
 	void removeTransport(TransportId t) throws DbException;
 
 	/** Sets the status of the given contact. */

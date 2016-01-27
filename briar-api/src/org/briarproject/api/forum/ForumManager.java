@@ -17,11 +17,8 @@ public interface ForumManager {
 	/** Creates a forum with the given name. */
 	Forum createForum(String name);
 
-	/**
-	 * Subscribes to a forum, or returns false if the user already has the
-	 * maximum number of forum subscriptions.
-	 */
-	boolean addForum(Forum f) throws DbException;
+	/** Subscribes to a forum. */
+	void addForum(Forum f) throws DbException;
 
 	/** Stores a local forum post. */
 	void addLocalPost(ForumPost p) throws DbException;
@@ -29,7 +26,7 @@ public interface ForumManager {
 	/** Returns all forums to which the user could subscribe. */
 	Collection<Forum> getAvailableForums() throws DbException;
 
-	/** Returns the forum with the given ID, if the user subscribes to it. */
+	/** Returns the forum with the given ID. */
 	Forum getForum(GroupId g) throws DbException;
 
 	/** Returns all forums to which the user subscribes. */
@@ -47,10 +44,7 @@ public interface ForumManager {
 	/** Returns the IDs of all contacts to which the given forum is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
 
-	/**
-	 * Unsubscribes from a forum. Any messages belonging to the forum are
-	 * deleted.
-	 */
+	/** Unsubscribes from a forum. */
 	void removeForum(Forum f) throws DbException;
 
 	/** Marks a forum post as read or unread. */

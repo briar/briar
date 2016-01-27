@@ -13,13 +13,12 @@ import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.SubscriptionAddedEvent;
-import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.event.GroupAddedEvent;
+import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.sync.GroupId;
@@ -83,7 +82,7 @@ implements EventListener, OnItemClickListener {
 							Collection<Contact> c =
 									forumManager.getSubscribers(id);
 							available.add(new ForumContacts(f, c));
-						} catch (NoSuchSubscriptionException e) {
+						} catch (NoSuchGroupException e) {
 							// Continue
 						}
 					}
@@ -123,15 +122,19 @@ implements EventListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if (e instanceof RemoteSubscriptionsUpdatedEvent) {
-			LOG.info("Remote subscriptions changed, reloading");
-			loadForums();
-		} else if (e instanceof SubscriptionAddedEvent) {
-			LOG.info("Subscription added, reloading");
-			loadForums();
-		} else if (e instanceof SubscriptionRemovedEvent) {
-			LOG.info("Subscription removed, reloading");
-			loadForums();
+		// TODO: What other events are needed here?
+		if (e instanceof GroupAddedEvent) {
+			GroupAddedEvent g = (GroupAddedEvent) e;
+			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+				LOG.info("Forum added, reloading");
+				loadForums();
+			}
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+				LOG.info("Forum removed, reloading");
+				loadForums();
+			}
 		}
 	}
 

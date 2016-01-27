@@ -113,8 +113,8 @@ class ForumManagerImpl implements ForumManager {
 	}
 
 	@Override
-	public boolean addForum(Forum f) throws DbException {
-		return db.addGroup(f.getGroup());
+	public void addForum(Forum f) throws DbException {
+		db.addGroup(f.getGroup());
 	}
 
 	@Override

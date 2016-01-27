@@ -10,13 +10,15 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.MessageExistsException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
+import org.briarproject.api.event.GroupAddedEvent;
+import org.briarproject.api.event.GroupRemovedEvent;
+import org.briarproject.api.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
@@ -25,8 +27,6 @@ import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.api.event.SubscriptionAddedEvent;
-import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -146,8 +146,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).addGroup(txn, group);
-			will(returnValue(true));
-			oneOf(eventBus).broadcast(with(any(SubscriptionAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(GroupAddedEvent.class)));
 			// addGroup() again
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
@@ -160,10 +159,9 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeGroup(txn, groupId);
+			oneOf(eventBus).broadcast(with(any(GroupRemovedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
-					SubscriptionRemovedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
+					GroupVisibilityUpdatedEvent.class)));
 			// removeContact()
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -222,7 +220,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testLocalMessagesAreNotStoredUnlessSubscribed()
+	public void testLocalMessagesAreNotStoredUnlessGroupExists()
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -244,7 +242,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			db.addLocalMessage(message, clientId, metadata, true);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
@@ -446,7 +444,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testVariousMethodsThrowExceptionIfSubscriptionIsMissing()
+	public void testVariousMethodsThrowExceptionIfGroupIsMissing()
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -454,7 +452,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			// Check whether the subscription is in the DB (which it's not)
+			// Check whether the group is in the DB (which it's not)
 			exactly(7).of(database).startTransaction();
 			will(returnValue(txn));
 			exactly(7).of(database).containsGroup(txn, groupId);
@@ -470,49 +468,49 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			db.getGroup(groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.getGroupMetadata(groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.getMessageStatus(contactId, groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.getVisibility(groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.mergeGroupMetadata(groupId, metadata);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.removeGroup(group);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.setVisibility(groupId, Collections.<ContactId>emptyList());
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
@@ -1039,7 +1037,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
+					GroupVisibilityUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -1103,7 +1101,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
+					GroupVisibilityUpdatedEvent.class)));
 			// setVisibleToAll()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1117,7 +1115,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).addVisibility(txn, contactId1, groupId);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
+					GroupVisibilityUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);

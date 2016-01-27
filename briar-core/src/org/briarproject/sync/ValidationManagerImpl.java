@@ -8,8 +8,8 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
@@ -158,7 +158,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				try {
 					ClientId c = db.getGroup(m.getGroupId()).getClientId();
 					validateMessage(m, c);
-				} catch (NoSuchSubscriptionException e) {
+				} catch (NoSuchGroupException e) {
 					LOG.info("Group removed before validation");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
