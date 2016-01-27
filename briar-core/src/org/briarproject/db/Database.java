@@ -17,8 +17,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
@@ -419,23 +417,6 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	Collection<Contact> getSubscribers(T txn, GroupId g) throws DbException;
-
-	/**
-	 * Returns a subscription ack for the given contact, or null if no ack is
-	 * due.
-	 * <p>
-	 * Locking: write.
-	 */
-	SubscriptionAck getSubscriptionAck(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns a subscription update for the given contact and updates its
-	 * expiry time using the given latency, or returns null if no update is due.
-	 * <p>
-	 * Locking: write.
-	 */
-	SubscriptionUpdate getSubscriptionUpdate(T txn, ContactId c,
-			int maxLatency) throws DbException;
 
 	/**
 	 * Returns all transport keys for the given transport.

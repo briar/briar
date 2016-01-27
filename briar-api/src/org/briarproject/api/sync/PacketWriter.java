@@ -18,9 +18,5 @@ public interface PacketWriter {
 
 	void writeRequest(Request r) throws IOException;
 
-	void writeSubscriptionAck(SubscriptionAck a) throws IOException;
-
-	void writeSubscriptionUpdate(SubscriptionUpdate u) throws IOException;
-
 	void flush() throws IOException;
 }

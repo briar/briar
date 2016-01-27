@@ -40,8 +40,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
@@ -60,7 +58,6 @@ import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class DatabaseComponentImplTest extends BriarTestCase {
@@ -300,11 +297,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(13).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(13).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).abortTransaction(txn);
+			exactly(13).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -332,20 +329,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.generateOffer(contactId, 123, 456);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			db.generateSubscriptionAck(contactId);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			db.generateSubscriptionUpdate(contactId, 123);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -397,23 +380,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			Offer o = new Offer(Collections.singletonList(messageId));
 			db.receiveOffer(contactId, o);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			SubscriptionAck a = new SubscriptionAck(0);
-			db.receiveSubscriptionAck(contactId, a);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			SubscriptionUpdate u = new SubscriptionUpdate(
-					Collections.<Group>emptyList(), 1);
-			db.receiveSubscriptionUpdate(contactId, u);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -857,58 +823,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGenerateSubscriptionUpdateNoUpdateDue() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId, maxLatency);
-			will(returnValue(null));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		assertNull(db.generateSubscriptionUpdate(contactId, maxLatency));
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testGenerateSubscriptionUpdate() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId, maxLatency);
-			will(returnValue(new SubscriptionUpdate(
-					Collections.singletonList(group), 1)));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId,
-				maxLatency);
-		assertEquals(Collections.singletonList(group), u.getGroups());
-		assertEquals(1, u.getVersion());
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testReceiveAck() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -1099,56 +1013,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		db.receiveRequest(contactId, new Request(Collections.singletonList(
 				messageId)));
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testReceiveSubscriptionAck() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).setSubscriptionUpdateAcked(txn, contactId, 1);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		SubscriptionAck a = new SubscriptionAck(1);
-		db.receiveSubscriptionAck(contactId, a);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testReceiveSubscriptionUpdate() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).setGroups(txn, contactId,
-					Collections.singletonList(group), 1);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		SubscriptionUpdate u = new SubscriptionUpdate(
-				Collections.singletonList(group), 1);
-		db.receiveSubscriptionUpdate(contactId, u);
 
 		context.assertIsSatisfied();
 	}

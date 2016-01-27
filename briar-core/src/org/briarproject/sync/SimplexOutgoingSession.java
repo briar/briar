@@ -12,8 +12,6 @@ import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.PacketWriter;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.SyncSession;
 
 import java.io.IOException;
@@ -66,16 +64,14 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.packetWriter = packetWriter;
-		outstandingQueries = new AtomicInteger(4); // One per type of packet
+		outstandingQueries = new AtomicInteger(2); // One per type of packet
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Start a query for each type of packet, in order of urgency
-			dbExecutor.execute(new GenerateSubscriptionAck());
-			dbExecutor.execute(new GenerateSubscriptionUpdate());
+			// Start a query for each type of packet
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
 			// Write packets until interrupted or no more packets to write
@@ -185,79 +181,6 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			for (byte[] raw : batch) packetWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateSubscriptionAck implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				SubscriptionAck a = db.generateSubscriptionAck(contactId);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated subscription ack: " + (a != null));
-				if (a == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteSubscriptionAck(a));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This tasks runs on the writer thread
-	private class WriteSubscriptionAck
-	implements ThrowingRunnable<IOException> {
-
-		private final SubscriptionAck ack;
-
-		private WriteSubscriptionAck(SubscriptionAck ack) {
-			this.ack = ack;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeSubscriptionAck(ack);
-			LOG.info("Sent subscription ack");
-			dbExecutor.execute(new GenerateSubscriptionAck());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateSubscriptionUpdate implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				SubscriptionUpdate u =
-						db.generateSubscriptionUpdate(contactId, maxLatency);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated subscription update: " + (u != null));
-				if (u == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteSubscriptionUpdate(u));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteSubscriptionUpdate
-	implements ThrowingRunnable<IOException> {
-
-		private final SubscriptionUpdate update;
-
-		private WriteSubscriptionUpdate(SubscriptionUpdate update) {
-			this.update = update;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeSubscriptionUpdate(update);
-			LOG.info("Sent subscription update");
-			dbExecutor.execute(new GenerateSubscriptionUpdate());
 		}
 	}
 }

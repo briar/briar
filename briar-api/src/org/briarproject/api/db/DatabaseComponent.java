@@ -17,8 +17,6 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -112,20 +110,6 @@ public interface DatabaseComponent {
 	 */
 	Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
 			int maxLatency) throws DbException;
-
-	/**
-	 * Returns a subscription ack for the given contact, or null if no
-	 * subscription ack is due.
-	 */
-	SubscriptionAck generateSubscriptionAck(ContactId c) throws DbException;
-
-	/**
-	 * Returns a subscription update for the given contact, for transmission
-	 * over a transport with the given latency. Returns null if no update is
-	 * due.
-	 */
-	SubscriptionUpdate generateSubscriptionUpdate(ContactId c, int maxLatency)
-			throws DbException;
 
 	/**
 	 * Returns all groups belonging to the given client to which the user could
@@ -245,14 +229,6 @@ public interface DatabaseComponent {
 
 	/** Processes a request from the given contact. */
 	void receiveRequest(ContactId c, Request r) throws DbException;
-
-	/** Processes a subscription ack from the given contact. */
-	void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
-			throws DbException;
-
-	/** Processes a subscription update from the given contact. */
-	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
-			throws DbException;
 
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;

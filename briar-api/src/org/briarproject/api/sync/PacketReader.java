@@ -17,10 +17,4 @@ public interface PacketReader {
 
 	boolean hasRequest() throws IOException;
 	Request readRequest() throws IOException;
-
-	boolean hasSubscriptionAck() throws IOException;
-	SubscriptionAck readSubscriptionAck() throws IOException;
-
-	boolean hasSubscriptionUpdate() throws IOException;
-	SubscriptionUpdate readSubscriptionUpdate() throws IOException;
 }

@@ -22,16 +22,12 @@ import org.briarproject.api.messaging.MessagingConstants;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.Ack;
-import org.briarproject.api.sync.ClientId;
-import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
@@ -52,9 +48,7 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENG
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
 import static org.junit.Assert.assertTrue;
 
 public class ConstantsTest extends BriarTestCase {
@@ -62,7 +56,6 @@ public class ConstantsTest extends BriarTestCase {
 	// TODO: Break this up into tests that are relevant for each package
 
 	private final CryptoComponent crypto;
-	private final GroupFactory groupFactory;
 	private final AuthorFactory authorFactory;
 	private final PrivateMessageFactory privateMessageFactory;
 	private final ForumPostFactory forumPostFactory;
@@ -75,7 +68,6 @@ public class ConstantsTest extends BriarTestCase {
 				new DataModule(), new EventModule(), new ForumModule(),
 				new IdentityModule(), new MessagingModule(), new SyncModule());
 		crypto = i.getInstance(CryptoComponent.class);
-		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);
 		privateMessageFactory = i.getInstance(PrivateMessageFactory.class);
 		forumPostFactory = i.getInstance(ForumPostFactory.class);
@@ -186,27 +178,6 @@ public class ConstantsTest extends BriarTestCase {
 	@Test
 	public void testMessageIdsFitIntoSmallRequest() throws Exception {
 		testMessageIdsFitIntoRequest(1000);
-	}
-
-	@Test
-	public void testGroupsFitIntoSubscriptionUpdate() throws Exception {
-		// Create the maximum number of maximum-length groups
-		Random random = new Random();
-		ClientId clientId = new ClientId(TestUtils.getRandomId());
-		Collection<Group> groups = new ArrayList<Group>();
-		for (int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
-			byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
-			random.nextBytes(descriptor);
-			groups.add(groupFactory.createGroup(clientId, descriptor));
-		}
-		// Create a maximum-length subscription update
-		SubscriptionUpdate u = new SubscriptionUpdate(groups, Long.MAX_VALUE);
-		// Serialise the update
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
-		writer.writeSubscriptionUpdate(u);
-		// Check the size of the serialised subscription update
-		assertTrue(out.size() <= MAX_PACKET_PAYLOAD_LENGTH);
 	}
 
 	private void testMessageIdsFitIntoAck(int length) throws Exception {

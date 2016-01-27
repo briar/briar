@@ -20,8 +20,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
@@ -1714,94 +1712,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public SubscriptionAck getSubscriptionAck(Connection txn, ContactId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT remoteVersion FROM groupVersions"
-					+ " WHERE contactId = ? AND remoteAcked = FALSE";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if (!rs.next()) {
-				rs.close();
-				ps.close();
-				return null;
-			}
-			long version = rs.getLong(1);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "UPDATE groupVersions SET remoteAcked = TRUE"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			return new SubscriptionAck(version);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
-	public SubscriptionUpdate getSubscriptionUpdate(Connection txn, ContactId c,
-			int maxLatency) throws DbException {
-		long now = clock.currentTimeMillis();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT g.groupId, clientId, descriptor,"
-					+ " localVersion, txCount"
-					+ " FROM groups AS g"
-					+ " JOIN groupVisibilities AS gvis"
-					+ " ON g.groupId = gvis.groupId"
-					+ " JOIN groupVersions AS gver"
-					+ " ON gvis.contactId = gver.contactId"
-					+ " WHERE gvis.contactId = ?"
-					+ " AND localVersion > localAcked"
-					+ " AND expiry < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, now);
-			rs = ps.executeQuery();
-			List<Group> groups = new ArrayList<Group>();
-			Set<GroupId> ids = new HashSet<GroupId>();
-			long version = 0;
-			int txCount = 0;
-			while (rs.next()) {
-				GroupId id = new GroupId(rs.getBytes(1));
-				if (!ids.add(id)) throw new DbStateException();
-				ClientId clientId = new ClientId(rs.getBytes(2));
-				byte[] descriptor = rs.getBytes(3);
-				groups.add(new Group(id, clientId, descriptor));
-				version = rs.getLong(4);
-				txCount = rs.getInt(5);
-			}
-			rs.close();
-			ps.close();
-			if (groups.isEmpty()) return null;
-			sql = "UPDATE groupVersions"
-					+ " SET expiry = ?, txCount = txCount + 1"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			groups = Collections.unmodifiableList(groups);
-			return new SubscriptionUpdate(groups, version);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}

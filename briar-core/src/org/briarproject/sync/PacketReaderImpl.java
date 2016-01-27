@@ -3,9 +3,6 @@ package org.briarproject.sync;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.data.BdfReader;
-import org.briarproject.api.data.BdfReaderFactory;
-import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -13,11 +10,8 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.util.ByteUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,8 +22,6 @@ import static org.briarproject.api.sync.PacketTypes.ACK;
 import static org.briarproject.api.sync.PacketTypes.MESSAGE;
 import static org.briarproject.api.sync.PacketTypes.OFFER;
 import static org.briarproject.api.sync.PacketTypes.REQUEST;
-import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
-import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
@@ -41,20 +33,14 @@ class PacketReaderImpl implements PacketReader {
 	private enum State { BUFFER_EMPTY, BUFFER_FULL, EOF }
 
 	private final CryptoComponent crypto;
-	private final BdfReaderFactory bdfReaderFactory;
-	private final ObjectReader<SubscriptionUpdate> subscriptionUpdateReader;
 	private final InputStream in;
 	private final byte[] header, payload;
 
 	private State state = State.BUFFER_EMPTY;
 	private int payloadLength = 0;
 
-	PacketReaderImpl(CryptoComponent crypto, BdfReaderFactory bdfReaderFactory,
-			ObjectReader<SubscriptionUpdate> subscriptionUpdateReader,
-			InputStream in) {
+	PacketReaderImpl(CryptoComponent crypto, InputStream in) {
 		this.crypto = crypto;
-		this.bdfReaderFactory = bdfReaderFactory;
-		this.subscriptionUpdateReader = subscriptionUpdateReader;
 		this.in = in;
 		header = new byte[PACKET_HEADER_LENGTH];
 		payload = new byte[MAX_PACKET_PAYLOAD_LENGTH];
@@ -155,43 +141,5 @@ class PacketReaderImpl implements PacketReader {
 	public Request readRequest() throws IOException {
 		if (!hasRequest()) throw new FormatException();
 		return new Request(Collections.unmodifiableList(readMessageIds()));
-	}
-
-	public boolean hasSubscriptionAck() throws IOException {
-		return !eof() && header[1] == SUBSCRIPTION_ACK;
-	}
-
-	public SubscriptionAck readSubscriptionAck() throws IOException {
-		if (!hasSubscriptionAck()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the version
-		long version = r.readInteger();
-		if (version < 0) throw new FormatException();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		// Build and return the subscription ack
-		return new SubscriptionAck(version);
-	}
-
-	public boolean hasSubscriptionUpdate() throws IOException {
-		return !eof() && header[1] == SUBSCRIPTION_UPDATE;
-	}
-
-	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		if (!hasSubscriptionUpdate()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read and build the subscription update
-		SubscriptionUpdate u = subscriptionUpdateReader.readObject(r);
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		return u;
 	}
 }

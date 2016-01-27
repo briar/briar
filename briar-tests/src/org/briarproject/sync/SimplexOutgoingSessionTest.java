@@ -52,12 +52,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
-			// No subscription ack to send
-			oneOf(db).generateSubscriptionAck(contactId);
-			will(returnValue(null));
-			// No subscription update to send
-			oneOf(db).generateSubscriptionUpdate(contactId, maxLatency);
-			will(returnValue(null));
 			// No acks to send
 			oneOf(packetWriter).getMaxMessagesForAck(with(any(long.class)));
 			will(returnValue(MAX_MESSAGES_PER_ACK));
@@ -86,12 +80,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
-			// No subscription ack to send
-			oneOf(db).generateSubscriptionAck(contactId);
-			will(returnValue(null));
-			// No subscription update to send
-			oneOf(db).generateSubscriptionUpdate(contactId, maxLatency);
-			will(returnValue(null));
 			// One ack to send
 			oneOf(packetWriter).getMaxMessagesForAck(with(any(long.class)));
 			will(returnValue(MAX_MESSAGES_PER_ACK));

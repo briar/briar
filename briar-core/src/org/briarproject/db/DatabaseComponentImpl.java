@@ -26,7 +26,6 @@ import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
-import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
@@ -46,8 +45,6 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
@@ -432,47 +429,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (messages.isEmpty()) return null;
 		if (!ids.isEmpty()) eventBus.broadcast(new MessagesSentEvent(c, ids));
 		return Collections.unmodifiableList(messages);
-	}
-
-	public SubscriptionAck generateSubscriptionAck(ContactId c)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				SubscriptionAck a = db.getSubscriptionAck(txn, c);
-				db.commitTransaction(txn);
-				return a;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c,
-			int maxLatency) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				SubscriptionUpdate u =
-						db.getSubscriptionUpdate(txn, c, maxLatency);
-				db.commitTransaction(txn);
-				return u;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
 	}
 
 	public Collection<Group> getAvailableGroups(ClientId c) throws DbException {
@@ -1064,46 +1020,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		if (requested) eventBus.broadcast(new MessageRequestedEvent(c));
-	}
-
-	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				db.setSubscriptionUpdateAcked(txn, c, a.getVersion());
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
-			throws DbException {
-		boolean updated;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				updated = db.setGroups(txn, c, u.getGroups(), u.getVersion());
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (updated) eventBus.broadcast(new RemoteSubscriptionsUpdatedEvent(c));
 	}
 
 	public void removeContact(ContactId c) throws DbException {

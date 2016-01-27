@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.db.StorageStatus.ADDING;
 
+// TODO: Move this class to the identity package
 class AuthorFactoryImpl implements AuthorFactory {
 
 	private final CryptoComponent crypto;
