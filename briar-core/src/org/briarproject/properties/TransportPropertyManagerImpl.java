@@ -44,7 +44,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
@@ -302,28 +301,27 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			// Create the local group if necessary
 			db.addGroup(localGroup);
 			// Merge the new properties with any existing properties
+			TransportProperties merged;
 			Latest latest = findLatest(localGroup.getId(), true).get(t);
-			if (latest != null) {
+			if (latest == null) {
+				merged = p;
+			} else {
 				byte[] raw = db.getRawMessage(latest.messageId);
 				TransportProperties old = decodeProperties(raw);
-				if (old.equals(p)) return; // Unchanged
-				old.putAll(p);
-				p = old;
+				merged = new TransportProperties(old);
+				merged.putAll(p);
+				if (merged.equals(old)) return; // Unchanged
 			}
 			// Store the merged properties in the local group
 			DeviceId dev = db.getDeviceId();
 			long version = latest == null ? 0 : latest.version + 1;
-			storeMessage(localGroup.getId(), dev, t, p, version);
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Stored local properties for " + t.getString()
-						+ ", version " + version);
-			}
+			storeMessage(localGroup.getId(), dev, t, merged, version);
 			// Store the merged properties in each contact's group
 			for (Contact c : db.getContacts()) {
 				Group g = getContactGroup(c);
 				latest = findLatest(g.getId(), true).get(t);
 				version = latest == null ? 0 : latest.version + 1;
-				storeMessage(g.getId(), dev, t, p, version);
+				storeMessage(g.getId(), dev, t, merged, version);
 			}
 		} catch (IOException e) {
 			throw new DbException(e);
