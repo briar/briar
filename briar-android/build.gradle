@@ -17,6 +17,7 @@ dependencies {
     compile "org.roboguice:roboguice:2.0"
     compile "info.guardianproject.panic:panic:0.5"
     compile "info.guardianproject.trustedintents:trustedintents:0.2"
+    compile "de.hdodenhof:circleimageview:2.0.0"
 }
 
 dependencyVerification {

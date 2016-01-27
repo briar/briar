@@ -55,8 +55,7 @@ class ForumAdapter extends ArrayAdapter<ForumItem> {
 		AuthorView authorView = new AuthorView(ctx);
 		authorView.setLayoutParams(WRAP_WRAP_1);
 		Author author = header.getAuthor();
-		if (author == null) authorView.init(null, header.getAuthorStatus());
-		else authorView.init(author.getName(), header.getAuthorStatus());
+		authorView.init(author, header.getAuthorStatus());
 		headerLayout.addView(authorView);
 
 		TextView date = new TextView(ctx);

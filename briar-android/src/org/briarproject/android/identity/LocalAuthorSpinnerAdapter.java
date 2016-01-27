@@ -1,21 +1,24 @@
 package org.briarproject.android.identity;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.crypto.CryptoComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static android.text.TextUtils.TruncateAt.END;
+import im.delight.android.identicons.IdenticonDrawable;
+
 import static org.briarproject.android.identity.LocalAuthorItem.ANONYMOUS;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
 
@@ -23,11 +26,14 @@ public class LocalAuthorSpinnerAdapter extends BaseAdapter
 implements SpinnerAdapter {
 
 	private final Context ctx;
+	private final CryptoComponent crypto;
 	private final boolean includeAnonymous;
 	private final List<LocalAuthorItem> list = new ArrayList<LocalAuthorItem>();
 
-	public LocalAuthorSpinnerAdapter(Context ctx, boolean includeAnonymous) {
+	public LocalAuthorSpinnerAdapter(Context ctx,
+			CryptoComponent crypto, boolean includeAnonymous) {
 		this.ctx = ctx;
+		this.crypto = crypto;
 		this.includeAnonymous = includeAnonymous;
 	}
 
@@ -49,17 +55,33 @@ implements SpinnerAdapter {
 	@Override
 	public View getDropDownView(int position, View convertView,
 			ViewGroup parent) {
-		TextView name = new TextView(ctx);
-		name.setTextSize(18);
-		name.setSingleLine();
-		name.setEllipsize(END);
-		int pad = LayoutUtils.getPadding(ctx);
-		name.setPadding(pad, pad, pad, pad);
+		View view;
+		if (convertView == null) {
+			LayoutInflater inflater =
+					(LayoutInflater) ctx
+							.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			view = inflater.inflate(R.layout.dropdown_author, parent, false);
+		} else
+			view = convertView;
+
+		TextView name = (TextView) view.findViewById(R.id.nameView);
+		ImageView avatar =
+				(ImageView) view.findViewById(R.id.avatarView);
+
 		LocalAuthorItem item = getItem(position);
-		if (item == ANONYMOUS) name.setText(R.string.anonymous);
-		else if (item == NEW) name.setText(R.string.new_identity_item);
-		else name.setText(item.getLocalAuthor().getName());
-		return name;
+		if (item == ANONYMOUS) {
+			name.setText(R.string.anonymous);
+			avatar.setVisibility(View.INVISIBLE);
+		} else if (item == NEW) {
+			name.setText(R.string.new_identity_item);
+			avatar.setVisibility(View.INVISIBLE);
+		} else {
+			name.setText(item.getLocalAuthor().getName());
+			avatar.setVisibility(View.VISIBLE);
+			avatar.setImageDrawable(new IdenticonDrawable(crypto,
+					item.getLocalAuthor().getId().getBytes()));
+		}
+		return view;
 	}
 
 	public LocalAuthorItem getItem(int position) {
@@ -78,15 +100,7 @@ implements SpinnerAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		TextView name = new TextView(ctx);
-		name.setTextSize(18);
-		name.setSingleLine();
-		name.setEllipsize(END);
-		LocalAuthorItem item = getItem(position);
-		if (item == ANONYMOUS) name.setText(R.string.anonymous);
-		else if (item == NEW) name.setText(R.string.new_identity_item);
-		else name.setText(item.getLocalAuthor().getName());
-		return name;
+		return getDropDownView(position, convertView, parent);
 	}
 
 	@Override

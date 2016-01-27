@@ -4,11 +4,19 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:orientation="vertical"
+	android:orientation="horizontal"
 	android:paddingRight="@dimen/margin_medium"
 	android:paddingEnd="@dimen/margin_medium"
 	android:paddingTop="@dimen/margin_small"
 	android:paddingBottom="@dimen/margin_small">
+
+	<de.hdodenhof.circleimageview.CircleImageView
+		android:id="@+id/msgAvatar"
+		android:layout_width="@dimen/listitem_picture_size"
+		android:layout_height="@dimen/listitem_picture_size"
+		android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+		android:layout_marginStart="@dimen/listitem_horizontal_margin"
+		/>
 
 	<RelativeLayout
 		android:id="@+id/msgLayout"
