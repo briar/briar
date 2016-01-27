@@ -1,40 +1,23 @@
 package org.briarproject.android.panic;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
 import org.briarproject.android.BaseActivity;
 
+import java.util.logging.Logger;
+
 public class ExitActivity extends BaseActivity {
 
+	private static final Logger LOG =
+			Logger.getLogger(ExitActivity.class.getName());
+
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		if (Build.VERSION.SDK_INT >= 21) {
-			finishAndRemoveTask();
-		} else {
-			finish();
-		}
-
+	public void onCreate(Bundle state) {
+		super.onCreate(state);
+		if (Build.VERSION.SDK_INT >= 21) finishAndRemoveTask();
+		else finish();
+		LOG.info("Exiting");
 		System.exit(0);
-	}
-
-	public static void exitAndRemoveFromRecentApps(final BaseActivity activity) {
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Intent intent = new Intent(activity, ExitActivity.class);
-
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-						| Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-						| Intent.FLAG_ACTIVITY_CLEAR_TASK
-						| Intent.FLAG_ACTIVITY_NO_ANIMATION);
-
-				activity.startActivity(intent);
-			}
-		});
-
 	}
 }

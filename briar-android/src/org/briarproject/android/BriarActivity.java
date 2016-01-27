@@ -14,11 +14,13 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
@@ -101,12 +103,8 @@ public abstract class BriarActivity extends BaseActivity {
 					LOG.warning("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
-
-				if(removeFromRecentApps){
-					ExitActivity.exitAndRemoveFromRecentApps(BriarActivity.this);
-				} else {
-					finishAndExit();
-				}
+				if (removeFromRecentApps) startExitActivity();
+				else finishAndExit();
 			}
 		}.start();
 	}
@@ -115,14 +113,27 @@ public abstract class BriarActivity extends BaseActivity {
 		signOut(false);
 	}
 
+	private void startExitActivity() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Intent intent = new Intent(BriarActivity.this,
+						ExitActivity.class);
+				intent.addFlags(FLAG_ACTIVITY_NEW_TASK
+						| FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+						| FLAG_ACTIVITY_NO_ANIMATION);
+				if (Build.VERSION.SDK_INT >= 11)
+					intent.addFlags(FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(intent);
+			}
+		});
+	}
+
 	private void finishAndExit() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if (Build.VERSION.SDK_INT >= 21) {
-					finishAndRemoveTask();
-				} else {
-					finish();
-				}
+				if (Build.VERSION.SDK_INT >= 21) finishAndRemoveTask();
+				else finish();
 				LOG.info("Exiting");
 				System.exit(0);
 			}
