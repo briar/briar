@@ -7,7 +7,6 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.MessageExistsException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchGroupException;
@@ -193,33 +192,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testDuplicateLocalMessagesAreNotStored() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsMessage(txn, messageId);
-			will(returnValue(true));
-			oneOf(database).abortTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		try {
-			db.addLocalMessage(message, clientId, metadata, true);
-			fail();
-		} catch (MessageExistsException expected) {
-			// Expected
-		}
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testLocalMessagesAreNotStoredUnlessGroupExists()
 			throws Exception {
 		Mockery context = new Mockery();
@@ -230,8 +202,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsMessage(txn, messageId);
-			will(returnValue(false));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).abortTransaction(txn);
@@ -259,10 +229,10 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsMessage(txn, messageId);
-			will(returnValue(false));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
+			oneOf(database).containsMessage(txn, messageId);
+			will(returnValue(false));
 			oneOf(database).addMessage(txn, message, VALID, true);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).getVisibility(txn, groupId);
@@ -295,11 +265,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(13).of(database).startTransaction();
+			exactly(15).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(13).of(database).containsContact(txn, contactId);
+			exactly(15).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(13).of(database).abortTransaction(txn);
+			exactly(15).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -327,6 +297,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.generateOffer(contactId, 123, 456);
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.generateRequest(contactId, 123);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -378,6 +355,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			Offer o = new Offer(Collections.singletonList(messageId));
 			db.receiveOffer(contactId, o);
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			Request r = new Request(Collections.singletonList(messageId));
+			db.receiveRequest(contactId, r);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected

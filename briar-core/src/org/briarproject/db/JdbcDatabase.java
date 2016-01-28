@@ -661,23 +661,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addTransport(Connection txn, TransportId t, int maxLatency)
+	public void addTransport(Connection txn, TransportId t, int maxLatency)
 			throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			// Return false if the transport is already in the database
-			String sql = "SELECT NULL FROM transports WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, t.getString());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if (found) return false;
-			// Create a transport row
-			sql = "INSERT INTO transports (transportId, maxLatency)"
+			String sql = "INSERT INTO transports (transportId, maxLatency)"
 					+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
@@ -685,10 +673,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
-			return true;
 		} catch (SQLException e) {
 			tryToClose(ps);
-			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}

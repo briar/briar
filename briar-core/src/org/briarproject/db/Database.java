@@ -124,20 +124,20 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores a transport and returns true if the transport was not previously
-	 * in the database.
+	 * Stores a transport.
 	 * <p>
 	 * Locking: write.
 	 */
-	boolean addTransport(T txn, TransportId t, int maxLatency)
+	void addTransport(T txn, TransportId t, int maxLatency)
 			throws DbException;
 
 	/**
-	 * Stores the given transport keys for a newly added contact.
+	 * Stores transport keys for a newly added contact.
 	 * <p>
 	 * Locking: write.
 	 */
-	void addTransportKeys(T txn, ContactId c, TransportKeys k) throws DbException;
+	void addTransportKeys(T txn, ContactId c, TransportKeys k)
+			throws DbException;
 
 	/**
 	 * Makes a group visible to the given contact.

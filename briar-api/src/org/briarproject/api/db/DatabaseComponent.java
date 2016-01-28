@@ -55,14 +55,11 @@ public interface DatabaseComponent {
 	void addLocalMessage(Message m, ClientId c, Metadata meta, boolean shared)
 			throws DbException;
 
-	/**
-	 * Stores a transport and returns true if the transport was not previously
-	 * in the database.
-	 */
-	boolean addTransport(TransportId t, int maxLatency) throws DbException;
+	/** Stores a transport. */
+	void addTransport(TransportId t, int maxLatency) throws DbException;
 
 	/**
-	 * Stores the given transport keys for a newly added contact.
+	 * Stores transport keys for a newly added contact.
 	 */
 	void addTransportKeys(ContactId c, TransportKeys k) throws DbException;
 
