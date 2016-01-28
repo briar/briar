@@ -74,8 +74,9 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	@Inject
-	TransportPropertyManagerImpl(DatabaseComponent db, GroupFactory groupFactory,
-			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
+	TransportPropertyManagerImpl(DatabaseComponent db,
+			GroupFactory groupFactory, MessageFactory messageFactory,
+			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser, Clock clock) {
 		this.db = db;
@@ -192,12 +193,12 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		lock.readLock().lock();
 		try {
 			// Find the latest local version for each transport
-			Map<TransportId, Latest> latest =
+			Map<TransportId, LatestUpdate> latest =
 					findLatest(localGroup.getId(), true);
 			// Retrieve and decode the latest local properties
 			Map<TransportId, TransportProperties> local =
 					new HashMap<TransportId, TransportProperties>();
-			for (Entry<TransportId, Latest> e : latest.entrySet()) {
+			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
 				byte[] raw = db.getRawMessage(e.getValue().messageId);
 				local.put(e.getKey(), decodeProperties(raw));
 			}
@@ -212,21 +213,22 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		}
 	}
 
-	private Map<TransportId, Latest> findLatest(GroupId g, boolean local)
+	private Map<TransportId, LatestUpdate> findLatest(GroupId g, boolean local)
 			throws DbException, FormatException {
 		// TODO: Use metadata queries
-		Map<TransportId, Latest> latest = new HashMap<TransportId, Latest>();
+		Map<TransportId, LatestUpdate> latestUpdates =
+				new HashMap<TransportId, LatestUpdate>();
 		Map<MessageId, Metadata> metadata = db.getMessageMetadata(g);
 		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
-			BdfDictionary mm = metadataParser.parse(e.getValue());
-			if (mm.getBoolean("local") != local) continue;
-			TransportId t = new TransportId(mm.getString("transportId"));
-			long version = mm.getInteger("version");
-			Latest l = latest.get(t);
-			if (l == null || version > l.version)
-				latest.put(t, new Latest(e.getKey(), version));
+			BdfDictionary d = metadataParser.parse(e.getValue());
+			if (d.getBoolean("local") != local) continue;
+			TransportId t = new TransportId(d.getString("transportId"));
+			long version = d.getInteger("version");
+			LatestUpdate latest = latestUpdates.get(t);
+			if (latest == null || version > latest.version)
+				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
 		}
-		return latest;
+		return latestUpdates;
 	}
 
 	private TransportProperties decodeProperties(byte[] raw)
@@ -254,7 +256,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		lock.readLock().lock();
 		try {
 			// Find the latest local version
-			Latest latest = findLatest(localGroup.getId(), true).get(t);
+			LatestUpdate latest = findLatest(localGroup.getId(), true).get(t);
 			if (latest == null) return null;
 			// Retrieve and decode the latest local properties
 			return decodeProperties(db.getRawMessage(latest.messageId));
@@ -278,7 +280,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			for (Contact c : db.getContacts())  {
 				Group g = getContactGroup(c);
 				// Find the latest remote version
-				Latest latest = findLatest(g.getId(), false).get(t);
+				LatestUpdate latest = findLatest(g.getId(), false).get(t);
 				if (latest != null) {
 					// Retrieve and decode the latest remote properties
 					byte[] raw = db.getRawMessage(latest.messageId);
@@ -302,7 +304,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			db.addGroup(localGroup);
 			// Merge the new properties with any existing properties
 			TransportProperties merged;
-			Latest latest = findLatest(localGroup.getId(), true).get(t);
+			LatestUpdate latest = findLatest(localGroup.getId(), true).get(t);
 			if (latest == null) {
 				merged = p;
 			} else {
@@ -330,12 +332,12 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		}
 	}
 
-	private static class Latest {
+	private static class LatestUpdate {
 
 		private final MessageId messageId;
 		private final long version;
 
-		private Latest(MessageId messageId, long version) {
+		private LatestUpdate(MessageId messageId, long version) {
 			this.messageId = messageId;
 			this.version = version;
 		}
