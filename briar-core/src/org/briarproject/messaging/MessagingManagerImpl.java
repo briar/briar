@@ -3,7 +3,6 @@ package org.briarproject.messaging;
 import com.google.inject.Inject;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -11,28 +10,24 @@ import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
-import org.briarproject.api.data.BdfWriter;
-import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
+import org.briarproject.api.sync.PrivateGroupFactory;
 import org.briarproject.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,21 +50,20 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			Logger.getLogger(MessagingManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final GroupFactory groupFactory;
+	private final PrivateGroupFactory privateGroupFactory;
 	private final BdfReaderFactory bdfReaderFactory;
-	private final BdfWriterFactory bdfWriterFactory;
 	private final MetadataEncoder metadataEncoder;
 	private final MetadataParser metadataParser;
 
 	@Inject
-	MessagingManagerImpl(DatabaseComponent db, GroupFactory groupFactory,
+	MessagingManagerImpl(DatabaseComponent db,
+			PrivateGroupFactory privateGroupFactory,
 			BdfReaderFactory bdfReaderFactory,
-			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
+			MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser) {
 		this.db = db;
-		this.groupFactory = groupFactory;
+		this.privateGroupFactory = privateGroupFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
-		this.bdfWriterFactory = bdfWriterFactory;
 		this.metadataEncoder = metadataEncoder;
 		this.metadataParser = metadataParser;
 	}
@@ -95,30 +89,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	}
 
 	private Group getConversationGroup(Contact c) {
-		AuthorId local = c.getLocalAuthorId();
-		AuthorId remote = c.getAuthor().getId();
-		byte[] descriptor = createGroupDescriptor(local, remote);
-		return groupFactory.createGroup(CLIENT_ID, descriptor);
-	}
-
-	private byte[] createGroupDescriptor(AuthorId local, AuthorId remote) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BdfWriter w = bdfWriterFactory.createWriter(out);
-		try {
-			w.writeListStart();
-			if (UniqueId.IdComparator.INSTANCE.compare(local, remote) < 0) {
-				w.writeRaw(local.getBytes());
-				w.writeRaw(remote.getBytes());
-			} else {
-				w.writeRaw(remote.getBytes());
-				w.writeRaw(local.getBytes());
-			}
-			w.writeListEnd();
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayOutputStream
-			throw new RuntimeException(e);
-		}
-		return out.toByteArray();
+		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
 	}
 
 	@Override
