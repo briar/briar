@@ -24,4 +24,17 @@ public class KeyAgreementTest extends BriarTestCase {
 		SecretKey bMaster = crypto.deriveBTMasterSecret(bPub, aPair, false);
 		assertArrayEquals(aMaster.getBytes(), bMaster.getBytes());
 	}
+
+	@Test
+	public void testKeyAgreement() throws Exception {
+		SeedProvider seedProvider = new TestSeedProvider();
+		CryptoComponent crypto = new CryptoComponentImpl(seedProvider);
+		KeyPair aPair = crypto.generateAgreementKeyPair();
+		byte[] aPub = aPair.getPublic().getEncoded();
+		KeyPair bPair = crypto.generateAgreementKeyPair();
+		byte[] bPub = bPair.getPublic().getEncoded();
+		SecretKey aShared = crypto.deriveSharedSecret(bPub, aPair, true);
+		SecretKey bShared = crypto.deriveSharedSecret(aPub, bPair, false);
+		assertArrayEquals(aShared.getBytes(), bShared.getBytes());
+	}
 }

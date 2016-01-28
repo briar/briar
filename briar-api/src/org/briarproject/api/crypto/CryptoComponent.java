@@ -58,6 +58,60 @@ public interface CryptoComponent {
 	byte[] deriveBTSignatureNonce(SecretKey master, boolean alice);
 
 	/**
+	 * Derives a commitment to the provided public key.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param publicKey the public key
+	 * @return the commitment to the provided public key.
+	 */
+	byte[] deriveKeyCommitment(byte[] publicKey);
+
+	/**
+	 * Derives a common shared secret from two public keys and one of the
+	 * corresponding private keys.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param theirPublicKey the ephemeral public key of the remote party
+	 * @param ourKeyPair our ephemeral keypair
+	 * @param alice true if ourKeyPair belongs to Alice
+	 * @return the shared secret
+	 * @throws GeneralSecurityException
+	 */
+	SecretKey deriveSharedSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice) throws GeneralSecurityException;
+
+	/**
+	 * Derives the content of a confirmation record.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param sharedSecret the common shared secret
+	 * @param theirPayload the commit payload from the remote party
+	 * @param ourPayload the commit payload we sent
+	 * @param theirPublicKey the ephemeral public key of the remote party
+	 * @param ourKeyPair our ephemeral keypair
+	 * @param alice true if ourKeyPair belongs to Alice
+	 * @param aliceRecord true if the confirmation record is for use by Alice
+	 * @return the confirmation record
+	 */
+	byte[] deriveConfirmationRecord(SecretKey sharedSecret,
+			byte[] theirPayload, byte[] ourPayload,
+			byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice, boolean aliceRecord);
+
+	/**
+	 * Derives a master secret from the given shared secret.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param sharedSecret the common shared secret
+	 * @return the master secret
+	 */
+	SecretKey deriveMasterSecret(SecretKey sharedSecret);
+
+	/**
 	 * Derives initial transport keys for the given transport in the given
 	 * rotation period from the given master secret.
 	 * @param alice whether the keys are for use by Alice or Bob.

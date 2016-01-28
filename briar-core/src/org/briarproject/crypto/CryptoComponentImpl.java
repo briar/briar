@@ -40,6 +40,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static org.briarproject.api.invitation.InvitationConstants.CODE_BITS;
+import static org.briarproject.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.briarproject.util.ByteUtils.INT_32_BYTES;
@@ -73,6 +74,14 @@ class CryptoComponentImpl implements CryptoComponent {
 	// KDF labels for bluetooth signature nonce derivation
 	private static final byte[] BT_A_NONCE = ascii("ALICE_SIGNATURE_NONCE");
 	private static final byte[] BT_B_NONCE = ascii("BOB_SIGNATURE_NONCE");
+	// Hash label for BQP public key commitment derivation
+	private static final byte[] COMMIT = ascii("COMMIT");
+	// Hash label for BQP shared secret derivation
+	private static final byte[] SHARED_SECRET = ascii("SHARED_SECRET");
+	// KDF label for BQP confirmation key derivation
+	private static final byte[] CONFIRMATION_KEY = ascii("CONFIRMATION_KEY");
+	// KDF label for BQP master key derivation
+	private static final byte[] MASTER_KEY = ascii("MASTER_KEY");
 	// KDF labels for tag key derivation
 	private static final byte[] A_TAG = ascii("ALICE_TAG_KEY");
 	private static final byte[] B_TAG = ascii("BOB_TAG_KEY");
@@ -229,6 +238,56 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public byte[] deriveBTSignatureNonce(SecretKey master, boolean alice) {
 		return macKdf(master, alice ? BT_A_NONCE : BT_B_NONCE);
+	}
+
+	public byte[] deriveKeyCommitment(byte[] publicKey) {
+		byte[] hash = hash(COMMIT, publicKey);
+		// The output is the first COMMIT_LENGTH bytes of the hash
+		byte[] commitment = new byte[COMMIT_LENGTH];
+		System.arraycopy(hash, 0, commitment, 0, COMMIT_LENGTH);
+		return commitment;
+	}
+
+	public SecretKey deriveSharedSecret(byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
+		PrivateKey ourPriv = ourKeyPair.getPrivate();
+		PublicKey theirPub = agreementKeyParser.parsePublicKey(theirPublicKey);
+		byte[] raw = performRawKeyAgreement(ourPriv, theirPub);
+		byte[] alicePub, bobPub;
+		if (alice) {
+			alicePub = ourKeyPair.getPublic().getEncoded();
+			bobPub = theirPublicKey;
+		} else {
+			alicePub = theirPublicKey;
+			bobPub = ourKeyPair.getPublic().getEncoded();
+		}
+		return new SecretKey(hash(SHARED_SECRET, raw, alicePub, bobPub));
+	}
+
+	public byte[] deriveConfirmationRecord(SecretKey sharedSecret,
+			byte[] theirPayload, byte[] ourPayload, byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice, boolean aliceRecord) {
+		SecretKey ck = new SecretKey(macKdf(sharedSecret, CONFIRMATION_KEY));
+		byte[] alicePayload, alicePub, bobPayload, bobPub;
+		if (alice) {
+			alicePayload = ourPayload;
+			alicePub = ourKeyPair.getPublic().getEncoded();
+			bobPayload = theirPayload;
+			bobPub = theirPublicKey;
+		} else {
+			alicePayload = theirPayload;
+			alicePub = theirPublicKey;
+			bobPayload = ourPayload;
+			bobPub = ourKeyPair.getPublic().getEncoded();
+		}
+		if (aliceRecord)
+			return macKdf(ck, alicePayload, alicePub, bobPayload, bobPub);
+		else
+			return macKdf(ck, bobPayload, bobPub, alicePayload, alicePub);
+	}
+
+	public SecretKey deriveMasterSecret(SecretKey sharedSecret) {
+		return new SecretKey(macKdf(sharedSecret, MASTER_KEY));
 	}
 
 	public TransportKeys deriveTransportKeys(TransportId t,
