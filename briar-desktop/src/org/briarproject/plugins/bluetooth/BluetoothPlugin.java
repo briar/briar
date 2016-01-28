@@ -3,6 +3,9 @@ package org.briarproject.plugins.bluetooth;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.keyagreement.KeyAgreementConnection;
+import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -49,6 +52,9 @@ class BluetoothPlugin implements DuplexPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
 	private static final int UUID_BYTES = 16;
+
+	private static final String PROP_ADDRESS = "address";
+	private static final String PROP_UUID = "uuid";
 
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
@@ -106,7 +112,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				if (!running) return;
 				// Advertise the Bluetooth address to contacts
 				TransportProperties p = new TransportProperties();
-				p.put("address", localDevice.getBluetoothAddress());
+				p.put(PROP_ADDRESS, localDevice.getBluetoothAddress());
 				callback.mergeLocalProperties(p);
 				// Bind a server socket to accept connections from contacts
 				String url = makeUrl("localhost", getUuid());
@@ -135,13 +141,13 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	private String getUuid() {
-		String uuid = callback.getLocalProperties().get("uuid");
+		String uuid = callback.getLocalProperties().get(PROP_UUID);
 		if (uuid == null) {
 			byte[] random = new byte[UUID_BYTES];
 			secureRandom.nextBytes(random);
 			uuid = UUID.nameUUIDFromBytes(random).toString();
 			TransportProperties p = new TransportProperties();
-			p.put("uuid", uuid);
+			p.put(PROP_UUID, uuid);
 			callback.mergeLocalProperties(p);
 		}
 		return uuid;
@@ -203,9 +209,9 @@ class BluetoothPlugin implements DuplexPlugin {
 		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
 			final ContactId c = e.getKey();
 			if (connected.contains(c)) continue;
-			final String address = e.getValue().get("address");
+			final String address = e.getValue().get(PROP_ADDRESS);
 			if (StringUtils.isNullOrEmpty(address)) continue;
-			final String uuid = e.getValue().get("uuid");
+			final String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(new Runnable() {
 				public void run() {
@@ -236,9 +242,9 @@ class BluetoothPlugin implements DuplexPlugin {
 		if (!running) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if (p == null) return null;
-		String address = p.get("address");
+		String address = p.get(PROP_ADDRESS);
 		if (StringUtils.isNullOrEmpty(address)) return null;
-		String uuid = p.get("uuid");
+		String uuid = p.get(PROP_UUID);
 		if (StringUtils.isNullOrEmpty(uuid)) return null;
 		String url = makeUrl(address, uuid);
 		StreamConnection s = connect(url);
@@ -335,6 +341,54 @@ class BluetoothPlugin implements DuplexPlugin {
 		});
 	}
 
+	public boolean supportsKeyAgreement() {
+		return true;
+	}
+
+	public KeyAgreementListener createKeyAgreementListener(
+			byte[] localCommitment) {
+		// No truncation necessary because COMMIT_LENGTH = 16
+		String uuid = UUID.nameUUIDFromBytes(localCommitment).toString();
+		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
+		String url = makeUrl("localhost", uuid);
+		// Make the device discoverable if possible
+		makeDeviceDiscoverable();
+		// Bind a server socket for receiving invitation connections
+		final StreamConnectionNotifier ss;
+		try {
+			ss = (StreamConnectionNotifier) Connector.open(url);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return null;
+		}
+		if (!running) {
+			tryToClose(ss);
+			return null;
+		}
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_ADDRESS, localDevice.getBluetoothAddress());
+		TransportDescriptor d = new TransportDescriptor(ID, p);
+		return new BluetoothKeyAgreementListener(d, ss);
+	}
+
+	public DuplexTransportConnection createKeyAgreementConnection(
+			byte[] remoteCommitment, TransportDescriptor d, long timeout) {
+		if (!isRunning()) return null;
+		if (!ID.equals(d.getIdentifier())) return null;
+		TransportProperties p = d.getProperties();
+		if (p == null) return null;
+		String address = p.get(PROP_ADDRESS);
+		if (StringUtils.isNullOrEmpty(address)) return null;
+		// No truncation necessary because COMMIT_LENGTH = 16
+		String uuid = UUID.nameUUIDFromBytes(remoteCommitment).toString();
+		if (LOG.isLoggable(INFO))
+			LOG.info("Connecting to key agreement UUID " + uuid);
+		String url = makeUrl(address, uuid);
+		StreamConnection s = connect(url);
+		if (s == null) return null;
+		return new BluetoothTransportConnection(this, s);
+	}
+
 	private void makeDeviceDiscoverable() {
 		// Try to make the device discoverable (requires root on Linux)
 		try {
@@ -412,6 +466,41 @@ class BluetoothPlugin implements DuplexPlugin {
 			}
 			LOG.info("Data available");
 			return s;
+		}
+	}
+
+	private class BluetoothKeyAgreementListener extends KeyAgreementListener {
+
+		private final StreamConnectionNotifier ss;
+
+		public BluetoothKeyAgreementListener(TransportDescriptor descriptor,
+				StreamConnectionNotifier ss) {
+			super(descriptor);
+			this.ss = ss;
+		}
+
+		@Override
+		public Callable<KeyAgreementConnection> listen() {
+			return new Callable<KeyAgreementConnection>() {
+				@Override
+				public KeyAgreementConnection call() throws Exception {
+					StreamConnection s = ss.acceptAndOpen();
+					if (LOG.isLoggable(INFO))
+						LOG.info(ID.getString() + ": Incoming connection");
+					return new KeyAgreementConnection(
+							new BluetoothTransportConnection(
+									BluetoothPlugin.this, s), ID);
+				}
+			};
+		}
+
+		@Override
+		public void close() {
+			try {
+				ss.close();
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
 		}
 	}
 }

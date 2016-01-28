@@ -161,6 +161,13 @@ class PluginManagerImpl implements PluginManager, Service {
 		return Collections.unmodifiableList(supported);
 	}
 
+	public Collection<DuplexPlugin> getKeyAgreementPlugins() {
+		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
+		for (DuplexPlugin d : duplexPlugins)
+			if (d.supportsKeyAgreement()) supported.add(d);
+		return Collections.unmodifiableList(supported);
+	}
+
 	private class SimplexPluginStarter implements Runnable {
 
 		private final SimplexPluginFactory factory;

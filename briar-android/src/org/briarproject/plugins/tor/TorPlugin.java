@@ -19,6 +19,8 @@ import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
+import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -567,6 +569,20 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout, boolean alice) {
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean supportsKeyAgreement() {
+		return false;
+	}
+
+	public KeyAgreementListener createKeyAgreementListener(
+			byte[] commitment) {
+		throw new UnsupportedOperationException();
+	}
+
+	public DuplexTransportConnection createKeyAgreementConnection(
+			byte[] commitment, TransportDescriptor d, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 
