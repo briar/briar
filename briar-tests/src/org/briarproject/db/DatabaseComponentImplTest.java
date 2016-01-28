@@ -132,10 +132,10 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
 			// addContact()
-			oneOf(database).containsContact(txn, authorId);
-			will(returnValue(false));
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
+			oneOf(database).containsContact(txn, authorId, localAuthorId);
+			will(returnValue(false));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			// getContacts()
@@ -447,9 +447,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			exactly(3).of(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			exactly(3).of(database).abortTransaction(txn);
-			// This is needed for addContact() to proceed
-			exactly(1).of(database).containsContact(txn, authorId);
-			will(returnValue(false));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -624,10 +621,10 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// addContact()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsContact(txn, authorId);
-			will(returnValue(false));
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
+			oneOf(database).containsContact(txn, authorId, localAuthorId);
+			will(returnValue(false));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);

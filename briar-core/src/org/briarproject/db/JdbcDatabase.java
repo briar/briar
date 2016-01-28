@@ -871,14 +871,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsContact(Connection txn, AuthorId a)
-			throws DbException {
+	public boolean containsContact(Connection txn, AuthorId remote,
+			AuthorId local) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM contacts WHERE authorId = ?";
+			String sql = "SELECT NULL FROM contacts"
+					+ " WHERE authorId = ? AND localAuthorId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, a.getBytes());
+			ps.setBytes(1, remote.getBytes());
+			ps.setBytes(2, local.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
