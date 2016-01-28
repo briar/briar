@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -29,7 +28,6 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.Plugin;
@@ -39,9 +37,7 @@ import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -50,8 +46,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -61,8 +55,8 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.EXTRA_EMAIL;
-import static android.content.Intent.EXTRA_STREAM;
 import static android.content.Intent.EXTRA_SUBJECT;
+import static android.content.Intent.EXTRA_TEXT;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
@@ -71,7 +65,6 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
@@ -82,7 +75,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(TestingActivity.class.getName());
 
-	@Inject private AndroidExecutor androidExecutor;
 	@Inject private PluginManager pluginManager;
 	@Inject private LifecycleManager lifecycleManager;
 	@Inject private TransportPropertyManager transportPropertyManager;
@@ -90,11 +82,14 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	private ListLoadingProgressBar progress = null;
 	private LinearLayout status = null;
 	private ImageButton refresh = null, share = null;
-	private File temp = null;
+
+	private volatile BluetoothAdapter bt = null;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
+		bt = BluetoothAdapter.getDefaultAdapter();
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -146,12 +141,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	public void onResume() {
 		super.onResume();
 		refresh();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (temp != null) temp.delete();
 	}
 
 	public void onClick(View view) {
@@ -325,19 +314,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		statusMap.put("Wi-Fi:", wifiStatus);
 
 		// Is Bluetooth available?
-		BluetoothAdapter bt = null;
-		try {
-			bt = androidExecutor.submit(new Callable<BluetoothAdapter>() {
-				public BluetoothAdapter call() throws Exception {
-					return BluetoothAdapter.getDefaultAdapter();
-				}
-			}).get();
-		} catch (InterruptedException e) {
-			LOG.warning("Interrupted while getting BluetoothAdapter");
-			Thread.currentThread().interrupt();
-		} catch (ExecutionException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
 		boolean btAvailable = bt != null;
 		// Is Bluetooth enabled?
 		boolean btEnabled = bt != null && bt.isEnabled() &&
@@ -453,43 +429,19 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	}
 
 	private void share() {
-		new AsyncTask<Void, Void, Map<String, String>>() {
-
-			@Override
-			protected Map<String, String> doInBackground(Void... args) {
-				return getStatusMap();
-			}
-
-			@Override
-			protected void onPostExecute(Map<String, String> result) {
-				try {
-					File shared = Environment.getExternalStorageDirectory();
-					temp = File.createTempFile("debug", ".txt", shared);
-					if (LOG.isLoggable(INFO))
-						LOG.info("Writing to " + temp.getPath());
-					PrintStream p = new PrintStream(new FileOutputStream(temp));
-					for (Entry<String, String> e : result.entrySet()) {
-						p.println(e.getKey());
-						p.println(e.getValue());
-						p.println();
-					}
-					p.flush();
-					p.close();
-					sendEmail(Uri.fromFile(temp));
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		}.execute();
-	}
-
-	private void sendEmail(Uri attachment) {
+		StringBuilder s = new StringBuilder();
+		for (Entry<String, String> e : getStatusMap().entrySet()) {
+			s.append(e.getKey());
+			s.append('\n');
+			s.append(e.getValue());
+			s.append("\n\n");
+		}
+		String body = s.toString();
 		Intent i = new Intent(ACTION_SEND);
 		i.setType("message/rfc822");
-		i.putExtra(EXTRA_EMAIL, new String[] { "briartest@gmail.com" });
-		i.putExtra(EXTRA_SUBJECT, "Debugging information");
-		i.putExtra(EXTRA_STREAM, attachment);
+		i.putExtra(EXTRA_EMAIL, new String[] { "contact@briarproject.org" });
+		i.putExtra(EXTRA_SUBJECT, "Testing report");
+		i.putExtra(EXTRA_TEXT, body);
 		startActivity(Intent.createChooser(i, "Send to developers"));
 	}
 }
