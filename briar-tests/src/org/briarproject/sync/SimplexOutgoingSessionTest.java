@@ -52,12 +52,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
-			// No transport acks to send
-			oneOf(db).generateTransportAcks(contactId);
-			will(returnValue(null));
-			// No transport updates to send
-			oneOf(db).generateTransportUpdates(contactId, maxLatency);
-			will(returnValue(null));
 			// No subscription ack to send
 			oneOf(db).generateSubscriptionAck(contactId);
 			will(returnValue(null));
@@ -92,12 +86,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
-			// No transport acks to send
-			oneOf(db).generateTransportAcks(contactId);
-			will(returnValue(null));
-			// No transport updates to send
-			oneOf(db).generateTransportUpdates(contactId, maxLatency);
-			will(returnValue(null));
 			// No subscription ack to send
 			oneOf(db).generateSubscriptionAck(contactId);
 			will(returnValue(null));

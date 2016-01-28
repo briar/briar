@@ -10,6 +10,7 @@ import org.briarproject.api.crypto.StreamDecrypterFactory;
 import org.briarproject.api.crypto.StreamEncrypterFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
+import java.security.SecureRandom;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -56,5 +57,10 @@ public class CryptoModule extends AbstractModule {
 	Executor getCryptoExecutor(LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(cryptoExecutor);
 		return cryptoExecutor;
+	}
+
+	@Provides
+	SecureRandom getSecureRandom(CryptoComponent crypto) {
+		return crypto.getSecureRandom();
 	}
 }

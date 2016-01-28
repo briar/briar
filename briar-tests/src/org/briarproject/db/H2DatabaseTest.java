@@ -3,9 +3,7 @@ package org.briarproject.db;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseConfig;
 import org.briarproject.TestUtils;
-import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
@@ -14,6 +12,7 @@ import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -29,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,8 +137,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		db = open(true);
 		txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
-		assertEquals(Collections.emptyMap(),
-				db.getRemoteProperties(txn, transportId));
 		assertFalse(db.containsGroup(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
 		db.commitTransaction(txn);
@@ -503,71 +501,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testUpdateRemoteTransportProperties() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact with a transport
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		TransportProperties p = new TransportProperties(
-				Collections.singletonMap("foo", "bar"));
-		db.setRemoteProperties(txn, contactId, transportId, p, 1);
-		assertEquals(Collections.singletonMap(contactId, p),
-				db.getRemoteProperties(txn, transportId));
-
-		// Replace the transport properties
-		TransportProperties p1 = new TransportProperties(
-				Collections.singletonMap("baz", "bam"));
-		db.setRemoteProperties(txn, contactId, transportId, p1, 2);
-		assertEquals(Collections.singletonMap(contactId, p1),
-				db.getRemoteProperties(txn, transportId));
-
-		// Remove the transport properties
-		TransportProperties p2 = new TransportProperties();
-		db.setRemoteProperties(txn, contactId, transportId, p2, 3);
-		assertEquals(Collections.emptyMap(),
-				db.getRemoteProperties(txn, transportId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testUpdateLocalTransportProperties() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a transport to the database
-		db.addTransport(txn, transportId, 123);
-
-		// Set the transport properties
-		TransportProperties p = new TransportProperties();
-		p.put("foo", "foo");
-		p.put("bar", "bar");
-		db.mergeLocalProperties(txn, transportId, p);
-		assertEquals(p, db.getLocalProperties(txn, transportId));
-		assertEquals(Collections.singletonMap(transportId, p),
-				db.getLocalProperties(txn));
-
-		// Update one of the properties and add another
-		TransportProperties p1 = new TransportProperties();
-		p1.put("bar", "baz");
-		p1.put("bam", "bam");
-		db.mergeLocalProperties(txn, transportId, p1);
-		TransportProperties merged = new TransportProperties();
-		merged.put("foo", "foo");
-		merged.put("bar", "baz");
-		merged.put("bam", "bam");
-		assertEquals(merged, db.getLocalProperties(txn, transportId));
-		assertEquals(Collections.singletonMap(transportId, merged),
-				db.getLocalProperties(txn));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
 	public void testUpdateSettings() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -592,42 +525,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		merged.put("bar", "baz");
 		merged.put("bam", "bam");
 		assertEquals(merged, db.getSettings(txn, "test"));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testTransportsNotUpdatedIfVersionIsOld() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-
-		// Initialise the transport properties with version 1
-		TransportProperties p = new TransportProperties(
-				Collections.singletonMap("foo", "bar"));
-		assertTrue(db.setRemoteProperties(txn, contactId, transportId, p, 1));
-		assertEquals(Collections.singletonMap(contactId, p),
-				db.getRemoteProperties(txn, transportId));
-
-		// Replace the transport properties with version 2
-		TransportProperties p1 = new TransportProperties(
-				Collections.singletonMap("baz", "bam"));
-		assertTrue(db.setRemoteProperties(txn, contactId, transportId, p1, 2));
-		assertEquals(Collections.singletonMap(contactId, p1),
-				db.getRemoteProperties(txn, transportId));
-
-		// Try to replace the transport properties with version 1
-		TransportProperties p2 = new TransportProperties(
-				Collections.singletonMap("quux", "etc"));
-		assertFalse(db.setRemoteProperties(txn, contactId, transportId, p2, 1));
-
-		// Version 2 of the properties should still be there
-		assertEquals(Collections.singletonMap(contactId, p1),
-				db.getRemoteProperties(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1225,7 +1122,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
-				MAX_SIZE), new SystemClock());
+				MAX_SIZE), new SecureRandom(), new SystemClock());
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;

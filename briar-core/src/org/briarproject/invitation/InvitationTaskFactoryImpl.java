@@ -11,7 +11,6 @@ import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
-import org.briarproject.api.property.TransportPropertyManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.KeyManager;
@@ -33,7 +32,6 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	private final ConnectionManager connectionManager;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
-	private final TransportPropertyManager transportPropertyManager;
 	private final Clock clock;
 	private final PluginManager pluginManager;
 
@@ -45,7 +43,6 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionManager connectionManager,
 			IdentityManager identityManager, ContactManager contactManager,
-			TransportPropertyManager transportPropertyManager,
 			Clock clock, PluginManager pluginManager) {
 		this.crypto = crypto;
 		this.bdfReaderFactory = bdfReaderFactory;
@@ -58,17 +55,16 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.connectionManager = connectionManager;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
-		this.transportPropertyManager = transportPropertyManager;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
 	}
 
 	public InvitationTask createTask(AuthorId localAuthorId, int localCode,
-			int remoteCode, boolean reuseConnection) {
+			int remoteCode) {
 		return new ConnectorGroup(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
 				groupFactory, keyManager, connectionManager, identityManager,
-				contactManager, transportPropertyManager, clock, pluginManager,
-				localAuthorId, localCode, remoteCode, reuseConnection);
+				contactManager, clock, pluginManager, localAuthorId, localCode,
+				remoteCode);
 	}
 }

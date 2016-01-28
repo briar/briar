@@ -1,9 +1,9 @@
 package org.briarproject.plugins.modem;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.properties.TransportProperties;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;

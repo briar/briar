@@ -1,8 +1,6 @@
 package org.briarproject.plugins;
 
-import org.briarproject.api.Settings;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -26,7 +24,9 @@ import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
-import org.briarproject.api.property.TransportPropertyManager;
+import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.properties.TransportPropertyManager;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 

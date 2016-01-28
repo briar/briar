@@ -4,8 +4,6 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 
-import java.util.Collection;
-
 /**
  * Responsible for managing transport keys and recognising the pseudo-random
  * tags of incoming streams.
@@ -18,8 +16,8 @@ public interface KeyManager {
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
 	 */
-	void addContact(ContactId c, Collection<TransportId> transports,
-			SecretKey master, long timestamp, boolean alice);
+	void addContact(ContactId c, SecretKey master, long timestamp,
+			boolean alice);
 
 	/**
 	 * Returns a {@link StreamContext} for sending a stream to the given

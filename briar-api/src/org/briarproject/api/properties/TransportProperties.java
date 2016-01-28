@@ -1,4 +1,6 @@
-package org.briarproject.api;
+package org.briarproject.api.properties;
+
+import org.briarproject.api.StringMap;
 
 import java.util.Map;
 

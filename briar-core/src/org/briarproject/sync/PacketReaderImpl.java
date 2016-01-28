@@ -1,8 +1,6 @@
 package org.briarproject.sync;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfReader;
@@ -17,8 +15,6 @@ import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.util.ByteUtils;
 
 import java.io.ByteArrayInputStream;
@@ -26,21 +22,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
-import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.sync.PacketTypes.ACK;
 import static org.briarproject.api.sync.PacketTypes.MESSAGE;
 import static org.briarproject.api.sync.PacketTypes.OFFER;
 import static org.briarproject.api.sync.PacketTypes.REQUEST;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
 import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
-import static org.briarproject.api.sync.PacketTypes.TRANSPORT_ACK;
-import static org.briarproject.api.sync.PacketTypes.TRANSPORT_UPDATE;
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
@@ -204,67 +193,5 @@ class PacketReaderImpl implements PacketReader {
 		if (!r.eof()) throw new FormatException();
 		state = State.BUFFER_EMPTY;
 		return u;
-	}
-
-	public boolean hasTransportAck() throws IOException {
-		return !eof() && header[1] == TRANSPORT_ACK;
-	}
-
-	public TransportAck readTransportAck() throws IOException {
-		if (!hasTransportAck()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the transport ID and version
-		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-		if (idString.length() == 0) throw new FormatException();
-		TransportId id = new TransportId(idString);
-		long version = r.readInteger();
-		if (version < 0) throw new FormatException();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		// Build and return the transport ack
-		return new TransportAck(id, version);
-	}
-
-	public boolean hasTransportUpdate() throws IOException {
-		return !eof() && header[1] == TRANSPORT_UPDATE;
-	}
-
-	public TransportUpdate readTransportUpdate() throws IOException {
-		if (!hasTransportUpdate()) throw new FormatException();
-		// Set up the reader
-		InputStream bais = new ByteArrayInputStream(payload, 0, payloadLength);
-		BdfReader r = bdfReaderFactory.createReader(bais);
-		// Read the start of the payload
-		r.readListStart();
-		// Read the transport ID
-		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-		if (idString.length() == 0) throw new FormatException();
-		TransportId id = new TransportId(idString);
-		// Read the transport properties
-		Map<String, String> p = new HashMap<String, String>();
-		r.readDictionaryStart();
-		for (int i = 0; !r.hasDictionaryEnd(); i++) {
-			if (i == MAX_PROPERTIES_PER_TRANSPORT)
-				throw new FormatException();
-			String key = r.readString(MAX_PROPERTY_LENGTH);
-			String value = r.readString(MAX_PROPERTY_LENGTH);
-			p.put(key, value);
-		}
-		r.readDictionaryEnd();
-		// Read the version number
-		long version = r.readInteger();
-		if (version < 0) throw new FormatException();
-		// Read the end of the payload
-		r.readListEnd();
-		if (!r.eof()) throw new FormatException();
-		state = State.BUFFER_EMPTY;
-		// Build and return the transport update
-		return new TransportUpdate(id, new TransportProperties(p), version);
 	}
 }

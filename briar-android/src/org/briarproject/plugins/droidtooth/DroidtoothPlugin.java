@@ -10,13 +10,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.LatchedReference;
 import org.briarproject.util.StringUtils;

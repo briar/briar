@@ -1,4 +1,6 @@
-package org.briarproject.api;
+package org.briarproject.api.settings;
+
+import org.briarproject.api.StringMap;
 
 public class Settings extends StringMap {
 

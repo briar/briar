@@ -73,8 +73,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		ioExecutor.execute(new ManageOutgoingDuplexConnection(c, t, d));
 	}
 
-	private byte[] readTag(TransportId t, TransportConnectionReader r)
-			throws IOException {
+	private byte[] readTag(TransportConnectionReader r) throws IOException {
 		// Read the tag
 		byte[] tag = new byte[TAG_LENGTH];
 		InputStream in = r.getInputStream();
@@ -128,7 +127,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			// Read and recognise the tag
 			StreamContext ctx;
 			try {
-				byte[] tag = readTag(transportId, reader);
+				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -228,7 +227,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			// Read and recognise the tag
 			StreamContext ctx;
 			try {
-				byte[] tag = readTag(transportId, reader);
+				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -353,7 +352,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			// Read and recognise the tag
 			StreamContext ctx;
 			try {
-				byte[] tag = readTag(transportId, reader);
+				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

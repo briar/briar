@@ -9,13 +9,11 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.LocalTransportsUpdatedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.RemoteTransportsUpdatedEvent;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
@@ -25,8 +23,6 @@ import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.SyncSession;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.system.Clock;
 
 import java.io.IOException;
@@ -91,8 +87,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		eventBus.addListener(this);
 		try {
 			// Start a query for each type of packet, in order of urgency
-			dbExecutor.execute(new GenerateTransportAcks());
-			dbExecutor.execute(new GenerateTransportUpdates());
 			dbExecutor.execute(new GenerateSubscriptionAck());
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
 			dbExecutor.execute(new GenerateAck());
@@ -123,7 +117,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 						now = clock.currentTimeMillis();
 						if (now >= nextRetxQuery) {
 							// Check for retransmittable packets
-							dbExecutor.execute(new GenerateTransportUpdates());
 							dbExecutor.execute(new GenerateSubscriptionUpdate());
 							dbExecutor.execute(new GenerateBatch());
 							dbExecutor.execute(new GenerateOffer());
@@ -171,8 +164,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
 				dbExecutor.execute(new GenerateOffer());
 			}
-		} else if (e instanceof LocalTransportsUpdatedEvent) {
-			dbExecutor.execute(new GenerateTransportUpdates());
 		} else if (e instanceof MessageRequestedEvent) {
 			if (((MessageRequestedEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateBatch());
@@ -189,11 +180,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				dbExecutor.execute(new GenerateSubscriptionAck());
 				dbExecutor.execute(new GenerateOffer());
 			}
-		} else if (e instanceof RemoteTransportsUpdatedEvent) {
-			RemoteTransportsUpdatedEvent r =
-					(RemoteTransportsUpdatedEvent) e;
-			if (r.getContactId().equals(contactId))
-				dbExecutor.execute(new GenerateTransportAcks());
 		} else if (e instanceof ShutdownEvent) {
 			interrupt();
 		} else if (e instanceof TransportRemovedEvent) {
@@ -412,78 +398,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			packetWriter.writeSubscriptionUpdate(update);
 			LOG.info("Sent subscription update");
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateTransportAcks implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				Collection<TransportAck> acks =
-						db.generateTransportAcks(contactId);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated transport acks: " + (acks != null));
-				if (acks != null) writerTasks.add(new WriteTransportAcks(acks));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This tasks runs on the writer thread
-	private class WriteTransportAcks implements ThrowingRunnable<IOException> {
-
-		private final Collection<TransportAck> acks;
-
-		private WriteTransportAcks(Collection<TransportAck> acks) {
-			this.acks = acks;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			for (TransportAck a : acks) packetWriter.writeTransportAck(a);
-			LOG.info("Sent transport acks");
-			dbExecutor.execute(new GenerateTransportAcks());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateTransportUpdates implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				Collection<TransportUpdate> t =
-						db.generateTransportUpdates(contactId, maxLatency);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated transport updates: " + (t != null));
-				if (t != null) writerTasks.add(new WriteTransportUpdates(t));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteTransportUpdates
-	implements ThrowingRunnable<IOException> {
-
-		private final Collection<TransportUpdate> updates;
-
-		private WriteTransportUpdates(Collection<TransportUpdate> updates) {
-			this.updates = updates;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			for (TransportUpdate u : updates)
-				packetWriter.writeTransportUpdate(u);
-			LOG.info("Sent transport updates");
-			dbExecutor.execute(new GenerateTransportUpdates());
 		}
 	}
 }

@@ -1,8 +1,8 @@
 package org.briarproject.api.plugins;
 
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.Settings;
+import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.settings.Settings;
 
 import java.util.Map;
 

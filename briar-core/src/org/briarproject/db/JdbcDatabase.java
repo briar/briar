@@ -1,8 +1,8 @@
 package org.briarproject.db;
 
-import org.briarproject.api.Settings;
+import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
+import org.briarproject.api.UniqueId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
@@ -13,6 +13,7 @@ import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -21,14 +22,13 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
+import org.briarproject.util.StringUtils;
 
-import java.io.IOException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -57,6 +57,11 @@ import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
 import static org.briarproject.api.sync.ValidationManager.Status.INVALID;
 import static org.briarproject.api.sync.ValidationManager.Status.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.Status.VALID;
+import static org.briarproject.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
+import static org.briarproject.db.DatabaseConstants.DEVICE_ID_KEY;
+import static org.briarproject.db.DatabaseConstants.DEVICE_SETTINGS_NAMESPACE;
+import static org.briarproject.db.DatabaseConstants.MIN_SCHEMA_VERSION_KEY;
+import static org.briarproject.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
 
 /**
@@ -65,8 +70,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 17;
-	private static final int MIN_SCHEMA_VERSION = 17;
+	private static final int SCHEMA_VERSION = 18;
+	private static final int MIN_SCHEMA_VERSION = 18;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -210,64 +215,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " maxLatency INT NOT NULL,"
 					+ " PRIMARY KEY (transportId))";
 
-	private static final String CREATE_TRANSPORT_CONFIGS =
-			"CREATE TABLE transportConfigs"
-					+ " (transportId VARCHAR NOT NULL,"
-					+ " key VARCHAR NOT NULL,"
-					+ " value VARCHAR NOT NULL,"
-					+ " PRIMARY KEY (transportId, key),"
-					+ " FOREIGN KEY (transportId)"
-					+ " REFERENCES transports (transportId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_TRANSPORT_PROPS =
-			"CREATE TABLE transportProperties"
-					+ " (transportId VARCHAR NOT NULL,"
-					+ " key VARCHAR NOT NULL,"
-					+ " value VARCHAR NOT NULL,"
-					+ " PRIMARY KEY (transportId, key),"
-					+ " FOREIGN KEY (transportId)"
-					+ " REFERENCES transports (transportId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_TRANSPORT_VERSIONS =
-			"CREATE TABLE transportVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " transportId VARCHAR NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
-					+ " expiry BIGINT NOT NULL,"
-					+ " txCount INT NOT NULL,"
-					+ " PRIMARY KEY (contactId, transportId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE,"
-					+ " FOREIGN KEY (transportId)"
-					+ " REFERENCES transports (transportId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_CONTACT_TRANSPORT_PROPS =
-			"CREATE TABLE contactTransportProperties"
-					+ " (contactId INT NOT NULL,"
-					+ " transportId VARCHAR NOT NULL," // Not a foreign key
-					+ " key VARCHAR NOT NULL,"
-					+ " value VARCHAR NOT NULL,"
-					+ " PRIMARY KEY (contactId, transportId, key),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_CONTACT_TRANSPORT_VERSIONS =
-			"CREATE TABLE contactTransportVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " transportId VARCHAR NOT NULL," // Not a foreign key
-					+ " remoteVersion BIGINT NOT NULL,"
-					+ " remoteAcked BOOLEAN NOT NULL,"
-					+ " PRIMARY KEY (contactId, transportId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
 	private static final String CREATE_INCOMING_KEYS =
 			"CREATE TABLE incomingKeys"
 					+ " (contactId INT NOT NULL,"
@@ -306,6 +253,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
+	private final SecureRandom random;
 	private final Clock clock;
 
 	private final LinkedList<Connection> connections =
@@ -318,22 +266,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	protected abstract void flushBuffersToDisk(Statement s) throws SQLException;
-
 	private final Lock connectionsLock = new ReentrantLock();
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
 	JdbcDatabase(String hashType, String binaryType, String counterType,
-			String secretType, Clock clock) {
+			String secretType, SecureRandom random, Clock clock) {
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
 		this.secretType = secretType;
+		this.random = random;
 		this.clock = clock;
 	}
 
-	protected void open(String driverClass, boolean reopen) throws DbException,
-			IOException {
+	protected void open(String driverClass, boolean reopen) throws DbException {
 		// Load the JDBC driver
 		try {
 			Class.forName(driverClass);
@@ -347,10 +293,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (!checkSchemaVersion(txn)) throw new DbException();
 			} else {
 				createTables(txn);
-				Settings s = new Settings();
-				s.put("schemaVersion", String.valueOf(SCHEMA_VERSION));
-				s.put("minSchemaVersion", String.valueOf(MIN_SCHEMA_VERSION));
-				mergeSettings(txn, s, "db");
+				storeSchemaVersion(txn);
+				storeDeviceId(txn);
 			}
 			commitTransaction(txn);
 		} catch (DbException e) {
@@ -360,16 +304,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
-		try {
-			Settings s = getSettings(txn, "db");
-			int schemaVersion = Integer.valueOf(s.get("schemaVersion"));
-			if (schemaVersion == SCHEMA_VERSION) return true;
-			if (schemaVersion < MIN_SCHEMA_VERSION) return false;
-			int minSchemaVersion = Integer.valueOf(s.get("minSchemaVersion"));
-			return SCHEMA_VERSION >= minSchemaVersion;
-		} catch (NumberFormatException e) {
-			throw new DbException(e);
-		}
+		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
+		int schemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
+		if (schemaVersion == SCHEMA_VERSION) return true;
+		if (schemaVersion < MIN_SCHEMA_VERSION) return false;
+		int minSchemaVersion = s.getInt(MIN_SCHEMA_VERSION_KEY, -1);
+		return SCHEMA_VERSION >= minSchemaVersion;
+	}
+
+	private void storeSchemaVersion(Connection txn) throws DbException {
+		Settings s = new Settings();
+		s.putInt(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
+		s.putInt(MIN_SCHEMA_VERSION_KEY, MIN_SCHEMA_VERSION);
+		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
+	}
+
+	private void storeDeviceId(Connection txn) throws DbException {
+		byte[] deviceId = new byte[UniqueId.LENGTH];
+		random.nextBytes(deviceId);
+		Settings s = new Settings();
+		s.put(DEVICE_ID_KEY, StringUtils.toHexString(deviceId));
+		mergeSettings(txn, s, DEVICE_SETTINGS_NAMESPACE);
 	}
 
 	private void tryToClose(ResultSet rs) {
@@ -405,11 +360,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_OFFERS));
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
-			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIGS));
-			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_PROPS));
-			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_VERSIONS));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_PROPS));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_INCOMING_KEYS));
 			s.executeUpdate(insertTypeNames(CREATE_OUTGOING_KEYS));
 			s.close();
@@ -487,14 +437,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void commitTransaction(Connection txn) throws DbException {
-		Statement s = null;
 		try {
 			txn.commit();
-			s = txn.createStatement();
-			flushBuffersToDisk(s);
-			s.close();
 		} catch (SQLException e) {
-			tryToClose(s);
 			throw new DbException(e);
 		}
 		connectionsLock.lock();
@@ -538,6 +483,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 
 		if (interrupted) Thread.currentThread().interrupt();
+	}
+
+	public DeviceId getDeviceId(Connection txn) throws DbException {
+		Settings s = getSettings(txn, DEVICE_SETTINGS_NAMESPACE);
+		return new DeviceId(StringUtils.fromHexString(s.get(DEVICE_ID_KEY)));
 	}
 
 	public ContactId addContact(Connection txn, Author remote, AuthorId local)
@@ -589,9 +539,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != ids.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] != 1) throw new DbStateException();
-				}
+				for (int rows : batchAffected)
+					if (rows != 1) throw new DbStateException();
 				ps.close();
 			}
 			// Make groups that are visible to everyone visible to this contact
@@ -614,9 +563,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != ids.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] != 1) throw new DbStateException();
-				}
+				for (int rows : batchAffected)
+					if (rows != 1) throw new DbStateException();
 				ps.close();
 			}
 			// Create a group version row
@@ -628,31 +576,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
-			// Create a transport version row for each local transport
-			sql = "SELECT transportId FROM transports";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Collection<String> transports = new ArrayList<String>();
-			while (rs.next()) transports.add(rs.getString(1));
-			rs.close();
-			ps.close();
-			if (transports.isEmpty()) return c;
-			sql = "INSERT INTO transportVersions (contactId, transportId,"
-					+ " localVersion, localAcked, expiry, txCount)"
-					+ " VALUES (?, ?, 1, 0, 0, 0)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for (String t : transports) {
-				ps.setString(2, t);
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != transports.size())
-				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
 			ps.close();
 			return c;
 		} catch (SQLException e) {
@@ -851,30 +774,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
-			// Create a transport version row for each contact
-			sql = "SELECT contactId FROM contacts";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Collection<Integer> contacts = new ArrayList<Integer>();
-			while (rs.next()) contacts.add(rs.getInt(1));
-			rs.close();
-			ps.close();
-			if (contacts.isEmpty()) return true;
-			sql = "INSERT INTO transportVersions (contactId, transportId,"
-					+ " localVersion, localAcked, expiry, txCount)"
-					+ " VALUES (?, ?, 1, 0, 0, 0)";
-			ps = txn.prepareStatement(sql);
-			ps.setString(2, t.getString());
-			for (Integer c : contacts) {
-				ps.setInt(1, c);
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != contacts.size())
-				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
 			return true;
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -920,9 +819,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.addBatch();
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != 3) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 			// Store the outgoing keys
 			sql = "INSERT INTO outgoingKeys (contactId, transportId, period,"
@@ -1415,62 +1313,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<TransportId, TransportProperties> getLocalProperties(
-			Connection txn) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT transportId, key, value"
-					+ " FROM transportProperties"
-					+ " ORDER BY transportId";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Map<TransportId, TransportProperties> properties =
-					new HashMap<TransportId, TransportProperties>();
-			TransportId lastId = null;
-			TransportProperties p = null;
-			while (rs.next()) {
-				TransportId id = new TransportId(rs.getString(1));
-				String key = rs.getString(2), value = rs.getString(3);
-				if (!id.equals(lastId)) {
-					p = new TransportProperties();
-					properties.put(id, p);
-					lastId = id;
-				}
-				p.put(key, value);
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableMap(properties);
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public TransportProperties getLocalProperties(Connection txn, TransportId t)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT key, value FROM transportProperties"
-					+ " WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, t.getString());
-			rs = ps.executeQuery();
-			TransportProperties p = new TransportProperties();
-			while (rs.next()) p.put(rs.getString(1), rs.getString(2));
-			rs.close();
-			ps.close();
-			return p;
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Map<MessageId, Metadata> getMessageMetadata(Connection txn,
 			GroupId g) throws DbException {
 		PreparedStatement ps = null;
@@ -1773,42 +1615,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<ContactId, TransportProperties> getRemoteProperties(
-			Connection txn, TransportId t) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT contactId, key, value"
-					+ " FROM contactTransportProperties"
-					+ " WHERE transportId = ?"
-					+ " ORDER BY contactId";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, t.getString());
-			rs = ps.executeQuery();
-			Map<ContactId, TransportProperties> properties =
-					new HashMap<ContactId, TransportProperties>();
-			ContactId lastId = null;
-			TransportProperties p = null;
-			while (rs.next()) {
-				ContactId id = new ContactId(rs.getInt(1));
-				String key = rs.getString(2), value = rs.getString(3);
-				if (!id.equals(lastId)) {
-					p = new TransportProperties();
-					properties.put(id, p);
-					lastId = id;
-				}
-				p.put(key, value);
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableMap(properties);
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
 			ContactId c, int maxLength) throws DbException {
 		long now = clock.currentTimeMillis();
@@ -1996,48 +1802,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<TransportAck> getTransportAcks(Connection txn,
-			ContactId c) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT transportId, remoteVersion"
-					+ " FROM contactTransportVersions"
-					+ " WHERE contactId = ? AND remoteAcked = FALSE";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			List<TransportAck> acks = new ArrayList<TransportAck>();
-			while (rs.next()) {
-				TransportId id = new TransportId(rs.getString(1));
-				acks.add(new TransportAck(id, rs.getLong(2)));
-			}
-			rs.close();
-			ps.close();
-			if (acks.isEmpty()) return null;
-			sql = "UPDATE contactTransportVersions SET remoteAcked = TRUE"
-					+ " WHERE contactId = ? AND transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for (TransportAck a : acks) {
-				ps.setString(2, a.getId().getString());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != acks.size())
-				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
-			return Collections.unmodifiableList(acks);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
 	public Map<ContactId, TransportKeys> getTransportKeys(Connection txn,
 			TransportId t) throws DbException {
 		PreparedStatement ps = null;
@@ -2123,72 +1887,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<TransportUpdate> getTransportUpdates(Connection txn,
-			ContactId c, int maxLatency) throws DbException {
-		long now = clock.currentTimeMillis();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT tp.transportId, key, value, localVersion,"
-					+ " txCount"
-					+ " FROM transportProperties AS tp"
-					+ " JOIN transportVersions AS tv"
-					+ " ON tp.transportId = tv.transportId"
-					+ " WHERE tv.contactId = ?"
-					+ " AND localVersion > localAcked"
-					+ " AND expiry < ?"
-					+ " ORDER BY tp.transportId";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, now);
-			rs = ps.executeQuery();
-			List<TransportUpdate> updates = new ArrayList<TransportUpdate>();
-			TransportId lastId = null;
-			TransportProperties p = null;
-			List<Integer> txCounts = new ArrayList<Integer>();
-			while (rs.next()) {
-				TransportId id = new TransportId(rs.getString(1));
-				String key = rs.getString(2), value = rs.getString(3);
-				long version = rs.getLong(4);
-				int txCount = rs.getInt(5);
-				if (!id.equals(lastId)) {
-					p = new TransportProperties();
-					updates.add(new TransportUpdate(id, p, version));
-					txCounts.add(txCount);
-					lastId = id;
-				}
-				p.put(key, value);
-			}
-			rs.close();
-			ps.close();
-			if (updates.isEmpty()) return null;
-			sql = "UPDATE transportVersions"
-					+ " SET expiry = ?, txCount = txCount + 1"
-					+ " WHERE contactId = ? AND transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(2, c.getInt());
-			int i = 0;
-			for (TransportUpdate u : updates) {
-				int txCount = txCounts.get(i++);
-				ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-				ps.setString(3, u.getId().getString());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != updates.size())
-				throw new DbStateException();
-			for (i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
-			return Collections.unmodifiableList(updates);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2245,9 +1943,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != acked.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
+			for (int rows : batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			ps.close();
 		} catch (SQLException e) {
@@ -2271,76 +1969,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != requested.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
-			}
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void mergeLocalProperties(Connection txn, TransportId t,
-			TransportProperties p) throws DbException {
-		// Merge the new properties with the existing ones
-		mergeStringMap(txn, t, p, "transportProperties");
-		// Bump the transport version
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE transportVersions"
-					+ " SET localVersion = localVersion + 1, expiry = 0"
-					+ " WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, t.getString());
-			ps.executeUpdate();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	private void mergeStringMap(Connection txn, TransportId t,
-			Map<String, String> m, String tableName) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			// Update any properties that already exist
-			String sql = "UPDATE " + tableName + " SET value = ?"
-					+ " WHERE transportId = ? AND key = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setString(2, t.getString());
-			for (Entry<String, String> e : m.entrySet()) {
-				ps.setString(1, e.getValue());
-				ps.setString(3, e.getKey());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != m.size()) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
-			}
-			// Insert any properties that don't already exist
-			sql = "INSERT INTO " + tableName + " (transportId, key, value)"
-					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, t.getString());
-			int updateIndex = 0, inserted = 0;
-			for (Entry<String, String> e : m.entrySet()) {
-				if (batchAffected[updateIndex] == 0) {
-					ps.setString(2, e.getKey());
-					ps.setString(3, e.getValue());
-					ps.addBatch();
-					inserted++;
-				}
-				updateIndex++;
-			}
-			batchAffected = ps.executeBatch();
-			if (batchAffected.length != inserted) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
+			for (int rows: batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			ps.close();
 		} catch (SQLException e) {
@@ -2383,9 +2014,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != removed.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] < 0) throw new DbStateException();
-					if (batchAffected[i] > 1) throw new DbStateException();
+				for (int rows : batchAffected) {
+					if (rows < 0) throw new DbStateException();
+					if (rows > 1) throw new DbStateException();
 				}
 				ps.close();
 			}
@@ -2403,9 +2034,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != retained.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
+			for (int rows : batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			// Insert any keys that don't already exist
 			sql = "INSERT INTO " + tableName
@@ -2425,9 +2056,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			batchAffected = ps.executeBatch();
 			if (batchAffected.length != inserted) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2451,9 +2081,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != s.size()) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] < 0) throw new DbStateException();
-				if (batchAffected[i] > 1) throw new DbStateException();
+			for (int rows : batchAffected) {
+				if (rows < 0) throw new DbStateException();
+				if (rows > 1) throw new DbStateException();
 			}
 			// Insert any settings that don't already exist
 			sql = "INSERT INTO settings (key, value, namespace)"
@@ -2472,9 +2102,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			batchAffected = ps.executeBatch();
 			if (batchAffected.length != inserted) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2586,9 +2215,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != visible.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2662,9 +2290,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != requested.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2734,7 +2361,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setContactStatus(Connection txn, ContactId c, StorageStatus s)
-		throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE contacts SET status = ? WHERE contactId = ?";
@@ -2769,7 +2396,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setMessageValidity(Connection txn, MessageId m, boolean valid)
-		throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE messages SET valid = ? WHERE messageId = ?";
@@ -2856,9 +2483,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int[] batchAffected = ps.executeBatch();
 				if (batchAffected.length != removed.size())
 					throw new DbStateException();
-				for (int i = 0; i < batchAffected.length; i++) {
-					if (batchAffected[i] < 0) throw new DbStateException();
-				}
+				for (int rows : batchAffected)
+					if (rows < 0) throw new DbStateException();
 				ps.close();
 			}
 			// Delete the existing subscriptions, if any
@@ -2882,130 +2508,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != groups.size())
 				throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
-			return true;
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
-	public void setRemoteProperties(Connection txn, ContactId c,
-			Map<TransportId, TransportProperties> p) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			// Delete the existing properties, if any
-			String sql = "DELETE FROM contactTransportProperties"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.executeUpdate();
-			ps.close();
-			// Store the new properties
-			sql = "INSERT INTO contactTransportProperties"
-					+ " (contactId, transportId, key, value)"
-					+ " VALUES (?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			int batchSize = 0;
-			for (Entry<TransportId, TransportProperties> e : p.entrySet()) {
-				ps.setString(2, e.getKey().getString());
-				for (Entry<String, String> e1 : e.getValue().entrySet()) {
-					ps.setString(3, e1.getKey());
-					ps.setString(4, e1.getValue());
-					ps.addBatch();
-					batchSize++;
-				}
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != batchSize) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean setRemoteProperties(Connection txn, ContactId c,
-			TransportId t, TransportProperties p, long version)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Find the existing version, if any
-			String sql = "SELECT NULL FROM contactTransportVersions"
-					+ " WHERE contactId = ? AND transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setString(2, t.getString());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			// Mark the update as needing to be acked
-			if (found) {
-				// The row exists - update it
-				sql = "UPDATE contactTransportVersions"
-						+ " SET remoteVersion = ?, remoteAcked = FALSE"
-						+ " WHERE contactId = ? AND transportId = ?"
-						+ " AND remoteVersion < ?";
-				ps = txn.prepareStatement(sql);
-				ps.setLong(1, version);
-				ps.setInt(2, c.getInt());
-				ps.setString(3, t.getString());
-				ps.setLong(4, version);
-				int affected = ps.executeUpdate();
-				if (affected < 0 || affected > 1) throw new DbStateException();
-				ps.close();
-				// Return false if the update is obsolete
-				if (affected == 0) return false;
-			} else {
-				// The row doesn't exist - create it
-				sql = "INSERT INTO contactTransportVersions (contactId,"
-						+ " transportId, remoteVersion, remoteAcked)"
-						+ " VALUES (?, ?, ?, FALSE)";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				ps.setString(2, t.getString());
-				ps.setLong(3, version);
-				int affected = ps.executeUpdate();
-				if (affected != 1) throw new DbStateException();
-				ps.close();
-			}
-			// Delete the existing properties, if any
-			sql = "DELETE FROM contactTransportProperties"
-					+ " WHERE contactId = ? AND transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setString(2, t.getString());
-			ps.executeUpdate();
-			ps.close();
-			// Store the new properties, if any
-			if (p.isEmpty()) return true;
-			sql = "INSERT INTO contactTransportProperties"
-					+ " (contactId, transportId, key, value)"
-					+ " VALUES (?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setString(2, t.getString());
-			for (Entry<String, String> e : p.entrySet()) {
-				ps.setString(3, e.getKey());
-				ps.setString(4, e.getValue());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != p.size()) throw new DbStateException();
-			for (int i = 0; i < batchAffected.length; i++) {
-				if (batchAffected[i] != 1) throw new DbStateException();
-			}
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
 			ps.close();
 			return true;
 		} catch (SQLException e) {
@@ -3027,28 +2531,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, c.getInt());
 			ps.setLong(3, version);
 			ps.setLong(4, version);
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setTransportUpdateAcked(Connection txn, ContactId c,
-			TransportId t, long version) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE transportVersions SET localAcked = ?"
-					+ " WHERE contactId = ? AND transportId = ?"
-					+ " AND localAcked < ? AND localVersion >= ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, version);
-			ps.setInt(2, c.getInt());
-			ps.setString(3, t.getString());
-			ps.setLong(4, version);
-			ps.setLong(5, version);
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

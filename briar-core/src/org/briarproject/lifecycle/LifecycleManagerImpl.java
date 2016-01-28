@@ -1,11 +1,12 @@
 package org.briarproject.lifecycle;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
-import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
-import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
-import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.ShutdownEvent;
+import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.system.Clock;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -17,13 +18,12 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.ShutdownEvent;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.lifecycle.Service;
-import org.briarproject.api.system.Clock;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
+import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 
 class LifecycleManagerImpl implements LifecycleManager {
 
@@ -96,9 +96,6 @@ class LifecycleManagerImpl implements LifecycleManager {
 			startupLatch.countDown();
 			return SUCCESS;
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return DB_ERROR;
-		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return DB_ERROR;
 		} finally {

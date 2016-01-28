@@ -1,13 +1,13 @@
 package org.briarproject.api.db;
 
-import org.briarproject.api.Settings;
+import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -19,8 +19,6 @@ import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportAck;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -34,7 +32,7 @@ import java.util.Map;
 public interface DatabaseComponent {
 
 	/** Opens the database and returns true if the database already existed. */
-	boolean open() throws DbException, IOException;
+	boolean open() throws DbException;
 
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException, IOException;
@@ -126,21 +124,6 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns a batch of transport acks for the given contact, or null if no
-	 * transport acks are due.
-	 */
-	Collection<TransportAck> generateTransportAcks(ContactId c)
-			throws DbException;
-
-	/**
-	 * Returns a batch of transport updates for the given contact, for
-	 * transmission over a transport with the given latency. Returns null if no
-	 * updates are due.
-	 */
-	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
-			int maxLatency) throws DbException;
-
-	/**
 	 * Returns all groups belonging to the given client to which the user could
 	 * subscribe.
 	 */
@@ -154,6 +137,9 @@ public interface DatabaseComponent {
 
 	/** Returns all contacts associated with the given local pseudonym. */
 	Collection<ContactId> getContacts(AuthorId a) throws DbException;
+
+	/** Returns the unique ID for this device. */
+	DeviceId getDeviceId() throws DbException;
 
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
@@ -172,13 +158,6 @@ public interface DatabaseComponent {
 
 	/** Returns all local pseudonyms. */
 	Collection<LocalAuthor> getLocalAuthors() throws DbException;
-
-	/** Returns the local transport properties for all transports. */
-	Map<TransportId, TransportProperties> getLocalProperties()
-			throws DbException;
-
-	/** Returns the local transport properties for the given transport. */
-	TransportProperties getLocalProperties(TransportId t) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated by the given
@@ -210,10 +189,6 @@ public interface DatabaseComponent {
 	MessageStatus getMessageStatus(ContactId c, MessageId m)
 			throws DbException;
 
-	/** Returns all remote transport properties for the given transport. */
-	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
-			throws DbException;
-
 	/** Returns all settings in the given namespace. */
 	Settings getSettings(String namespace) throws DbException;
 
@@ -242,13 +217,6 @@ public interface DatabaseComponent {
 	 * group.
 	 */
 	void mergeGroupMetadata(GroupId g, Metadata meta) throws DbException;
-
-	/**
-	 * Merges the given properties with the existing local properties for the
-	 * given transport.
-	 */
-	void mergeLocalProperties(TransportId t, TransportProperties p)
-			throws DbException;
 
 	/**
 	 * Merges the given metadata with the existing metadata for the given
@@ -282,13 +250,6 @@ public interface DatabaseComponent {
 	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
 			throws DbException;
 
-	/** Processes a transport ack from the given contact. */
-	void receiveTransportAck(ContactId c, TransportAck a) throws DbException;
-
-	/** Processes a transport update from the given contact. */
-	void receiveTransportUpdate(ContactId c, TransportUpdate u)
-			throws DbException;
-
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;
 
@@ -319,13 +280,6 @@ public interface DatabaseComponent {
 	/** Marks the given message as valid or invalid. */
 	void setMessageValidity(Message m, ClientId c, boolean valid)
 			throws DbException;
-
-	/**
-	 * Sets the remote transport properties for the given contact, replacing
-	 * any existing properties.
-	 */
-	void setRemoteProperties(ContactId c,
-			Map<TransportId, TransportProperties> p) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given contact and transport in the

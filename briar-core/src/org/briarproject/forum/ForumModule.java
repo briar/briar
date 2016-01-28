@@ -16,6 +16,8 @@ import org.briarproject.api.system.Clock;
 
 import javax.inject.Singleton;
 
+import static org.briarproject.forum.ForumManagerImpl.CLIENT_ID;
+
 public class ForumModule extends AbstractModule {
 
 	@Override
@@ -26,16 +28,14 @@ public class ForumModule extends AbstractModule {
 
 	@Provides @Singleton
 	ForumPostValidator getValidator(ValidationManager validationManager,
-			ForumManager forumManager, CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory,
+			CryptoComponent crypto, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory,
 			ObjectReader<Author> authorReader, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		ForumPostValidator validator = new ForumPostValidator(crypto,
 				bdfReaderFactory, bdfWriterFactory, authorReader,
 				metadataEncoder, clock);
-		validationManager.registerMessageValidator(forumManager.getClientId(),
-				validator);
+		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}
 }

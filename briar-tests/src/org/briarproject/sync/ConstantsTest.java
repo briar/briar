@@ -8,8 +8,6 @@ import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestLifecycleModule;
 import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.TransportProperties;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
@@ -34,7 +32,6 @@ import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionUpdate;
-import org.briarproject.api.sync.TransportUpdate;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
@@ -50,9 +47,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
-import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
-import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -192,27 +186,6 @@ public class ConstantsTest extends BriarTestCase {
 	@Test
 	public void testMessageIdsFitIntoSmallRequest() throws Exception {
 		testMessageIdsFitIntoRequest(1000);
-	}
-
-	@Test
-	public void testPropertiesFitIntoTransportUpdate() throws Exception {
-		// Create the maximum number of properties with the maximum length
-		TransportProperties p = new TransportProperties();
-		for (int i = 0; i < MAX_PROPERTIES_PER_TRANSPORT; i++) {
-			String key = TestUtils.createRandomString(MAX_PROPERTY_LENGTH);
-			String value = TestUtils.createRandomString(MAX_PROPERTY_LENGTH);
-			p.put(key, value);
-		}
-		// Create a maximum-length transport update
-		String idString = TestUtils.createRandomString(MAX_TRANSPORT_ID_LENGTH);
-		TransportId id = new TransportId(idString);
-		TransportUpdate u = new TransportUpdate(id, p, Long.MAX_VALUE);
-		// Serialise the update
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
-		writer.writeTransportUpdate(u);
-		// Check the size of the serialised transport update
-		assertTrue(out.size() <= MAX_PACKET_PAYLOAD_LENGTH);
 	}
 
 	@Test

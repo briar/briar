@@ -1,22 +1,18 @@
 package org.briarproject.android.invitation;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
-import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
-import static android.view.Gravity.CENTER;
-import static org.briarproject.android.invitation.AddContactActivity.REQUEST_BLUETOOTH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
-
-import org.briarproject.R;
-
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.briarproject.R;
+
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
+import static org.briarproject.android.invitation.AddContactActivity.REQUEST_BLUETOOTH;
 
 class ErrorView extends AddContactView implements OnClickListener {
 
@@ -38,8 +34,6 @@ class ErrorView extends AddContactView implements OnClickListener {
 	void populate() {
 		removeAllViews();
 		Context ctx = getContext();
-
-		container.disableBluetooth();
 
 		LayoutInflater inflater = (LayoutInflater) ctx.getSystemService
 				(Context.LAYOUT_INFLATER_SERVICE);

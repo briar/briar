@@ -1,7 +1,7 @@
 package org.briarproject.plugins.bluetooth;
 
-import org.briarproject.api.Settings;
-import org.briarproject.api.TransportProperties;
+import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.plugins.DuplexServerTest;
 import org.briarproject.system.SystemClock;
 
