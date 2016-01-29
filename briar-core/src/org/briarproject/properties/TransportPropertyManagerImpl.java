@@ -110,8 +110,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			lock.writeLock().unlock();
 		}
@@ -123,7 +121,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private void storeMessage(GroupId g, DeviceId dev, TransportId t,
 			TransportProperties p, long version, boolean local, boolean shared)
-			throws DbException, IOException {
+			throws DbException, FormatException {
 		byte[] body = encodeProperties(dev, t, p, version);
 		long now = clock.currentTimeMillis();
 		Message m = messageFactory.createMessage(g, now, body);

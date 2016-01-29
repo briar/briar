@@ -10,8 +10,6 @@ import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.ByteUtils;
 
-import java.io.IOException;
-
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
@@ -25,8 +23,7 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	@Override
-	public Message createMessage(GroupId groupId, long timestamp, byte[] body)
-			throws IOException {
+	public Message createMessage(GroupId groupId, long timestamp, byte[] body) {
 		if (body.length > MAX_MESSAGE_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
