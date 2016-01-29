@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -21,7 +20,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchSubscriptionException;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
@@ -31,6 +29,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.sync.PrivateGroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
@@ -61,7 +60,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Logger.getLogger(TransportPropertyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final GroupFactory groupFactory;
+	private final PrivateGroupFactory privateGroupFactory;
 	private final MessageFactory messageFactory;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final BdfWriterFactory bdfWriterFactory;
@@ -75,12 +74,12 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			GroupFactory groupFactory, MessageFactory messageFactory,
-			BdfReaderFactory bdfReaderFactory,
+			GroupFactory groupFactory, PrivateGroupFactory privateGroupFactory,
+			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser, Clock clock) {
 		this.db = db;
-		this.groupFactory = groupFactory;
+		this.privateGroupFactory = privateGroupFactory;
 		this.messageFactory = messageFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.bdfWriterFactory = bdfWriterFactory;
@@ -118,30 +117,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	private Group getContactGroup(Contact c) {
-		AuthorId local = c.getLocalAuthorId();
-		AuthorId remote = c.getAuthor().getId();
-		byte[] descriptor = encodeGroupDescriptor(local, remote);
-		return groupFactory.createGroup(CLIENT_ID, descriptor);
-	}
-
-	private byte[] encodeGroupDescriptor(AuthorId local, AuthorId remote) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BdfWriter w = bdfWriterFactory.createWriter(out);
-		try {
-			w.writeListStart();
-			if (UniqueId.IdComparator.INSTANCE.compare(local, remote) < 0) {
-				w.writeRaw(local.getBytes());
-				w.writeRaw(remote.getBytes());
-			} else {
-				w.writeRaw(remote.getBytes());
-				w.writeRaw(local.getBytes());
-			}
-			w.writeListEnd();
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayOutputStream
-			throw new RuntimeException(e);
-		}
-		return out.toByteArray();
+		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
 	}
 
 	private void storeMessage(GroupId g, DeviceId dev, TransportId t,
