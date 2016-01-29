@@ -53,6 +53,8 @@ import java.util.Collections;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
+import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
+import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -211,7 +213,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				shutdown);
 
 		try {
-			db.addLocalMessage(message, clientId, metadata);
+			db.addLocalMessage(message, clientId, metadata, true);
 			fail();
 		} catch (MessageExistsException expected) {
 			// Expected
@@ -241,7 +243,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				shutdown);
 
 		try {
-			db.addLocalMessage(message, clientId, metadata);
+			db.addLocalMessage(message, clientId, metadata, true);
 			fail();
 		} catch (NoSuchSubscriptionException expected) {
 			// Expected
@@ -264,7 +266,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message, true);
+			oneOf(database).addMessage(txn, message, VALID, true);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
@@ -281,7 +283,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.addLocalMessage(message, clientId, metadata);
+		db.addLocalMessage(message, clientId, metadata, true);
 
 		context.assertIsSatisfied();
 	}
@@ -559,11 +561,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the message is in the DB (which it's not)
-			exactly(4).of(database).startTransaction();
+			exactly(6).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(4).of(database).containsMessage(txn, messageId);
+			exactly(6).of(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			exactly(4).of(database).abortTransaction(txn);
+			exactly(6).of(database).abortTransaction(txn);
 			// This is needed for getMessageStatus() to proceed
 			exactly(1).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -594,6 +596,20 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.mergeMessageMetadata(messageId, metadata);
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.setMessageShared(message, true);
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.setMessageValid(message, clientId, true);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
@@ -932,7 +948,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message, false);
+			oneOf(database).addMessage(txn, message, UNKNOWN, true);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).getContactIds(txn);

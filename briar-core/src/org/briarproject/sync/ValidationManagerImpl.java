@@ -117,10 +117,10 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			public void run() {
 				try {
 					if (meta == null) {
-						db.setMessageValidity(m, c, false);
+						db.setMessageValid(m, c, false);
 					} else {
 						db.mergeMessageMetadata(m.getId(), meta);
-						db.setMessageValidity(m, c, true);
+						db.setMessageValid(m, c, true);
 					}
 				} catch (NoSuchMessageException e) {
 					LOG.info("Message removed during validation");

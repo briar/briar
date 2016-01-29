@@ -56,7 +56,7 @@ public interface DatabaseComponent {
 	void addLocalAuthor(LocalAuthor a) throws DbException;
 
 	/** Stores a local message. */
-	void addLocalMessage(Message m, ClientId c, Metadata meta)
+	void addLocalMessage(Message m, ClientId c, Metadata meta, boolean shared)
 			throws DbException;
 
 	/**
@@ -277,8 +277,11 @@ public interface DatabaseComponent {
 	void setLocalAuthorStatus(AuthorId a, StorageStatus s)
 		throws DbException;
 
+	/** Marks the given message as shared or unshared. */
+	void setMessageShared(Message m, boolean shared) throws DbException;
+
 	/** Marks the given message as valid or invalid. */
-	void setMessageValidity(Message m, ClientId c, boolean valid)
+	void setMessageValid(Message m, ClientId c, boolean valid)
 			throws DbException;
 
 	/**

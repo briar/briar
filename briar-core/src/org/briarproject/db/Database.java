@@ -19,6 +19,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -111,7 +112,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: write.
 	 */
-	void addMessage(T txn, Message m, boolean local) throws DbException;
+	void addMessage(T txn, Message m, Validity validity, boolean shared)
+			throws DbException;
 
 	/**
 	 * Records that a message has been offered by the given contact.
@@ -618,12 +620,19 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Marks the given message as shared or unshared.
+	 * <p>
+	 * Locking: write.
+	 */
+	void setMessageShared(T txn, MessageId m, boolean shared)
+			throws DbException;
+
+	/**
 	 * Marks the given message as valid or invalid.
 	 * <p>
 	 * Locking: write.
 	 */
-	void setMessageValidity(T txn, MessageId m, boolean valid)
-			throws DbException;
+	void setMessageValid(T txn, MessageId m, boolean valid) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given contact and transport in the

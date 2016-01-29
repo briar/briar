@@ -130,7 +130,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		d.put("transportId", t.getString());
 		d.put("version", version);
 		d.put("local", true);
-		db.addLocalMessage(m, CLIENT_ID, metadataEncoder.encode(d));
+		db.addLocalMessage(m, CLIENT_ID, metadataEncoder.encode(d), true);
 	}
 
 	private byte[] encodeProperties(DeviceId dev, TransportId t,
