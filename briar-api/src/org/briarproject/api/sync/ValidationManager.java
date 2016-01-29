@@ -6,13 +6,13 @@ package org.briarproject.api.sync;
  */
 public interface ValidationManager {
 
-	enum Status {
+	enum Validity {
 
 		UNKNOWN(0), INVALID(1), VALID(2);
 
 		private final int value;
 
-		Status(int value) {
+		Validity(int value) {
 			this.value = value;
 		}
 
@@ -20,8 +20,8 @@ public interface ValidationManager {
 			return value;
 		}
 
-		public static Status fromValue(int value) {
-			for (Status s : values()) if (s.value == value) return s;
+		public static Validity fromValue(int value) {
+			for (Validity s : values()) if (s.value == value) return s;
 			throw new IllegalArgumentException();
 		}
 	}

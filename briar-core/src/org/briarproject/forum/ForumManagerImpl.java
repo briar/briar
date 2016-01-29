@@ -135,7 +135,7 @@ class ForumManagerImpl implements ForumManager {
 		d.put("read", true);
 		try {
 			Metadata meta = metadataEncoder.encode(d);
-			db.addLocalMessage(p.getMessage(), CLIENT_ID, meta);
+			db.addLocalMessage(p.getMessage(), CLIENT_ID, meta, true);
 		} catch (FormatException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}

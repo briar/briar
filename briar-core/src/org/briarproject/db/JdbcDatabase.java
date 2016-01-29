@@ -22,6 +22,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
@@ -54,9 +55,9 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.api.db.StorageStatus.ADDING;
 import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
-import static org.briarproject.api.sync.ValidationManager.Status.INVALID;
-import static org.briarproject.api.sync.ValidationManager.Status.UNKNOWN;
-import static org.briarproject.api.sync.ValidationManager.Status.VALID;
+import static org.briarproject.api.sync.ValidationManager.Validity.INVALID;
+import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
+import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
 import static org.briarproject.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.db.DatabaseConstants.DEVICE_ID_KEY;
 import static org.briarproject.db.DatabaseConstants.DEVICE_SETTINGS_NAMESPACE;
@@ -70,8 +71,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 18;
-	private static final int MIN_SCHEMA_VERSION = 18;
+	private static final int SCHEMA_VERSION = 19;
+	private static final int MIN_SCHEMA_VERSION = 19;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -164,8 +165,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (messageId HASH NOT NULL,"
 					+ " groupId HASH NOT NULL,"
 					+ " timestamp BIGINT NOT NULL,"
-					+ " local BOOLEAN NOT NULL,"
 					+ " valid INT NOT NULL,"
+					+ " shared BOOLEAN NOT NULL,"
 					+ " length INT NOT NULL,"
 					+ " raw BLOB NOT NULL,"
 					+ " PRIMARY KEY (messageId),"
@@ -674,19 +675,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addMessage(Connection txn, Message m, boolean local)
-			throws DbException {
+	public void addMessage(Connection txn, Message m, Validity validity,
+			boolean shared) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, groupId, timestamp,"
-					+ " local, valid, length, raw)"
+					+ " valid, shared, length, raw)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			ps.setBytes(2, m.getGroupId().getBytes());
 			ps.setLong(3, m.getTimestamp());
-			ps.setBoolean(4, local);
-			ps.setInt(5, local ? VALID.getValue() : UNKNOWN.getValue());
+			ps.setInt(4, validity.getValue());
+			ps.setBoolean(5, shared);
 			byte[] raw = m.getRaw();
 			ps.setInt(6, raw.length);
 			ps.setBytes(7, raw);
@@ -1031,7 +1032,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " WHERE messageId = ?"
-					+ " AND contactId = ?";
+					+ " AND contactId = ?"
+					+ " AND shared = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -1482,7 +1484,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND valid = ?"
+					+ " AND valid = ? AND shared = TRUE"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC LIMIT ?";
@@ -1544,7 +1546,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND valid = ?"
+					+ " AND valid = ? AND shared = TRUE"
 					+ " AND seen = FALSE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC";
@@ -1633,7 +1635,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND valid = ?"
+					+ " AND valid = ? AND shared = TRUE"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC";
@@ -1660,7 +1662,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Settings getSettings(Connection txn, String namespace) throws DbException {
+	public Settings getSettings(Connection txn, String namespace)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2397,7 +2400,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setMessageValidity(Connection txn, MessageId m, boolean valid)
+	public void setMessageShared(Connection txn, MessageId m, boolean shared)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE messages SET shared = ? WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, shared);
+			ps.setBytes(2, m.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setMessageValid(Connection txn, MessageId m, boolean valid)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {

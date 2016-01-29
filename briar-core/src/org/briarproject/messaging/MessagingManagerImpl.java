@@ -116,7 +116,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 		d.put("read", true);
 		try {
 			Metadata meta = metadataEncoder.encode(d);
-			db.addLocalMessage(m.getMessage(), CLIENT_ID, meta);
+			db.addLocalMessage(m.getMessage(), CLIENT_ID, meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

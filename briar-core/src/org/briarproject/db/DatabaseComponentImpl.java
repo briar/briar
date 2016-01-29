@@ -20,6 +20,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
+import org.briarproject.api.event.MessageSharedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
@@ -47,6 +48,7 @@ import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.SubscriptionAck;
 import org.briarproject.api.sync.SubscriptionUpdate;
+import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -64,6 +66,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
+import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 
 /**
@@ -214,8 +218,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void addLocalMessage(Message m, ClientId c, Metadata meta)
-			throws DbException {
+	public void addLocalMessage(Message m, ClientId c, Metadata meta,
+			boolean shared) throws DbException {
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
@@ -224,7 +228,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 					throw new MessageExistsException();
 				if (!db.containsGroup(txn, m.getGroupId()))
 					throw new NoSuchSubscriptionException();
-				addMessage(txn, m, null);
+				addMessage(txn, m, VALID, shared, null);
 				db.mergeMessageMetadata(txn, m.getId(), meta);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
@@ -244,9 +248,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	 * Locking: write.
 	 * @param sender null for a locally generated message.
 	 */
-	private void addMessage(T txn, Message m, ContactId sender)
-			throws DbException {
-		db.addMessage(txn, m, sender == null);
+	private void addMessage(T txn, Message m, Validity validity, boolean shared,
+			ContactId sender) throws DbException {
+		db.addMessage(txn, m, validity, shared);
 		GroupId g = m.getGroupId();
 		Collection<ContactId> visibility = db.getVisibility(txn, g);
 		visibility = new HashSet<ContactId>(visibility);
@@ -982,7 +986,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				duplicate = db.containsMessage(txn, m.getId());
 				visible = db.containsVisibleGroup(txn, c, m.getGroupId());
 				if (visible) {
-					if (!duplicate) addMessage(txn, m, c);
+					if (!duplicate) addMessage(txn, m, UNKNOWN, true, c);
 					db.raiseAckFlag(txn, c, m.getId());
 				}
 				db.commitTransaction(txn);
@@ -1214,7 +1218,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void setMessageValidity(Message m, ClientId c, boolean valid)
+	public void setMessageShared(Message m, boolean shared)
 			throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -1222,7 +1226,27 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			try {
 				if (!db.containsMessage(txn, m.getId()))
 					throw new NoSuchMessageException();
-				db.setMessageValidity(txn, m.getId(), valid);
+				db.setMessageShared(txn, m.getId(), shared);
+				db.commitTransaction(txn);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
+		if (shared) eventBus.broadcast(new MessageSharedEvent(m));
+	}
+
+	public void setMessageValid(Message m, ClientId c, boolean valid)
+			throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsMessage(txn, m.getId()))
+					throw new NoSuchMessageException();
+				db.setMessageValid(txn, m.getId(), valid);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
