@@ -1,5 +1,7 @@
 package org.briarproject.sync;
 
+import com.google.inject.Inject;
+
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.data.BdfWriter;
@@ -18,6 +20,7 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 	private final GroupFactory groupFactory;
 	private final BdfWriterFactory bdfWriterFactory;
 
+	@Inject
 	PrivateGroupFactoryImpl(GroupFactory groupFactory,
 			BdfWriterFactory bdfWriterFactory) {
 		this.groupFactory = groupFactory;
