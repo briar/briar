@@ -155,11 +155,13 @@ interface Database<T> {
 	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
-	 * Returns true if the database contains the given contact.
+	 * Returns true if the database contains the given contact for the given
+	 * local pseudonym.
 	 * <p>
 	 * Locking: read.
 	 */
-	boolean containsContact(T txn, AuthorId a) throws DbException;
+	boolean containsContact(T txn, AuthorId remote, AuthorId local)
+			throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.

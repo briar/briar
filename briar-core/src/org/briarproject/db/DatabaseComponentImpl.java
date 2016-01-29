@@ -144,10 +144,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		try {
 			T txn = db.startTransaction();
 			try {
-				if (db.containsContact(txn, remote.getId()))
-					throw new ContactExistsException();
 				if (!db.containsLocalAuthor(txn, local))
 					throw new NoSuchLocalAuthorException();
+				if (db.containsContact(txn, remote.getId(), local))
+					throw new ContactExistsException();
 				ContactId c = db.addContact(txn, remote, local);
 				db.commitTransaction(txn);
 				return c;
