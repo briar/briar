@@ -514,21 +514,20 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a transport to the database
-		db.addTransport(txn, transportId, 123);
-
-		// Set the transport config
+		// Store some settings
 		Settings s = new Settings();
 		s.put("foo", "foo");
 		s.put("bar", "bar");
 		db.mergeSettings(txn, s, "test");
 		assertEquals(s, db.getSettings(txn, "test"));
 
-		// Update one of the properties and add another
+		// Update one of the settings and add another
 		Settings s1 = new Settings();
 		s1.put("bar", "baz");
 		s1.put("bam", "bam");
 		db.mergeSettings(txn, s1, "test");
+
+		// Check that the settings were merged
 		Settings merged = new Settings();
 		merged.put("foo", "foo");
 		merged.put("bar", "baz");
