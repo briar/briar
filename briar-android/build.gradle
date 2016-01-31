@@ -6,14 +6,29 @@ repositories {
 }
 
 dependencies {
+    def supportVersion = '23.1.1'
+
     compile project(':briar-api')
     compile project(':briar-core')
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile "com.android.support:support-v4:23.1.1"
-    compile "com.android.support:appcompat-v7:23.1.1"
-    compile "com.android.support:preference-v7:23.1.1"
-    compile "com.android.support:preference-v14:23.1.1"
-    compile "com.android.support:design:23.1.1"
+    compile fileTree(dir: 'libs', include: '*.jar')
+    compile "com.android.support:support-v4:$supportVersion"
+    compile("com.android.support:appcompat-v7:$supportVersion") {
+        exclude module: 'support-v4'
+    }
+    compile("com.android.support:preference-v7:$supportVersion") {
+        exclude module: 'support-v4'
+    }
+    compile("com.android.support:preference-v14:$supportVersion") {
+        exclude module: 'support-v4'
+        exclude module: 'preference-v7'
+        exclude module: 'recyclerview-v7'
+    }
+
+    compile("com.android.support:design:$supportVersion") {
+        exclude module: 'support-v4'
+        exclude module: 'recyclerview-v7'
+    }
     compile "org.roboguice:roboguice:2.0"
     compile "info.guardianproject.panic:panic:0.5"
     compile "info.guardianproject.trustedintents:trustedintents:0.2"
@@ -62,6 +77,18 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
+
+    buildTypes {
+        debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
