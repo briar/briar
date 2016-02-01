@@ -13,7 +13,6 @@ import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
@@ -151,9 +150,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof MessageSharedEvent) {
 			dbExecutor.execute(new GenerateOffer());
-		} else if (e instanceof MessageValidatedEvent) {
-			if (((MessageValidatedEvent) e).isValid())
-				dbExecutor.execute(new GenerateOffer());
 		} else if (e instanceof GroupVisibilityUpdatedEvent) {
 			GroupVisibilityUpdatedEvent g = (GroupVisibilityUpdatedEvent) e;
 			if (g.getAffectedContacts().contains(contactId))

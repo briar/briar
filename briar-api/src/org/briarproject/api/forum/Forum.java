@@ -7,10 +7,12 @@ public class Forum {
 
 	private final Group group;
 	private final String name;
+	private final byte[] salt;
 
-	public Forum(Group group, String name) {
+	public Forum(Group group, String name, byte[] salt) {
 		this.group = group;
 		this.name = name;
+		this.salt = salt;
 	}
 
 	public GroupId getId() {
@@ -23,6 +25,10 @@ public class Forum {
 
 	public String getName() {
 		return name;
+	}
+
+	public byte[] getSalt() {
+		return salt;
 	}
 
 	@Override

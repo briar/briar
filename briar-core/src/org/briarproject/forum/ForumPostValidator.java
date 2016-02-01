@@ -15,6 +15,7 @@ import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageValidator;
@@ -25,8 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
-
-import javax.inject.Inject;
 
 import static org.briarproject.api.forum.ForumConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
@@ -47,7 +46,6 @@ class ForumPostValidator implements MessageValidator {
 	private final Clock clock;
 	private final KeyParser keyParser;
 
-	@Inject
 	ForumPostValidator(CryptoComponent crypto,
 			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory,
@@ -63,7 +61,7 @@ class ForumPostValidator implements MessageValidator {
 	}
 
 	@Override
-	public Metadata validateMessage(Message m) {
+	public Metadata validateMessage(Message m, Group g) {
 		// Reject the message if it's too far in the future
 		long now = clock.currentTimeMillis();
 		if (m.getTimestamp() - now > MAX_CLOCK_DIFFERENCE) {
@@ -78,8 +76,7 @@ class ForumPostValidator implements MessageValidator {
 			BdfReader r = bdfReaderFactory.createReader(in);
 			MessageId parent = null;
 			Author author = null;
-			String contentType;
-			byte[] postBody, sig = null;
+			byte[] sig = null;
 			r.readListStart();
 			// Read the parent ID, if any
 			if (r.hasRaw()) {
@@ -93,9 +90,9 @@ class ForumPostValidator implements MessageValidator {
 			if (r.hasList()) author = authorReader.readObject(r);
 			else r.readNull();
 			// Read the content type
-			contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
+			String contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
 			// Read the forum post body
-			postBody = r.readRaw(MAX_FORUM_POST_BODY_LENGTH);
+			byte[] postBody = r.readRaw(MAX_FORUM_POST_BODY_LENGTH);
 
 			// Read the signature, if any
 			if (r.hasRaw()) sig = r.readRaw(MAX_SIGNATURE_LENGTH);

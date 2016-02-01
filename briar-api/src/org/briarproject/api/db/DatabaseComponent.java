@@ -179,6 +179,9 @@ public interface DatabaseComponent {
 	void incrementStreamCounter(ContactId c, TransportId t, long rotationPeriod)
 			throws DbException;
 
+	/** Returns true if the given group is visible to the given contact. */
+	boolean isVisibleToContact(ContactId c, GroupId g) throws DbException;
+
 	/**
 	 * Merges the given metadata with the existing metadata for the given
 	 * group.
@@ -246,16 +249,14 @@ public interface DatabaseComponent {
 
 	/**
 	 * Makes a group visible to the given set of contacts and invisible to any
-	 * other current or future contacts.
+	 * other contacts.
 	 */
 	void setVisibility(GroupId g, Collection<ContactId> visible)
 			throws DbException;
 
-	/**
-	 * Makes a group visible to all current and future contacts, or invisible
-	 * to future contacts.
-	 */
-	void setVisibleToAll(GroupId g, boolean all) throws DbException;
+	/** Makes a group visible or invisible to a contact. */
+	void setVisibleToContact(ContactId c, GroupId g, boolean visible)
+			throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.

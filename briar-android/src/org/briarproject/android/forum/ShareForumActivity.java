@@ -19,7 +19,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
@@ -52,7 +52,7 @@ SelectContactsDialog.Listener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile ContactManager contactManager;
-	@Inject private volatile ForumManager forumManager;
+	@Inject private volatile ForumSharingManager forumSharingManager;
 	private volatile GroupId groupId = null;
 	private volatile Collection<Contact> contacts = null;
 	private volatile Collection<ContactId> selected = null;
@@ -139,7 +139,7 @@ SelectContactsDialog.Listener {
 				try {
 					long now = System.currentTimeMillis();
 					contacts = contactManager.getContacts();
-					selected = forumManager.getVisibility(groupId);
+					selected = forumSharingManager.getSharedWith(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
@@ -175,8 +175,9 @@ SelectContactsDialog.Listener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					forumManager.setVisibleToAll(groupId, all);
-					if (!all) forumManager.setVisibility(groupId, selected);
+					if (all) forumSharingManager.setSharedWithAll(groupId);
+					else forumSharingManager.setSharedWith(groupId,
+							selected);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Update took " + duration + " ms");

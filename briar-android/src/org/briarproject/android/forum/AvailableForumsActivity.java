@@ -17,11 +17,10 @@ import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.GroupAddedEvent;
-import org.briarproject.api.event.GroupRemovedEvent;
+import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.sync.ClientId;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +43,7 @@ implements EventListener, OnItemClickListener {
 	private ListView list = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumManager forumManager;
+	@Inject private volatile ForumSharingManager forumSharingManager;
 	@Inject private volatile EventBus eventBus;
 
 	@Override
@@ -76,11 +75,10 @@ implements EventListener, OnItemClickListener {
 					Collection<ForumContacts> available =
 							new ArrayList<ForumContacts>();
 					long now = System.currentTimeMillis();
-					for (Forum f : forumManager.getAvailableForums()) {
+					for (Forum f : forumSharingManager.getAvailableForums()) {
 						try {
-							GroupId id = f.getId();
 							Collection<Contact> c =
-									forumManager.getSubscribers(id);
+									forumSharingManager.getSharedBy(f.getId());
 							available.add(new ForumContacts(f, c));
 						} catch (NoSuchGroupException e) {
 							// Continue
@@ -122,17 +120,12 @@ implements EventListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		// TODO: What other events are needed here?
-		if (e instanceof GroupAddedEvent) {
-			GroupAddedEvent g = (GroupAddedEvent) e;
-			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
-				LOG.info("Forum added, reloading");
-				loadForums();
-			}
-		} else if (e instanceof GroupRemovedEvent) {
-			GroupRemovedEvent g = (GroupRemovedEvent) e;
-			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
-				LOG.info("Forum removed, reloading");
+		if (e instanceof MessageValidatedEvent) {
+			MessageValidatedEvent m = (MessageValidatedEvent) e;
+			ClientId c = m.getClientId();
+			if (m.isValid() && !m.isLocal()
+					&& c.equals(forumSharingManager.getClientId())) {
+				LOG.info("Available forums updated, reloading");
 				loadForums();
 			}
 		}
@@ -141,20 +134,20 @@ implements EventListener, OnItemClickListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		AvailableForumsItem item = adapter.getItem(position);
-		Collection<ContactId> visible = new ArrayList<ContactId>();
-		for (Contact c : item.getContacts()) visible.add(c.getId());
-		addSubscription(item.getForum(), visible);
+		Collection<ContactId> shared = new ArrayList<ContactId>();
+		for (Contact c : item.getContacts()) shared.add(c.getId());
+		subscribe(item.getForum(), shared);
 		String subscribed = getString(R.string.subscribed_toast);
 		Toast.makeText(this, subscribed, LENGTH_SHORT).show();
+		loadForums();
 	}
 
-	private void addSubscription(final Forum f,
-			final Collection<ContactId> visible) {
+	private void subscribe(final Forum f, final Collection<ContactId> shared) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					forumManager.addForum(f);
-					forumManager.setVisibility(f.getId(), visible);
+					forumSharingManager.addForum(f);
+					forumSharingManager.setSharedWith(f.getId(), shared);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

@@ -599,13 +599,6 @@ interface Database<T> {
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
-	 * Makes a group visible or invisible to future contacts by default.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setVisibleToAll(T txn, GroupId g, boolean all) throws DbException;
-
-	/**
 	 * Updates the transmission count and expiry time of the given message
 	 * with respect to the given contact, using the latency of the transport
 	 * over which it was sent.

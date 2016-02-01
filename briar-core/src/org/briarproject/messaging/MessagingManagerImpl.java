@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
@@ -50,18 +51,19 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			Logger.getLogger(MessagingManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
+	private final ContactManager contactManager;
 	private final PrivateGroupFactory privateGroupFactory;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final MetadataEncoder metadataEncoder;
 	private final MetadataParser metadataParser;
 
 	@Inject
-	MessagingManagerImpl(DatabaseComponent db,
+	MessagingManagerImpl(DatabaseComponent db, ContactManager contactManager,
 			PrivateGroupFactory privateGroupFactory,
-			BdfReaderFactory bdfReaderFactory,
-			MetadataEncoder metadataEncoder,
+			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser) {
 		this.db = db;
+		this.contactManager = contactManager;
 		this.privateGroupFactory = privateGroupFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.metadataEncoder = metadataEncoder;
@@ -71,8 +73,8 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	@Override
 	public void addingContact(ContactId c) {
 		try {
-			// Create the conversation group
-			Group g = getConversationGroup(db.getContact(c));
+			// Create a group to share with the contact
+			Group g = getContactGroup(db.getContact(c));
 			// Store the group and share it with the contact
 			db.addGroup(g);
 			db.setVisibility(g.getId(), Collections.singletonList(c));
@@ -87,14 +89,14 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 		}
 	}
 
-	private Group getConversationGroup(Contact c) {
+	private Group getContactGroup(Contact c) {
 		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
 	}
 
 	@Override
 	public void removingContact(ContactId c) {
 		try {
-			db.removeGroup(getConversationGroup(db.getContact(c)));
+			db.removeGroup(getContactGroup(db.getContact(c)));
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
@@ -135,7 +137,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 
 	@Override
 	public GroupId getConversationId(ContactId c) throws DbException {
-		return getConversationGroup(db.getContact(c)).getId();
+		return getContactGroup(contactManager.getContact(c)).getId();
 	}
 
 	@Override
@@ -172,15 +174,16 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 		BdfReader r = bdfReaderFactory.createReader(in);
 		try {
-			// Extract the private message body
 			r.readListStart();
 			if (r.hasRaw()) r.skipRaw(); // Parent ID
 			else r.skipNull(); // No parent
 			r.skipString(); // Content type
-			return r.readRaw(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+			byte[] messageBody = r.readRaw(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+			r.readListEnd();
+			if (!r.eof()) throw new FormatException();
+			return messageBody;
 		} catch (FormatException e) {
-			// Not a valid private message
-			throw new IllegalArgumentException();
+			throw new DbException(e);
 		} catch (IOException e) {
 			// Shouldn't happen with ByteArrayInputStream
 			throw new RuntimeException(e);

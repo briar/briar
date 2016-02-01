@@ -223,6 +223,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (added) {
 			eventBus.broadcast(new MessageAddedEvent(m, null));
 			eventBus.broadcast(new MessageValidatedEvent(m, c, true, true));
+			if (shared) eventBus.broadcast(new MessageSharedEvent(m));
 		}
 	}
 
@@ -801,6 +802,28 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	public boolean isVisibleToContact(ContactId c, GroupId g)
+			throws DbException {
+		lock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsContact(txn, c))
+					throw new NoSuchContactException();
+				if (!db.containsGroup(txn, g))
+					throw new NoSuchGroupException();
+				boolean visible = db.containsVisibleGroup(txn, c, g);
+				db.commitTransaction(txn);
+				return visible;
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
 	public void mergeGroupMetadata(GroupId g, Metadata meta)
 			throws DbException {
 		lock.writeLock().lock();
@@ -900,7 +923,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				duplicate = db.containsMessage(txn, m.getId());
 				visible = db.containsVisibleGroup(txn, c, m.getGroupId());
 				if (visible) {
-					if (!duplicate) addMessage(txn, m, UNKNOWN, true, c);
+					if (!duplicate) addMessage(txn, m, UNKNOWN, false, c);
 					db.raiseAckFlag(txn, c, m.getId());
 				}
 				db.commitTransaction(txn);
@@ -1162,7 +1185,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				if (!db.containsGroup(txn, g))
 					throw new NoSuchGroupException();
 				// Use HashSets for O(1) lookups, O(n) overall running time
-				HashSet<ContactId> now = new HashSet<ContactId>(visible);
+				Collection<ContactId> now = new HashSet<ContactId>(visible);
 				Collection<ContactId> before = db.getVisibility(txn, g);
 				before = new HashSet<ContactId>(before);
 				// Set the group's visibility for each current contact
@@ -1177,8 +1200,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 						affected.add(c);
 					}
 				}
-				// Make the group invisible to future contacts
-				db.setVisibleToAll(txn, g, false);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -1191,27 +1212,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			eventBus.broadcast(new GroupVisibilityUpdatedEvent(affected));
 	}
 
-	public void setVisibleToAll(GroupId g, boolean all) throws DbException {
-		Collection<ContactId> affected = new ArrayList<ContactId>();
+	public void setVisibleToContact(ContactId c, GroupId g, boolean visible)
+			throws DbException {
+		boolean wasVisible = false;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
+				if (!db.containsContact(txn, c))
+					throw new NoSuchContactException();
 				if (!db.containsGroup(txn, g))
 					throw new NoSuchGroupException();
-				// Make the group visible or invisible to future contacts
-				db.setVisibleToAll(txn, g, all);
-				if (all) {
-					// Make the group visible to all current contacts
-					Collection<ContactId> before = db.getVisibility(txn, g);
-					before = new HashSet<ContactId>(before);
-					for (ContactId c : db.getContactIds(txn)) {
-						if (!before.contains(c)) {
-							db.addVisibility(txn, c, g);
-							affected.add(c);
-						}
-					}
-				}
+				wasVisible = db.containsVisibleGroup(txn, c, g);
+				if (visible && !wasVisible) db.addVisibility(txn, c, g);
+				else if (!visible && wasVisible) db.removeVisibility(txn, c, g);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -1220,8 +1234,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if (!affected.isEmpty())
-			eventBus.broadcast(new GroupVisibilityUpdatedEvent(affected));
+		if (visible != wasVisible) {
+			eventBus.broadcast(new GroupVisibilityUpdatedEvent(
+					Collections.singletonList(c)));
+		}
 	}
 
 	public void updateTransportKeys(Map<ContactId, TransportKeys> keys)

@@ -205,7 +205,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store an unvalidated message
+		// Add a contact, a group and an unvalidated message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -243,7 +243,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store an unshared message
+		// Add a contact, a group and an unshared message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
@@ -329,7 +329,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertEquals(Collections.singletonList(messageId), ids);
 
-		// Making the subscription invisible should make the message unsendable
+		// Making the group invisible should make the message unsendable
 		db.removeVisibility(txn, contactId, groupId);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertTrue(ids.isEmpty());
@@ -1012,6 +1012,31 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, status.getContactId());
 		assertTrue(status.isSent());
 		assertTrue(status.isSeen());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGroupsVisibleToContacts() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and a group
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		db.addGroup(txn, group);
+
+		// The group should not be visible to the contact
+		assertFalse(db.containsVisibleGroup(txn, contactId, groupId));
+
+		// Make the group visible to the contact
+		db.addVisibility(txn, contactId, groupId);
+		assertTrue(db.containsVisibleGroup(txn, contactId, groupId));
+
+		// Make the group invisible to the contact
+		db.removeVisibility(txn, contactId, groupId);
+		assertFalse(db.containsVisibleGroup(txn, contactId, groupId));
 
 		db.commitTransaction(txn);
 		db.close();

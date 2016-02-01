@@ -25,6 +25,7 @@ import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
+import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
@@ -32,6 +33,7 @@ import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostHeader;
+import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
@@ -81,8 +83,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	private ImageButton newForumButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject
-	private volatile ForumManager forumManager;
+	@Inject private volatile ForumManager forumManager;
+	@Inject private volatile ForumSharingManager forumSharingManager;
 
 	@Nullable
 	@Override
@@ -171,7 +173,8 @@ public class ForumListFragment extends BaseEventFragment implements
 							// Continue
 						}
 					}
-					int available = forumManager.getAvailableForums().size();
+					int available =
+							forumSharingManager.getAvailableForums().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
@@ -252,14 +255,9 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	public void eventOccurred(Event e) {
-		// TODO: What other events are needed here?
-		if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			ClientId c = m.getClientId();
-			if (m.isValid() && c.equals(forumManager.getClientId())) {
-				LOG.info("Message added, reloading");
-				loadHeaders(m.getMessage().getGroupId());
-			}
+		if (e instanceof ContactRemovedEvent) {
+			LOG.info("Contact removed, reloading");
+			loadAvailable();
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
@@ -271,6 +269,18 @@ public class ForumListFragment extends BaseEventFragment implements
 			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
 				LOG.info("Forum removed, reloading");
 				loadHeaders();
+			}
+		} else if (e instanceof MessageValidatedEvent) {
+			MessageValidatedEvent m = (MessageValidatedEvent) e;
+			if (m.isValid()) {
+				ClientId c = m.getClientId();
+				if (c.equals(forumManager.getClientId())) {
+					LOG.info("Forum post added, reloading");
+					loadHeaders(m.getMessage().getGroupId());
+				} else if (c.equals(forumSharingManager.getClientId())) {
+					LOG.info("Available forums updated, reloading");
+					loadAvailable();
+				}
 			}
 		}
 	}
@@ -319,7 +329,8 @@ public class ForumListFragment extends BaseEventFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					int available = forumManager.getAvailableForums().size();
+					int available =
+							forumSharingManager.getAvailableForums().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
@@ -363,22 +374,22 @@ public class ForumListFragment extends BaseEventFragment implements
 			ContextMenuInfo info = menuItem.getMenuInfo();
 			int position = ((AdapterContextMenuInfo) info).position;
 			ForumListItem item = adapter.getItem(position);
-			removeSubscription(item.getForum());
+			unsubscribe(item.getForum());
 			String unsubscribed = getString(R.string.unsubscribed_toast);
 			Toast.makeText(getContext(), unsubscribed, LENGTH_SHORT).show();
 		}
 		return true;
 	}
 
-	private void removeSubscription(final Forum f) {
+	private void unsubscribe(final Forum f) {
 		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					forumManager.removeForum(f);
+					forumSharingManager.removeForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Removing group took " + duration + " ms");
+						LOG.info("Removing forum took " + duration + " ms");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

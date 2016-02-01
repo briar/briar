@@ -66,8 +66,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 19;
-	private static final int MIN_SCHEMA_VERSION = 19;
+	private static final int SCHEMA_VERSION = 20;
+	private static final int MIN_SCHEMA_VERSION = 20;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -104,7 +104,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (groupId HASH NOT NULL,"
 					+ " clientId HASH NOT NULL,"
 					+ " descriptor BINARY NOT NULL,"
-					+ " visibleToAll BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_GROUP_METADATA =
@@ -511,30 +510,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					if (rows != 1) throw new DbStateException();
 				ps.close();
 			}
-			// Make groups that are visible to everyone visible to this contact
-			sql = "SELECT groupId FROM groups WHERE visibleToAll = TRUE";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			ids = new ArrayList<byte[]>();
-			while (rs.next()) ids.add(rs.getBytes(1));
-			rs.close();
-			ps.close();
-			if (!ids.isEmpty()) {
-				sql = "INSERT INTO groupVisibilities (contactId, groupId)"
-						+ " VALUES (?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				for (byte[] id : ids) {
-					ps.setBytes(2, id);
-					ps.addBatch();
-				}
-				int[] batchAffected = ps.executeBatch();
-				if (batchAffected.length != ids.size())
-					throw new DbStateException();
-				for (int rows : batchAffected)
-					if (rows != 1) throw new DbStateException();
-				ps.close();
-			}
 			return c;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -546,9 +521,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void addGroup(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO groups"
-					+ " (groupId, clientId, descriptor, visibleToAll)"
-					+ " VALUES (?, ?, ?, FALSE)";
+			String sql = "INSERT INTO groups (groupId, clientId, descriptor)"
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setBytes(2, g.getClientId().getBytes());
@@ -2128,23 +2102,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(3, c.getInt());
 			ps.setString(4, t.getString());
 			ps.setLong(5, rotationPeriod);
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setVisibleToAll(Connection txn, GroupId g, boolean all)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE groups SET visibleToAll = ? WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, all);
-			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
