@@ -40,6 +40,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static org.briarproject.api.invitation.InvitationConstants.CODE_BITS;
+import static org.briarproject.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.briarproject.util.ByteUtils.INT_32_BYTES;
@@ -62,17 +63,25 @@ class CryptoComponentImpl implements CryptoComponent {
 		return s.getBytes(Charset.forName("US-ASCII"));
 	}
 
-	// KDF label for master key derivation
-	private static final byte[] MASTER = ascii("MASTER");
-	// KDF labels for confirmation code derivation
-	private static final byte[] A_CONFIRM = ascii("ALICE_CONFIRMATION_CODE");
-	private static final byte[] B_CONFIRM = ascii("BOB_CONFIRMATION_CODE");
-	// KDF labels for invitation stream header key derivation
-	private static final byte[] A_INVITE = ascii("ALICE_INVITATION_KEY");
-	private static final byte[] B_INVITE = ascii("BOB_INVITATION_KEY");
-	// KDF labels for signature nonce derivation
-	private static final byte[] A_NONCE = ascii("ALICE_SIGNATURE_NONCE");
-	private static final byte[] B_NONCE = ascii("BOB_SIGNATURE_NONCE");
+	// KDF label for bluetooth master key derivation
+	private static final byte[] BT_MASTER = ascii("MASTER");
+	// KDF labels for bluetooth confirmation code derivation
+	private static final byte[] BT_A_CONFIRM = ascii("ALICE_CONFIRMATION_CODE");
+	private static final byte[] BT_B_CONFIRM = ascii("BOB_CONFIRMATION_CODE");
+	// KDF labels for bluetooth invitation stream header key derivation
+	private static final byte[] BT_A_INVITE = ascii("ALICE_INVITATION_KEY");
+	private static final byte[] BT_B_INVITE = ascii("BOB_INVITATION_KEY");
+	// KDF labels for bluetooth signature nonce derivation
+	private static final byte[] BT_A_NONCE = ascii("ALICE_SIGNATURE_NONCE");
+	private static final byte[] BT_B_NONCE = ascii("BOB_SIGNATURE_NONCE");
+	// Hash label for BQP public key commitment derivation
+	private static final byte[] COMMIT = ascii("COMMIT");
+	// Hash label for BQP shared secret derivation
+	private static final byte[] SHARED_SECRET = ascii("SHARED_SECRET");
+	// KDF label for BQP confirmation key derivation
+	private static final byte[] CONFIRMATION_KEY = ascii("CONFIRMATION_KEY");
+	// KDF label for BQP master key derivation
+	private static final byte[] MASTER_KEY = ascii("MASTER_KEY");
 	// KDF labels for tag key derivation
 	private static final byte[] A_TAG = ascii("ALICE_TAG_KEY");
 	private static final byte[] B_TAG = ascii("BOB_TAG_KEY");
@@ -128,6 +137,25 @@ class CryptoComponentImpl implements CryptoComponent {
 		return secureRandom;
 	}
 
+	// Package access for testing
+	byte[] performRawKeyAgreement(PrivateKey priv, PublicKey pub)
+			throws GeneralSecurityException {
+		if (!(priv instanceof Sec1PrivateKey))
+			throw new IllegalArgumentException();
+		if (!(pub instanceof Sec1PublicKey))
+			throw new IllegalArgumentException();
+		ECPrivateKeyParameters ecPriv = ((Sec1PrivateKey) priv).getKey();
+		ECPublicKeyParameters ecPub = ((Sec1PublicKey) pub).getKey();
+		long now = System.currentTimeMillis();
+		ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
+		agreement.init(ecPriv);
+		byte[] secret = agreement.calculateAgreement(ecPub).toByteArray();
+		long duration = System.currentTimeMillis() - now;
+		if (LOG.isLoggable(INFO))
+			LOG.info("Deriving shared secret took " + duration + " ms");
+		return secret;
+	}
+
 	public Signature getSignature() {
 		return new SignatureImpl(secureRandom);
 	}
@@ -170,65 +198,80 @@ class CryptoComponentImpl implements CryptoComponent {
 		return signatureKeyParser;
 	}
 
-	public int generateInvitationCode() {
+	public int generateBTInvitationCode() {
 		int codeBytes = (CODE_BITS + 7) / 8;
 		byte[] random = new byte[codeBytes];
 		secureRandom.nextBytes(random);
 		return ByteUtils.readUint(random, CODE_BITS);
 	}
 
-	public SecretKey deriveMasterSecret(byte[] theirPublicKey,
-			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
-		MessageDigest messageDigest = getMessageDigest();
-		byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
-		byte[] ourHash = messageDigest.digest(ourPublicKey);
-		byte[] theirHash = messageDigest.digest(theirPublicKey);
-		byte[] aliceInfo, bobInfo;
-		if (alice) {
-			aliceInfo = ourHash;
-			bobInfo = theirHash;
-		} else {
-			aliceInfo = theirHash;
-			bobInfo = ourHash;
-		}
-		PrivateKey ourPriv = ourKeyPair.getPrivate();
-		PublicKey theirPub = agreementKeyParser.parsePublicKey(theirPublicKey);
-		// The raw secret comes from the key agreement algorithm
-		byte[] raw = deriveSharedSecret(ourPriv, theirPub);
-		// Derive the master secret from the raw secret using the hash KDF
-		return new SecretKey(hashKdf(raw, MASTER, aliceInfo, bobInfo));
-	}
-
-	// Package access for testing
-	byte[] deriveSharedSecret(PrivateKey priv, PublicKey pub)
-			throws GeneralSecurityException {
-		if (!(priv instanceof Sec1PrivateKey))
-			throw new IllegalArgumentException();
-		if (!(pub instanceof Sec1PublicKey))
-			throw new IllegalArgumentException();
-		ECPrivateKeyParameters ecPriv = ((Sec1PrivateKey) priv).getKey();
-		ECPublicKeyParameters ecPub = ((Sec1PublicKey) pub).getKey();
-		long now = System.currentTimeMillis();
-		ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
-		agreement.init(ecPriv);
-		byte[] secret = agreement.calculateAgreement(ecPub).toByteArray();
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Deriving shared secret took " + duration + " ms");
-		return secret;
-	}
-
-	public int deriveConfirmationCode(SecretKey master, boolean alice) {
-		byte[] b = macKdf(master, alice ? A_CONFIRM : B_CONFIRM);
+	public int deriveBTConfirmationCode(SecretKey master, boolean alice) {
+		byte[] b = macKdf(master, alice ? BT_A_CONFIRM : BT_B_CONFIRM);
 		return ByteUtils.readUint(b, CODE_BITS);
 	}
 
-	public SecretKey deriveInvitationKey(SecretKey master, boolean alice) {
-		return new SecretKey(macKdf(master, alice ? A_INVITE : B_INVITE));
+	public SecretKey deriveBTInvitationKey(SecretKey master, boolean alice) {
+		return new SecretKey(macKdf(master, alice ? BT_A_INVITE : BT_B_INVITE));
 	}
 
-	public byte[] deriveSignatureNonce(SecretKey master, boolean alice) {
-		return macKdf(master, alice ? A_NONCE : B_NONCE);
+	public byte[] deriveBTSignatureNonce(SecretKey master, boolean alice) {
+		return macKdf(master, alice ? BT_A_NONCE : BT_B_NONCE);
+	}
+
+	public byte[] deriveKeyCommitment(byte[] publicKey) {
+		byte[] hash = hash(COMMIT, publicKey);
+		// The output is the first COMMIT_LENGTH bytes of the hash
+		byte[] commitment = new byte[COMMIT_LENGTH];
+		System.arraycopy(hash, 0, commitment, 0, COMMIT_LENGTH);
+		return commitment;
+	}
+
+	public SecretKey deriveSharedSecret(byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
+		PrivateKey ourPriv = ourKeyPair.getPrivate();
+		PublicKey theirPub = agreementKeyParser.parsePublicKey(theirPublicKey);
+		byte[] raw = performRawKeyAgreement(ourPriv, theirPub);
+		byte[] alicePub, bobPub;
+		if (alice) {
+			alicePub = ourKeyPair.getPublic().getEncoded();
+			bobPub = theirPublicKey;
+		} else {
+			alicePub = theirPublicKey;
+			bobPub = ourKeyPair.getPublic().getEncoded();
+		}
+		return new SecretKey(hash(SHARED_SECRET, raw, alicePub, bobPub));
+	}
+
+	public byte[] deriveConfirmationRecord(SecretKey sharedSecret,
+			byte[] theirPayload, byte[] ourPayload, byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice, boolean aliceRecord) {
+		SecretKey ck = new SecretKey(macKdf(sharedSecret, CONFIRMATION_KEY));
+		byte[] alicePayload, alicePub, bobPayload, bobPub;
+		if (alice) {
+			alicePayload = ourPayload;
+			alicePub = ourKeyPair.getPublic().getEncoded();
+			bobPayload = theirPayload;
+			bobPub = theirPublicKey;
+		} else {
+			alicePayload = theirPayload;
+			alicePub = theirPublicKey;
+			bobPayload = ourPayload;
+			bobPub = ourKeyPair.getPublic().getEncoded();
+		}
+		if (aliceRecord)
+			return macKdf(ck, alicePayload, alicePub, bobPayload, bobPub);
+		else
+			return macKdf(ck, bobPayload, bobPub, alicePayload, alicePub);
+	}
+
+	public SecretKey deriveMasterSecret(SecretKey sharedSecret) {
+		return new SecretKey(macKdf(sharedSecret, MASTER_KEY));
+	}
+
+	public SecretKey deriveMasterSecret(byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
+		return deriveMasterSecret(deriveSharedSecret(
+				theirPublicKey,ourKeyPair, alice));
 	}
 
 	public TransportKeys deriveTransportKeys(TransportId t,

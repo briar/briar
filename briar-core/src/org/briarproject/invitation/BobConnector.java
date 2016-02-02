@@ -93,8 +93,8 @@ class BobConnector extends Connector {
 		}
 		// The key agreement succeeded - derive the confirmation codes
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " agreement succeeded");
-		int aliceCode = crypto.deriveConfirmationCode(master, true);
-		int bobCode = crypto.deriveConfirmationCode(master, false);
+		int aliceCode = crypto.deriveBTConfirmationCode(master, true);
+		int bobCode = crypto.deriveBTConfirmationCode(master, false);
 		group.keyAgreementSucceeded(bobCode, aliceCode);
 		// Exchange confirmation results
 		boolean localMatched, remoteMatched;
@@ -128,8 +128,8 @@ class BobConnector extends Connector {
 		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
 		// Derive the header keys
-		SecretKey aliceHeaderKey = crypto.deriveInvitationKey(master, true);
-		SecretKey bobHeaderKey = crypto.deriveInvitationKey(master, false);
+		SecretKey aliceHeaderKey = crypto.deriveBTInvitationKey(master, true);
+		SecretKey bobHeaderKey = crypto.deriveBTInvitationKey(master, false);
 		// Create the readers
 		InputStream streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
@@ -141,8 +141,8 @@ class BobConnector extends Connector {
 						bobHeaderKey);
 		w = bdfWriterFactory.createWriter(streamWriter);
 		// Derive the nonces
-		byte[] aliceNonce = crypto.deriveSignatureNonce(master, true);
-		byte[] bobNonce = crypto.deriveSignatureNonce(master, false);
+		byte[] aliceNonce = crypto.deriveBTSignatureNonce(master, true);
+		byte[] bobNonce = crypto.deriveBTSignatureNonce(master, false);
 		// Exchange pseudonyms, signed nonces and timestamps
 		Author remoteAuthor;
 		long remoteTimestamp;

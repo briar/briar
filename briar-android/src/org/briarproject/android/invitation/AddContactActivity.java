@@ -244,7 +244,7 @@ implements InvitationListener {
 
 	int getLocalInvitationCode() {
 		if (localInvitationCode == -1)
-			localInvitationCode = crypto.generateInvitationCode();
+			localInvitationCode = crypto.generateBTInvitationCode();
 		return localInvitationCode;
 	}
 

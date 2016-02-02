@@ -27,35 +27,97 @@ public interface CryptoComponent {
 	KeyParser getSignatureKeyParser();
 
 	/** Generates a random invitation code. */
-	int generateInvitationCode();
-
-	/**
-	 * Derives a shared master secret from two public keys and one of the
-	 * corresponding private keys.
-	 * @param alice whether the private key belongs to Alice or Bob.
-	 */
-	SecretKey deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
-			boolean alice) throws GeneralSecurityException;
+	int generateBTInvitationCode();
 
 	/**
 	 * Derives a confirmation code from the given master secret.
 	 * @param alice whether the code is for use by Alice or Bob.
 	 */
-	int deriveConfirmationCode(SecretKey master, boolean alice);
+	int deriveBTConfirmationCode(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a header key for an invitation stream from the given master
 	 * secret.
 	 * @param alice whether the key is for use by Alice or Bob.
 	 */
-	SecretKey deriveInvitationKey(SecretKey master, boolean alice);
+	SecretKey deriveBTInvitationKey(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a nonce from the given master secret for one of the parties to
 	 * sign.
 	 * @param alice whether the nonce is for use by Alice or Bob.
 	 */
-	byte[] deriveSignatureNonce(SecretKey master, boolean alice);
+	byte[] deriveBTSignatureNonce(SecretKey master, boolean alice);
+
+	/**
+	 * Derives a commitment to the provided public key.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param publicKey the public key
+	 * @return the commitment to the provided public key.
+	 */
+	byte[] deriveKeyCommitment(byte[] publicKey);
+
+	/**
+	 * Derives a common shared secret from two public keys and one of the
+	 * corresponding private keys.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param theirPublicKey the ephemeral public key of the remote party
+	 * @param ourKeyPair our ephemeral keypair
+	 * @param alice true if ourKeyPair belongs to Alice
+	 * @return the shared secret
+	 * @throws GeneralSecurityException
+	 */
+	SecretKey deriveSharedSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice) throws GeneralSecurityException;
+
+	/**
+	 * Derives the content of a confirmation record.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param sharedSecret the common shared secret
+	 * @param theirPayload the commit payload from the remote party
+	 * @param ourPayload the commit payload we sent
+	 * @param theirPublicKey the ephemeral public key of the remote party
+	 * @param ourKeyPair our ephemeral keypair
+	 * @param alice true if ourKeyPair belongs to Alice
+	 * @param aliceRecord true if the confirmation record is for use by Alice
+	 * @return the confirmation record
+	 */
+	byte[] deriveConfirmationRecord(SecretKey sharedSecret,
+			byte[] theirPayload, byte[] ourPayload,
+			byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice, boolean aliceRecord);
+
+	/**
+	 * Derives a master secret from the given shared secret.
+	 * <p/>
+	 * Part of BQP.
+	 *
+	 * @param sharedSecret the common shared secret
+	 * @return the master secret
+	 */
+	SecretKey deriveMasterSecret(SecretKey sharedSecret);
+
+	/**
+	 * Derives a master secret from two public keys and one of the corresponding
+	 * private keys.
+	 * <p/>
+	 * Part of BQP. This is a helper method that calls
+	 * deriveMasterSecret(deriveSharedSecret(theirPublicKey, ourKeyPair, alice))
+	 *
+	 * @param theirPublicKey the ephemeral public key of the remote party
+	 * @param ourKeyPair our ephemeral keypair
+	 * @param alice true if ourKeyPair belongs to Alice
+	 * @return the shared secret
+	 * @throws GeneralSecurityException
+	 */
+	SecretKey deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice) throws GeneralSecurityException;
 
 	/**
 	 * Derives initial transport keys for the given transport in the given
