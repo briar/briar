@@ -6,11 +6,10 @@ repositories {
 }
 
 dependencies {
-    def supportVersion = '23.1.1'
 
+    def supportVersion = '23.1.1'
     compile project(':briar-api')
     compile project(':briar-core')
-    compile fileTree(dir: 'libs', include: '*.jar')
     compile fileTree(dir: 'libs', include: '*.jar')
     compile "com.android.support:support-v4:$supportVersion"
     compile("com.android.support:appcompat-v7:$supportVersion") {
@@ -24,7 +23,6 @@ dependencies {
         exclude module: 'preference-v7'
         exclude module: 'recyclerview-v7'
     }
-
     compile("com.android.support:design:$supportVersion") {
         exclude module: 'support-v4'
         exclude module: 'recyclerview-v7'
@@ -80,6 +78,7 @@ android {
 
     buildTypes {
         debug {
+            // Set this to true to run proguard in debug
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
