@@ -1,0 +1,56 @@
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-dontobfuscate
+-verbose
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+# For comfortability in case we do obfuscate
+# -renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable,*Annotation*,Signature, InnerClasses, EnclosingMethod
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class com.android.vending.licensing.ILicensingService
+-keepclasseswithmembers class * { native <methods>; }
+-keepclasseswithmembers class * {  
+    public <init> (android.content.Context, android.util.AttributeSet); 
+}
+-keepclasseswithmembers class * { 
+    public <init> (android.content.Context, android.util.AttributeSet, int); 
+}
+-keepclassmembers class * implements android.os.Parcelable { static android.os.Parcelable$Creator *; }
+-keepclassmembers class **.R$* { public static <fields>; }
+-keepclasseswithmembernames class * { native <methods>; }
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+-keepclassmembers class * extends android.app.Activity { 
+	public void *(android.view.View); 
+}
+-keepclassmembers class * { 
+	@com.google.inject.Inject <init>(...);
+	@com.google.inject.Inject <fields>; 
+}
+# Just in case Roboguice events are used
+-keepclassmembers class * {
+    void *(**On*Event);
+}
+
+-keep class org.h2.** { *; }
+-keep class org.briarproject.** { *; }
+-keep class com.google.inject.** { *; }
+-keep class javax.inject.** { *; }
+-keep class javax.annotation.** { *; }
+-keep class roboguice.** { *; }
+
+-dontwarn org.h2.**
+-dontnote org.h2.**
+-dontwarn net.sf.cglib.**
+-dontwarn org.briarproject.plugins.tcp.**
+-dontwarn roboguice.**
+-dontwarn net.sourceforge.jsocks.**
+-dontnote android.support.**
