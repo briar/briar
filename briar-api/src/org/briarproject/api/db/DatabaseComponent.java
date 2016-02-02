@@ -28,6 +28,10 @@ import java.util.Map;
 /**
  * Encapsulates the database implementation and exposes high-level operations
  * to other components.
+ * <p>
+ * This interface's methods are blocking, but they do not call out into other
+ * components except to broadcast {@link org.briarproject.api.event.Event
+ * Events}, so they can safely be called while holding locks.
  */
 public interface DatabaseComponent {
 

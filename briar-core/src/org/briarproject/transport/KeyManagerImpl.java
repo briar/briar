@@ -101,7 +101,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				TransportKeyManager m = new TransportKeyManager(db, crypto,
-						dbExecutor, timer, clock, t, maxLatency);
+						timer, clock, t, maxLatency);
 				// Don't add transport twice if event is received during startup
 				if (managers.putIfAbsent(t, m) == null) m.start();
 			}
