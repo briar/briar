@@ -100,7 +100,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " localAuthorId HASH NOT NULL,"
 					+ " status INT NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
-					+ " UNIQUE (authorId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
 					+ " ON DELETE CASCADE)";

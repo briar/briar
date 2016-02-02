@@ -51,6 +51,7 @@ import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1152,6 +1153,35 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, status.getContactId());
 		assertTrue(status.isSent());
 		assertTrue(status.isSeen());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testDifferentLocalPseudonymsCanHaveTheSameContact()
+			throws Exception {
+		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
+		LocalAuthor localAuthor1 = new LocalAuthor(localAuthorId1, "Carol",
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
+				StorageStatus.ACTIVE);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add two local pseudonyms
+		db.addLocalAuthor(txn, localAuthor);
+		db.addLocalAuthor(txn, localAuthor1);
+
+		// Add the same contact for each local pseudonym
+		ContactId contactId = db.addContact(txn, author, localAuthorId);
+		ContactId contactId1 = db.addContact(txn, author, localAuthorId1);
+
+		// The contacts should be distinct
+		assertNotEquals(contactId, contactId1);
+		assertEquals(2, db.getContacts(txn).size());
+		assertEquals(1, db.getContacts(txn, localAuthorId).size());
+		assertEquals(1, db.getContacts(txn, localAuthorId1).size());
 
 		db.commitTransaction(txn);
 		db.close();
