@@ -30,14 +30,6 @@ public interface CryptoComponent {
 	int generateBTInvitationCode();
 
 	/**
-	 * Derives a shared master secret from two public keys and one of the
-	 * corresponding private keys.
-	 * @param alice whether the private key belongs to Alice or Bob.
-	 */
-	SecretKey deriveBTMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
-			boolean alice) throws GeneralSecurityException;
-
-	/**
 	 * Derives a confirmation code from the given master secret.
 	 * @param alice whether the code is for use by Alice or Bob.
 	 */
@@ -110,6 +102,22 @@ public interface CryptoComponent {
 	 * @return the master secret
 	 */
 	SecretKey deriveMasterSecret(SecretKey sharedSecret);
+
+	/**
+	 * Derives a master secret from two public keys and one of the corresponding
+	 * private keys.
+	 * <p/>
+	 * Part of BQP. This is a helper method that calls
+	 * deriveMasterSecret(deriveSharedSecret(theirPublicKey, ourKeyPair, alice))
+	 *
+	 * @param theirPublicKey the ephemeral public key of the remote party
+	 * @param ourKeyPair our ephemeral keypair
+	 * @param alice true if ourKeyPair belongs to Alice
+	 * @return the shared secret
+	 * @throws GeneralSecurityException
+	 */
+	SecretKey deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice) throws GeneralSecurityException;
 
 	/**
 	 * Derives initial transport keys for the given transport in the given

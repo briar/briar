@@ -20,8 +20,8 @@ public class KeyAgreementTest extends BriarTestCase {
 		byte[] aPub = aPair.getPublic().getEncoded();
 		KeyPair bPair = crypto.generateAgreementKeyPair();
 		byte[] bPub = bPair.getPublic().getEncoded();
-		SecretKey aMaster = crypto.deriveBTMasterSecret(aPub, bPair, true);
-		SecretKey bMaster = crypto.deriveBTMasterSecret(bPub, aPair, false);
+		SecretKey aMaster = crypto.deriveMasterSecret(aPub, bPair, true);
+		SecretKey bMaster = crypto.deriveMasterSecret(bPub, aPair, false);
 		assertArrayEquals(aMaster.getBytes(), bMaster.getBytes());
 	}
 

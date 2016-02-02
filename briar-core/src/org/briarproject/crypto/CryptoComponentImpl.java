@@ -205,28 +205,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		return ByteUtils.readUint(random, CODE_BITS);
 	}
 
-	public SecretKey deriveBTMasterSecret(byte[] theirPublicKey,
-			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
-		MessageDigest messageDigest = getMessageDigest();
-		byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
-		byte[] ourHash = messageDigest.digest(ourPublicKey);
-		byte[] theirHash = messageDigest.digest(theirPublicKey);
-		byte[] aliceInfo, bobInfo;
-		if (alice) {
-			aliceInfo = ourHash;
-			bobInfo = theirHash;
-		} else {
-			aliceInfo = theirHash;
-			bobInfo = ourHash;
-		}
-		PrivateKey ourPriv = ourKeyPair.getPrivate();
-		PublicKey theirPub = agreementKeyParser.parsePublicKey(theirPublicKey);
-		// The raw secret comes from the key agreement algorithm
-		byte[] raw = performRawKeyAgreement(ourPriv, theirPub);
-		// Derive the master secret from the raw secret using the hash KDF
-		return new SecretKey(hashKdf(raw, BT_MASTER, aliceInfo, bobInfo));
-	}
-
 	public int deriveBTConfirmationCode(SecretKey master, boolean alice) {
 		byte[] b = macKdf(master, alice ? BT_A_CONFIRM : BT_B_CONFIRM);
 		return ByteUtils.readUint(b, CODE_BITS);
@@ -288,6 +266,12 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public SecretKey deriveMasterSecret(SecretKey sharedSecret) {
 		return new SecretKey(macKdf(sharedSecret, MASTER_KEY));
+	}
+
+	public SecretKey deriveMasterSecret(byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
+		return deriveMasterSecret(deriveSharedSecret(
+				theirPublicKey,ourKeyPair, alice));
 	}
 
 	public TransportKeys deriveTransportKeys(TransportId t,
