@@ -2,7 +2,7 @@ package org.briarproject.sync;
 
 import com.google.inject.Inject;
 
-import org.briarproject.api.UniqueId;
+import org.briarproject.api.Bytes;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.data.BdfWriter;
 import org.briarproject.api.data.BdfWriterFactory;
@@ -40,7 +40,7 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
 			w.writeListStart();
-			if (UniqueId.IdComparator.INSTANCE.compare(local, remote) < 0) {
+			if (Bytes.COMPARATOR.compare(local, remote) < 0) {
 				w.writeRaw(local.getBytes());
 				w.writeRaw(remote.getBytes());
 			} else {

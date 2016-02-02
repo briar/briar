@@ -3,7 +3,6 @@ package org.briarproject.api.identity;
 import org.briarproject.api.UniqueId;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 /**
  * Type-safe wrapper for a byte array that uniquely identifies an
@@ -11,7 +10,9 @@ import java.util.Arrays;
  */
 public class AuthorId extends UniqueId {
 
-	/** Label for hashing authors to calculate their identities. */
+	/**
+	 * Label for hashing authors to calculate their identities.
+	 */
 	public static final byte[] LABEL =
 			"AUTHOR_ID".getBytes(Charset.forName("US-ASCII"));
 
@@ -21,6 +22,6 @@ public class AuthorId extends UniqueId {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof AuthorId && Arrays.equals(id, ((AuthorId) o).id);
+		return o instanceof AuthorId && super.equals(o);
 	}
 }
