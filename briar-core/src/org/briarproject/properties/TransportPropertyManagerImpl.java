@@ -103,8 +103,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			// Copy the latest local properties into the group
 			DeviceId dev = db.getDeviceId();
 			Map<TransportId, TransportProperties> local = getLocalProperties();
-			for (Entry<TransportId, TransportProperties> e : local.entrySet())
-				storeMessage(g.getId(), dev, e.getKey(), e.getValue(), 0);
+			for (Entry<TransportId, TransportProperties> e : local.entrySet()) {
+				storeMessage(g.getId(), dev, e.getKey(), e.getValue(), 1, true,
+						true);
+			}
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch (FormatException e) {
@@ -121,16 +123,16 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	private void storeMessage(GroupId g, DeviceId dev, TransportId t,
-			TransportProperties p, long version) throws DbException,
-			IOException {
+			TransportProperties p, long version, boolean local, boolean shared)
+			throws DbException, IOException {
 		byte[] body = encodeProperties(dev, t, p, version);
 		long now = clock.currentTimeMillis();
 		Message m = messageFactory.createMessage(g, now, body);
 		BdfDictionary d = new BdfDictionary();
 		d.put("transportId", t.getString());
 		d.put("version", version);
-		d.put("local", true);
-		db.addLocalMessage(m, CLIENT_ID, metadataEncoder.encode(d), true);
+		d.put("local", local);
+		db.addLocalMessage(m, CLIENT_ID, metadataEncoder.encode(d), shared);
 	}
 
 	private byte[] encodeProperties(DeviceId dev, TransportId t,
@@ -158,6 +160,23 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			db.removeGroup(getContactGroup(db.getContact(c)));
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	@Override
+	public void addRemoteProperties(ContactId c, DeviceId dev,
+			Map<TransportId, TransportProperties> props) throws DbException {
+		lock.writeLock().lock();
+		try {
+			Group g = getContactGroup(db.getContact(c));
+			for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
+				storeMessage(g.getId(), dev, e.getKey(), e.getValue(), 0, false,
+						false);
+			}
+		} catch (IOException e) {
+			throw new DbException(e);
 		} finally {
 			lock.writeLock().unlock();
 		}
@@ -292,14 +311,15 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			}
 			// Store the merged properties in the local group
 			DeviceId dev = db.getDeviceId();
-			long version = latest == null ? 0 : latest.version + 1;
-			storeMessage(localGroup.getId(), dev, t, merged, version);
+			long version = latest == null ? 1 : latest.version + 1;
+			storeMessage(localGroup.getId(), dev, t, merged, version, true,
+					false);
 			// Store the merged properties in each contact's group
 			for (Contact c : db.getContacts()) {
 				Group g = getContactGroup(c);
 				latest = findLatest(g.getId(), true).get(t);
-				version = latest == null ? 0 : latest.version + 1;
-				storeMessage(g.getId(), dev, t, merged, version);
+				version = latest == null ? 1 : latest.version + 1;
+				storeMessage(g.getId(), dev, t, merged, version, true, true);
 			}
 		} catch (IOException e) {
 			throw new DbException(e);
