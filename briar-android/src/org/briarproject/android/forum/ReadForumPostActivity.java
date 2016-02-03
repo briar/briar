@@ -36,6 +36,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
@@ -85,15 +86,18 @@ implements OnClickListener {
 		if (minTimestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
 		if (position == -1) throw new IllegalStateException();
+		Author author = null;
 		long authorHandle = i.getLongExtra("briar.AUTHOR_HANDLE", -1);
-		if (authorHandle == -1) throw new IllegalStateException();
-		Author author = referenceManager.removeReference(authorHandle, Author.class);
+		if (authorHandle != -1) {
+			author = referenceManager.removeReference(authorHandle,
+					Author.class);
+		}
 		String s = i.getStringExtra("briar.AUTHOR_STATUS");
 		if (s == null) throw new IllegalStateException();
 		Author.Status authorStatus = Author.Status.valueOf(s);
 
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_WRAP);
+		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 
 		ScrollView scrollView = new ScrollView(this);
