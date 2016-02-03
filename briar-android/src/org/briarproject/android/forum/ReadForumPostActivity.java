@@ -17,11 +17,11 @@ import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
@@ -58,8 +58,6 @@ implements OnClickListener {
 	private TextView content = null;
 	private int position = -1;
 
-	@Inject private ReferenceManager referenceManager;
-
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile ForumManager forumManager;
 	private volatile MessageId messageId = null;
@@ -86,12 +84,10 @@ implements OnClickListener {
 		if (minTimestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
 		if (position == -1) throw new IllegalStateException();
-		Author author = null;
-		long authorHandle = i.getLongExtra("briar.AUTHOR_HANDLE", -1);
-		if (authorHandle != -1) {
-			author = referenceManager.removeReference(authorHandle,
-					Author.class);
-		}
+		String authorName = i.getStringExtra("briar.AUTHOR_NAME");
+		AuthorId authorId = null;
+		b = i.getByteArrayExtra("briar.AUTHOR_ID");
+		if (b != null) authorId = new AuthorId(b);
 		String s = i.getStringExtra("briar.AUTHOR_STATUS");
 		if (s == null) throw new IllegalStateException();
 		Author.Status authorStatus = Author.Status.valueOf(s);
@@ -111,15 +107,16 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
-		AuthorView authorView = new AuthorView(this);
-		authorView.setLayoutParams(WRAP_WRAP_1);
-		authorView.init(author, authorStatus);
-		header.addView(authorView);
-
 		int pad = LayoutUtils.getPadding(this);
 
+		AuthorView authorView = new AuthorView(this);
+		authorView.setPadding(0, pad, pad, pad);
+		authorView.setLayoutParams(WRAP_WRAP_1);
+		authorView.init(authorName, authorId, authorStatus);
+		header.addView(authorView);
+
 		TextView date = new TextView(this);
-		date.setPadding(0, pad, pad, pad);
+		date.setPadding(pad, pad, pad, pad);
 		date.setText(DateUtils.getRelativeTimeSpanString(this, timestamp));
 		header.addView(date);
 		message.addView(header);

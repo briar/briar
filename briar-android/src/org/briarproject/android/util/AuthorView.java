@@ -11,6 +11,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
 
 import javax.inject.Inject;
 
@@ -56,12 +57,13 @@ public class AuthorView extends FrameLayout {
 		statusView = (ImageView) v.findViewById(R.id.statusView);
 	}
 
-	public void init(Author author, Author.Status status) {
-		if (author == null) nameView.setText(R.string.anonymous);
-		else {
+	public void init(String name, AuthorId id, Author.Status status) {
+		if (name == null) {
+			nameView.setText(R.string.anonymous);
+		} else {
+			nameView.setText(name);
 			avatarView.setImageDrawable(
-					new IdenticonDrawable(crypto, author.getId().getBytes()));
-			nameView.setText(author.getName());
+					new IdenticonDrawable(crypto, id.getBytes()));
 		}
 
 		switch(status) {
