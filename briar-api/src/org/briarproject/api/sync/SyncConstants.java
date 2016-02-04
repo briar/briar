@@ -14,7 +14,7 @@ public interface SyncConstants {
 	int MAX_PACKET_PAYLOAD_LENGTH = 32 * 1024; // 32 KiB
 
 	/** The maximum length of a group descriptor in bytes. */
-	int MAX_GROUP_DESCRIPTOR_LENGTH = 1000; // TODO: Remove
+	int MAX_GROUP_DESCRIPTOR_LENGTH = 100; // TODO: Remove
 
 	/** The maximum length of a message in bytes. */
 	int MAX_MESSAGE_LENGTH = MAX_PACKET_PAYLOAD_LENGTH - PACKET_HEADER_LENGTH;

@@ -14,11 +14,15 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
+import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.GroupAddedEvent;
+import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.sync.ClientId;
 
@@ -43,6 +47,7 @@ implements EventListener, OnItemClickListener {
 	private ListView list = null;
 
 	// Fields that are accessed from background threads must be volatile
+	@Inject private volatile ForumManager forumManager;
 	@Inject private volatile ForumSharingManager forumSharingManager;
 	@Inject private volatile EventBus eventBus;
 
@@ -120,7 +125,22 @@ implements EventListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if (e instanceof MessageValidatedEvent) {
+		if (e instanceof ContactRemovedEvent) {
+			LOG.info("Contact removed, reloading");
+			loadForums();
+		} else if (e instanceof GroupAddedEvent) {
+			GroupAddedEvent g = (GroupAddedEvent) e;
+			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+				LOG.info("Forum added, reloading");
+				loadForums();
+			}
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+				LOG.info("Forum removed, reloading");
+				loadForums();
+			}
+		} else if (e instanceof MessageValidatedEvent) {
 			MessageValidatedEvent m = (MessageValidatedEvent) e;
 			ClientId c = m.getClientId();
 			if (m.isValid() && !m.isLocal()
@@ -139,7 +159,6 @@ implements EventListener, OnItemClickListener {
 		subscribe(item.getForum(), shared);
 		String subscribed = getString(R.string.subscribed_toast);
 		Toast.makeText(this, subscribed, LENGTH_SHORT).show();
-		loadForums();
 	}
 
 	private void subscribe(final Forum f, final Collection<ContactId> shared) {
