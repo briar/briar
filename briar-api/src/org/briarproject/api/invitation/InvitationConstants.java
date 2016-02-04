@@ -3,7 +3,7 @@ package org.briarproject.api.invitation;
 
 public interface InvitationConstants {
 
-	long CONNECTION_TIMEOUT = 30 * 1000; // Milliseconds
+	long CONNECTION_TIMEOUT = 60 * 1000; // Milliseconds
 
 	long CONFIRMATION_TIMEOUT = 60 * 1000; // Milliseconds
 
