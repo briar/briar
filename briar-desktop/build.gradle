@@ -5,17 +5,17 @@ targetCompatibility = 1.6
 apply plugin: 'witness'
 
 repositories {
-    jcenter()
+	jcenter()
 }
 
 dependencies {
-    compile project(':briar-api')
-    compile fileTree(dir: '../briar-core/libs', include: '*.jar')
-    compile project(':briar-core')
-    compile fileTree(dir: 'libs', include: '*.jar')
+	compile project(':briar-api')
+	compile fileTree(dir: '../briar-core/libs', include: '*.jar')
+	compile project(':briar-core')
+	compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 sourceSets {
-    main.java.srcDirs = ['src']
-    main.resources.srcDirs = ['src']
+	main.java.srcDirs = ['src']
+	main.resources.srcDirs = ['src']
 }

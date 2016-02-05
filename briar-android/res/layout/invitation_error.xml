@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/margin_activity_vertical"
-    android:paddingEnd="@dimen/margin_activity_horizontal"
-    android:paddingStart="@dimen/margin_activity_horizontal"
-    android:paddingTop="@dimen/margin_activity_vertical">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/margin_activity_vertical"
+	android:paddingEnd="@dimen/margin_activity_horizontal"
+	android:paddingStart="@dimen/margin_activity_horizontal"
+	android:paddingTop="@dimen/margin_activity_vertical">
 
-    <TextView
-        android:id="@+id/errorTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/connection_failed"
-        android:layout_gravity="center_horizontal"
-        android:textSize="@dimen/text_size_large"
-        android:drawableStart="@drawable/alerts_and_states_error"
-        android:drawableLeft="@drawable/alerts_and_states_error"
-        android:gravity="center_vertical"
-        android:padding="@dimen/margin_medium"/>
+	<TextView
+		android:id="@+id/errorTextView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/connection_failed"
+		android:layout_gravity="center_horizontal"
+		android:textSize="@dimen/text_size_large"
+		android:drawableStart="@drawable/alerts_and_states_error"
+		android:drawableLeft="@drawable/alerts_and_states_error"
+		android:gravity="center_vertical"
+		android:padding="@dimen/margin_medium"/>
 
-    <TextView
-        android:id="@+id/explanationTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/interfering"
-        android:layout_gravity="center_horizontal"
-        android:padding="@dimen/margin_medium"/>
+	<TextView
+		android:id="@+id/explanationTextView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/interfering"
+		android:layout_gravity="center_horizontal"
+		android:padding="@dimen/margin_medium"/>
 
-    <Button
-        android:id="@+id/tryAgainButton"
-        style="@style/BriarButton.Default"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/try_again_button"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="@dimen/margin_medium"/>
+	<Button
+		android:id="@+id/tryAgainButton"
+		style="@style/BriarButton.Default"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/try_again_button"
+		android:layout_gravity="center_horizontal"
+		android:layout_margin="@dimen/margin_medium"/>
 
 </LinearLayout>

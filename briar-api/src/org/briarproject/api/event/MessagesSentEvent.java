@@ -12,7 +12,7 @@ public class MessagesSentEvent extends Event {
 	private final Collection<MessageId> messageIds;
 
 	public MessagesSentEvent(ContactId contactId,
-	                         Collection<MessageId> messageIds) {
+			Collection<MessageId> messageIds) {
 		this.contactId = contactId;
 		this.messageIds = messageIds;
 	}
