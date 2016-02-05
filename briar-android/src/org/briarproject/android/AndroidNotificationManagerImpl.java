@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -41,6 +42,9 @@ import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
+import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
+import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 
@@ -213,6 +217,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
+			if (Build.VERSION.SDK_INT >= 21) {
+				b.setCategory(CATEGORY_MESSAGE);
+				b.setVisibility(VISIBILITY_SECRET);
+			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
 			nm.notify(PRIVATE_MESSAGE_NOTIFICATION_ID, b.build());
@@ -291,6 +299,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+			}
+			if (Build.VERSION.SDK_INT >= 21) {
+				b.setCategory(CATEGORY_SOCIAL);
+				b.setVisibility(VISIBILITY_SECRET);
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
