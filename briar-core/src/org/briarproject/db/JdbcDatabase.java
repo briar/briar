@@ -41,7 +41,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -228,8 +227,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final LinkedList<Connection> connections =
 			new LinkedList<Connection>(); // Locking: connectionsLock
 
-	private final AtomicInteger transactionCount = new AtomicInteger(0);
-
 	private int openConnections = 0; // Locking: connectionsLock
 	private boolean closed = false; // Locking: connectionsLock
 
@@ -369,7 +366,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			throw new DbException(e);
 		}
-		transactionCount.incrementAndGet();
 		return txn;
 	}
 
@@ -416,14 +412,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} finally {
 			connectionsLock.unlock();
 		}
-	}
-
-	public int getTransactionCount() {
-		return transactionCount.get();
-	}
-
-	public void resetTransactionCount() {
-		transactionCount.set(0);
 	}
 
 	protected void closeAllConnections() throws SQLException {

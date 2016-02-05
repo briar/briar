@@ -30,27 +30,23 @@ import java.util.Map;
  * obtained by calling {@link #startTransaction()}. Every transaction must be
  * terminated by calling either {@link #abortTransaction(T)} or
  * {@link #commitTransaction(T)}, even if an exception is thrown.
- * <p>
- * Read-write locking is provided by the DatabaseComponent implementation.
  */
 interface Database<T> {
 
 	/**
 	 * Opens the database and returns true if the database already existed.
-	 * <p>
-	 * Locking: write.
 	 */
 	boolean open() throws DbException;
 
 	/**
 	 * Prevents new transactions from starting, waits for all current
 	 * transactions to finish, and closes the database.
-	 * <p>
-	 * Locking: write.
 	 */
 	void close() throws DbException, IOException;
 
-	/** Starts a new transaction and returns an object representing it. */
+	/**
+	 * Starts a new transaction and returns an object representing it.
+	 */
 	T startTransaction() throws DbException;
 
 	/**
@@ -66,58 +62,38 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
-	 * Returns the number of transactions started since the transaction count
-	 * was last reset.
-	 */
-	int getTransactionCount();
-
-	/**  Resets the transaction count. */
-	void resetTransactionCount();
-
-	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	ContactId addContact(T txn, Author remote, AuthorId local)
 			throws DbException;
 
 	/**
 	 * Stores a group.
-	 * <p>
-	 * Locking: write.
 	 */
 	void addGroup(T txn, Group g) throws DbException;
 
 	/**
 	 * Stores a local pseudonym.
-	 * <p>
-	 * Locking: write.
 	 */
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
 
 	/**
 	 * Stores a message.
-	 * <p>
-	 * Locking: write.
 	 */
 	void addMessage(T txn, Message m, Validity validity, boolean shared)
 			throws DbException;
 
 	/**
 	 * Records that a message has been offered by the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Initialises the status of the given message with respect to the given
 	 * contact.
-	 * <p>
-	 * Locking: write.
-	 * @param ack whether the message needs to be acknowledged.
+	 *
+	 * @param ack  whether the message needs to be acknowledged.
 	 * @param seen whether the contact has seen the message.
 	 */
 	void addStatus(T txn, ContactId c, MessageId m, boolean ack, boolean seen)
@@ -125,76 +101,56 @@ interface Database<T> {
 
 	/**
 	 * Stores a transport.
-	 * <p>
-	 * Locking: write.
 	 */
 	void addTransport(T txn, TransportId t, int maxLatency)
 			throws DbException;
 
 	/**
 	 * Stores transport keys for a newly added contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void addTransportKeys(T txn, ContactId c, TransportKeys k)
 			throws DbException;
 
 	/**
 	 * Makes a group visible to the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact for the given
 	 * local pseudonym.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsContact(T txn, AuthorId remote, AuthorId local)
 			throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given group.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given local pseudonym.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given message.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsMessage(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given transport.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given group and the group is
 	 * visible to the given contact.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsVisibleGroup(T txn, ContactId c, GroupId g)
 			throws DbException;
@@ -202,16 +158,12 @@ interface Database<T> {
 	/**
 	 * Returns true if the database contains the given message and the message
 	 * is visible to the given contact.
-	 * <p>
-	 * Locking: read.
 	 */
 	boolean containsVisibleMessage(T txn, ContactId c, MessageId m)
 			throws DbException;
 
 	/**
 	 * Returns the number of messages offered by the given contact.
-	 * <p>
-	 * Locking: read.
 	 */
 	int countOfferedMessages(T txn, ContactId c) throws DbException;
 
@@ -234,36 +186,26 @@ interface Database<T> {
 
 	/**
 	 * Returns the contact with the given ID.
-	 * <p>
-	 * Locking: read.
 	 */
 	Contact getContact(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the IDs of all contacts.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<ContactId> getContactIds(T txn) throws DbException;
 
 	/**
 	 * Returns all contacts.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<Contact> getContacts(T txn) throws DbException;
 
 	/**
 	 * Returns all contacts associated with the given local pseudonym.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns the unique ID for this device.
-	 * <p>
-	 * Locking: read.
 	 */
 	DeviceId getDeviceId(T txn) throws DbException;
 
@@ -276,59 +218,43 @@ interface Database<T> {
 
 	/**
 	 * Returns the group with the given ID.
-	 * <p>
-	 * Locking: read.
 	 */
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the metadata for the given group.
-	 * <p>
-	 * Locking: read.
 	 */
 	Metadata getGroupMetadata(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns all groups belonging to the given client.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<Group> getGroups(T txn, ClientId c) throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.
-	 * <p>
-	 * Locking: read.
 	 */
 	LocalAuthor getLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns all local pseudonyms.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
 	 * Returns the metadata for all messages in the given group.
-	 * <p>
-	 * Locking: read.
 	 */
 	Map<MessageId, Metadata> getMessageMetadata(T txn, GroupId g)
 			throws DbException;
 
 	/**
 	 * Returns the metadata for the given message.
-	 * <p>
-	 * Locking: read.
 	 */
 	Metadata getMessageMetadata(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the status of all messages in the given group with respect
 	 * to the given contact.
-	 * <p>
-	 * Locking: read
 	 */
 	Collection<MessageStatus> getMessageStatus(T txn, ContactId c, GroupId g)
 			throws DbException;
@@ -336,8 +262,6 @@ interface Database<T> {
 	/**
 	 * Returns the status of the given message with respect to the given
 	 * contact.
-	 * <p>
-	 * Locking: read
 	 */
 	MessageStatus getMessageStatus(T txn, ContactId c, MessageId m)
 			throws DbException;
@@ -345,8 +269,6 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages received from the given contact that
 	 * need to be acknowledged, up to the given number of messages.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
 			throws DbException;
@@ -354,8 +276,6 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages that are eligible to be offered to the
 	 * given contact, up to the given number of messages.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
 			int maxMessages) throws DbException;
@@ -363,8 +283,6 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, up to the given total length.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength)
 			throws DbException;
@@ -372,8 +290,6 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages that are eligible to be requested from
 	 * the given contact, up to the given number of messages.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<MessageId> getMessagesToRequest(T txn, ContactId c,
 			int maxMessages) throws DbException;
@@ -381,16 +297,12 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of any messages that need to be validated by the given
 	 * client.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
 			throws DbException;
 
 	/**
 	 * Returns the message with the given ID, in serialised form.
-	 * <p>
-	 * Locking: read.
 	 */
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
 
@@ -398,46 +310,34 @@ interface Database<T> {
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact and have been requested by the contact, up to the given
 	 * total length.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
 			int maxLength) throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.
-	 * <p>
-	 * Locking: read.
 	 */
 	Settings getSettings(T txn, String namespace) throws DbException;
 
 	/**
 	 * Returns all transport keys for the given transport.
-	 * <p>
-	 * Locking: read.
 	 */
 	Map<ContactId, TransportKeys> getTransportKeys(T txn, TransportId t)
 			throws DbException;
 
 	/**
 	 * Returns the maximum latencies in milliseconds of all transports.
-	 * <p>
-	 * Locking: read.
 	 */
 	Map<TransportId, Integer> getTransportLatencies(T txn) throws DbException;
 
 	/**
 	 * Returns the IDs of all contacts to which the given group is visible.
-	 * <p>
-	 * Locking: read.
 	 */
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Increments the outgoing stream counter for the given contact and
 	 * transport in the given rotation period.
-	 * <p>
-	 * Locking: write.
 	 */
 	void incrementStreamCounter(T txn, ContactId c, TransportId t,
 			long rotationPeriod) throws DbException;
@@ -445,8 +345,6 @@ interface Database<T> {
 	/**
 	 * Marks the given messages as not needing to be acknowledged to the
 	 * given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void lowerAckFlag(T txn, ContactId c, Collection<MessageId> acked)
 			throws DbException;
@@ -454,8 +352,6 @@ interface Database<T> {
 	/**
 	 * Marks the given messages as not having been requested by the given
 	 * contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void lowerRequestedFlag(T txn, ContactId c, Collection<MessageId> requested)
 			throws DbException;
@@ -463,8 +359,6 @@ interface Database<T> {
 	/*
 	 * Merges the given metadata with the existing metadata for the given
 	 * group.
-	 * <p>
-	 * Locking: write.
 	 */
 	void mergeGroupMetadata(T txn, GroupId g, Metadata meta)
 			throws DbException;
@@ -472,8 +366,6 @@ interface Database<T> {
 	/*
 	 * Merges the given metadata with the existing metadata for the given
 	 * message.
-	 * <p>
-	 * Locking: write.
 	 */
 	void mergeMessageMetadata(T txn, MessageId m, Metadata meta)
 			throws DbException;
@@ -481,65 +373,47 @@ interface Database<T> {
 	/**
 	 * Merges the given settings with the existing settings in the given
 	 * namespace.
-	 * <p>
-	 * Locking: write.
 	 */
 	void mergeSettings(T txn, Settings s, String namespace) throws DbException;
 
 	/**
 	 * Marks a message as needing to be acknowledged to the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void raiseAckFlag(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Marks a message as having been requested by the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void raiseRequestedFlag(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Marks a message as having been seen by the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void raiseSeenFlag(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Removes a contact from the database.
-	 * <p>
-	 * Locking: write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Removes a group (and all associated state) from the database.
-	 * <p>
-	 * Locking: write.
 	 */
 	void removeGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Removes a local pseudonym (and all associated state) from the database.
-	 * <p>
-	 * Locking: write.
 	 */
 	void removeLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.
-	 * <p>
-	 * Locking: write.
 	 */
 	void removeMessage(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Removes an offered message that was offered by the given contact, or
 	 * returns false if there is no such message.
-	 * <p>
-	 * Locking: write.
 	 */
 	boolean removeOfferedMessage(T txn, ContactId c, MessageId m)
 			throws DbException;
@@ -547,70 +421,52 @@ interface Database<T> {
 	/**
 	 * Removes the given offered messages that were offered by the given
 	 * contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void removeOfferedMessages(T txn, ContactId c,
 			Collection<MessageId> requested) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.
-	 * <p>
-	 * Locking: write.
 	 */
 	void removeTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Makes a group invisible to the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
 	 * Resets the transmission count and expiry time of the given message with
 	 * respect to the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Sets the status of the given contact.
-	 * <p>
-	 * Locking: write.
 	 */
 	void setContactStatus(T txn, ContactId c, StorageStatus s)
 			throws DbException;
 
 	/**
 	 * Sets the status of the given local pseudonym.
-	 * <p>
-	 * Locking: write.
 	 */
 	void setLocalAuthorStatus(T txn, AuthorId a, StorageStatus s)
 			throws DbException;
 
 	/**
 	 * Marks the given message as shared or unshared.
-	 * <p>
-	 * Locking: write.
 	 */
 	void setMessageShared(T txn, MessageId m, boolean shared)
 			throws DbException;
 
 	/**
 	 * Marks the given message as valid or invalid.
-	 * <p>
-	 * Locking: write.
 	 */
 	void setMessageValid(T txn, MessageId m, boolean valid) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given contact and transport in the
 	 * given rotation period.
-	 * <p>
-	 * Locking: write.
 	 */
 	void setReorderingWindow(T txn, ContactId c, TransportId t,
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
@@ -619,16 +475,12 @@ interface Database<T> {
 	 * Updates the transmission count and expiry time of the given message
 	 * with respect to the given contact, using the latency of the transport
 	 * over which it was sent.
-	 * <p>
-	 * Locking: write.
 	 */
 	void updateExpiryTime(T txn, ContactId c, MessageId m, int maxLatency)
 			throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.
-	 * <p>
-	 * Locking: write.
 	 */
 	void updateTransportKeys(T txn, Map<ContactId, TransportKeys> keys)
 			throws DbException;
