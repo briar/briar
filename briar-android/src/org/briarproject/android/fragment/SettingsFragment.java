@@ -25,7 +25,6 @@ import org.briarproject.android.util.FixedVerticalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.SettingsUpdatedEvent;
@@ -79,7 +78,6 @@ public class SettingsFragment extends BaseEventFragment implements
 	private ImageButton testingButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
 	@Inject private volatile SettingsManager settingsManager;
 	private volatile Settings settings;
 	private volatile boolean bluetoothSetting = false, torSetting = false;
