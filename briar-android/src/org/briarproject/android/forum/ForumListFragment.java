@@ -164,11 +164,13 @@ public class ForumListFragment extends BaseEventFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
+					boolean displayedHeaders = false;
 					for (Forum f : forumManager.getForums()) {
 						try {
 							Collection<ForumPostHeader> headers =
 									forumManager.getPostHeaders(f.getId());
 							displayHeaders(f, headers);
+							displayedHeaders = true;
 						} catch (NoSuchGroupException e) {
 							// Continue
 						}
@@ -178,6 +180,7 @@ public class ForumListFragment extends BaseEventFragment implements
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
+					if (!displayedHeaders) displayEmpty();
 					displayAvailable(available);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -216,11 +219,18 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
+	private void displayEmpty() {
+		listener.runOnUiThread(new Runnable() {
+			public void run() {
+				empty.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
+			}
+		});
+	}
+
 	private void displayAvailable(final int availableCount) {
 		listener.runOnUiThread(new Runnable() {
 			public void run() {
-				if (adapter.isEmpty()) empty.setVisibility(VISIBLE);
-				loading.setVisibility(GONE);
 				if (availableCount == 0) {
 					available.setVisibility(GONE);
 				} else {
@@ -277,7 +287,8 @@ public class ForumListFragment extends BaseEventFragment implements
 				if (c.equals(forumManager.getClientId())) {
 					LOG.info("Forum post added, reloading");
 					loadHeaders(m.getMessage().getGroupId());
-				} else if (c.equals(forumSharingManager.getClientId())) {
+				} else if (!m.isLocal()
+						&& c.equals(forumSharingManager.getClientId())) {
 					LOG.info("Available forums updated, reloading");
 					loadAvailable();
 				}
