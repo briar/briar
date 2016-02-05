@@ -596,8 +596,10 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
-			// Wifi setting may have been updated
-			updateConnectionStatus();
+			if (((SettingsUpdatedEvent) e).getNamespace().equals("tor")) {
+				// Wifi setting may have been updated
+				updateConnectionStatus();
+			}
 		}
 	}
 

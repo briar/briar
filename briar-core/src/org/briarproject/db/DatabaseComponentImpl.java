@@ -930,15 +930,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	public void mergeSettings(Settings s, String namespace) throws DbException {
-		boolean changed = false;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				if (!s.equals(db.getSettings(txn, namespace))) {
-					db.mergeSettings(txn, s, namespace);
-					changed = true;
-				}
+				db.mergeSettings(txn, s, namespace);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -947,7 +943,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if (changed) eventBus.broadcast(new SettingsUpdatedEvent());
+		eventBus.broadcast(new SettingsUpdatedEvent(namespace));
 	}
 
 	public void receiveAck(ContactId c, Ack a) throws DbException {

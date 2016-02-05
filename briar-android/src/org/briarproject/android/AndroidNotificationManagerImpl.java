@@ -42,6 +42,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Service, EventListener {
@@ -97,7 +98,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					settings = db.getSettings("settings-activity");
+					settings = db.getSettings(SETTINGS_NAMESPACE);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -135,7 +136,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
-			loadSettings();
+			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
+			if (s.getNamespace().equals(SETTINGS_NAMESPACE)) loadSettings();
 		} else if (e instanceof MessageValidatedEvent) {
 			MessageValidatedEvent m = (MessageValidatedEvent) e;
 			if (m.isValid() && !m.isLocal()) {
