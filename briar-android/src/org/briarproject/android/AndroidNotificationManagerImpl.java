@@ -13,7 +13,6 @@ import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -24,6 +23,7 @@ import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.settings.Settings;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
@@ -57,8 +57,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private static final Logger LOG =
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
 
-	private final DatabaseComponent db;
 	private final Executor dbExecutor;
+	private final SettingsManager settingsManager;
 	private final MessagingManager messagingManager;
 	private final ForumManager forumManager;
 	private final AndroidExecutor androidExecutor;
@@ -76,12 +76,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private volatile Settings settings = new Settings();
 
 	@Inject
-	public AndroidNotificationManagerImpl(DatabaseComponent db,
-			@DatabaseExecutor Executor dbExecutor,
-			MessagingManager messagingManager, ForumManager forumManager,
-			AndroidExecutor androidExecutor, Application app) {
-		this.db = db;
+	public AndroidNotificationManagerImpl(@DatabaseExecutor Executor dbExecutor,
+			SettingsManager settingsManager, MessagingManager messagingManager,
+			ForumManager forumManager, AndroidExecutor androidExecutor,
+			Application app) {
 		this.dbExecutor = dbExecutor;
+		this.settingsManager = settingsManager;
 		this.messagingManager = messagingManager;
 		this.forumManager = forumManager;
 		this.androidExecutor = androidExecutor;
@@ -98,7 +98,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					settings = db.getSettings(SETTINGS_NAMESPACE);
+					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
