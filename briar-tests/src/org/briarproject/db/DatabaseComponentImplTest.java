@@ -24,12 +24,14 @@ import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
+import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.ShutdownManager;
+import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -1318,5 +1320,48 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
 				2, 456);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
+	}
+
+	@Test
+	public void testMergeSettings() throws Exception {
+		final Settings before = new Settings();
+		before.put("foo", "bar");
+		before.put("baz", "bam");
+		final Settings update = new Settings();
+		update.put("baz", "qux");
+		final Settings merged = new Settings();
+		merged.put("foo", "bar");
+		merged.put("baz", "qux");
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
+		context.checking(new Expectations() {{
+			// mergeSettings()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getSettings(txn, "namespace");
+			will(returnValue(before));
+			oneOf(database).mergeSettings(txn, update, "namespace");
+			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(SettingsUpdatedEvent.class)));
+			// mergeSettings() again
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getSettings(txn, "namespace");
+			will(returnValue(merged));
+			oneOf(database).commitTransaction(txn);
+		}});
+
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		// First merge should broadcast an event
+		db.mergeSettings(update, "namespace");
+		// Second merge should not broadcast an event
+		db.mergeSettings(update, "namespace");
+
+		context.assertIsSatisfied();
 	}
 }

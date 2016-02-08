@@ -8,7 +8,6 @@ import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
@@ -54,7 +53,6 @@ implements InvitationListener {
 	private String contactName = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
 	@Inject private volatile IdentityManager identityManager;
 
 	@Override
