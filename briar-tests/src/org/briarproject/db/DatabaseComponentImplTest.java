@@ -106,9 +106,10 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				StorageStatus.ACTIVE);
 	}
 
-	private <T> DatabaseComponent createDatabaseComponent(Database<T> database,
+	private DatabaseComponent createDatabaseComponent(Database<Object> database,
 			EventBus eventBus, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<T>(database, eventBus, shutdown);
+		return new DatabaseComponentImpl<Object>(database, Object.class,
+				eventBus, shutdown);
 	}
 
 	@Test

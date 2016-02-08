@@ -14,6 +14,7 @@ import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.StorageStatus;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
@@ -77,6 +78,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			Logger.getLogger(DatabaseComponentImpl.class.getName());
 
 	private final Database<T> db;
+	private final Class<T> txnClass;
 	private final EventBus eventBus;
 	private final ShutdownManager shutdown;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -84,9 +86,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	private volatile int shutdownHandle = -1;
 
 	@Inject
-	DatabaseComponentImpl(Database<T> db, EventBus eventBus,
+	DatabaseComponentImpl(Database<T> db, Class<T> txnClass, EventBus eventBus,
 			ShutdownManager shutdown) {
 		this.db = db;
+		this.txnClass = txnClass;
 		this.eventBus = eventBus;
 		this.shutdown = shutdown;
 	}
@@ -114,6 +117,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (closed.getAndSet(true)) return;
 		shutdown.removeShutdownHook(shutdownHandle);
 		db.close();
+	}
+
+	public Transaction startTransaction() throws DbException {
+		return new Transaction(db.startTransaction());
+	}
+
+	public void abortTransaction(Transaction txn) {
+		db.abortTransaction(txnClass.cast(txn.unbox()));
+	}
+
+	public void commitTransaction(Transaction txn) throws DbException {
+		db.commitTransaction(txnClass.cast(txn.unbox()));
 	}
 
 	public ContactId addContact(Author remote, AuthorId local)
@@ -975,7 +990,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void setVisibleToContact(ContactId c, GroupId g, boolean visible)
 			throws DbException {
-		boolean wasVisible = false;
+		boolean wasVisible;
 		T txn = db.startTransaction();
 		try {
 			if (!db.containsContact(txn, c))

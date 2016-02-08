@@ -51,7 +51,8 @@ public class DatabaseModule extends AbstractModule {
 	@Provides @Singleton
 	DatabaseComponent getDatabaseComponent(Database<Connection> db,
 			EventBus eventBus, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<Connection>(db, eventBus, shutdown);
+		return new DatabaseComponentImpl<Connection>(db, Connection.class,
+				eventBus, shutdown);
 	}
 
 	@Provides @Singleton @DatabaseExecutor

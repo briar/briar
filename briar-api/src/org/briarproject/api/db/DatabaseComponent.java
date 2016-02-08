@@ -39,6 +39,21 @@ public interface DatabaseComponent {
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException, IOException;
 
+	/** Starts a new transaction and returns an object representing it. */
+	Transaction startTransaction() throws DbException;
+
+	/**
+	 * Aborts the given transaction - no changes made during the transaction
+	 * will be applied to the database.
+	 */
+	void abortTransaction(Transaction txn);
+
+	/**
+	 * Commits the given transaction - all changes made during the transaction
+	 * will be applied to the database.
+	 */
+	void commitTransaction(Transaction txn) throws DbException;
+
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
