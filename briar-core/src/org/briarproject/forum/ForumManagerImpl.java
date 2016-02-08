@@ -19,6 +19,7 @@ import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -59,6 +60,7 @@ class ForumManagerImpl implements ForumManager {
 
 	private final DatabaseComponent db;
 	private final ContactManager contactManager;
+	private final IdentityManager identityManager;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final MetadataEncoder metadataEncoder;
 	private final MetadataParser metadataParser;
@@ -68,10 +70,11 @@ class ForumManagerImpl implements ForumManager {
 
 	@Inject
 	ForumManagerImpl(DatabaseComponent db, ContactManager contactManager,
-			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
-			MetadataParser metadataParser) {
+			IdentityManager identityManager, BdfReaderFactory bdfReaderFactory,
+			MetadataEncoder metadataEncoder, MetadataParser metadataParser) {
 		this.db = db;
 		this.contactManager = contactManager;
+		this.identityManager = identityManager;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.metadataEncoder = metadataEncoder;
 		this.metadataParser = metadataParser;
@@ -173,7 +176,7 @@ class ForumManagerImpl implements ForumManager {
 		try {
 			// Load the IDs of the user's identities
 			Set<AuthorId> localAuthorIds = new HashSet<AuthorId>();
-			for (LocalAuthor a : db.getLocalAuthors())
+			for (LocalAuthor a : identityManager.getLocalAuthors())
 				localAuthorIds.add(a.getId());
 			// Load the IDs of contacts' identities
 			Set<AuthorId> contactAuthorIds = new HashSet<AuthorId>();

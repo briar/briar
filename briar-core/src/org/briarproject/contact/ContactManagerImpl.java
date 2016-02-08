@@ -14,6 +14,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.Service;
 
 import java.util.ArrayList;
@@ -54,12 +55,12 @@ class ContactManagerImpl implements ContactManager, Service,
 			for (Contact c : db.getContacts()) {
 				if (c.getStatus().equals(ADDING)) {
 					for (AddContactHook hook : addHooks)
-						hook.addingContact(c.getId());
+						hook.addingContact(c);
 					db.setContactStatus(c.getId(), ACTIVE);
 					eventBus.broadcast(new ContactAddedEvent(c.getId()));
 				} else if (c.getStatus().equals(REMOVING)) {
 					for (RemoveContactHook hook : removeHooks)
-						hook.removingContact(c.getId());
+						hook.removingContact(c);
 					db.removeContact(c.getId());
 					eventBus.broadcast(new ContactRemovedEvent(c.getId()));
 				}
@@ -90,7 +91,8 @@ class ContactManagerImpl implements ContactManager, Service,
 	public ContactId addContact(Author remote, AuthorId local)
 			throws DbException {
 		ContactId c = db.addContact(remote, local);
-		for (AddContactHook hook : addHooks) hook.addingContact(c);
+		Contact contact = db.getContact(c);
+		for (AddContactHook hook : addHooks) hook.addingContact(contact);
 		db.setContactStatus(c, ACTIVE);
 		eventBus.broadcast(new ContactAddedEvent(c));
 		return c;
@@ -115,17 +117,19 @@ class ContactManagerImpl implements ContactManager, Service,
 
 	@Override
 	public void removeContact(ContactId c) throws DbException {
+		Contact contact = db.getContact(c);
 		db.setContactStatus(c, REMOVING);
-		for (RemoveContactHook hook : removeHooks) hook.removingContact(c);
+		for (RemoveContactHook hook : removeHooks)
+			hook.removingContact(contact);
 		db.removeContact(c);
 		eventBus.broadcast(new ContactRemovedEvent(c));
 	}
 
 	@Override
-	public void removingIdentity(AuthorId a) {
+	public void removingIdentity(LocalAuthor a) {
 		// Remove any contacts of the local pseudonym that's being removed
 		try {
-			for (ContactId c : db.getContacts(a)) removeContact(c);
+			for (ContactId c : db.getContacts(a.getId())) removeContact(c);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}

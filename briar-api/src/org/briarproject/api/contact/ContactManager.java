@@ -30,10 +30,10 @@ public interface ContactManager {
 	void removeContact(ContactId c) throws DbException;
 
 	interface AddContactHook {
-		void addingContact(ContactId c);
+		void addingContact(Contact c);
 	}
 
 	interface RemoveContactHook {
-		void removingContact(ContactId c);
+		void removingContact(Contact c);
 	}
 }

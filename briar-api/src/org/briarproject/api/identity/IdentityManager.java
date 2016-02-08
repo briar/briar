@@ -25,10 +25,10 @@ public interface IdentityManager {
 	void removeLocalAuthor(AuthorId a) throws DbException;
 
 	interface AddIdentityHook {
-		void addingIdentity(AuthorId a);
+		void addingIdentity(LocalAuthor a);
 	}
 
 	interface RemoveIdentityHook {
-		void removingIdentity(AuthorId a);
+		void removingIdentity(LocalAuthor a);
 	}
 }

@@ -95,14 +95,14 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
-	public void addingContact(ContactId c) {
+	public void addingContact(Contact c) {
 		lock.writeLock().lock();
 		try {
 			// Create a group to share with the contact
-			Group g = getContactGroup(db.getContact(c));
+			Group g = getContactGroup(c);
 			// Store the group and share it with the contact
 			db.addGroup(g);
-			db.setVisibility(g.getId(), Collections.singletonList(c));
+			db.setVisibility(g.getId(), Collections.singletonList(c.getId()));
 			// Copy the latest local properties into the group
 			DeviceId dev = db.getDeviceId();
 			Map<TransportId, TransportProperties> local = getLocalProperties();
@@ -120,10 +120,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
-	public void removingContact(ContactId c) {
+	public void removingContact(Contact c) {
 		lock.writeLock().lock();
 		try {
-			db.removeGroup(getContactGroup(db.getContact(c)));
+			db.removeGroup(getContactGroup(c));
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
@@ -136,7 +136,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Map<TransportId, TransportProperties> props) throws DbException {
 		lock.writeLock().lock();
 		try {
-			Group g = getContactGroup(db.getContact(c));
+			Group g = getContactGroup(contactManager.getContact(c));
 			for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
 				storeMessage(g.getId(), dev, e.getKey(), e.getValue(), 0, false,
 						false);

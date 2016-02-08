@@ -50,12 +50,12 @@ class IdentityManagerImpl implements IdentityManager, Service {
 			for (LocalAuthor a : db.getLocalAuthors()) {
 				if (a.getStatus().equals(ADDING)) {
 					for (AddIdentityHook hook : addHooks)
-						hook.addingIdentity(a.getId());
+						hook.addingIdentity(a);
 					db.setLocalAuthorStatus(a.getId(), ACTIVE);
 					eventBus.broadcast(new LocalAuthorAddedEvent(a.getId()));
 				} else if (a.getStatus().equals(REMOVING)) {
 					for (RemoveIdentityHook hook : removeHooks)
-						hook.removingIdentity(a.getId());
+						hook.removingIdentity(a);
 					db.removeLocalAuthor(a.getId());
 					eventBus.broadcast(new LocalAuthorRemovedEvent(a.getId()));
 				}
@@ -83,11 +83,11 @@ class IdentityManagerImpl implements IdentityManager, Service {
 	}
 
 	@Override
-	public void addLocalAuthor(LocalAuthor a) throws DbException {
-		db.addLocalAuthor(a);
-		for (AddIdentityHook hook : addHooks) hook.addingIdentity(a.getId());
-		db.setLocalAuthorStatus(a.getId(), ACTIVE);
-		eventBus.broadcast(new LocalAuthorAddedEvent(a.getId()));
+	public void addLocalAuthor(LocalAuthor localAuthor) throws DbException {
+		db.addLocalAuthor(localAuthor);
+		for (AddIdentityHook hook : addHooks) hook.addingIdentity(localAuthor);
+		db.setLocalAuthorStatus(localAuthor.getId(), ACTIVE);
+		eventBus.broadcast(new LocalAuthorAddedEvent(localAuthor.getId()));
 	}
 
 	@Override
@@ -109,8 +109,10 @@ class IdentityManagerImpl implements IdentityManager, Service {
 
 	@Override
 	public void removeLocalAuthor(AuthorId a) throws DbException {
+		LocalAuthor localAuthor = db.getLocalAuthor(a);
 		db.setLocalAuthorStatus(a, REMOVING);
-		for (RemoveIdentityHook hook : removeHooks) hook.removingIdentity(a);
+		for (RemoveIdentityHook hook : removeHooks)
+			hook.removingIdentity(localAuthor);
 		db.removeLocalAuthor(a);
 		eventBus.broadcast(new LocalAuthorRemovedEvent(a));
 	}

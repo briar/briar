@@ -71,16 +71,16 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	}
 
 	@Override
-	public void addingContact(ContactId c) {
+	public void addingContact(Contact c) {
 		try {
 			// Create a group to share with the contact
-			Group g = getContactGroup(db.getContact(c));
+			Group g = getContactGroup(c);
 			// Store the group and share it with the contact
 			db.addGroup(g);
-			db.setVisibility(g.getId(), Collections.singletonList(c));
+			db.setVisibility(g.getId(), Collections.singletonList(c.getId()));
 			// Attach the contact ID to the group
 			BdfDictionary d = new BdfDictionary();
-			d.put("contactId", c.getInt());
+			d.put("contactId", c.getId().getInt());
 			db.mergeGroupMetadata(g.getId(), metadataEncoder.encode(d));
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -94,9 +94,9 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	}
 
 	@Override
-	public void removingContact(ContactId c) {
+	public void removingContact(Contact c) {
 		try {
-			db.removeGroup(getContactGroup(db.getContact(c)));
+			db.removeGroup(getContactGroup(c));
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
