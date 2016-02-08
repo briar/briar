@@ -1,4 +1,4 @@
-package org.briarproject.sync;
+package org.briarproject.identity;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfWriter;
@@ -16,7 +16,6 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.db.StorageStatus.ADDING;
 
-// TODO: Move this class to the identity package
 class AuthorFactoryImpl implements AuthorFactory {
 
 	private final CryptoComponent crypto;
