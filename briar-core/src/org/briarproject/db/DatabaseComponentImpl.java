@@ -638,20 +638,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public Collection<ContactId> getVisibility(GroupId g) throws DbException {
-		T txn = db.startTransaction();
-		try {
-			if (!db.containsGroup(txn, g))
-				throw new NoSuchGroupException();
-			Collection<ContactId> visible = db.getVisibility(txn, g);
-			db.commitTransaction(txn);
-			return visible;
-		} catch (DbException e) {
-			db.abortTransaction(txn);
-			throw e;
-		}
-	}
-
 	public void incrementStreamCounter(ContactId c, TransportId t,
 			long rotationPeriod) throws DbException {
 		T txn = db.startTransaction();
@@ -954,38 +940,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			db.abortTransaction(txn);
 			throw e;
 		}
-	}
-
-	public void setVisibility(GroupId g, Collection<ContactId> visible)
-			throws DbException {
-		Collection<ContactId> affected = new ArrayList<ContactId>();
-		T txn = db.startTransaction();
-		try {
-			if (!db.containsGroup(txn, g))
-				throw new NoSuchGroupException();
-			// Use HashSets for O(1) lookups, O(n) overall running time
-			Collection<ContactId> now = new HashSet<ContactId>(visible);
-			Collection<ContactId> before = db.getVisibility(txn, g);
-			before = new HashSet<ContactId>(before);
-			// Set the group's visibility for each current contact
-			for (ContactId c : db.getContactIds(txn)) {
-				boolean wasBefore = before.contains(c);
-				boolean isNow = now.contains(c);
-				if (!wasBefore && isNow) {
-					db.addVisibility(txn, c, g);
-					affected.add(c);
-				} else if (wasBefore && !isNow) {
-					db.removeVisibility(txn, c, g);
-					affected.add(c);
-				}
-			}
-			db.commitTransaction(txn);
-		} catch (DbException e) {
-			db.abortTransaction(txn);
-			throw e;
-		}
-		if (!affected.isEmpty())
-			eventBus.broadcast(new GroupVisibilityUpdatedEvent(affected));
 	}
 
 	public void setVisibleToContact(ContactId c, GroupId g, boolean visible)

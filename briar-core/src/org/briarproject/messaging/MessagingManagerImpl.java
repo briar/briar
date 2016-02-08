@@ -32,7 +32,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -77,7 +76,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			Group g = getContactGroup(c);
 			// Store the group and share it with the contact
 			db.addGroup(g);
-			db.setVisibility(g.getId(), Collections.singletonList(c.getId()));
+			db.setVisibleToContact(c.getId(), g.getId(), true);
 			// Attach the contact ID to the group
 			BdfDictionary d = new BdfDictionary();
 			d.put("contactId", c.getId().getInt());

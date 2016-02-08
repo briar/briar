@@ -193,9 +193,6 @@ public interface DatabaseComponent {
 	/** Returns the maximum latencies in milliseconds of all transports. */
 	Map<TransportId, Integer> getTransportLatencies() throws DbException;
 
-	/** Returns the IDs of all contacts to which the given group is visible. */
-	Collection<ContactId> getVisibility(GroupId g) throws DbException;
-
 	/**
 	 * Increments the outgoing stream counter for the given contact and
 	 * transport in the given rotation period .
@@ -270,13 +267,6 @@ public interface DatabaseComponent {
 	 */
 	void setReorderingWindow(ContactId c, TransportId t, long rotationPeriod,
 			long base, byte[] bitmap) throws DbException;
-
-	/**
-	 * Makes a group visible to the given set of contacts and invisible to any
-	 * other contacts.
-	 */
-	void setVisibility(GroupId g, Collection<ContactId> visible)
-			throws DbException;
 
 	/** Makes a group visible or invisible to a contact. */
 	void setVisibleToContact(ContactId c, GroupId g, boolean visible)

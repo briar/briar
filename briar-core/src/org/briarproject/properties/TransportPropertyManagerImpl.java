@@ -102,7 +102,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Group g = getContactGroup(c);
 			// Store the group and share it with the contact
 			db.addGroup(g);
-			db.setVisibility(g.getId(), Collections.singletonList(c.getId()));
+			db.setVisibleToContact(c.getId(), g.getId(), true);
 			// Copy the latest local properties into the group
 			DeviceId dev = db.getDeviceId();
 			Map<TransportId, TransportProperties> local = getLocalProperties();

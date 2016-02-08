@@ -455,11 +455,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the group is in the DB (which it's not)
-			exactly(9).of(database).startTransaction();
+			exactly(7).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(9).of(database).containsGroup(txn, groupId);
+			exactly(7).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			exactly(9).of(database).abortTransaction(txn);
+			exactly(7).of(database).abortTransaction(txn);
 			// This is needed for getMessageStatus(), isVisibleToContact(), and
 			// setVisibleToContact() to proceed
 			exactly(3).of(database).containsContact(txn, contactId);
@@ -490,13 +490,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		}
 
 		try {
-			db.getVisibility(groupId);
-			fail();
-		} catch (NoSuchGroupException expected) {
-			// Expected
-		}
-
-		try {
 			db.isVisibleToContact(contactId, groupId);
 			fail();
 		} catch (NoSuchGroupException expected) {
@@ -512,13 +505,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.removeGroup(group);
-			fail();
-		} catch (NoSuchGroupException expected) {
-			// Expected
-		}
-
-		try {
-			db.setVisibility(groupId, Collections.<ContactId>emptyList());
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
@@ -1048,8 +1034,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 	@Test
 	public void testChangingVisibilityCallsListeners() throws Exception {
-		final ContactId contactId1 = new ContactId(123);
-		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1058,13 +1042,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(both));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(both));
-			oneOf(database).removeVisibility(txn, contactId1, groupId);
+			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
+			will(returnValue(false)); // Not yet visible
+			oneOf(database).addVisibility(txn, contactId, groupId);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));
@@ -1072,7 +1056,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.setVisibility(groupId, Collections.singletonList(contactId));
+		db.setVisibleToContact(contactId, groupId, true);
 
 		context.assertIsSatisfied();
 	}
@@ -1080,8 +1064,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	@Test
 	public void testNotChangingVisibilityDoesNotCallListeners()
 			throws Exception {
-		final ContactId contactId1 = new ContactId(123);
-		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1090,18 +1072,18 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(both));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(both));
+			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
+			will(returnValue(true)); // Already visible
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.setVisibility(groupId, both);
+		db.setVisibleToContact(contactId, groupId, true);
 
 		context.assertIsSatisfied();
 	}
