@@ -25,10 +25,8 @@ import org.briarproject.android.util.FixedVerticalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
@@ -38,6 +36,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.app.Activity.RESULT_OK;
 import static android.graphics.Typeface.DEFAULT_BOLD;
 import static android.media.RingtoneManager.ACTION_RINGTONE_PICKER;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI;
@@ -55,16 +54,15 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.TestingConstants.SHOW_TESTING_ACTIVITY;
-import static android.app.Activity.RESULT_OK;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
-public class SettingsFragment extends BaseFragment implements
+public class SettingsFragment extends BaseEventFragment implements
 		View.OnClickListener {
 
-	public final static String TAG = "SettingsFragment";
-
+	public static final String TAG = "SettingsFragment";
 	public static final int REQUEST_RINGTONE = 2;
+	public static final String SETTINGS_NAMESPACE = "android-ui";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
@@ -80,11 +78,9 @@ public class SettingsFragment extends BaseFragment implements
 	private ImageButton testingButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db;
 	@Inject private volatile SettingsManager settingsManager;
-	@Inject private volatile EventBus eventBus;
 	private volatile Settings settings;
-	private volatile boolean bluetoothSetting = true, torSetting = false;
+	private volatile boolean bluetoothSetting = false, torSetting = false;
 
 	public static SettingsFragment newInstance() {
 
@@ -282,7 +278,7 @@ public class SettingsFragment extends BaseFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					settings = settingsManager.getSettings("settings-activity");
+					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 					Settings btSettings = settingsManager.getSettings("bt");
 					Settings torSettings = settingsManager.getSettings("tor");
 					long duration = System.currentTimeMillis() - now;
@@ -360,7 +356,8 @@ public class SettingsFragment extends BaseFragment implements
 					notifyPrivateMessages.isChecked());
 			storeSettings(s);
 		} else if (view == panicSettings || view == panicSettingsHint) {
-			startActivity(new Intent(getActivity(), PanicPreferencesActivity.class));
+			startActivity(new Intent(getActivity(),
+					PanicPreferencesActivity.class));
 		} else if (view == notifyForumPosts) {
 			Settings s = new Settings();
 			s.putBoolean("notifyForumPosts", notifyForumPosts.isChecked());
@@ -431,8 +428,7 @@ public class SettingsFragment extends BaseFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					settingsManager
-							.mergeSettings(settings, "settings-activity");
+					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Merging settings took " + duration + " ms");
@@ -475,10 +471,15 @@ public class SettingsFragment extends BaseFragment implements
 		}
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
-			LOG.info("Settings updated");
-			loadSettings();
+			String namespace = ((SettingsUpdatedEvent) e).getNamespace();
+			if (namespace.equals("bt") || namespace.equals("tor")
+					|| namespace.equals(SETTINGS_NAMESPACE)) {
+				LOG.info("Settings updated");
+				loadSettings();
+			}
 		}
 	}
 }
