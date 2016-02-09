@@ -22,8 +22,10 @@ import org.briarproject.api.sync.MessageValidator;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.util.ByteUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -40,6 +42,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final Executor dbExecutor;
 	private final Executor cryptoExecutor;
 	private final Map<ClientId, MessageValidator> validators;
+	private final List<ValidationHook> hooks;
 
 	@Inject
 	ValidationManagerImpl(DatabaseComponent db,
@@ -49,6 +52,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
 		validators = new ConcurrentHashMap<ClientId, MessageValidator>();
+		hooks = new CopyOnWriteArrayList<ValidationHook>();
 	}
 
 	@Override
@@ -65,6 +69,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@Override
 	public void registerMessageValidator(ClientId c, MessageValidator v) {
 		validators.put(c, v);
+	}
+
+	@Override
+	public void registerValidationHook(ValidationHook hook) {
+		hooks.add(hook);
 	}
 
 	private void getMessagesToValidate(final ClientId c) {
@@ -119,6 +128,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					if (meta == null) {
 						db.setMessageValid(m, c, false);
 					} else {
+						for (ValidationHook hook : hooks)
+							hook.validatingMessage(m, c, meta);
 						db.mergeMessageMetadata(m.getId(), meta);
 						db.setMessageValid(m, c, true);
 					}

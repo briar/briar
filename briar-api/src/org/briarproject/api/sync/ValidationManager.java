@@ -1,5 +1,7 @@
 package org.briarproject.api.sync;
 
+import org.briarproject.api.db.Metadata;
+
 /**
  * Responsible for managing message validators and passing them messages to
  * validate.
@@ -28,4 +30,11 @@ public interface ValidationManager {
 
 	/** Sets the message validator for the given client. */
 	void registerMessageValidator(ClientId c, MessageValidator v);
+
+	/** Registers a hook to be called whenever a message is validated. */
+	void registerValidationHook(ValidationHook hook);
+
+	interface ValidationHook {
+		void validatingMessage(Message m, ClientId c, Metadata meta);
+	}
 }
