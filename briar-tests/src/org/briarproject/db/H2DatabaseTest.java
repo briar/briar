@@ -52,6 +52,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1066,6 +1068,51 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(2, db.getContacts(txn).size());
 		assertEquals(1, db.getContacts(txn, localAuthorId).size());
 		assertEquals(1, db.getContacts(txn, localAuthorId1).size());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testDeleteMessage() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, a group and a message
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		db.addGroup(txn, group);
+		db.addVisibility(txn, contactId, groupId);
+		db.addMessage(txn, message, VALID, true);
+		db.addStatus(txn, contactId, messageId, false, false);
+
+		// The message should be visible to the contact
+		assertTrue(db.containsVisibleMessage(txn, contactId, messageId));
+
+		// The message should be sendable
+		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
+				ONE_MEGABYTE);
+		assertEquals(Collections.singletonList(messageId), ids);
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertEquals(Collections.singletonList(messageId), ids);
+
+		// The raw message should not be null
+		assertNotNull(db.getRawMessage(txn, messageId));
+
+		// Delete the message
+		db.deleteMessage(txn, messageId);
+
+		// The message should be visible to the contact
+		assertTrue(db.containsVisibleMessage(txn, contactId, messageId));
+
+		// The message should not be sendable
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertTrue(ids.isEmpty());
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertTrue(ids.isEmpty());
+
+		// The raw message should be null
+		assertNull(db.getRawMessage(txn, messageId));
 
 		db.commitTransaction(txn);
 		db.close();

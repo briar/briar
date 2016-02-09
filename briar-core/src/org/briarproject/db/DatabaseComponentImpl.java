@@ -293,6 +293,23 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	public void deleteMessage(MessageId m) throws DbException {
+		lock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsMessage(txn, m))
+					throw new NoSuchMessageException();
+				db.deleteMessage(txn, m);
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
 	public Ack generateAck(ContactId c, int maxMessages) throws DbException {
 		Collection<MessageId> ids;
 		lock.writeLock().lock();

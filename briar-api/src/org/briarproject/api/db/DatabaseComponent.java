@@ -64,6 +64,12 @@ public interface DatabaseComponent {
 	void addTransportKeys(ContactId c, TransportKeys k) throws DbException;
 
 	/**
+	 * Deletes the message with the given ID. The message ID and any other
+	 * associated data are not deleted.
+	 */
+	void deleteMessage(MessageId m) throws DbException;
+
+	/**
 	 * Returns an acknowledgement for the given contact, or null if there are
 	 * no messages to acknowledge.
 	 */
