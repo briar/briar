@@ -54,12 +54,18 @@ class ForumAdapter extends ArrayAdapter<ForumItem> {
 
 		AuthorView authorView = new AuthorView(ctx);
 		authorView.setLayoutParams(WRAP_WRAP_1);
+		authorView.setPadding(0, pad, pad, pad);
 		Author author = header.getAuthor();
-		authorView.init(author, header.getAuthorStatus());
+		if (author == null) {
+			authorView.init(null, null, header.getAuthorStatus());
+		} else {
+			authorView.init(author.getName(), author.getId(),
+					header.getAuthorStatus());
+		}
 		headerLayout.addView(authorView);
 
 		TextView date = new TextView(ctx);
-		date.setPadding(0, pad, pad, pad);
+		date.setPadding(pad, pad, pad, pad);
 		long timestamp = header.getTimestamp();
 		date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
 		headerLayout.addView(date);

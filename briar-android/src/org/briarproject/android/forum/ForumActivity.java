@@ -18,7 +18,6 @@ import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
@@ -70,8 +69,6 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
 	private ImageButton composeButton = null, shareButton = null;
-
-	@Inject private ReferenceManager referenceManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile ForumManager forumManager;
@@ -369,8 +366,10 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		i.putExtra("briar.FORUM_NAME", forum.getName());
 		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
 		Author author = header.getAuthor();
-		if (author != null) i.putExtra("briar.AUTHOR_HANDLE",
-				referenceManager.putReference(author, Author.class));
+		if (author != null) {
+			i.putExtra("briar.AUTHOR_NAME", author.getName());
+			i.putExtra("briar.AUTHOR_ID", author.getId().getBytes());
+		}
 		i.putExtra("briar.AUTHOR_STATUS", header.getAuthorStatus().name());
 		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
 		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
