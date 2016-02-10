@@ -949,6 +949,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void deleteMessageMetadata(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM messageMetadata WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Contact getContact(Connection txn, ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;

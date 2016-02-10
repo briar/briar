@@ -226,6 +226,13 @@ interface Database<T> {
 	void deleteMessage(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Deletes any metadata associated with the given message.
+	 * <p>
+	 * Locking: write.
+	 */
+	void deleteMessageMetadata(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the contact with the given ID.
 	 * <p>
 	 * Locking: read.

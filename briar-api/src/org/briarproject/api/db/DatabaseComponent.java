@@ -69,6 +69,9 @@ public interface DatabaseComponent {
 	 */
 	void deleteMessage(MessageId m) throws DbException;
 
+	/** Deletes any metadata associated with the given message. */
+	void deleteMessageMetadata(MessageId m) throws DbException;
+
 	/**
 	 * Returns an acknowledgement for the given contact, or null if there are
 	 * no messages to acknowledge.

@@ -939,6 +939,17 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(retrieved.containsKey("baz"));
 		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
 
+		// Delete the metadata
+		db.deleteMessageMetadata(txn, messageId);
+
+		// Retrieve the metadata again
+		retrieved = db.getMessageMetadata(txn, messageId);
+		assertTrue(retrieved.isEmpty());
+
+		// Retrieve the metadata for the group again
+		all = db.getMessageMetadata(txn, groupId);
+		assertTrue(all.isEmpty());
+
 		db.commitTransaction(txn);
 		db.close();
 	}
