@@ -7,6 +7,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
@@ -19,7 +20,7 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.db.NoSuchSubscriptionException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
@@ -60,6 +61,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Logger.getLogger(TransportPropertyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
+	private final ContactManager contactManager;
 	private final PrivateGroupFactory privateGroupFactory;
 	private final MessageFactory messageFactory;
 	private final BdfReaderFactory bdfReaderFactory;
@@ -74,11 +76,13 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			GroupFactory groupFactory, PrivateGroupFactory privateGroupFactory,
+			ContactManager contactManager, GroupFactory groupFactory,
+			PrivateGroupFactory privateGroupFactory,
 			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser, Clock clock) {
 		this.db = db;
+		this.contactManager = contactManager;
 		this.privateGroupFactory = privateGroupFactory;
 		this.messageFactory = messageFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
@@ -96,9 +100,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		try {
 			// Create a group to share with the contact
 			Group g = getContactGroup(db.getContact(c));
-			// Subscribe to the group and share it with the contact
+			// Store the group and share it with the contact
 			db.addGroup(g);
-			db.addContactGroup(c, g);
 			db.setVisibility(g.getId(), Collections.singletonList(c));
 			// Copy the latest local properties into the group
 			DeviceId dev = db.getDeviceId();
@@ -110,9 +113,145 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	@Override
+	public void removingContact(ContactId c) {
+		lock.writeLock().lock();
+		try {
+			db.removeGroup(getContactGroup(db.getContact(c)));
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	@Override
+	public void addRemoteProperties(ContactId c, DeviceId dev,
+			Map<TransportId, TransportProperties> props) throws DbException {
+		lock.writeLock().lock();
+		try {
+			Group g = getContactGroup(db.getContact(c));
+			for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
+				storeMessage(g.getId(), dev, e.getKey(), e.getValue(), 0, false,
+						false);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	@Override
+	public Map<TransportId, TransportProperties> getLocalProperties()
+			throws DbException {
+		lock.readLock().lock();
+		try {
+			// Find the latest local update for each transport
+			Map<TransportId, LatestUpdate> latest =
+					findLatest(localGroup.getId(), true);
+			// Retrieve and parse the latest local properties
+			Map<TransportId, TransportProperties> local =
+					new HashMap<TransportId, TransportProperties>();
+			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
+				byte[] raw = db.getRawMessage(e.getValue().messageId);
+				local.put(e.getKey(), parseProperties(raw));
+			}
+			return Collections.unmodifiableMap(local);
+		} catch (NoSuchGroupException e) {
+			// Local group doesn't exist - there are no local properties
+			return Collections.emptyMap();
+		} catch (IOException e) {
+			throw new DbException(e);
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
+	@Override
+	public TransportProperties getLocalProperties(TransportId t)
+			throws DbException {
+		lock.readLock().lock();
+		try {
+			// Find the latest local update
+			LatestUpdate latest = findLatest(localGroup.getId(), t, true);
+			if (latest == null) return null;
+			// Retrieve and parse the latest local properties
+			return parseProperties(db.getRawMessage(latest.messageId));
+		} catch (NoSuchGroupException e) {
+			// Local group doesn't exist - there are no local properties
+			return null;
+		} catch (IOException e) {
+			throw new DbException(e);
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
+	@Override
+	public Map<ContactId, TransportProperties> getRemoteProperties(
+			TransportId t) throws DbException {
+		lock.readLock().lock();
+		try {
+			Map<ContactId, TransportProperties> remote =
+					new HashMap<ContactId, TransportProperties>();
+			for (Contact c : contactManager.getContacts())  {
+				Group g = getContactGroup(c);
+				// Find the latest remote update
+				LatestUpdate latest = findLatest(g.getId(), t, false);
+				if (latest != null) {
+					// Retrieve and parse the latest remote properties
+					byte[] raw = db.getRawMessage(latest.messageId);
+					remote.put(c.getId(), parseProperties(raw));
+				}
+			}
+			return Collections.unmodifiableMap(remote);
+		} catch (IOException e) {
+			throw new DbException(e);
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
+	@Override
+	public void mergeLocalProperties(TransportId t, TransportProperties p)
+			throws DbException {
+		lock.writeLock().lock();
+		try {
+			// Create the local group if necessary
+			db.addGroup(localGroup);
+			// Merge the new properties with any existing properties
+			TransportProperties merged;
+			LatestUpdate latest = findLatest(localGroup.getId(), t, true);
+			if (latest == null) {
+				merged = p;
+			} else {
+				byte[] raw = db.getRawMessage(latest.messageId);
+				TransportProperties old = parseProperties(raw);
+				merged = new TransportProperties(old);
+				merged.putAll(p);
+				if (merged.equals(old)) return; // Unchanged
+			}
+			// Store the merged properties in the local group
+			DeviceId dev = db.getDeviceId();
+			long version = latest == null ? 1 : latest.version + 1;
+			storeMessage(localGroup.getId(), dev, t, merged, version, true,
+					false);
+			// Store the merged properties in each contact's group
+			for (Contact c : contactManager.getContacts()) {
+				Group g = getContactGroup(c);
+				latest = findLatest(g.getId(), t, true);
+				version = latest == null ? 1 : latest.version + 1;
+				storeMessage(g.getId(), dev, t, merged, version, true, true);
+			}
+		} catch (IOException e) {
+			throw new DbException(e);
 		} finally {
 			lock.writeLock().unlock();
 		}
@@ -122,9 +261,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
 	}
 
+	// Locking: lock.writeLock
 	private void storeMessage(GroupId g, DeviceId dev, TransportId t,
 			TransportProperties p, long version, boolean local, boolean shared)
-			throws DbException, IOException {
+			throws DbException, FormatException {
 		byte[] body = encodeProperties(dev, t, p, version);
 		long now = clock.currentTimeMillis();
 		Message m = messageFactory.createMessage(g, now, body);
@@ -153,80 +293,43 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		return out.toByteArray();
 	}
 
-	@Override
-	public void removingContact(ContactId c) {
-		lock.writeLock().lock();
-		try {
-			db.removeGroup(getContactGroup(db.getContact(c)));
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	@Override
-	public void addRemoteProperties(ContactId c, DeviceId dev,
-			Map<TransportId, TransportProperties> props) throws DbException {
-		lock.writeLock().lock();
-		try {
-			Group g = getContactGroup(db.getContact(c));
-			for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
-				storeMessage(g.getId(), dev, e.getKey(), e.getValue(), 0, false,
-						false);
-			}
-		} catch (IOException e) {
-			throw new DbException(e);
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	@Override
-	public Map<TransportId, TransportProperties> getLocalProperties()
-			throws DbException {
-		lock.readLock().lock();
-		try {
-			// Find the latest local version for each transport
-			Map<TransportId, LatestUpdate> latest =
-					findLatest(localGroup.getId(), true);
-			// Retrieve and decode the latest local properties
-			Map<TransportId, TransportProperties> local =
-					new HashMap<TransportId, TransportProperties>();
-			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
-				byte[] raw = db.getRawMessage(e.getValue().messageId);
-				local.put(e.getKey(), decodeProperties(raw));
-			}
-			return Collections.unmodifiableMap(local);
-		} catch (NoSuchSubscriptionException e) {
-			// Local group doesn't exist - there are no local properties
-			return Collections.emptyMap();
-		} catch (IOException e) {
-			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
+	// Locking: lock.readLock
 	private Map<TransportId, LatestUpdate> findLatest(GroupId g, boolean local)
 			throws DbException, FormatException {
-		// TODO: Use metadata queries
 		Map<TransportId, LatestUpdate> latestUpdates =
 				new HashMap<TransportId, LatestUpdate>();
 		Map<MessageId, Metadata> metadata = db.getMessageMetadata(g);
 		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
 			BdfDictionary d = metadataParser.parse(e.getValue());
-			if (d.getBoolean("local") != local) continue;
-			TransportId t = new TransportId(d.getString("transportId"));
-			long version = d.getInteger("version");
-			LatestUpdate latest = latestUpdates.get(t);
-			if (latest == null || version > latest.version)
-				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
+			if (d.getBoolean("local") == local) {
+				TransportId t = new TransportId(d.getString("transportId"));
+				long version = d.getInteger("version");
+				LatestUpdate latest = latestUpdates.get(t);
+				if (latest == null || version > latest.version)
+					latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
+			}
 		}
 		return latestUpdates;
 	}
 
-	private TransportProperties decodeProperties(byte[] raw)
+	// Locking: lock.readLock
+	private LatestUpdate findLatest(GroupId g, TransportId t, boolean local)
+			throws DbException, FormatException {
+		LatestUpdate latest = null;
+		Map<MessageId, Metadata> metadata = db.getMessageMetadata(g);
+		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
+			BdfDictionary d = metadataParser.parse(e.getValue());
+			if (d.getString("transportId").equals(t.getString())
+					&& d.getBoolean("local") == local) {
+				long version = d.getInteger("version");
+				if (latest == null || version > latest.version)
+					latest = new LatestUpdate(e.getKey(), version);
+			}
+		}
+		return latest;
+	}
+
+	private TransportProperties parseProperties(byte[] raw)
 			throws IOException {
 		TransportProperties p = new TransportProperties();
 		ByteArrayInputStream in = new ByteArrayInputStream(raw,
@@ -242,90 +345,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			String value = r.readString(MAX_PROPERTY_LENGTH);
 			p.put(key, value);
 		}
+		r.readDictionaryEnd();
+		r.readListEnd();
+		if (!r.eof()) throw new FormatException();
 		return p;
-	}
-
-	@Override
-	public TransportProperties getLocalProperties(TransportId t)
-			throws DbException {
-		lock.readLock().lock();
-		try {
-			// Find the latest local version
-			LatestUpdate latest = findLatest(localGroup.getId(), true).get(t);
-			if (latest == null) return null;
-			// Retrieve and decode the latest local properties
-			return decodeProperties(db.getRawMessage(latest.messageId));
-		} catch (NoSuchSubscriptionException e) {
-			// Local group doesn't exist - there are no local properties
-			return null;
-		} catch (IOException e) {
-			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	@Override
-	public Map<ContactId, TransportProperties> getRemoteProperties(
-			TransportId t) throws DbException {
-		lock.readLock().lock();
-		try {
-			Map<ContactId, TransportProperties> remote =
-					new HashMap<ContactId, TransportProperties>();
-			for (Contact c : db.getContacts())  {
-				Group g = getContactGroup(c);
-				// Find the latest remote version
-				LatestUpdate latest = findLatest(g.getId(), false).get(t);
-				if (latest != null) {
-					// Retrieve and decode the latest remote properties
-					byte[] raw = db.getRawMessage(latest.messageId);
-					remote.put(c.getId(), decodeProperties(raw));
-				}
-			}
-			return Collections.unmodifiableMap(remote);
-		} catch (IOException e) {
-			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	@Override
-	public void mergeLocalProperties(TransportId t, TransportProperties p)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			// Create the local group if necessary
-			db.addGroup(localGroup);
-			// Merge the new properties with any existing properties
-			TransportProperties merged;
-			LatestUpdate latest = findLatest(localGroup.getId(), true).get(t);
-			if (latest == null) {
-				merged = p;
-			} else {
-				byte[] raw = db.getRawMessage(latest.messageId);
-				TransportProperties old = decodeProperties(raw);
-				merged = new TransportProperties(old);
-				merged.putAll(p);
-				if (merged.equals(old)) return; // Unchanged
-			}
-			// Store the merged properties in the local group
-			DeviceId dev = db.getDeviceId();
-			long version = latest == null ? 1 : latest.version + 1;
-			storeMessage(localGroup.getId(), dev, t, merged, version, true,
-					false);
-			// Store the merged properties in each contact's group
-			for (Contact c : db.getContacts()) {
-				Group g = getContactGroup(c);
-				latest = findLatest(g.getId(), true).get(t);
-				version = latest == null ? 1 : latest.version + 1;
-				storeMessage(g.getId(), dev, t, merged, version, true, true);
-			}
-		} catch (IOException e) {
-			throw new DbException(e);
-		} finally {
-			lock.writeLock().unlock();
-		}
 	}
 
 	private static class LatestUpdate {

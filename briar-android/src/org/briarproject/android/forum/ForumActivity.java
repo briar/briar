@@ -19,13 +19,13 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
-import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostHeader;
@@ -159,7 +159,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading forum " + duration + " ms");
 					displayForumName();
-				} catch (NoSuchSubscriptionException e) {
+				} catch (NoSuchGroupException e) {
 					finishOnUiThread();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -188,7 +188,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
 					displayHeaders(headers);
-				} catch (NoSuchSubscriptionException e) {
+				} catch (NoSuchGroupException e) {
 					finishOnUiThread();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -319,10 +319,10 @@ public class ForumActivity extends BriarActivity implements EventListener,
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}
-		} else if (e instanceof SubscriptionRemovedEvent) {
-			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent s = (GroupRemovedEvent) e;
 			if (s.getGroup().getId().equals(groupId)) {
-				LOG.info("Subscription removed");
+				LOG.info("Forum removed");
 				finishOnUiThread();
 			}
 		}

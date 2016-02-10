@@ -20,8 +20,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
@@ -39,12 +37,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -54,7 +50,6 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.api.db.StorageStatus.ADDING;
-import static org.briarproject.api.sync.SyncConstants.MAX_SUBSCRIPTIONS;
 import static org.briarproject.api.sync.ValidationManager.Validity.INVALID;
 import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
@@ -71,8 +66,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 19;
-	private static final int MIN_SCHEMA_VERSION = 19;
+	private static final int SCHEMA_VERSION = 20;
+	private static final int MIN_SCHEMA_VERSION = 20;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -109,7 +104,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (groupId HASH NOT NULL,"
 					+ " clientId HASH NOT NULL,"
 					+ " descriptor BINARY NOT NULL,"
-					+ " visibleToAll BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_GROUP_METADATA =
@@ -132,31 +126,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON DELETE CASCADE,"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_CONTACT_GROUPS =
-			"CREATE TABLE contactGroups"
-					+ " (contactId INT NOT NULL,"
-					+ " groupId HASH NOT NULL," // Not a foreign key
-					+ " clientId HASH NOT NULL,"
-					+ " descriptor BINARY NOT NULL,"
-					+ " PRIMARY KEY (contactId, groupId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_GROUP_VERSIONS =
-			"CREATE TABLE groupVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
-					+ " remoteVersion BIGINT NOT NULL,"
-					+ " remoteAcked BOOLEAN NOT NULL,"
-					+ " expiry BIGINT NOT NULL,"
-					+ " txCount INT NOT NULL,"
-					+ " PRIMARY KEY (contactId),"
-					+ " FOREIGN KEY (contactid)"
-					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_MESSAGES =
@@ -353,8 +322,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_METADATA));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGE_METADATA));
 			s.executeUpdate(insertTypeNames(CREATE_OFFERS));
@@ -543,40 +510,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					if (rows != 1) throw new DbStateException();
 				ps.close();
 			}
-			// Make groups that are visible to everyone visible to this contact
-			sql = "SELECT groupId FROM groups WHERE visibleToAll = TRUE";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			ids = new ArrayList<byte[]>();
-			while (rs.next()) ids.add(rs.getBytes(1));
-			rs.close();
-			ps.close();
-			if (!ids.isEmpty()) {
-				sql = "INSERT INTO groupVisibilities (contactId, groupId)"
-						+ " VALUES (?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				for (byte[] id : ids) {
-					ps.setBytes(2, id);
-					ps.addBatch();
-				}
-				int[] batchAffected = ps.executeBatch();
-				if (batchAffected.length != ids.size())
-					throw new DbStateException();
-				for (int rows : batchAffected)
-					if (rows != 1) throw new DbStateException();
-				ps.close();
-			}
-			// Create a group version row
-			sql = "INSERT INTO groupVersions (contactId, localVersion,"
-					+ " localAcked, remoteVersion, remoteAcked, expiry,"
-					+ " txCount)"
-					+ " VALUES (?, 1, 0, 0, TRUE, 0, 0)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
 			return c;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -585,57 +518,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addContactGroup(Connection txn, ContactId c, Group g)
-			throws DbException {
+	public void addGroup(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM contactGroups"
-					+ " WHERE contactId = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getId().getBytes());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if (found) return;
-			sql = "INSERT INTO contactGroups"
-					+ " (contactId, groupId, clientId, descriptor)"
-					+ " VALUES (?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getId().getBytes());
-			ps.setBytes(3, g.getClientId().getBytes());
-			ps.setBytes(4, g.getDescriptor());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean addGroup(Connection txn, Group g) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT COUNT (groupId) FROM groups";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			if (!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if (count > MAX_SUBSCRIPTIONS) throw new DbStateException();
-			if (count == MAX_SUBSCRIPTIONS) return false;
-			sql = "INSERT INTO groups"
-					+ " (groupId, clientId, descriptor, visibleToAll)"
-					+ " VALUES (?, ?, ?, FALSE)";
+			String sql = "INSERT INTO groups (groupId, clientId, descriptor)"
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setBytes(2, g.getClientId().getBytes());
@@ -643,9 +530,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
-			return true;
 		} catch (SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -750,23 +635,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addTransport(Connection txn, TransportId t, int maxLatency)
+	public void addTransport(Connection txn, TransportId t, int maxLatency)
 			throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			// Return false if the transport is already in the database
-			String sql = "SELECT NULL FROM transports WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, t.getString());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if (found) return false;
-			// Create a transport row
-			sql = "INSERT INTO transports (transportId, maxLatency)"
+			String sql = "INSERT INTO transports (transportId, maxLatency)"
 					+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
@@ -774,10 +647,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
-			return true;
 		} catch (SQLException e) {
 			tryToClose(ps);
-			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}
@@ -853,16 +724,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			// Bump the subscription version
-			sql = "UPDATE groupVersions"
-					+ " SET localVersion = localVersion + 1,"
-					+ " expiry = 0, txCount = 0"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
@@ -1065,39 +926,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return count;
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<Group> getAvailableGroups(Connection txn, ClientId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT DISTINCT cg.groupId, cg.descriptor"
-					+ " FROM contactGroups AS cg"
-					+ " LEFT OUTER JOIN groups AS g"
-					+ " ON cg.groupId = g.groupId"
-					+ " WHERE cg.clientId = ?"
-					+ " AND g.groupId IS NULL"
-					+ " GROUP BY cg.groupId";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, c.getBytes());
-			rs = ps.executeQuery();
-			List<Group> groups = new ArrayList<Group>();
-			Set<GroupId> ids = new HashSet<GroupId>();
-			while (rs.next()) {
-				GroupId id = new GroupId(rs.getBytes(1));
-				if (!ids.add(id)) throw new DbStateException();
-				byte[] descriptor = rs.getBytes(2);
-				groups.add(new Group(id, c, descriptor));
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(groups);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1474,15 +1302,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT m.messageId FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " AND cg.contactId = s.contactId"
-					+ " WHERE cg.contactId = ?"
+					+ " AND gv.contactId = s.contactId"
+					+ " WHERE gv.contactId = ?"
 					+ " AND valid = ? AND shared = TRUE"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND s.expiry < ?"
@@ -1536,15 +1361,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT length, m.messageId FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " AND cg.contactId = s.contactId"
-					+ " WHERE cg.contactId = ?"
+					+ " AND gv.contactId = s.contactId"
+					+ " WHERE gv.contactId = ?"
 					+ " AND valid = ? AND shared = TRUE"
 					+ " AND seen = FALSE"
 					+ " AND s.expiry < ?"
@@ -1625,15 +1447,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT length, m.messageId FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " AND cg.contactId = s.contactId"
-					+ " WHERE cg.contactId = ?"
+					+ " AND gv.contactId = s.contactId"
+					+ " WHERE gv.contactId = ?"
 					+ " AND valid = ? AND shared = TRUE"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND s.expiry < ?"
@@ -1678,130 +1497,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<Contact> getSubscribers(Connection txn, GroupId g)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT c.contactId, authorId, c.name, publicKey,"
-					+ " localAuthorId, status"
-					+ " FROM contacts AS c"
-					+ " JOIN contactGroups AS cg"
-					+ " ON c.contactId = cg.contactId"
-					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			rs = ps.executeQuery();
-			List<Contact> contacts = new ArrayList<Contact>();
-			while (rs.next()) {
-				ContactId contactId = new ContactId(rs.getInt(1));
-				AuthorId authorId = new AuthorId(rs.getBytes(2));
-				String name = rs.getString(3);
-				byte[] publicKey = rs.getBytes(4);
-				Author author = new Author(authorId, name, publicKey);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
-				contacts.add(new Contact(contactId, author, localAuthorId,
-						status));
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(contacts);
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public SubscriptionAck getSubscriptionAck(Connection txn, ContactId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT remoteVersion FROM groupVersions"
-					+ " WHERE contactId = ? AND remoteAcked = FALSE";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if (!rs.next()) {
-				rs.close();
-				ps.close();
-				return null;
-			}
-			long version = rs.getLong(1);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "UPDATE groupVersions SET remoteAcked = TRUE"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			return new SubscriptionAck(version);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
-	public SubscriptionUpdate getSubscriptionUpdate(Connection txn, ContactId c,
-			int maxLatency) throws DbException {
-		long now = clock.currentTimeMillis();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT g.groupId, clientId, descriptor,"
-					+ " localVersion, txCount"
-					+ " FROM groups AS g"
-					+ " JOIN groupVisibilities AS gvis"
-					+ " ON g.groupId = gvis.groupId"
-					+ " JOIN groupVersions AS gver"
-					+ " ON gvis.contactId = gver.contactId"
-					+ " WHERE gvis.contactId = ?"
-					+ " AND localVersion > localAcked"
-					+ " AND expiry < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, now);
-			rs = ps.executeQuery();
-			List<Group> groups = new ArrayList<Group>();
-			Set<GroupId> ids = new HashSet<GroupId>();
-			long version = 0;
-			int txCount = 0;
-			while (rs.next()) {
-				GroupId id = new GroupId(rs.getBytes(1));
-				if (!ids.add(id)) throw new DbStateException();
-				ClientId clientId = new ClientId(rs.getBytes(2));
-				byte[] descriptor = rs.getBytes(3);
-				groups.add(new Group(id, clientId, descriptor));
-				version = rs.getLong(4);
-				txCount = rs.getInt(5);
-			}
-			rs.close();
-			ps.close();
-			if (groups.isEmpty()) return null;
-			sql = "UPDATE groupVersions"
-					+ " SET expiry = ?, txCount = txCount + 1"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			groups = Collections.unmodifiableList(groups);
-			return new SubscriptionUpdate(groups, version);
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}
@@ -2187,44 +1882,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void removeGroup(Connection txn, GroupId g) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			// Find out which contacts are affected
-			String sql = "SELECT contactId FROM groupVisibilities"
-					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			rs = ps.executeQuery();
-			Collection<Integer> visible = new ArrayList<Integer>();
-			while (rs.next()) visible.add(rs.getInt(1));
-			rs.close();
-			ps.close();
-			// Delete the group
-			sql = "DELETE FROM groups WHERE groupId = ?";
+			String sql = "DELETE FROM groups WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
-			if (visible.isEmpty()) return;
-			// Bump the subscription versions for the affected contacts
-			sql = "UPDATE groupVersions"
-					+ " SET localVersion = localVersion + 1, expiry = 0"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			for (Integer c : visible) {
-				ps.setInt(1, c);
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != visible.size())
-				throw new DbStateException();
-			for (int rows : batchAffected)
-				if (rows != 1) throw new DbStateException();
-			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
-			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}
@@ -2329,15 +1995,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-			// Bump the subscription version
-			sql = "UPDATE groupVersions"
-					+ " SET localVersion = localVersion + 1, expiry = 0"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
@@ -2445,130 +2102,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(3, c.getInt());
 			ps.setString(4, t.getString());
 			ps.setLong(5, rotationPeriod);
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean setGroups(Connection txn, ContactId c,
-			Collection<Group> groups, long version) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Mark the update as needing to be acked
-			String sql = "UPDATE groupVersions"
-					+ " SET remoteVersion = ?, remoteAcked = FALSE"
-					+ " WHERE contactId = ? AND remoteVersion < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, version);
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, version);
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-			// Return false if the update is obsolete
-			if (affected == 0) return false;
-			// Find any messages in groups that are being removed
-			Set<GroupId> newIds = new HashSet<GroupId>();
-			for (Group g : groups) newIds.add(g.getId());
-			sql = "SELECT messageId, m.groupId"
-					+ " FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			List<MessageId> removed = new ArrayList<MessageId>();
-			while (rs.next()) {
-				if (!newIds.contains(new GroupId(rs.getBytes(2))))
-					removed.add(new MessageId(rs.getBytes(1)));
-			}
-			rs.close();
-			ps.close();
-			// Reset any statuses for messages in groups that are being removed
-			if (!removed.isEmpty()) {
-				sql = "UPDATE statuses SET ack = FALSE, seen = FALSE,"
-						+ " requested = FALSE, expiry = 0, txCount = 0"
-						+ " WHERE contactId = ? AND messageId = ?";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				for (MessageId m : removed) {
-					ps.setBytes(2, m.getBytes());
-					ps.addBatch();
-				}
-				int[] batchAffected = ps.executeBatch();
-				if (batchAffected.length != removed.size())
-					throw new DbStateException();
-				for (int rows : batchAffected)
-					if (rows < 0) throw new DbStateException();
-				ps.close();
-			}
-			// Delete the existing subscriptions, if any
-			sql = "DELETE FROM contactGroups WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.executeUpdate();
-			// Store the new subscriptions, if any
-			if (groups.isEmpty()) return true;
-			sql = "INSERT INTO contactGroups"
-					+ " (contactId, groupId, clientId, descriptor)"
-					+ " VALUES (?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for (Group g : groups) {
-				ps.setBytes(2, g.getId().getBytes());
-				ps.setBytes(3, g.getClientId().getBytes());
-				ps.setBytes(4, g.getDescriptor());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != groups.size())
-				throw new DbStateException();
-			for (int rows : batchAffected)
-				if (rows != 1) throw new DbStateException();
-			ps.close();
-			return true;
-		} catch (SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
-	public void setSubscriptionUpdateAcked(Connection txn, ContactId c,
-			long version) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE groupVersions SET localAcked = ?"
-					+ " WHERE contactId = ?"
-					+ " AND localAcked < ? AND localVersion >= ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, version);
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, version);
-			ps.setLong(4, version);
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setVisibleToAll(Connection txn, GroupId g, boolean all)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE groups SET visibleToAll = ? WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, all);
-			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

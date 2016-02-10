@@ -2,12 +2,12 @@ package org.briarproject.api.event;
 
 import org.briarproject.api.sync.Group;
 
-/** An event that is broadcast when the user unsubscribes from a group. */
-public class SubscriptionRemovedEvent extends Event {
+/** An event that is broadcast when a group is removed. */
+public class GroupRemovedEvent extends Event {
 
 	private final Group group;
 
-	public SubscriptionRemovedEvent(Group group) {
+	public GroupRemovedEvent(Group group) {
 		this.group = group;
 	}
 

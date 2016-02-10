@@ -4,15 +4,12 @@ import org.briarproject.api.contact.ContactId;
 
 import java.util.Collection;
 
-/**
- * An event that is broadcast when the set of subscriptions visible to one or
- * more contacts is updated.
- */
-public class LocalSubscriptionsUpdatedEvent extends Event {
+/** An event that is broadcast when the visibility of a group is updated. */
+public class GroupVisibilityUpdatedEvent extends Event {
 
 	private final Collection<ContactId> affected;
 
-	public LocalSubscriptionsUpdatedEvent(Collection<ContactId> affected) {
+	public GroupVisibilityUpdatedEvent(Collection<ContactId> affected) {
 		this.affected = affected;
 	}
 

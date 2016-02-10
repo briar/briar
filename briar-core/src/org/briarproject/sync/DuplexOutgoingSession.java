@@ -8,21 +8,17 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
+import org.briarproject.api.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
-import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.system.Clock;
 
@@ -87,9 +83,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Start a query for each type of packet, in order of urgency
-			dbExecutor.execute(new GenerateSubscriptionAck());
-			dbExecutor.execute(new GenerateSubscriptionUpdate());
+			// Start a query for each type of packet
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
 			dbExecutor.execute(new GenerateOffer());
@@ -118,7 +112,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 						now = clock.currentTimeMillis();
 						if (now >= nextRetxQuery) {
 							// Check for retransmittable packets
-							dbExecutor.execute(new GenerateSubscriptionUpdate());
 							dbExecutor.execute(new GenerateBatch());
 							dbExecutor.execute(new GenerateOffer());
 							nextRetxQuery = now + RETX_QUERY_INTERVAL;
@@ -157,16 +150,10 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof MessageSharedEvent) {
 			dbExecutor.execute(new GenerateOffer());
-		} else if (e instanceof MessageValidatedEvent) {
-			if (((MessageValidatedEvent) e).isValid())
+		} else if (e instanceof GroupVisibilityUpdatedEvent) {
+			GroupVisibilityUpdatedEvent g = (GroupVisibilityUpdatedEvent) e;
+			if (g.getAffectedContacts().contains(contactId))
 				dbExecutor.execute(new GenerateOffer());
-		} else if (e instanceof LocalSubscriptionsUpdatedEvent) {
-			LocalSubscriptionsUpdatedEvent l =
-					(LocalSubscriptionsUpdatedEvent) e;
-			if (l.getAffectedContacts().contains(contactId)) {
-				dbExecutor.execute(new GenerateSubscriptionUpdate());
-				dbExecutor.execute(new GenerateOffer());
-			}
 		} else if (e instanceof MessageRequestedEvent) {
 			if (((MessageRequestedEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateBatch());
@@ -176,13 +163,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof MessageToRequestEvent) {
 			if (((MessageToRequestEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateRequest());
-		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
-			RemoteSubscriptionsUpdatedEvent r =
-					(RemoteSubscriptionsUpdatedEvent) e;
-			if (r.getContactId().equals(contactId)) {
-				dbExecutor.execute(new GenerateSubscriptionAck());
-				dbExecutor.execute(new GenerateOffer());
-			}
 		} else if (e instanceof ShutdownEvent) {
 			interrupt();
 		} else if (e instanceof TransportRemovedEvent) {
@@ -330,77 +310,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			packetWriter.writeRequest(request);
 			LOG.info("Sent request");
 			dbExecutor.execute(new GenerateRequest());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateSubscriptionAck implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				SubscriptionAck a = db.generateSubscriptionAck(contactId);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated subscription ack: " + (a != null));
-				if (a != null) writerTasks.add(new WriteSubscriptionAck(a));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This tasks runs on the writer thread
-	private class WriteSubscriptionAck
-	implements ThrowingRunnable<IOException> {
-
-		private final SubscriptionAck ack;
-
-		private WriteSubscriptionAck(SubscriptionAck ack) {
-			this.ack = ack;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeSubscriptionAck(ack);
-			LOG.info("Sent subscription ack");
-			dbExecutor.execute(new GenerateSubscriptionAck());
-		}
-	}
-
-	// This task runs on the database thread
-	private class GenerateSubscriptionUpdate implements Runnable {
-
-		public void run() {
-			if (interrupted) return;
-			try {
-				SubscriptionUpdate u =
-						db.generateSubscriptionUpdate(contactId, maxLatency);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated subscription update: " + (u != null));
-				if (u != null) writerTasks.add(new WriteSubscriptionUpdate(u));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	// This task runs on the writer thread
-	private class WriteSubscriptionUpdate
-	implements ThrowingRunnable<IOException> {
-
-		private final SubscriptionUpdate update;
-
-		private WriteSubscriptionUpdate(SubscriptionUpdate update) {
-			this.update = update;
-		}
-
-		public void run() throws IOException {
-			if (interrupted) return;
-			packetWriter.writeSubscriptionUpdate(update);
-			LOG.info("Sent subscription update");
-			dbExecutor.execute(new GenerateSubscriptionUpdate());
 		}
 	}
 }

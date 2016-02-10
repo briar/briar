@@ -2,12 +2,12 @@ package org.briarproject.api.event;
 
 import org.briarproject.api.sync.Group;
 
-/** An event that is broadcast when the user subscribes to a group. */
-public class SubscriptionAddedEvent extends Event {
+/** An event that is broadcast when a group is added. */
+public class GroupAddedEvent extends Event {
 
 	private final Group group;
 
-	public SubscriptionAddedEvent(Group group) {
+	public GroupAddedEvent(Group group) {
 		this.group = group;
 	}
 

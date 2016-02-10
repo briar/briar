@@ -1,27 +1,27 @@
 package org.briarproject.plugins;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.concurrent.Executor;
+import android.app.Application;
+import android.content.Context;
+
+import com.google.inject.Provides;
 
 import org.briarproject.api.android.AndroidExecutor;
-import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.LocationUtils;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.plugins.droidtooth.DroidtoothPluginFactory;
 import org.briarproject.plugins.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.plugins.tor.TorPluginFactory;
 
-import android.app.Application;
-import android.content.Context;
-
-import com.google.inject.Provides;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.Executor;
 
 public class AndroidPluginsModule extends PluginsModule {
 
@@ -37,11 +37,11 @@ public class AndroidPluginsModule extends PluginsModule {
 	@Provides
 	DuplexPluginConfig getDuplexPluginConfig(@IoExecutor Executor ioExecutor,
 			AndroidExecutor androidExecutor, Application app,
-			CryptoComponent crypto, LocationUtils locationUtils,
+			SecureRandom random, LocationUtils locationUtils,
 			EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
-				androidExecutor, appContext, crypto.getSecureRandom());
+				androidExecutor, appContext, random);
 		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
 				locationUtils, eventBus);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,

@@ -24,17 +24,17 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
+import org.briarproject.api.db.NoSuchGroupException;
+import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.GroupAddedEvent;
+import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
-import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
-import org.briarproject.api.event.SubscriptionAddedEvent;
-import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostHeader;
+import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.sync.ClientId;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
@@ -83,8 +83,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	private ImageButton newForumButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject
-	private volatile ForumManager forumManager;
+	@Inject private volatile ForumManager forumManager;
+	@Inject private volatile ForumSharingManager forumSharingManager;
 
 	@Nullable
 	@Override
@@ -164,19 +164,23 @@ public class ForumListFragment extends BaseEventFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
+					boolean displayedHeaders = false;
 					for (Forum f : forumManager.getForums()) {
 						try {
 							Collection<ForumPostHeader> headers =
 									forumManager.getPostHeaders(f.getId());
 							displayHeaders(f, headers);
-						} catch (NoSuchSubscriptionException e) {
+							displayedHeaders = true;
+						} catch (NoSuchGroupException e) {
 							// Continue
 						}
 					}
-					int available = forumManager.getAvailableForums().size();
+					int available =
+							forumSharingManager.getAvailableForums().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
+					if (!displayedHeaders) displayEmpty();
 					displayAvailable(available);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -215,11 +219,18 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
+	private void displayEmpty() {
+		listener.runOnUiThread(new Runnable() {
+			public void run() {
+				empty.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
+			}
+		});
+	}
+
 	private void displayAvailable(final int availableCount) {
 		listener.runOnUiThread(new Runnable() {
 			public void run() {
-				if (adapter.isEmpty()) empty.setVisibility(VISIBLE);
-				loading.setVisibility(GONE);
 				if (availableCount == 0) {
 					available.setVisibility(GONE);
 				} else {
@@ -254,24 +265,33 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	public void eventOccurred(Event e) {
-		if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			ClientId c = m.getClientId();
-			if (m.isValid() && c.equals(forumManager.getClientId())) {
-				LOG.info("Message added, reloading");
-				loadHeaders(m.getMessage().getGroupId());
-			}
-		} else if (e instanceof RemoteSubscriptionsUpdatedEvent) {
-			LOG.info("Remote subscriptions changed, reloading");
+		if (e instanceof ContactRemovedEvent) {
+			LOG.info("Contact removed, reloading");
 			loadAvailable();
-		} else if (e instanceof SubscriptionAddedEvent) {
-			LOG.info("Group added, reloading");
-			loadHeaders();
-		} else if (e instanceof SubscriptionRemovedEvent) {
-			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if (g.getClientId().equals(forumManager.getClientId())) {
-				LOG.info("Group removed, reloading");
+		} else if (e instanceof GroupAddedEvent) {
+			GroupAddedEvent g = (GroupAddedEvent) e;
+			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+				LOG.info("Forum added, reloading");
 				loadHeaders();
+			}
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+				LOG.info("Forum removed, reloading");
+				loadHeaders();
+			}
+		} else if (e instanceof MessageValidatedEvent) {
+			MessageValidatedEvent m = (MessageValidatedEvent) e;
+			if (m.isValid()) {
+				ClientId c = m.getClientId();
+				if (c.equals(forumManager.getClientId())) {
+					LOG.info("Forum post added, reloading");
+					loadHeaders(m.getMessage().getGroupId());
+				} else if (!m.isLocal()
+						&& c.equals(forumSharingManager.getClientId())) {
+					LOG.info("Available forums updated, reloading");
+					loadAvailable();
+				}
 			}
 		}
 	}
@@ -288,7 +308,7 @@ public class ForumListFragment extends BaseEventFragment implements
 					if (LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
 					displayHeaders(f, headers);
-				} catch (NoSuchSubscriptionException e) {
+				} catch (NoSuchGroupException e) {
 					removeForum(g);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -320,7 +340,8 @@ public class ForumListFragment extends BaseEventFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					int available = forumManager.getAvailableForums().size();
+					int available =
+							forumSharingManager.getAvailableForums().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
@@ -364,22 +385,22 @@ public class ForumListFragment extends BaseEventFragment implements
 			ContextMenuInfo info = menuItem.getMenuInfo();
 			int position = ((AdapterContextMenuInfo) info).position;
 			ForumListItem item = adapter.getItem(position);
-			removeSubscription(item.getForum());
+			unsubscribe(item.getForum());
 			String unsubscribed = getString(R.string.unsubscribed_toast);
 			Toast.makeText(getContext(), unsubscribed, LENGTH_SHORT).show();
 		}
 		return true;
 	}
 
-	private void removeSubscription(final Forum f) {
+	private void unsubscribe(final Forum f) {
 		listener.runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					forumManager.removeForum(f);
+					forumSharingManager.removeForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Removing group took " + duration + " ms");
+						LOG.info("Removing forum took " + duration + " ms");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

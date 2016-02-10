@@ -7,26 +7,26 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.MessageExistsException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
+import org.briarproject.api.event.GroupAddedEvent;
+import org.briarproject.api.event.GroupRemovedEvent;
+import org.briarproject.api.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
+import org.briarproject.api.event.MessageSharedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.api.event.SubscriptionAddedEvent;
-import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -40,8 +40,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
@@ -60,7 +58,6 @@ import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class DatabaseComponentImplTest extends BriarTestCase {
@@ -149,8 +146,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).addGroup(txn, group);
-			will(returnValue(true));
-			oneOf(eventBus).broadcast(with(any(SubscriptionAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(GroupAddedEvent.class)));
 			// addGroup() again
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
@@ -163,10 +159,9 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeGroup(txn, groupId);
+			oneOf(eventBus).broadcast(with(any(GroupRemovedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
-					SubscriptionRemovedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
+					GroupVisibilityUpdatedEvent.class)));
 			// removeContact()
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -198,34 +193,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testDuplicateLocalMessagesAreNotStored() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsMessage(txn, messageId);
-			will(returnValue(true));
-			oneOf(database).abortTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		try {
-			db.addLocalMessage(message, clientId, metadata, true);
-			fail();
-		} catch (MessageExistsException expected) {
-			// Expected
-		}
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testLocalMessagesAreNotStoredUnlessSubscribed()
+	public void testLocalMessagesAreNotStoredUnlessGroupExists()
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -235,8 +203,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsMessage(txn, messageId);
-			will(returnValue(false));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).abortTransaction(txn);
@@ -247,7 +213,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			db.addLocalMessage(message, clientId, metadata, true);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
@@ -264,10 +230,10 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsMessage(txn, messageId);
-			will(returnValue(false));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
+			oneOf(database).containsMessage(txn, messageId);
+			will(returnValue(false));
 			oneOf(database).addMessage(txn, message, VALID, true);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).getVisibility(txn, groupId);
@@ -281,6 +247,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(MessageValidatedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -338,14 +305,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		}
 
 		try {
-			db.generateSubscriptionAck(contactId);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			db.generateSubscriptionUpdate(contactId, 123);
+			db.generateRequest(contactId, 123);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -380,6 +340,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		}
 
 		try {
+			db.isVisibleToContact(contactId, groupId);
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
 			Ack a = new Ack(Collections.singletonList(messageId));
 			db.receiveAck(contactId, a);
 			fail();
@@ -403,17 +370,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		}
 
 		try {
-			SubscriptionAck a = new SubscriptionAck(0);
-			db.receiveSubscriptionAck(contactId, a);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			SubscriptionUpdate u = new SubscriptionUpdate(
-					Collections.<Group>emptyList(), 1);
-			db.receiveSubscriptionUpdate(contactId, u);
+			Request r = new Request(Collections.singletonList(messageId));
+			db.receiveRequest(contactId, r);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -428,6 +386,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		try {
 			db.setReorderingWindow(contactId, transportId, 0, 0, new byte[4]);
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.setVisibleToContact(contactId, groupId, true);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -480,7 +445,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testVariousMethodsThrowExceptionIfSubscriptionIsMissing()
+	public void testVariousMethodsThrowExceptionIfGroupIsMissing()
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -488,14 +453,15 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			// Check whether the subscription is in the DB (which it's not)
-			exactly(7).of(database).startTransaction();
+			// Check whether the group is in the DB (which it's not)
+			exactly(9).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(7).of(database).containsGroup(txn, groupId);
+			exactly(9).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			exactly(7).of(database).abortTransaction(txn);
-			// This is needed for getMessageStatus() to proceed
-			exactly(1).of(database).containsContact(txn, contactId);
+			exactly(9).of(database).abortTransaction(txn);
+			// This is needed for getMessageStatus(), isVisibleToContact(), and
+			// setVisibleToContact() to proceed
+			exactly(3).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
@@ -504,49 +470,63 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			db.getGroup(groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.getGroupMetadata(groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.getMessageStatus(contactId, groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.getVisibility(groupId);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
+			// Expected
+		}
+
+		try {
+			db.isVisibleToContact(contactId, groupId);
+			fail();
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.mergeGroupMetadata(groupId, metadata);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.removeGroup(group);
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
 		try {
 			db.setVisibility(groupId, Collections.<ContactId>emptyList());
 			fail();
-		} catch (NoSuchSubscriptionException expected) {
+		} catch (NoSuchGroupException expected) {
+			// Expected
+		}
+
+		try {
+			db.setVisibleToContact(contactId, groupId, true);
+			fail();
+		} catch (NoSuchGroupException expected) {
 			// Expected
 		}
 
@@ -857,58 +837,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGenerateSubscriptionUpdateNoUpdateDue() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId, maxLatency);
-			will(returnValue(null));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		assertNull(db.generateSubscriptionUpdate(contactId, maxLatency));
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testGenerateSubscriptionUpdate() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId, maxLatency);
-			will(returnValue(new SubscriptionUpdate(
-					Collections.singletonList(group), 1)));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId,
-				maxLatency);
-		assertEquals(Collections.singletonList(group), u.getGroups());
-		assertEquals(1, u.getVersion());
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testReceiveAck() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -950,7 +878,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message, UNKNOWN, true);
+			oneOf(database).addMessage(txn, message, UNKNOWN, false);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).getContactIds(txn);
@@ -1104,56 +1032,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReceiveSubscriptionAck() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).setSubscriptionUpdateAcked(txn, contactId, 1);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		SubscriptionAck a = new SubscriptionAck(1);
-		db.receiveSubscriptionAck(contactId, a);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testReceiveSubscriptionUpdate() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).setGroups(txn, contactId,
-					Collections.singletonList(group), 1);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		SubscriptionUpdate u = new SubscriptionUpdate(
-				Collections.singletonList(group), 1);
-		db.receiveSubscriptionUpdate(contactId, u);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testChangingVisibilityCallsListeners() throws Exception {
 		final ContactId contactId1 = new ContactId(123);
 		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
@@ -1172,10 +1050,9 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
 			oneOf(database).removeVisibility(txn, contactId1, groupId);
-			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
+					GroupVisibilityUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -1204,62 +1081,12 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(both));
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
-			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
 		db.setVisibility(groupId, both);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testSettingVisibleToAllAffectsCurrentContacts()
-			throws Exception {
-		final ContactId contactId1 = new ContactId(123);
-		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			// setVisibility()
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsGroup(txn, groupId);
-			will(returnValue(true));
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Collections.emptyList()));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(both));
-			oneOf(database).addVisibility(txn, contactId, groupId);
-			oneOf(database).setVisibleToAll(txn, groupId, false);
-			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
-			// setVisibleToAll()
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsGroup(txn, groupId);
-			will(returnValue(true));
-			oneOf(database).setVisibleToAll(txn, groupId, true);
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(both));
-			oneOf(database).addVisibility(txn, contactId1, groupId);
-			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(
-					LocalSubscriptionsUpdatedEvent.class)));
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				shutdown);
-
-		db.setVisibility(groupId, Collections.singletonList(contactId));
-		db.setVisibleToAll(groupId, true);
 
 		context.assertIsSatisfied();
 	}

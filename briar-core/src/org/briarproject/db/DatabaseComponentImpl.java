@@ -7,17 +7,17 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.ContactExistsException;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.LocalAuthorExistsException;
-import org.briarproject.api.db.MessageExistsException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.LocalSubscriptionsUpdatedEvent;
+import org.briarproject.api.event.GroupAddedEvent;
+import org.briarproject.api.event.GroupRemovedEvent;
+import org.briarproject.api.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
@@ -26,10 +26,7 @@ import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
-import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.api.event.SubscriptionAddedEvent;
-import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.event.TransportAddedEvent;
 import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.identity.Author;
@@ -46,8 +43,6 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
@@ -164,30 +159,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void addContactGroup(ContactId c, Group g) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				db.addContactGroup(txn, c, g);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public boolean addGroup(Group g) throws DbException {
+	public void addGroup(Group g) throws DbException {
 		boolean added = false;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				if (!db.containsGroup(txn, g.getId()))
-					added = db.addGroup(txn, g);
+				if (!db.containsGroup(txn, g.getId())) {
+					db.addGroup(txn, g);
+					added = true;
+				}
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -196,8 +177,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if (added) eventBus.broadcast(new SubscriptionAddedEvent(g));
-		return added;
+		if (added) eventBus.broadcast(new GroupAddedEvent(g));
 	}
 
 	public void addLocalAuthor(LocalAuthor a) throws DbException {
@@ -205,9 +185,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		try {
 			T txn = db.startTransaction();
 			try {
-				if (db.containsLocalAuthor(txn, a.getId()))
-					throw new LocalAuthorExistsException();
-				db.addLocalAuthor(txn, a);
+				if (!db.containsLocalAuthor(txn, a.getId())) {
+					db.addLocalAuthor(txn, a);
+				}
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -220,15 +200,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void addLocalMessage(Message m, ClientId c, Metadata meta,
 			boolean shared) throws DbException {
+		boolean added = false;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				if (db.containsMessage(txn, m.getId()))
-					throw new MessageExistsException();
 				if (!db.containsGroup(txn, m.getGroupId()))
-					throw new NoSuchSubscriptionException();
-				addMessage(txn, m, VALID, shared, null);
+					throw new NoSuchGroupException();
+				if (!db.containsMessage(txn, m.getId())) {
+					addMessage(txn, m, VALID, shared, null);
+					added = true;
+				}
 				db.mergeMessageMetadata(txn, m.getId(), meta);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
@@ -238,8 +220,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		eventBus.broadcast(new MessageAddedEvent(m, null));
-		eventBus.broadcast(new MessageValidatedEvent(m, c, true, true));
+		if (added) {
+			eventBus.broadcast(new MessageAddedEvent(m, null));
+			eventBus.broadcast(new MessageValidatedEvent(m, c, true, true));
+			if (shared) eventBus.broadcast(new MessageSharedEvent(m));
+		}
 	}
 
 	/**
@@ -266,14 +251,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public boolean addTransport(TransportId t, int maxLatency)
-			throws DbException {
-		boolean added;
+	public void addTransport(TransportId t, int maxLatency) throws DbException {
+		boolean added = false;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				added = db.addTransport(txn, t, maxLatency);
+				if (!db.containsTransport(txn, t)) {
+					db.addTransport(txn, t, maxLatency);
+					added = true;
+				}
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -283,7 +270,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		if (added) eventBus.broadcast(new TransportAddedEvent(t, maxLatency));
-		return added;
 	}
 
 	public void addTransportKeys(ContactId c, TransportKeys k)
@@ -434,64 +420,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return Collections.unmodifiableList(messages);
 	}
 
-	public SubscriptionAck generateSubscriptionAck(ContactId c)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				SubscriptionAck a = db.getSubscriptionAck(txn, c);
-				db.commitTransaction(txn);
-				return a;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c,
-			int maxLatency) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				SubscriptionUpdate u =
-						db.getSubscriptionUpdate(txn, c, maxLatency);
-				db.commitTransaction(txn);
-				return u;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public Collection<Group> getAvailableGroups(ClientId c) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Group> groups = db.getAvailableGroups(txn, c);
-				db.commitTransaction(txn);
-				return groups;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
 	public Contact getContact(ContactId c) throws DbException {
 		lock.readLock().lock();
 		try {
@@ -570,7 +498,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			T txn = db.startTransaction();
 			try {
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				Group group = db.getGroup(txn, g);
 				db.commitTransaction(txn);
 				return group;
@@ -589,7 +517,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			T txn = db.startTransaction();
 			try {
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				Metadata metadata = db.getGroupMetadata(txn, g);
 				db.commitTransaction(txn);
 				return metadata;
@@ -699,7 +627,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			T txn = db.startTransaction();
 			try {
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				Map<MessageId, Metadata> metadata =
 						db.getMessageMetadata(txn, g);
 				db.commitTransaction(txn);
@@ -741,7 +669,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				if (!db.containsContact(txn, c))
 					throw new NoSuchContactException();
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				Collection<MessageStatus> statuses =
 						db.getMessageStatus(txn, c, g);
 				db.commitTransaction(txn);
@@ -785,23 +713,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				Settings s = db.getSettings(txn, namespace);
 				db.commitTransaction(txn);
 				return s;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Collection<Contact> getSubscribers(GroupId g) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Contact> contacts = db.getSubscribers(txn, g);
-				db.commitTransaction(txn);
-				return contacts;
 			} catch (DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -857,7 +768,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			T txn = db.startTransaction();
 			try {
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				Collection<ContactId> visible = db.getVisibility(txn, g);
 				db.commitTransaction(txn);
 				return visible;
@@ -891,6 +802,28 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	public boolean isVisibleToContact(ContactId c, GroupId g)
+			throws DbException {
+		lock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if (!db.containsContact(txn, c))
+					throw new NoSuchContactException();
+				if (!db.containsGroup(txn, g))
+					throw new NoSuchGroupException();
+				boolean visible = db.containsVisibleGroup(txn, c, g);
+				db.commitTransaction(txn);
+				return visible;
+			} catch (DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
 	public void mergeGroupMetadata(GroupId g, Metadata meta)
 			throws DbException {
 		lock.writeLock().lock();
@@ -898,7 +831,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			T txn = db.startTransaction();
 			try {
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				db.mergeGroupMetadata(txn, g, meta);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
@@ -990,7 +923,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				duplicate = db.containsMessage(txn, m.getId());
 				visible = db.containsVisibleGroup(txn, c, m.getGroupId());
 				if (visible) {
-					if (!duplicate) addMessage(txn, m, UNKNOWN, true, c);
+					if (!duplicate) addMessage(txn, m, UNKNOWN, false, c);
 					db.raiseAckFlag(txn, c, m.getId());
 				}
 				db.commitTransaction(txn);
@@ -1002,8 +935,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		if (visible) {
-			if (!duplicate)
-				eventBus.broadcast(new MessageAddedEvent(m, c));
+			if (!duplicate) eventBus.broadcast(new MessageAddedEvent(m, c));
 			eventBus.broadcast(new MessageToAckEvent(c));
 		}
 	}
@@ -1066,46 +998,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (requested) eventBus.broadcast(new MessageRequestedEvent(c));
 	}
 
-	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				db.setSubscriptionUpdateAcked(txn, c, a.getVersion());
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
-			throws DbException {
-		boolean updated;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				updated = db.setGroups(txn, c, u.getGroups(), u.getVersion());
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (updated) eventBus.broadcast(new RemoteSubscriptionsUpdatedEvent(c));
-	}
-
 	public void removeContact(ContactId c) throws DbException {
 		lock.writeLock().lock();
 		try {
@@ -1132,7 +1024,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			try {
 				GroupId id = g.getId();
 				if (!db.containsGroup(txn, id))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				affected = db.getVisibility(txn, id);
 				db.removeGroup(txn, id);
 				db.commitTransaction(txn);
@@ -1143,8 +1035,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		eventBus.broadcast(new SubscriptionRemovedEvent(g));
-		eventBus.broadcast(new LocalSubscriptionsUpdatedEvent(affected));
+		eventBus.broadcast(new GroupRemovedEvent(g));
+		eventBus.broadcast(new GroupVisibilityUpdatedEvent(affected));
 	}
 
 	public void removeLocalAuthor(AuthorId a) throws DbException {
@@ -1291,9 +1183,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			T txn = db.startTransaction();
 			try {
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
+					throw new NoSuchGroupException();
 				// Use HashSets for O(1) lookups, O(n) overall running time
-				HashSet<ContactId> now = new HashSet<ContactId>(visible);
+				Collection<ContactId> now = new HashSet<ContactId>(visible);
 				Collection<ContactId> before = db.getVisibility(txn, g);
 				before = new HashSet<ContactId>(before);
 				// Set the group's visibility for each current contact
@@ -1308,8 +1200,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 						affected.add(c);
 					}
 				}
-				// Make the group invisible to future contacts
-				db.setVisibleToAll(txn, g, false);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -1319,30 +1209,23 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			lock.writeLock().unlock();
 		}
 		if (!affected.isEmpty())
-			eventBus.broadcast(new LocalSubscriptionsUpdatedEvent(affected));
+			eventBus.broadcast(new GroupVisibilityUpdatedEvent(affected));
 	}
 
-	public void setVisibleToAll(GroupId g, boolean all) throws DbException {
-		Collection<ContactId> affected = new ArrayList<ContactId>();
+	public void setVisibleToContact(ContactId c, GroupId g, boolean visible)
+			throws DbException {
+		boolean wasVisible = false;
 		lock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
+				if (!db.containsContact(txn, c))
+					throw new NoSuchContactException();
 				if (!db.containsGroup(txn, g))
-					throw new NoSuchSubscriptionException();
-				// Make the group visible or invisible to future contacts
-				db.setVisibleToAll(txn, g, all);
-				if (all) {
-					// Make the group visible to all current contacts
-					Collection<ContactId> before = db.getVisibility(txn, g);
-					before = new HashSet<ContactId>(before);
-					for (ContactId c : db.getContactIds(txn)) {
-						if (!before.contains(c)) {
-							db.addVisibility(txn, c, g);
-							affected.add(c);
-						}
-					}
-				}
+					throw new NoSuchGroupException();
+				wasVisible = db.containsVisibleGroup(txn, c, g);
+				if (visible && !wasVisible) db.addVisibility(txn, c, g);
+				else if (!visible && wasVisible) db.removeVisibility(txn, c, g);
 				db.commitTransaction(txn);
 			} catch (DbException e) {
 				db.abortTransaction(txn);
@@ -1351,8 +1234,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		if (!affected.isEmpty())
-			eventBus.broadcast(new LocalSubscriptionsUpdatedEvent(affected));
+		if (visible != wasVisible) {
+			eventBus.broadcast(new GroupVisibilityUpdatedEvent(
+					Collections.singletonList(c)));
+		}
 	}
 
 	public void updateTransportKeys(Map<ContactId, TransportKeys> keys)

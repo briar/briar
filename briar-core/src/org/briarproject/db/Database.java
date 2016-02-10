@@ -17,8 +17,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
@@ -86,19 +84,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Adds a group to the given contact's subscriptions.
+	 * Stores a group.
 	 * <p>
 	 * Locking: write.
 	 */
-	void addContactGroup(T txn, ContactId c, Group g) throws DbException;
-
-	/**
-	 * Subscribes to a group, or returns false if the user already has the
-	 * maximum number of subscriptions.
-	 * <p>
-	 * Locking: write.
-	 */
-	boolean addGroup(T txn, Group g) throws DbException;
+	void addGroup(T txn, Group g) throws DbException;
 
 	/**
 	 * Stores a local pseudonym.
@@ -134,20 +124,20 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores a transport and returns true if the transport was not previously
-	 * in the database.
+	 * Stores a transport.
 	 * <p>
 	 * Locking: write.
 	 */
-	boolean addTransport(T txn, TransportId t, int maxLatency)
+	void addTransport(T txn, TransportId t, int maxLatency)
 			throws DbException;
 
 	/**
-	 * Stores the given transport keys for a newly added contact.
+	 * Stores transport keys for a newly added contact.
 	 * <p>
 	 * Locking: write.
 	 */
-	void addTransportKeys(T txn, ContactId c, TransportKeys k) throws DbException;
+	void addTransportKeys(T txn, ContactId c, TransportKeys k)
+			throws DbException;
 
 	/**
 	 * Makes a group visible to the given contact.
@@ -173,7 +163,7 @@ interface Database<T> {
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns true if the user subscribes to the given group.
+	 * Returns true if the database contains the given group.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -201,7 +191,7 @@ interface Database<T> {
 	boolean containsTransport(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Returns true if the user subscribes to the given group and the group is
+	 * Returns true if the database contains the given group and the group is
 	 * visible to the given contact.
 	 * <p>
 	 * Locking: read.
@@ -224,14 +214,6 @@ interface Database<T> {
 	 * Locking: read.
 	 */
 	int countOfferedMessages(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns all groups belonging to the given client to which the user could
-	 * subscribe.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<Group> getAvailableGroups(T txn, ClientId c) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.
@@ -276,7 +258,7 @@ interface Database<T> {
 	long getFreeSpace() throws DbException;
 
 	/**
-	 * Returns the group with the given ID, if the user subscribes to it.
+	 * Returns the group with the given ID.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -290,8 +272,7 @@ interface Database<T> {
 	Metadata getGroupMetadata(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns all groups belonging to the given client to which the user
-	 * subscribes.
+	 * Returns all groups belonging to the given client.
 	 * <p>
 	 * Locking: read.
 	 */
@@ -414,30 +395,6 @@ interface Database<T> {
 	Settings getSettings(T txn, String namespace) throws DbException;
 
 	/**
-	 * Returns all contacts who subscribe to the given group.
-	 * <p>
-	 * Locking: read.
-	 */
-	Collection<Contact> getSubscribers(T txn, GroupId g) throws DbException;
-
-	/**
-	 * Returns a subscription ack for the given contact, or null if no ack is
-	 * due.
-	 * <p>
-	 * Locking: write.
-	 */
-	SubscriptionAck getSubscriptionAck(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns a subscription update for the given contact and updates its
-	 * expiry time using the given latency, or returns null if no update is due.
-	 * <p>
-	 * Locking: write.
-	 */
-	SubscriptionUpdate getSubscriptionUpdate(T txn, ContactId c,
-			int maxLatency) throws DbException;
-
-	/**
 	 * Returns all transport keys for the given transport.
 	 * <p>
 	 * Locking: read.
@@ -541,16 +498,14 @@ interface Database<T> {
 	void removeContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Unsubscribes from a group. Any messages belonging to the group are
-	 * deleted from the database.
+	 * Removes a group (and all associated state) from the database.
 	 * <p>
 	 * Locking: write.
 	 */
 	void removeGroup(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Removes a local pseudonym (and all associated contacts) from the
-	 * database.
+	 * Removes a local pseudonym (and all associated state) from the database.
 	 * <p>
 	 * Locking: write.
 	 */
@@ -642,32 +597,6 @@ interface Database<T> {
 	 */
 	void setReorderingWindow(T txn, ContactId c, TransportId t,
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
-
-	/**
-	 * Updates the given contact's subscriptions and returns true, unless an
-	 * update with an equal or higher version number has already been received
-	 * from the contact.
-	 * <p>
-	 * Locking: write.
-	 */
-	boolean setGroups(T txn, ContactId c, Collection<Group> groups,
-			long version) throws DbException;
-
-	/**
-	 * Records a subscription ack from the given contact for the given version,
-	 * unless the contact has already acked an equal or higher version.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setSubscriptionUpdateAcked(T txn, ContactId c, long version)
-			throws DbException;
-
-	/**
-	 * Makes a group visible or invisible to future contacts by default.
-	 * <p>
-	 * Locking: write.
-	 */
-	void setVisibleToAll(T txn, GroupId g, boolean all) throws DbException;
 
 	/**
 	 * Updates the transmission count and expiry time of the given message

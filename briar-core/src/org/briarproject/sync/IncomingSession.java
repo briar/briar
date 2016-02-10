@@ -16,8 +16,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketReader;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.SyncSession;
 
 import java.io.IOException;
@@ -69,12 +67,6 @@ class IncomingSession implements SyncSession, EventListener {
 				} else if (packetReader.hasRequest()) {
 					Request r = packetReader.readRequest();
 					dbExecutor.execute(new ReceiveRequest(r));
-				} else if (packetReader.hasSubscriptionAck()) {
-					SubscriptionAck a = packetReader.readSubscriptionAck();
-					dbExecutor.execute(new ReceiveSubscriptionAck(a));
-				} else if (packetReader.hasSubscriptionUpdate()) {
-					SubscriptionUpdate u = packetReader.readSubscriptionUpdate();
-					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
 				} else {
 					throw new FormatException();
 				}
@@ -166,42 +158,6 @@ class IncomingSession implements SyncSession, EventListener {
 		public void run() {
 			try {
 				db.receiveRequest(contactId, request);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	private class ReceiveSubscriptionAck implements Runnable {
-
-		private final SubscriptionAck ack;
-
-		private ReceiveSubscriptionAck(SubscriptionAck ack) {
-			this.ack = ack;
-		}
-
-		public void run() {
-			try {
-				db.receiveSubscriptionAck(contactId, ack);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				interrupt();
-			}
-		}
-	}
-
-	private class ReceiveSubscriptionUpdate implements Runnable {
-
-		private final SubscriptionUpdate update;
-
-		private ReceiveSubscriptionUpdate(SubscriptionUpdate update) {
-			this.update = update;
-		}
-
-		public void run() {
-			try {
-				db.receiveSubscriptionUpdate(contactId, update);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();

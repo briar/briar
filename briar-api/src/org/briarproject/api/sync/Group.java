@@ -2,7 +2,6 @@ package org.briarproject.api.sync;
 
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 
-/** A group to which users may subscribe. */
 public class Group {
 
 	private final GroupId id;

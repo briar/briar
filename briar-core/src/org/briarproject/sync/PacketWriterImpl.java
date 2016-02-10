@@ -1,17 +1,12 @@
 package org.briarproject.sync;
 
 import org.briarproject.api.UniqueId;
-import org.briarproject.api.data.BdfWriter;
-import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.sync.Ack;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketTypes;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.util.ByteUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -21,8 +16,6 @@ import java.io.OutputStream;
 import static org.briarproject.api.sync.PacketTypes.ACK;
 import static org.briarproject.api.sync.PacketTypes.OFFER;
 import static org.briarproject.api.sync.PacketTypes.REQUEST;
-import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_ACK;
-import static org.briarproject.api.sync.PacketTypes.SUBSCRIPTION_UPDATE;
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.PROTOCOL_VERSION;
@@ -30,13 +23,11 @@ import static org.briarproject.api.sync.SyncConstants.PROTOCOL_VERSION;
 // This class is not thread-safe
 class PacketWriterImpl implements PacketWriter {
 
-	private final BdfWriterFactory bdfWriterFactory;
 	private final OutputStream out;
 	private final byte[] header;
 	private final ByteArrayOutputStream payload;
 
-	PacketWriterImpl(BdfWriterFactory bdfWriterFactory, OutputStream out) {
-		this.bdfWriterFactory = bdfWriterFactory;
+	PacketWriterImpl(OutputStream out) {
 		this.out = out;
 		header = new byte[PACKET_HEADER_LENGTH];
 		header[0] = PROTOCOL_VERSION;
@@ -92,33 +83,6 @@ class PacketWriterImpl implements PacketWriter {
 		if (payload.size() != 0) throw new IllegalStateException();
 		for (MessageId m : r.getMessageIds()) payload.write(m.getBytes());
 		writePacket(REQUEST);
-	}
-
-	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
-		if (payload.size() != 0) throw new IllegalStateException();
-		BdfWriter w = bdfWriterFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeInteger(a.getVersion());
-		w.writeListEnd();
-		writePacket(SUBSCRIPTION_ACK);
-	}
-
-	public void writeSubscriptionUpdate(SubscriptionUpdate u)
-			throws IOException {
-		if (payload.size() != 0) throw new IllegalStateException();
-		BdfWriter w = bdfWriterFactory.createWriter(payload);
-		w.writeListStart();
-		w.writeListStart();
-		for (Group g : u.getGroups()) {
-			w.writeListStart();
-			w.writeRaw(g.getClientId().getBytes());
-			w.writeRaw(g.getDescriptor());
-			w.writeListEnd();
-		}
-		w.writeListEnd();
-		w.writeInteger(u.getVersion());
-		w.writeListEnd();
-		writePacket(SUBSCRIPTION_UPDATE);
 	}
 
 	public void flush() throws IOException {

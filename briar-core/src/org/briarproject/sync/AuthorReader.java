@@ -11,6 +11,7 @@ import java.io.IOException;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 
+// TODO: Move this class to the identity package
 class AuthorReader implements ObjectReader<Author> {
 
 	private final AuthorFactory authorFactory;

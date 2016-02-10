@@ -8,13 +8,14 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.ClientId;
+import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -84,7 +85,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					for (MessageId id : db.getMessagesToValidate(c)) {
 						try {
 							Message m = parseMessage(id, db.getRawMessage(id));
-							validateMessage(m, c);
+							Group g = db.getGroup(m.getGroupId());
+							validateMessage(m, g);
 						} catch (NoSuchMessageException e) {
 							LOG.info("Message removed before validation");
 						}
@@ -106,15 +108,15 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		return new Message(id, new GroupId(groupId), timestamp, raw);
 	}
 
-	private void validateMessage(final Message m, final ClientId c) {
+	private void validateMessage(final Message m, final Group g) {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
-				MessageValidator v = validators.get(c);
+				MessageValidator v = validators.get(g.getClientId());
 				if (v == null) {
 					LOG.warning("No validator");
 				} else {
-					Metadata meta = v.validateMessage(m);
-					storeValidationResult(m, c, meta);
+					Metadata meta = v.validateMessage(m, g);
+					storeValidationResult(m, g.getClientId(), meta);
 				}
 			}
 		});
@@ -132,6 +134,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							hook.validatingMessage(m, c, meta);
 						db.mergeMessageMetadata(m.getId(), meta);
 						db.setMessageValid(m, c, true);
+						db.setMessageShared(m, true);
 					}
 				} catch (NoSuchMessageException e) {
 					LOG.info("Message removed during validation");
@@ -146,19 +149,18 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof MessageAddedEvent) {
-			MessageAddedEvent m = (MessageAddedEvent) e;
 			// Validate the message if it wasn't created locally
-			if (m.getContactId() != null) loadClientId(m.getMessage());
+			MessageAddedEvent m = (MessageAddedEvent) e;
+			if (m.getContactId() != null) loadGroup(m.getMessage());
 		}
 	}
 
-	private void loadClientId(final Message m) {
+	private void loadGroup(final Message m) {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					ClientId c = db.getGroup(m.getGroupId()).getClientId();
-					validateMessage(m, c);
-				} catch (NoSuchSubscriptionException e) {
+					validateMessage(m, db.getGroup(m.getGroupId()));
+				} catch (NoSuchGroupException e) {
 					LOG.info("Group removed before validation");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

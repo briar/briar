@@ -8,13 +8,11 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.PacketReaderFactory;
 import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.PrivateGroupFactory;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.sync.ValidationManager;
 
@@ -37,17 +35,6 @@ public class SyncModule extends AbstractModule {
 	@Provides
 	ObjectReader<Author> getAuthorReader(AuthorFactory authorFactory) {
 		return new AuthorReader(authorFactory);
-	}
-
-	@Provides
-	ObjectReader<Group> getGroupReader(GroupFactory groupFactory) {
-		return new GroupReader(groupFactory);
-	}
-
-	@Provides
-	ObjectReader<SubscriptionUpdate> getSubscriptionUpdateReader(
-			ObjectReader<Group> groupReader) {
-		return new SubscriptionUpdateReader(groupReader);
 	}
 
 	@Provides @Singleton

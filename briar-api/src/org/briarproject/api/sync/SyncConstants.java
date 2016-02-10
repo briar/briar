@@ -13,11 +13,8 @@ public interface SyncConstants {
 	/** The maximum length of the packet payload in bytes. */
 	int MAX_PACKET_PAYLOAD_LENGTH = 32 * 1024; // 32 KiB
 
-	/** The maximum number of groups a user may subscribe to. */
-	int MAX_SUBSCRIPTIONS = 200;
-
 	/** The maximum length of a group descriptor in bytes. */
-	int MAX_GROUP_DESCRIPTOR_LENGTH = 100;
+	int MAX_GROUP_DESCRIPTOR_LENGTH = 100; // TODO: Remove
 
 	/** The maximum length of a message in bytes. */
 	int MAX_MESSAGE_LENGTH = MAX_PACKET_PAYLOAD_LENGTH - PACKET_HEADER_LENGTH;

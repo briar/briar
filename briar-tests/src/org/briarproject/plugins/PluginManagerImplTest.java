@@ -83,7 +83,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(simplexPlugin).getMaxLatency();
 			will(returnValue(simplexLatency));
 			oneOf(db).addTransport(simplexId, simplexLatency);
-			will(returnValue(true));
 			oneOf(simplexPlugin).start();
 			will(returnValue(true)); // Started
 			oneOf(simplexPlugin).shouldPoll();
@@ -98,7 +97,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(simplexFailPlugin).getMaxLatency();
 			will(returnValue(simplexFailLatency));
 			oneOf(db).addTransport(simplexFailId, simplexFailLatency);
-			will(returnValue(true));
 			oneOf(simplexFailPlugin).start();
 			will(returnValue(false)); // Failed to start
 			// First duplex plugin
@@ -112,7 +110,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(duplexPlugin).getMaxLatency();
 			will(returnValue(duplexLatency));
 			oneOf(db).addTransport(duplexId, duplexLatency);
-			will(returnValue(true));
 			oneOf(duplexPlugin).start();
 			will(returnValue(true)); // Started
 			oneOf(duplexPlugin).shouldPoll();

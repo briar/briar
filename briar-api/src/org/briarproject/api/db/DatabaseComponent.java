@@ -17,8 +17,6 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionAck;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.io.IOException;
@@ -47,14 +45,8 @@ public interface DatabaseComponent {
 	 */
 	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
-	/** Adds a group to the given contact's subscriptions. */
-	void addContactGroup(ContactId c, Group g) throws DbException;
-
-	/**
-	 * Subscribes to a group, or returns false if the user already has the
-	 * maximum number of subscriptions.
-	 */
-	boolean addGroup(Group g) throws DbException;
+	/** Stores a group. */
+	void addGroup(Group g) throws DbException;
 
 	/** Stores a local pseudonym. */
 	void addLocalAuthor(LocalAuthor a) throws DbException;
@@ -63,14 +55,11 @@ public interface DatabaseComponent {
 	void addLocalMessage(Message m, ClientId c, Metadata meta, boolean shared)
 			throws DbException;
 
-	/**
-	 * Stores a transport and returns true if the transport was not previously
-	 * in the database.
-	 */
-	boolean addTransport(TransportId t, int maxLatency) throws DbException;
+	/** Stores a transport. */
+	void addTransport(TransportId t, int maxLatency) throws DbException;
 
 	/**
-	 * Stores the given transport keys for a newly added contact.
+	 * Stores transport keys for a newly added contact.
 	 */
 	void addTransportKeys(ContactId c, TransportKeys k) throws DbException;
 
@@ -113,26 +102,6 @@ public interface DatabaseComponent {
 	Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
 			int maxLatency) throws DbException;
 
-	/**
-	 * Returns a subscription ack for the given contact, or null if no
-	 * subscription ack is due.
-	 */
-	SubscriptionAck generateSubscriptionAck(ContactId c) throws DbException;
-
-	/**
-	 * Returns a subscription update for the given contact, for transmission
-	 * over a transport with the given latency. Returns null if no update is
-	 * due.
-	 */
-	SubscriptionUpdate generateSubscriptionUpdate(ContactId c, int maxLatency)
-			throws DbException;
-
-	/**
-	 * Returns all groups belonging to the given client to which the user could
-	 * subscribe.
-	 */
-	Collection<Group> getAvailableGroups(ClientId c) throws DbException;
-
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;
 
@@ -145,16 +114,13 @@ public interface DatabaseComponent {
 	/** Returns the unique ID for this device. */
 	DeviceId getDeviceId() throws DbException;
 
-	/** Returns the group with the given ID, if the user subscribes to it. */
+	/** Returns the group with the given ID. */
 	Group getGroup(GroupId g) throws DbException;
 
 	/** Returns the metadata for the given group. */
 	Metadata getGroupMetadata(GroupId g) throws DbException;
 
-	/**
-	 * Returns all groups belonging to the given client to which the user
-	 * subscribes.
-	 */
+	/** Returns all groups belonging to the given client. */
 	Collection<Group> getGroups(ClientId c) throws DbException;
 
 	/** Returns the local pseudonym with the given ID. */
@@ -196,9 +162,6 @@ public interface DatabaseComponent {
 	/** Returns all settings in the given namespace. */
 	Settings getSettings(String namespace) throws DbException;
 
-	/** Returns all contacts who subscribe to the given group. */
-	Collection<Contact> getSubscribers(GroupId g) throws DbException;
-
 	/** Returns all transport keys for the given transport. */
 	Map<ContactId, TransportKeys> getTransportKeys(TransportId t)
 			throws DbException;
@@ -215,6 +178,9 @@ public interface DatabaseComponent {
 	 */
 	void incrementStreamCounter(ContactId c, TransportId t, long rotationPeriod)
 			throws DbException;
+
+	/** Returns true if the given group is visible to the given contact. */
+	boolean isVisibleToContact(ContactId c, GroupId g) throws DbException;
 
 	/**
 	 * Merges the given metadata with the existing metadata for the given
@@ -246,21 +212,10 @@ public interface DatabaseComponent {
 	/** Processes a request from the given contact. */
 	void receiveRequest(ContactId c, Request r) throws DbException;
 
-	/** Processes a subscription ack from the given contact. */
-	void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
-			throws DbException;
-
-	/** Processes a subscription update from the given contact. */
-	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
-			throws DbException;
-
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;
 
-	/**
-	 * Unsubscribes from a group. Any messages belonging to the group
-	 * are deleted from the database.
-	 */
+	/** Removes a group (and all associated state) from the database. */
 	void removeGroup(Group g) throws DbException;
 
 	/**
@@ -268,10 +223,7 @@ public interface DatabaseComponent {
 	 */
 	void removeLocalAuthor(AuthorId a) throws DbException;
 
-	/**
-	 * Removes a transport (and any associated configuration and local
-	 * properties) from the database.
-	 */
+	/** Removes a transport (and all associated state) from the database. */
 	void removeTransport(TransportId t) throws DbException;
 
 	/** Sets the status of the given contact. */
@@ -297,16 +249,14 @@ public interface DatabaseComponent {
 
 	/**
 	 * Makes a group visible to the given set of contacts and invisible to any
-	 * other current or future contacts.
+	 * other contacts.
 	 */
 	void setVisibility(GroupId g, Collection<ContactId> visible)
 			throws DbException;
 
-	/**
-	 * Makes a group visible to all current and future contacts, or invisible
-	 * to future contacts.
-	 */
-	void setVisibleToAll(GroupId g, boolean all) throws DbException;
+	/** Makes a group visible or invisible to a contact. */
+	void setVisibleToContact(ContactId c, GroupId g, boolean visible)
+			throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.

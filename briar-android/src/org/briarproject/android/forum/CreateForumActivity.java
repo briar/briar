@@ -18,7 +18,7 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
@@ -51,7 +51,7 @@ implements OnEditorActionListener, OnClickListener {
 	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumManager forumManager;
+	@Inject private volatile ForumSharingManager forumSharingManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -138,8 +138,8 @@ implements OnEditorActionListener, OnClickListener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Forum f = forumManager.createForum(name);
-					forumManager.addForum(f);
+					Forum f = forumSharingManager.createForum(name);
+					forumSharingManager.addForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing forum took " + duration + " ms");

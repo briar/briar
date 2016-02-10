@@ -19,7 +19,6 @@ import org.briarproject.api.sync.PacketReaderFactory;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.SubscriptionUpdate;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
@@ -37,7 +36,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
@@ -56,7 +54,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final SecretKey tagKey, headerKey;
-	private final Group group;
 	private final Message message, message1;
 	private final Collection<MessageId> messageIds;
 
@@ -79,7 +76,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		ClientId clientId = new ClientId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
-		group = groupFactory.createGroup(clientId, descriptor);
+		Group group = groupFactory.createGroup(clientId, descriptor);
 		// Add two messages to the group
 		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
 		long timestamp = System.currentTimeMillis();
@@ -113,10 +110,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		packetWriter.writeOffer(new Offer(messageIds));
 
 		packetWriter.writeRequest(new Request(messageIds));
-
-		SubscriptionUpdate su = new SubscriptionUpdate(
-				Collections.singletonList(group), 1);
-		packetWriter.writeSubscriptionUpdate(su);
 
 		streamWriter.flush();
 		return out.toByteArray();
@@ -157,12 +150,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		assertTrue(packetReader.hasRequest());
 		Request req = packetReader.readRequest();
 		assertEquals(messageIds, req.getMessageIds());
-
-		// Read the subscription update
-		assertTrue(packetReader.hasSubscriptionUpdate());
-		SubscriptionUpdate su = packetReader.readSubscriptionUpdate();
-		assertEquals(Collections.singletonList(group), su.getGroups());
-		assertEquals(1, su.getVersion());
 
 		in.close();
 	}
