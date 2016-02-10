@@ -136,7 +136,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " valid INT NOT NULL,"
 					+ " shared BOOLEAN NOT NULL,"
 					+ " length INT NOT NULL,"
-					+ " raw BLOB NOT NULL,"
+					+ " raw BLOB," // Null if message has been deleted
 					+ " PRIMARY KEY (messageId),"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
@@ -933,6 +933,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void deleteMessage(Connection txn, MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE messages SET raw = NULL WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			if (affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void deleteMessageMetadata(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM messageMetadata WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Contact getContact(Connection txn, ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1308,7 +1340,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND gv.contactId = s.contactId"
 					+ " WHERE gv.contactId = ?"
-					+ " AND valid = ? AND shared = TRUE"
+					+ " AND valid = ? AND shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC LIMIT ?";
@@ -1367,7 +1399,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND gv.contactId = s.contactId"
 					+ " WHERE gv.contactId = ?"
-					+ " AND valid = ? AND shared = TRUE"
+					+ " AND valid = ? AND shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC";
@@ -1401,7 +1433,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT messageId FROM messages AS m"
 					+ " JOIN groups AS g ON m.groupId = g.groupId"
-					+ " WHERE valid = ? AND clientId = ?";
+					+ " WHERE valid = ? AND clientId = ? AND raw IS NOT NULL";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, UNKNOWN.getValue());
 			ps.setBytes(2, c.getBytes());
@@ -1453,7 +1485,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND gv.contactId = s.contactId"
 					+ " WHERE gv.contactId = ?"
-					+ " AND valid = ? AND shared = TRUE"
+					+ " AND valid = ? AND shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC";

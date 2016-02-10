@@ -216,6 +216,23 @@ interface Database<T> {
 	int countOfferedMessages(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Deletes the message with the given ID. Unlike
+	 * {@link #removeMessage(Object, MessageId)}, the message ID and any other
+	 * associated data are not deleted, and
+	 * {@link #containsMessage(Object, MessageId)} will continue to return true.
+	 * <p>
+	 * Locking: write.
+	 */
+	void deleteMessage(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Deletes any metadata associated with the given message.
+	 * <p>
+	 * Locking: write.
+	 */
+	void deleteMessageMetadata(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the contact with the given ID.
 	 * <p>
 	 * Locking: read.

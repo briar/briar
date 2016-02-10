@@ -543,17 +543,31 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the message is in the DB (which it's not)
-			exactly(6).of(database).startTransaction();
+			exactly(8).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(6).of(database).containsMessage(txn, messageId);
+			exactly(8).of(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			exactly(6).of(database).abortTransaction(txn);
+			exactly(8).of(database).abortTransaction(txn);
 			// This is needed for getMessageStatus() to proceed
 			exactly(1).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
+
+		try {
+			db.deleteMessage(messageId);
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.deleteMessageMetadata(messageId);
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
 
 		try {
 			db.getRawMessage(messageId);
