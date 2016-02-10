@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
@@ -27,6 +28,8 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
+import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
@@ -74,6 +77,10 @@ public class BriarService extends RoboService {
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_SINGLE_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+		if (Build.VERSION.SDK_INT >= 21) {
+			b.setCategory(CATEGORY_SERVICE);
+			b.setVisibility(VISIBILITY_SECRET);
+		}
 		startForeground(ONGOING_NOTIFICATION_ID, b.build());
 		// Start the services in a background thread
 		new Thread() {
