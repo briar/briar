@@ -16,12 +16,8 @@ import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -33,6 +29,7 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.PrivateGroupFactory;
+import org.briarproject.api.sync.ValidationManager.ValidationHook;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
@@ -48,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
@@ -58,7 +54,7 @@ import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
 class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
-		RemoveContactHook, EventListener {
+		RemoveContactHook, ValidationHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"cd11a5d04dccd9e2931d6fc3df456313"
@@ -70,7 +66,6 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 			Logger.getLogger(ForumSharingManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final Executor dbExecutor;
 	private final ContactManager contactManager;
 	private final ForumManager forumManager;
 	private final GroupFactory groupFactory;
@@ -89,14 +84,12 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 
 	@Inject
 	ForumSharingManagerImpl(DatabaseComponent db,
-			@DatabaseExecutor Executor dbExecutor,
 			ContactManager contactManager, ForumManager forumManager,
 			GroupFactory groupFactory, PrivateGroupFactory privateGroupFactory,
 			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser, SecureRandom random, Clock clock) {
 		this.db = db;
-		this.dbExecutor = dbExecutor;
 		this.contactManager = contactManager;
 		this.forumManager = forumManager;
 		this.groupFactory = groupFactory;
@@ -150,12 +143,21 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	}
 
 	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			ClientId c = m.getClientId();
-			if (m.isValid() && !m.isLocal() && c.equals(CLIENT_ID))
-				remoteForumsUpdated(m.getMessage().getGroupId());
+	public void validatingMessage(Message m, ClientId c, Metadata meta) {
+		if (c.equals(CLIENT_ID)) {
+			lock.writeLock().lock();
+			try {
+				ContactId contactId = getContactId(m.getGroupId());
+				setForumVisibility(contactId, getVisibleForums(m));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+			} catch (FormatException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+			} finally {
+				lock.writeLock().unlock();
+			}
 		}
 	}
 
@@ -416,47 +418,25 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		return out.toByteArray();
 	}
 
-	private void remoteForumsUpdated(final GroupId g) {
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				lock.writeLock().lock();
-				try {
-					setForumVisibility(getContactId(g), getVisibleForums(g));
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch (FormatException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} finally {
-					lock.writeLock().unlock();
-				}
-			}
-		});
-	}
-
 	// Locking: lock.readLock
 	private ContactId getContactId(GroupId contactGroupId) throws DbException,
 			FormatException {
 		Metadata meta = db.getGroupMetadata(contactGroupId);
 		BdfDictionary d = metadataParser.parse(meta);
-		int id = d.getInteger("contactId").intValue();
-		return new ContactId(id);
+		return new ContactId(d.getInteger("contactId").intValue());
 	}
 
 	// Locking: lock.readLock
-	private Set<GroupId> getVisibleForums(GroupId contactGroupId)
+	private Set<GroupId> getVisibleForums(Message remoteUpdate)
 			throws DbException, FormatException {
-		// Get the latest local and remote updates
-		LatestUpdate local = findLatest(contactGroupId, true);
-		LatestUpdate remote = findLatest(contactGroupId, false);
-		// If there's no local and/or remote update, no forums are visible
-		if (local == null || remote == null) return Collections.emptySet();
+		// Get the latest local update
+		LatestUpdate local = findLatest(remoteUpdate.getGroupId(), true);
+		// If there's no local update, no forums are visible
+		if (local == null) return Collections.emptySet();
 		// Intersect the sets of shared forums
 		byte[] localRaw = db.getRawMessage(local.messageId);
 		Set<Forum> shared = new HashSet<Forum>(parseForumList(localRaw));
-		byte[] remoteRaw = db.getRawMessage(remote.messageId);
-		shared.retainAll(parseForumList(remoteRaw));
+		shared.retainAll(parseForumList(remoteUpdate.getRaw()));
 		// Forums in the intersection should be visible
 		Set<GroupId> visible = new HashSet<GroupId>(shared.size());
 		for (Forum f : shared) visible.add(f.getId());
