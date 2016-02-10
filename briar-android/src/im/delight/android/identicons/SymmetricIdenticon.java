@@ -17,7 +17,6 @@ package im.delight.android.identicons;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 
 import org.briarproject.api.crypto.CryptoComponent;
@@ -69,11 +68,6 @@ public class SymmetricIdenticon extends IdenticonView {
 			@Override
 			protected boolean isCellVisible(int row, int column) {
 				return getByte(3 + row * CENTER_COLUMN_INDEX + getSymmetricColumnIndex(column)) >= 0;
-			}
-
-			@Override
-			protected int getIconColor() {
-				return Color.rgb(getByte(0) + 128, getByte(1) + 128, getByte(2) + 128);
 			}
 		};
 	}

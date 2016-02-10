@@ -93,15 +93,15 @@ public abstract class IdenticonBase {
 
 	abstract protected boolean isCellVisible(int row, int column);
 
-	abstract protected int getIconColor();
+	protected int getIconColor() {
+		int r = getByte(0) * 3 / 4 + 96;
+		int g = getByte(1) * 3 / 4 + 96;
+		int b = getByte(2) * 3 / 4 + 96;
+		return Color.rgb(r, g, b);
+	}
 
 	protected int getBackgroundColor() {
-		float[] hsv = new float[3];
-		Color.colorToHSV(getIconColor(), hsv);
-		if (hsv[2] < 0.5)
-			return Color.parseColor("#ffeeeeee"); // @color/background_material_light
-		else
-			return Color.parseColor("#ff303030"); // @color/background_material_dark
+		return Color.WHITE;
 	}
 
 	public void updateSize(int w, int h) {
