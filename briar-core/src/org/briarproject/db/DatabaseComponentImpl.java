@@ -13,7 +13,6 @@ import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
@@ -606,22 +605,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchTransportException();
 		db.removeTransport(txn, t);
 		transaction.attach(new TransportRemovedEvent(t));
-	}
-
-	public void setContactStatus(Transaction transaction, ContactId c,
-			StorageStatus s) throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
-		db.setContactStatus(txn, c, s);
-	}
-
-	public void setLocalAuthorStatus(Transaction transaction, AuthorId a,
-			StorageStatus s) throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
-			throw new NoSuchLocalAuthorException();
-		db.setLocalAuthorStatus(txn, a, s);
 	}
 
 	public void setMessageShared(Transaction transaction, Message m,

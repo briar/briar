@@ -6,7 +6,6 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -440,18 +439,6 @@ interface Database<T> {
 	 * respect to the given contact.
 	 */
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
-
-	/**
-	 * Sets the status of the given contact.
-	 */
-	void setContactStatus(T txn, ContactId c, StorageStatus s)
-			throws DbException;
-
-	/**
-	 * Sets the status of the given local pseudonym.
-	 */
-	void setLocalAuthorStatus(T txn, AuthorId a, StorageStatus s)
-			throws DbException;
 
 	/**
 	 * Marks the given message as shared or unshared.

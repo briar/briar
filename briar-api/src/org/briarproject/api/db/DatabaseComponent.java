@@ -318,18 +318,6 @@ public interface DatabaseComponent {
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
 
 	/**
-	 * Sets the status of the given contact.
-	 */
-	void setContactStatus(Transaction txn, ContactId c, StorageStatus s)
-			throws DbException;
-
-	/**
-	 * Sets the status of the given local pseudonym.
-	 */
-	void setLocalAuthorStatus(Transaction txn, AuthorId a, StorageStatus s)
-			throws DbException;
-
-	/**
 	 * Marks the given message as shared or unshared.
 	 */
 	void setMessageShared(Transaction txn, Message m, boolean shared)

@@ -4,20 +4,14 @@ import com.google.inject.Inject;
 
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import static org.briarproject.api.db.StorageStatus.ACTIVE;
-import static org.briarproject.api.db.StorageStatus.REMOVING;
 
 class IdentityManagerImpl implements IdentityManager {
 
@@ -49,7 +43,6 @@ class IdentityManagerImpl implements IdentityManager {
 			db.addLocalAuthor(txn, localAuthor);
 			for (AddIdentityHook hook : addHooks)
 				hook.addingIdentity(txn, localAuthor);
-			db.setLocalAuthorStatus(txn, localAuthor.getId(), ACTIVE);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -66,8 +59,7 @@ class IdentityManagerImpl implements IdentityManager {
 		} finally {
 			db.endTransaction(txn);
 		}
-		if (author.getStatus().equals(ACTIVE)) return author;
-		throw new NoSuchLocalAuthorException();
+		return author;
 	}
 
 	@Override
@@ -80,11 +72,7 @@ class IdentityManagerImpl implements IdentityManager {
 		} finally {
 			db.endTransaction(txn);
 		}
-		// Filter out any pseudonyms that are being added or removed
-		List<LocalAuthor> active = new ArrayList<LocalAuthor>(authors.size());
-		for (LocalAuthor a : authors)
-			if (a.getStatus().equals(ACTIVE)) active.add(a);
-		return Collections.unmodifiableList(active);
+		return authors;
 	}
 
 	@Override
@@ -92,7 +80,6 @@ class IdentityManagerImpl implements IdentityManager {
 		Transaction txn = db.startTransaction();
 		try {
 			LocalAuthor localAuthor = db.getLocalAuthor(txn, a);
-			db.setLocalAuthorStatus(txn, a, REMOVING);
 			for (RemoveIdentityHook hook : removeHooks)
 				hook.removingIdentity(txn, localAuthor);
 			db.removeLocalAuthor(txn, a);
