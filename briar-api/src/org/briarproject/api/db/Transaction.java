@@ -1,11 +1,19 @@
 package org.briarproject.api.db;
 
+import org.briarproject.api.event.Event;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * A wrapper around a database transaction. Transactions are not thread-safe.
  */
 public class Transaction {
 
 	private final Object txn;
+
+	private List<Event> events = null;
 	private boolean complete = false;
 
 	public Transaction(Object txn) {
@@ -18,6 +26,23 @@ public class Transaction {
 	 */
 	public Object unbox() {
 		return txn;
+	}
+
+	/**
+	 * Attaches an event to be broadcast when the transaction has been
+	 * committed.
+	 */
+	public void attach(Event e) {
+		if (events == null) events = new ArrayList<Event>();
+		events.add(e);
+	}
+
+	/**
+	 * Returns any events attached to the transaction.
+	 */
+	public List<Event> getEvents() {
+		if (events == null) return Collections.emptyList();
+		return events;
 	}
 
 	/**

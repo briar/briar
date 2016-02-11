@@ -6,9 +6,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.Transaction;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.LocalAuthorAddedEvent;
-import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
@@ -32,14 +29,12 @@ class IdentityManagerImpl implements IdentityManager, Service {
 			Logger.getLogger(IdentityManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final EventBus eventBus;
 	private final List<AddIdentityHook> addHooks;
 	private final List<RemoveIdentityHook> removeHooks;
 
 	@Inject
-	IdentityManagerImpl(DatabaseComponent db, EventBus eventBus) {
+	IdentityManagerImpl(DatabaseComponent db) {
 		this.db = db;
-		this.eventBus = eventBus;
 		addHooks = new CopyOnWriteArrayList<AddIdentityHook>();
 		removeHooks = new CopyOnWriteArrayList<RemoveIdentityHook>();
 	}
@@ -48,8 +43,6 @@ class IdentityManagerImpl implements IdentityManager, Service {
 	public boolean start() {
 		// Finish adding/removing any partly added/removed pseudonyms
 		try {
-			List<AuthorId> added = new ArrayList<AuthorId>();
-			List<AuthorId> removed = new ArrayList<AuthorId>();
 			Transaction txn = db.startTransaction();
 			try {
 				for (LocalAuthor a : db.getLocalAuthors(txn)) {
@@ -57,22 +50,16 @@ class IdentityManagerImpl implements IdentityManager, Service {
 						for (AddIdentityHook hook : addHooks)
 							hook.addingIdentity(txn, a);
 						db.setLocalAuthorStatus(txn, a.getId(), ACTIVE);
-						added.add(a.getId());
 					} else if (a.getStatus().equals(REMOVING)) {
 						for (RemoveIdentityHook hook : removeHooks)
 							hook.removingIdentity(txn, a);
 						db.removeLocalAuthor(txn, a.getId());
-						removed.add(a.getId());
 					}
 				}
 				txn.setComplete();
 			} finally {
 				db.endTransaction(txn);
 			}
-			for (AuthorId a : added)
-				eventBus.broadcast(new LocalAuthorAddedEvent(a));
-			for (AuthorId a : removed)
-				eventBus.broadcast(new LocalAuthorRemovedEvent(a));
 			return true;
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -107,7 +94,6 @@ class IdentityManagerImpl implements IdentityManager, Service {
 		} finally {
 			db.endTransaction(txn);
 		}
-		eventBus.broadcast(new LocalAuthorAddedEvent(localAuthor.getId()));
 	}
 
 	@Override
@@ -154,6 +140,5 @@ class IdentityManagerImpl implements IdentityManager, Service {
 		} finally {
 			db.endTransaction(txn);
 		}
-		eventBus.broadcast(new LocalAuthorRemovedEvent(a));
 	}
 }

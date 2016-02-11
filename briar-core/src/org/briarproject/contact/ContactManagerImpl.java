@@ -9,9 +9,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.Transaction;
-import org.briarproject.api.event.ContactAddedEvent;
-import org.briarproject.api.event.ContactRemovedEvent;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
@@ -37,14 +34,12 @@ class ContactManagerImpl implements ContactManager, Service,
 			Logger.getLogger(ContactManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final EventBus eventBus;
 	private final List<AddContactHook> addHooks;
 	private final List<RemoveContactHook> removeHooks;
 
 	@Inject
-	ContactManagerImpl(DatabaseComponent db, EventBus eventBus) {
+	ContactManagerImpl(DatabaseComponent db) {
 		this.db = db;
-		this.eventBus = eventBus;
 		addHooks = new CopyOnWriteArrayList<AddContactHook>();
 		removeHooks = new CopyOnWriteArrayList<RemoveContactHook>();
 	}
@@ -53,8 +48,6 @@ class ContactManagerImpl implements ContactManager, Service,
 	public boolean start() {
 		// Finish adding/removing any partly added/removed contacts
 		try {
-			List<ContactId> added = new ArrayList<ContactId>();
-			List<ContactId> removed = new ArrayList<ContactId>();
 			Transaction txn = db.startTransaction();
 			try {
 				for (Contact c : db.getContacts(txn)) {
@@ -62,22 +55,16 @@ class ContactManagerImpl implements ContactManager, Service,
 						for (AddContactHook hook : addHooks)
 							hook.addingContact(txn, c);
 						db.setContactStatus(txn, c.getId(), ACTIVE);
-						added.add(c.getId());
 					} else if (c.getStatus().equals(REMOVING)) {
 						for (RemoveContactHook hook : removeHooks)
 							hook.removingContact(txn, c);
 						db.removeContact(txn, c.getId());
-						removed.add(c.getId());
 					}
 				}
 				txn.setComplete();
 			} finally {
 				db.endTransaction(txn);
 			}
-			for (ContactId c : added)
-				eventBus.broadcast(new ContactAddedEvent(c));
-			for (ContactId c : removed)
-				eventBus.broadcast(new ContactRemovedEvent(c));
 			return true;
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -115,7 +102,6 @@ class ContactManagerImpl implements ContactManager, Service,
 		} finally {
 			db.endTransaction(txn);
 		}
-		eventBus.broadcast(new ContactAddedEvent(c));
 		return c;
 	}
 
@@ -159,7 +145,6 @@ class ContactManagerImpl implements ContactManager, Service,
 		} finally {
 			db.endTransaction(txn);
 		}
-		eventBus.broadcast(new ContactRemovedEvent(c));
 	}
 
 	private void removeContact(Transaction txn, ContactId c)

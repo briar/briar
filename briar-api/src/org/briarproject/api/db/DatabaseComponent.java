@@ -49,9 +49,9 @@ public interface DatabaseComponent {
 	Transaction startTransaction() throws DbException;
 
 	/**
-	 * Ends a transaction. If the transaction's
-	 * {@link Transaction#setComplete() commit} flag is set, the
-	 * transaction is committed, otherwise it is aborted.
+	 * Ends a transaction. If the transaction is marked as complete, the
+	 * transaction is committed and any events attached to the transaction are
+	 * broadcast; otherwise the transaction is aborted.
 	 */
 	void endTransaction(Transaction txn) throws DbException;
 
