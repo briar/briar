@@ -9,7 +9,7 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchGroupException;
-import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
@@ -82,14 +82,17 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			public void run() {
 				try {
 					// TODO: Don't do all of this in a single DB task
-					for (MessageId id : db.getMessagesToValidate(c)) {
-						try {
-							Message m = parseMessage(id, db.getRawMessage(id));
-							Group g = db.getGroup(m.getGroupId());
+					Transaction txn = db.startTransaction();
+					try {
+						for (MessageId id : db.getMessagesToValidate(txn, c)) {
+							byte[] raw = db.getRawMessage(txn, id);
+							Message m = parseMessage(id, raw);
+							Group g = db.getGroup(txn, m.getGroupId());
 							validateMessage(m, g);
-						} catch (NoSuchMessageException e) {
-							LOG.info("Message removed before validation");
 						}
+						txn.setComplete();
+					} finally {
+						db.endTransaction(txn);
 					}
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -127,17 +130,21 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					if (meta == null) {
-						db.setMessageValid(m, c, false);
-					} else {
-						for (ValidationHook hook : hooks)
-							hook.validatingMessage(m, c, meta);
-						db.mergeMessageMetadata(m.getId(), meta);
-						db.setMessageValid(m, c, true);
-						db.setMessageShared(m, true);
+					Transaction txn = db.startTransaction();
+					try {
+						if (meta == null) {
+							db.setMessageValid(txn, m, c, false);
+						} else {
+							for (ValidationHook hook : hooks)
+								hook.validatingMessage(txn, m, c, meta);
+							db.mergeMessageMetadata(txn, m.getId(), meta);
+							db.setMessageValid(txn, m, c, true);
+							db.setMessageShared(txn, m, true);
+						}
+						txn.setComplete();
+					} finally {
+						db.endTransaction(txn);
 					}
-				} catch (NoSuchMessageException e) {
-					LOG.info("Message removed during validation");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -159,7 +166,13 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					validateMessage(m, db.getGroup(m.getGroupId()));
+					Transaction txn = db.startTransaction();
+					try {
+						validateMessage(m, db.getGroup(txn, m.getGroupId()));
+						txn.setComplete();
+					} finally {
+						db.endTransaction(txn);
+					}
 				} catch (NoSuchGroupException e) {
 					LOG.info("Group removed before validation");
 				} catch (DbException e) {

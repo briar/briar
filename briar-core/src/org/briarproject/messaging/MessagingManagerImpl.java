@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
@@ -16,7 +15,7 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageHeader;
@@ -50,19 +49,17 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			Logger.getLogger(MessagingManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final ContactManager contactManager;
 	private final PrivateGroupFactory privateGroupFactory;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final MetadataEncoder metadataEncoder;
 	private final MetadataParser metadataParser;
 
 	@Inject
-	MessagingManagerImpl(DatabaseComponent db, ContactManager contactManager,
+	MessagingManagerImpl(DatabaseComponent db,
 			PrivateGroupFactory privateGroupFactory,
 			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser) {
 		this.db = db;
-		this.contactManager = contactManager;
 		this.privateGroupFactory = privateGroupFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.metadataEncoder = metadataEncoder;
@@ -70,19 +67,17 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	}
 
 	@Override
-	public void addingContact(Contact c) {
+	public void addingContact(Transaction txn, Contact c) throws DbException {
 		try {
 			// Create a group to share with the contact
 			Group g = getContactGroup(c);
 			// Store the group and share it with the contact
-			db.addGroup(g);
-			db.setVisibleToContact(c.getId(), g.getId(), true);
+			db.addGroup(txn, g);
+			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
 			// Attach the contact ID to the group
 			BdfDictionary d = new BdfDictionary();
 			d.put("contactId", c.getId().getInt());
-			db.mergeGroupMetadata(g.getId(), metadataEncoder.encode(d));
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			db.mergeGroupMetadata(txn, g.getId(), metadataEncoder.encode(d));
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -93,12 +88,8 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	}
 
 	@Override
-	public void removingContact(Contact c) {
-		try {
-			db.removeGroup(getContactGroup(c));
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
+	public void removingContact(Transaction txn, Contact c) throws DbException {
+		db.removeGroup(txn, getContactGroup(c));
 	}
 
 	@Override
@@ -108,15 +99,22 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 
 	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
-		BdfDictionary d = new BdfDictionary();
-		d.put("timestamp", m.getMessage().getTimestamp());
-		if (m.getParent() != null) d.put("parent", m.getParent().getBytes());
-		d.put("contentType", m.getContentType());
-		d.put("local", true);
-		d.put("read", true);
 		try {
+			BdfDictionary d = new BdfDictionary();
+			d.put("timestamp", m.getMessage().getTimestamp());
+			if (m.getParent() != null)
+				d.put("parent", m.getParent().getBytes());
+			d.put("contentType", m.getContentType());
+			d.put("local", true);
+			d.put("read", true);
 			Metadata meta = metadataEncoder.encode(d);
-			db.addLocalMessage(m.getMessage(), CLIENT_ID, meta, true);
+			Transaction txn = db.startTransaction();
+			try {
+				db.addLocalMessage(txn, m.getMessage(), CLIENT_ID, meta, true);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -125,26 +123,48 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	@Override
 	public ContactId getContactId(GroupId g) throws DbException {
 		try {
-			BdfDictionary d = metadataParser.parse(db.getGroupMetadata(g));
-			long id = d.getInteger("contactId");
-			return new ContactId((int) id);
+			Metadata meta;
+			Transaction txn = db.startTransaction();
+			try {
+				meta = db.getGroupMetadata(txn, g);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
+			BdfDictionary d = metadataParser.parse(meta);
+			return new ContactId(d.getInteger("contactId").intValue());
 		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			throw new NoSuchContactException();
+			throw new DbException(e);
 		}
 	}
 
 	@Override
 	public GroupId getConversationId(ContactId c) throws DbException {
-		return getContactGroup(contactManager.getContact(c)).getId();
+		Contact contact;
+		Transaction txn = db.startTransaction();
+		try {
+			contact = db.getContact(txn, c);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return getContactGroup(contact).getId();
 	}
 
 	@Override
 	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
-		GroupId groupId = getConversationId(c);
-		Map<MessageId, Metadata> metadata = db.getMessageMetadata(groupId);
-		Collection<MessageStatus> statuses = db.getMessageStatus(c, groupId);
+		GroupId g = getConversationId(c);
+		Map<MessageId, Metadata> metadata;
+		Collection<MessageStatus> statuses;
+		Transaction txn = db.startTransaction();
+		try {
+			metadata = db.getMessageMetadata(txn, g);
+			statuses = db.getMessageStatus(txn, c, g);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		Collection<PrivateMessageHeader> headers =
 				new ArrayList<PrivateMessageHeader>();
 		for (MessageStatus s : statuses) {
@@ -168,7 +188,14 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 
 	@Override
 	public byte[] getMessageBody(MessageId m) throws DbException {
-		byte[] raw = db.getRawMessage(m);
+		byte[] raw;
+		Transaction txn = db.startTransaction();
+		try {
+			raw = db.getRawMessage(txn, m);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		ByteArrayInputStream in = new ByteArrayInputStream(raw,
 				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 		BdfReader r = bdfReaderFactory.createReader(in);
@@ -191,10 +218,17 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 
 	@Override
 	public void setReadFlag(MessageId m, boolean read) throws DbException {
-		BdfDictionary d = new BdfDictionary();
-		d.put("read", read);
 		try {
-			db.mergeMessageMetadata(m, metadataEncoder.encode(d));
+			BdfDictionary d = new BdfDictionary();
+			d.put("read", read);
+			Metadata meta = metadataEncoder.encode(d);
+			Transaction txn = db.startTransaction();
+			try {
+				db.mergeMessageMetadata(txn, m, meta);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

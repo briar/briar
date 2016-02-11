@@ -5,6 +5,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -24,7 +25,9 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 
-/** An incoming {@link org.briarproject.api.sync.SyncSession SyncSession}. */
+/**
+ * An incoming {@link org.briarproject.api.sync.SyncSession SyncSession}.
+ */
 class IncomingSession implements SyncSession, EventListener {
 
 	private static final Logger LOG =
@@ -103,7 +106,13 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				db.receiveAck(contactId, ack);
+				Transaction txn = db.startTransaction();
+				try {
+					db.receiveAck(txn, contactId, ack);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -121,7 +130,13 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				db.receiveMessage(contactId, message);
+				Transaction txn = db.startTransaction();
+				try {
+					db.receiveMessage(txn, contactId, message);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -139,7 +154,13 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				db.receiveOffer(contactId, offer);
+				Transaction txn = db.startTransaction();
+				try {
+					db.receiveOffer(txn, contactId, offer);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();
@@ -157,7 +178,13 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				db.receiveRequest(contactId, request);
+				Transaction txn = db.startTransaction();
+				try {
+					db.receiveRequest(txn, contactId, request);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				interrupt();

@@ -7,6 +7,7 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.StreamContext;
@@ -66,7 +67,13 @@ class TransportKeyManager extends TimerTask {
 			// Load the transport keys from the DB
 			Map<ContactId, TransportKeys> loaded;
 			try {
-				loaded = db.getTransportKeys(transportId);
+				Transaction txn = db.startTransaction();
+				try {
+					loaded = db.getTransportKeys(txn, transportId);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return;
@@ -90,7 +97,13 @@ class TransportKeyManager extends TimerTask {
 			for (Entry<ContactId, TransportKeys> e : current.entrySet())
 				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
 			// Write any rotated keys back to the DB
-			db.updateTransportKeys(rotated);
+			Transaction txn = db.startTransaction();
+			try {
+				db.updateTransportKeys(txn, rotated);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
@@ -135,7 +148,13 @@ class TransportKeyManager extends TimerTask {
 			// Initialise mutable state for the contact
 			addKeys(c, new MutableTransportKeys(k));
 			// Write the keys back to the DB
-			db.addTransportKeys(c, k);
+			Transaction txn = db.startTransaction();
+			try {
+				db.addTransportKeys(txn, c, k);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
@@ -171,8 +190,14 @@ class TransportKeyManager extends TimerTask {
 					outKeys.getStreamCounter());
 			// Increment the stream counter and write it back to the DB
 			outKeys.incrementStreamCounter();
-			db.incrementStreamCounter(c, transportId,
-					outKeys.getRotationPeriod());
+			Transaction txn = db.startTransaction();
+			try {
+				db.incrementStreamCounter(txn, c, transportId,
+						outKeys.getRotationPeriod());
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 			return ctx;
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -210,9 +235,15 @@ class TransportKeyManager extends TimerTask {
 				inContexts.remove(new Bytes(removeTag));
 			}
 			// Write the window back to the DB
-			db.setReorderingWindow(tagCtx.contactId, transportId,
-					inKeys.getRotationPeriod(), window.getBase(),
-					window.getBitmap());
+			Transaction txn = db.startTransaction();
+			try {
+				db.setReorderingWindow(txn, tagCtx.contactId, transportId,
+						inKeys.getRotationPeriod(), window.getBase(),
+						window.getBitmap());
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 			return ctx;
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -249,7 +280,13 @@ class TransportKeyManager extends TimerTask {
 			for (Entry<ContactId, TransportKeys> e : current.entrySet())
 				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
 			// Write any rotated keys back to the DB
-			db.updateTransportKeys(rotated);
+			Transaction txn = db.startTransaction();
+			try {
+				db.updateTransportKeys(txn, rotated);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {

@@ -4,6 +4,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
@@ -27,6 +28,7 @@ import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.settings.Settings;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 
@@ -60,6 +62,7 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionManager connectionManager;
+	private final SettingsManager settingsManager;
 	private final TransportPropertyManager transportPropertyManager;
 	private final UiCallback uiCallback;
 	private final Map<TransportId, Plugin> plugins;
@@ -72,6 +75,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			DuplexPluginConfig duplexPluginConfig, Clock clock,
 			DatabaseComponent db, Poller poller,
 			ConnectionManager connectionManager,
+			SettingsManager settingsManager,
 			TransportPropertyManager transportPropertyManager,
 			UiCallback uiCallback) {
 		this.ioExecutor = ioExecutor;
@@ -82,6 +86,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		this.db = db;
 		this.poller = poller;
 		this.connectionManager = connectionManager;
+		this.settingsManager = settingsManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.uiCallback = uiCallback;
 		plugins = new ConcurrentHashMap<TransportId, Plugin>();
@@ -181,7 +186,13 @@ class PluginManagerImpl implements PluginManager, Service {
 				}
 				try {
 					long start = clock.currentTimeMillis();
-					db.addTransport(id, plugin.getMaxLatency());
+					Transaction txn = db.startTransaction();
+					try {
+						db.addTransport(txn, id, plugin.getMaxLatency());
+						txn.setComplete();
+					} finally {
+						db.endTransaction(txn);
+					}
 					long duration = clock.currentTimeMillis() - start;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Adding transport took " + duration + " ms");
@@ -244,7 +255,13 @@ class PluginManagerImpl implements PluginManager, Service {
 				}
 				try {
 					long start = clock.currentTimeMillis();
-					db.addTransport(id, plugin.getMaxLatency());
+					Transaction txn = db.startTransaction();
+					try {
+						db.addTransport(txn, id, plugin.getMaxLatency());
+						txn.setComplete();
+					} finally {
+						db.endTransaction(txn);
+					}
 					long duration = clock.currentTimeMillis() - start;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Adding transport took " + duration + " ms");
@@ -319,7 +336,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		public Settings getSettings() {
 			try {
-				return db.getSettings(id.getString());
+				return settingsManager.getSettings(id.getString());
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return new Settings();
@@ -348,7 +365,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		public void mergeSettings(Settings s) {
 			try {
-				db.mergeSettings(s, id.getString());
+				settingsManager.mergeSettings(s, id.getString());
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

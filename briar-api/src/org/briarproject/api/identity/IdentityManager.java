@@ -1,6 +1,7 @@
 package org.briarproject.api.identity;
 
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 
 import java.util.Collection;
 
@@ -25,10 +26,11 @@ public interface IdentityManager {
 	void removeLocalAuthor(AuthorId a) throws DbException;
 
 	interface AddIdentityHook {
-		void addingIdentity(LocalAuthor a);
+		void addingIdentity(Transaction txn, LocalAuthor a) throws DbException;
 	}
 
 	interface RemoveIdentityHook {
-		void removingIdentity(LocalAuthor a);
+		void removingIdentity(Transaction txn, LocalAuthor a)
+				throws DbException;
 	}
 }

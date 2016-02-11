@@ -13,6 +13,7 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.StorageStatus;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
@@ -120,7 +121,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		lifecycleManager.startServices();
 		lifecycleManager.waitForStartup();
 		// Add a transport
-		db.addTransport(transportId, MAX_LATENCY);
+		Transaction txn = db.startTransaction();
+		try {
+			db.addTransport(txn, transportId, MAX_LATENCY);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		// Add an identity for Alice
 		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
@@ -185,7 +192,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		lifecycleManager.startServices();
 		lifecycleManager.waitForStartup();
 		// Add a transport
-		db.addTransport(transportId, MAX_LATENCY);
+		Transaction txn = db.startTransaction();
+		try {
+			db.addTransport(txn, transportId, MAX_LATENCY);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		// Add an identity for Bob
 		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,

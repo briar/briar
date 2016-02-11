@@ -5,6 +5,7 @@ import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.MessageId;
@@ -49,16 +50,24 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, transportId, maxLatency,
 				packetWriter);
+		final Transaction noAckTxn = new Transaction(null);
+		final Transaction noMsgTxn = new Transaction(null);
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// No acks to send
-			oneOf(db).generateAck(contactId, MAX_MESSAGE_IDS);
+			oneOf(db).startTransaction();
+			will(returnValue(noAckTxn));
+			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
+			oneOf(db).endTransaction(noAckTxn);
 			// No messages to send
-			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
-					with(maxLatency));
+			oneOf(db).startTransaction();
+			will(returnValue(noMsgTxn));
+			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
+					with(any(int.class)), with(maxLatency));
 			will(returnValue(null));
+			oneOf(db).endTransaction(noMsgTxn);
 			// Flush the output stream
 			oneOf(packetWriter).flush();
 			// Remove listener
@@ -75,25 +84,41 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, transportId, maxLatency,
 				packetWriter);
+		final Transaction ackTxn = new Transaction(null);
+		final Transaction noAckTxn = new Transaction(null);
+		final Transaction msgTxn = new Transaction(null);
+		final Transaction noMsgTxn = new Transaction(null);
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// One ack to send
-			oneOf(db).generateAck(contactId, MAX_MESSAGE_IDS);
+			oneOf(db).startTransaction();
+			will(returnValue(ackTxn));
+			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(ack));
+			oneOf(db).endTransaction(ackTxn);
 			oneOf(packetWriter).writeAck(ack);
-			// No more acks
-			oneOf(db).generateAck(contactId, MAX_MESSAGE_IDS);
-			will(returnValue(null));
 			// One message to send
-			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
-					with(maxLatency));
+			oneOf(db).startTransaction();
+			will(returnValue(msgTxn));
+			oneOf(db).generateBatch(with(msgTxn), with(contactId),
+					with(any(int.class)), with(maxLatency));
 			will(returnValue(Arrays.asList(raw)));
+			oneOf(db).endTransaction(msgTxn);
 			oneOf(packetWriter).writeMessage(raw);
-			// No more messages
-			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
-					with(maxLatency));
+			// No more acks
+			oneOf(db).startTransaction();
+			will(returnValue(noAckTxn));
+			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
+			oneOf(db).endTransaction(noAckTxn);
+			// No more messages
+			oneOf(db).startTransaction();
+			will(returnValue(noMsgTxn));
+			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
+					with(any(int.class)), with(maxLatency));
+			will(returnValue(null));
+			oneOf(db).endTransaction(noMsgTxn);
 			// Flush the output stream
 			oneOf(packetWriter).flush();
 			// Remove listener

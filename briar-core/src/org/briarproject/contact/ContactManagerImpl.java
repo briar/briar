@@ -8,6 +8,7 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.EventBus;
@@ -52,19 +53,31 @@ class ContactManagerImpl implements ContactManager, Service,
 	public boolean start() {
 		// Finish adding/removing any partly added/removed contacts
 		try {
-			for (Contact c : db.getContacts()) {
-				if (c.getStatus().equals(ADDING)) {
-					for (AddContactHook hook : addHooks)
-						hook.addingContact(c);
-					db.setContactStatus(c.getId(), ACTIVE);
-					eventBus.broadcast(new ContactAddedEvent(c.getId()));
-				} else if (c.getStatus().equals(REMOVING)) {
-					for (RemoveContactHook hook : removeHooks)
-						hook.removingContact(c);
-					db.removeContact(c.getId());
-					eventBus.broadcast(new ContactRemovedEvent(c.getId()));
+			List<ContactId> added = new ArrayList<ContactId>();
+			List<ContactId> removed = new ArrayList<ContactId>();
+			Transaction txn = db.startTransaction();
+			try {
+				for (Contact c : db.getContacts(txn)) {
+					if (c.getStatus().equals(ADDING)) {
+						for (AddContactHook hook : addHooks)
+							hook.addingContact(txn, c);
+						db.setContactStatus(txn, c.getId(), ACTIVE);
+						added.add(c.getId());
+					} else if (c.getStatus().equals(REMOVING)) {
+						for (RemoveContactHook hook : removeHooks)
+							hook.removingContact(txn, c);
+						db.removeContact(txn, c.getId());
+						removed.add(c.getId());
+					}
 				}
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
 			}
+			for (ContactId c : added)
+				eventBus.broadcast(new ContactAddedEvent(c));
+			for (ContactId c : removed)
+				eventBus.broadcast(new ContactRemovedEvent(c));
 			return true;
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -90,24 +103,46 @@ class ContactManagerImpl implements ContactManager, Service,
 	@Override
 	public ContactId addContact(Author remote, AuthorId local)
 			throws DbException {
-		ContactId c = db.addContact(remote, local);
-		Contact contact = db.getContact(c);
-		for (AddContactHook hook : addHooks) hook.addingContact(contact);
-		db.setContactStatus(c, ACTIVE);
+		ContactId c;
+		Transaction txn = db.startTransaction();
+		try {
+			c = db.addContact(txn, remote, local);
+			Contact contact = db.getContact(txn, c);
+			for (AddContactHook hook : addHooks)
+				hook.addingContact(txn, contact);
+			db.setContactStatus(txn, c, ACTIVE);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		eventBus.broadcast(new ContactAddedEvent(c));
 		return c;
 	}
 
 	@Override
 	public Contact getContact(ContactId c) throws DbException {
-		Contact contact = db.getContact(c);
+		Contact contact;
+		Transaction txn = db.startTransaction();
+		try {
+			contact = db.getContact(txn, c);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		if (contact.getStatus().equals(ACTIVE)) return contact;
 		throw new NoSuchContactException();
 	}
 
 	@Override
 	public Collection<Contact> getContacts() throws DbException {
-		Collection<Contact> contacts = db.getContacts();
+		Collection<Contact> contacts;
+		Transaction txn = db.startTransaction();
+		try {
+			contacts = db.getContacts(txn);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		// Filter out any contacts that are being added or removed
 		List<Contact> active = new ArrayList<Contact>(contacts.size());
 		for (Contact c : contacts)
@@ -117,21 +152,30 @@ class ContactManagerImpl implements ContactManager, Service,
 
 	@Override
 	public void removeContact(ContactId c) throws DbException {
-		Contact contact = db.getContact(c);
-		db.setContactStatus(c, REMOVING);
-		for (RemoveContactHook hook : removeHooks)
-			hook.removingContact(contact);
-		db.removeContact(c);
+		Transaction txn = db.startTransaction();
+		try {
+			removeContact(txn, c);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 		eventBus.broadcast(new ContactRemovedEvent(c));
 	}
 
+	private void removeContact(Transaction txn, ContactId c)
+			throws DbException {
+		Contact contact = db.getContact(txn, c);
+		db.setContactStatus(txn, c, REMOVING);
+		for (RemoveContactHook hook : removeHooks)
+			hook.removingContact(txn, contact);
+		db.removeContact(txn, c);
+	}
+
 	@Override
-	public void removingIdentity(LocalAuthor a) {
+	public void removingIdentity(Transaction txn, LocalAuthor a)
+			throws DbException {
 		// Remove any contacts of the local pseudonym that's being removed
-		try {
-			for (ContactId c : db.getContacts(a.getId())) removeContact(c);
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
+		for (ContactId c : db.getContacts(txn, a.getId()))
+			removeContact(txn, c);
 	}
 }

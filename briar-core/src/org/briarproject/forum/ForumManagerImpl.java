@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
@@ -13,13 +12,13 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -37,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
@@ -59,22 +57,14 @@ class ForumManagerImpl implements ForumManager {
 			Logger.getLogger(ForumManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final ContactManager contactManager;
-	private final IdentityManager identityManager;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final MetadataEncoder metadataEncoder;
 	private final MetadataParser metadataParser;
 
-	/** Ensures isolation between database reads and writes. */
-	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
 	@Inject
-	ForumManagerImpl(DatabaseComponent db, ContactManager contactManager,
-			IdentityManager identityManager, BdfReaderFactory bdfReaderFactory,
+	ForumManagerImpl(DatabaseComponent db, BdfReaderFactory bdfReaderFactory,
 			MetadataEncoder metadataEncoder, MetadataParser metadataParser) {
 		this.db = db;
-		this.contactManager = contactManager;
-		this.identityManager = identityManager;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.metadataEncoder = metadataEncoder;
 		this.metadataParser = metadataParser;
@@ -87,7 +77,6 @@ class ForumManagerImpl implements ForumManager {
 
 	@Override
 	public void addLocalPost(ForumPost p) throws DbException {
-		lock.writeLock().lock();
 		try {
 			BdfDictionary d = new BdfDictionary();
 			d.put("timestamp", p.getMessage().getTimestamp());
@@ -105,45 +94,65 @@ class ForumManagerImpl implements ForumManager {
 			d.put("local", true);
 			d.put("read", true);
 			Metadata meta = metadataEncoder.encode(d);
-			db.addLocalMessage(p.getMessage(), CLIENT_ID, meta, true);
+			Transaction txn = db.startTransaction();
+			try {
+				db.addLocalMessage(txn, p.getMessage(), CLIENT_ID, meta, true);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
-		} finally {
-			lock.writeLock().unlock();
 		}
 	}
 
 	@Override
 	public Forum getForum(GroupId g) throws DbException {
-		lock.readLock().lock();
 		try {
-			return parseForum(db.getGroup(g));
+			Group group;
+			Transaction txn = db.startTransaction();
+			try {
+				group = db.getGroup(txn, g);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
+			return parseForum(group);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public Collection<Forum> getForums() throws DbException {
-		lock.readLock().lock();
 		try {
+			Collection<Group> groups;
+			Transaction txn = db.startTransaction();
+			try {
+				groups = db.getGroups(txn, CLIENT_ID);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 			List<Forum> forums = new ArrayList<Forum>();
-			for (Group g : db.getGroups(CLIENT_ID)) forums.add(parseForum(g));
+			for (Group g : groups) forums.add(parseForum(g));
 			return Collections.unmodifiableList(forums);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public byte[] getPostBody(MessageId m) throws DbException {
-		lock.readLock().lock();
 		try {
-			byte[] raw = db.getRawMessage(m);
+			byte[] raw;
+			Transaction txn = db.startTransaction();
+			try {
+				raw = db.getRawMessage(txn, m);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 			ByteArrayInputStream in = new ByteArrayInputStream(raw,
 					MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 			BdfReader r = bdfReaderFactory.createReader(in);
@@ -164,74 +173,76 @@ class ForumManagerImpl implements ForumManager {
 		} catch (IOException e) {
 			// Shouldn't happen with ByteArrayInputStream
 			throw new RuntimeException(e);
-		} finally {
-			lock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
-		lock.readLock().lock();
+		Set<AuthorId> localAuthorIds = new HashSet<AuthorId>();
+		Set<AuthorId> contactAuthorIds = new HashSet<AuthorId>();
+		Map<MessageId, Metadata> metadata;
+		Transaction txn = db.startTransaction();
 		try {
 			// Load the IDs of the user's identities
-			Set<AuthorId> localAuthorIds = new HashSet<AuthorId>();
-			for (LocalAuthor a : identityManager.getLocalAuthors())
+			for (LocalAuthor a : db.getLocalAuthors(txn))
 				localAuthorIds.add(a.getId());
 			// Load the IDs of contacts' identities
-			Set<AuthorId> contactAuthorIds = new HashSet<AuthorId>();
-			for (Contact c : contactManager.getContacts())
+			for (Contact c : db.getContacts(txn))
 				contactAuthorIds.add(c.getAuthor().getId());
-			// Load and parse the metadata
-			Map<MessageId, Metadata> metadata = db.getMessageMetadata(g);
-			Collection<ForumPostHeader> headers =
-					new ArrayList<ForumPostHeader>();
-			for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
-				MessageId messageId = e.getKey();
-				Metadata meta = e.getValue();
-				try {
-					BdfDictionary d = metadataParser.parse(meta);
-					long timestamp = d.getInteger("timestamp");
-					Author author = null;
-					Author.Status authorStatus = ANONYMOUS;
-					BdfDictionary d1 = d.getDictionary("author", null);
-					if (d1 != null) {
-						AuthorId authorId = new AuthorId(d1.getRaw("id"));
-						String name = d1.getString("name");
-						byte[] publicKey = d1.getRaw("publicKey");
-						author = new Author(authorId, name, publicKey);
-						if (localAuthorIds.contains(authorId))
-							authorStatus = VERIFIED;
-						else if (contactAuthorIds.contains(authorId))
-							authorStatus = VERIFIED;
-						else authorStatus = UNKNOWN;
-					}
-					String contentType = d.getString("contentType");
-					boolean read = d.getBoolean("read");
-					headers.add(new ForumPostHeader(messageId, timestamp,
-							author, authorStatus, contentType, read));
-				} catch (FormatException ex) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, ex.toString(), ex);
-				}
-			}
-			return headers;
+			// Load the metadata
+			metadata = db.getMessageMetadata(txn, g);
+			txn.setComplete();
 		} finally {
-			lock.readLock().unlock();
+			db.endTransaction(txn);
 		}
+		// Parse the metadata
+		Collection<ForumPostHeader> headers = new ArrayList<ForumPostHeader>();
+		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
+			try {
+				BdfDictionary d = metadataParser.parse(e.getValue());
+				long timestamp = d.getInteger("timestamp");
+				Author author = null;
+				Author.Status authorStatus = ANONYMOUS;
+				BdfDictionary d1 = d.getDictionary("author", null);
+				if (d1 != null) {
+					AuthorId authorId = new AuthorId(d1.getRaw("id"));
+					String name = d1.getString("name");
+					byte[] publicKey = d1.getRaw("publicKey");
+					author = new Author(authorId, name, publicKey);
+					if (localAuthorIds.contains(authorId))
+						authorStatus = VERIFIED;
+					else if (contactAuthorIds.contains(authorId))
+						authorStatus = VERIFIED;
+					else authorStatus = UNKNOWN;
+				}
+				String contentType = d.getString("contentType");
+				boolean read = d.getBoolean("read");
+				headers.add(new ForumPostHeader(e.getKey(), timestamp, author,
+						authorStatus, contentType, read));
+			} catch (FormatException ex) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, ex.toString(), ex);
+			}
+		}
+		return headers;
 	}
 
 	@Override
 	public void setReadFlag(MessageId m, boolean read) throws DbException {
-		lock.writeLock().lock();
 		try {
 			BdfDictionary d = new BdfDictionary();
 			d.put("read", read);
-			db.mergeMessageMetadata(m, metadataEncoder.encode(d));
+			Metadata meta = metadataEncoder.encode(d);
+			Transaction txn = db.startTransaction();
+			try {
+				db.mergeMessageMetadata(txn, m, meta);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
-		} finally {
-			lock.writeLock().unlock();
 		}
 	}
 
