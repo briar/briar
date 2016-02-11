@@ -12,13 +12,12 @@ public class IdentityModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(AuthorFactory.class).to(
-				org.briarproject.identity.AuthorFactoryImpl.class);
+		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(IdentityManager.class).to(IdentityManagerImpl.class);
 	}
 
 	@Provides
 	ObjectReader<Author> getAuthorReader(AuthorFactory authorFactory) {
-		return new org.briarproject.identity.AuthorReader(authorFactory);
+		return new AuthorReader(authorFactory);
 	}
 }

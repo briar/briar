@@ -13,25 +13,17 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.lifecycle.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
-import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.StorageStatus.ACTIVE;
-import static org.briarproject.api.db.StorageStatus.ADDING;
 import static org.briarproject.api.db.StorageStatus.REMOVING;
 
-class ContactManagerImpl implements ContactManager, Service,
-		RemoveIdentityHook {
-
-	private static final Logger LOG =
-			Logger.getLogger(ContactManagerImpl.class.getName());
+class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 
 	private final DatabaseComponent db;
 	private final List<AddContactHook> addHooks;
@@ -42,39 +34,6 @@ class ContactManagerImpl implements ContactManager, Service,
 		this.db = db;
 		addHooks = new CopyOnWriteArrayList<AddContactHook>();
 		removeHooks = new CopyOnWriteArrayList<RemoveContactHook>();
-	}
-
-	@Override
-	public boolean start() {
-		// Finish adding/removing any partly added/removed contacts
-		try {
-			Transaction txn = db.startTransaction();
-			try {
-				for (Contact c : db.getContacts(txn)) {
-					if (c.getStatus().equals(ADDING)) {
-						for (AddContactHook hook : addHooks)
-							hook.addingContact(txn, c);
-						db.setContactStatus(txn, c.getId(), ACTIVE);
-					} else if (c.getStatus().equals(REMOVING)) {
-						for (RemoveContactHook hook : removeHooks)
-							hook.removingContact(txn, c);
-						db.removeContact(txn, c.getId());
-					}
-				}
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
-			return true;
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return false;
-		}
-	}
-
-	@Override
-	public boolean stop() {
-		return true;
 	}
 
 	@Override

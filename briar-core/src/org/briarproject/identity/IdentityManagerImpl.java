@@ -9,24 +9,17 @@ import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.lifecycle.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
-import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.StorageStatus.ACTIVE;
-import static org.briarproject.api.db.StorageStatus.ADDING;
 import static org.briarproject.api.db.StorageStatus.REMOVING;
 
-class IdentityManagerImpl implements IdentityManager, Service {
-
-	private static final Logger LOG =
-			Logger.getLogger(IdentityManagerImpl.class.getName());
+class IdentityManagerImpl implements IdentityManager {
 
 	private final DatabaseComponent db;
 	private final List<AddIdentityHook> addHooks;
@@ -37,39 +30,6 @@ class IdentityManagerImpl implements IdentityManager, Service {
 		this.db = db;
 		addHooks = new CopyOnWriteArrayList<AddIdentityHook>();
 		removeHooks = new CopyOnWriteArrayList<RemoveIdentityHook>();
-	}
-
-	@Override
-	public boolean start() {
-		// Finish adding/removing any partly added/removed pseudonyms
-		try {
-			Transaction txn = db.startTransaction();
-			try {
-				for (LocalAuthor a : db.getLocalAuthors(txn)) {
-					if (a.getStatus().equals(ADDING)) {
-						for (AddIdentityHook hook : addHooks)
-							hook.addingIdentity(txn, a);
-						db.setLocalAuthorStatus(txn, a.getId(), ACTIVE);
-					} else if (a.getStatus().equals(REMOVING)) {
-						for (RemoveIdentityHook hook : removeHooks)
-							hook.removingIdentity(txn, a);
-						db.removeLocalAuthor(txn, a.getId());
-					}
-				}
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
-			return true;
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return false;
-		}
-	}
-
-	@Override
-	public boolean stop() {
-		return false;
 	}
 
 	@Override
