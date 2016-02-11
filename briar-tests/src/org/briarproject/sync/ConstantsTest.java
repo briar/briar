@@ -21,13 +21,8 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.messaging.MessagingConstants;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
-import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.Offer;
-import org.briarproject.api.sync.PacketWriter;
-import org.briarproject.api.sync.PacketWriterFactory;
-import org.briarproject.api.sync.Request;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
@@ -38,9 +33,6 @@ import org.briarproject.identity.IdentityModule;
 import org.briarproject.messaging.MessagingModule;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Random;
 
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
@@ -59,7 +51,6 @@ public class ConstantsTest extends BriarTestCase {
 	private final AuthorFactory authorFactory;
 	private final PrivateMessageFactory privateMessageFactory;
 	private final ForumPostFactory forumPostFactory;
-	private final PacketWriterFactory packetWriterFactory;
 
 	public ConstantsTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
@@ -71,7 +62,6 @@ public class ConstantsTest extends BriarTestCase {
 		authorFactory = i.getInstance(AuthorFactory.class);
 		privateMessageFactory = i.getInstance(PrivateMessageFactory.class);
 		forumPostFactory = i.getInstance(ForumPostFactory.class);
-		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 	}
 
 	@Test
@@ -103,16 +93,6 @@ public class ConstantsTest extends BriarTestCase {
 			byte[] signature = sig.sign();
 			assertTrue(signature.length <= MAX_SIGNATURE_LENGTH);
 		}
-	}
-
-	@Test
-	public void testMessageIdsFitIntoLargeAck() throws Exception {
-		testMessageIdsFitIntoAck(MAX_PACKET_PAYLOAD_LENGTH);
-	}
-
-	@Test
-	public void testMessageIdsFitIntoSmallAck() throws Exception {
-		testMessageIdsFitIntoAck(1000);
 	}
 
 	@Test
@@ -158,64 +138,5 @@ public class ConstantsTest extends BriarTestCase {
 				+ ForumConstants.MAX_CONTENT_TYPE_LENGTH
 				+ MAX_FORUM_POST_BODY_LENGTH);
 		assertTrue(length <= MAX_PACKET_PAYLOAD_LENGTH);
-	}
-
-	@Test
-	public void testMessageIdsFitIntoLargeOffer() throws Exception {
-		testMessageIdsFitIntoOffer(MAX_PACKET_PAYLOAD_LENGTH);
-	}
-
-	@Test
-	public void testMessageIdsFitIntoSmallOffer() throws Exception {
-		testMessageIdsFitIntoOffer(1000);
-	}
-
-	@Test
-	public void testMessageIdsFitIntoLargeRequest() throws Exception {
-		testMessageIdsFitIntoRequest(MAX_PACKET_PAYLOAD_LENGTH);
-	}
-
-	@Test
-	public void testMessageIdsFitIntoSmallRequest() throws Exception {
-		testMessageIdsFitIntoRequest(1000);
-	}
-
-	private void testMessageIdsFitIntoAck(int length) throws Exception {
-		// Create an ack with as many message IDs as possible
-		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
-		int maxMessages = writer.getMaxMessagesForAck(length);
-		Collection<MessageId> ids = new ArrayList<MessageId>();
-		for (int i = 0; i < maxMessages; i++)
-			ids.add(new MessageId(TestUtils.getRandomId()));
-		writer.writeAck(new Ack(ids));
-		// Check the size of the serialised ack
-		assertTrue(out.size() <= length);
-	}
-
-	private void testMessageIdsFitIntoRequest(int length) throws Exception {
-		// Create a request with as many message IDs as possible
-		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
-		int maxMessages = writer.getMaxMessagesForRequest(length);
-		Collection<MessageId> ids = new ArrayList<MessageId>();
-		for (int i = 0; i < maxMessages; i++)
-			ids.add(new MessageId(TestUtils.getRandomId()));
-		writer.writeRequest(new Request(ids));
-		// Check the size of the serialised request
-		assertTrue(out.size() <= length);
-	}
-
-	private void testMessageIdsFitIntoOffer(int length) throws Exception {
-		// Create an offer with as many message IDs as possible
-		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		PacketWriter writer = packetWriterFactory.createPacketWriter(out);
-		int maxMessages = writer.getMaxMessagesForOffer(length);
-		Collection<MessageId> ids = new ArrayList<MessageId>();
-		for (int i = 0; i < maxMessages; i++)
-			ids.add(new MessageId(TestUtils.getRandomId()));
-		writer.writeOffer(new Offer(ids));
-		// Check the size of the serialised offer
-		assertTrue(out.size() <= length);
 	}
 }

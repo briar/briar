@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 
 /**
@@ -176,9 +177,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 		public void run() {
 			if (interrupted) return;
-			int maxMessages = packetWriter.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
-				Ack a = db.generateAck(contactId, maxMessages);
+				Ack a = db.generateAck(contactId, MAX_MESSAGE_IDS);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
 				if (a != null) writerTasks.add(new WriteAck(a));
@@ -246,10 +246,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 		public void run() {
 			if (interrupted) return;
-			int maxMessages = packetWriter.getMaxMessagesForOffer(
-					Long.MAX_VALUE);
 			try {
-				Offer o = db.generateOffer(contactId, maxMessages, maxLatency);
+				Offer o = db.generateOffer(contactId, MAX_MESSAGE_IDS,
+						maxLatency);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated offer: " + (o != null));
 				if (o != null) writerTasks.add(new WriteOffer(o));
@@ -282,10 +281,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 		public void run() {
 			if (interrupted) return;
-			int maxMessages = packetWriter.getMaxMessagesForRequest(
-					Long.MAX_VALUE);
 			try {
-				Request r = db.generateRequest(contactId, maxMessages);
+				Request r = db.generateRequest(contactId, MAX_MESSAGE_IDS);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated request: " + (r != null));
 				if (r != null) writerTasks.add(new WriteRequest(r));

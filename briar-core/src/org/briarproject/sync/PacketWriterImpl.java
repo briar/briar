@@ -1,6 +1,5 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.Offer;
@@ -32,24 +31,6 @@ class PacketWriterImpl implements PacketWriter {
 		header = new byte[PACKET_HEADER_LENGTH];
 		header[0] = PROTOCOL_VERSION;
 		payload = new ByteArrayOutputStream(MAX_PACKET_PAYLOAD_LENGTH);
-	}
-
-	public int getMaxMessagesForAck(long capacity) {
-		return getMaxMessagesForPacket(capacity);
-	}
-
-	public int getMaxMessagesForRequest(long capacity) {
-		return getMaxMessagesForPacket(capacity);
-	}
-
-	public int getMaxMessagesForOffer(long capacity) {
-		return getMaxMessagesForPacket(capacity);
-	}
-
-	private int getMaxMessagesForPacket(long capacity) {
-		int payload = (int) Math.min(capacity - PACKET_HEADER_LENGTH,
-				MAX_PACKET_PAYLOAD_LENGTH);
-		return payload / UniqueId.LENGTH;
 	}
 
 	private void writePacket(byte packetType) throws IOException {

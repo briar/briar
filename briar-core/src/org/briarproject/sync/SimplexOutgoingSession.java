@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 
 /**
@@ -117,9 +118,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 		public void run() {
 			if (interrupted) return;
-			int maxMessages = packetWriter.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
-				Ack a = db.generateAck(contactId, maxMessages);
+				Ack a = db.generateAck(contactId, MAX_MESSAGE_IDS);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
 				if (a == null) decrementOutstandingQueries();

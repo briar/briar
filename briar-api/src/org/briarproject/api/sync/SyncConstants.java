@@ -24,4 +24,7 @@ public interface SyncConstants {
 
 	/** The maximum length of a message body in bytes. */
 	int MAX_MESSAGE_BODY_LENGTH = MAX_MESSAGE_LENGTH - MESSAGE_HEADER_LENGTH;
+
+	/** The maximum number of message IDs in an ack, offer or request packet. */
+	int MAX_MESSAGE_IDS = MAX_PACKET_PAYLOAD_LENGTH / UniqueId.LENGTH;
 }

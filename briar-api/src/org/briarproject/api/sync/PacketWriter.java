@@ -4,12 +4,6 @@ import java.io.IOException;
 
 public interface PacketWriter {
 
-	int getMaxMessagesForAck(long capacity);
-
-	int getMaxMessagesForRequest(long capacity);
-
-	int getMaxMessagesForOffer(long capacity);
-
 	void writeAck(Ack a) throws IOException;
 
 	void writeMessage(byte[] raw) throws IOException;

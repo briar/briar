@@ -18,9 +18,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
-public class SimplexOutgoingSessionTest extends BriarTestCase {
+import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 
-	private static final int MAX_MESSAGES_PER_ACK = 10;
+public class SimplexOutgoingSessionTest extends BriarTestCase {
 
 	private final Mockery context;
 	private final DatabaseComponent db;
@@ -53,9 +53,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// No acks to send
-			oneOf(packetWriter).getMaxMessagesForAck(with(any(long.class)));
-			will(returnValue(MAX_MESSAGES_PER_ACK));
-			oneOf(db).generateAck(contactId, MAX_MESSAGES_PER_ACK);
+			oneOf(db).generateAck(contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
 			// No messages to send
 			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
@@ -81,15 +79,11 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// One ack to send
-			oneOf(packetWriter).getMaxMessagesForAck(with(any(long.class)));
-			will(returnValue(MAX_MESSAGES_PER_ACK));
-			oneOf(db).generateAck(contactId, MAX_MESSAGES_PER_ACK);
+			oneOf(db).generateAck(contactId, MAX_MESSAGE_IDS);
 			will(returnValue(ack));
 			oneOf(packetWriter).writeAck(ack);
 			// No more acks
-			oneOf(packetWriter).getMaxMessagesForAck(with(any(long.class)));
-			will(returnValue(MAX_MESSAGES_PER_ACK));
-			oneOf(db).generateAck(contactId, MAX_MESSAGES_PER_ACK);
+			oneOf(db).generateAck(contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
 			// One message to send
 			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
