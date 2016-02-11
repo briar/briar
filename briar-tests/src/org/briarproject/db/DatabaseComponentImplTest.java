@@ -190,20 +190,23 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		assertFalse(db.open());
 		Transaction transaction = db.startTransaction();
-		db.addLocalAuthor(transaction, localAuthor);
-		assertEquals(contactId,
-				db.addContact(transaction, author, localAuthorId));
-		assertEquals(Collections.singletonList(contact),
-				db.getContacts(transaction));
-		db.addGroup(transaction, group); // First time - listeners called
-		db.addGroup(transaction, group); // Second time - not called
-		assertEquals(Collections.singletonList(group),
-				db.getGroups(transaction, clientId));
-		db.removeGroup(transaction, group);
-		db.removeContact(transaction, contactId);
-		db.removeLocalAuthor(transaction, localAuthorId);
-		transaction.setComplete();
-		db.endTransaction(transaction);
+		try {
+			db.addLocalAuthor(transaction, localAuthor);
+			assertEquals(contactId,
+					db.addContact(transaction, author, localAuthorId));
+			assertEquals(Collections.singletonList(contact),
+					db.getContacts(transaction));
+			db.addGroup(transaction, group); // First time - listeners called
+			db.addGroup(transaction, group); // Second time - not called
+			assertEquals(Collections.singletonList(group),
+					db.getGroups(transaction, clientId));
+			db.removeGroup(transaction, group);
+			db.removeContact(transaction, contactId);
+			db.removeLocalAuthor(transaction, localAuthorId);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 		db.close();
 
 		context.assertIsSatisfied();

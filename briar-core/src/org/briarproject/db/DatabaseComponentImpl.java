@@ -245,25 +245,22 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public Ack generateAck(Transaction transaction, ContactId c,
 			int maxMessages) throws DbException {
-		Collection<MessageId> ids;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		ids = db.getMessagesToAck(txn, c, maxMessages);
-		if (!ids.isEmpty()) db.lowerAckFlag(txn, c, ids);
+		Collection<MessageId> ids = db.getMessagesToAck(txn, c, maxMessages);
 		if (ids.isEmpty()) return null;
+		db.lowerAckFlag(txn, c, ids);
 		return new Ack(ids);
 	}
 
 	public Collection<byte[]> generateBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
-		Collection<MessageId> ids;
-		List<byte[]> messages;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		ids = db.getMessagesToSend(txn, c, maxLength);
-		messages = new ArrayList<byte[]>(ids.size());
+		Collection<MessageId> ids = db.getMessagesToSend(txn, c, maxLength);
+		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getRawMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
@@ -276,37 +273,35 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public Offer generateOffer(Transaction transaction, ContactId c,
 			int maxMessages, int maxLatency) throws DbException {
-		Collection<MessageId> ids;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		ids = db.getMessagesToOffer(txn, c, maxMessages);
-		for (MessageId m : ids) db.updateExpiryTime(txn, c, m, maxLatency);
+		Collection<MessageId> ids = db.getMessagesToOffer(txn, c, maxMessages);
 		if (ids.isEmpty()) return null;
+		for (MessageId m : ids) db.updateExpiryTime(txn, c, m, maxLatency);
 		return new Offer(ids);
 	}
 
 	public Request generateRequest(Transaction transaction, ContactId c,
 			int maxMessages) throws DbException {
-		Collection<MessageId> ids;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		ids = db.getMessagesToRequest(txn, c, maxMessages);
-		if (!ids.isEmpty()) db.removeOfferedMessages(txn, c, ids);
+		Collection<MessageId> ids = db.getMessagesToRequest(txn, c,
+				maxMessages);
 		if (ids.isEmpty()) return null;
+		db.removeOfferedMessages(txn, c, ids);
 		return new Request(ids);
 	}
 
 	public Collection<byte[]> generateRequestedBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
-		Collection<MessageId> ids;
-		List<byte[]> messages;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		ids = db.getRequestedMessagesToSend(txn, c, maxLength);
-		messages = new ArrayList<byte[]>(ids.size());
+		Collection<MessageId> ids = db.getRequestedMessagesToSend(txn, c,
+				maxLength);
+		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getRawMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
@@ -501,10 +496,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void receiveAck(Transaction transaction, ContactId c, Ack a)
 			throws DbException {
-		Collection<MessageId> acked = new ArrayList<MessageId>();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
+		Collection<MessageId> acked = new ArrayList<MessageId>();
 		for (MessageId m : a.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				db.raiseSeenFlag(txn, c, m);
@@ -531,11 +526,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void receiveOffer(Transaction transaction, ContactId c, Offer o)
 			throws DbException {
-		boolean ack = false, request = false;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		int count = db.countOfferedMessages(txn, c);
+		boolean ack = false, request = false;
 		for (MessageId m : o.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				db.raiseSeenFlag(txn, c, m);
@@ -553,10 +548,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void receiveRequest(Transaction transaction, ContactId c, Request r)
 			throws DbException {
-		boolean requested = false;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
+		boolean requested = false;
 		for (MessageId m : r.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				db.raiseRequestedFlag(txn, c, m);
@@ -578,12 +573,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void removeGroup(Transaction transaction, Group g)
 			throws DbException {
-		Collection<ContactId> affected;
 		T txn = unbox(transaction);
 		GroupId id = g.getId();
 		if (!db.containsGroup(txn, id))
 			throw new NoSuchGroupException();
-		affected = db.getVisibility(txn, id);
+		Collection<ContactId> affected = db.getVisibility(txn, id);
 		db.removeGroup(txn, id);
 		transaction.attach(new GroupRemovedEvent(g));
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
@@ -638,13 +632,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void setVisibleToContact(Transaction transaction, ContactId c,
 			GroupId g, boolean visible) throws DbException {
-		boolean wasVisible;
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		if (!db.containsGroup(txn, g))
 			throw new NoSuchGroupException();
-		wasVisible = db.containsVisibleGroup(txn, c, g);
+		boolean wasVisible = db.containsVisibleGroup(txn, c, g);
 		if (visible && !wasVisible) db.addVisibility(txn, c, g);
 		else if (!visible && wasVisible) db.removeVisibility(txn, c, g);
 		if (visible != wasVisible) {
@@ -655,9 +648,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	public void updateTransportKeys(Transaction transaction,
 			Map<ContactId, TransportKeys> keys) throws DbException {
+		T txn = unbox(transaction);
 		Map<ContactId, TransportKeys> filtered =
 				new HashMap<ContactId, TransportKeys>();
-		T txn = unbox(transaction);
 		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
 			ContactId c = e.getKey();
 			TransportKeys k = e.getValue();

@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
@@ -376,8 +375,8 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 			BdfDictionary d = new BdfDictionary();
 			d.put("version", version);
 			d.put("local", true);
-			db.addLocalMessage(txn, m, CLIENT_ID, metadataEncoder.encode(d),
-					true);
+			Metadata meta = metadataEncoder.encode(d);
+			db.addLocalMessage(txn, m, CLIENT_ID, meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

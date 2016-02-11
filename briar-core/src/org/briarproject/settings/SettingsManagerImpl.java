@@ -19,14 +19,15 @@ class SettingsManagerImpl implements SettingsManager {
 
 	@Override
 	public Settings getSettings(String namespace) throws DbException {
+		Settings s;
 		Transaction txn = db.startTransaction();
 		try {
-			Settings s = db.getSettings(txn, namespace);
+			s = db.getSettings(txn, namespace);
 			txn.setComplete();
-			return s;
 		} finally {
 			db.endTransaction(txn);
 		}
+		return s;
 	}
 
 	@Override

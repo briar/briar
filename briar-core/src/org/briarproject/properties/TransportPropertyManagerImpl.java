@@ -91,7 +91,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		db.setVisibleToContact(txn, c.getId(), g.getId(), true);
 		// Copy the latest local properties into the group
 		DeviceId dev = db.getDeviceId(txn);
-		Map<TransportId, TransportProperties> local = getLocalProperties();
+		Map<TransportId, TransportProperties> local = getLocalProperties(txn);
 		for (Entry<TransportId, TransportProperties> e : local.entrySet()) {
 			storeMessage(txn, g.getId(), dev, e.getKey(), e.getValue(), 1,
 					true, true);
@@ -122,30 +122,15 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException {
+		Map<TransportId, TransportProperties> local;
+		Transaction txn = db.startTransaction();
 		try {
-			Map<TransportId, TransportProperties> local =
-					new HashMap<TransportId, TransportProperties>();
-			Transaction txn = db.startTransaction();
-			try {
-				// Find the latest local update for each transport
-				Map<TransportId, LatestUpdate> latest = findLatest(txn,
-						localGroup.getId(), true);
-				// Retrieve and parse the latest local properties
-				for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
-					byte[] raw = db.getRawMessage(txn, e.getValue().messageId);
-					local.put(e.getKey(), parseProperties(raw));
-				}
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
-			return Collections.unmodifiableMap(local);
-		} catch (NoSuchGroupException e) {
-			// Local group doesn't exist - there are no local properties
-			return Collections.emptyMap();
-		} catch (FormatException e) {
-			throw new DbException(e);
+			local = getLocalProperties(txn);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
 		}
+		return Collections.unmodifiableMap(local);
 	}
 
 	@Override
@@ -253,6 +238,28 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private Group getContactGroup(Contact c) {
 		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
+	}
+
+	private Map<TransportId, TransportProperties> getLocalProperties(
+			Transaction txn) throws DbException {
+		try {
+			Map<TransportId, TransportProperties> local =
+					new HashMap<TransportId, TransportProperties>();
+			// Find the latest local update for each transport
+			Map<TransportId, LatestUpdate> latest = findLatest(txn,
+					localGroup.getId(), true);
+			// Retrieve and parse the latest local properties
+			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
+				byte[] raw = db.getRawMessage(txn, e.getValue().messageId);
+				local.put(e.getKey(), parseProperties(raw));
+			}
+			return local;
+		} catch (NoSuchGroupException e) {
+			// Local group doesn't exist - there are no local properties
+			return Collections.emptyMap();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, DeviceId dev,

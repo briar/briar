@@ -154,11 +154,11 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	@Override
 	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
-		GroupId g = getConversationId(c);
 		Map<MessageId, Metadata> metadata;
 		Collection<MessageStatus> statuses;
 		Transaction txn = db.startTransaction();
 		try {
+			GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 			metadata = db.getMessageMetadata(txn, g);
 			statuses = db.getMessageStatus(txn, c, g);
 			txn.setComplete();
