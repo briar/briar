@@ -9,7 +9,6 @@ import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.ObjectReader;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -56,10 +55,11 @@ public class ForumModule extends AbstractModule {
 
 	@Provides @Singleton
 	ForumSharingManager getForumSharingManager(ContactManager contactManager,
-			EventBus eventBus, ForumSharingManagerImpl forumSharingManager) {
+			ValidationManager validationManager,
+			ForumSharingManagerImpl forumSharingManager) {
 		contactManager.registerAddContactHook(forumSharingManager);
 		contactManager.registerRemoveContactHook(forumSharingManager);
-		eventBus.addListener(forumSharingManager);
+		validationManager.registerValidationHook(forumSharingManager);
 		return forumSharingManager;
 	}
 }
