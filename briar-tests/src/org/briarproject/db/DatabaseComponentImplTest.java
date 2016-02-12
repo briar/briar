@@ -261,8 +261,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, false, false);
@@ -1074,11 +1072,9 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).addMessage(txn, message, UNKNOWN, false);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, true);
+			oneOf(database).addStatus(txn, contactId, messageId, false, false);
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			// The message was received and added
@@ -1270,6 +1266,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
 			will(returnValue(false)); // Not yet visible
 			oneOf(database).addVisibility(txn, contactId, groupId);
+			oneOf(database).getMessageIds(txn, groupId);
+			will(returnValue(Collections.singletonList(messageId)));
+			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
+			will(returnValue(false));
+			oneOf(database).addStatus(txn, contactId, messageId, false, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));

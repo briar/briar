@@ -303,44 +303,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeVisible() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact, a group and a message
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
-		db.addStatus(txn, contactId, messageId, false, false);
-
-		// The group is not visible to the contact, so the message
-		// should not be sendable
-		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
-				ONE_MEGABYTE);
-		assertTrue(ids.isEmpty());
-		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertTrue(ids.isEmpty());
-
-		// Making the group visible should make the message sendable
-		db.addVisibility(txn, contactId, groupId);
-		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertEquals(Collections.singletonList(messageId), ids);
-		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertEquals(Collections.singletonList(messageId), ids);
-
-		// Making the group invisible should make the message unsendable
-		db.removeVisibility(txn, contactId, groupId);
-		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertTrue(ids.isEmpty());
-		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertTrue(ids.isEmpty());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
 	public void testMessagesToAck() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

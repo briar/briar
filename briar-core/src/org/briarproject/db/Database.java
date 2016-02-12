@@ -189,11 +189,6 @@ interface Database<T> {
 	Contact getContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the IDs of all contacts.
-	 */
-	Collection<ContactId> getContactIds(T txn) throws DbException;
-
-	/**
 	 * Returns all contacts.
 	 */
 	Collection<Contact> getContacts(T txn) throws DbException;
@@ -239,6 +234,11 @@ interface Database<T> {
 	 * Returns all local pseudonyms.
 	 */
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
+
+	/**
+	 * Returns the IDs of all messages in the given group.
+	 */
+	Collection<MessageId> getMessageIds(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the metadata for all messages in the given group.
@@ -423,6 +423,12 @@ interface Database<T> {
 	 */
 	void removeOfferedMessages(T txn, ContactId c,
 			Collection<MessageId> requested) throws DbException;
+
+	/**
+	 * Removes the status of the given message with respect to the given
+	 * contact.
+	 */
+	void removeStatus(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.

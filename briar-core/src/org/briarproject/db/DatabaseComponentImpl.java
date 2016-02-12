@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -70,12 +69,6 @@ import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 
-/**
- * An implementation of DatabaseComponent using reentrant read-write locks.
- * Depending on the JVM's lock implementation, this implementation may allow
- * writers to starve. LockFairnessTest can be used to test whether this
- * implementation is safe on a given JVM.
- */
 class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	private static final Logger LOG =
@@ -177,7 +170,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsGroup(txn, m.getGroupId()))
 			throw new NoSuchGroupException();
 		if (!db.containsMessage(txn, m.getId())) {
-			addMessage(txn, m, VALID, shared, null);
+			addMessage(txn, m, VALID, shared);
 			transaction.attach(new MessageAddedEvent(m, null));
 			transaction.attach(new MessageValidatedEvent(m, c, true, true));
 			if (shared) transaction.attach(new MessageSharedEvent(m));
@@ -185,26 +178,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.mergeMessageMetadata(txn, m.getId(), meta);
 	}
 
-	/**
-	 * Stores a message and initialises its status with respect to each contact.
-	 *
-	 * @param sender null for a locally generated message.
-	 */
-	private void addMessage(T txn, Message m, Validity validity, boolean shared,
-			ContactId sender) throws DbException {
+	private void addMessage(T txn, Message m, Validity validity, boolean shared)
+			throws DbException {
 		db.addMessage(txn, m, validity, shared);
-		GroupId g = m.getGroupId();
-		Collection<ContactId> visibility = db.getVisibility(txn, g);
-		visibility = new HashSet<ContactId>(visibility);
-		for (ContactId c : db.getContactIds(txn)) {
-			if (visibility.contains(c)) {
-				boolean offered = db.removeOfferedMessage(txn, c, m.getId());
-				boolean seen = offered || c.equals(sender);
-				db.addStatus(txn, c, m.getId(), offered, seen);
-			} else {
-				if (c.equals(sender)) throw new IllegalStateException();
-				db.addStatus(txn, c, m.getId(), false, false);
-			}
+		for (ContactId c : db.getVisibility(txn, m.getGroupId())) {
+			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
+			db.addStatus(txn, c, m.getId(), offered, offered);
 		}
 	}
 
@@ -516,7 +495,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		if (db.containsVisibleGroup(txn, c, m.getGroupId())) {
 			if (!db.containsMessage(txn, m.getId())) {
-				addMessage(txn, m, UNKNOWN, false, c);
+				addMessage(txn, m, UNKNOWN, false);
 				transaction.attach(new MessageAddedEvent(m, c));
 			}
 			db.raiseAckFlag(txn, c, m.getId());
@@ -529,8 +508,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		int count = db.countOfferedMessages(txn, c);
 		boolean ack = false, request = false;
+		int count = db.countOfferedMessages(txn, c);
 		for (MessageId m : o.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				db.raiseSeenFlag(txn, c, m);
@@ -638,8 +617,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsGroup(txn, g))
 			throw new NoSuchGroupException();
 		boolean wasVisible = db.containsVisibleGroup(txn, c, g);
-		if (visible && !wasVisible) db.addVisibility(txn, c, g);
-		else if (!visible && wasVisible) db.removeVisibility(txn, c, g);
+		if (visible && !wasVisible) {
+			db.addVisibility(txn, c, g);
+			for (MessageId m : db.getMessageIds(txn, g)) {
+				boolean seen = db.removeOfferedMessage(txn, c, m);
+				db.addStatus(txn, c, m, seen, seen);
+			}
+		} else if (!visible && wasVisible) {
+			db.removeVisibility(txn, c, g);
+			for (MessageId m : db.getMessageIds(txn, g))
+				db.removeStatus(txn, c, m);
+		}
 		if (visible != wasVisible) {
 			List<ContactId> affected = Collections.singletonList(c);
 			transaction.attach(new GroupVisibilityUpdatedEvent(affected));
