@@ -44,6 +44,7 @@ import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -63,7 +64,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	static final TransportId ID = new TransportId("tor");
 
 	private static final String[] EVENTS = {
-			"CIRC", "ORCONN", "NOTICE", "WARN", "ERR"
+			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
@@ -71,6 +72,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private static final int HOSTNAME_TIMEOUT = 30 * 1000; // Milliseconds
 	private static final Pattern ONION =
 			Pattern.compile("[a-z2-7]{16}\\.onion");
+	private static final int DESCRIPTOR_THRESHOLD = 3;
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
 
@@ -83,6 +85,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, hostnameFile;
 	private final AtomicBoolean circuitBuilt;
+	private final AtomicInteger descriptorsPublished;
 
 	private volatile boolean running = false, networkEnabled = false;
 	private volatile boolean bootstrapped = false;
@@ -117,6 +120,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
 		hostnameFile = new File(torDirectory, "hs/hostname");
 		circuitBuilt = new AtomicBoolean(false);
+		descriptorsPublished = new AtomicInteger(0);
 	}
 
 	public TransportId getId() {
@@ -462,6 +466,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		if (LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
 		if (!enable) {
 			circuitBuilt.set(false);
+			descriptorsPublished.set(0);
 			callback.transportDisabled();
 		}
 		networkEnabled = enable;
@@ -503,6 +508,11 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
+		if (descriptorsPublished.get() >= DESCRIPTOR_THRESHOLD) {
+			LOG.info("Hidden service descriptor published, not polling");
+			return;
+		}
+		// TODO: Pass properties to connectAndCallBack()
 		for (ContactId c : callback.getRemoteProperties().keySet())
 			if (!connected.contains(c)) connectAndCallBack(c);
 	}
@@ -576,7 +586,13 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		}
 	}
 
-	public void unrecognized(String type, String msg) {}
+	public void unrecognized(String type, String msg) {
+		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
+			int descriptors = descriptorsPublished.incrementAndGet();
+			if (descriptors == DESCRIPTOR_THRESHOLD)
+				LOG.info("Hidden service descriptor published");
+		}
+	}
 
 	private static class WriteObserver extends FileObserver {
 
