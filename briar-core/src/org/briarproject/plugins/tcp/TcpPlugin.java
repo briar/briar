@@ -2,6 +2,7 @@ package org.briarproject.plugins.tcp;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -36,8 +37,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 			Logger.getLogger(TcpPlugin.class.getName());
 
 	protected final Executor ioExecutor;
+	protected final Backoff backoff;
 	protected final DuplexPluginCallback callback;
-	protected final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
+	protected final int maxLatency, maxIdleTime, socketTimeout;
 
 	protected volatile boolean running = false;
 	protected volatile ServerSocket socket = null;
@@ -51,13 +53,13 @@ abstract class TcpPlugin implements DuplexPlugin {
 	/** Returns true if connections to the given address can be attempted. */
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
-	protected TcpPlugin(Executor ioExecutor, DuplexPluginCallback callback,
-			int maxLatency, int maxIdleTime, int pollingInterval) {
+	protected TcpPlugin(Executor ioExecutor, Backoff backoff,
+			DuplexPluginCallback callback, int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
+		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
-		this.pollingInterval = pollingInterval;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
@@ -102,6 +104,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 					return;
 				}
 				socket = ss;
+				backoff.reset();
 				SocketAddress local = ss.getLocalSocketAddress();
 				setLocalSocketAddress((InetSocketAddress) local);
 				if (LOG.isLoggable(INFO)) LOG.info("Listening on " + local);
@@ -147,6 +150,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			}
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connection from " + s.getRemoteSocketAddress());
+			backoff.reset();
 			TcpTransportConnection conn = new TcpTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
 		}
@@ -166,11 +170,12 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	public int getPollingInterval() {
-		return pollingInterval;
+		return backoff.getPollingInterval();
 	}
 
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
+		backoff.increment();
 		for (ContactId c : callback.getRemoteProperties().keySet())
 			if (!connected.contains(c)) connectAndCallBack(c);
 	}
@@ -179,7 +184,10 @@ abstract class TcpPlugin implements DuplexPlugin {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
-				if (d != null) callback.outgoingConnectionCreated(c, d);
+				if (d != null) {
+					backoff.reset();
+					callback.outgoingConnectionCreated(c, d);
+				}
 			}
 		});
 	}

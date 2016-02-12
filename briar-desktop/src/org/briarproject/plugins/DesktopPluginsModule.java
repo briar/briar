@@ -47,9 +47,10 @@ public class DesktopPluginsModule extends PluginsModule {
 				random, backoffFactory);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
-		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor);
+		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor,
+				backoffFactory);
 		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor,
-				shutdownManager);
+				backoffFactory, shutdownManager);
 		final Collection<DuplexPluginFactory> factories =
 				Arrays.asList(bluetooth, modem, lan, wan);
 		return new DuplexPluginConfig() {

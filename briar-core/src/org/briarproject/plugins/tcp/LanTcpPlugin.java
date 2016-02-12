@@ -1,6 +1,7 @@
 package org.briarproject.plugins.tcp;
 
 import org.briarproject.api.TransportId;
+import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.properties.TransportProperties;
 
@@ -16,9 +17,9 @@ class LanTcpPlugin extends TcpPlugin {
 
 	static final TransportId ID = new TransportId("lan");
 
-	LanTcpPlugin(Executor ioExecutor, DuplexPluginCallback callback,
-			int maxLatency, int maxIdleTime, int pollingInterval) {
-		super(ioExecutor, callback, maxLatency, maxIdleTime, pollingInterval);
+	LanTcpPlugin(Executor ioExecutor, Backoff backoff,
+			DuplexPluginCallback callback, int maxLatency, int maxIdleTime) {
+		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
 	}
 
 	public TransportId getId() {

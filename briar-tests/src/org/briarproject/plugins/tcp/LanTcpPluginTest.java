@@ -2,6 +2,7 @@ package org.briarproject.plugins.tcp;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -32,10 +33,11 @@ import static org.junit.Assert.assertTrue;
 public class LanTcpPluginTest extends BriarTestCase {
 
 	private final ContactId contactId = new ContactId(234);
+	private final Backoff backoff = new TestBackoff();
 
 	@Test
 	public void testAddressesAreOnSameLan() {
-		LanTcpPlugin plugin = new LanTcpPlugin(null, null, 0, 0, 0);
+		LanTcpPlugin plugin = new LanTcpPlugin(null, null, null, 0, 0);
 		// Local and remote in 10.0.0.0/8 should return true
 		assertTrue(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
 				makeAddress(10, 255, 255, 255)));
@@ -84,7 +86,8 @@ public class LanTcpPluginTest extends BriarTestCase {
 		}
 		Callback callback = new Callback();
 		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
+		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+				0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -116,7 +119,8 @@ public class LanTcpPluginTest extends BriarTestCase {
 		}
 		Callback callback = new Callback();
 		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
+		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+				0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -215,5 +219,16 @@ public class LanTcpPluginTest extends BriarTestCase {
 		public void transportEnabled() {}
 
 		public void transportDisabled() {}
+	}
+
+	private static class TestBackoff implements Backoff {
+
+		public int getPollingInterval() {
+			return 60 * 1000;
+		}
+
+		public void increment() {}
+
+		public void reset() {}
 	}
 }
