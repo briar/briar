@@ -3,6 +3,7 @@ package org.briarproject.plugins.bluetooth;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -43,25 +44,25 @@ class BluetoothPlugin implements DuplexPlugin {
 	private static final int UUID_BYTES = 16;
 
 	private final Executor ioExecutor;
-	private final Clock clock;
 	private final SecureRandom secureRandom;
+	private final Clock clock;
+	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
-	private final int maxLatency, pollingInterval;
+	private final int maxLatency;
 	private final Semaphore discoverySemaphore = new Semaphore(1);
 
 	private volatile boolean running = false;
 	private volatile StreamConnectionNotifier socket = null;
 	private volatile LocalDevice localDevice = null;
 
-	BluetoothPlugin(Executor ioExecutor, Clock clock, SecureRandom secureRandom,
-			DuplexPluginCallback callback, int maxLatency,
-			int pollingInterval) {
+	BluetoothPlugin(Executor ioExecutor, SecureRandom secureRandom, Clock clock,
+			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
 		this.ioExecutor = ioExecutor;
-		this.clock = clock;
 		this.secureRandom = secureRandom;
+		this.clock = clock;
+		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
-		this.pollingInterval = pollingInterval;
 	}
 
 	public TransportId getId() {
@@ -117,6 +118,7 @@ class BluetoothPlugin implements DuplexPlugin {
 					return;
 				}
 				socket = ss;
+				backoff.reset();
 				callback.transportEnabled();
 				acceptContactConnections(ss);
 			}
@@ -160,6 +162,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
 				return;
 			}
+			backoff.reset();
 			callback.incomingConnectionCreated(wrapSocket(s));
 			if (!running) return;
 		}
@@ -183,11 +186,12 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	public int getPollingInterval() {
-		return pollingInterval;
+		return backoff.getPollingInterval();
 	}
 
 	public void poll(final Collection<ContactId> connected) {
 		if (!running) return;
+		backoff.increment();
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -202,8 +206,10 @@ class BluetoothPlugin implements DuplexPlugin {
 				public void run() {
 					if (!running) return;
 					StreamConnection s = connect(makeUrl(address, uuid));
-					if (s != null)
+					if (s != null) {
+						backoff.reset();
 						callback.outgoingConnectionCreated(c, wrapSocket(s));
+					}
 				}
 			});
 		}

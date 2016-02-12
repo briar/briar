@@ -8,6 +8,7 @@ import com.google.inject.Provides;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
+import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
@@ -37,11 +38,11 @@ public class AndroidPluginsModule extends PluginsModule {
 	@Provides
 	DuplexPluginConfig getDuplexPluginConfig(@IoExecutor Executor ioExecutor,
 			AndroidExecutor androidExecutor, Application app,
-			SecureRandom random, LocationUtils locationUtils,
-			EventBus eventBus) {
+			SecureRandom random, BackoffFactory backoffFactory,
+			LocationUtils locationUtils, EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
-				androidExecutor, appContext, random);
+				androidExecutor, appContext, random, backoffFactory);
 		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
 				locationUtils, eventBus);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
