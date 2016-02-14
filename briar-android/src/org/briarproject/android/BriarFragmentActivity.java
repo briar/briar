@@ -42,7 +42,8 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (getSupportFragmentManager().getBackStackEntryCount() == 0 &&
+		if (this instanceof NavDrawerActivity &&
+				getSupportFragmentManager().getBackStackEntryCount() == 0 &&
 				getSupportFragmentManager()
 						.findFragmentByTag(ContactListFragment.TAG) == null) {
 			/*

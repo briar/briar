@@ -13,6 +13,9 @@ import org.briarproject.android.forum.ShareForumActivity;
 import org.briarproject.android.forum.WriteForumPostActivity;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.keyagreement.ChooseIdentityFragment;
+import org.briarproject.android.keyagreement.KeyAgreementActivity;
+import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
 import org.briarproject.plugins.AndroidPluginsModule;
@@ -44,6 +47,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	void inject(AddContactActivity activity);
 
+	void inject(KeyAgreementActivity activity);
+
 	void inject(ConversationActivity activity);
 
 	void inject(CreateIdentityActivity activity);
@@ -67,6 +72,10 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	void inject(ContactListFragment fragment);
 
 	void inject(ForumListFragment fragment);
+
+	void inject(ChooseIdentityFragment fragment);
+
+	void inject(ShowQrCodeFragment fragment);
 
 	// Eager singleton load
 	void inject(AndroidModule.EagerSingletons init);
