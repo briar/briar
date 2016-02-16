@@ -101,7 +101,8 @@ public abstract class IdenticonBase {
 	}
 
 	protected int getBackgroundColor() {
-		return Color.WHITE;
+		// http://www.google.com/design/spec/style/color.html#color-themes
+		return Color.rgb(0xFA, 0xFA, 0xFA);
 	}
 
 	public void updateSize(int w, int h) {
