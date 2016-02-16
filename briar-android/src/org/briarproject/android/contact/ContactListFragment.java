@@ -13,7 +13,7 @@ import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarApplication;
 import org.briarproject.android.fragment.BaseEventFragment;
-import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -107,7 +107,7 @@ public class ContactListFragment extends BaseEventFragment {
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(getContext(),
-						AddContactActivity.class));
+						KeyAgreementActivity.class));
 			}
 		});
 
