@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -10,7 +11,9 @@
 		android:layout_height="@dimen/listitem_picture_size"
 		android:layout_centerVertical="true"
 		android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-		android:layout_marginStart="@dimen/listitem_horizontal_margin"/>
+		android:layout_marginStart="@dimen/listitem_horizontal_margin"
+		app:civ_border_width="@dimen/avatar_border_width"
+		app:civ_border_color="@color/briar_text_primary"/>
 
 	<ImageView
 		android:id="@+id/statusView"

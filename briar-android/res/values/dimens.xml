@@ -21,11 +21,10 @@
 	<dimen name="nav_seperator_height">1dp</dimen>
 
 	<dimen name="listitem_horizontal_margin">16dp</dimen>
-	<dimen name="listitem_picture_size">40dp</dimen>
 	<dimen name="listitem_text_left_margin">72dp</dimen>
-
 	<dimen name="listitem_height_one_line_avatar">56dp</dimen>
-
+	<dimen name="listitem_picture_size">40dp</dimen>
 	<dimen name="dropdown_picture_size">32dp</dimen>
+	<dimen name="avatar_border_width">1dp</dimen>
 
 </resources>

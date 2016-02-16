@@ -1,7 +1,6 @@
 package im.delight.android.identicons;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -38,11 +37,6 @@ public class IdenticonDrawable extends Drawable {
 			@Override
 			protected boolean isCellVisible(int row, int column) {
 				return getByte(3 + row * CENTER_COLUMN_INDEX + getSymmetricColumnIndex(column)) >= 0;
-			}
-
-			@Override
-			protected int getIconColor() {
-				return Color.rgb(getByte(0) + 128, getByte(1) + 128, getByte(2) + 128);
 			}
 		};
 		mDelegate.show(toShow);
