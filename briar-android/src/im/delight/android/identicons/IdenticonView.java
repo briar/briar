@@ -94,10 +94,6 @@ abstract public class IdenticonView extends View {
 		}
 	}
 
-	protected byte getByte(int index) {
-		return getDelegate().getByte(index);
-	}
-
 	abstract protected IdenticonBase getDelegate();
 
 	@Override
