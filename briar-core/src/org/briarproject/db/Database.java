@@ -64,7 +64,7 @@ interface Database<T> {
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
-	ContactId addContact(T txn, Author remote, AuthorId local)
+	ContactId addContact(T txn, Author remote, AuthorId local, boolean active)
 			throws DbException;
 
 	/**
@@ -445,6 +445,12 @@ interface Database<T> {
 	 * respect to the given contact.
 	 */
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
+
+	/**
+	 * Marks the given contact as active or inactive.
+	 */
+	void setContactActive(T txn, ContactId c, boolean active)
+		throws DbException;
 
 	/**
 	 * Marks the given message as shared or unshared.

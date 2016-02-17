@@ -138,7 +138,7 @@ SelectContactsDialog.Listener {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					contacts = contactManager.getContacts();
+					contacts = contactManager.getActiveContacts();
 					selected = forumSharingManager.getSharedWith(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))

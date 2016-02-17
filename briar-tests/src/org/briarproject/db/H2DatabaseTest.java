@@ -108,7 +108,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsGroup(txn, groupId));
 		db.addGroup(txn, group);
@@ -170,7 +171,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 		db.addMessage(txn, message, VALID, true);
@@ -207,7 +209,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact, a group and an unvalidated message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 		db.addMessage(txn, message, UNKNOWN, true);
@@ -245,7 +248,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact, a group and an unshared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 		db.addMessage(txn, message, VALID, false);
@@ -283,7 +287,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 		db.addMessage(txn, message, VALID, true);
@@ -309,7 +314,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 
@@ -345,7 +351,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 		db.addMessage(txn, message, VALID, true);
@@ -508,7 +515,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 
@@ -527,7 +535,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 
 		// The group is not in the database
 		assertFalse(db.containsVisibleMessage(txn, contactId, messageId));
@@ -544,7 +553,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, VALID, true);
 		db.addStatus(txn, contactId, messageId, false, false);
@@ -563,7 +573,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 
 		// The group should not be visible to the contact
@@ -598,7 +609,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact and the groups
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		for (Group g : groups) db.addGroup(txn, g);
 
 		// Make the groups visible to the contact
@@ -630,7 +642,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add the contact, the transport and the transport keys
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addTransport(txn, transportId, 123);
 		db.addTransportKeys(txn, contactId, keys);
 
@@ -691,7 +704,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addTransport(txn, transportId, 123);
 		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
 
@@ -726,7 +740,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addTransport(txn, transportId, 123);
 		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
 
@@ -762,7 +777,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(Collections.emptyList(), contacts);
 
 		// Add a contact associated with the local author
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		contacts = db.getContacts(txn, localAuthorId);
 		assertEquals(Collections.singletonList(contactId), contacts);
 
@@ -783,7 +799,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact - initially there should be no offered messages
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		assertEquals(0, db.countOfferedMessages(txn, contactId));
 
 		// Add some offered messages and count them
@@ -921,7 +938,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 
 		// Add a group and make it visible to the contact
 		db.addGroup(txn, group);
@@ -997,7 +1015,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 
 		// The group should not be visible to the contact
@@ -1030,8 +1049,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor1);
 
 		// Add the same contact for each local pseudonym
-		ContactId contactId = db.addContact(txn, author, localAuthorId);
-		ContactId contactId1 = db.addContact(txn, author, localAuthorId1);
+		ContactId contactId = db.addContact(txn, author, localAuthorId, true);
+		ContactId contactId1 = db.addContact(txn, author, localAuthorId1, true);
 
 		// The contacts should be distinct
 		assertNotEquals(contactId, contactId1);
@@ -1050,7 +1069,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 		db.addMessage(txn, message, VALID, true);

@@ -13,7 +13,9 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
 import org.briarproject.api.identity.LocalAuthor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -41,12 +43,12 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	}
 
 	@Override
-	public ContactId addContact(Author remote, AuthorId local)
+	public ContactId addContact(Author remote, AuthorId local, boolean active)
 			throws DbException {
 		ContactId c;
 		Transaction txn = db.startTransaction();
 		try {
-			c = db.addContact(txn, remote, local);
+			c = db.addContact(txn, remote, local, active);
 			Contact contact = db.getContact(txn, c);
 			for (AddContactHook hook : addHooks)
 				hook.addingContact(txn, contact);
@@ -71,7 +73,7 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	}
 
 	@Override
-	public Collection<Contact> getContacts() throws DbException {
+	public Collection<Contact> getActiveContacts() throws DbException {
 		Collection<Contact> contacts;
 		Transaction txn = db.startTransaction();
 		try {
@@ -80,7 +82,9 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 		} finally {
 			db.endTransaction(txn);
 		}
-		return contacts;
+		List<Contact> active = new ArrayList<Contact>(contacts.size());
+		for (Contact c : contacts) if (c.isActive()) active.add(c);
+		return Collections.unmodifiableList(active);
 	}
 
 	@Override
@@ -88,6 +92,18 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 		Transaction txn = db.startTransaction();
 		try {
 			removeContact(txn, c);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void setContactActive(ContactId c, boolean active)
+			throws DbException {
+		Transaction txn = db.startTransaction();
+		try {
+			db.setContactActive(txn, c, active);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);

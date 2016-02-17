@@ -107,7 +107,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		transportId = new TransportId("id");
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, localAuthorId);
+		contact = new Contact(contactId, author, localAuthorId, true);
 	}
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
@@ -143,7 +143,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).containsContact(txn, authorId, localAuthorId);
 			will(returnValue(false));
-			oneOf(database).addContact(txn, author, localAuthorId);
+			oneOf(database).addContact(txn, author, localAuthorId, true);
 			will(returnValue(contactId));
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
@@ -193,7 +193,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			db.addLocalAuthor(transaction, localAuthor);
 			assertEquals(contactId,
-					db.addContact(transaction, author, localAuthorId));
+					db.addContact(transaction, author, localAuthorId, true));
 			assertEquals(Collections.singletonList(contact),
 					db.getContacts(transaction));
 			db.addGroup(transaction, group); // First time - listeners called
@@ -294,11 +294,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(18).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(18).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).abortTransaction(txn);
+			exactly(18).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -458,6 +458,16 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction();
 		try {
+			db.setContactActive(transaction, contactId, true);
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		transaction = db.startTransaction();
+		try {
 			db.setReorderingWindow(transaction, contactId, transportId, 0, 0,
 					new byte[REORDERING_WINDOW_SIZE / 8]);
 			fail();
@@ -501,7 +511,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		Transaction transaction = db.startTransaction();
 		try {
-			db.addContact(transaction, author, localAuthorId);
+			db.addContact(transaction, author, localAuthorId, true);
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
@@ -755,7 +765,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).containsContact(txn, authorId, localAuthorId);
 			will(returnValue(false));
-			oneOf(database).addContact(txn, author, localAuthorId);
+			oneOf(database).addContact(txn, author, localAuthorId, true);
 			will(returnValue(contactId));
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// endTransaction()
@@ -776,7 +786,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			db.addLocalAuthor(transaction, localAuthor);
 			assertEquals(contactId,
-					db.addContact(transaction, author, localAuthorId));
+					db.addContact(transaction, author, localAuthorId, true));
 			transaction.setComplete();
 		} finally {
 			db.endTransaction(transaction);

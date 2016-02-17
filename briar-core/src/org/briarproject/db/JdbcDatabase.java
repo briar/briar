@@ -89,6 +89,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " name VARCHAR NOT NULL,"
 					+ " publicKey BINARY NOT NULL,"
 					+ " localAuthorId HASH NOT NULL,"
+					+ " active BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
@@ -441,20 +442,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return new DeviceId(StringUtils.fromHexString(s.get(DEVICE_ID_KEY)));
 	}
 
-	public ContactId addContact(Connection txn, Author remote, AuthorId local)
-			throws DbException {
+	public ContactId addContact(Connection txn, Author remote, AuthorId local,
+			boolean active) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
-					+ " (authorId, name, publicKey, localAuthorId)"
-					+ " VALUES (?, ?, ?, ?)";
+					+ " (authorId, name, publicKey, localAuthorId, active)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setString(2, remote.getName());
 			ps.setBytes(3, remote.getPublicKey());
 			ps.setBytes(4, local.getBytes());
+			ps.setBoolean(5, active);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -926,7 +928,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, localAuthorId"
+			String sql = "SELECT authorId, name, publicKey,"
+					+ " localAuthorId, active"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -937,10 +940,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
+			boolean active = rs.getBoolean(5);
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, localAuthorId);
+			return new Contact(c, author, localAuthorId, active);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -954,7 +958,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, name, publicKey,"
-					+ " localAuthorId"
+					+ " localAuthorId, active"
 					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -966,7 +970,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(4);
 				Author author = new Author(authorId, name, publicKey);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				contacts.add(new Contact(contactId, author, localAuthorId));
+				boolean active = rs.getBoolean(6);
+				contacts.add(new Contact(contactId, author, localAuthorId,
+						active));
 			}
 			rs.close();
 			ps.close();
@@ -2013,6 +2019,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void setContactActive(Connection txn, ContactId c, boolean active)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE contacts SET active = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, active);
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void setMessageShared(Connection txn, MessageId m, boolean shared)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2022,7 +2045,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBoolean(1, shared);
 			ps.setBytes(2, m.getBytes());
 			int affected = ps.executeUpdate();
-			if (affected < 0) throw new DbStateException();
+			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2039,7 +2062,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, valid ? VALID.getValue() : INVALID.getValue());
 			ps.setBytes(2, m.getBytes());
 			int affected = ps.executeUpdate();
-			if (affected < 0) throw new DbStateException();
+			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);

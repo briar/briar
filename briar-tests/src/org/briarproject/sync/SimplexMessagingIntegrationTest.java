@@ -134,7 +134,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Add Bob as a contact
 		Author bobAuthor = new Author(bobId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
-		ContactId contactId = contactManager.addContact(bobAuthor, aliceId);
+		ContactId contactId = contactManager.addContact(bobAuthor, aliceId,
+				true);
 		// Derive and store the transport keys
 		keyManager.addContact(contactId, master, timestamp, true);
 
@@ -204,7 +205,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Add Alice as a contact
 		Author aliceAuthor = new Author(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
-		ContactId contactId = contactManager.addContact(aliceAuthor, bobId);
+		ContactId contactId = contactManager.addContact(aliceAuthor, bobId,
+				true);
 		// Derive and store the transport keys
 		keyManager.addContact(contactId, master, timestamp, false);
 

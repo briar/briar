@@ -16,6 +16,7 @@ import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.GroupAddedEvent;
@@ -136,13 +137,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	public ContactId addContact(Transaction transaction, Author remote,
-			AuthorId local) throws DbException {
+			AuthorId local, boolean active) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsLocalAuthor(txn, local))
 			throw new NoSuchLocalAuthorException();
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException();
-		ContactId c = db.addContact(txn, remote, local);
+		ContactId c = db.addContact(txn, remote, local, active);
 		transaction.attach(new ContactAddedEvent(c));
 		return c;
 	}
@@ -578,6 +579,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchTransportException();
 		db.removeTransport(txn, t);
 		transaction.attach(new TransportRemovedEvent(t));
+	}
+
+	public void setContactActive(Transaction transaction, ContactId c,
+			boolean active) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.setContactActive(txn, c, active);
+		transaction.attach(new ContactStatusChangedEvent(c, active));
 	}
 
 	public void setMessageShared(Transaction transaction, Message m,
