@@ -8,11 +8,14 @@ public class Contact {
 	private final ContactId id;
 	private final Author author;
 	private final AuthorId localAuthorId;
+	private final boolean active;
 
-	public Contact(ContactId id, Author author, AuthorId localAuthorId) {
+	public Contact(ContactId id, Author author, AuthorId localAuthorId,
+			boolean active) {
 		this.id = id;
 		this.author = author;
 		this.localAuthorId = localAuthorId;
+		this.active = active;
 	}
 
 	public ContactId getId() {
@@ -25,6 +28,10 @@ public class Contact {
 
 	public AuthorId getLocalAuthorId() {
 		return localAuthorId;
+	}
+
+	public boolean isActive() {
+		return active;
 	}
 
 	@Override

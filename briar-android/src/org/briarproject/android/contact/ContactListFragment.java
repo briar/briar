@@ -125,7 +125,7 @@ public class ContactListFragment extends BaseEventFragment {
 					long now = System.currentTimeMillis();
 					List<ContactListItem> contacts =
 							new ArrayList<ContactListItem>();
-					for (Contact c : contactManager.getContacts()) {
+					for (Contact c : contactManager.getActiveContacts()) {
 						try {
 							ContactId id = c.getId();
 							GroupId groupId =

@@ -38,7 +38,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor ioExecutor = Executors.newCachedThreadPool();
+		final Executor ioExecutor = Executors.newSingleThreadExecutor();
 		final EventBus eventBus = context.mock(EventBus.class);
 		final SimplexPluginConfig simplexPluginConfig =
 				context.mock(SimplexPluginConfig.class);

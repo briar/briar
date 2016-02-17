@@ -219,7 +219,7 @@ abstract class Connector extends Thread {
 			long timestamp, boolean alice) throws DbException {
 		// Add the contact to the database
 		contactId = contactManager.addContact(remoteAuthor,
-				localAuthor.getId());
+				localAuthor.getId(), true);
 		// Derive transport keys
 		keyManager.addContact(contactId, master, timestamp, alice);
 		return contactId;

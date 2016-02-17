@@ -19,16 +19,20 @@ public interface ContactManager {
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
-	ContactId addContact(Author remote, AuthorId local) throws DbException;
+	ContactId addContact(Author remote, AuthorId local, boolean active)
+			throws DbException;
 
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;
 
-	/** Returns all contacts. */
-	Collection<Contact> getContacts() throws DbException;
+	/** Returns all active contacts. */
+	Collection<Contact> getActiveContacts() throws DbException;
 
 	/** Removes a contact and all associated state. */
 	void removeContact(ContactId c) throws DbException;
+
+	/** Marks a contact as active or inactive. */
+	void setContactActive(ContactId c, boolean active) throws DbException;
 
 	interface AddContactHook {
 		void addingContact(Transaction txn, Contact c) throws DbException;
