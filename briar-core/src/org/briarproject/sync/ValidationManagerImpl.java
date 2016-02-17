@@ -135,11 +135,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						if (meta == null) {
 							db.setMessageValid(txn, m, c, false);
 						} else {
-							for (ValidationHook hook : hooks)
-								hook.validatingMessage(txn, m, c, meta);
 							db.mergeMessageMetadata(txn, m.getId(), meta);
 							db.setMessageValid(txn, m, c, true);
 							db.setMessageShared(txn, m, true);
+							for (ValidationHook hook : hooks)
+								hook.validatingMessage(txn, m, c, meta);
 						}
 						txn.setComplete();
 					} finally {
