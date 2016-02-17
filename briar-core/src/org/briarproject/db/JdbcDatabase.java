@@ -9,7 +9,6 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbClosedException;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -41,7 +40,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,7 +47,6 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.Metadata.REMOVE;
-import static org.briarproject.api.db.StorageStatus.ADDING;
 import static org.briarproject.api.sync.ValidationManager.Validity.INVALID;
 import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
@@ -66,8 +63,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 20;
-	private static final int MIN_SCHEMA_VERSION = 20;
+	private static final int SCHEMA_VERSION = 21;
+	private static final int MIN_SCHEMA_VERSION = 21;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -83,7 +80,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " publicKey BINARY NOT NULL,"
 					+ " privateKey BINARY NOT NULL,"
 					+ " created BIGINT NOT NULL,"
-					+ " status INT NOT NULL,"
 					+ " PRIMARY KEY (authorId))";
 
 	private static final String CREATE_CONTACTS =
@@ -93,7 +89,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " name VARCHAR NOT NULL,"
 					+ " publicKey BINARY NOT NULL,"
 					+ " localAuthorId HASH NOT NULL,"
-					+ " status INT NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
@@ -227,8 +222,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private final LinkedList<Connection> connections =
 			new LinkedList<Connection>(); // Locking: connectionsLock
-
-	private final AtomicInteger transactionCount = new AtomicInteger(0);
 
 	private int openConnections = 0; // Locking: connectionsLock
 	private boolean closed = false; // Locking: connectionsLock
@@ -369,7 +362,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			throw new DbException(e);
 		}
-		transactionCount.incrementAndGet();
 		return txn;
 	}
 
@@ -418,14 +410,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public int getTransactionCount() {
-		return transactionCount.get();
-	}
-
-	public void resetTransactionCount() {
-		transactionCount.set(0);
-	}
-
 	protected void closeAllConnections() throws SQLException {
 		boolean interrupted = false;
 		connectionsLock.lock();
@@ -464,14 +448,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
-					+ " (authorId, name, publicKey, localAuthorId, status)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+					+ " (authorId, name, publicKey, localAuthorId)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setString(2, remote.getName());
 			ps.setBytes(3, remote.getPublicKey());
 			ps.setBytes(4, local.getBytes());
-			ps.setInt(5, ADDING.getValue());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -540,16 +523,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO localAuthors (authorId, name, publicKey,"
-					+ " privateKey, created, status)"
-					+ " VALUES (?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO localAuthors"
+					+ " (authorId, name, publicKey, privateKey, created)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getId().getBytes());
 			ps.setString(2, a.getName());
 			ps.setBytes(3, a.getPublicKey());
 			ps.setBytes(4, a.getPrivateKey());
 			ps.setLong(5, a.getTimeCreated());
-			ps.setInt(6, a.getStatus().getValue());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -969,8 +951,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, localAuthorId,"
-					+ " status"
+			String sql = "SELECT authorId, name, publicKey, localAuthorId"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -981,11 +962,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
-			StorageStatus status = StorageStatus.fromValue(rs.getInt(5));
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, localAuthorId, status);
+			return new Contact(c, author, localAuthorId);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1019,7 +999,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, name, publicKey,"
-					+ " localAuthorId, status"
+					+ " localAuthorId"
 					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1031,9 +1011,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(4);
 				Author author = new Author(authorId, name, publicKey);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
-				contacts.add(new Contact(contactId, author, localAuthorId,
-						status));
+				contacts.add(new Contact(contactId, author, localAuthorId));
 			}
 			rs.close();
 			ps.close();
@@ -1120,7 +1098,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, publicKey, privateKey, created, status"
+			String sql = "SELECT name, publicKey, privateKey, created"
 					+ " FROM localAuthors"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1131,9 +1109,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] publicKey = rs.getBytes(2);
 			byte[] privateKey = rs.getBytes(3);
 			long created = rs.getLong(4);
-			StorageStatus status = StorageStatus.fromValue(rs.getInt(5));
 			LocalAuthor localAuthor = new LocalAuthor(a, name, publicKey,
-					privateKey, created, status);
+					privateKey, created);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -1150,8 +1127,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, privateKey,"
-					+ " created, status"
+			String sql = "SELECT authorId, name, publicKey, privateKey, created"
 					+ " FROM localAuthors";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1162,9 +1138,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(3);
 				byte[] privateKey = rs.getBytes(4);
 				long created = rs.getLong(5);
-				StorageStatus status = StorageStatus.fromValue(rs.getInt(6));
 				authors.add(new LocalAuthor(authorId, name, publicKey,
-						privateKey, created, status));
+						privateKey, created));
 			}
 			rs.close();
 			ps.close();
@@ -2044,41 +2019,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setContactStatus(Connection txn, ContactId c, StorageStatus s)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE contacts SET status = ? WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, s.getValue());
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setLocalAuthorStatus(Connection txn, AuthorId a,
-			StorageStatus s) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE localAuthors SET status = ?"
-					+ " WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, s.getValue());
-			ps.setBytes(2, a.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

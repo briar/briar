@@ -13,11 +13,15 @@ import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.db.StorageStatus;
+import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.ContactAddedEvent;
+import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.event.GroupVisibilityUpdatedEvent;
+import org.briarproject.api.event.LocalAuthorAddedEvent;
+import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
@@ -50,11 +54,13 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
+import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -90,8 +96,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
 		long timestamp = System.currentTimeMillis();
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
-				StorageStatus.ACTIVE);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
 		size = 1234;
@@ -102,13 +107,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		transportId = new TransportId("id");
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, localAuthorId,
-				StorageStatus.ACTIVE);
+		contact = new Contact(contactId, author, localAuthorId);
 	}
 
-	private <T> DatabaseComponent createDatabaseComponent(Database<T> database,
+	private DatabaseComponent createDatabaseComponent(Database<Object> database,
 			EventBus eventBus, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<T>(database, eventBus, shutdown);
+		return new DatabaseComponentImpl<Object>(database, Object.class,
+				eventBus, shutdown);
 	}
 
 	@Test
@@ -120,18 +125,19 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			exactly(9).of(database).startTransaction();
-			will(returnValue(txn));
-			exactly(9).of(database).commitTransaction(txn);
 			// open()
 			oneOf(database).open();
 			will(returnValue(false));
 			oneOf(shutdown).addShutdownHook(with(any(Runnable.class)));
 			will(returnValue(shutdownHandle));
+			// startTransaction()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
 			// addLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
+			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
@@ -139,6 +145,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
+			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
@@ -166,10 +173,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).removeContact(txn, contactId);
+			oneOf(eventBus).broadcast(with(any(ContactRemovedEvent.class)));
 			// removeLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
 			oneOf(database).removeLocalAuthor(txn, localAuthorId);
+			oneOf(eventBus).broadcast(with(any(LocalAuthorRemovedEvent.class)));
+			// endTransaction()
+			oneOf(database).commitTransaction(txn);
 			// close()
 			oneOf(shutdown).removeShutdownHook(shutdownHandle);
 			oneOf(database).close();
@@ -178,15 +189,24 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				shutdown);
 
 		assertFalse(db.open());
-		db.addLocalAuthor(localAuthor);
-		assertEquals(contactId, db.addContact(author, localAuthorId));
-		assertEquals(Collections.singletonList(contact), db.getContacts());
-		db.addGroup(group); // First time - listeners called
-		db.addGroup(group); // Second time - not called
-		assertEquals(Collections.singletonList(group), db.getGroups(clientId));
-		db.removeGroup(group);
-		db.removeContact(contactId);
-		db.removeLocalAuthor(localAuthorId);
+		Transaction transaction = db.startTransaction();
+		try {
+			db.addLocalAuthor(transaction, localAuthor);
+			assertEquals(contactId,
+					db.addContact(transaction, author, localAuthorId));
+			assertEquals(Collections.singletonList(contact),
+					db.getContacts(transaction));
+			db.addGroup(transaction, group); // First time - listeners called
+			db.addGroup(transaction, group); // Second time - not called
+			assertEquals(Collections.singletonList(group),
+					db.getGroups(transaction, clientId));
+			db.removeGroup(transaction, group);
+			db.removeContact(transaction, contactId);
+			db.removeLocalAuthor(transaction, localAuthorId);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 		db.close();
 
 		context.assertIsSatisfied();
@@ -210,11 +230,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
+		Transaction transaction = db.startTransaction();
 		try {
-			db.addLocalMessage(message, clientId, metadata, true);
+			db.addLocalMessage(transaction, message, clientId, metadata, true);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
 		context.assertIsSatisfied();
@@ -252,7 +275,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.addLocalMessage(message, clientId, metadata, true);
+		Transaction transaction = db.startTransaction();
+		try {
+			db.addLocalMessage(transaction, message, clientId, metadata, true);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -276,126 +305,178 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
+		Transaction transaction = db.startTransaction();
 		try {
-			db.addTransportKeys(contactId, createTransportKeys());
+			db.addTransportKeys(transaction, contactId, createTransportKeys());
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.generateAck(contactId, 123);
+			db.generateAck(transaction, contactId, 123);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.generateBatch(contactId, 123, 456);
+			db.generateBatch(transaction, contactId, 123, 456);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.generateOffer(contactId, 123, 456);
+			db.generateOffer(transaction, contactId, 123, 456);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.generateRequest(contactId, 123);
+			db.generateRequest(transaction, contactId, 123);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getContact(contactId);
+			db.getContact(transaction, contactId);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getMessageStatus(contactId, groupId);
+			db.getMessageStatus(transaction, contactId, groupId);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getMessageStatus(contactId, messageId);
+			db.getMessageStatus(transaction, contactId, messageId);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.incrementStreamCounter(contactId, transportId, 0);
+			db.incrementStreamCounter(transaction, contactId, transportId, 0);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.isVisibleToContact(contactId, groupId);
+			db.isVisibleToContact(transaction, contactId, groupId);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
 			Ack a = new Ack(Collections.singletonList(messageId));
-			db.receiveAck(contactId, a);
+			db.receiveAck(transaction, contactId, a);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.receiveMessage(contactId, message);
+			db.receiveMessage(transaction, contactId, message);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
 			Offer o = new Offer(Collections.singletonList(messageId));
-			db.receiveOffer(contactId, o);
+			db.receiveOffer(transaction, contactId, o);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
 			Request r = new Request(Collections.singletonList(messageId));
-			db.receiveRequest(contactId, r);
+			db.receiveRequest(transaction, contactId, r);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.removeContact(contactId);
+			db.removeContact(transaction, contactId);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.setReorderingWindow(contactId, transportId, 0, 0, new byte[4]);
+			db.setReorderingWindow(transaction, contactId, transportId, 0, 0,
+					new byte[REORDERING_WINDOW_SIZE / 8]);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.setVisibleToContact(contactId, groupId, true);
+			db.setVisibleToContact(transaction, contactId, groupId, true);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
 		context.assertIsSatisfied();
@@ -420,25 +501,34 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
+		Transaction transaction = db.startTransaction();
 		try {
-			db.addContact(author, localAuthorId);
+			db.addContact(transaction, author, localAuthorId);
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getLocalAuthor(localAuthorId);
+			db.getLocalAuthor(transaction, localAuthorId);
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.removeLocalAuthor(localAuthorId);
+			db.removeLocalAuthor(transaction, localAuthorId);
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
 		context.assertIsSatisfied();
@@ -454,11 +544,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the group is in the DB (which it's not)
-			exactly(9).of(database).startTransaction();
+			exactly(7).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(9).of(database).containsGroup(txn, groupId);
+			exactly(7).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			exactly(9).of(database).abortTransaction(txn);
+			exactly(7).of(database).abortTransaction(txn);
 			// This is needed for getMessageStatus(), isVisibleToContact(), and
 			// setVisibleToContact() to proceed
 			exactly(3).of(database).containsContact(txn, contactId);
@@ -467,67 +557,74 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
+		Transaction transaction = db.startTransaction();
 		try {
-			db.getGroup(groupId);
+			db.getGroup(transaction, groupId);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getGroupMetadata(groupId);
+			db.getGroupMetadata(transaction, groupId);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getMessageStatus(contactId, groupId);
+			db.getMessageStatus(transaction, contactId, groupId);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getVisibility(groupId);
+			db.isVisibleToContact(transaction, contactId, groupId);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.isVisibleToContact(contactId, groupId);
+			db.mergeGroupMetadata(transaction, groupId, metadata);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.mergeGroupMetadata(groupId, metadata);
+			db.removeGroup(transaction, group);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.removeGroup(group);
+			db.setVisibleToContact(transaction, contactId, groupId, true);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		}
-
-		try {
-			db.setVisibility(groupId, Collections.<ContactId>emptyList());
-			fail();
-		} catch (NoSuchGroupException expected) {
-			// Expected
-		}
-
-		try {
-			db.setVisibleToContact(contactId, groupId, true);
-			fail();
-		} catch (NoSuchGroupException expected) {
-			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
 		context.assertIsSatisfied();
@@ -555,60 +652,84 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
+		Transaction transaction = db.startTransaction();
 		try {
-			db.deleteMessage(messageId);
+			db.deleteMessage(transaction, messageId);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.deleteMessageMetadata(messageId);
+			db.deleteMessageMetadata(transaction, messageId);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getRawMessage(messageId);
+			db.getRawMessage(transaction, messageId);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getMessageMetadata(messageId);
+			db.getMessageMetadata(transaction, messageId);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.getMessageStatus(contactId, messageId);
+			db.getMessageStatus(transaction, contactId, messageId);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.mergeMessageMetadata(messageId, metadata);
+			db.mergeMessageMetadata(transaction, messageId, metadata);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.setMessageShared(message, true);
+			db.setMessageShared(transaction, message, true);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.setMessageValid(message, clientId, true);
+			db.setMessageValid(transaction, message, clientId, true);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
 		context.assertIsSatisfied();
@@ -623,22 +744,23 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			// addLocalAuthor()
+			// startTransaction()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			// addLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
-			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
 			oneOf(database).containsContact(txn, authorId, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
+			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
+			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
 			exactly(4).of(database).startTransaction();
@@ -652,35 +774,55 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.addLocalAuthor(localAuthor);
-		assertEquals(contactId, db.addContact(author, localAuthorId));
-
+		Transaction transaction = db.startTransaction();
 		try {
-			db.getTransportKeys(transportId);
-			fail();
-		} catch (NoSuchTransportException expected) {
-			// Expected
+			db.addLocalAuthor(transaction, localAuthor);
+			assertEquals(contactId,
+					db.addContact(transaction, author, localAuthorId));
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.incrementStreamCounter(contactId, transportId, 0);
+			db.getTransportKeys(transaction, transportId);
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.removeTransport(transportId);
+			db.incrementStreamCounter(transaction, contactId, transportId, 0);
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
+		transaction = db.startTransaction();
 		try {
-			db.setReorderingWindow(contactId, transportId, 0, 0, new byte[4]);
+			db.removeTransport(transaction, transportId);
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		transaction = db.startTransaction();
+		try {
+			db.setReorderingWindow(transaction, contactId, transportId, 0, 0,
+					new byte[REORDERING_WINDOW_SIZE / 8]);
+			fail();
+		} catch (NoSuchTransportException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
 		}
 
 		context.assertIsSatisfied();
@@ -708,8 +850,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Ack a = db.generateAck(contactId, 123);
-		assertEquals(messagesToAck, a.getMessageIds());
+		Transaction transaction = db.startTransaction();
+		try {
+			Ack a = db.generateAck(transaction, contactId, 123);
+			assertEquals(messagesToAck, a.getMessageIds());
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -746,8 +894,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		assertEquals(messages, db.generateBatch(contactId, size * 2,
-				maxLatency));
+		Transaction transaction = db.startTransaction();
+		try {
+			assertEquals(messages, db.generateBatch(transaction, contactId,
+					size * 2, maxLatency));
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -777,8 +931,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Offer o = db.generateOffer(contactId, 123, maxLatency);
-		assertEquals(ids, o.getMessageIds());
+		Transaction transaction = db.startTransaction();
+		try {
+			Offer o = db.generateOffer(transaction, contactId, 123, maxLatency);
+			assertEquals(ids, o.getMessageIds());
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -805,8 +965,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Request r = db.generateRequest(contactId, 123);
-		assertEquals(ids, r.getMessageIds());
+		Transaction transaction = db.startTransaction();
+		try {
+			Request r = db.generateRequest(transaction, contactId, 123);
+			assertEquals(ids, r.getMessageIds());
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -844,8 +1010,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		assertEquals(messages, db.generateRequestedBatch(contactId, size * 2,
-				maxLatency));
+		Transaction transaction = db.startTransaction();
+		try {
+			assertEquals(messages, db.generateRequestedBatch(transaction,
+					contactId, size * 2, maxLatency));
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -871,7 +1043,14 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.receiveAck(contactId, new Ack(Collections.singletonList(messageId)));
+		Transaction transaction = db.startTransaction();
+		try {
+			Ack a = new Ack(Collections.singletonList(messageId));
+			db.receiveAck(transaction, contactId, a);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -909,7 +1088,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.receiveMessage(contactId, message);
+		Transaction transaction = db.startTransaction();
+		try {
+			db.receiveMessage(transaction, contactId, message);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -939,7 +1124,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.receiveMessage(contactId, message);
+		Transaction transaction = db.startTransaction();
+		try {
+			db.receiveMessage(transaction, contactId, message);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -956,8 +1147,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).containsMessage(txn, messageId);
-			will(returnValue(false));
 			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
@@ -965,7 +1154,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.receiveMessage(contactId, message);
+		Transaction transaction = db.startTransaction();
+		try {
+			db.receiveMessage(transaction, contactId, message);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -1011,9 +1206,16 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Offer o = new Offer(Arrays.asList(messageId, messageId1, messageId2,
-				messageId3));
-		db.receiveOffer(contactId, o);
+		Transaction transaction = db.startTransaction();
+		try {
+			Offer o = new Offer(Arrays.asList(messageId, messageId1,
+					messageId2, messageId3));
+			db.receiveOffer(transaction, contactId, o);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
+
 		context.assertIsSatisfied();
 	}
 
@@ -1039,16 +1241,20 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.receiveRequest(contactId, new Request(Collections.singletonList(
-				messageId)));
+		Transaction transaction = db.startTransaction();
+		try {
+			Request r = new Request(Collections.singletonList(messageId));
+			db.receiveRequest(transaction, contactId, r);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testChangingVisibilityCallsListeners() throws Exception {
-		final ContactId contactId1 = new ContactId(123);
-		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1057,13 +1263,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(both));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(both));
-			oneOf(database).removeVisibility(txn, contactId1, groupId);
+			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
+			will(returnValue(false)); // Not yet visible
+			oneOf(database).addVisibility(txn, contactId, groupId);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));
@@ -1071,7 +1277,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.setVisibility(groupId, Collections.singletonList(contactId));
+		Transaction transaction = db.startTransaction();
+		try {
+			db.setVisibleToContact(transaction, contactId, groupId, true);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -1079,8 +1291,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	@Test
 	public void testNotChangingVisibilityDoesNotCallListeners()
 			throws Exception {
-		final ContactId contactId1 = new ContactId(123);
-		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1089,56 +1299,67 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(both));
-			oneOf(database).getContactIds(txn);
-			will(returnValue(both));
+			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
+			will(returnValue(true)); // Already visible
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.setVisibility(groupId, both);
+		Transaction transaction = db.startTransaction();
+		try {
+			db.setVisibleToContact(transaction, contactId, groupId, true);
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testTransportKeys() throws Exception {
-		final TransportKeys keys = createTransportKeys();
+		final TransportKeys transportKeys = createTransportKeys();
+		final Map<ContactId, TransportKeys> keys = Collections.singletonMap(
+				contactId, transportKeys);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			// updateTransportKeys()
+			// startTransaction()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			// updateTransportKeys()
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).containsTransport(txn, transportId);
 			will(returnValue(true));
-			oneOf(database).updateTransportKeys(txn,
-					Collections.singletonMap(contactId, keys));
-			oneOf(database).commitTransaction(txn);
+			oneOf(database).updateTransportKeys(txn, keys);
 			// getTransportKeys()
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).containsTransport(txn, transportId);
 			will(returnValue(true));
 			oneOf(database).getTransportKeys(txn, transportId);
-			will(returnValue(Collections.singletonMap(contactId, keys)));
+			will(returnValue(keys));
+			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		db.updateTransportKeys(Collections.singletonMap(contactId, keys));
-		assertEquals(Collections.singletonMap(contactId, keys),
-				db.getTransportKeys(transportId));
+		Transaction transaction = db.startTransaction();
+		try {
+			db.updateTransportKeys(transaction, keys);
+			assertEquals(keys, db.getTransportKeys(transaction, transportId));
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -1179,29 +1400,34 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
-			// mergeSettings()
+			// startTransaction()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			// mergeSettings()
 			oneOf(database).getSettings(txn, "namespace");
 			will(returnValue(before));
 			oneOf(database).mergeSettings(txn, update, "namespace");
-			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(SettingsUpdatedEvent.class)));
 			// mergeSettings() again
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).getSettings(txn, "namespace");
 			will(returnValue(merged));
+			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 		}});
 
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		// First merge should broadcast an event
-		db.mergeSettings(update, "namespace");
-		// Second merge should not broadcast an event
-		db.mergeSettings(update, "namespace");
+		Transaction transaction = db.startTransaction();
+		try {
+			// First merge should broadcast an event
+			db.mergeSettings(transaction, update, "namespace");
+			// Second merge should not broadcast an event
+			db.mergeSettings(transaction, update, "namespace");
+			transaction.setComplete();
+		} finally {
+			db.endTransaction(transaction);
+		}
 
 		context.assertIsSatisfied();
 	}

@@ -4,6 +4,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -50,8 +51,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 	private static final ThrowingRunnable<IOException> CLOSE =
 			new ThrowingRunnable<IOException>() {
-		public void run() {}
-	};
+				public void run() {}
+			};
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
@@ -178,7 +179,14 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Ack a = db.generateAck(contactId, MAX_MESSAGE_IDS);
+				Ack a;
+				Transaction txn = db.startTransaction();
+				try {
+					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
 				if (a != null) writerTasks.add(new WriteAck(a));
@@ -212,8 +220,15 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Collection<byte[]> b = db.generateRequestedBatch(contactId,
-						MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
+				Collection<byte[]> b;
+				Transaction txn = db.startTransaction();
+				try {
+					b = db.generateRequestedBatch(txn, contactId,
+							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
 				if (b != null) writerTasks.add(new WriteBatch(b));
@@ -247,8 +262,15 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Offer o = db.generateOffer(contactId, MAX_MESSAGE_IDS,
-						maxLatency);
+				Offer o;
+				Transaction txn = db.startTransaction();
+				try {
+					o = db.generateOffer(txn, contactId, MAX_MESSAGE_IDS,
+							maxLatency);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated offer: " + (o != null));
 				if (o != null) writerTasks.add(new WriteOffer(o));
@@ -282,7 +304,14 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Request r = db.generateRequest(contactId, MAX_MESSAGE_IDS);
+				Request r;
+				Transaction txn = db.startTransaction();
+				try {
+					r = db.generateRequest(txn, contactId, MAX_MESSAGE_IDS);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated request: " + (r != null));
 				if (r != null) writerTasks.add(new WriteRequest(r));

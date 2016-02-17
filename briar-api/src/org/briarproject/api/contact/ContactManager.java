@@ -1,6 +1,7 @@
 package org.briarproject.api.contact;
 
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 
@@ -30,10 +31,10 @@ public interface ContactManager {
 	void removeContact(ContactId c) throws DbException;
 
 	interface AddContactHook {
-		void addingContact(ContactId c);
+		void addingContact(Transaction txn, Contact c) throws DbException;
 	}
 
 	interface RemoveContactHook {
-		void removingContact(ContactId c);
+		void removingContact(Transaction txn, Contact c) throws DbException;
 	}
 }

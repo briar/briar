@@ -1,6 +1,8 @@
 package org.briarproject.api.sync;
 
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.Transaction;
 
 /**
  * Responsible for managing message validators and passing them messages to
@@ -35,6 +37,7 @@ public interface ValidationManager {
 	void registerValidationHook(ValidationHook hook);
 
 	interface ValidationHook {
-		void validatingMessage(Message m, ClientId c, Metadata meta);
+		void validatingMessage(Transaction txn, Message m, ClientId c,
+				Metadata meta) throws DbException;
 	}
 }

@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
 
@@ -18,11 +19,25 @@ class SettingsManagerImpl implements SettingsManager {
 
 	@Override
 	public Settings getSettings(String namespace) throws DbException {
-		return db.getSettings(namespace);
+		Settings s;
+		Transaction txn = db.startTransaction();
+		try {
+			s = db.getSettings(txn, namespace);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return s;
 	}
 
 	@Override
 	public void mergeSettings(Settings s, String namespace) throws DbException {
-		db.mergeSettings(s, namespace);
+		Transaction txn = db.startTransaction();
+		try {
+			db.mergeSettings(txn, s, namespace);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 	}
 }

@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
@@ -18,6 +17,7 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -45,10 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Logger;
 
-import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
@@ -62,11 +59,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 
 	private static final byte[] LOCAL_GROUP_DESCRIPTOR = new byte[0];
 
-	private static final Logger LOG =
-			Logger.getLogger(ForumSharingManagerImpl.class.getName());
-
 	private final DatabaseComponent db;
-	private final ContactManager contactManager;
 	private final ForumManager forumManager;
 	private final GroupFactory groupFactory;
 	private final PrivateGroupFactory privateGroupFactory;
@@ -79,18 +72,14 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	private final Clock clock;
 	private final Group localGroup;
 
-	/** Ensures isolation between database reads and writes. */
-	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
 	@Inject
 	ForumSharingManagerImpl(DatabaseComponent db,
-			ContactManager contactManager, ForumManager forumManager,
-			GroupFactory groupFactory, PrivateGroupFactory privateGroupFactory,
+			ForumManager forumManager, GroupFactory groupFactory,
+			PrivateGroupFactory privateGroupFactory,
 			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser, SecureRandom random, Clock clock) {
 		this.db = db;
-		this.contactManager = contactManager;
 		this.forumManager = forumManager;
 		this.groupFactory = groupFactory;
 		this.privateGroupFactory = privateGroupFactory;
@@ -106,57 +95,39 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	}
 
 	@Override
-	public void addingContact(ContactId c) {
-		lock.writeLock().lock();
+	public void addingContact(Transaction txn, Contact c) throws DbException {
 		try {
 			// Create a group to share with the contact
-			Group g = getContactGroup(db.getContact(c));
+			Group g = getContactGroup(c);
 			// Store the group and share it with the contact
-			db.addGroup(g);
-			db.setVisibility(g.getId(), Collections.singletonList(c));
+			db.addGroup(txn, g);
+			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
 			// Attach the contact ID to the group
 			BdfDictionary d = new BdfDictionary();
-			d.put("contactId", c.getInt());
-			db.mergeGroupMetadata(g.getId(), metadataEncoder.encode(d));
+			d.put("contactId", c.getId().getInt());
+			db.mergeGroupMetadata(txn, g.getId(), metadataEncoder.encode(d));
 			// Share any forums that are shared with all contacts
-			List<Forum> shared = getForumsSharedWithAllContacts();
-			storeMessage(g.getId(), shared, 0);
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			List<Forum> shared = getForumsSharedWithAllContacts(txn);
+			storeMessage(txn, g.getId(), shared, 0);
 		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} finally {
-			lock.writeLock().unlock();
+			throw new DbException(e);
 		}
 	}
 
 	@Override
-	public void removingContact(ContactId c) {
-		lock.writeLock().lock();
-		try {
-			db.removeGroup(getContactGroup(db.getContact(c)));
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} finally {
-			lock.writeLock().unlock();
-		}
+	public void removingContact(Transaction txn, Contact c) throws DbException {
+		db.removeGroup(txn, getContactGroup(c));
 	}
 
 	@Override
-	public void validatingMessage(Message m, ClientId c, Metadata meta) {
+	public void validatingMessage(Transaction txn, Message m, ClientId c,
+			Metadata meta) throws DbException {
 		if (c.equals(CLIENT_ID)) {
-			lock.writeLock().lock();
 			try {
-				ContactId contactId = getContactId(m.getGroupId());
-				setForumVisibility(contactId, getVisibleForums(m));
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				ContactId contactId = getContactId(txn, m.getGroupId());
+				setForumVisibility(txn, contactId, getVisibleForums(txn, m));
 			} catch (FormatException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
-			} finally {
-				lock.writeLock().unlock();
+				throw new DbException(e);
 			}
 		}
 	}
@@ -179,149 +150,162 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 
 	@Override
 	public void addForum(Forum f) throws DbException {
-		lock.writeLock().lock();
+		Transaction txn = db.startTransaction();
 		try {
-			db.addGroup(f.getGroup());
+			db.addGroup(txn, f.getGroup());
+			txn.setComplete();
 		} finally {
-			lock.writeLock().unlock();
+			db.endTransaction(txn);
 		}
 	}
 
 	@Override
 	public void removeForum(Forum f) throws DbException {
-		lock.writeLock().lock();
 		try {
-			// Update the list of forums shared with each contact
-			for (Contact c : contactManager.getContacts()) {
-				Group contactGroup = getContactGroup(c);
-				removeFromList(contactGroup.getId(), f);
+			// Update the list shared with each contact
+			Transaction txn = db.startTransaction();
+			try {
+				for (Contact c : db.getContacts(txn))
+					removeFromList(txn, getContactGroup(c).getId(), f);
+				db.removeGroup(txn, f.getGroup());
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
 			}
-			db.removeGroup(f.getGroup());
 		} catch (IOException e) {
 			throw new DbException(e);
-		} finally {
-			lock.writeLock().unlock();
 		}
 	}
 
 	@Override
 	public Collection<Forum> getAvailableForums() throws DbException {
-		lock.readLock().lock();
 		try {
-			// Get any forums we subscribe to
-			Set<Group> subscribed = new HashSet<Group>(db.getGroups(
-					forumManager.getClientId()));
-			// Get all forums shared by contacts
 			Set<Forum> available = new HashSet<Forum>();
-			for (Contact c : contactManager.getContacts()) {
-				Group g = getContactGroup(c);
-				// Find the latest update version
-				LatestUpdate latest = findLatest(g.getId(), false);
-				if (latest != null) {
-					// Retrieve and parse the latest update
-					byte[] raw = db.getRawMessage(latest.messageId);
-					for (Forum f : parseForumList(raw)) {
-						if (!subscribed.contains(f.getGroup()))
-							available.add(f);
+			Transaction txn = db.startTransaction();
+			try {
+				// Get any forums we subscribe to
+				Set<Group> subscribed = new HashSet<Group>(db.getGroups(txn,
+						forumManager.getClientId()));
+				// Get all forums shared by contacts
+				for (Contact c : db.getContacts(txn)) {
+					Group g = getContactGroup(c);
+					// Find the latest update version
+					LatestUpdate latest = findLatest(txn, g.getId(), false);
+					if (latest != null) {
+						// Retrieve and parse the latest update
+						byte[] raw = db.getRawMessage(txn, latest.messageId);
+						for (Forum f : parseForumList(raw)) {
+							if (!subscribed.contains(f.getGroup()))
+								available.add(f);
+						}
 					}
 				}
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
 			}
 			return Collections.unmodifiableSet(available);
 		} catch (IOException e) {
 			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public Collection<Contact> getSharedBy(GroupId g) throws DbException {
-		lock.readLock().lock();
 		try {
 			List<Contact> subscribers = new ArrayList<Contact>();
-			for (Contact c : contactManager.getContacts()) {
-				Group contactGroup = getContactGroup(c);
-				if (listContains(contactGroup.getId(), g, false))
-					subscribers.add(c);
+			Transaction txn = db.startTransaction();
+			try {
+				for (Contact c : db.getContacts(txn)) {
+					if (listContains(txn, getContactGroup(c).getId(), g, false))
+						subscribers.add(c);
+				}
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
 			}
 			return Collections.unmodifiableList(subscribers);
 		} catch (IOException e) {
 			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public Collection<ContactId> getSharedWith(GroupId g) throws DbException {
-		lock.readLock().lock();
 		try {
 			List<ContactId> shared = new ArrayList<ContactId>();
-			for (Contact c : contactManager.getContacts()) {
-				Group contactGroup = getContactGroup(c);
-				if (listContains(contactGroup.getId(), g, true))
-					shared.add(c.getId());
+			Transaction txn = db.startTransaction();
+			try {
+				for (Contact c : db.getContacts(txn)) {
+					if (listContains(txn, getContactGroup(c).getId(), g, true))
+						shared.add(c.getId());
+				}
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
 			}
 			return Collections.unmodifiableList(shared);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			lock.readLock().unlock();
 		}
 	}
 
 	@Override
 	public void setSharedWith(GroupId g, Collection<ContactId> shared)
 			throws DbException {
-		lock.writeLock().lock();
 		try {
-			// Retrieve the forum
-			Forum f = parseForum(db.getGroup(g));
-			// Remove the forum from the list of forums shared with all contacts
-			removeFromList(localGroup.getId(), f);
-			// Update the list of forums shared with each contact
-			shared = new HashSet<ContactId>(shared);
-			for (Contact c : contactManager.getContacts()) {
-				Group contactGroup = getContactGroup(c);
-				if (shared.contains(c.getId())) {
-					if (addToList(contactGroup.getId(), f)) {
-						// If the contact is sharing the forum, make it visible
-						if (listContains(contactGroup.getId(), g, false))
-							db.setVisibleToContact(c.getId(), g, true);
+			Transaction txn = db.startTransaction();
+			try {
+				// Retrieve the forum
+				Forum f = parseForum(db.getGroup(txn, g));
+				// Remove the forum from the list shared with all contacts
+				removeFromList(txn, localGroup.getId(), f);
+				// Update the list shared with each contact
+				shared = new HashSet<ContactId>(shared);
+				for (Contact c : db.getContacts(txn)) {
+					Group cg = getContactGroup(c);
+					if (shared.contains(c.getId())) {
+						if (addToList(txn, cg.getId(), f)) {
+							if (listContains(txn, cg.getId(), g, false))
+								db.setVisibleToContact(txn, c.getId(), g, true);
+						}
+					} else {
+						removeFromList(txn, cg.getId(), f);
+						db.setVisibleToContact(txn, c.getId(), g, false);
 					}
-				} else {
-					removeFromList(contactGroup.getId(), f);
-					db.setVisibleToContact(c.getId(), g, false);
 				}
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
 			}
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			lock.writeLock().unlock();
 		}
 	}
 
 	@Override
 	public void setSharedWithAll(GroupId g) throws DbException {
-		lock.writeLock().lock();
 		try {
-			// Retrieve the forum
-			Forum f = parseForum(db.getGroup(g));
-			// Add the forum to the list of forums shared with all contacts
-			addToList(localGroup.getId(), f);
-			// Add the forum to the list of forums shared with each contact
-			for (Contact c : contactManager.getContacts()) {
-				Group contactGroup = getContactGroup(c);
-				if (addToList(contactGroup.getId(), f)) {
-					// If the contact is sharing the forum, make it visible
-					if (listContains(contactGroup.getId(), g, false))
-						db.setVisibleToContact(getContactId(g), g, true);
+			Transaction txn = db.startTransaction();
+			try {
+				// Retrieve the forum
+				Forum f = parseForum(db.getGroup(txn, g));
+				// Add the forum to the list shared with all contacts
+				addToList(txn, localGroup.getId(), f);
+				// Add the forum to the list shared with each contact
+				for (Contact c : db.getContacts(txn)) {
+					Group cg = getContactGroup(c);
+					if (addToList(txn, cg.getId(), f)) {
+						if (listContains(txn, cg.getId(), g, false))
+							db.setVisibleToContact(txn, c.getId(), g, true);
+					}
 				}
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
 			}
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			lock.writeLock().unlock();
 		}
 	}
 
@@ -329,23 +313,21 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
 	}
 
-	// Locking: lock.writeLock
-	private List<Forum> getForumsSharedWithAllContacts() throws DbException,
-			FormatException {
+	private List<Forum> getForumsSharedWithAllContacts(Transaction txn)
+			throws DbException, FormatException {
 		// Ensure the local group exists
-		db.addGroup(localGroup);
+		db.addGroup(txn, localGroup);
 		// Find the latest update in the local group
-		LatestUpdate latest = findLatest(localGroup.getId(), true);
+		LatestUpdate latest = findLatest(txn, localGroup.getId(), true);
 		if (latest == null) return Collections.emptyList();
 		// Retrieve and parse the latest update
-		return parseForumList(db.getRawMessage(latest.messageId));
+		return parseForumList(db.getRawMessage(txn, latest.messageId));
 	}
 
-	// Locking: lock.readLock
-	private LatestUpdate findLatest(GroupId g, boolean local)
+	private LatestUpdate findLatest(Transaction txn, GroupId g, boolean local)
 			throws DbException, FormatException {
 		LatestUpdate latest = null;
-		Map<MessageId, Metadata> metadata = db.getMessageMetadata(g);
+		Map<MessageId, Metadata> metadata = db.getMessageMetadata(txn, g);
 		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
 			BdfDictionary d = metadataParser.parse(e.getValue());
 			if (d.getBoolean("local") != local) continue;
@@ -384,16 +366,20 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		}
 	}
 
-	// Locking: lock.writeLock
-	private void storeMessage(GroupId g, List<Forum> forums, long version)
-			throws DbException, FormatException {
-		byte[] body = encodeForumList(forums, version);
-		long now = clock.currentTimeMillis();
-		Message m = messageFactory.createMessage(g, now, body);
-		BdfDictionary d = new BdfDictionary();
-		d.put("version", version);
-		d.put("local", true);
-		db.addLocalMessage(m, CLIENT_ID, metadataEncoder.encode(d), true);
+	private void storeMessage(Transaction txn, GroupId g, List<Forum> forums,
+			long version) throws DbException {
+		try {
+			byte[] body = encodeForumList(forums, version);
+			long now = clock.currentTimeMillis();
+			Message m = messageFactory.createMessage(g, now, body);
+			BdfDictionary d = new BdfDictionary();
+			d.put("version", version);
+			d.put("local", true);
+			Metadata meta = metadataEncoder.encode(d);
+			db.addLocalMessage(txn, m, CLIENT_ID, meta, true);
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private byte[] encodeForumList(List<Forum> forums, long version) {
@@ -418,23 +404,21 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		return out.toByteArray();
 	}
 
-	// Locking: lock.readLock
-	private ContactId getContactId(GroupId contactGroupId) throws DbException,
-			FormatException {
-		Metadata meta = db.getGroupMetadata(contactGroupId);
+	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
+			throws DbException, FormatException {
+		Metadata meta = db.getGroupMetadata(txn, contactGroupId);
 		BdfDictionary d = metadataParser.parse(meta);
 		return new ContactId(d.getInteger("contactId").intValue());
 	}
 
-	// Locking: lock.readLock
-	private Set<GroupId> getVisibleForums(Message remoteUpdate)
-			throws DbException, FormatException {
+	private Set<GroupId> getVisibleForums(Transaction txn,
+			Message remoteUpdate) throws DbException, FormatException {
 		// Get the latest local update
-		LatestUpdate local = findLatest(remoteUpdate.getGroupId(), true);
+		LatestUpdate local = findLatest(txn, remoteUpdate.getGroupId(), true);
 		// If there's no local update, no forums are visible
 		if (local == null) return Collections.emptySet();
 		// Intersect the sets of shared forums
-		byte[] localRaw = db.getRawMessage(local.messageId);
+		byte[] localRaw = db.getRawMessage(txn, local.messageId);
 		Set<Forum> shared = new HashSet<Forum>(parseForumList(localRaw));
 		shared.retainAll(parseForumList(remoteUpdate.getRaw()));
 		// Forums in the intersection should be visible
@@ -443,16 +427,15 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		return visible;
 	}
 
-	// Locking: lock.writeLock
-	private void setForumVisibility(ContactId c, Set<GroupId> visible)
-			throws DbException {
-		for (Group g : db.getGroups(forumManager.getClientId())) {
-			boolean isVisible = db.isVisibleToContact(c, g.getId());
+	private void setForumVisibility(Transaction txn, ContactId c,
+			Set<GroupId> visible) throws DbException {
+		for (Group g : db.getGroups(txn, forumManager.getClientId())) {
+			boolean isVisible = db.isVisibleToContact(txn, c, g.getId());
 			boolean shouldBeVisible = visible.contains(g.getId());
 			if (isVisible && !shouldBeVisible)
-				db.setVisibleToContact(c, g.getId(), false);
+				db.setVisibleToContact(txn, c, g.getId(), false);
 			else if (!isVisible && shouldBeVisible)
-				db.setVisibleToContact(c, g.getId(), true);
+				db.setVisibleToContact(txn, c, g.getId(), true);
 		}
 	}
 
@@ -491,38 +474,38 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		}
 	}
 
-	// Locking: lock.readLock
-	private boolean listContains(GroupId g, GroupId forum, boolean local)
-			throws DbException, FormatException {
-		LatestUpdate latest = findLatest(g, local);
+	private boolean listContains(Transaction txn, GroupId g, GroupId forum,
+			boolean local) throws DbException, FormatException {
+		LatestUpdate latest = findLatest(txn, g, local);
 		if (latest == null) return false;
-		List<Forum> list = parseForumList(db.getRawMessage(latest.messageId));
+		byte[] raw = db.getRawMessage(txn, latest.messageId);
+		List<Forum> list = parseForumList(raw);
 		for (Forum f : list) if (f.getId().equals(forum)) return true;
 		return false;
 	}
 
-	// Locking: lock.writeLock
-	private boolean addToList(GroupId g, Forum f) throws DbException,
-			FormatException {
-		LatestUpdate latest = findLatest(g, true);
+	private boolean addToList(Transaction txn, GroupId g, Forum f)
+			throws DbException, FormatException {
+		LatestUpdate latest = findLatest(txn, g, true);
 		if (latest == null) {
-			storeMessage(g, Collections.singletonList(f), 0);
+			storeMessage(txn, g, Collections.singletonList(f), 0);
 			return true;
 		}
-		List<Forum> list = parseForumList(db.getRawMessage(latest.messageId));
+		byte[] raw = db.getRawMessage(txn, latest.messageId);
+		List<Forum> list = parseForumList(raw);
 		if (list.contains(f)) return false;
 		list.add(f);
-		storeMessage(g, list, latest.version + 1);
+		storeMessage(txn, g, list, latest.version + 1);
 		return true;
 	}
 
-	// Locking: lock.writeLock
-	private void removeFromList(GroupId g, Forum f) throws DbException,
-			FormatException {
-		LatestUpdate latest = findLatest(g, true);
+	private void removeFromList(Transaction txn, GroupId g, Forum f)
+			throws DbException, FormatException {
+		LatestUpdate latest = findLatest(txn, g, true);
 		if (latest == null) return;
-		List<Forum> list = parseForumList(db.getRawMessage(latest.messageId));
-		if (list.remove(f)) storeMessage(g, list, latest.version + 1);
+		byte[] raw = db.getRawMessage(txn, latest.messageId);
+		List<Forum> list = parseForumList(raw);
+		if (list.remove(f)) storeMessage(txn, g, list, latest.version + 1);
 	}
 
 	private static class LatestUpdate {

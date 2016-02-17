@@ -4,6 +4,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -40,8 +41,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	private static final ThrowingRunnable<IOException> CLOSE =
 			new ThrowingRunnable<IOException>() {
-		public void run() {}
-	};
+				public void run() {}
+			};
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
@@ -119,7 +120,14 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Ack a = db.generateAck(contactId, MAX_MESSAGE_IDS);
+				Ack a;
+				Transaction txn = db.startTransaction();
+				try {
+					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
 				if (a == null) decrementOutstandingQueries();
@@ -154,8 +162,15 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Collection<byte[]> b = db.generateBatch(contactId,
-						MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
+				Collection<byte[]> b;
+				Transaction txn = db.startTransaction();
+				try {
+					b = db.generateBatch(txn, contactId,
+							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
 				if (b == null) decrementOutstandingQueries();

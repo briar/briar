@@ -1,4 +1,4 @@
-package org.briarproject.sync;
+package org.briarproject.identity;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfWriter;
@@ -14,9 +14,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.db.StorageStatus.ADDING;
-
-// TODO: Move this class to the identity package
 class AuthorFactoryImpl implements AuthorFactory {
 
 	private final CryptoComponent crypto;
@@ -38,7 +35,7 @@ class AuthorFactoryImpl implements AuthorFactory {
 	public LocalAuthor createLocalAuthor(String name, byte[] publicKey,
 			byte[] privateKey) {
 		return new LocalAuthor(getId(name, publicKey), name, publicKey,
-				privateKey, clock.currentTimeMillis(), ADDING);
+				privateKey, clock.currentTimeMillis());
 	}
 
 	private AuthorId getId(String name, byte[] publicKey) {

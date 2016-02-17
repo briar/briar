@@ -7,6 +7,7 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
@@ -55,7 +56,14 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	@Override
 	public boolean start() {
 		try {
-			Map<TransportId, Integer> latencies = db.getTransportLatencies();
+			Map<TransportId, Integer> latencies;
+			Transaction txn = db.startTransaction();
+			try {
+				latencies = db.getTransportLatencies(txn);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 			for (Entry<TransportId, Integer> e : latencies.entrySet())
 				addTransport(e.getKey(), e.getValue());
 		} catch (DbException e) {

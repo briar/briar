@@ -3,10 +3,7 @@ package org.briarproject.sync;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
@@ -22,7 +19,6 @@ public class SyncModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
 		bind(MessageFactory.class).to(MessageFactoryImpl.class);
 		bind(PacketReaderFactory.class).to(PacketReaderFactoryImpl.class);
@@ -30,11 +26,6 @@ public class SyncModule extends AbstractModule {
 		bind(PrivateGroupFactory.class).to(PrivateGroupFactoryImpl.class);
 		bind(SyncSessionFactory.class).to(
 				SyncSessionFactoryImpl.class).in(Singleton.class);
-	}
-
-	@Provides
-	ObjectReader<Author> getAuthorReader(AuthorFactory authorFactory) {
-		return new AuthorReader(authorFactory);
 	}
 
 	@Provides @Singleton

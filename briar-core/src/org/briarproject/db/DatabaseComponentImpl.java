@@ -13,11 +13,16 @@ import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchLocalAuthorException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchTransportException;
-import org.briarproject.api.db.StorageStatus;
+import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.ContactAddedEvent;
+import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.event.GroupVisibilityUpdatedEvent;
+import org.briarproject.api.event.LocalAuthorAddedEvent;
+import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
@@ -55,7 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -77,19 +82,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			Logger.getLogger(DatabaseComponentImpl.class.getName());
 
 	private final Database<T> db;
+	private final Class<T> txnClass;
 	private final EventBus eventBus;
 	private final ShutdownManager shutdown;
+	private final AtomicBoolean closed = new AtomicBoolean(false);
 
-	private final ReentrantReadWriteLock lock =
-			new ReentrantReadWriteLock(true);
-
-	private boolean open = false; // Locking: lock.writeLock
-	private int shutdownHandle = -1; // Locking: lock.writeLock
+	private volatile int shutdownHandle = -1;
 
 	@Inject
-	DatabaseComponentImpl(Database<T> db, EventBus eventBus,
+	DatabaseComponentImpl(Database<T> db, Class<T> txnClass, EventBus eventBus,
 			ShutdownManager shutdown) {
 		this.db = db;
+		this.txnClass = txnClass;
 		this.eventBus = eventBus;
 		this.shutdown = shutdown;
 	}
@@ -97,9 +101,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public boolean open() throws DbException {
 		Runnable shutdownHook = new Runnable() {
 			public void run() {
-				lock.writeLock().lock();
 				try {
-					shutdownHandle = -1;
 					close();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -107,130 +109,85 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				} catch (IOException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} finally {
-					lock.writeLock().unlock();
 				}
 			}
 		};
-		lock.writeLock().lock();
-		try {
-			if (open) throw new IllegalStateException();
-			open = true;
-			boolean reopened = db.open();
-			shutdownHandle = shutdown.addShutdownHook(shutdownHook);
-			return reopened;
-		} finally {
-			lock.writeLock().unlock();
-		}
+		boolean reopened = db.open();
+		shutdownHandle = shutdown.addShutdownHook(shutdownHook);
+		return reopened;
 	}
 
 	public void close() throws DbException, IOException {
-		lock.writeLock().lock();
-		try {
-			if (!open) return;
-			open = false;
-			if (shutdownHandle != -1)
-				shutdown.removeShutdownHook(shutdownHandle);
-			db.close();
-		} finally {
-			lock.writeLock().unlock();
+		if (closed.getAndSet(true)) return;
+		shutdown.removeShutdownHook(shutdownHandle);
+		db.close();
+	}
+
+	public Transaction startTransaction() throws DbException {
+		return new Transaction(db.startTransaction());
+	}
+
+	public void endTransaction(Transaction transaction) throws DbException {
+		T txn = txnClass.cast(transaction.unbox());
+		if (transaction.isComplete()) {
+			db.commitTransaction(txn);
+			for (Event e : transaction.getEvents()) eventBus.broadcast(e);
+		} else {
+			db.abortTransaction(txn);
 		}
 	}
 
-	public ContactId addContact(Author remote, AuthorId local)
+	private T unbox(Transaction transaction) {
+		if (transaction.isComplete()) throw new IllegalStateException();
+		return txnClass.cast(transaction.unbox());
+	}
+
+	public ContactId addContact(Transaction transaction, Author remote,
+			AuthorId local) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, local))
+			throw new NoSuchLocalAuthorException();
+		if (db.containsContact(txn, remote.getId(), local))
+			throw new ContactExistsException();
+		ContactId c = db.addContact(txn, remote, local);
+		transaction.attach(new ContactAddedEvent(c));
+		return c;
+	}
+
+	public void addGroup(Transaction transaction, Group g) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g.getId())) {
+			db.addGroup(txn, g);
+			transaction.attach(new GroupAddedEvent(g));
+		}
+	}
+
+	public void addLocalAuthor(Transaction transaction, LocalAuthor a)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsLocalAuthor(txn, local))
-					throw new NoSuchLocalAuthorException();
-				if (db.containsContact(txn, remote.getId(), local))
-					throw new ContactExistsException();
-				ContactId c = db.addContact(txn, remote, local);
-				db.commitTransaction(txn);
-				return c;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, a.getId())) {
+			db.addLocalAuthor(txn, a);
+			transaction.attach(new LocalAuthorAddedEvent(a.getId()));
 		}
 	}
 
-	public void addGroup(Group g) throws DbException {
-		boolean added = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, g.getId())) {
-					db.addGroup(txn, g);
-					added = true;
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
+	public void addLocalMessage(Transaction transaction, Message m, ClientId c,
+			Metadata meta, boolean shared) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, m.getGroupId()))
+			throw new NoSuchGroupException();
+		if (!db.containsMessage(txn, m.getId())) {
+			addMessage(txn, m, VALID, shared, null);
+			transaction.attach(new MessageAddedEvent(m, null));
+			transaction.attach(new MessageValidatedEvent(m, c, true, true));
+			if (shared) transaction.attach(new MessageSharedEvent(m));
 		}
-		if (added) eventBus.broadcast(new GroupAddedEvent(g));
-	}
-
-	public void addLocalAuthor(LocalAuthor a) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsLocalAuthor(txn, a.getId())) {
-					db.addLocalAuthor(txn, a);
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public void addLocalMessage(Message m, ClientId c, Metadata meta,
-			boolean shared) throws DbException {
-		boolean added = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, m.getGroupId()))
-					throw new NoSuchGroupException();
-				if (!db.containsMessage(txn, m.getId())) {
-					addMessage(txn, m, VALID, shared, null);
-					added = true;
-				}
-				db.mergeMessageMetadata(txn, m.getId(), meta);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (added) {
-			eventBus.broadcast(new MessageAddedEvent(m, null));
-			eventBus.broadcast(new MessageValidatedEvent(m, c, true, true));
-			if (shared) eventBus.broadcast(new MessageSharedEvent(m));
-		}
+		db.mergeMessageMetadata(txn, m.getId(), meta);
 	}
 
 	/**
 	 * Stores a message and initialises its status with respect to each contact.
-	 * <p>
-	 * Locking: write.
+	 *
 	 * @param sender null for a locally generated message.
 	 */
 	private void addMessage(T txn, Message m, Validity validity, boolean shared,
@@ -251,1053 +208,457 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void addTransport(TransportId t, int maxLatency) throws DbException {
-		boolean added = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsTransport(txn, t)) {
-					db.addTransport(txn, t, maxLatency);
-					added = true;
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
+	public void addTransport(Transaction transaction, TransportId t,
+			int maxLatency) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t)) {
+			db.addTransport(txn, t, maxLatency);
+			transaction.attach(new TransportAddedEvent(t, maxLatency));
 		}
-		if (added) eventBus.broadcast(new TransportAddedEvent(t, maxLatency));
 	}
 
-	public void addTransportKeys(ContactId c, TransportKeys k)
+	public void addTransportKeys(Transaction transaction, ContactId c,
+			TransportKeys k) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsTransport(txn, k.getTransportId()))
+			throw new NoSuchTransportException();
+		db.addTransportKeys(txn, c, k);
+	}
+
+	public void deleteMessage(Transaction transaction, MessageId m)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsTransport(txn, k.getTransportId()))
-					throw new NoSuchTransportException();
-				db.addTransportKeys(txn, c, k);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.deleteMessage(txn, m);
 	}
 
-	public void deleteMessage(MessageId m) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				db.deleteMessage(txn, m);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+	public void deleteMessageMetadata(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.deleteMessageMetadata(txn, m);
 	}
 
-	public void deleteMessageMetadata(MessageId m) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				db.deleteMessageMetadata(txn, m);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public Ack generateAck(ContactId c, int maxMessages) throws DbException {
-		Collection<MessageId> ids;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				ids = db.getMessagesToAck(txn, c, maxMessages);
-				if (!ids.isEmpty()) db.lowerAckFlag(txn, c, ids);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+	public Ack generateAck(Transaction transaction, ContactId c,
+			int maxMessages) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		Collection<MessageId> ids = db.getMessagesToAck(txn, c, maxMessages);
 		if (ids.isEmpty()) return null;
+		db.lowerAckFlag(txn, c, ids);
 		return new Ack(ids);
 	}
 
-	public Collection<byte[]> generateBatch(ContactId c, int maxLength,
-			int maxLatency) throws DbException {
-		Collection<MessageId> ids;
-		List<byte[]> messages = new ArrayList<byte[]>();
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				ids = db.getMessagesToSend(txn, c, maxLength);
-				for (MessageId m : ids) {
-					messages.add(db.getRawMessage(txn, m));
-					db.updateExpiryTime(txn, c, m, maxLatency);
-				}
-				if (!ids.isEmpty()) db.lowerRequestedFlag(txn, c, ids);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
+	public Collection<byte[]> generateBatch(Transaction transaction,
+			ContactId c, int maxLength, int maxLatency) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		Collection<MessageId> ids = db.getMessagesToSend(txn, c, maxLength);
+		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
+		for (MessageId m : ids) {
+			messages.add(db.getRawMessage(txn, m));
+			db.updateExpiryTime(txn, c, m, maxLatency);
 		}
-		if (messages.isEmpty()) return null;
-		if (!ids.isEmpty()) eventBus.broadcast(new MessagesSentEvent(c, ids));
+		if (ids.isEmpty()) return null;
+		db.lowerRequestedFlag(txn, c, ids);
+		transaction.attach(new MessagesSentEvent(c, ids));
 		return Collections.unmodifiableList(messages);
 	}
 
-	public Offer generateOffer(ContactId c, int maxMessages, int maxLatency)
-			throws DbException {
-		Collection<MessageId> ids;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				ids = db.getMessagesToOffer(txn, c, maxMessages);
-				for (MessageId m : ids)
-					db.updateExpiryTime(txn, c, m, maxLatency);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+	public Offer generateOffer(Transaction transaction, ContactId c,
+			int maxMessages, int maxLatency) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		Collection<MessageId> ids = db.getMessagesToOffer(txn, c, maxMessages);
 		if (ids.isEmpty()) return null;
+		for (MessageId m : ids) db.updateExpiryTime(txn, c, m, maxLatency);
 		return new Offer(ids);
 	}
 
-	public Request generateRequest(ContactId c, int maxMessages)
-			throws DbException {
-		Collection<MessageId> ids;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				ids = db.getMessagesToRequest(txn, c, maxMessages);
-				if (!ids.isEmpty()) db.removeOfferedMessages(txn, c, ids);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+	public Request generateRequest(Transaction transaction, ContactId c,
+			int maxMessages) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		Collection<MessageId> ids = db.getMessagesToRequest(txn, c,
+				maxMessages);
 		if (ids.isEmpty()) return null;
+		db.removeOfferedMessages(txn, c, ids);
 		return new Request(ids);
 	}
 
-	public Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
-			int maxLatency) throws DbException {
-		Collection<MessageId> ids;
-		List<byte[]> messages = new ArrayList<byte[]>();
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				ids = db.getRequestedMessagesToSend(txn, c, maxLength);
-				for (MessageId m : ids) {
-					messages.add(db.getRawMessage(txn, m));
-					db.updateExpiryTime(txn, c, m, maxLatency);
-				}
-				if (!ids.isEmpty()) db.lowerRequestedFlag(txn, c, ids);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
+	public Collection<byte[]> generateRequestedBatch(Transaction transaction,
+			ContactId c, int maxLength, int maxLatency) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		Collection<MessageId> ids = db.getRequestedMessagesToSend(txn, c,
+				maxLength);
+		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
+		for (MessageId m : ids) {
+			messages.add(db.getRawMessage(txn, m));
+			db.updateExpiryTime(txn, c, m, maxLatency);
 		}
-		if (messages.isEmpty()) return null;
-		if (!ids.isEmpty()) eventBus.broadcast(new MessagesSentEvent(c, ids));
+		if (ids.isEmpty()) return null;
+		db.lowerRequestedFlag(txn, c, ids);
+		transaction.attach(new MessagesSentEvent(c, ids));
 		return Collections.unmodifiableList(messages);
 	}
 
-	public Contact getContact(ContactId c) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				Contact contact = db.getContact(txn, c);
-				db.commitTransaction(txn);
-				return contact;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Collection<Contact> getContacts() throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Contact> contacts = db.getContacts(txn);
-				db.commitTransaction(txn);
-				return contacts;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Collection<ContactId> getContacts(AuthorId a) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsLocalAuthor(txn, a))
-					throw new NoSuchLocalAuthorException();
-				Collection<ContactId> contacts = db.getContacts(txn, a);
-				db.commitTransaction(txn);
-				return contacts;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public DeviceId getDeviceId() throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				DeviceId id = db.getDeviceId(txn);
-				db.commitTransaction(txn);
-				return id;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Group getGroup(GroupId g) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				Group group = db.getGroup(txn, g);
-				db.commitTransaction(txn);
-				return group;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Metadata getGroupMetadata(GroupId g) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				Metadata metadata = db.getGroupMetadata(txn, g);
-				db.commitTransaction(txn);
-				return metadata;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Collection<Group> getGroups(ClientId c) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Group> groups = db.getGroups(txn, c);
-				db.commitTransaction(txn);
-				return groups;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public LocalAuthor getLocalAuthor(AuthorId a) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsLocalAuthor(txn, a))
-					throw new NoSuchLocalAuthorException();
-				LocalAuthor localAuthor = db.getLocalAuthor(txn, a);
-				db.commitTransaction(txn);
-				return localAuthor;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Collection<LocalAuthor> getLocalAuthors() throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<LocalAuthor> authors = db.getLocalAuthors(txn);
-				db.commitTransaction(txn);
-				return authors;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Collection<MessageId> getMessagesToValidate(ClientId c)
+	public Contact getContact(Transaction transaction, ContactId c)
 			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<MessageId> ids = db.getMessagesToValidate(txn, c);
-				db.commitTransaction(txn);
-				return ids;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.getContact(txn, c);
 	}
 
-	public byte[] getRawMessage(MessageId m) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				byte[] raw = db.getRawMessage(txn, m);
-				db.commitTransaction(txn);
-				return raw;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Map<MessageId, Metadata> getMessageMetadata(GroupId g)
+	public Collection<Contact> getContacts(Transaction transaction)
 			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				Map<MessageId, Metadata> metadata =
-						db.getMessageMetadata(txn, g);
-				db.commitTransaction(txn);
-				return metadata;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+		T txn = unbox(transaction);
+		return db.getContacts(txn);
 	}
 
-	public Metadata getMessageMetadata(MessageId m) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				Metadata metadata = db.getMessageMetadata(txn, m);
-				db.commitTransaction(txn);
-				return metadata;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+	public Collection<ContactId> getContacts(Transaction transaction,
+			AuthorId a) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, a))
+			throw new NoSuchLocalAuthorException();
+		return db.getContacts(txn, a);
 	}
 
-	public Collection<MessageStatus> getMessageStatus(ContactId c, GroupId g)
+	public DeviceId getDeviceId(Transaction transaction) throws DbException {
+		T txn = unbox(transaction);
+		return db.getDeviceId(txn);
+	}
+
+	public Group getGroup(Transaction transaction, GroupId g)
 			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				Collection<MessageStatus> statuses =
-						db.getMessageStatus(txn, c, g);
-				db.commitTransaction(txn);
-				return statuses;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.getGroup(txn, g);
 	}
 
-	public MessageStatus getMessageStatus(ContactId c, MessageId m)
+	public Metadata getGroupMetadata(Transaction transaction, GroupId g)
 			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				MessageStatus status = db.getMessageStatus(txn, c, m);
-				db.commitTransaction(txn);
-				return status;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.getGroupMetadata(txn, g);
 	}
 
-	public Settings getSettings(String namespace) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Settings s = db.getSettings(txn, namespace);
-				db.commitTransaction(txn);
-				return s;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public Map<ContactId, TransportKeys> getTransportKeys(TransportId t)
+	public Collection<Group> getGroups(Transaction transaction, ClientId c)
 			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				Map<ContactId, TransportKeys> keys =
-						db.getTransportKeys(txn, t);
-				db.commitTransaction(txn);
-				return keys;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+		T txn = unbox(transaction);
+		return db.getGroups(txn, c);
 	}
 
-	public Map<TransportId, Integer> getTransportLatencies()
+	public LocalAuthor getLocalAuthor(Transaction transaction, AuthorId a)
 			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Map<TransportId, Integer> latencies =
-						db.getTransportLatencies(txn);
-				db.commitTransaction(txn);
-				return latencies;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, a))
+			throw new NoSuchLocalAuthorException();
+		return db.getLocalAuthor(txn, a);
 	}
 
-	public Collection<ContactId> getVisibility(GroupId g) throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				Collection<ContactId> visible = db.getVisibility(txn, g);
-				db.commitTransaction(txn);
-				return visible;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
-
-	public void incrementStreamCounter(ContactId c, TransportId t,
-			long rotationPeriod) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				db.incrementStreamCounter(txn, c, t, rotationPeriod);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public boolean isVisibleToContact(ContactId c, GroupId g)
+	public Collection<LocalAuthor> getLocalAuthors(Transaction transaction)
 			throws DbException {
-		lock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				boolean visible = db.containsVisibleGroup(txn, c, g);
-				db.commitTransaction(txn);
-				return visible;
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.readLock().unlock();
-		}
+		T txn = unbox(transaction);
+		return db.getLocalAuthors(txn);
 	}
 
-	public void mergeGroupMetadata(GroupId g, Metadata meta)
+	public Collection<MessageId> getMessagesToValidate(Transaction transaction,
+			ClientId c) throws DbException {
+		T txn = unbox(transaction);
+		return db.getMessagesToValidate(txn, c);
+	}
+
+	public byte[] getRawMessage(Transaction transaction, MessageId m)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				db.mergeGroupMetadata(txn, g, meta);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getRawMessage(txn, m);
 	}
 
-	public void mergeMessageMetadata(MessageId m, Metadata meta)
+	public Map<MessageId, Metadata> getMessageMetadata(Transaction transaction,
+			GroupId g) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.getMessageMetadata(txn, g);
+	}
+
+	public Metadata getMessageMetadata(Transaction transaction, MessageId m)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				db.mergeMessageMetadata(txn, m, meta);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessageMetadata(txn, m);
+	}
+
+	public Collection<MessageStatus> getMessageStatus(Transaction transaction,
+			ContactId c, GroupId g) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.getMessageStatus(txn, c, g);
+	}
+
+	public MessageStatus getMessageStatus(Transaction transaction, ContactId c,
+			MessageId m) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessageStatus(txn, c, m);
+	}
+
+	public Settings getSettings(Transaction transaction, String namespace)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getSettings(txn, namespace);
+	}
+
+	public Map<ContactId, TransportKeys> getTransportKeys(
+			Transaction transaction, TransportId t) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		return db.getTransportKeys(txn, t);
+	}
+
+	public Map<TransportId, Integer> getTransportLatencies(
+			Transaction transaction) throws DbException {
+		T txn = unbox(transaction);
+		return db.getTransportLatencies(txn);
+	}
+
+	public void incrementStreamCounter(Transaction transaction, ContactId c,
+			TransportId t, long rotationPeriod) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.incrementStreamCounter(txn, c, t, rotationPeriod);
+	}
+
+	public boolean isVisibleToContact(Transaction transaction, ContactId c,
+			GroupId g) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.containsVisibleGroup(txn, c, g);
+	}
+
+	public void mergeGroupMetadata(Transaction transaction, GroupId g,
+			Metadata meta) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		db.mergeGroupMetadata(txn, g, meta);
+	}
+
+	public void mergeMessageMetadata(Transaction transaction, MessageId m,
+			Metadata meta) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.mergeMessageMetadata(txn, m, meta);
+	}
+
+	public void mergeSettings(Transaction transaction, Settings s,
+			String namespace) throws DbException {
+		T txn = unbox(transaction);
+		Settings old = db.getSettings(txn, namespace);
+		Settings merged = new Settings();
+		merged.putAll(old);
+		merged.putAll(s);
+		if (!merged.equals(old)) {
+			db.mergeSettings(txn, s, namespace);
+			transaction.attach(new SettingsUpdatedEvent(namespace));
 		}
 	}
 
-	public void mergeSettings(Settings s, String namespace) throws DbException {
-		boolean changed = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Settings old = db.getSettings(txn, namespace);
-				Settings merged = new Settings();
-				merged.putAll(old);
-				merged.putAll(s);
-				if (!merged.equals(old)) {
-					db.mergeSettings(txn, s, namespace);
-					changed = true;
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (changed) eventBus.broadcast(new SettingsUpdatedEvent(namespace));
-	}
-
-	public void receiveAck(ContactId c, Ack a) throws DbException {
+	public void receiveAck(Transaction transaction, ContactId c, Ack a)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
 		Collection<MessageId> acked = new ArrayList<MessageId>();
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				for (MessageId m : a.getMessageIds()) {
-					if (db.containsVisibleMessage(txn, c, m)) {
-						db.raiseSeenFlag(txn, c, m);
-						acked.add(m);
-					}
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+		for (MessageId m : a.getMessageIds()) {
+			if (db.containsVisibleMessage(txn, c, m)) {
+				db.raiseSeenFlag(txn, c, m);
+				acked.add(m);
 			}
-		} finally {
-			lock.writeLock().unlock();
 		}
-		eventBus.broadcast(new MessagesAckedEvent(c, acked));
+		transaction.attach(new MessagesAckedEvent(c, acked));
 	}
 
-	public void receiveMessage(ContactId c, Message m) throws DbException {
-		boolean duplicate, visible;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				duplicate = db.containsMessage(txn, m.getId());
-				visible = db.containsVisibleGroup(txn, c, m.getGroupId());
-				if (visible) {
-					if (!duplicate) addMessage(txn, m, UNKNOWN, false, c);
-					db.raiseAckFlag(txn, c, m.getId());
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+	public void receiveMessage(Transaction transaction, ContactId c, Message m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (db.containsVisibleGroup(txn, c, m.getGroupId())) {
+			if (!db.containsMessage(txn, m.getId())) {
+				addMessage(txn, m, UNKNOWN, false, c);
+				transaction.attach(new MessageAddedEvent(m, c));
 			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (visible) {
-			if (!duplicate) eventBus.broadcast(new MessageAddedEvent(m, c));
-			eventBus.broadcast(new MessageToAckEvent(c));
+			db.raiseAckFlag(txn, c, m.getId());
+			transaction.attach(new MessageToAckEvent(c));
 		}
 	}
 
-	public void receiveOffer(ContactId c, Offer o) throws DbException {
+	public void receiveOffer(Transaction transaction, ContactId c, Offer o)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		int count = db.countOfferedMessages(txn, c);
 		boolean ack = false, request = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				int count = db.countOfferedMessages(txn, c);
-				for (MessageId m : o.getMessageIds()) {
-					if (db.containsVisibleMessage(txn, c, m)) {
-						db.raiseSeenFlag(txn, c, m);
-						db.raiseAckFlag(txn, c, m);
-						ack = true;
-					} else if (count < MAX_OFFERED_MESSAGES) {
-						db.addOfferedMessage(txn, c, m);
-						request = true;
-						count++;
-					}
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+		for (MessageId m : o.getMessageIds()) {
+			if (db.containsVisibleMessage(txn, c, m)) {
+				db.raiseSeenFlag(txn, c, m);
+				db.raiseAckFlag(txn, c, m);
+				ack = true;
+			} else if (count < MAX_OFFERED_MESSAGES) {
+				db.addOfferedMessage(txn, c, m);
+				request = true;
+				count++;
 			}
-		} finally {
-			lock.writeLock().unlock();
 		}
-		if (ack) eventBus.broadcast(new MessageToAckEvent(c));
-		if (request) eventBus.broadcast(new MessageToRequestEvent(c));
+		if (ack) transaction.attach(new MessageToAckEvent(c));
+		if (request) transaction.attach(new MessageToRequestEvent(c));
 	}
 
-	public void receiveRequest(ContactId c, Request r) throws DbException {
+	public void receiveRequest(Transaction transaction, ContactId c, Request r)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
 		boolean requested = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				for (MessageId m : r.getMessageIds()) {
-					if (db.containsVisibleMessage(txn, c, m)) {
-						db.raiseRequestedFlag(txn, c, m);
-						db.resetExpiryTime(txn, c, m);
-						requested = true;
-					}
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+		for (MessageId m : r.getMessageIds()) {
+			if (db.containsVisibleMessage(txn, c, m)) {
+				db.raiseRequestedFlag(txn, c, m);
+				db.resetExpiryTime(txn, c, m);
+				requested = true;
 			}
-		} finally {
-			lock.writeLock().unlock();
 		}
-		if (requested) eventBus.broadcast(new MessageRequestedEvent(c));
+		if (requested) transaction.attach(new MessageRequestedEvent(c));
 	}
 
-	public void removeContact(ContactId c) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				db.removeContact(txn, c);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public void removeGroup(Group g) throws DbException {
-		Collection<ContactId> affected;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				GroupId id = g.getId();
-				if (!db.containsGroup(txn, id))
-					throw new NoSuchGroupException();
-				affected = db.getVisibility(txn, id);
-				db.removeGroup(txn, id);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		eventBus.broadcast(new GroupRemovedEvent(g));
-		eventBus.broadcast(new GroupVisibilityUpdatedEvent(affected));
-	}
-
-	public void removeLocalAuthor(AuthorId a) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsLocalAuthor(txn, a))
-					throw new NoSuchLocalAuthorException();
-				db.removeLocalAuthor(txn, a);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	public void removeTransport(TransportId t) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				db.removeTransport(txn, t);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		eventBus.broadcast(new TransportRemovedEvent(t));
-	}
-
-	public void setContactStatus(ContactId c, StorageStatus s)
+	public void removeContact(Transaction transaction, ContactId c)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				db.setContactStatus(txn, c, s);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.removeContact(txn, c);
+		transaction.attach(new ContactRemovedEvent(c));
 	}
 
-	public void setLocalAuthorStatus(AuthorId a, StorageStatus s)
+	public void removeGroup(Transaction transaction, Group g)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsLocalAuthor(txn, a))
-					throw new NoSuchLocalAuthorException();
-				db.setLocalAuthorStatus(txn, a, s);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+		T txn = unbox(transaction);
+		GroupId id = g.getId();
+		if (!db.containsGroup(txn, id))
+			throw new NoSuchGroupException();
+		Collection<ContactId> affected = db.getVisibility(txn, id);
+		db.removeGroup(txn, id);
+		transaction.attach(new GroupRemovedEvent(g));
+		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
 	}
 
-	public void setMessageShared(Message m, boolean shared)
+	public void removeLocalAuthor(Transaction transaction, AuthorId a)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsMessage(txn, m.getId()))
-					throw new NoSuchMessageException();
-				db.setMessageShared(txn, m.getId(), shared);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (shared) eventBus.broadcast(new MessageSharedEvent(m));
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, a))
+			throw new NoSuchLocalAuthorException();
+		db.removeLocalAuthor(txn, a);
+		transaction.attach(new LocalAuthorRemovedEvent(a));
 	}
 
-	public void setMessageValid(Message m, ClientId c, boolean valid)
+	public void removeTransport(Transaction transaction, TransportId t)
 			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsMessage(txn, m.getId()))
-					throw new NoSuchMessageException();
-				db.setMessageValid(txn, m.getId(), valid);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		eventBus.broadcast(new MessageValidatedEvent(m, c, false, valid));
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.removeTransport(txn, t);
+		transaction.attach(new TransportRemovedEvent(t));
 	}
 
-	public void setReorderingWindow(ContactId c, TransportId t,
-			long rotationPeriod, long base, byte[] bitmap) throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsTransport(txn, t))
-					throw new NoSuchTransportException();
-				db.setReorderingWindow(txn, c, t, rotationPeriod, base, bitmap);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+	public void setMessageShared(Transaction transaction, Message m,
+			boolean shared) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m.getId()))
+			throw new NoSuchMessageException();
+		db.setMessageShared(txn, m.getId(), shared);
+		if (shared) transaction.attach(new MessageSharedEvent(m));
 	}
 
-	public void setVisibility(GroupId g, Collection<ContactId> visible)
+	public void setMessageValid(Transaction transaction, Message m, ClientId c,
+			boolean valid) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m.getId()))
+			throw new NoSuchMessageException();
+		db.setMessageValid(txn, m.getId(), valid);
+		transaction.attach(new MessageValidatedEvent(m, c, false, valid));
+	}
+
+	public void setReorderingWindow(Transaction transaction, ContactId c,
+			TransportId t, long rotationPeriod, long base, byte[] bitmap)
 			throws DbException {
-		Collection<ContactId> affected = new ArrayList<ContactId>();
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				// Use HashSets for O(1) lookups, O(n) overall running time
-				Collection<ContactId> now = new HashSet<ContactId>(visible);
-				Collection<ContactId> before = db.getVisibility(txn, g);
-				before = new HashSet<ContactId>(before);
-				// Set the group's visibility for each current contact
-				for (ContactId c : db.getContactIds(txn)) {
-					boolean wasBefore = before.contains(c);
-					boolean isNow = now.contains(c);
-					if (!wasBefore && isNow) {
-						db.addVisibility(txn, c, g);
-						affected.add(c);
-					} else if (wasBefore && !isNow) {
-						db.removeVisibility(txn, c, g);
-						affected.add(c);
-					}
-				}
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-		if (!affected.isEmpty())
-			eventBus.broadcast(new GroupVisibilityUpdatedEvent(affected));
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.setReorderingWindow(txn, c, t, rotationPeriod, base, bitmap);
 	}
 
-	public void setVisibleToContact(ContactId c, GroupId g, boolean visible)
-			throws DbException {
-		boolean wasVisible = false;
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if (!db.containsContact(txn, c))
-					throw new NoSuchContactException();
-				if (!db.containsGroup(txn, g))
-					throw new NoSuchGroupException();
-				wasVisible = db.containsVisibleGroup(txn, c, g);
-				if (visible && !wasVisible) db.addVisibility(txn, c, g);
-				else if (!visible && wasVisible) db.removeVisibility(txn, c, g);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
+	public void setVisibleToContact(Transaction transaction, ContactId c,
+			GroupId g, boolean visible) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		boolean wasVisible = db.containsVisibleGroup(txn, c, g);
+		if (visible && !wasVisible) db.addVisibility(txn, c, g);
+		else if (!visible && wasVisible) db.removeVisibility(txn, c, g);
 		if (visible != wasVisible) {
-			eventBus.broadcast(new GroupVisibilityUpdatedEvent(
-					Collections.singletonList(c)));
+			List<ContactId> affected = Collections.singletonList(c);
+			transaction.attach(new GroupVisibilityUpdatedEvent(affected));
 		}
 	}
 
-	public void updateTransportKeys(Map<ContactId, TransportKeys> keys)
-			throws DbException {
-		lock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Map<ContactId, TransportKeys> filtered =
-						new HashMap<ContactId, TransportKeys>();
-				for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
-					ContactId c = e.getKey();
-					TransportKeys k = e.getValue();
-					if (db.containsContact(txn, c)
-							&& db.containsTransport(txn, k.getTransportId())) {
-						filtered.put(c, k);
-					}
-				}
-				db.updateTransportKeys(txn, filtered);
-				db.commitTransaction(txn);
-			} catch (DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+	public void updateTransportKeys(Transaction transaction,
+			Map<ContactId, TransportKeys> keys) throws DbException {
+		T txn = unbox(transaction);
+		Map<ContactId, TransportKeys> filtered =
+				new HashMap<ContactId, TransportKeys>();
+		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
+			ContactId c = e.getKey();
+			TransportKeys k = e.getValue();
+			if (db.containsContact(txn, c)
+					&& db.containsTransport(txn, k.getTransportId())) {
+				filtered.put(c, k);
 			}
-		} finally {
-			lock.writeLock().unlock();
 		}
+		db.updateTransportKeys(txn, filtered);
 	}
 }

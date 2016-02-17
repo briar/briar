@@ -8,7 +8,6 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
-import org.briarproject.api.db.StorageStatus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -87,8 +86,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
-				StorageStatus.ACTIVE);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
 		messageId = new MessageId(TestUtils.getRandomId());
 		size = 1234;
 		raw = new byte[size];
@@ -1060,8 +1058,7 @@ public class H2DatabaseTest extends BriarTestCase {
 			throws Exception {
 		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor localAuthor1 = new LocalAuthor(localAuthorId1, "Carol",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp,
-				StorageStatus.ACTIVE);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
