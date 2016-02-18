@@ -4,6 +4,7 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseConfig;
 import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
@@ -1103,6 +1104,38 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// The raw message should be null
 		assertNull(db.getRawMessage(txn, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetContactActive() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true));
+
+		// The contact should be active
+		Contact contact = db.getContact(txn, contactId);
+		assertTrue(contact.isActive());
+
+		// Set the contact inactive
+		db.setContactActive(txn, contactId, false);
+
+		// The contact should be inactive
+		contact = db.getContact(txn, contactId);
+		assertFalse(contact.isActive());
+
+		// Set the contact active
+		db.setContactActive(txn, contactId, true);
+
+		// The contact should be active
+		contact = db.getContact(txn, contactId);
+		assertTrue(contact.isActive());
 
 		db.commitTransaction(txn);
 		db.close();
