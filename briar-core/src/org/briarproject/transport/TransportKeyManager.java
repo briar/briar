@@ -207,7 +207,7 @@ class TransportKeyManager extends TimerTask {
 		}
 	}
 
-	StreamContext recogniseTag(byte[] tag) {
+	StreamContext getStreamContext(byte[] tag) {
 		lock.lock();
 		try {
 			// Look up the incoming keys for the tag

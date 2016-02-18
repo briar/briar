@@ -1,6 +1,7 @@
 package org.briarproject.transport;
 
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
@@ -9,6 +10,7 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportAddedEvent;
@@ -19,6 +21,7 @@ import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +42,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final ExecutorService dbExecutor;
 	private final Timer timer;
 	private final Clock clock;
+	private final Map<ContactId, Boolean> activeContacts;
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
 
 	@Inject
@@ -50,20 +54,26 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		this.dbExecutor = dbExecutor;
 		this.timer = timer;
 		this.clock = clock;
+		// Use a ConcurrentHashMap as a thread-safe set
+		activeContacts = new ConcurrentHashMap<ContactId, Boolean>();
 		managers = new ConcurrentHashMap<TransportId, TransportKeyManager>();
 	}
 
 	@Override
 	public boolean start() {
 		try {
+			Collection<Contact> contacts;
 			Map<TransportId, Integer> latencies;
 			Transaction txn = db.startTransaction();
 			try {
+				contacts = db.getContacts(txn);
 				latencies = db.getTransportLatencies(txn);
 				txn.setComplete();
 			} finally {
 				db.endTransaction(txn);
 			}
+			for (Contact c : contacts)
+				if (c.isActive()) activeContacts.put(c.getId(), true);
 			for (Entry<TransportId, Integer> e : latencies.entrySet())
 				addTransport(e.getKey(), e.getValue());
 		} catch (DbException e) {
@@ -85,13 +95,33 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	public StreamContext getStreamContext(ContactId c, TransportId t) {
+		// Don't allow outgoing streams to inactive contacts
+		if (!activeContacts.containsKey(c)) return null;
 		TransportKeyManager m = managers.get(t);
 		return m == null ? null : m.getStreamContext(c);
 	}
 
 	public StreamContext getStreamContext(TransportId t, byte[] tag) {
 		TransportKeyManager m = managers.get(t);
-		return m == null ? null : m.recogniseTag(tag);
+		if (m == null) return null;
+		StreamContext ctx = m.getStreamContext(tag);
+		if (ctx == null) return null;
+		// Activate the contact if not already active
+		if (!activeContacts.containsKey(ctx.getContactId())) {
+			try {
+				Transaction txn = db.startTransaction();
+				try {
+					db.setContactActive(txn, ctx.getContactId(), true);
+					txn.setComplete();
+				} finally {
+					db.endTransaction(txn);
+				}
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				return null;
+			}
+		}
+		return ctx;
 	}
 
 	public void eventOccurred(Event e) {
@@ -102,6 +132,10 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			removeTransport(((TransportRemovedEvent) e).getTransportId());
 		} else if (e instanceof ContactRemovedEvent) {
 			removeContact(((ContactRemovedEvent) e).getContactId());
+		} else if (e instanceof ContactStatusChangedEvent) {
+			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
+			if (c.isActive()) activeContacts.put(c.getContactId(), true);
+			else activeContacts.remove(c.getContactId());
 		}
 	}
 
@@ -121,6 +155,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	private void removeContact(final ContactId c) {
+		activeContacts.remove(c);
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				for (TransportKeyManager m : managers.values())
