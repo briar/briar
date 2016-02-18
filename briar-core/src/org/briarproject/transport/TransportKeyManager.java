@@ -27,7 +27,7 @@ import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFER
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-class TransportKeyManager extends TimerTask {
+class TransportKeyManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(TransportKeyManager.class.getName());
@@ -110,8 +110,7 @@ class TransportKeyManager extends TimerTask {
 			lock.unlock();
 		}
 		// Schedule the next key rotation
-		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		timer.schedule(this, delay);
+		scheduleKeyRotation(now);
 	}
 
 	// Locking: lock
@@ -131,6 +130,16 @@ class TransportKeyManager extends TimerTask {
 			crypto.encodeTag(tag, inKeys.getTagKey(), streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
 		}
+	}
+
+	private void scheduleKeyRotation(long now) {
+		TimerTask task = new TimerTask() {
+			public void run() {
+				rotateKeys();
+			}
+		};
+		long delay = rotationPeriodLength - now % rotationPeriodLength;
+		timer.schedule(task, delay);
 	}
 
 	void addContact(ContactId c, SecretKey master, long timestamp,
@@ -253,8 +262,7 @@ class TransportKeyManager extends TimerTask {
 		}
 	}
 
-	@Override
-	public void run() {
+	private void rotateKeys() {
 		long now = clock.currentTimeMillis();
 		lock.lock();
 		try {
@@ -293,8 +301,7 @@ class TransportKeyManager extends TimerTask {
 			lock.unlock();
 		}
 		// Schedule the next key rotation
-		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		timer.schedule(this, delay);
+		scheduleKeyRotation(now);
 	}
 
 	private static class TagContext {
