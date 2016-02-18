@@ -5,6 +5,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
 
 import java.util.Collection;
 
@@ -43,6 +44,14 @@ public interface ContactManager {
 
 	/** Marks a contact as active or inactive. */
 	void setContactActive(ContactId c, boolean active) throws DbException;
+
+	/** Return true if a contact with this name and public key already exists */
+	boolean contactExists(Transaction txn, AuthorId remoteAuthorID,
+			AuthorId localAuthorId) throws DbException;
+
+	/** Return true if a contact with this name and public key already exists */
+	boolean contactExists(AuthorId remoteAuthorID, AuthorId localAuthorId)
+			throws DbException;
 
 	interface AddContactHook {
 		void addingContact(Transaction txn, Contact c) throws DbException;

@@ -342,6 +342,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getContacts(txn, a);
 	}
 
+	public boolean containsContact(Transaction transaction, AuthorId remote,
+			AuthorId local) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, local))
+			throw new NoSuchLocalAuthorException();
+		return db.containsContact(txn, remote, local);
+	}
+
 	public DeviceId getDeviceId(Transaction transaction) throws DbException {
 		T txn = unbox(transaction);
 		return db.getDeviceId(txn);
