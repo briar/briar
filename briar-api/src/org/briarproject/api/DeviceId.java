@@ -1,8 +1,8 @@
 package org.briarproject.api;
 
-import java.util.Arrays;
-
-/** Type-safe wrapper for a byte array that uniquely identifies a device. */
+/**
+ * Type-safe wrapper for a byte array that uniquely identifies a device.
+ */
 public class DeviceId extends UniqueId {
 
 	public DeviceId(byte[] id) {
@@ -11,6 +11,6 @@ public class DeviceId extends UniqueId {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof DeviceId && Arrays.equals(id, ((DeviceId) o).id);
+		return o instanceof DeviceId && super.equals(o);
 	}
 }
