@@ -97,13 +97,7 @@ class TransportKeyManager {
 			for (Entry<ContactId, TransportKeys> e : current.entrySet())
 				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
 			// Write any rotated keys back to the DB
-			Transaction txn = db.startTransaction();
-			try {
-				db.updateTransportKeys(txn, rotated);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			updateTransportKeys(rotated);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
@@ -129,6 +123,19 @@ class TransportKeyManager {
 			byte[] tag = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag, inKeys.getTagKey(), streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
+		}
+	}
+
+	private void updateTransportKeys(Map<ContactId, TransportKeys> rotated)
+		throws DbException {
+		if (!rotated.isEmpty()) {
+			Transaction txn = db.startTransaction();
+			try {
+				db.updateTransportKeys(txn, rotated);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		}
 	}
 
@@ -239,6 +246,7 @@ class TransportKeyManager {
 			}
 			// Remove tags for any stream numbers removed from the window
 			for (long streamNumber : change.getRemoved()) {
+				if (streamNumber == tagCtx.streamNumber) continue;
 				byte[] removeTag = new byte[TAG_LENGTH];
 				crypto.encodeTag(removeTag, inKeys.getTagKey(), streamNumber);
 				inContexts.remove(new Bytes(removeTag));
@@ -288,13 +296,7 @@ class TransportKeyManager {
 			for (Entry<ContactId, TransportKeys> e : current.entrySet())
 				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
 			// Write any rotated keys back to the DB
-			Transaction txn = db.startTransaction();
-			try {
-				db.updateTransportKeys(txn, rotated);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			updateTransportKeys(rotated);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
