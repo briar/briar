@@ -16,6 +16,7 @@ import org.briarproject.api.db.NoSuchTransportException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
@@ -146,6 +147,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).addContact(txn, author, localAuthorId, true);
 			will(returnValue(contactId));
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(
+					ContactStatusChangedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
@@ -768,6 +771,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).addContact(txn, author, localAuthorId, true);
 			will(returnValue(contactId));
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(
+					ContactStatusChangedEvent.class)));
 			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
