@@ -1,17 +1,22 @@
 package org.briarproject.api;
 
+import java.nio.charset.Charset;
+
 /**
  * Type-safe wrapper for a string that uniquely identifies a transport plugin.
  */
 public class TransportId {
 
-	/** The maximum length of transport identifier in UTF-8 bytes. */
+	/**
+	 * The maximum length of transport identifier in UTF-8 bytes.
+	 */
 	public static int MAX_TRANSPORT_ID_LENGTH = 10;
 
 	private final String id;
 
 	public TransportId(String id) {
-		if (id.length() == 0 || id.length() > MAX_TRANSPORT_ID_LENGTH)
+		byte[] b = id.getBytes(Charset.forName("UTF-8"));
+		if (b.length == 0 || b.length > MAX_TRANSPORT_ID_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 	}
