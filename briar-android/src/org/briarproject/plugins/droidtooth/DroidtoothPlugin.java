@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.contact.ContactId;
@@ -152,11 +153,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
 				if (!isRunning()) return;
+				String address = AndroidUtils.getBluetoothAddress(appContext,
+						adapter);
 				if (LOG.isLoggable(INFO))
-					LOG.info("Local address " + adapter.getAddress());
+					LOG.info("Local address " + address);
 				// Advertise the Bluetooth address to contacts
 				TransportProperties p = new TransportProperties();
-				p.put("address", adapter.getAddress());
+				p.put("address", address);
 				callback.mergeLocalProperties(p);
 				// Bind a server socket to accept connections from contacts
 				BluetoothServerSocket ss;
