@@ -164,8 +164,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Return a wrapper that uses the SEC 1 encoding
 		ECPublicKeyParameters ecPublicKey =
 				(ECPublicKeyParameters) keyPair.getPublic();
-		PublicKey publicKey = new Sec1PublicKey(ecPublicKey,
-				AGREEMENT_KEY_PAIR_BITS);
+		PublicKey publicKey = new Sec1PublicKey(ecPublicKey
+		);
 		ECPrivateKeyParameters ecPrivateKey =
 				(ECPrivateKeyParameters) keyPair.getPrivate();
 		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,
@@ -183,8 +183,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Return a wrapper that uses the SEC 1 encoding
 		ECPublicKeyParameters ecPublicKey =
 				(ECPublicKeyParameters) keyPair.getPublic();
-		PublicKey publicKey = new Sec1PublicKey(ecPublicKey,
-				SIGNATURE_KEY_PAIR_BITS);
+		PublicKey publicKey = new Sec1PublicKey(ecPublicKey
+		);
 		ECPrivateKeyParameters ecPrivateKey =
 				(ECPrivateKeyParameters) keyPair.getPrivate();
 		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,

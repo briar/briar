@@ -1,11 +1,5 @@
 package org.briarproject.crypto;
 
-import static java.util.logging.Level.INFO;
-
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.util.logging.Logger;
-
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
@@ -14,6 +8,12 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
+
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.INFO;
 
 /**
  * A key parser that uses the encoding defined in "SEC 1: Elliptic Curve
@@ -73,7 +73,7 @@ class Sec1KeyParser implements KeyParser {
 			throw new GeneralSecurityException();
 		// Construct a public key from the point (x, y) and the params
 		ECPublicKeyParameters k = new ECPublicKeyParameters(pub, params);
-		PublicKey p = new Sec1PublicKey(k, keyBits);
+		PublicKey p = new Sec1PublicKey(k);
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Parsing public key took " + duration + " ms");
