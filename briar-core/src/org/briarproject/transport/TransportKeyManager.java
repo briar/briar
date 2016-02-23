@@ -27,7 +27,7 @@ import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFER
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-class TransportKeyManager extends TimerTask {
+class TransportKeyManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(TransportKeyManager.class.getName());
@@ -97,21 +97,14 @@ class TransportKeyManager extends TimerTask {
 			for (Entry<ContactId, TransportKeys> e : current.entrySet())
 				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
 			// Write any rotated keys back to the DB
-			Transaction txn = db.startTransaction();
-			try {
-				db.updateTransportKeys(txn, rotated);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			updateTransportKeys(rotated);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			lock.unlock();
 		}
 		// Schedule the next key rotation
-		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		timer.schedule(this, delay);
+		scheduleKeyRotation(now);
 	}
 
 	// Locking: lock
@@ -131,6 +124,29 @@ class TransportKeyManager extends TimerTask {
 			crypto.encodeTag(tag, inKeys.getTagKey(), streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
 		}
+	}
+
+	private void updateTransportKeys(Map<ContactId, TransportKeys> rotated)
+		throws DbException {
+		if (!rotated.isEmpty()) {
+			Transaction txn = db.startTransaction();
+			try {
+				db.updateTransportKeys(txn, rotated);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
+		}
+	}
+
+	private void scheduleKeyRotation(long now) {
+		TimerTask task = new TimerTask() {
+			public void run() {
+				rotateKeys();
+			}
+		};
+		long delay = rotationPeriodLength - now % rotationPeriodLength;
+		timer.schedule(task, delay);
 	}
 
 	void addContact(ContactId c, SecretKey master, long timestamp,
@@ -230,6 +246,7 @@ class TransportKeyManager extends TimerTask {
 			}
 			// Remove tags for any stream numbers removed from the window
 			for (long streamNumber : change.getRemoved()) {
+				if (streamNumber == tagCtx.streamNumber) continue;
 				byte[] removeTag = new byte[TAG_LENGTH];
 				crypto.encodeTag(removeTag, inKeys.getTagKey(), streamNumber);
 				inContexts.remove(new Bytes(removeTag));
@@ -253,8 +270,7 @@ class TransportKeyManager extends TimerTask {
 		}
 	}
 
-	@Override
-	public void run() {
+	private void rotateKeys() {
 		long now = clock.currentTimeMillis();
 		lock.lock();
 		try {
@@ -280,21 +296,14 @@ class TransportKeyManager extends TimerTask {
 			for (Entry<ContactId, TransportKeys> e : current.entrySet())
 				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
 			// Write any rotated keys back to the DB
-			Transaction txn = db.startTransaction();
-			try {
-				db.updateTransportKeys(txn, rotated);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			updateTransportKeys(rotated);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			lock.unlock();
 		}
 		// Schedule the next key rotation
-		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		timer.schedule(this, delay);
+		scheduleKeyRotation(now);
 	}
 
 	private static class TagContext {
