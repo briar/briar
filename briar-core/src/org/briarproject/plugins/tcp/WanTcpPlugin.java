@@ -1,6 +1,7 @@
 package org.briarproject.plugins.tcp;
 
 import org.briarproject.api.TransportId;
+import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.properties.TransportProperties;
 
@@ -20,10 +21,9 @@ class WanTcpPlugin extends TcpPlugin {
 
 	private volatile MappingResult mappingResult;
 
-	WanTcpPlugin(Executor ioExecutor, PortMapper portMapper,
-			DuplexPluginCallback callback, int maxLatency, int maxIdleTime,
-			int pollingInterval) {
-		super(ioExecutor, callback, maxLatency, maxIdleTime, pollingInterval);
+	WanTcpPlugin(Executor ioExecutor, Backoff backoff, PortMapper portMapper,
+			DuplexPluginCallback callback, int maxLatency, int maxIdleTime) {
+		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
 		this.portMapper = portMapper;
 	}
 

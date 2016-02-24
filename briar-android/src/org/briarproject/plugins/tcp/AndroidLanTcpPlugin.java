@@ -1,20 +1,21 @@
 package org.briarproject.plugins.tcp;
 
-import static android.content.Context.CONNECTIVITY_SERVICE;
-import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
-import static android.net.ConnectivityManager.TYPE_WIFI;
-
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import org.briarproject.api.plugins.Backoff;
+import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
+import static android.net.ConnectivityManager.TYPE_WIFI;
 
 class AndroidLanTcpPlugin extends LanTcpPlugin {
 
@@ -25,10 +26,10 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
-	AndroidLanTcpPlugin(Executor ioExecutor, Context appContext,
-			DuplexPluginCallback callback, int maxLatency,
-			int maxIdleTime, int pollingInterval) {
-		super(ioExecutor, callback, maxLatency, maxIdleTime, pollingInterval);
+	AndroidLanTcpPlugin(Executor ioExecutor, Backoff backoff,
+			Context appContext, DuplexPluginCallback callback, int maxLatency,
+			int maxIdleTime) {
+		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
 		this.appContext = appContext;
 	}
 

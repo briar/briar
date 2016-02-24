@@ -46,7 +46,7 @@ public class AndroidPluginsModule extends PluginsModule {
 		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
 				locationUtils, eventBus);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
-				appContext);
+				backoffFactory, appContext);
 		final Collection<DuplexPluginFactory> factories =
 				Arrays.asList(bluetooth, tor, lan);
 		return new DuplexPluginConfig() {
