@@ -342,7 +342,7 @@ public class SettingsFragment extends BaseEventFragment implements
 			bluetoothSetting = !bluetoothSetting;
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 			if (adapter != null) {
-				AndroidUtils.setBluetooth(adapter, bluetoothSetting);
+				AndroidUtils.enableBluetooth(adapter, bluetoothSetting);
 			}
 			storeBluetoothSettings();
 			displaySettings();
