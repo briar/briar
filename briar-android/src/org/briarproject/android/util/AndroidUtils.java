@@ -57,19 +57,18 @@ public class AndroidUtils {
 			BluetoothAdapter adapter) {
 		// Return the adapter's address if it's valid and not fake
 		String address = adapter.getAddress();
-		if (!StringUtils.isNullOrEmpty(address)
-				&& BluetoothAdapter.checkBluetoothAddress(address)
-				&& !address.equals(FAKE_BLUETOOTH_ADDRESS)) {
-			return address;
-		}
-		// Return the address from settings if it's valid
+		if (isValidBluetoothAddress(address)) return address;
+		// Return the address from settings if it's valid and not fake
 		address = Settings.Secure.getString(ctx.getContentResolver(),
 				"bluetooth_address");
-		if (!StringUtils.isNullOrEmpty(address)
-				&& BluetoothAdapter.checkBluetoothAddress(address)) {
-			return address;
-		}
-		// As a last resort, return a fake but valid address
-		return FAKE_BLUETOOTH_ADDRESS;
+		if (isValidBluetoothAddress(address)) return address;
+		// Let the caller know we can't find the address
+		return "";
+	}
+
+	private static boolean isValidBluetoothAddress(String address) {
+		return !StringUtils.isNullOrEmpty(address)
+				&& BluetoothAdapter.checkBluetoothAddress(address)
+				&& !address.equals(FAKE_BLUETOOTH_ADDRESS);
 	}
 }

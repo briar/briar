@@ -157,10 +157,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 						adapter);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Local address " + address);
-				// Advertise the Bluetooth address to contacts
-				TransportProperties p = new TransportProperties();
-				p.put("address", address);
-				callback.mergeLocalProperties(p);
+				if (!StringUtils.isNullOrEmpty(address)) {
+					// Advertise the Bluetooth address to contacts
+					TransportProperties p = new TransportProperties();
+					p.put("address", address);
+					callback.mergeLocalProperties(p);
+				}
 				// Bind a server socket to accept connections from contacts
 				BluetoothServerSocket ss;
 				try {
