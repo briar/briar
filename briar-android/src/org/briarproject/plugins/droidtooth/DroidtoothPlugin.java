@@ -14,6 +14,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -69,8 +70,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final Context appContext;
 	private final SecureRandom secureRandom;
 	private final Clock clock;
+	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
-	private final int maxLatency, pollingInterval;
+	private final int maxLatency;
 
 	private volatile boolean running = false;
 	private volatile boolean wasEnabledByUs = false;
@@ -82,16 +84,15 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Clock clock,
-			DuplexPluginCallback callback, int maxLatency,
-			int pollingInterval) {
+			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
 		this.clock = clock;
+		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
-		this.pollingInterval = pollingInterval;
 	}
 
 	public TransportId getId() {
@@ -178,6 +179,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				}
 				LOG.info("Socket bound");
 				socket = ss;
+				backoff.reset();
 				callback.transportEnabled();
 				acceptContactConnections();
 			}
@@ -221,6 +223,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				String address = s.getRemoteDevice().getAddress();
 				LOG.info("Connection from " + address);
 			}
+			backoff.reset();
 			callback.incomingConnectionCreated(wrapSocket(s));
 		}
 	}
@@ -249,11 +252,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	public int getPollingInterval() {
-		return pollingInterval;
+		return backoff.getPollingInterval();
 	}
 
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
+		backoff.increment();
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -268,8 +272,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 				public void run() {
 					if (!running) return;
 					BluetoothSocket s = connect(address, uuid);
-					if (s != null)
+					if (s != null) {
+						backoff.reset();
 						callback.outgoingConnectionCreated(c, wrapSocket(s));
+					}
 				}
 			});
 		}

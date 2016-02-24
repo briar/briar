@@ -4,6 +4,7 @@ import com.google.inject.Provides;
 
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.ShutdownManager;
+import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
@@ -39,10 +40,11 @@ public class DesktopPluginsModule extends PluginsModule {
 
 	@Provides
 	DuplexPluginConfig getDuplexPluginConfig(@IoExecutor Executor ioExecutor,
-			SecureRandom random, ReliabilityLayerFactory reliabilityFactory,
+			SecureRandom random, BackoffFactory backoffFactory,
+			ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager) {
 		DuplexPluginFactory bluetooth = new BluetoothPluginFactory(ioExecutor,
-				random);
+				random, backoffFactory);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
 		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor);
