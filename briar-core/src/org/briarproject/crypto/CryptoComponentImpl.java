@@ -214,7 +214,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new SecretKey(macKdf(master, alice ? BT_A_INVITE : BT_B_INVITE));
 	}
 
-	public byte[] deriveBTSignatureNonce(SecretKey master, boolean alice) {
+	public byte[] deriveSignatureNonce(SecretKey master, boolean alice) {
 		return macKdf(master, alice ? BT_A_NONCE : BT_B_NONCE);
 	}
 

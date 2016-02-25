@@ -47,7 +47,7 @@ public interface CryptoComponent {
 	 * sign.
 	 * @param alice whether the nonce is for use by Alice or Bob.
 	 */
-	byte[] deriveBTSignatureNonce(SecretKey master, boolean alice);
+	byte[] deriveSignatureNonce(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a commitment to the provided public key.

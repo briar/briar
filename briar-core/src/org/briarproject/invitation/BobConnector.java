@@ -138,8 +138,8 @@ class BobConnector extends Connector {
 						bobHeaderKey);
 		w = bdfWriterFactory.createWriter(streamWriter);
 		// Derive the nonces
-		byte[] aliceNonce = crypto.deriveBTSignatureNonce(master, true);
-		byte[] bobNonce = crypto.deriveBTSignatureNonce(master, false);
+		byte[] aliceNonce = crypto.deriveSignatureNonce(master, true);
+		byte[] bobNonce = crypto.deriveSignatureNonce(master, false);
 		// Exchange pseudonyms, signed nonces and timestamps
 		Author remoteAuthor;
 		long remoteTimestamp;
