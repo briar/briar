@@ -6,8 +6,6 @@ import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
-import org.briarproject.api.system.Clock;
-import org.briarproject.system.SystemClock;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
@@ -22,14 +20,12 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final BackoffFactory backoffFactory;
-	private final Clock clock;
 
 	public BluetoothPluginFactory(Executor ioExecutor,
 			SecureRandom secureRandom, BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		this.backoffFactory = backoffFactory;
-		clock = new SystemClock();
 	}
 
 	public TransportId getId() {
@@ -39,7 +35,7 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new BluetoothPlugin(ioExecutor, secureRandom, clock, backoff,
-				callback, MAX_LATENCY);
+		return new BluetoothPlugin(ioExecutor, secureRandom, backoff, callback,
+				MAX_LATENCY);
 	}
 }

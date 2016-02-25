@@ -565,7 +565,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	}
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout) {
+			long timeout, boolean alice) {
 		throw new UnsupportedOperationException();
 	}
 

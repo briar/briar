@@ -93,10 +93,12 @@ abstract class Connector extends Thread {
 		messageDigest = crypto.getMessageDigest();
 	}
 
-	protected DuplexTransportConnection createInvitationConnection() {
+	protected DuplexTransportConnection createInvitationConnection(
+			boolean alice) {
 		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " creating invitation connection");
-		return plugin.createInvitationConnection(random, CONNECTION_TIMEOUT);
+		return plugin.createInvitationConnection(random, CONNECTION_TIMEOUT,
+				alice);
 	}
 
 	protected void sendPublicKeyHash(BdfWriter w) throws IOException {

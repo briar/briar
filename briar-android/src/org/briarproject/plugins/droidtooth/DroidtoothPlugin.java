@@ -19,11 +19,10 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.properties.TransportProperties;
-import org.briarproject.api.system.Clock;
-import org.briarproject.util.LatchedReference;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,9 +32,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
@@ -69,7 +71,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
-	private final Clock clock;
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final int maxLatency;
@@ -83,13 +84,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private volatile BluetoothAdapter adapter = null;
 
 	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
-			Context appContext, SecureRandom secureRandom, Clock clock,
-			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
+			Context appContext, SecureRandom secureRandom, Backoff backoff,
+			DuplexPluginCallback callback, int maxLatency) {
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
-		this.clock = clock;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
@@ -339,7 +339,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout) {
+			long timeout, boolean alice) {
 		if (!isRunning()) return null;
 		// Use the invitation codes to generate the UUID
 		byte[] b = r.nextBytes(UUID_BYTES);
@@ -353,23 +353,67 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
-		// Start the background threads
-		LatchedReference<BluetoothSocket> socketLatch =
-				new LatchedReference<BluetoothSocket>();
-		new DiscoveryThread(socketLatch, uuid.toString(), timeout).start();
-		new BluetoothListenerThread(socketLatch, ss).start();
-		// Wait for an incoming or outgoing connection
-		try {
-			BluetoothSocket s = socketLatch.waitForReference(timeout);
-			if (s != null) return new DroidtoothTransportConnection(this, s);
-		} catch (InterruptedException e) {
-			LOG.warning("Interrupted while exchanging invitations");
-			Thread.currentThread().interrupt();
-		} finally {
-			// Closing the socket will terminate the listener thread
-			tryToClose(ss);
+		// Create the background tasks
+		CompletionService<BluetoothSocket> complete =
+				new ExecutorCompletionService<BluetoothSocket>(ioExecutor);
+		List<Future<BluetoothSocket>> futures =
+				new ArrayList<Future<BluetoothSocket>>();
+		if (alice) {
+			// Return the first connected socket
+			futures.add(complete.submit(new ListeningTask(ss)));
+			futures.add(complete.submit(new DiscoveryTask(uuid.toString())));
+		} else {
+			// Return the first socket with readable data
+			futures.add(complete.submit(new ReadableTask(
+					new ListeningTask(ss))));
+			futures.add(complete.submit(new ReadableTask(
+					new DiscoveryTask(uuid.toString()))));
 		}
-		return null;
+		BluetoothSocket chosen = null;
+		try {
+			Future<BluetoothSocket> f = complete.poll(timeout, MILLISECONDS);
+			if (f == null) return null; // No task completed within the timeout
+			chosen = f.get();
+			return new DroidtoothTransportConnection(this, chosen);
+		} catch (InterruptedException e) {
+			LOG.info("Interrupted while waiting for connection");
+			return null;
+		} catch (ExecutionException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return null;
+		} finally {
+			// Closing the socket will terminate the listener task
+			tryToClose(ss);
+			closeSockets(futures, chosen);
+		}
+	}
+
+	private void closeSockets(final List<Future<BluetoothSocket>> futures,
+			final BluetoothSocket chosen) {
+		ioExecutor.execute(new Runnable() {
+			public void run() {
+				for (Future<BluetoothSocket> f : futures) {
+					try {
+						if (f.cancel(true)) {
+							LOG.info("Cancelled task");
+						} else {
+							BluetoothSocket s = f.get();
+							if (s != null && s != chosen) {
+								LOG.info("Closing unwanted socket");
+								s.close();
+							}
+						}
+					} catch (InterruptedException e) {
+						LOG.info("Interrupted while closing sockets");
+						return;
+					} catch (ExecutionException e) {
+						if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+					} catch (IOException e) {
+						if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+					}
+				}
+			}
+		});
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
@@ -395,61 +439,37 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	private class DiscoveryThread extends Thread {
+	private class DiscoveryTask implements Callable<BluetoothSocket> {
 
-		private final LatchedReference<BluetoothSocket> socketLatch;
 		private final String uuid;
-		private final long timeout;
 
-		private DiscoveryThread(LatchedReference<BluetoothSocket> socketLatch,
-				String uuid, long timeout) {
-			this.socketLatch = socketLatch;
+		private DiscoveryTask(String uuid) {
 			this.uuid = uuid;
-			this.timeout = timeout;
 		}
 
 		@Override
-		public void run() {
-			long end = clock.currentTimeMillis() + timeout;
-			while (!finished(end)) {
+		public BluetoothSocket call() throws Exception {
+			// Repeat discovery until we connect or get interrupted
+			while (true) {
 				// Discover nearby devices
 				LOG.info("Discovering nearby devices");
-				List<String> addresses;
-				try {
-					long now = clock.currentTimeMillis();
-					addresses = discoverDevices(end - now);
-				} catch (InterruptedException e) {
-					LOG.warning("Interrupted while discovering devices");
-					Thread.currentThread().interrupt();
-					return;
-				}
+				List<String> addresses = discoverDevices();
 				if (addresses.isEmpty()) {
 					LOG.info("No devices discovered");
 					continue;
 				}
 				// Connect to any device with the right UUID
 				for (String address : addresses) {
-					if (finished(end)) return;
 					BluetoothSocket s = connect(address, uuid);
 					if (s != null) {
 						LOG.info("Outgoing connection");
-						if (!socketLatch.set(s)) {
-							LOG.info("Closing redundant connection");
-							tryToClose(s);
-						}
-						return;
+						return s;
 					}
 				}
 			}
 		}
 
-		private boolean finished(long end) {
-			long now = clock.currentTimeMillis();
-			return now >= end || !isRunning() || socketLatch.isSet();
-		}
-
-		private List<String> discoverDevices(long timeout)
-				throws InterruptedException {
+		private List<String> discoverDevices() throws InterruptedException {
 			IntentFilter filter = new IntentFilter();
 			filter.addAction(FOUND);
 			filter.addAction(DISCOVERY_FINISHED);
@@ -457,7 +477,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			appContext.registerReceiver(disco, filter);
 			LOG.info("Starting discovery");
 			adapter.startDiscovery();
-			return disco.waitForAddresses(timeout);
+			return disco.waitForAddresses();
 		}
 	}
 
@@ -481,38 +501,47 @@ class DroidtoothPlugin implements DuplexPlugin {
 			}
 		}
 
-		private List<String> waitForAddresses(long timeout)
-				throws InterruptedException {
-			finished.await(timeout, MILLISECONDS);
+		private List<String> waitForAddresses() throws InterruptedException {
+			finished.await();
+			Collections.shuffle(addresses);
 			return Collections.unmodifiableList(addresses);
 		}
 	}
 
-	private static class BluetoothListenerThread extends Thread {
+	private static class ListeningTask implements Callable<BluetoothSocket> {
 
-		private final LatchedReference<BluetoothSocket> socketLatch;
 		private final BluetoothServerSocket serverSocket;
 
-		private BluetoothListenerThread(
-				LatchedReference<BluetoothSocket> socketLatch,
-				BluetoothServerSocket serverSocket) {
-			this.socketLatch = socketLatch;
+		private ListeningTask(BluetoothServerSocket serverSocket) {
 			this.serverSocket = serverSocket;
 		}
 
 		@Override
-		public void run() {
-			try {
-				BluetoothSocket s = serverSocket.accept();
-				LOG.info("Incoming connection");
-				if (!socketLatch.set(s)) {
-					LOG.info("Closing redundant connection");
-					s.close();
-				}
-			} catch (IOException e) {
-				// This is expected when the socket is closed
-				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+		public BluetoothSocket call() throws IOException {
+			BluetoothSocket s = serverSocket.accept();
+			LOG.info("Incoming connection");
+			return s;
+		}
+	}
+
+	private static class ReadableTask implements Callable<BluetoothSocket> {
+
+		private final Callable<BluetoothSocket> connectionTask;
+
+		private ReadableTask(Callable<BluetoothSocket> connectionTask) {
+			this.connectionTask = connectionTask;
+		}
+
+		@Override
+		public BluetoothSocket call() throws Exception {
+			BluetoothSocket s = connectionTask.call();
+			InputStream in = s.getInputStream();
+			while (in.available() == 0) {
+				LOG.info("Waiting for data");
+				Thread.sleep(1000);
 			}
+			LOG.info("Data available");
+			return s;
 		}
 	}
 }

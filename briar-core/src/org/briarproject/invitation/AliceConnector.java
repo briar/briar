@@ -51,7 +51,7 @@ class AliceConnector extends Connector {
 	@Override
 	public void run() {
 		// Create an incoming or outgoing connection
-		DuplexTransportConnection conn = createInvitationConnection();
+		DuplexTransportConnection conn = createInvitationConnection(true);
 		if (conn == null) return;
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " connected");
 		// Don't proceed with more than one connection
