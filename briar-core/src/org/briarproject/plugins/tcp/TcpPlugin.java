@@ -176,6 +176,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
 		backoff.increment();
+		// TODO: Pass properties to connectAndCallBack()
 		for (ContactId c : callback.getRemoteProperties().keySet())
 			if (!connected.contains(c)) connectAndCallBack(c);
 	}

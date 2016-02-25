@@ -24,6 +24,7 @@ import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.settings.Settings;
+import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.util.StringUtils;
 
@@ -44,6 +45,7 @@ import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -63,7 +65,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	static final TransportId ID = new TransportId("tor");
 
 	private static final String[] EVENTS = {
-			"CIRC", "ORCONN", "NOTICE", "WARN", "ERR"
+			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
@@ -71,23 +73,27 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private static final int HOSTNAME_TIMEOUT = 30 * 1000; // Milliseconds
 	private static final Pattern ONION =
 			Pattern.compile("[a-z2-7]{16}\\.onion");
+	private static final int MIN_DESCRIPTORS_PUBLISHED = 3;
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
 
 	private final Executor ioExecutor;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
+	private final Clock clock;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
 	private final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, hostnameFile;
 	private final AtomicBoolean circuitBuilt;
+	private final AtomicInteger descriptorsPublished;
 
 	private volatile boolean running = false, networkEnabled = false;
 	private volatile boolean bootstrapped = false;
 	private volatile boolean connectedToWifi = false;
 	private volatile boolean online = false;
+	private volatile long descriptorsPublishedTime = Long.MAX_VALUE;
 
 	private volatile ServerSocket socket = null;
 	private volatile Socket controlSocket = null;
@@ -95,12 +101,13 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, DuplexPluginCallback callback,
-			String architecture, int maxLatency, int maxIdleTime,
-			int pollingInterval) {
+			LocationUtils locationUtils, Clock clock,
+			DuplexPluginCallback callback, String architecture, int maxLatency,
+			int maxIdleTime, int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
+		this.clock = clock;
 		this.callback = callback;
 		this.architecture = architecture;
 		this.maxLatency = maxLatency;
@@ -117,6 +124,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
 		hostnameFile = new File(torDirectory, "hs/hostname");
 		circuitBuilt = new AtomicBoolean(false);
+		descriptorsPublished = new AtomicInteger(0);
 	}
 
 	public TransportId getId() {
@@ -462,6 +470,8 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		if (LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
 		if (!enable) {
 			circuitBuilt.set(false);
+			descriptorsPublished.set(0);
+			descriptorsPublishedTime = Long.MAX_VALUE;
 			callback.transportDisabled();
 		}
 		networkEnabled = enable;
@@ -503,6 +513,14 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
+		if (descriptorsPublished.get() >= MIN_DESCRIPTORS_PUBLISHED) {
+			long now = clock.currentTimeMillis();
+			if (now - descriptorsPublishedTime >= 2 * pollingInterval) {
+				LOG.info("Hidden service descriptor published, not polling");
+				return;
+			}
+		}
+		// TODO: Pass properties to connectAndCallBack()
 		for (ContactId c : callback.getRemoteProperties().keySet())
 			if (!connected.contains(c)) connectAndCallBack(c);
 	}
@@ -576,7 +594,15 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		}
 	}
 
-	public void unrecognized(String type, String msg) {}
+	public void unrecognized(String type, String msg) {
+		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
+			int descriptors = descriptorsPublished.incrementAndGet();
+			if (descriptors == MIN_DESCRIPTORS_PUBLISHED) {
+				LOG.info("Hidden service descriptor published");
+				descriptorsPublishedTime = clock.currentTimeMillis();
+			}
+		}
+	}
 
 	private static class WriteObserver extends FileObserver {
 
