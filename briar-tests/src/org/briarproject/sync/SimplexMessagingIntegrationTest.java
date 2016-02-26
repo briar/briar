@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.ImmediateExecutor;
 import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
@@ -43,7 +44,6 @@ import org.briarproject.event.EventModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
-import org.briarproject.plugins.ImmediateExecutor;
 import org.briarproject.transport.TransportModule;
 import org.junit.After;
 import org.junit.Before;
