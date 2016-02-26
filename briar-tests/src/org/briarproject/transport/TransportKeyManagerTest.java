@@ -133,17 +133,15 @@ public class TransportKeyManagerTest extends BriarTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys
-			oneOf(db).startTransaction();
-			will(returnValue(txn));
 			oneOf(db).addTransportKeys(txn, contactId, rotated);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
 				crypto, timer, clock, transportId, maxLatency);
 		// The timestamp is 1 ms before the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000 - 1;
-		transportKeyManager.addContact(contactId, masterKey, timestamp, alice);
+		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
+				alice);
 
 		context.assertIsSatisfied();
 	}
@@ -194,17 +192,15 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
-			oneOf(db).startTransaction();
-			will(returnValue(txn));
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
 				crypto, timer, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
-		transportKeyManager.addContact(contactId, masterKey, timestamp, alice);
+		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
+				alice);
 		assertNull(transportKeyManager.getStreamContext(contactId));
 
 		context.assertIsSatisfied();
@@ -240,10 +236,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
-			oneOf(db).startTransaction();
-			will(returnValue(txn));
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
-			oneOf(db).endTransaction(txn);
 			// Increment the stream counter
 			oneOf(db).startTransaction();
 			will(returnValue(txn1));
@@ -256,7 +249,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 				crypto, timer, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
-		transportKeyManager.addContact(contactId, masterKey, timestamp, alice);
+		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
+				alice);
 		// The first request should return a stream context
 		StreamContext ctx = transportKeyManager.getStreamContext(contactId);
 		assertNotNull(ctx);
@@ -299,17 +293,15 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
-			oneOf(db).startTransaction();
-			will(returnValue(txn));
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
 				crypto, timer, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
-		transportKeyManager.addContact(contactId, masterKey, timestamp, alice);
+		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
+				alice);
 		assertNull(transportKeyManager.getStreamContext(new byte[TAG_LENGTH]));
 
 		context.assertIsSatisfied();
@@ -345,10 +337,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
-			oneOf(db).startTransaction();
-			will(returnValue(txn));
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
-			oneOf(db).endTransaction(txn);
 			// Encode a new tag after sliding the window
 			oneOf(crypto).encodeTag(with(any(byte[].class)),
 					with(tagKey), with((long) REORDERING_WINDOW_SIZE));
@@ -365,7 +354,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 				crypto, timer, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
-		transportKeyManager.addContact(contactId, masterKey, timestamp, alice);
+		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
+				alice);
 		// Use the first tag (previous rotation period, stream number 0)
 		assertEquals(REORDERING_WINDOW_SIZE * 3, tags.size());
 		byte[] tag = tags.get(0);

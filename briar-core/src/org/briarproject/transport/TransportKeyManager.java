@@ -149,8 +149,8 @@ class TransportKeyManager {
 		timer.schedule(task, delay);
 	}
 
-	void addContact(ContactId c, SecretKey master, long timestamp,
-			boolean alice) {
+	void addContact(Transaction txn, ContactId c, SecretKey master,
+			long timestamp, boolean alice) throws DbException {
 		lock.lock();
 		try {
 			// Work out what rotation period the timestamp belongs to
@@ -164,15 +164,7 @@ class TransportKeyManager {
 			// Initialise mutable state for the contact
 			addKeys(c, new MutableTransportKeys(k));
 			// Write the keys back to the DB
-			Transaction txn = db.startTransaction();
-			try {
-				db.addTransportKeys(txn, c, k);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			db.addTransportKeys(txn, c, k);
 		} finally {
 			lock.unlock();
 		}

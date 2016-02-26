@@ -88,10 +88,10 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		return true;
 	}
 
-	public void addContact(ContactId c, SecretKey master, long timestamp,
-			boolean alice) {
+	public void addContact(Transaction txn, ContactId c, SecretKey master,
+			long timestamp, boolean alice) throws DbException {
 		for (TransportKeyManager m : managers.values())
-			m.addContact(c, master, timestamp, alice);
+			m.addContact(txn, c, master, timestamp, alice);
 	}
 
 	public StreamContext getStreamContext(ContactId c, TransportId t) {
