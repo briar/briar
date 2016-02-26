@@ -15,9 +15,7 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
@@ -41,12 +39,11 @@ class AliceConnector extends Connector {
 			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
-			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionManager connectionManager,
+			AuthorFactory authorFactory, ConnectionManager connectionManager,
 			ContactManager contactManager, Clock clock, ConnectorGroup group,
 			DuplexPlugin plugin, LocalAuthor localAuthor, PseudoRandom random) {
 		super(crypto, bdfReaderFactory, bdfWriterFactory, streamReaderFactory,
-				streamWriterFactory, authorFactory, groupFactory, keyManager,
+				streamWriterFactory, authorFactory,
 				connectionManager, contactManager, clock, group, plugin,
 				localAuthor, random);
 	}
