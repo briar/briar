@@ -3,9 +3,29 @@ package org.briarproject.api.data;
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 public class BdfList extends Vector<Object> {
+
+	/**
+	 * Factory method for constructing lists inline.
+	 * <pre>
+	 * BdfList.of(1, 2, 3);
+	 * </pre>
+	 */
+	public static BdfList of(Object... items) {
+		return new BdfList(Arrays.asList(items));
+	}
+
+	public BdfList() {
+		super();
+	}
+
+	public BdfList(List<Object> items) {
+		super(items);
+	}
 
 	public Boolean getBoolean(int index) throws FormatException {
 		Object o = get(index);

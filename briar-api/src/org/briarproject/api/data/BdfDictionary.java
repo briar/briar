@@ -4,10 +4,35 @@ import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class BdfDictionary extends Hashtable<String, Object> {
 
 	public static final Object NULL_VALUE = new Object();
+
+	/**
+	 * Factory method for constructing dictionaries inline.
+	 * <pre>
+	 * BdfDictionary.of(
+	 *     new BdfEntry("foo", foo),
+	 *     new BdfEntry("bar", bar)
+	 * );
+	 * </pre>
+	 */
+	public static BdfDictionary of(Entry<String, Object>... entries) {
+		BdfDictionary d = new BdfDictionary();
+		for (Entry<String, Object> e : entries) d.put(e.getKey(), e.getValue());
+		return d;
+	}
+
+	public BdfDictionary() {
+		super();
+	}
+
+	public BdfDictionary(Map<String, Object> m) {
+		super(m);
+	}
 
 	public Boolean getBoolean(String key) throws FormatException {
 		Object o = get(key);
