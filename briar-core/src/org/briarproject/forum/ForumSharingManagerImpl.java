@@ -3,6 +3,7 @@ package org.briarproject.forum;
 import com.google.inject.Inject;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -28,7 +29,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.PrivateGroupFactory;
 import org.briarproject.api.sync.ValidationManager.ValidationHook;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;

@@ -1,6 +1,8 @@
-package org.briarproject.api.sync;
+package org.briarproject.api.clients;
 
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.sync.ClientId;
+import org.briarproject.api.sync.Group;
 
 public interface PrivateGroupFactory {
 

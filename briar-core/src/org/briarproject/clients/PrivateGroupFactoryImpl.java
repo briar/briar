@@ -1,8 +1,9 @@
-package org.briarproject.sync;
+package org.briarproject.clients;
 
 import com.google.inject.Inject;
 
 import org.briarproject.api.Bytes;
+import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.data.BdfWriter;
 import org.briarproject.api.data.BdfWriterFactory;
@@ -10,7 +11,6 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
-import org.briarproject.api.sync.PrivateGroupFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
