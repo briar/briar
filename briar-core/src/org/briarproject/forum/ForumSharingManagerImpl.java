@@ -3,18 +3,14 @@ package org.briarproject.forum;
 import com.google.inject.Inject;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
-import org.briarproject.api.data.BdfReader;
-import org.briarproject.api.data.BdfReaderFactory;
-import org.briarproject.api.data.BdfWriter;
-import org.briarproject.api.data.BdfWriterFactory;
-import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.data.MetadataParser;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
@@ -27,14 +23,11 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager.ValidationHook;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -61,33 +54,23 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 
 	private final DatabaseComponent db;
 	private final ForumManager forumManager;
+	private final ClientHelper clientHelper;
 	private final GroupFactory groupFactory;
 	private final PrivateGroupFactory privateGroupFactory;
-	private final MessageFactory messageFactory;
-	private final BdfReaderFactory bdfReaderFactory;
-	private final BdfWriterFactory bdfWriterFactory;
-	private final MetadataEncoder metadataEncoder;
-	private final MetadataParser metadataParser;
 	private final SecureRandom random;
 	private final Clock clock;
 	private final Group localGroup;
 
 	@Inject
-	ForumSharingManagerImpl(DatabaseComponent db,
-			ForumManager forumManager, GroupFactory groupFactory,
-			PrivateGroupFactory privateGroupFactory,
-			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
-			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
-			MetadataParser metadataParser, SecureRandom random, Clock clock) {
+	ForumSharingManagerImpl(DatabaseComponent db, ForumManager forumManager,
+			ClientHelper clientHelper, GroupFactory groupFactory,
+			PrivateGroupFactory privateGroupFactory, SecureRandom random,
+			Clock clock) {
 		this.db = db;
 		this.forumManager = forumManager;
+		this.clientHelper = clientHelper;
 		this.groupFactory = groupFactory;
 		this.privateGroupFactory = privateGroupFactory;
-		this.messageFactory = messageFactory;
-		this.bdfReaderFactory = bdfReaderFactory;
-		this.bdfWriterFactory = bdfWriterFactory;
-		this.metadataEncoder = metadataEncoder;
-		this.metadataParser = metadataParser;
 		this.random = random;
 		this.clock = clock;
 		localGroup = groupFactory.createGroup(CLIENT_ID,
@@ -103,9 +86,9 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 			db.addGroup(txn, g);
 			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
 			// Attach the contact ID to the group
-			BdfDictionary d = new BdfDictionary();
-			d.put("contactId", c.getId().getInt());
-			db.mergeGroupMetadata(txn, g.getId(), metadataEncoder.encode(d));
+			BdfDictionary meta = new BdfDictionary();
+			meta.put("contactId", c.getId().getInt());
+			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
 			// Share any forums that are shared with all contacts
 			List<Forum> shared = getForumsSharedWithAllContacts(txn);
 			storeMessage(txn, g.getId(), shared, 0);
@@ -193,8 +176,9 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 					LatestUpdate latest = findLatest(txn, g.getId(), false);
 					if (latest != null) {
 						// Retrieve and parse the latest update
-						byte[] raw = db.getRawMessage(txn, latest.messageId);
-						for (Forum f : parseForumList(raw)) {
+						BdfList message = clientHelper.getMessageAsList(txn,
+								latest.messageId);
+						for (Forum f : parseForumList(message)) {
 							if (!subscribed.contains(f.getGroup()))
 								available.add(f);
 						}
@@ -321,94 +305,64 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		LatestUpdate latest = findLatest(txn, localGroup.getId(), true);
 		if (latest == null) return Collections.emptyList();
 		// Retrieve and parse the latest update
-		return parseForumList(db.getRawMessage(txn, latest.messageId));
+		BdfList message = clientHelper.getMessageAsList(txn, latest.messageId);
+		return parseForumList(message);
 	}
 
 	private LatestUpdate findLatest(Transaction txn, GroupId g, boolean local)
 			throws DbException, FormatException {
 		LatestUpdate latest = null;
-		Map<MessageId, Metadata> metadata = db.getMessageMetadata(txn, g);
-		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
-			BdfDictionary d = metadataParser.parse(e.getValue());
-			if (d.getBoolean("local") != local) continue;
-			long version = d.getLong("version");
+		Map<MessageId, BdfDictionary> metadata =
+				clientHelper.getMessageMetadataAsDictionary(txn, g);
+		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {
+			BdfDictionary meta = e.getValue();
+			if (meta.getBoolean("local") != local) continue;
+			long version = meta.getLong("version");
 			if (latest == null || version > latest.version)
 				latest = new LatestUpdate(e.getKey(), version);
 		}
 		return latest;
 	}
 
-	private List<Forum> parseForumList(byte[] raw) throws FormatException {
-		List<Forum> forums = new ArrayList<Forum>();
-		ByteArrayInputStream in = new ByteArrayInputStream(raw,
-				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
-		BdfReader r = bdfReaderFactory.createReader(in);
-		try {
-			r.readListStart();
-			r.skipLong(); // Version
-			r.readListStart();
-			while (!r.hasListEnd()) {
-				r.readListStart();
-				String name = r.readString(MAX_FORUM_NAME_LENGTH);
-				byte[] salt = r.readRaw(FORUM_SALT_LENGTH);
-				r.readListEnd();
-				forums.add(createForum(name, salt));
-			}
-			r.readListEnd();
-			r.readListEnd();
-			if (!r.eof()) throw new FormatException();
-			return forums;
-		} catch (FormatException e) {
-			throw e;
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayInputStream
-			throw new RuntimeException(e);
+	private List<Forum> parseForumList(BdfList message) throws FormatException {
+		// Version, forum list
+		BdfList forumList = message.getList(1);
+		List<Forum> forums = new ArrayList<Forum>(forumList.size());
+		for (int i = 0; i < forumList.size(); i++) {
+			// Name, salt
+			BdfList forum = forumList.getList(i);
+			forums.add(createForum(forum.getString(0), forum.getRaw(1)));
 		}
+		return forums;
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, List<Forum> forums,
 			long version) throws DbException {
 		try {
-			byte[] body = encodeForumList(forums, version);
+			BdfList body = encodeForumList(forums, version);
 			long now = clock.currentTimeMillis();
-			Message m = messageFactory.createMessage(g, now, body);
-			BdfDictionary d = new BdfDictionary();
-			d.put("version", version);
-			d.put("local", true);
-			Metadata meta = metadataEncoder.encode(d);
-			db.addLocalMessage(txn, m, CLIENT_ID, meta, true);
+			Message m = clientHelper.createMessage(g, now, body);
+			BdfDictionary meta = new BdfDictionary();
+			meta.put("version", version);
+			meta.put("local", true);
+			clientHelper.addLocalMessage(txn, m, CLIENT_ID, meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private byte[] encodeForumList(List<Forum> forums, long version) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BdfWriter w = bdfWriterFactory.createWriter(out);
-		try {
-			w.writeListStart();
-			w.writeLong(version);
-			w.writeListStart();
-			for (Forum f : forums) {
-				w.writeListStart();
-				w.writeString(f.getName());
-				w.writeRaw(f.getSalt());
-				w.writeListEnd();
-			}
-			w.writeListEnd();
-			w.writeListEnd();
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayOutputStream
-			throw new RuntimeException(e);
-		}
-		return out.toByteArray();
+	private BdfList encodeForumList(List<Forum> forums, long version) {
+		BdfList forumList = new BdfList();
+		for (Forum f : forums)
+			forumList.add(BdfList.of(f.getName(), f.getSalt()));
+		return BdfList.of(version, forumList);
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
 			throws DbException, FormatException {
-		Metadata meta = db.getGroupMetadata(txn, contactGroupId);
-		BdfDictionary d = metadataParser.parse(meta);
-		return new ContactId(d.getLong("contactId").intValue());
+		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
+				contactGroupId);
+		return new ContactId(meta.getLong("contactId").intValue());
 	}
 
 	private Set<GroupId> getVisibleForums(Transaction txn,
@@ -418,9 +372,13 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		// If there's no local update, no forums are visible
 		if (local == null) return Collections.emptySet();
 		// Intersect the sets of shared forums
-		byte[] localRaw = db.getRawMessage(txn, local.messageId);
-		Set<Forum> shared = new HashSet<Forum>(parseForumList(localRaw));
-		shared.retainAll(parseForumList(remoteUpdate.getRaw()));
+		BdfList localMessage = clientHelper.getMessageAsList(txn,
+				local.messageId);
+		Set<Forum> shared = new HashSet<Forum>(parseForumList(localMessage));
+		byte[] raw = remoteUpdate.getRaw();
+		BdfList remoteMessage = clientHelper.toList(raw, MESSAGE_HEADER_LENGTH,
+				raw.length - MESSAGE_HEADER_LENGTH);
+		shared.retainAll(parseForumList(remoteMessage));
 		// Forums in the intersection should be visible
 		Set<GroupId> visible = new HashSet<GroupId>(shared.size());
 		for (Forum f : shared) visible.add(f.getId());
@@ -440,46 +398,30 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	}
 
 	private Forum createForum(String name, byte[] salt) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
-			w.writeListStart();
-			w.writeString(name);
-			w.writeRaw(salt);
-			w.writeListEnd();
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayOutputStream
+			BdfList forum = BdfList.of(name, salt);
+			byte[] descriptor = clientHelper.toByteArray(forum);
+			Group g = groupFactory.createGroup(forumManager.getClientId(),
+					descriptor);
+			return new Forum(g, name, salt);
+		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
-		Group g = groupFactory.createGroup(forumManager.getClientId(),
-				out.toByteArray());
-		return new Forum(g, name, salt);
 	}
 
 	private Forum parseForum(Group g) throws FormatException {
-		ByteArrayInputStream in = new ByteArrayInputStream(g.getDescriptor());
-		BdfReader r = bdfReaderFactory.createReader(in);
-		try {
-			r.readListStart();
-			String name = r.readString(MAX_FORUM_NAME_LENGTH);
-			byte[] salt = r.readRaw(FORUM_SALT_LENGTH);
-			r.readListEnd();
-			if (!r.eof()) throw new FormatException();
-			return new Forum(g, name, salt);
-		} catch (FormatException e) {
-			throw e;
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayInputStream
-			throw new RuntimeException(e);
-		}
+		byte[] descriptor = g.getDescriptor();
+		// Name, salt
+		BdfList forum = clientHelper.toList(descriptor, 0, descriptor.length);
+		return new Forum(g, forum.getString(0), forum.getRaw(1));
 	}
 
 	private boolean listContains(Transaction txn, GroupId g, GroupId forum,
 			boolean local) throws DbException, FormatException {
 		LatestUpdate latest = findLatest(txn, g, local);
 		if (latest == null) return false;
-		byte[] raw = db.getRawMessage(txn, latest.messageId);
-		List<Forum> list = parseForumList(raw);
+		BdfList message = clientHelper.getMessageAsList(txn, latest.messageId);
+		List<Forum> list = parseForumList(message);
 		for (Forum f : list) if (f.getId().equals(forum)) return true;
 		return false;
 	}
@@ -491,8 +433,8 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 			storeMessage(txn, g, Collections.singletonList(f), 0);
 			return true;
 		}
-		byte[] raw = db.getRawMessage(txn, latest.messageId);
-		List<Forum> list = parseForumList(raw);
+		BdfList message = clientHelper.getMessageAsList(txn, latest.messageId);
+		List<Forum> list = parseForumList(message);
 		if (list.contains(f)) return false;
 		list.add(f);
 		storeMessage(txn, g, list, latest.version + 1);
@@ -503,8 +445,8 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 			throws DbException, FormatException {
 		LatestUpdate latest = findLatest(txn, g, true);
 		if (latest == null) return;
-		byte[] raw = db.getRawMessage(txn, latest.messageId);
-		List<Forum> list = parseForumList(raw);
+		BdfList message = clientHelper.getMessageAsList(txn, latest.messageId);
+		List<Forum> list = parseForumList(message);
 		if (list.remove(f)) storeMessage(txn, g, list, latest.version + 1);
 	}
 
