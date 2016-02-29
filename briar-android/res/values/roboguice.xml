@@ -2,6 +2,7 @@
 <resources>
 	<string-array name="roboguice_modules">
 		<item>org.briarproject.android.AndroidModule</item>
+		<item>org.briarproject.clients.ClientsModule</item>
 		<item>org.briarproject.contact.ContactModule</item>
 		<item>org.briarproject.crypto.CryptoModule</item>
 		<item>org.briarproject.data.DataModule</item>
