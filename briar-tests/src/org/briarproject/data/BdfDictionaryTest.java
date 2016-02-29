@@ -55,7 +55,11 @@ public class BdfDictionaryTest extends BriarTestCase {
 		BdfDictionary d = new BdfDictionary();
 		d.put("foo", new byte[123]);
 		d.put("bar", new Bytes(new byte[123]));
-		assertArrayEquals(new byte[123], d.getRaw("foo"));
-		assertArrayEquals(new byte[123], d.getRaw("bar"));
+		byte[] foo = d.getRaw("foo");
+		assertEquals(123, foo.length);
+		assertArrayEquals(new byte[123], foo);
+		byte[] bar = d.getRaw("bar");
+		assertEquals(123, bar.length);
+		assertArrayEquals(new byte[123], bar);
 	}
 }

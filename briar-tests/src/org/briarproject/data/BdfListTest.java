@@ -55,7 +55,11 @@ public class BdfListTest extends BriarTestCase {
 		BdfList list = new BdfList();
 		list.add(new byte[123]);
 		list.add(new Bytes(new byte[123]));
-		assertArrayEquals(new byte[123], list.getRaw(0));
-		assertArrayEquals(new byte[123], list.getRaw(1));
+		byte[] first = list.getRaw(0);
+		assertEquals(123, first.length);
+		assertArrayEquals(new byte[123], first);
+		byte[] second = list.getRaw(1);
+		assertEquals(123, second.length);
+		assertArrayEquals(new byte[123], second);
 	}
 }
