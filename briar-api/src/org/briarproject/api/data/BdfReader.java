@@ -15,13 +15,13 @@ public interface BdfReader {
 	boolean readBoolean() throws IOException;
 	void skipBoolean() throws IOException;
 
-	boolean hasInteger() throws IOException;
-	long readInteger() throws IOException;
-	void skipInteger() throws IOException;
+	boolean hasLong() throws IOException;
+	long readLong() throws IOException;
+	void skipLong() throws IOException;
 
-	boolean hasFloat() throws IOException;
-	double readFloat() throws IOException;
-	void skipFloat() throws IOException;
+	boolean hasDouble() throws IOException;
+	double readDouble() throws IOException;
+	void skipDouble() throws IOException;
 
 	boolean hasString() throws IOException;
 	String readString(int maxLength) throws IOException;
@@ -32,12 +32,14 @@ public interface BdfReader {
 	void skipRaw() throws IOException;
 
 	boolean hasList() throws IOException;
+	BdfList readList() throws IOException;
 	void readListStart() throws IOException;
 	boolean hasListEnd() throws IOException;
 	void readListEnd() throws IOException;
 	void skipList() throws IOException;
 
 	boolean hasDictionary() throws IOException;
+	BdfDictionary readDictionary() throws IOException;
 	void readDictionaryStart() throws IOException;
 	boolean hasDictionaryEnd() throws IOException;
 	void readDictionaryEnd() throws IOException;

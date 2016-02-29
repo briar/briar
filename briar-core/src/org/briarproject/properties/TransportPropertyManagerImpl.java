@@ -342,7 +342,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			r.readListStart();
 			r.skipRaw(); // Device ID
 			r.skipString(); // Transport ID
-			r.skipInteger(); // Version
+			r.skipLong(); // Version
 			r.readDictionaryStart();
 			while (!r.hasDictionaryEnd()) {
 				String key = r.readString(MAX_PROPERTY_LENGTH);

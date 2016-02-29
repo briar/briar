@@ -57,7 +57,7 @@ class TransportPropertyValidator implements MessageValidator {
 			if (deviceId.length != UniqueId.LENGTH) throw new FormatException();
 			String transportId = r.readString(MAX_TRANSPORT_ID_LENGTH);
 			if (transportId.length() == 0) throw new FormatException();
-			long version = r.readInteger();
+			long version = r.readLong();
 			if (version < 0) throw new FormatException();
 			r.readDictionaryStart();
 			for (int i = 0; !r.hasDictionaryEnd(); i++) {

@@ -345,7 +345,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		BdfReader r = bdfReaderFactory.createReader(in);
 		try {
 			r.readListStart();
-			r.skipInteger(); // Version
+			r.skipLong(); // Version
 			r.readListStart();
 			while (!r.hasListEnd()) {
 				r.readListStart();

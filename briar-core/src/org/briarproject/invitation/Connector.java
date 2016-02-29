@@ -202,7 +202,7 @@ abstract class Connector extends Thread {
 	}
 
 	protected long receiveTimestamp(BdfReader r) throws IOException {
-		long timestamp = r.readInteger();
+		long timestamp = r.readLong();
 		if (timestamp < 0) throw new FormatException();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received timestamp");
 		return timestamp;

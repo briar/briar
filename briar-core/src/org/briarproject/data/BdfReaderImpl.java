@@ -1,11 +1,14 @@
 package org.briarproject.data;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.BdfReader;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
 import static org.briarproject.data.Types.FALSE;
@@ -74,11 +77,26 @@ class BdfReaderImpl implements BdfReader {
 		}
 	}
 
+	private Object readObject() throws IOException {
+		if (hasNull()) {
+			readNull();
+			return NULL_VALUE;
+		}
+		if (hasBoolean()) return readBoolean();
+		if (hasLong()) return readLong();
+		if (hasDouble()) return readDouble();
+		if (hasString()) return readString(Integer.MAX_VALUE);
+		if (hasRaw()) return readRaw(Integer.MAX_VALUE);
+		if (hasList()) return readList();
+		if (hasDictionary()) return readDictionary();
+		throw new FormatException();
+	}
+
 	private void skipObject() throws IOException {
 		if (hasNull()) skipNull();
 		else if (hasBoolean()) skipBoolean();
-		else if (hasInteger()) skipInteger();
-		else if (hasFloat()) skipFloat();
+		else if (hasLong()) skipLong();
+		else if (hasDouble()) skipDouble();
 		else if (hasString()) skipString();
 		else if (hasRaw()) skipRaw();
 		else if (hasList()) skipList();
@@ -129,15 +147,15 @@ class BdfReaderImpl implements BdfReader {
 		hasLookahead = false;
 	}
 
-	public boolean hasInteger() throws IOException {
+	public boolean hasLong() throws IOException {
 		if (!hasLookahead) readLookahead();
 		if (eof) return false;
 		return next == INT_8 || next == INT_16 || next == INT_32 ||
 				next == INT_64;
 	}
 
-	public long readInteger() throws IOException {
-		if (!hasInteger()) throw new FormatException();
+	public long readLong() throws IOException {
+		if (!hasLong()) throw new FormatException();
 		hasLookahead = false;
 		if (next == INT_8) return readInt8();
 		if (next == INT_16) return readInt16();
@@ -169,8 +187,8 @@ class BdfReaderImpl implements BdfReader {
 		return value;
 	}
 
-	public void skipInteger() throws IOException {
-		if (!hasInteger()) throw new FormatException();
+	public void skipLong() throws IOException {
+		if (!hasLong()) throw new FormatException();
 		if (next == INT_8) skip(1);
 		else if (next == INT_16) skip(2);
 		else if (next == INT_32) skip(4);
@@ -178,14 +196,14 @@ class BdfReaderImpl implements BdfReader {
 		hasLookahead = false;
 	}
 
-	public boolean hasFloat() throws IOException {
+	public boolean hasDouble() throws IOException {
 		if (!hasLookahead) readLookahead();
 		if (eof) return false;
 		return next == FLOAT_64;
 	}
 
-	public double readFloat() throws IOException {
-		if (!hasFloat()) throw new FormatException();
+	public double readDouble() throws IOException {
+		if (!hasDouble()) throw new FormatException();
 		hasLookahead = false;
 		readIntoBuffer(8);
 		long value = 0;
@@ -193,8 +211,8 @@ class BdfReaderImpl implements BdfReader {
 		return Double.longBitsToDouble(value);
 	}
 
-	public void skipFloat() throws IOException {
-		if (!hasFloat()) throw new FormatException();
+	public void skipDouble() throws IOException {
+		if (!hasDouble()) throw new FormatException();
 		skip(8);
 		hasLookahead = false;
 	}
@@ -268,6 +286,15 @@ class BdfReaderImpl implements BdfReader {
 		return next == LIST;
 	}
 
+	public BdfList readList() throws IOException {
+		if (!hasList()) throw new FormatException();
+		BdfList list = new BdfList();
+		readListStart();
+		while (!hasListEnd()) list.add(readObject());
+		readListEnd();
+		return list;
+	}
+
 	public void readListStart() throws IOException {
 		if (!hasList()) throw new FormatException();
 		hasLookahead = false;
@@ -303,6 +330,16 @@ class BdfReaderImpl implements BdfReader {
 		if (!hasLookahead) readLookahead();
 		if (eof) return false;
 		return next == DICTIONARY;
+	}
+
+	public BdfDictionary readDictionary() throws IOException {
+		if (!hasDictionary()) throw new FormatException();
+		BdfDictionary dictionary = new BdfDictionary();
+		readDictionaryStart();
+		while (!hasDictionaryEnd())
+			dictionary.put(readString(Integer.MAX_VALUE), readObject());
+		readDictionaryEnd();
+		return dictionary;
 	}
 
 	public void readDictionaryStart() throws IOException {
