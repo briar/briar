@@ -1,11 +1,11 @@
 package org.briarproject.plugins.file;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.ImmediateExecutor;
 import org.briarproject.TestUtils;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.plugins.ImmediateExecutor;
 import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
 import org.jmock.Expectations;
 import org.jmock.Mockery;

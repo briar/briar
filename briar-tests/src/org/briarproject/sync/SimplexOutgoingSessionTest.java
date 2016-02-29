@@ -1,6 +1,7 @@
 package org.briarproject.sync;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.ImmediateExecutor;
 import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
@@ -10,7 +11,6 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.PacketWriter;
-import org.briarproject.plugins.ImmediateExecutor;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;

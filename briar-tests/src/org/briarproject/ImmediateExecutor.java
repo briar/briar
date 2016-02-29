@@ -1,4 +1,4 @@
-package org.briarproject.plugins;
+package org.briarproject;
 
 import java.util.concurrent.Executor;
 
