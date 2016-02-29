@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -30,7 +31,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.PrivateGroupFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
@@ -288,7 +288,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			w.writeListStart();
 			w.writeRaw(dev.getBytes());
 			w.writeString(t.getString());
-			w.writeInteger(version);
+			w.writeLong(version);
 			w.writeDictionary(p);
 			w.writeListEnd();
 		} catch (IOException e) {
@@ -342,7 +342,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			r.readListStart();
 			r.skipRaw(); // Device ID
 			r.skipString(); // Transport ID
-			r.skipInteger(); // Version
+			r.skipLong(); // Version
 			r.readDictionaryStart();
 			while (!r.hasDictionaryEnd()) {
 				String key = r.readString(MAX_PROPERTY_LENGTH);

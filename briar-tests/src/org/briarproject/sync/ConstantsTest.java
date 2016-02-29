@@ -23,6 +23,7 @@ import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
@@ -56,10 +57,10 @@ public class ConstantsTest extends BriarTestCase {
 	public ConstantsTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestSystemModule(),
-				new ContactModule(), new CryptoModule(), new DatabaseModule(),
-				new DataModule(), new EventModule(), new ForumModule(),
-				new IdentityModule(), new MessagingModule(), new SyncModule(),
-				new TransportModule());
+				new ClientsModule(), new ContactModule(), new CryptoModule(),
+				new DatabaseModule(), new DataModule(), new EventModule(),
+				new ForumModule(), new IdentityModule(), new MessagingModule(),
+				new SyncModule(), new TransportModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		authorFactory = i.getInstance(AuthorFactory.class);
 		privateMessageFactory = i.getInstance(PrivateMessageFactory.class);

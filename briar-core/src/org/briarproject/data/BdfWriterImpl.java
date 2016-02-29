@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
 import static org.briarproject.data.Types.FALSE;
@@ -55,7 +56,7 @@ class BdfWriterImpl implements BdfWriter {
 		else out.write(FALSE);
 	}
 
-	public void writeInteger(long i) throws IOException {
+	public void writeLong(long i) throws IOException {
 		if (i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE) {
 			out.write(INT_8);
 			out.write((byte) i);
@@ -94,7 +95,7 @@ class BdfWriterImpl implements BdfWriter {
 		out.write((byte) ((i << 56) >> 56));
 	}
 
-	public void writeFloat(double d) throws IOException {
+	public void writeDouble(double d) throws IOException {
 		out.write(FLOAT_64);
 		writeInt64(Double.doubleToRawLongBits(d));
 	}
@@ -135,14 +136,14 @@ class BdfWriterImpl implements BdfWriter {
 	}
 
 	private void writeObject(Object o) throws IOException {
-		if (o == null) writeNull();
+		if (o == null || o == NULL_VALUE) writeNull();
 		else if (o instanceof Boolean) writeBoolean((Boolean) o);
-		else if (o instanceof Byte) writeInteger((Byte) o);
-		else if (o instanceof Short) writeInteger((Short) o);
-		else if (o instanceof Integer) writeInteger((Integer) o);
-		else if (o instanceof Long) writeInteger((Long) o);
-		else if (o instanceof Float) writeFloat((Float) o);
-		else if (o instanceof Double) writeFloat((Double) o);
+		else if (o instanceof Byte) writeLong((Byte) o);
+		else if (o instanceof Short) writeLong((Short) o);
+		else if (o instanceof Integer) writeLong((Integer) o);
+		else if (o instanceof Long) writeLong((Long) o);
+		else if (o instanceof Float) writeDouble((Float) o);
+		else if (o instanceof Double) writeDouble((Double) o);
 		else if (o instanceof String) writeString((String) o);
 		else if (o instanceof byte[]) writeRaw((byte[]) o);
 		else if (o instanceof Bytes) writeRaw(((Bytes) o).getBytes());

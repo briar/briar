@@ -3,11 +3,14 @@ package org.briarproject.data;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
+import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.util.StringUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 
+import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -54,100 +57,102 @@ public class BdfReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReadInt8() throws Exception {
+	public void testReadLong8() throws Exception {
 		setContents("21" + "00" + "21" + "FF"
 				+ "21" + "7F" + "21" + "80");
-		assertEquals(0, r.readInteger());
-		assertEquals(-1, r.readInteger());
-		assertEquals(Byte.MAX_VALUE, r.readInteger());
-		assertEquals(Byte.MIN_VALUE, r.readInteger());
+		assertEquals(0, r.readLong());
+		assertEquals(-1, r.readLong());
+		assertEquals(Byte.MAX_VALUE, r.readLong());
+		assertEquals(Byte.MIN_VALUE, r.readLong());
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testSkipInt8() throws Exception {
+	public void testSkipLong8() throws Exception {
 		setContents("21" + "00");
-		r.skipInteger();
+		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadInt16() throws Exception {
+	public void testReadLong16() throws Exception {
 		setContents("22" + "0080" + "22" + "FF7F"
 				+ "22" + "7FFF" + "22" + "8000");
-		assertEquals(Byte.MAX_VALUE + 1, r.readInteger());
-		assertEquals(Byte.MIN_VALUE - 1, r.readInteger());
-		assertEquals(Short.MAX_VALUE, r.readInteger());
-		assertEquals(Short.MIN_VALUE, r.readInteger());
+		assertEquals(Byte.MAX_VALUE + 1, r.readLong());
+		assertEquals(Byte.MIN_VALUE - 1, r.readLong());
+		assertEquals(Short.MAX_VALUE, r.readLong());
+		assertEquals(Short.MIN_VALUE, r.readLong());
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testSkipInt16() throws Exception {
+	public void testSkipLong16() throws Exception {
 		setContents("22" + "0080");
-		r.skipInteger();
+		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadInt32() throws Exception {
+	public void testReadLong32() throws Exception {
 		setContents("24" + "00008000" + "24" + "FFFF7FFF"
 				+ "24" + "7FFFFFFF" + "24" + "80000000");
-		assertEquals(Short.MAX_VALUE + 1, r.readInteger());
-		assertEquals(Short.MIN_VALUE - 1, r.readInteger());
-		assertEquals(Integer.MAX_VALUE, r.readInteger());
-		assertEquals(Integer.MIN_VALUE, r.readInteger());
+		assertEquals(Short.MAX_VALUE + 1, r.readLong());
+		assertEquals(Short.MIN_VALUE - 1, r.readLong());
+		assertEquals(Integer.MAX_VALUE, r.readLong());
+		assertEquals(Integer.MIN_VALUE, r.readLong());
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testSkipInt32() throws Exception {
+	public void testSkipLong32() throws Exception {
 		setContents("24" + "00008000");
-		r.skipInteger();
+		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadInt64() throws Exception {
+	public void testReadLong64() throws Exception {
 		setContents("28" + "0000000080000000" + "28" + "FFFFFFFF7FFFFFFF"
 				+ "28" + "7FFFFFFFFFFFFFFF" + "28" + "8000000000000000");
-		assertEquals(Integer.MAX_VALUE + 1L, r.readInteger());
-		assertEquals(Integer.MIN_VALUE - 1L, r.readInteger());
-		assertEquals(Long.MAX_VALUE, r.readInteger());
-		assertEquals(Long.MIN_VALUE, r.readInteger());
+		assertEquals(Integer.MAX_VALUE + 1L, r.readLong());
+		assertEquals(Integer.MIN_VALUE - 1L, r.readLong());
+		assertEquals(Long.MAX_VALUE, r.readLong());
+		assertEquals(Long.MIN_VALUE, r.readLong());
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testSkipInt64() throws Exception {
+	public void testSkipLong() throws Exception {
 		setContents("28" + "0000000080000000");
-		r.skipInteger();
+		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadFloat() throws Exception {
+	public void testReadDouble() throws Exception {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
 		// http://steve.hollasch.net/cgindex/coding/ieeefloat.html
 		setContents("38" + "0000000000000000" + "38" + "3FF0000000000000"
 				+ "38" + "4000000000000000" + "38" + "BFF0000000000000"
 				+ "38" + "8000000000000000" + "38" + "FFF0000000000000"
 				+ "38" + "7FF0000000000000" + "38" + "7FF8000000000000");
-		assertEquals(0, Double.compare(0.0, r.readFloat()));
-		assertEquals(0, Double.compare(1.0, r.readFloat()));
-		assertEquals(0, Double.compare(2.0, r.readFloat()));
-		assertEquals(0, Double.compare(-1.0, r.readFloat()));
-		assertEquals(0, Double.compare(-0.0, r.readFloat()));
-		assertEquals(0, Double.compare(Double.NEGATIVE_INFINITY, r.readFloat()));
-		assertEquals(0, Double.compare(Double.POSITIVE_INFINITY, r.readFloat()));
-		assertTrue(Double.isNaN(r.readFloat()));
+		assertEquals(0, Double.compare(0.0, r.readDouble()));
+		assertEquals(0, Double.compare(1.0, r.readDouble()));
+		assertEquals(0, Double.compare(2.0, r.readDouble()));
+		assertEquals(0, Double.compare(-1.0, r.readDouble()));
+		assertEquals(0, Double.compare(-0.0, r.readDouble()));
+		assertEquals(0, Double.compare(Double.NEGATIVE_INFINITY,
+				r.readDouble()));
+		assertEquals(0, Double.compare(Double.POSITIVE_INFINITY,
+				r.readDouble()));
+		assertTrue(Double.isNaN(r.readDouble()));
 		assertTrue(r.eof());
 	}
 
 	@Test
 	public void testSkipFloat() throws Exception {
 		setContents("38" + "0000000000000000");
-		r.skipFloat();
+		r.skipDouble();
 		assertTrue(r.eof());
 	}
 
@@ -377,17 +382,31 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadList() throws Exception {
-		// A list containing 1, "foo", and 128
+		// A list containing 1, "foo", and null
 		setContents("60" + "21" + "01" +
 				"41" + "03" + "666F6F" +
-				"22" + "0080" + "80");
+				"00" + "80");
+		BdfList list = r.readList();
+		assertEquals(3, list.size());
+		assertEquals(1L, list.get(0));
+		assertEquals("foo", list.get(1));
+		assertEquals(NULL_VALUE, list.get(2));
+	}
+
+	@Test
+	public void testReadListManually() throws Exception {
+		// A list containing 1, "foo", and null
+		setContents("60" + "21" + "01" +
+				"41" + "03" + "666F6F" +
+				"00" + "80");
 		r.readListStart();
 		assertFalse(r.hasListEnd());
-		assertEquals(1, r.readInteger());
+		assertEquals(1, r.readLong());
 		assertFalse(r.hasListEnd());
 		assertEquals("foo", r.readString(1000));
 		assertFalse(r.hasListEnd());
-		assertEquals(128, r.readInteger());
+		assertTrue(r.hasNull());
+		r.readNull();
 		assertTrue(r.hasListEnd());
 		r.readListEnd();
 		assertTrue(r.eof());
@@ -408,11 +427,24 @@ public class BdfReaderImplTest extends BriarTestCase {
 		// A dictionary containing "foo" -> 123 and "bar" -> null
 		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
 				"41" + "03" + "626172" + "00" + "80");
+		BdfDictionary dictionary = r.readDictionary();
+		assertEquals(2, dictionary.size());
+		assertTrue(dictionary.containsKey("foo"));
+		assertEquals(123L, dictionary.get("foo"));
+		assertTrue(dictionary.containsKey("bar"));
+		assertEquals(NULL_VALUE, dictionary.get("bar"));
+	}
+
+	@Test
+	public void testReadDictionaryManually() throws Exception {
+		// A dictionary containing "foo" -> 123 and "bar" -> null
+		setContents("70" + "41" + "03" + "666F6F" + "21" + "7B" +
+				"41" + "03" + "626172" + "00" + "80");
 		r.readDictionaryStart();
 		assertFalse(r.hasDictionaryEnd());
 		assertEquals("foo", r.readString(1000));
 		assertFalse(r.hasDictionaryEnd());
-		assertEquals(123, r.readInteger());
+		assertEquals(123, r.readLong());
 		assertFalse(r.hasDictionaryEnd());
 		assertEquals("bar", r.readString(1000));
 		assertFalse(r.hasDictionaryEnd());

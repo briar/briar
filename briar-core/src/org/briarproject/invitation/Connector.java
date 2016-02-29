@@ -196,13 +196,13 @@ abstract class Connector extends Thread {
 
 	protected void sendTimestamp(BdfWriter w, long timestamp)
 			throws IOException {
-		w.writeInteger(timestamp);
+		w.writeLong(timestamp);
 		w.flush();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent timestamp");
 	}
 
 	protected long receiveTimestamp(BdfReader r) throws IOException {
-		long timestamp = r.readInteger();
+		long timestamp = r.readLong();
 		if (timestamp < 0) throw new FormatException();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received timestamp");
 		return timestamp;

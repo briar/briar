@@ -3,6 +3,7 @@ package org.briarproject.forum;
 import com.google.inject.Inject;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -28,7 +29,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.PrivateGroupFactory;
 import org.briarproject.api.sync.ValidationManager.ValidationHook;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
@@ -345,7 +345,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		BdfReader r = bdfReaderFactory.createReader(in);
 		try {
 			r.readListStart();
-			r.skipInteger(); // Version
+			r.skipLong(); // Version
 			r.readListStart();
 			while (!r.hasListEnd()) {
 				r.readListStart();
@@ -387,7 +387,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
 			w.writeListStart();
-			w.writeInteger(version);
+			w.writeLong(version);
 			w.writeListStart();
 			for (Forum f : forums) {
 				w.writeListStart();

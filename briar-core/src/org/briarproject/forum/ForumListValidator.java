@@ -41,7 +41,7 @@ class ForumListValidator implements MessageValidator {
 					MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 			BdfReader r = bdfReaderFactory.createReader(in);
 			r.readListStart();
-			long version = r.readInteger();
+			long version = r.readLong();
 			if (version < 0) throw new FormatException();
 			r.readListStart();
 			while (!r.hasListEnd()) {

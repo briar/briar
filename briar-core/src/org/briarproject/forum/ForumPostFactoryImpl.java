@@ -77,7 +77,7 @@ class ForumPostFactoryImpl implements ForumPostFactory {
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		w.writeListStart();
 		w.writeRaw(groupId.getBytes());
-		w.writeInteger(timestamp);
+		w.writeLong(timestamp);
 		if (parent == null) w.writeNull();
 		else w.writeRaw(parent.getBytes());
 		writeAuthor(w, author);

@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.junit.Assert.assertArrayEquals;
 
 public class BdfWriterImplTest extends BriarTestCase {
@@ -41,17 +42,17 @@ public class BdfWriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteInteger() throws IOException {
-		w.writeInteger(0);
-		w.writeInteger(-1);
-		w.writeInteger(Byte.MAX_VALUE);
-		w.writeInteger(Byte.MIN_VALUE);
-		w.writeInteger(Short.MAX_VALUE);
-		w.writeInteger(Short.MIN_VALUE);
-		w.writeInteger(Integer.MAX_VALUE);
-		w.writeInteger(Integer.MIN_VALUE);
-		w.writeInteger(Long.MAX_VALUE);
-		w.writeInteger(Long.MIN_VALUE);
+	public void testWriteLong() throws IOException {
+		w.writeLong(0);
+		w.writeLong(-1);
+		w.writeLong(Byte.MAX_VALUE);
+		w.writeLong(Byte.MIN_VALUE);
+		w.writeLong(Short.MAX_VALUE);
+		w.writeLong(Short.MIN_VALUE);
+		w.writeLong(Integer.MAX_VALUE);
+		w.writeLong(Integer.MIN_VALUE);
+		w.writeLong(Long.MAX_VALUE);
+		w.writeLong(Long.MIN_VALUE);
 		// INTEGER_8 tag, 0, INTEGER_8 tag, -1, etc
 		checkContents("21" + "00" + "21" + "FF" +
 				"21" + "7F" + "21" + "80" +
@@ -61,17 +62,17 @@ public class BdfWriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteFloat() throws IOException {
+	public void testWriteDouble() throws IOException {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
 		// 1 bit for sign, 11 for exponent, 52 for significand
-		w.writeFloat(0.0); // 0 0 0 -> 0x0000000000000000
-		w.writeFloat(1.0); // 0 1023 1 -> 0x3FF0000000000000
-		w.writeFloat(2.0); // 0 1024 1 -> 0x4000000000000000
-		w.writeFloat(-1.0); // 1 1023 1 -> 0xBFF0000000000000
-		w.writeFloat(-0.0); // 1 0 0 -> 0x8000000000000000
-		w.writeFloat(Double.NEGATIVE_INFINITY); // 1 2047 0 -> 0xFFF00000...
-		w.writeFloat(Double.POSITIVE_INFINITY); // 0 2047 0 -> 0x7FF00000...
-		w.writeFloat(Double.NaN); // 0 2047 1 -> 0x7FF8000000000000
+		w.writeDouble(0.0); // 0 0 0 -> 0x0000000000000000
+		w.writeDouble(1.0); // 0 1023 1 -> 0x3FF0000000000000
+		w.writeDouble(2.0); // 0 1024 1 -> 0x4000000000000000
+		w.writeDouble(-1.0); // 1 1023 1 -> 0xBFF0000000000000
+		w.writeDouble(-0.0); // 1 0 0 -> 0x8000000000000000
+		w.writeDouble(Double.NEGATIVE_INFINITY); // 1 2047 0 -> 0xFFF00000...
+		w.writeDouble(Double.POSITIVE_INFINITY); // 0 2047 0 -> 0x7FF00000...
+		w.writeDouble(Double.NaN); // 0 2047 1 -> 0x7FF8000000000000
 		checkContents("38" + "0000000000000000" + "38" + "3FF0000000000000"
 				+ "38" + "4000000000000000" + "38" + "BFF0000000000000"
 				+ "38" + "8000000000000000" + "38" + "FFF0000000000000"
@@ -122,7 +123,7 @@ public class BdfWriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteBytes8() throws IOException {
+	public void testWriteRaw8() throws IOException {
 		byte[] longest = new byte[Byte.MAX_VALUE];
 		String longHex = StringUtils.toHexString(longest);
 		w.writeRaw(new byte[] {1, 2, 3});
@@ -132,7 +133,7 @@ public class BdfWriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteBytes16() throws IOException {
+	public void testWriteRaw16() throws IOException {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		byte[] longest = new byte[Short.MAX_VALUE];
@@ -144,7 +145,7 @@ public class BdfWriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteBytes32() throws IOException {
+	public void testWriteRaw32() throws IOException {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
 		String shortHex = StringUtils.toHexString(shortest);
 		w.writeRaw(shortest);
@@ -166,10 +167,11 @@ public class BdfWriterImplTest extends BriarTestCase {
 		List<Object> l = new ArrayList<Object>();
 		l.add(1);
 		l.add(null);
+		l.add(NULL_VALUE);
 		l.add(2);
 		w.writeList(l);
-		// LIST tag, 1 as integer, NULL tag, 2 as integer, END tag
-		checkContents("60" + "21" + "01" + "00" + "21" + "02" + "80");
+		// LIST tag, 1 as integer, NULL tag, NULL tag, 2 as integer, END tag
+		checkContents("60" + "21" + "01" + "00" + "00" + "21" + "02" + "80");
 	}
 
 	@Test
@@ -188,9 +190,9 @@ public class BdfWriterImplTest extends BriarTestCase {
 	@Test
 	public void testWriteDelimitedList() throws IOException {
 		w.writeListStart();
-		w.writeInteger(1);
+		w.writeLong(1);
 		w.writeString("foo");
-		w.writeInteger(128);
+		w.writeLong(128);
 		w.writeListEnd();
 		// LIST tag, 1 as integer, "foo" as string, 128 as integer, END tag
 		checkContents("60" + "21" + "01" +
@@ -202,7 +204,7 @@ public class BdfWriterImplTest extends BriarTestCase {
 	public void testWriteDelimitedDictionary() throws IOException {
 		w.writeDictionaryStart();
 		w.writeString("foo");
-		w.writeInteger(123);
+		w.writeLong(123);
 		w.writeString("bar");
 		w.writeNull();
 		w.writeDictionaryEnd();

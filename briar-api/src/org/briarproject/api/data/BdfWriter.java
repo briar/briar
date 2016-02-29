@@ -11,8 +11,8 @@ public interface BdfWriter {
 
 	void writeNull() throws IOException;
 	void writeBoolean(boolean b) throws IOException;
-	void writeInteger(long l) throws IOException;
-	void writeFloat(double d) throws IOException;
+	void writeLong(long l) throws IOException;
+	void writeDouble(double d) throws IOException;
 	void writeString(String s) throws IOException;
 	void writeRaw(byte[] b) throws IOException;
 
