@@ -47,17 +47,26 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	}
 
 	@Override
+	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
+			SecretKey master,long timestamp, boolean alice, boolean active)
+			throws DbException {
+		ContactId c = db.addContact(txn, remote, local, active);
+		keyManager.addContact(txn, c, master, timestamp, alice);
+		Contact contact = db.getContact(txn, c);
+		for (AddContactHook hook : addHooks)
+			hook.addingContact(txn, contact);
+		return c;
+	}
+
+	@Override
 	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
 			long timestamp, boolean alice, boolean active)
 			throws DbException {
 		ContactId c;
 		Transaction txn = db.startTransaction(false);
 		try {
-			c = db.addContact(txn, remote, local, active);
-			keyManager.addContact(txn, c, master, timestamp, alice);
-			Contact contact = db.getContact(txn, c);
-			for (AddContactHook hook : addHooks)
-				hook.addingContact(txn, contact);
+			c = addContact(txn, remote, local, master, timestamp, alice,
+					active);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
