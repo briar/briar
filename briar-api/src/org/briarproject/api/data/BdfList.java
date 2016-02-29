@@ -1,10 +1,31 @@
 package org.briarproject.api.data;
 
+import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 public class BdfList extends Vector<Object> {
+
+	/**
+	 * Factory method for constructing lists inline.
+	 * <pre>
+	 * BdfList.of(1, 2, 3);
+	 * </pre>
+	 */
+	public static BdfList of(Object... items) {
+		return new BdfList(Arrays.asList(items));
+	}
+
+	public BdfList() {
+		super();
+	}
+
+	public BdfList(List<Object> items) {
+		super(items);
+	}
 
 	public Boolean getBoolean(int index) throws FormatException {
 		Object o = get(index);
@@ -21,24 +42,32 @@ public class BdfList extends Vector<Object> {
 	public Long getInteger(int index) throws FormatException {
 		Object o = get(index);
 		if (o instanceof Long) return (Long) o;
+		if (o instanceof Integer) return ((Integer) o).longValue();
+		if (o instanceof Short) return ((Short) o).longValue();
+		if (o instanceof Byte) return ((Byte) o).longValue();
 		throw new FormatException();
 	}
 
 	public Long getInteger(int index, Long defaultValue) {
 		Object o = get(index);
 		if (o instanceof Long) return (Long) o;
+		if (o instanceof Integer) return ((Integer) o).longValue();
+		if (o instanceof Short) return ((Short) o).longValue();
+		if (o instanceof Byte) return ((Byte) o).longValue();
 		return defaultValue;
 	}
 
 	public Double getFloat(int index) throws FormatException {
 		Object o = get(index);
 		if (o instanceof Double) return (Double) o;
+		if (o instanceof Float) return ((Float) o).doubleValue();
 		throw new FormatException();
 	}
 
 	public Double getFloat(int index, Double defaultValue) {
 		Object o = get(index);
 		if (o instanceof Double) return (Double) o;
+		if (o instanceof Float) return ((Float) o).doubleValue();
 		return defaultValue;
 	}
 
@@ -57,12 +86,14 @@ public class BdfList extends Vector<Object> {
 	public byte[] getRaw(int index) throws FormatException {
 		Object o = get(index);
 		if (o instanceof byte[]) return (byte[]) o;
+		if (o instanceof Bytes) return ((Bytes) o).getBytes();
 		throw new FormatException();
 	}
 
 	public byte[] getRaw(int index, byte[] defaultValue) {
 		Object o = get(index);
 		if (o instanceof byte[]) return (byte[]) o;
+		if (o instanceof Bytes) return ((Bytes) o).getBytes();
 		return defaultValue;
 	}
 

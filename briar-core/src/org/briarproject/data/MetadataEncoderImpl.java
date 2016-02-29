@@ -1,5 +1,6 @@
 package org.briarproject.data;
 
+import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.MetadataEncoder;
@@ -62,6 +63,7 @@ class MetadataEncoderImpl implements MetadataEncoder {
 		else if (o instanceof Double) encodeFloat(out, (Double) o);
 		else if (o instanceof String) encodeString(out, (String) o);
 		else if (o instanceof byte[]) encodeRaw(out, (byte[]) o);
+		else if (o instanceof Bytes) encodeRaw(out, ((Bytes) o).getBytes());
 		else if (o instanceof List) encodeList(out, (List) o);
 		else if (o instanceof Map) encodeDictionary(out, (Map) o);
 		else throw new FormatException();
