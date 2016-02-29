@@ -161,7 +161,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException();
 		ContactId c = db.addContact(txn, remote, local, active);
-		transaction.attach(new ContactAddedEvent(c));
+		transaction.attach(new ContactAddedEvent(c, active));
 		if (active) transaction.attach(new ContactStatusChangedEvent(c, true));
 		return c;
 	}
