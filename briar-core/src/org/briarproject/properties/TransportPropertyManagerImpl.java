@@ -82,18 +82,12 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
-	public void addRemoteProperties(ContactId c, DeviceId dev,
+	public void addRemoteProperties(Transaction txn, ContactId c, DeviceId dev,
 			Map<TransportId, TransportProperties> props) throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			Group g = getContactGroup(db.getContact(txn, c));
-			for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
-				storeMessage(txn, g.getId(), dev, e.getKey(), e.getValue(), 0,
-						false, false);
-			}
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
+		Group g = getContactGroup(db.getContact(txn, c));
+		for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
+			storeMessage(txn, g.getId(), dev, e.getKey(), e.getValue(), 0,
+					false, false);
 		}
 	}
 

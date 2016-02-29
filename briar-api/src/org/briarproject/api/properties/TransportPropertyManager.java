@@ -4,6 +4,7 @@ import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public interface TransportPropertyManager {
 	 * Stores the given properties received while adding a contact - they will
 	 * be superseded by any properties synced from the contact.
 	 */
-	void addRemoteProperties(ContactId c, DeviceId dev,
+	void addRemoteProperties(Transaction txn, ContactId c, DeviceId dev,
 			Map<TransportId, TransportProperties> props) throws DbException;
 
 	/** Returns the local transport properties for all transports. */
