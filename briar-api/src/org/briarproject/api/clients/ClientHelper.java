@@ -5,6 +5,7 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -12,6 +13,13 @@ import org.briarproject.api.sync.MessageId;
 import java.util.Map;
 
 public interface ClientHelper {
+
+	void addLocalMessage(Message m, ClientId c, BdfDictionary metadata,
+			boolean shared) throws DbException, FormatException;
+
+	void addLocalMessage(Transaction txn, Message m, ClientId c,
+			BdfDictionary metadata, boolean shared) throws DbException,
+			FormatException;
 
 	Message createMessage(GroupId g, long timestamp, BdfDictionary body)
 			throws FormatException;
@@ -59,4 +67,13 @@ public interface ClientHelper {
 
 	void mergeMessageMetadata(Transaction txn, MessageId m,
 			BdfDictionary metadata) throws DbException, FormatException;
+
+	byte[] toByteArray(BdfDictionary dictionary) throws FormatException;
+
+	byte[] toByteArray(BdfList list) throws FormatException;
+
+	BdfDictionary toDictionary(byte[] b, int off, int len)
+			throws FormatException;
+
+	BdfList toList(byte[] b, int off, int len) throws FormatException;
 }
