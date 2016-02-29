@@ -288,7 +288,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			w.writeListStart();
 			w.writeRaw(dev.getBytes());
 			w.writeString(t.getString());
-			w.writeInteger(version);
+			w.writeLong(version);
 			w.writeDictionary(p);
 			w.writeListEnd();
 		} catch (IOException e) {

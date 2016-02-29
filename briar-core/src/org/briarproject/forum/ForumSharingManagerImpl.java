@@ -387,7 +387,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
 			w.writeListStart();
-			w.writeInteger(version);
+			w.writeLong(version);
 			w.writeListStart();
 			for (Forum f : forums) {
 				w.writeListStart();

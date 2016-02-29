@@ -117,7 +117,7 @@ class ForumPostValidator implements MessageValidator {
 				BdfWriter w = bdfWriterFactory.createWriter(out);
 				w.writeListStart();
 				w.writeRaw(m.getGroupId().getBytes());
-				w.writeInteger(m.getTimestamp());
+				w.writeLong(m.getTimestamp());
 				if (parent == null) w.writeNull();
 				else w.writeRaw(parent.getBytes());
 				writeAuthor(w, author);

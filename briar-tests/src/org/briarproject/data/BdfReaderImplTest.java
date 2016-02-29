@@ -57,7 +57,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReadInt8() throws Exception {
+	public void testReadLong8() throws Exception {
 		setContents("21" + "00" + "21" + "FF"
 				+ "21" + "7F" + "21" + "80");
 		assertEquals(0, r.readLong());
@@ -68,14 +68,14 @@ public class BdfReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSkipInt8() throws Exception {
+	public void testSkipLong8() throws Exception {
 		setContents("21" + "00");
 		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadInt16() throws Exception {
+	public void testReadLong16() throws Exception {
 		setContents("22" + "0080" + "22" + "FF7F"
 				+ "22" + "7FFF" + "22" + "8000");
 		assertEquals(Byte.MAX_VALUE + 1, r.readLong());
@@ -86,14 +86,14 @@ public class BdfReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSkipInt16() throws Exception {
+	public void testSkipLong16() throws Exception {
 		setContents("22" + "0080");
 		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadInt32() throws Exception {
+	public void testReadLong32() throws Exception {
 		setContents("24" + "00008000" + "24" + "FFFF7FFF"
 				+ "24" + "7FFFFFFF" + "24" + "80000000");
 		assertEquals(Short.MAX_VALUE + 1, r.readLong());
@@ -104,14 +104,14 @@ public class BdfReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSkipInt32() throws Exception {
+	public void testSkipLong32() throws Exception {
 		setContents("24" + "00008000");
 		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadInt64() throws Exception {
+	public void testReadLong64() throws Exception {
 		setContents("28" + "0000000080000000" + "28" + "FFFFFFFF7FFFFFFF"
 				+ "28" + "7FFFFFFFFFFFFFFF" + "28" + "8000000000000000");
 		assertEquals(Integer.MAX_VALUE + 1L, r.readLong());
@@ -122,14 +122,14 @@ public class BdfReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSkipInt64() throws Exception {
+	public void testSkipLong() throws Exception {
 		setContents("28" + "0000000080000000");
 		r.skipLong();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadFloat() throws Exception {
+	public void testReadDouble() throws Exception {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
 		// http://steve.hollasch.net/cgindex/coding/ieeefloat.html
 		setContents("38" + "0000000000000000" + "38" + "3FF0000000000000"
