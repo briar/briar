@@ -33,7 +33,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		d.put("test", 1337);
 		Metadata metadata = e.encode(d);
 
-		assertEquals(1337L, (long) p.parse(metadata).getInteger("test", 0L));
+		assertEquals(1337L, (long) p.parse(metadata).getLong("test", 0L));
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		Metadata metadata = e.encode(d);
 
 		assertEquals(Long.MAX_VALUE,
-				(long) p.parse(metadata).getInteger("test", 0L));
+				(long) p.parse(metadata).getLong("test", 0L));
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		Metadata metadata = e.encode(d);
 
 		assertEquals(Double.MAX_VALUE,
-				p.parse(metadata).getFloat("test", 0.0), 0);
+				p.parse(metadata).getDouble("test", 0.0), 0);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class MetadataEncoderParserImplTest extends BriarTestCase {
 		Metadata metadata = e.encode(d);
 
 		assertEquals(Float.MIN_NORMAL,
-				p.parse(metadata).getFloat("test", 0.0), 0);
+				p.parse(metadata).getDouble("test", 0.0), 0);
 	}
 
 	@Test

@@ -35,10 +35,10 @@ public class BdfListTest extends BriarTestCase {
 		list.add((short) 2);
 		list.add(3);
 		list.add(4L);
-		assertEquals(Long.valueOf(1), list.getInteger(0));
-		assertEquals(Long.valueOf(2), list.getInteger(1));
-		assertEquals(Long.valueOf(3), list.getInteger(2));
-		assertEquals(Long.valueOf(4), list.getInteger(3));
+		assertEquals(Long.valueOf(1), list.getLong(0));
+		assertEquals(Long.valueOf(2), list.getLong(1));
+		assertEquals(Long.valueOf(3), list.getLong(2));
+		assertEquals(Long.valueOf(4), list.getLong(3));
 	}
 
 	@Test
@@ -46,8 +46,8 @@ public class BdfListTest extends BriarTestCase {
 		BdfList list = new BdfList();
 		list.add(1F);
 		list.add(2D);
-		assertEquals(Double.valueOf(1), list.getFloat(0));
-		assertEquals(Double.valueOf(2), list.getFloat(1));
+		assertEquals(Double.valueOf(1), list.getDouble(0));
+		assertEquals(Double.valueOf(2), list.getDouble(1));
 	}
 
 	@Test

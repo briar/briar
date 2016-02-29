@@ -39,7 +39,7 @@ public class BdfList extends Vector<Object> {
 		return defaultValue;
 	}
 
-	public Long getInteger(int index) throws FormatException {
+	public Long getLong(int index) throws FormatException {
 		Object o = get(index);
 		if (o instanceof Long) return (Long) o;
 		if (o instanceof Integer) return ((Integer) o).longValue();
@@ -48,7 +48,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
-	public Long getInteger(int index, Long defaultValue) {
+	public Long getLong(int index, Long defaultValue) {
 		Object o = get(index);
 		if (o instanceof Long) return (Long) o;
 		if (o instanceof Integer) return ((Integer) o).longValue();
@@ -57,14 +57,14 @@ public class BdfList extends Vector<Object> {
 		return defaultValue;
 	}
 
-	public Double getFloat(int index) throws FormatException {
+	public Double getDouble(int index) throws FormatException {
 		Object o = get(index);
 		if (o instanceof Double) return (Double) o;
 		if (o instanceof Float) return ((Float) o).doubleValue();
 		throw new FormatException();
 	}
 
-	public Double getFloat(int index, Double defaultValue) {
+	public Double getDouble(int index, Double defaultValue) {
 		Object o = get(index);
 		if (o instanceof Double) return (Double) o;
 		if (o instanceof Float) return ((Float) o).doubleValue();

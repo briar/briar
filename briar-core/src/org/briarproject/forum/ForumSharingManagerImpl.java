@@ -331,7 +331,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
 			BdfDictionary d = metadataParser.parse(e.getValue());
 			if (d.getBoolean("local") != local) continue;
-			long version = d.getInteger("version");
+			long version = d.getLong("version");
 			if (latest == null || version > latest.version)
 				latest = new LatestUpdate(e.getKey(), version);
 		}
@@ -408,7 +408,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 			throws DbException, FormatException {
 		Metadata meta = db.getGroupMetadata(txn, contactGroupId);
 		BdfDictionary d = metadataParser.parse(meta);
-		return new ContactId(d.getInteger("contactId").intValue());
+		return new ContactId(d.getLong("contactId").intValue());
 	}
 
 	private Set<GroupId> getVisibleForums(Transaction txn,

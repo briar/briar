@@ -132,7 +132,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 				db.endTransaction(txn);
 			}
 			BdfDictionary d = metadataParser.parse(meta);
-			return new ContactId(d.getInteger("contactId").intValue());
+			return new ContactId(d.getLong("contactId").intValue());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -173,7 +173,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			if (m == null) continue;
 			try {
 				BdfDictionary d = metadataParser.parse(m);
-				long timestamp = d.getInteger("timestamp");
+				long timestamp = d.getLong("timestamp");
 				String contentType = d.getString("contentType");
 				boolean local = d.getBoolean("local");
 				boolean read = d.getBoolean("read");

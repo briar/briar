@@ -307,7 +307,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			BdfDictionary d = metadataParser.parse(e.getValue());
 			if (d.getBoolean("local") == local) {
 				TransportId t = new TransportId(d.getString("transportId"));
-				long version = d.getInteger("version");
+				long version = d.getLong("version");
 				LatestUpdate latest = latestUpdates.get(t);
 				if (latest == null || version > latest.version)
 					latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
@@ -324,7 +324,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			BdfDictionary d = metadataParser.parse(e.getValue());
 			if (d.getString("transportId").equals(t.getString())
 					&& d.getBoolean("local") == local) {
-				long version = d.getInteger("version");
+				long version = d.getLong("version");
 				if (latest == null || version > latest.version)
 					latest = new LatestUpdate(e.getKey(), version);
 			}

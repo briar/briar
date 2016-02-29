@@ -46,7 +46,7 @@ public class BdfDictionary extends Hashtable<String, Object> {
 		return defaultValue;
 	}
 
-	public Long getInteger(String key) throws FormatException {
+	public Long getLong(String key) throws FormatException {
 		Object o = get(key);
 		if (o instanceof Long) return (Long) o;
 		if (o instanceof Integer) return ((Integer) o).longValue();
@@ -55,7 +55,7 @@ public class BdfDictionary extends Hashtable<String, Object> {
 		throw new FormatException();
 	}
 
-	public Long getInteger(String key, Long defaultValue) {
+	public Long getLong(String key, Long defaultValue) {
 		Object o = get(key);
 		if (o instanceof Long) return (Long) o;
 		if (o instanceof Integer) return ((Integer) o).longValue();
@@ -64,14 +64,14 @@ public class BdfDictionary extends Hashtable<String, Object> {
 		return defaultValue;
 	}
 
-	public Double getFloat(String key) throws FormatException {
+	public Double getDouble(String key) throws FormatException {
 		Object o = get(key);
 		if (o instanceof Double) return (Double) o;
 		if (o instanceof Float) return ((Float) o).doubleValue();
 		throw new FormatException();
 	}
 
-	public Double getFloat(String key, Double defaultValue) {
+	public Double getDouble(String key, Double defaultValue) {
 		Object o = get(key);
 		if (o instanceof Double) return (Double) o;
 		if (o instanceof Float) return ((Float) o).doubleValue();

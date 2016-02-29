@@ -201,7 +201,7 @@ class ForumManagerImpl implements ForumManager {
 		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
 			try {
 				BdfDictionary d = metadataParser.parse(e.getValue());
-				long timestamp = d.getInteger("timestamp");
+				long timestamp = d.getLong("timestamp");
 				Author author = null;
 				Author.Status authorStatus = ANONYMOUS;
 				BdfDictionary d1 = d.getDictionary("author", null);

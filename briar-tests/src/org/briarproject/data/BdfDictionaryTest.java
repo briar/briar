@@ -35,10 +35,10 @@ public class BdfDictionaryTest extends BriarTestCase {
 		d.put("bar", (short) 2);
 		d.put("baz", 3);
 		d.put("bam", 4L);
-		assertEquals(Long.valueOf(1), d.getInteger("foo"));
-		assertEquals(Long.valueOf(2), d.getInteger("bar"));
-		assertEquals(Long.valueOf(3), d.getInteger("baz"));
-		assertEquals(Long.valueOf(4), d.getInteger("bam"));
+		assertEquals(Long.valueOf(1), d.getLong("foo"));
+		assertEquals(Long.valueOf(2), d.getLong("bar"));
+		assertEquals(Long.valueOf(3), d.getLong("baz"));
+		assertEquals(Long.valueOf(4), d.getLong("bam"));
 	}
 
 	@Test
@@ -46,8 +46,8 @@ public class BdfDictionaryTest extends BriarTestCase {
 		BdfDictionary d = new BdfDictionary();
 		d.put("foo", 1F);
 		d.put("bar", 2D);
-		assertEquals(Double.valueOf(1), d.getFloat("foo"));
-		assertEquals(Double.valueOf(2), d.getFloat("bar"));
+		assertEquals(Double.valueOf(1), d.getDouble("foo"));
+		assertEquals(Double.valueOf(2), d.getDouble("bar"));
 	}
 
 	@Test
