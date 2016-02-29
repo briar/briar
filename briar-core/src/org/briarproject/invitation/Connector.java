@@ -22,9 +22,7 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
@@ -52,8 +50,6 @@ abstract class Connector extends Thread {
 	protected final StreamReaderFactory streamReaderFactory;
 	protected final StreamWriterFactory streamWriterFactory;
 	protected final AuthorFactory authorFactory;
-	protected final GroupFactory groupFactory;
-	protected final KeyManager keyManager;
 	protected final ConnectionManager connectionManager;
 	protected final ContactManager contactManager;
 	protected final Clock clock;
@@ -74,8 +70,7 @@ abstract class Connector extends Thread {
 			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
-			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionManager connectionManager,
+			AuthorFactory authorFactory, ConnectionManager connectionManager,
 			ContactManager contactManager, Clock clock, ConnectorGroup group,
 			DuplexPlugin plugin, LocalAuthor localAuthor, PseudoRandom random) {
 		super("Connector");
@@ -85,8 +80,6 @@ abstract class Connector extends Thread {
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
-		this.groupFactory = groupFactory;
-		this.keyManager = keyManager;
 		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
 		this.clock = clock;
@@ -219,9 +212,7 @@ abstract class Connector extends Thread {
 			long timestamp, boolean alice) throws DbException {
 		// Add the contact to the database
 		contactId = contactManager.addContact(remoteAuthor,
-				localAuthor.getId(), true);
-		// Derive transport keys
-		keyManager.addContact(contactId, master, timestamp, alice);
+				localAuthor.getId(), master, timestamp, alice, true);
 		return contactId;
 	}
 

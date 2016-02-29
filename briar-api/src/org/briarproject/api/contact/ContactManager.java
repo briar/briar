@@ -1,5 +1,6 @@
 package org.briarproject.api.contact;
 
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
@@ -19,8 +20,8 @@ public interface ContactManager {
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
-	ContactId addContact(Author remote, AuthorId local, boolean active)
-			throws DbException;
+	ContactId addContact(Author remote, AuthorId local, SecretKey master,
+			long timestamp, boolean alice, boolean active) throws DbException;
 
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;

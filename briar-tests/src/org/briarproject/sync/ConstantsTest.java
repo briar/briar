@@ -31,6 +31,7 @@ import org.briarproject.event.EventModule;
 import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.messaging.MessagingModule;
+import org.briarproject.transport.TransportModule;
 import org.junit.Test;
 
 import java.util.Random;
@@ -57,7 +58,8 @@ public class ConstantsTest extends BriarTestCase {
 				new TestLifecycleModule(), new TestSystemModule(),
 				new ContactModule(), new CryptoModule(), new DatabaseModule(),
 				new DataModule(), new EventModule(), new ForumModule(),
-				new IdentityModule(), new MessagingModule(), new SyncModule());
+				new IdentityModule(), new MessagingModule(), new SyncModule(),
+				new TransportModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		authorFactory = i.getInstance(AuthorFactory.class);
 		privateMessageFactory = i.getInstance(PrivateMessageFactory.class);

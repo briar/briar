@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
@@ -12,6 +13,7 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.transport.KeyManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,12 +24,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 
 	private final DatabaseComponent db;
+	private final KeyManager keyManager;
 	private final List<AddContactHook> addHooks;
 	private final List<RemoveContactHook> removeHooks;
 
 	@Inject
-	ContactManagerImpl(DatabaseComponent db) {
+	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager) {
 		this.db = db;
+		this.keyManager = keyManager;
 		addHooks = new CopyOnWriteArrayList<AddContactHook>();
 		removeHooks = new CopyOnWriteArrayList<RemoveContactHook>();
 	}
@@ -43,12 +47,14 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	}
 
 	@Override
-	public ContactId addContact(Author remote, AuthorId local, boolean active)
+	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
+			long timestamp, boolean alice, boolean active)
 			throws DbException {
 		ContactId c;
 		Transaction txn = db.startTransaction();
 		try {
 			c = db.addContact(txn, remote, local, active);
+			keyManager.addContact(txn, c, master, timestamp, alice);
 			Contact contact = db.getContact(txn, c);
 			for (AddContactHook hook : addHooks)
 				hook.addingContact(txn, contact);

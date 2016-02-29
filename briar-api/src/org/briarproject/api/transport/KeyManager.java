@@ -3,6 +3,8 @@ package org.briarproject.api.transport;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 
 /**
  * Responsible for managing transport keys and recognising the pseudo-random
@@ -16,8 +18,8 @@ public interface KeyManager {
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
 	 */
-	void addContact(ContactId c, SecretKey master, long timestamp,
-			boolean alice);
+	void addContact(Transaction txn, ContactId c, SecretKey master,
+			long timestamp, boolean alice) throws DbException;
 
 	/**
 	 * Returns a {@link StreamContext} for sending a stream to the given

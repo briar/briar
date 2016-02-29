@@ -135,9 +135,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author bobAuthor = new Author(bobId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(bobAuthor, aliceId,
-				true);
-		// Derive and store the transport keys
-		keyManager.addContact(contactId, master, timestamp, true);
+				master, timestamp, true, true);
 
 		// Send Bob a message
 		GroupId groupId = messagingManager.getConversationId(contactId);
@@ -206,9 +204,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author aliceAuthor = new Author(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(aliceAuthor, bobId,
-				true);
-		// Derive and store the transport keys
-		keyManager.addContact(contactId, master, timestamp, false);
+				master, timestamp, false, true);
 
 		// Set up an event listener
 		MessageListener listener = new MessageListener();

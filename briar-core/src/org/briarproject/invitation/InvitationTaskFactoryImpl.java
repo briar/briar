@@ -11,9 +11,7 @@ import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
@@ -27,8 +25,6 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 	private final AuthorFactory authorFactory;
-	private final GroupFactory groupFactory;
-	private final KeyManager keyManager;
 	private final ConnectionManager connectionManager;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
@@ -40,8 +36,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			BdfReaderFactory bdfReaderFactory, BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
-			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionManager connectionManager,
+			AuthorFactory authorFactory, ConnectionManager connectionManager,
 			IdentityManager identityManager, ContactManager contactManager,
 			Clock clock, PluginManager pluginManager) {
 		this.crypto = crypto;
@@ -50,8 +45,6 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 		this.authorFactory = authorFactory;
-		this.groupFactory = groupFactory;
-		this.keyManager = keyManager;
 		this.connectionManager = connectionManager;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
@@ -63,8 +56,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			int remoteCode) {
 		return new ConnectorGroup(crypto, bdfReaderFactory, bdfWriterFactory,
 				streamReaderFactory, streamWriterFactory, authorFactory,
-				groupFactory, keyManager, connectionManager, identityManager,
-				contactManager, clock, pluginManager, localAuthorId, localCode,
-				remoteCode);
+				connectionManager, identityManager, contactManager, clock,
+				pluginManager, localAuthorId, localCode, remoteCode);
 	}
 }
