@@ -86,8 +86,8 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public BdfDictionary getMessageAsDictionary(MessageId m)
-			throws DbException, FormatException {
+	public BdfDictionary getMessageAsDictionary(MessageId m) throws DbException,
+			FormatException {
 		BdfDictionary dictionary;
 		Transaction txn = db.startTransaction();
 		try {
@@ -120,8 +120,8 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public BdfList getMessageAsList(MessageId m)
-			throws DbException, FormatException {
+	public BdfList getMessageAsList(MessageId m) throws DbException,
+			FormatException {
 		BdfList list;
 		Transaction txn = db.startTransaction();
 		try {
@@ -154,12 +154,12 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public BdfDictionary getGroupMetadata(GroupId g)
+	public BdfDictionary getGroupMetadataAsDictionary(GroupId g)
 			throws DbException, FormatException {
 		BdfDictionary dictionary;
 		Transaction txn = db.startTransaction();
 		try {
-			dictionary = getGroupMetadata(txn, g);
+			dictionary = getGroupMetadataAsDictionary(txn, g);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -168,19 +168,19 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public BdfDictionary getGroupMetadata(Transaction txn, GroupId g)
-			throws DbException, FormatException {
+	public BdfDictionary getGroupMetadataAsDictionary(Transaction txn,
+			GroupId g) throws DbException, FormatException {
 		Metadata metadata = db.getGroupMetadata(txn, g);
 		return metadataParser.parse(metadata);
 	}
 
 	@Override
-	public BdfDictionary getMessageMetadata(MessageId m)
+	public BdfDictionary getMessageMetadataAsDictionary(MessageId m)
 			throws DbException, FormatException {
 		BdfDictionary dictionary;
 		Transaction txn = db.startTransaction();
 		try {
-			dictionary = getMessageMetadata(txn, m);
+			dictionary = getMessageMetadataAsDictionary(txn, m);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -189,19 +189,19 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public BdfDictionary getMessageMetadata(Transaction txn, MessageId m)
-			throws DbException, FormatException {
+	public BdfDictionary getMessageMetadataAsDictionary(Transaction txn,
+			MessageId m) throws DbException, FormatException {
 		Metadata metadata = db.getMessageMetadata(txn, m);
 		return metadataParser.parse(metadata);
 	}
 
 	@Override
-	public Map<MessageId, BdfDictionary> getMessageMetatata(GroupId g)
-			throws DbException, FormatException {
+	public Map<MessageId, BdfDictionary> getMessageMetatataAsDictionary(
+			GroupId g) throws DbException, FormatException {
 		Map<MessageId, BdfDictionary> map;
 		Transaction txn = db.startTransaction();
 		try {
-			map = getMessageMetadata(txn, g);
+			map = getMessageMetadataAsDictionary(txn, g);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -210,8 +210,8 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public Map<MessageId, BdfDictionary> getMessageMetadata(Transaction txn,
-			GroupId g) throws DbException, FormatException {
+	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
+			Transaction txn, GroupId g) throws DbException, FormatException {
 		Map<MessageId, Metadata> raw = db.getMessageMetadata(txn, g);
 		Map<MessageId, BdfDictionary> parsed =
 				new HashMap<MessageId, BdfDictionary>(raw.size());

@@ -30,23 +30,23 @@ public interface ClientHelper {
 	BdfList getMessageAsList(Transaction txn, MessageId m) throws DbException,
 			FormatException;
 
-	BdfDictionary getGroupMetadata(GroupId g) throws DbException,
+	BdfDictionary getGroupMetadataAsDictionary(GroupId g) throws DbException,
 			FormatException;
 
-	BdfDictionary getGroupMetadata(Transaction txn, GroupId g)
+	BdfDictionary getGroupMetadataAsDictionary(Transaction txn, GroupId g)
 			throws DbException, FormatException;
 
-	BdfDictionary getMessageMetadata(MessageId m) throws DbException,
+	BdfDictionary getMessageMetadataAsDictionary(MessageId m) throws DbException,
 			FormatException;
 
-	BdfDictionary getMessageMetadata(Transaction txn, MessageId m)
+	BdfDictionary getMessageMetadataAsDictionary(Transaction txn, MessageId m)
 			throws DbException, FormatException;
 
-	Map<MessageId, BdfDictionary> getMessageMetatata(GroupId g)
+	Map<MessageId, BdfDictionary> getMessageMetatataAsDictionary(GroupId g)
 			throws DbException, FormatException;
 
-	Map<MessageId, BdfDictionary> getMessageMetadata(Transaction txn, GroupId g)
-			throws DbException, FormatException;
+	Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
+			Transaction txn, GroupId g) throws DbException, FormatException;
 
 	void mergeGroupMetadata(GroupId g, BdfDictionary metadata)
 			throws DbException, FormatException;
