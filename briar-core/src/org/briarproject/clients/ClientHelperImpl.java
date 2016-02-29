@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+
 class ClientHelperImpl implements ClientHelper {
 
 	private final DatabaseComponent db;
@@ -104,7 +106,8 @@ class ClientHelperImpl implements ClientHelper {
 			throws DbException, FormatException {
 		byte[] raw = db.getRawMessage(txn, m);
 		if (raw == null) return null;
-		ByteArrayInputStream in = new ByteArrayInputStream(raw);
+		ByteArrayInputStream in = new ByteArrayInputStream(raw,
+				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 		BdfReader reader = bdfReaderFactory.createReader(in);
 		BdfDictionary dictionary;
 		try {
@@ -138,7 +141,8 @@ class ClientHelperImpl implements ClientHelper {
 			throws DbException, FormatException {
 		byte[] raw = db.getRawMessage(txn, m);
 		if (raw == null) return null;
-		ByteArrayInputStream in = new ByteArrayInputStream(raw);
+		ByteArrayInputStream in = new ByteArrayInputStream(raw,
+				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
 		BdfReader reader = bdfReaderFactory.createReader(in);
 		BdfList list;
 		try {
