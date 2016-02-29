@@ -3,8 +3,8 @@ package org.briarproject.properties;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ValidationManager;
@@ -21,10 +21,10 @@ public class PropertiesModule extends AbstractModule {
 
 	@Provides @Singleton
 	TransportPropertyValidator getValidator(ValidationManager validationManager,
-			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		TransportPropertyValidator validator = new TransportPropertyValidator(
-				bdfReaderFactory, metadataEncoder, clock);
+				clientHelper, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}

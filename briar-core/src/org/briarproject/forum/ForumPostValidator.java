@@ -2,164 +2,114 @@ package org.briarproject.forum;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
-import org.briarproject.api.data.BdfReader;
-import org.briarproject.api.data.BdfReaderFactory;
-import org.briarproject.api.data.BdfWriter;
-import org.briarproject.api.data.BdfWriterFactory;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.data.ObjectReader;
-import org.briarproject.api.db.Metadata;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.MessageValidator;
 import org.briarproject.api.system.Clock;
+import org.briarproject.clients.BdfMessageValidator;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.logging.Logger;
 
 import static org.briarproject.api.forum.ForumConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
-class ForumPostValidator implements MessageValidator {
-
-	private static final Logger LOG =
-			Logger.getLogger(ForumPostValidator.class.getName());
+class ForumPostValidator extends BdfMessageValidator {
 
 	private final CryptoComponent crypto;
-	private final BdfReaderFactory bdfReaderFactory;
-	private final BdfWriterFactory bdfWriterFactory;
-	private final ObjectReader<Author> authorReader;
-	private final MetadataEncoder metadataEncoder;
-	private final Clock clock;
-	private final KeyParser keyParser;
+	private final AuthorFactory authorFactory;
 
-	ForumPostValidator(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory,
-			BdfWriterFactory bdfWriterFactory,
-			ObjectReader<Author> authorReader,
-			MetadataEncoder metadataEncoder, Clock clock) {
+	ForumPostValidator(CryptoComponent crypto, AuthorFactory authorFactory,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
+			Clock clock) {
+		super(clientHelper, metadataEncoder, clock);
 		this.crypto = crypto;
-		this.bdfReaderFactory = bdfReaderFactory;
-		this.bdfWriterFactory = bdfWriterFactory;
-		this.authorReader = authorReader;
-		this.metadataEncoder = metadataEncoder;
-		this.clock = clock;
-		keyParser = crypto.getSignatureKeyParser();
+		this.authorFactory = authorFactory;
 	}
 
 	@Override
-	public Metadata validateMessage(Message m, Group g) {
-		// Reject the message if it's too far in the future
-		long now = clock.currentTimeMillis();
-		if (m.getTimestamp() - now > MAX_CLOCK_DIFFERENCE) {
-			LOG.info("Timestamp is too far in the future");
+	protected BdfDictionary validateMessage(BdfList message, Group g,
+			long timestamp) throws FormatException {
+		// Parent ID, author, content type, forum post body, signature
+		checkSize(message, 5);
+		// Parent ID is optional
+		byte[] parent = message.getOptionalRaw(0);
+		checkLength(parent, UniqueId.LENGTH);
+		// Author is optional
+		Author author = null;
+		BdfList authorList = message.getOptionalList(1);
+		if (authorList != null) {
+			// Name, public key
+			checkSize(authorList, 2);
+			String name = authorList.getString(0);
+			checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
+			byte[] publicKey = authorList.getRaw(1);
+			checkLength(publicKey, 0, MAX_PUBLIC_KEY_LENGTH);
+			author = authorFactory.createAuthor(name, publicKey);
+		}
+		// Content type
+		String contentType = message.getString(2);
+		checkLength(contentType, 0, MAX_CONTENT_TYPE_LENGTH);
+		// Forum post body
+		byte[] body = message.getRaw(3);
+		checkLength(body, 0, MAX_FORUM_POST_BODY_LENGTH);
+		// Signature is optional
+		byte[] sig = message.getOptionalRaw(4);
+		checkLength(sig, 0, MAX_SIGNATURE_LENGTH);
+		// If there's an author there must be a signature and vice versa
+		if (author != null && sig == null) {
+			LOG.info("Author without signature");
 			return null;
 		}
-		try {
-			// Parse the message body
-			byte[] raw = m.getRaw();
-			ByteArrayInputStream in = new ByteArrayInputStream(raw,
-					MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
-			BdfReader r = bdfReaderFactory.createReader(in);
-			MessageId parent = null;
-			Author author = null;
-			byte[] sig = null;
-			r.readListStart();
-			// Read the parent ID, if any
-			if (r.hasRaw()) {
-				byte[] id = r.readRaw(UniqueId.LENGTH);
-				if (id.length < UniqueId.LENGTH) throw new FormatException();
-				parent = new MessageId(id);
-			} else {
-				r.readNull();
-			}
-			// Read the author, if any
-			if (r.hasList()) author = authorReader.readObject(r);
-			else r.readNull();
-			// Read the content type
-			String contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
-			// Read the forum post body
-			byte[] postBody = r.readRaw(MAX_FORUM_POST_BODY_LENGTH);
-
-			// Read the signature, if any
-			if (r.hasRaw()) sig = r.readRaw(MAX_SIGNATURE_LENGTH);
-			else r.readNull();
-			r.readListEnd();
-			if (!r.eof()) throw new FormatException();
-			// If there's an author there must be a signature and vice versa
-			if (author != null && sig == null) {
-				LOG.info("Author without signature");
-				return null;
-			}
-			if (author == null && sig != null) {
-				LOG.info("Signature without author");
-				return null;
-			}
-			// Verify the signature, if any
-			if (author != null) {
+		if (author == null && sig != null) {
+			LOG.info("Signature without author");
+			return null;
+		}
+		// Verify the signature, if any
+		if (author != null) {
+			try {
 				// Parse the public key
+				KeyParser keyParser = crypto.getSignatureKeyParser();
 				PublicKey key = keyParser.parsePublicKey(author.getPublicKey());
 				// Serialise the data to be signed
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				BdfWriter w = bdfWriterFactory.createWriter(out);
-				w.writeListStart();
-				w.writeRaw(m.getGroupId().getBytes());
-				w.writeLong(m.getTimestamp());
-				if (parent == null) w.writeNull();
-				else w.writeRaw(parent.getBytes());
-				writeAuthor(w, author);
-				w.writeString(contentType);
-				w.writeRaw(postBody);
-				w.writeListEnd();
+				BdfList signed = BdfList.of(g.getId(), timestamp, parentId,
+						authorList, contentType, body);
 				// Verify the signature
 				Signature signature = crypto.getSignature();
 				signature.initVerify(key);
-				signature.update(out.toByteArray());
+				signature.update(clientHelper.toByteArray(signed));
 				if (!signature.verify(sig)) {
 					LOG.info("Invalid signature");
 					return null;
 				}
+			} catch (GeneralSecurityException e) {
+				LOG.info("Invalid public key");
+				return null;
 			}
-			// Return the metadata
-			BdfDictionary d = new BdfDictionary();
-			d.put("timestamp", m.getTimestamp());
-			if (parent != null) d.put("parent", parent.getBytes());
-			if (author != null) {
-				BdfDictionary d1 = new BdfDictionary();
-				d1.put("id", author.getId().getBytes());
-				d1.put("name", author.getName());
-				d1.put("publicKey", author.getPublicKey());
-				d.put("author", d1);
-			}
-			d.put("contentType", contentType);
-			d.put("read", false);
-			return metadataEncoder.encode(d);
-		} catch (IOException e) {
-			LOG.info("Invalid forum post");
-			return null;
-		} catch (GeneralSecurityException e) {
-			LOG.info("Invalid public key");
-			return null;
 		}
-	}
-
-	private void writeAuthor(BdfWriter w, Author a) throws IOException {
-		w.writeListStart();
-		w.writeString(a.getName());
-		w.writeRaw(a.getPublicKey());
-		w.writeListEnd();
+		// Return the metadata
+		BdfDictionary meta = new BdfDictionary();
+		meta.put("timestamp", timestamp);
+		if (parentId != null) meta.put("parent", parentId);
+		if (author != null) {
+			BdfDictionary authorMeta = new BdfDictionary();
+			authorMeta.put("id", author.getId().getBytes());
+			authorMeta.put("name", author.getName());
+			authorMeta.put("publicKey", author.getPublicKey());
+			meta.put("author", authorMeta);
+		}
+		meta.put("contentType", contentType);
+		meta.put("read", false);
+		return meta;
 	}
 }
