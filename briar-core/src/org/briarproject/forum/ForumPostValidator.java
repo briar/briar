@@ -82,7 +82,7 @@ class ForumPostValidator extends BdfMessageValidator {
 				KeyParser keyParser = crypto.getSignatureKeyParser();
 				PublicKey key = keyParser.parsePublicKey(author.getPublicKey());
 				// Serialise the data to be signed
-				BdfList signed = BdfList.of(g.getId(), timestamp, parentId,
+				BdfList signed = BdfList.of(g.getId(), timestamp, parent,
 						authorList, contentType, body);
 				// Verify the signature
 				Signature signature = crypto.getSignature();
@@ -100,10 +100,10 @@ class ForumPostValidator extends BdfMessageValidator {
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("timestamp", timestamp);
-		if (parentId != null) meta.put("parent", parentId);
+		if (parent != null) meta.put("parent", parent);
 		if (author != null) {
 			BdfDictionary authorMeta = new BdfDictionary();
-			authorMeta.put("id", author.getId().getBytes());
+			authorMeta.put("id", author.getId());
 			authorMeta.put("name", author.getName());
 			authorMeta.put("publicKey", author.getPublicKey());
 			meta.put("author", authorMeta);

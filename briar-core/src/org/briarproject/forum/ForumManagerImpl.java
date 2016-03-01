@@ -61,15 +61,14 @@ class ForumManagerImpl implements ForumManager {
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put("timestamp", p.getMessage().getTimestamp());
-			if (p.getParent() != null)
-				meta.put("parent", p.getParent().getBytes());
+			if (p.getParent() != null) meta.put("parent", p.getParent());
 			if (p.getAuthor() != null) {
 				Author a = p.getAuthor();
-				BdfDictionary author = new BdfDictionary();
-				author.put("id", a.getId().getBytes());
-				author.put("name", a.getName());
-				author.put("publicKey", a.getPublicKey());
-				meta.put("author", author);
+				BdfDictionary authorMeta = new BdfDictionary();
+				authorMeta.put("id", a.getId());
+				authorMeta.put("name", a.getName());
+				authorMeta.put("publicKey", a.getPublicKey());
+				meta.put("author", authorMeta);
 			}
 			meta.put("contentType", p.getContentType());
 			meta.put("local", true);

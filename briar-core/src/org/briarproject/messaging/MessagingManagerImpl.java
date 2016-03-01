@@ -83,8 +83,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put("timestamp", m.getMessage().getTimestamp());
-			if (m.getParent() != null)
-				meta.put("parent", m.getParent().getBytes());
+			if (m.getParent() != null) meta.put("parent", m.getParent());
 			meta.put("contentType", m.getContentType());
 			meta.put("local", true);
 			meta.put("read", true);
