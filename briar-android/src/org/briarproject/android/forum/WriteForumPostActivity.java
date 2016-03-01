@@ -23,6 +23,7 @@ import org.briarproject.android.identity.LocalAuthorItemComparator;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
 import org.briarproject.android.util.CommonLayoutParams;
 import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyParser;
@@ -39,7 +40,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -281,7 +281,7 @@ implements OnItemSelectedListener, OnClickListener {
 					}
 				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);
-				} catch (IOException e) {
+				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
 				storePost(p);
