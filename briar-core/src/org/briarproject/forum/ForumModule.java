@@ -27,11 +27,10 @@ public class ForumModule {
 	@Provides
 	@Singleton
 	ForumManager provideForumManager(DatabaseComponent db,
-			ContactManager contactManager,
-			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
-			MetadataParser metadataParser) {
-		return new ForumManagerImpl(db, contactManager, bdfReaderFactory,
-				metadataEncoder, metadataParser);
+			ContactManager contactManager, BdfReaderFactory bdfReaderFactory,
+			MetadataEncoder metadataEncoder, MetadataParser metadataParser) {
+		return new ForumManagerImpl(db, bdfReaderFactory, metadataEncoder,
+				metadataParser);
 	}
 
 	@Provides

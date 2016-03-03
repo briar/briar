@@ -17,7 +17,6 @@ public class ContactModule {
 	ContactManager getContactManager(LifecycleManager lifecycleManager,
 			IdentityManager identityManager,
 			ContactManagerImpl contactManager) {
-		lifecycleManager.register(contactManager);
 		identityManager.registerRemoveIdentityHook(contactManager);
 		return contactManager;
 	}

@@ -1,8 +1,14 @@
 package org.briarproject.identity;
 
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.data.BdfWriterFactory;
+import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.system.Clock;
 
 import javax.inject.Singleton;
 
@@ -13,8 +19,18 @@ import dagger.Provides;
 public class IdentityModule {
 
 	@Provides
-	@Singleton
-	IdentityManager provideIdendityModule(DatabaseComponent db, EventBus eventBus) {
-		return new IdentityManagerImpl(db, eventBus);
+	AuthorFactory provideAuthorFactory(CryptoComponent crypto,
+			BdfWriterFactory bdfWriterFactory, Clock clock) {
+		return new AuthorFactoryImpl(crypto, bdfWriterFactory, clock);
+	}
+
+	@Provides
+	IdentityManager provideIdendityModule(DatabaseComponent db) {
+		return new IdentityManagerImpl(db);
+	}
+
+	@Provides
+	ObjectReader<Author> provideAuthorReader(AuthorFactory authorFactory) {
+		return new AuthorReader(authorFactory);
 	}
 }

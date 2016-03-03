@@ -37,12 +37,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-<<<<<<< 08099714bab27d1ed48a8bee431a35a38098ecec
-=======
 import javax.inject.Inject;
 
-import static java.util.logging.Level.WARNING;
->>>>>>> Switched Roboguice/Guice out for Dagger 2
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;

@@ -11,22 +11,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-<<<<<<< 08099714bab27d1ed48a8bee431a35a38098ecec
-class IdentityManagerImpl implements IdentityManager {
-=======
 import javax.inject.Inject;
 
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.db.StorageStatus.ACTIVE;
-import static org.briarproject.api.db.StorageStatus.ADDING;
-import static org.briarproject.api.db.StorageStatus.REMOVING;
-
-class IdentityManagerImpl implements IdentityManager, Service {
-
-	private static final Logger LOG =
-			Logger.getLogger(IdentityManagerImpl.class.getName());
->>>>>>> Switched Roboguice/Guice out for Dagger 2
-
+class IdentityManagerImpl implements IdentityManager {
 	private final DatabaseComponent db;
 	private final List<AddIdentityHook> addHooks;
 	private final List<RemoveIdentityHook> removeHooks;

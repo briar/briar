@@ -14,6 +14,7 @@ import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
@@ -33,7 +34,7 @@ import dagger.Component;
 		LifecycleModule.class, ContactModule.class, CryptoModule.class,
 		DatabaseModule.class, EventModule.class, SyncModule.class,
 		DataModule.class, TransportModule.class, IdentityModule.class,
-		MessagingModule.class})
+		MessagingModule.class, ClientsModule.class})
 public interface SimplexMessagingComponent {
 	void inject(SimplexMessagingIntegrationTest testCase);
 	LifecycleManager getLifeCycleManager();

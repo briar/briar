@@ -1,6 +1,7 @@
 package org.briarproject.sync;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.ImmediateExecutor;
 import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
@@ -8,7 +9,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.StorageStatus;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
@@ -31,7 +32,6 @@ import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.plugins.ImmediateExecutor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,6 +79,140 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		read(write());
 	}
 
+	private byte[] write() throws Exception {
+		// Instantiate Alice's services
+		LifecycleManager lifecycleManager = alice.getLifeCycleManager();
+		DatabaseComponent db = alice.getDatabaseComponent();
+		IdentityManager identityManager = alice.getIdentityManager();
+		ContactManager contactManager = alice.getContactManager();
+		MessagingManager messagingManager = alice.getMessagingManager();
+		KeyManager keyManager = alice.getKeyManager();
+		PrivateMessageFactory privateMessageFactory =
+				alice.getPrivateMessageFactory();
+		PacketWriterFactory packetWriterFactory =
+				alice.getPacketWriterFactory();
+		EventBus eventBus = alice.getEventBus();
+		StreamWriterFactory streamWriterFactory =
+				alice.getStreamWriterFactory();
+
+		// Start the lifecycle manager
+		lifecycleManager.startServices();
+		lifecycleManager.waitForStartup();
+		// Add a transport
+		Transaction txn = db.startTransaction();
+		try {
+			db.addTransport(txn, transportId, MAX_LATENCY);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		// Add an identity for Alice
+		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
+		identityManager.addLocalAuthor(aliceAuthor);
+		// Add Bob as a contact
+		Author bobAuthor = new Author(bobId, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH]);
+		ContactId contactId = contactManager.addContact(bobAuthor, aliceId,
+				master, timestamp, true, true);
+
+		// Send Bob a message
+		GroupId groupId = messagingManager.getConversationId(contactId);
+		byte[] body = "Hi Bob!".getBytes("UTF-8");
+		PrivateMessage message = privateMessageFactory.createPrivateMessage(
+				groupId, timestamp, null, "text/plain", body);
+		messagingManager.addLocalMessage(message);
+		// Get a stream context
+		StreamContext ctx = keyManager.getStreamContext(contactId, transportId);
+		assertNotNull(ctx);
+		// Create a stream writer
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
+				out, ctx);
+		// Create an outgoing sync session
+		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
+				streamWriter);
+		SyncSession session = new SimplexOutgoingSession(db,
+				new ImmediateExecutor(), eventBus, contactId, transportId,
+				MAX_LATENCY, packetWriter);
+		// Write whatever needs to be written
+		session.run();
+		streamWriter.close();
+
+		// Clean up
+		lifecycleManager.stopServices();
+		lifecycleManager.waitForShutdown();
+
+		// Return the contents of the stream
+		return out.toByteArray();
+	}
+
+	private void read(byte[] stream) throws Exception {
+		// Instantiate Bob's services
+		LifecycleManager lifecycleManager = bob.getLifeCycleManager();
+		DatabaseComponent db = bob.getDatabaseComponent();
+		IdentityManager identityManager = bob.getIdentityManager();
+		ContactManager contactManager = bob.getContactManager();
+		KeyManager keyManager = bob.getKeyManager();
+		StreamReaderFactory streamReaderFactory = bob.getStreamReaderFactory();
+		PacketReaderFactory packetReaderFactory = bob.getPacketReaderFactory();
+		EventBus eventBus = bob.getEventBus();
+		// Bob needs a MessagingManager even though we're not using it directly
+		bob.getMessagingManager();
+
+		// Start the lifecyle manager
+		lifecycleManager.startServices();
+		lifecycleManager.waitForStartup();
+		// Add a transport
+		Transaction txn = db.startTransaction();
+		try {
+			db.addTransport(txn, transportId, MAX_LATENCY);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		// Add an identity for Bob
+		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
+		identityManager.addLocalAuthor(bobAuthor);
+		// Add Alice as a contact
+		Author aliceAuthor = new Author(aliceId, "Alice",
+				new byte[MAX_PUBLIC_KEY_LENGTH]);
+		ContactId contactId = contactManager.addContact(aliceAuthor, bobId,
+				master, timestamp, false, true);
+
+		// Set up an event listener
+		MessageListener listener = new MessageListener();
+		bob.getEventBus().addListener(listener);
+		// Read and recognise the tag
+		ByteArrayInputStream in = new ByteArrayInputStream(stream);
+		byte[] tag = new byte[TAG_LENGTH];
+		int read = in.read(tag);
+		assertEquals(tag.length, read);
+		StreamContext ctx = keyManager.getStreamContext(transportId, tag);
+		assertNotNull(ctx);
+		// Create a stream reader
+		InputStream streamReader = streamReaderFactory.createStreamReader(
+				in, ctx);
+		// Create an incoming sync session
+		PacketReader packetReader = packetReaderFactory.createPacketReader(
+				streamReader);
+		SyncSession session = new IncomingSession(db, new ImmediateExecutor(),
+				eventBus, contactId, transportId, packetReader);
+		// No messages should have been added yet
+		assertFalse(listener.messageAdded);
+		// Read whatever needs to be read
+		session.run();
+		streamReader.close();
+		// The private message from Alice should have been added
+		assertTrue(listener.messageAdded);
+
+		// Clean up
+		lifecycleManager.stopServices();
+		lifecycleManager.waitForShutdown();
+	}
+
+	/*
 	private byte[] write() throws Exception {
 		// Instantiate Alice's services
 		LifecycleManager lifecycleManager = alice.getLifeCycleManager();
@@ -201,6 +335,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		lifecycleManager.stopServices();
 		lifecycleManager.waitForShutdown();
 	}
+	*/
 
 	@After
 	public void tearDown() {

@@ -30,13 +30,12 @@ public class InvitationModule {
 			BdfWriterFactory bdfWriterFactory,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
-			AuthorFactory authorFactory, GroupFactory groupFactory,
-			KeyManager keyManager, ConnectionManager connectionManager,
+			AuthorFactory authorFactory, ConnectionManager connectionManager,
 			IdentityManager identityManager, ContactManager contactManager,
 			Clock clock, PluginManager pluginManager) {
 		return new InvitationTaskFactoryImpl(crypto, bdfReaderFactory,
 				bdfWriterFactory, streamReaderFactory, streamWriterFactory,
-				authorFactory, groupFactory, keyManager, connectionManager,
-				identityManager, contactManager, clock, pluginManager);
+				authorFactory, connectionManager, identityManager,
+				contactManager, clock, pluginManager);
 	}
 }

@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
@@ -14,6 +15,7 @@ import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
+import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import dagger.Module;
@@ -24,9 +26,15 @@ import dagger.Provides;
 public class PluginsModule {
 
 	@Provides
+	BackoffFactory provideBackoffFactory() {
+		return new BackoffFactoryImpl();
+	}
+
+	@Provides
 	Poller providePoller(@IoExecutor Executor ioExecutor,
-			ConnectionRegistry connectionRegistry, Timer timer) {
-		return new PollerImpl(ioExecutor, connectionRegistry, timer);
+			ConnectionRegistry connectionRegistry, SecureRandom random,
+			Timer timer) {
+		return new PollerImpl(ioExecutor, connectionRegistry, random, timer);
 	}
 
 	@Provides

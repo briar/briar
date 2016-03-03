@@ -14,6 +14,7 @@ import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
+import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
@@ -44,7 +45,7 @@ import dagger.Component;
 				EventModule.class, DataModule.class, ContactModule.class,
 				AndroidSystemModule.class, AndroidPluginsModule.class,
 				PropertiesModule.class, TransportModule.class, SyncModule.class,
-				SettingsModule.class})
+				SettingsModule.class, ClientsModule.class})
 public interface AndroidComponent {
 	void inject(SplashScreenActivity activity);
 	void inject(SetupActivity activity);
