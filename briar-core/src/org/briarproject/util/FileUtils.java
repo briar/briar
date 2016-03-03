@@ -8,7 +8,9 @@ public class FileUtils {
 		if (f.isFile()) {
 			f.delete();
 		} else if (f.isDirectory()) {
-			for (File child : f.listFiles()) deleteFileOrDir(child);
+			File[] children = f.listFiles();
+			if (children != null)
+				for (File child : children) deleteFileOrDir(child);
 			f.delete();
 		}
 	}

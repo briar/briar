@@ -7,8 +7,10 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.design.widget.TextInputLayout;
 
+import org.briarproject.util.FileUtils;
 import org.briarproject.util.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,5 +72,16 @@ public class AndroidUtils {
 		return !StringUtils.isNullOrEmpty(address)
 				&& BluetoothAdapter.checkBluetoothAddress(address)
 				&& !address.equals(FAKE_BLUETOOTH_ADDRESS);
+	}
+
+	public static void deleteAppData(Context ctx) {
+		File dataDir = new File(ctx.getApplicationInfo().dataDir);
+		File[] children = dataDir.listFiles();
+		if (children != null) {
+			for (File child : children) {
+				if (!child.getName().equals("lib"))
+					FileUtils.deleteFileOrDir(child);
+			}
+		}
 	}
 }
