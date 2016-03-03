@@ -87,11 +87,9 @@ public class ContactListAdapter
 						}
 					});
 	private Context ctx;
-	private CryptoComponent crypto;
 
-	public ContactListAdapter(Context context, CryptoComponent cryptoComponent) {
+	public ContactListAdapter(Context context) {
 		ctx = context;
-		crypto = cryptoComponent;
 	}
 
 	@Override
@@ -121,7 +119,7 @@ public class ContactListAdapter
 
 		Author author = item.getContact().getAuthor();
 		ui.avatar.setImageDrawable(
-				new IdenticonDrawable(crypto, author.getId().getBytes()));
+				new IdenticonDrawable(author.getId().getBytes()));
 		String contactName = author.getName();
 		if (unread > 0) {
 			ui.name.setText(contactName + " (" + unread + ")");

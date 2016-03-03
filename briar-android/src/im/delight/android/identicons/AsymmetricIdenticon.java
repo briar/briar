@@ -25,7 +25,6 @@ import javax.inject.Inject;
 
 public class AsymmetricIdenticon extends IdenticonView {
 
-	@Inject protected CryptoComponent mCrypto;
 	private IdenticonBase mDelegate;
 
 	public AsymmetricIdenticon(Context context) {
@@ -50,10 +49,6 @@ public class AsymmetricIdenticon extends IdenticonView {
 
 	private void initDelegate() {
 		mDelegate = new IdenticonBase() {
-			@Override
-			protected CryptoComponent getCrypto() {
-				return mCrypto;
-			}
 
 			@Override
 			protected int getRowCount() {

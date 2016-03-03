@@ -19,7 +19,6 @@ import im.delight.android.identicons.IdenticonDrawable;
 
 public class AuthorView extends FrameLayout {
 
-	@Inject protected CryptoComponent crypto;
 	private ImageView avatarView;
 	private TextView nameView;
 	private ImageView statusView;
@@ -61,7 +60,7 @@ public class AuthorView extends FrameLayout {
 		} else {
 			nameView.setText(name);
 			avatarView.setImageDrawable(
-					new IdenticonDrawable(crypto, id.getBytes()));
+					new IdenticonDrawable(id.getBytes()));
 		}
 
 		switch(status) {

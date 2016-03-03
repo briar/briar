@@ -26,8 +26,7 @@ import javax.inject.Inject;
 public class SymmetricIdenticon extends IdenticonView {
 
 	private static final int CENTER_COLUMN_INDEX = 5;
-
-	@Inject protected CryptoComponent mCrypto;
+	
 	private IdenticonBase mDelegate;
 
 	public SymmetricIdenticon(Context context) {
@@ -47,10 +46,6 @@ public class SymmetricIdenticon extends IdenticonView {
 
 	private void initDelegate() {
 		mDelegate = new IdenticonBase() {
-			@Override
-			protected CryptoComponent getCrypto() {
-				return mCrypto;
-			}
 
 			@Override
 			protected int getRowCount() {

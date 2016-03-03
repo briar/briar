@@ -66,8 +66,6 @@ public class ContactListFragment extends BaseEventFragment {
 	}
 
 	@Inject
-	protected CryptoComponent crypto;
-	@Inject
 	protected ConnectionRegistry connectionRegistry;
 	private ContactListAdapter adapter = null;
 	private BriarRecyclerView list = null;
@@ -79,11 +77,6 @@ public class ContactListFragment extends BaseEventFragment {
 	protected volatile MessagingManager messagingManager;
 	@Inject
 	protected volatile EventBus eventBus;
-
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
 
 	@Override
 	public void injectActivity(AndroidComponent component) {
@@ -98,7 +91,7 @@ public class ContactListFragment extends BaseEventFragment {
 				inflater.inflate(R.layout.activity_contact_list, container,
 						false);
 
-		adapter = new ContactListAdapter(getContext(), crypto);
+		adapter = new ContactListAdapter(getContext());
 		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);

@@ -56,7 +56,7 @@ implements OnItemSelectedListener, OnClickListener {
 		TextView step = (TextView) view.findViewById(R.id.stepView);
 		step.setText(String.format(ctx.getString(R.string.step), 1, 3));
 
-		adapter = new LocalAuthorSpinnerAdapter(ctx, crypto, false);
+		adapter = new LocalAuthorSpinnerAdapter(ctx, false);
 		spinner = (Spinner) view.findViewById(R.id.spinner);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);

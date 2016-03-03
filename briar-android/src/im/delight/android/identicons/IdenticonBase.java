@@ -10,7 +10,6 @@ import org.briarproject.api.crypto.CryptoComponent;
  * Created by saiimons on 05/10/14.
  */
 public abstract class IdenticonBase {
-	private final CryptoComponent mCrypto;
 	private final int mRowCount;
 	private final int mColumnCount;
 	private final Paint mPaint;
@@ -21,7 +20,6 @@ public abstract class IdenticonBase {
 	private volatile boolean mReady;
 
 	public IdenticonBase() {
-		mCrypto = getCrypto();
 		mRowCount = getRowCount();
 		mColumnCount = getColumnCount();
 		mPaint = new Paint();
@@ -32,20 +30,7 @@ public abstract class IdenticonBase {
 	}
 
 	public byte[] getHash(byte[] input) {
-		byte[] mHash;
-		// if the input was null
-		if (input == null) {
-			// we can't create a hash value and have nothing to show (draw to the view)
-			mHash = null;
-		} else {
-			// generate a hash from the input to get unique but deterministic byte values
-			try {
-				mHash = mCrypto.hash(input);
-			} catch (Exception e) {
-				mHash = null;
-			}
-		}
-		return mHash;
+		return input;
 	}
 
 	protected void setupColors() {
@@ -65,11 +50,8 @@ public abstract class IdenticonBase {
 	}
 
 	public void show(byte[] input) {
-		if(input != null) {
-			mHash = getHash(input);
-		} else {
-			mHash = null;
-		}
+		mHash = input;
+
 		// set up the cell colors according to the input that was provided via show(...)
 		setupColors();
 
@@ -84,8 +66,6 @@ public abstract class IdenticonBase {
 			return mHash[index % mHash.length];
 		}
 	}
-
-	abstract protected CryptoComponent getCrypto();
 
 	abstract protected int getRowCount();
 

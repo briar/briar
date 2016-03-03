@@ -72,7 +72,6 @@ public class ConversationActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
-	@Inject protected CryptoComponent crypto;
 	@Inject protected AndroidNotificationManager notificationManager;
 	@Inject protected ConnectionRegistry connectionRegistry;
 	@Inject @CryptoExecutor protected Executor cryptoExecutor;
@@ -104,7 +103,7 @@ public class ConversationActivity extends BriarActivity
 
 		setContentView(R.layout.activity_conversation);
 
-		adapter = new ConversationAdapter(this, crypto);
+		adapter = new ConversationAdapter(this);
 		list = (BriarRecyclerView) findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
