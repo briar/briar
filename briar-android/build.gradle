@@ -33,8 +33,6 @@ dependencies {
 	compile "de.hdodenhof:circleimageview:2.0.0"
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 	provided 'javax.annotation:jsr250-api:1.0'
-
-	compile 'cglib:cglib-nodep:3.1'
 }
 
 dependencyVerification {
@@ -48,6 +46,7 @@ dependencyVerification {
 			'com.android.support:recyclerview-v7:7606373da0931a1e62588335465a0e390cd676c98117edab29220317495faefd',
 			'info.guardianproject.panic:panic:a7ed9439826db2e9901649892cf9afbe76f00991b768d8f4c26332d7c9406cb2',
 			'info.guardianproject.trustedintents:trustedintents:6221456d8821a8d974c2acf86306900237cf6afaaa94a4c9c44e161350f80f3e',
+			'com.android.support:support-annotations:f347a35b9748a4103b39a6714a77e2100f488d623fd6268e259c177b200e9d82'
 	]
 }
 
