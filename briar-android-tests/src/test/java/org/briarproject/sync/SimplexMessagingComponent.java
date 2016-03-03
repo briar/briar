@@ -28,9 +28,6 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 
-/**
- * Created by Ernir Erlingsson (ernir@ymirmobile.com) on 3.3.2016.
- */
 @Singleton
 @Component(modules = {TestDatabaseModule.class, TestSystemModule.class,
 		LifecycleModule.class, ContactModule.class, CryptoModule.class,

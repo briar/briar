@@ -5,15 +5,27 @@ import org.briarproject.api.system.SeedProvider;
 import org.briarproject.api.system.Timer;
 import org.briarproject.util.OsUtils;
 
+import dagger.Module;
+import dagger.Provides;
+
+@Module
 public class DesktopSystemModule {
 
-	/*
-	// TODO
-	protected void configure() {
-		bind(Clock.class).to(SystemClock.class);
-		bind(Timer.class).to(SystemTimer.class);
-		if (OsUtils.isLinux())
-			bind(SeedProvider.class).to(LinuxSeedProvider.class);
+	@Provides
+	Clock provideClock() {
+		return new SystemClock();
 	}
-	*/
+
+	@Provides
+	Timer provideTimer() {
+		return new SystemTimer();
+	}
+
+	@Provides
+	SeedProvider provideSeedProvider() {
+		if (OsUtils.isLinux()) {
+			return new LinuxSeedProvider();
+		}
+		return null;
+	}
 }

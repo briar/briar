@@ -1,8 +1,6 @@
 package org.briarproject.android;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +14,6 @@ import android.widget.LinearLayout;
 import org.briarproject.R;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.api.ui.UiCallback;
 import org.briarproject.util.FileUtils;
 
 import java.util.logging.Logger;
