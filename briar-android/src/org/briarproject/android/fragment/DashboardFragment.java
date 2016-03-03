@@ -9,14 +9,13 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.plugins.PluginManager;
 
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
-
-import roboguice.inject.InjectView;
 
 public class DashboardFragment extends BaseEventFragment {
 
@@ -26,10 +25,7 @@ public class DashboardFragment extends BaseEventFragment {
 			Logger.getLogger(DashboardFragment.class.getName());
 
 	@Inject
-	private PluginManager pluginManager;
-
-	@InjectView(R.id.transportsView)
-	private GridView transportsView;
+	protected PluginManager pluginManager;
 
 	public static DashboardFragment newInstance() {
 
@@ -57,6 +53,11 @@ public class DashboardFragment extends BaseEventFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+
 	}
 
 	@Override

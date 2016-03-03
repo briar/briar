@@ -16,11 +16,10 @@ import org.briarproject.api.identity.AuthorId;
 import javax.inject.Inject;
 
 import im.delight.android.identicons.IdenticonDrawable;
-import roboguice.RoboGuice;
 
 public class AuthorView extends FrameLayout {
 
-	@Inject private CryptoComponent crypto;
+	@Inject protected CryptoComponent crypto;
 	private ImageView avatarView;
 	private TextView nameView;
 	private ImageView statusView;
@@ -45,7 +44,6 @@ public class AuthorView extends FrameLayout {
 	}
 
 	private void initViews() {
-		RoboGuice.injectMembers(getContext(), this);
 		if (isInEditMode())
 			return;
 

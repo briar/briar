@@ -4,10 +4,11 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.util.OsUtils;
 
-import com.google.inject.Singleton;
 
 public class DesktopLifecycleModule extends LifecycleModule {
 
+	/*
+	// TODO
 	@Override
 	protected void configure() {
 		bind(LifecycleManager.class).to(
@@ -20,4 +21,5 @@ public class DesktopLifecycleModule extends LifecycleModule {
 					ShutdownManagerImpl.class).in(Singleton.class);
 		}
 	}
+	*/
 }

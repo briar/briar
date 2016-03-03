@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -38,9 +39,9 @@ implements InvitationListener {
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
 
-	@Inject private CryptoComponent crypto;
-	@Inject private InvitationTaskFactory invitationTaskFactory;
-	@Inject private ReferenceManager referenceManager;
+	@Inject protected CryptoComponent crypto;
+	@Inject protected InvitationTaskFactory invitationTaskFactory;
+	@Inject protected ReferenceManager referenceManager;
 	private AddContactView view = null;
 	private InvitationTask task = null;
 	private long taskHandle = -1;
@@ -53,7 +54,7 @@ implements InvitationListener {
 	private String contactName = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile IdentityManager identityManager;
+	@Inject protected volatile IdentityManager identityManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -136,6 +137,11 @@ implements InvitationListener {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	private void showToastAndFinish() {

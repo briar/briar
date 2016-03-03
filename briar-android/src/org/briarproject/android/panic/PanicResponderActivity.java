@@ -7,11 +7,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.util.FileUtils;
 import org.iilab.IilabEngineeringRSA2048Pin;
 
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import info.guardianproject.GuardianProjectRSA4096;
 import info.guardianproject.panic.Panic;
@@ -26,6 +30,7 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(PanicResponderActivity.class.getName());
+	@Inject protected DatabaseConfig databaseConfig;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -95,13 +100,20 @@ public class PanicResponderActivity extends BriarActivity {
 		}
 	}
 
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
+	}
+
 	private void deleteAllData() {
 		new Thread() {
 			@Override
 			public void run() {
 				clearSharedPrefs();
 				// TODO somehow delete/shred the database more thoroughly
-				AndroidUtils.deleteAppData(PanicResponderActivity.this);
+				FileUtils
+						.deleteFileOrDir(
+								databaseConfig.getDatabaseDirectory());
 				PanicResponder.deleteAllAppData(PanicResponderActivity.this);
 
 				// nothing left to do after everything is deleted,

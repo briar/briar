@@ -1,9 +1,8 @@
 package org.briarproject.android;
 
 import android.app.Application;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import android.content.SharedPreferences;
+import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.AndroidNotificationManager;
@@ -18,9 +17,13 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
+import dagger.Module;
+import dagger.Provides;
+
 import static android.content.Context.MODE_PRIVATE;
 
-public class AndroidModule extends AbstractModule {
+@Module
+public class AndroidModule {
 
 	private final UiCallback uiCallback;
 
@@ -42,17 +45,27 @@ public class AndroidModule extends AbstractModule {
 		};
 	}
 
-	@Override
-	protected void configure() {
-		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class).in(
-				Singleton.class);
-		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
-				Singleton.class);
-		bind(UiCallback.class).toInstance(uiCallback);
+	@Provides
+	UiCallback provideUICallback() {
+		return uiCallback;
 	}
 
-	@Provides @Singleton
-	DatabaseConfig getDatabaseConfig(final Application app) {
+	@Provides
+	@Singleton
+	ReferenceManager provideReferenceManager() {
+		return new ReferenceManagerImpl();
+	}
+
+	@Provides
+	@Singleton
+	AndroidExecutor provideAndroidExecutor(
+			AndroidExecutorImpl androidExecutor) {
+		return androidExecutor;
+	}
+
+	@Provides
+	@Singleton
+	DatabaseConfig provideDatabaseConfig(final Application app) {
 		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		return new DatabaseConfig() {
 
@@ -80,12 +93,15 @@ public class AndroidModule extends AbstractModule {
 		};
 	}
 
-	@Provides @Singleton
-	AndroidNotificationManager getAndroidNotificationManager(
+
+	@Provides
+	@Singleton
+	AndroidNotificationManager provideAndroidNotificationManager(
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			AndroidNotificationManagerImpl notificationManager) {
 		lifecycleManager.register(notificationManager);
 		eventBus.addListener(notificationManager);
 		return notificationManager;
 	}
+
 }

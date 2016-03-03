@@ -1,7 +1,5 @@
 package org.briarproject.contact;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -21,7 +19,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+<<<<<<< 08099714bab27d1ed48a8bee431a35a38098ecec
 class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
+=======
+import javax.inject.Inject;
+
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.db.StorageStatus.ACTIVE;
+import static org.briarproject.api.db.StorageStatus.ADDING;
+import static org.briarproject.api.db.StorageStatus.REMOVING;
+
+class ContactManagerImpl implements ContactManager, Service,
+		RemoveIdentityHook {
+
+	private static final Logger LOG =
+			Logger.getLogger(ContactManagerImpl.class.getName());
+>>>>>>> Switched Roboguice/Guice out for Dagger 2
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;

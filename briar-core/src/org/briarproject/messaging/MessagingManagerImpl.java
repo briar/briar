@@ -1,18 +1,19 @@
 package org.briarproject.messaging;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.FormatException;
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
-import org.briarproject.api.data.BdfList;
+import org.briarproject.api.data.BdfReader;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
@@ -24,9 +25,18 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.util.StringUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
 class MessagingManagerImpl implements MessagingManager, AddContactHook,
 		RemoveContactHook {
@@ -35,16 +45,25 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			"6bcdc006c0910b0f44e40644c3b31f1a"
 					+ "8bf9a6d6021d40d219c86b731b903070"));
 
+	private static final Logger LOG =
+			Logger.getLogger(MessagingManagerImpl.class.getName());
+
 	private final DatabaseComponent db;
-	private final ClientHelper clientHelper;
 	private final PrivateGroupFactory privateGroupFactory;
+	private final BdfReaderFactory bdfReaderFactory;
+	private final MetadataEncoder metadataEncoder;
+	private final MetadataParser metadataParser;
 
 	@Inject
-	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
-			PrivateGroupFactory privateGroupFactory) {
+	MessagingManagerImpl(DatabaseComponent db,
+			PrivateGroupFactory privateGroupFactory,
+			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
+			MetadataParser metadataParser) {
 		this.db = db;
-		this.clientHelper = clientHelper;
 		this.privateGroupFactory = privateGroupFactory;
+		this.bdfReaderFactory = bdfReaderFactory;
+		this.metadataEncoder = metadataEncoder;
+		this.metadataParser = metadataParser;
 	}
 
 	@Override
@@ -58,7 +77,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			// Attach the contact ID to the group
 			BdfDictionary d = new BdfDictionary();
 			d.put("contactId", c.getId().getInt());
-			clientHelper.mergeGroupMetadata(txn, g.getId(), d);
+			db.mergeGroupMetadata(txn, g.getId(), metadataEncoder.encode(d));
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -81,13 +100,21 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
 		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put("timestamp", m.getMessage().getTimestamp());
-			if (m.getParent() != null) meta.put("parent", m.getParent());
-			meta.put("contentType", m.getContentType());
-			meta.put("local", true);
-			meta.put("read", true);
-			clientHelper.addLocalMessage(m.getMessage(), CLIENT_ID, meta, true);
+			BdfDictionary d = new BdfDictionary();
+			d.put("timestamp", m.getMessage().getTimestamp());
+			if (m.getParent() != null)
+				d.put("parent", m.getParent().getBytes());
+			d.put("contentType", m.getContentType());
+			d.put("local", true);
+			d.put("read", true);
+			Metadata meta = metadataEncoder.encode(d);
+			Transaction txn = db.startTransaction();
+			try {
+				db.addLocalMessage(txn, m.getMessage(), CLIENT_ID, meta, true);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -96,8 +123,16 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	@Override
 	public ContactId getContactId(GroupId g) throws DbException {
 		try {
-			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(g);
-			return new ContactId(meta.getLong("contactId").intValue());
+			Metadata meta;
+			Transaction txn = db.startTransaction();
+			try {
+				meta = db.getGroupMetadata(txn, g);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
+			BdfDictionary d = metadataParser.parse(meta);
+			return new ContactId(d.getLong("contactId").intValue());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -119,16 +154,14 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	@Override
 	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
-		Map<MessageId, BdfDictionary> metadata;
+		Map<MessageId, Metadata> metadata;
 		Collection<MessageStatus> statuses;
 		Transaction txn = db.startTransaction();
 		try {
 			GroupId g = getContactGroup(db.getContact(txn, c)).getId();
-			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
+			metadata = db.getMessageMetadata(txn, g);
 			statuses = db.getMessageStatus(txn, c, g);
 			txn.setComplete();
-		} catch (FormatException e) {
-			throw new DbException(e);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -136,17 +169,18 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 				new ArrayList<PrivateMessageHeader>();
 		for (MessageStatus s : statuses) {
 			MessageId id = s.getMessageId();
-			BdfDictionary meta = metadata.get(id);
-			if (meta == null) continue;
+			Metadata m = metadata.get(id);
+			if (m == null) continue;
 			try {
-				long timestamp = meta.getLong("timestamp");
-				String contentType = meta.getString("contentType");
-				boolean local = meta.getBoolean("local");
-				boolean read = meta.getBoolean("read");
+				BdfDictionary d = metadataParser.parse(m);
+				long timestamp = d.getLong("timestamp");
+				String contentType = d.getString("contentType");
+				boolean local = d.getBoolean("local");
+				boolean read = d.getBoolean("read");
 				headers.add(new PrivateMessageHeader(id, timestamp, contentType,
 						local, read, s.isSent(), s.isSeen()));
 			} catch (FormatException e) {
-				throw new DbException(e);
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		return headers;
@@ -154,21 +188,47 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 
 	@Override
 	public byte[] getMessageBody(MessageId m) throws DbException {
+		byte[] raw;
+		Transaction txn = db.startTransaction();
 		try {
-			// Parent ID, content type, private message body
-			BdfList message = clientHelper.getMessageAsList(m);
-			return message.getRaw(2);
+			raw = db.getRawMessage(txn, m);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		ByteArrayInputStream in = new ByteArrayInputStream(raw,
+				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
+		BdfReader r = bdfReaderFactory.createReader(in);
+		try {
+			r.readListStart();
+			if (r.hasRaw()) r.skipRaw(); // Parent ID
+			else r.skipNull(); // No parent
+			r.skipString(); // Content type
+			byte[] messageBody = r.readRaw(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+			r.readListEnd();
+			if (!r.eof()) throw new FormatException();
+			return messageBody;
 		} catch (FormatException e) {
 			throw new DbException(e);
+		} catch (IOException e) {
+			// Shouldn't happen with ByteArrayInputStream
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public void setReadFlag(MessageId m, boolean read) throws DbException {
 		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put("read", read);
-			clientHelper.mergeMessageMetadata(m, meta);
+			BdfDictionary d = new BdfDictionary();
+			d.put("read", read);
+			Metadata meta = metadataEncoder.encode(d);
+			Transaction txn = db.startTransaction();
+			try {
+				db.mergeMessageMetadata(txn, m, meta);
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

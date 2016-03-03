@@ -75,9 +75,9 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(TestingActivity.class.getName());
 
-	@Inject private PluginManager pluginManager;
-	@Inject private LifecycleManager lifecycleManager;
-	@Inject private TransportPropertyManager transportPropertyManager;
+	@Inject protected PluginManager pluginManager;
+	@Inject protected LifecycleManager lifecycleManager;
+	@Inject protected TransportPropertyManager transportPropertyManager;
 	private ScrollView scroll = null;
 	private ListLoadingProgressBar progress = null;
 	private LinearLayout status = null;
@@ -135,6 +135,11 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		layout.addView(footer);
 
 		setContentView(layout);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

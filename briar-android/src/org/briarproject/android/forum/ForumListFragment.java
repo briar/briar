@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
@@ -83,8 +84,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	private ImageButton newForumButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumManager forumManager;
-	@Inject private volatile ForumSharingManager forumSharingManager;
+	@Inject protected volatile ForumManager forumManager;
+	@Inject protected volatile ForumSharingManager forumSharingManager;
 
 	@Nullable
 	@Override
@@ -150,6 +151,11 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

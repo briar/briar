@@ -1,6 +1,5 @@
 package org.briarproject.sync;
 
-import com.google.inject.Inject;
 
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -9,6 +8,8 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.ByteUtils;
+
+import javax.inject.Inject;
 
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;

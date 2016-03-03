@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -22,8 +23,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import roboguice.service.RoboService;
-
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -34,7 +33,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 
-public class BriarService extends RoboService {
+public class BriarService extends Service {
 
 	private static final int ONGOING_NOTIFICATION_ID = 1;
 	private static final int FAILURE_NOTIFICATION_ID = 2;
@@ -45,16 +44,20 @@ public class BriarService extends RoboService {
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
 
-	@Inject private DatabaseConfig databaseConfig;
+	@Inject protected DatabaseConfig databaseConfig;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile LifecycleManager lifecycleManager;
-	@Inject private volatile AndroidExecutor androidExecutor;
+	@Inject protected volatile LifecycleManager lifecycleManager;
+	@Inject protected volatile AndroidExecutor androidExecutor;
 	private volatile boolean started = false;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		((BriarApplication) this.getApplication())
+				.getApplicationComponent().inject(this);
+
 		LOG.info("Created");
 		if (created.getAndSet(true)) {
 			LOG.info("Already created");

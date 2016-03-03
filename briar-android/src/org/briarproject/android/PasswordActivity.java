@@ -34,7 +34,7 @@ import static android.view.View.VISIBLE;
 
 public class PasswordActivity extends BaseActivity {
 
-	@Inject @CryptoExecutor private Executor cryptoExecutor;
+	@Inject @CryptoExecutor protected Executor cryptoExecutor;
 	private Button signInButton;
 	private ProgressBar progress;
 	private TextInputLayout input;
@@ -43,8 +43,8 @@ public class PasswordActivity extends BaseActivity {
 	private byte[] encrypted;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile CryptoComponent crypto;
-	@Inject private volatile DatabaseConfig databaseConfig;
+	@Inject protected volatile CryptoComponent crypto;
+	@Inject protected volatile DatabaseConfig databaseConfig;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -74,7 +74,8 @@ public class PasswordActivity extends BaseActivity {
 		password.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {}
+					int after) {
+			}
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
@@ -83,8 +84,14 @@ public class PasswordActivity extends BaseActivity {
 			}
 
 			@Override
-			public void afterTextChanged(Editable s) {}
+			public void afterTextChanged(Editable s) {
+			}
 		});
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

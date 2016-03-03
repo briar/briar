@@ -9,17 +9,17 @@ repositories {
 }
 
 dependencies {
-	compile "javax.inject:javax.inject:1"
-	compile "com.google.inject:guice:3.0:no_aop"
+	compile "com.google.dagger:dagger:2.0.2"
+	compile 'com.google.dagger:dagger-compiler:2.0.2'
 }
 
 dependencyVerification {
 	verify = [
-			'javax.inject:javax.inject:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
-			'com.google.inject:guice:7c0624d0986ae2bd7a8f1cf4789bcaae5b82a042a7e3d27ba3041ed7b7f2cd3a',
-			'aopalliance:aopalliance:0addec670fedcd3f113c5c8091d783280d23f75e3acb841b61a9cdb079376a08',
-			'org.sonatype.sisu.inject:cglib:42e1dfb26becbf1a633f25b47e39fcc422b85e77e4c0468d9a44f885f5fa0be2',
-			'asm:asm:333ff5369043975b7e031b8b27206937441854738e038c1f47f98d072a20437a',
+//			'javax.inject:javax.inject:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
+//			'com.google.inject:guice:7c0624d0986ae2bd7a8f1cf4789bcaae5b82a042a7e3d27ba3041ed7b7f2cd3a',
+//			'aopalliance:aopalliance:0addec670fedcd3f113c5c8091d783280d23f75e3acb841b61a9cdb079376a08',
+//			'org.sonatype.sisu.inject:cglib:42e1dfb26becbf1a633f25b47e39fcc422b85e77e4c0468d9a44f885f5fa0be2',
+//			'asm:asm:333ff5369043975b7e031b8b27206937441854738e038c1f47f98d072a20437a',
 	]
 }
 

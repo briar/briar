@@ -8,10 +8,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.google.inject.BindingAnnotation;
+import javax.inject.Qualifier;
 
 /** Annotation for injecting the executor used by long-lived IO tasks. */
-@BindingAnnotation
+@Qualifier
 @Target({ FIELD, METHOD, PARAMETER })
 @Retention(RUNTIME)
 public @interface IoExecutor {}

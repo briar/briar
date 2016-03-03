@@ -1,23 +1,20 @@
 package org.briarproject.identity;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
-import org.briarproject.api.data.ObjectReader;
-import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.IdentityManager;
 
-public class IdentityModule extends AbstractModule {
+import javax.inject.Singleton;
 
-	@Override
-	protected void configure() {
-		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
-		bind(IdentityManager.class).to(IdentityManagerImpl.class);
-	}
+import dagger.Module;
+import dagger.Provides;
+
+@Module
+public class IdentityModule {
 
 	@Provides
-	ObjectReader<Author> getAuthorReader(AuthorFactory authorFactory) {
-		return new AuthorReader(authorFactory);
+	@Singleton
+	IdentityManager provideIdendityModule(DatabaseComponent db, EventBus eventBus) {
+		return new IdentityManagerImpl(db, eventBus);
 	}
 }

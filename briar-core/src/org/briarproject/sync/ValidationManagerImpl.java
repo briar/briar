@@ -1,7 +1,5 @@
 package org.briarproject.sync;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
@@ -29,6 +27,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;

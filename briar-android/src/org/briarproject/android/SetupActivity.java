@@ -33,8 +33,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import roboguice.inject.InjectView;
-
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -50,28 +48,39 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 	private static final Logger LOG =
 			Logger.getLogger(SetupActivity.class.getName());
 
-	@Inject @CryptoExecutor private Executor cryptoExecutor;
-	@Inject private PasswordStrengthEstimator strengthEstimator;
-	@InjectView(R.id.nickname_entry_wrapper) TextInputLayout nicknameEntryWrapper;
-	@InjectView(R.id.password_entry_wrapper) TextInputLayout passwordEntryWrapper;
-	@InjectView(R.id.password_confirm_wrapper) TextInputLayout passwordConfirmationWrapper;
-	@InjectView(R.id.nickname_entry) EditText nicknameEntry;
-	@InjectView(R.id.password_entry) EditText passwordEntry;
-	@InjectView(R.id.password_confirm) EditText passwordConfirmation;
-	@InjectView(R.id.strength_meter) StrengthMeter strengthMeter;
-	@InjectView(R.id.create_account) Button createAccountButton;
-	@InjectView(R.id.progress_wheel) ProgressBar progress;
+	@Inject @CryptoExecutor protected Executor cryptoExecutor;
+	@Inject protected PasswordStrengthEstimator strengthEstimator;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile CryptoComponent crypto;
-	@Inject private volatile DatabaseConfig databaseConfig;
-	@Inject private volatile AuthorFactory authorFactory;
-	@Inject private volatile ReferenceManager referenceManager;
+	@Inject protected volatile CryptoComponent crypto;
+	@Inject protected volatile DatabaseConfig databaseConfig;
+	@Inject protected volatile AuthorFactory authorFactory;
+	@Inject protected volatile ReferenceManager referenceManager;
+
+	TextInputLayout nicknameEntryWrapper;
+	TextInputLayout passwordEntryWrapper;
+	TextInputLayout passwordConfirmationWrapper;
+	EditText nicknameEntry;
+	EditText passwordEntry;
+	EditText passwordConfirmation;
+	StrengthMeter strengthMeter;
+	Button createAccountButton;
+	ProgressBar progress;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_setup);
+
+		nicknameEntryWrapper = (TextInputLayout)findViewById(R.id.nickname_entry_wrapper);
+		passwordEntryWrapper = (TextInputLayout)findViewById(R.id.password_entry_wrapper);
+		passwordConfirmationWrapper = (TextInputLayout)findViewById(R.id.password_confirm_wrapper);
+		nicknameEntry = (EditText)findViewById(R.id.nickname_entry);
+		passwordEntry = (EditText)findViewById(R.id.password_entry);
+		passwordConfirmation = (EditText)findViewById(R.id.password_confirm);
+		strengthMeter = (StrengthMeter)findViewById(R.id.strength_meter);
+		createAccountButton = (Button)findViewById(R.id.create_account);
+		progress = (ProgressBar)findViewById(R.id.progress_wheel);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
@@ -97,6 +106,11 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		passwordConfirmation.addTextChangedListener(tw);
 		passwordConfirmation.setOnEditorActionListener(this);
 		createAccountButton.setOnClickListener(this);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	private void enableOrDisableContinueButton() {

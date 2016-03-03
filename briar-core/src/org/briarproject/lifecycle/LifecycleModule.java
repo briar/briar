@@ -11,14 +11,18 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.inject.Singleton;
 
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
+import org.briarproject.api.system.Clock;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import dagger.Module;
+import dagger.Provides;
 
-public class LifecycleModule extends AbstractModule {
+@Module
+public class LifecycleModule {
 
 	private final ExecutorService ioExecutor;
 
@@ -33,17 +37,25 @@ public class LifecycleModule extends AbstractModule {
 				60, SECONDS, queue, policy);
 	}
 
-	@Override
-	protected void configure() {
-		bind(LifecycleManager.class).to(
-				LifecycleManagerImpl.class).in(Singleton.class);
-		bind(ShutdownManager.class).to(
-				ShutdownManagerImpl.class).in(Singleton.class);
+	@Provides
+	@Singleton
+	ShutdownManager provideShutdownManager() {
+		return new ShutdownManagerImpl();
 	}
 
-	@Provides @Singleton @IoExecutor
+	@Provides
+	@Singleton
+	LifecycleManager provideLifeCycleManager(Clock clock, DatabaseComponent db,
+			EventBus eventBus) {
+		return new LifecycleManagerImpl(clock, db, eventBus);
+	}
+
+	@Provides
+	@Singleton
+	@IoExecutor
 	Executor getIoExecutor(LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(ioExecutor);
 		return ioExecutor;
 	}
+
 }

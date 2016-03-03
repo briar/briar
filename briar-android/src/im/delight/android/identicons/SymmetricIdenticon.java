@@ -23,13 +23,11 @@ import org.briarproject.api.crypto.CryptoComponent;
 
 import javax.inject.Inject;
 
-import roboguice.RoboGuice;
-
 public class SymmetricIdenticon extends IdenticonView {
 
 	private static final int CENTER_COLUMN_INDEX = 5;
 
-	@Inject private CryptoComponent mCrypto;
+	@Inject protected CryptoComponent mCrypto;
 	private IdenticonBase mDelegate;
 
 	public SymmetricIdenticon(Context context) {
@@ -48,7 +46,6 @@ public class SymmetricIdenticon extends IdenticonView {
 	}
 
 	private void initDelegate() {
-		RoboGuice.injectMembers(getContext(), this);
 		mDelegate = new IdenticonBase() {
 			@Override
 			protected CryptoComponent getCrypto() {

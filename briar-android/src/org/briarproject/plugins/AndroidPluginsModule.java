@@ -3,7 +3,6 @@ package org.briarproject.plugins;
 import android.app.Application;
 import android.content.Context;
 
-import com.google.inject.Provides;
 
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.event.EventBus;
@@ -24,6 +23,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
+import dagger.Module;
+import dagger.Provides;
+
+@Module
 public class AndroidPluginsModule extends PluginsModule {
 
 	@Provides

@@ -14,6 +14,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DbException;
@@ -51,7 +52,7 @@ implements OnEditorActionListener, OnClickListener {
 	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumSharingManager forumSharingManager;
+	@Inject protected volatile ForumSharingManager forumSharingManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -100,6 +101,11 @@ implements OnEditorActionListener, OnClickListener {
 		layout.addView(progress);
 
 		setContentView(layout);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	private void enableOrDisableCreateButton() {

@@ -2,13 +2,17 @@ package org.briarproject.event;
 
 import org.briarproject.api.event.EventBus;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
+import javax.inject.Singleton;
 
-public class EventModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	@Override
-	protected void configure() {
-		bind(EventBus.class).to(EventBusImpl.class).in(Singleton.class);
+@Module
+public class EventModule {
+
+	@Provides
+	@Singleton
+	EventBus provideEventBus() {
+		return new EventBusImpl();
 	}
 }

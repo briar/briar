@@ -1,10 +1,7 @@
 package org.briarproject.properties;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ValidationManager;
@@ -12,19 +9,21 @@ import org.briarproject.api.system.Clock;
 
 import javax.inject.Singleton;
 
+import dagger.Module;
+import dagger.Provides;
+
 import static org.briarproject.properties.TransportPropertyManagerImpl.CLIENT_ID;
 
-public class PropertiesModule extends AbstractModule {
+@Module
+public class PropertiesModule {
 
-	@Override
-	protected void configure() {}
-
-	@Provides @Singleton
+	@Provides
+	@Singleton
 	TransportPropertyValidator getValidator(ValidationManager validationManager,
-			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
+			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		TransportPropertyValidator validator = new TransportPropertyValidator(
-				clientHelper, metadataEncoder, clock);
+				bdfReaderFactory, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}

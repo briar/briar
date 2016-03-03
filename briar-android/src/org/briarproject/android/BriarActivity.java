@@ -27,7 +27,8 @@ import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 @SuppressLint("Registered")
 public abstract class BriarActivity extends BaseActivity {
 
-	public static final String KEY_LOCAL_AUTHOR_HANDLE = "briar.LOCAL_AUTHOR_HANDLE";
+	public static final String KEY_LOCAL_AUTHOR_HANDLE =
+			"briar.LOCAL_AUTHOR_HANDLE";
 	public static final String KEY_STARTUP_FAILED = "briar.STARTUP_FAILED";
 
 	public static final int REQUEST_PASSWORD = 1;
@@ -38,16 +39,21 @@ public abstract class BriarActivity extends BaseActivity {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private DatabaseConfig databaseConfig;
+	@Inject
+	DatabaseConfig databaseConfig;
 	private boolean bound = false;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
+	@Inject
+	@DatabaseExecutor
+	protected volatile Executor dbExecutor;
+	@Inject
+	protected volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
 		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 

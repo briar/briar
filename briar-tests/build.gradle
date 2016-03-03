@@ -13,7 +13,6 @@ dependencies {
 	compile project(':briar-core')
 	compile fileTree(dir: '../briar-desktop/libs', include: '*.jar')
 	compile project(':briar-desktop')
-
 	compile "junit:junit:4.12"
 	compile "org.jmock:jmock:2.8.1"
 	compile "org.hamcrest:hamcrest-library:1.3"

@@ -14,6 +14,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -50,16 +51,16 @@ implements OnEditorActionListener, OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(CreateIdentityActivity.class.getName());
 
-	@Inject @CryptoExecutor private Executor cryptoExecutor;
+	@Inject @CryptoExecutor protected Executor cryptoExecutor;
 	private EditText nicknameEntry = null;
 	private Button createIdentityButton = null;
 	private ProgressBar progress = null;
 	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile CryptoComponent crypto;
-	@Inject private volatile AuthorFactory authorFactory;
-	@Inject private volatile IdentityManager identityManager;
+	@Inject protected volatile CryptoComponent crypto;
+	@Inject protected volatile AuthorFactory authorFactory;
+	@Inject protected volatile IdentityManager identityManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -110,6 +111,11 @@ implements OnEditorActionListener, OnClickListener {
 		layout.addView(progress);
 
 		setContentView(layout);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	private void enableOrDisableCreateButton() {

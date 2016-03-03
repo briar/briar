@@ -1,12 +1,14 @@
 package org.briarproject;
 
-import com.google.inject.AbstractModule;
-
 import org.briarproject.api.db.DatabaseConfig;
 
 import java.io.File;
 
-public class TestDatabaseModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
+
+@Module
+public class TestDatabaseModule {
 
 	private final DatabaseConfig config;
 
@@ -22,7 +24,9 @@ public class TestDatabaseModule extends AbstractModule {
 		this.config = new TestDatabaseConfig(dir, maxSize);
 	}
 
-	protected void configure() {
-		bind(DatabaseConfig.class).toInstance(config);
+	@Provides
+	DatabaseConfig provideDatabaseConfig() {
+		return config;
 	}
+
 }

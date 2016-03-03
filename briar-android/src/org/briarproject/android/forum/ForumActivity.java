@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
@@ -62,7 +63,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	private static final Logger LOG =
 			Logger.getLogger(ForumActivity.class.getName());
 
-	@Inject private AndroidNotificationManager notificationManager;
+	@Inject protected AndroidNotificationManager notificationManager;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private TextView empty = null;
 	private ForumAdapter adapter = null;
@@ -71,8 +72,8 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	private ImageButton composeButton = null, shareButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumManager forumManager;
-	@Inject private volatile EventBus eventBus;
+	@Inject protected volatile ForumManager forumManager;
+	@Inject protected volatile EventBus eventBus;
 	private volatile GroupId groupId = null;
 	private volatile Forum forum = null;
 
@@ -137,6 +138,11 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		layout.addView(footer);
 
 		setContentView(layout);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

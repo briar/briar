@@ -1,12 +1,14 @@
 package org.briarproject.android.fragment;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.BriarApplication;
 
-import roboguice.fragment.RoboFragment;
-
-public abstract class BaseFragment extends RoboFragment {
+public abstract class BaseFragment extends Fragment {
 
 	public abstract String getUniqueTag();
 
@@ -25,10 +27,25 @@ public abstract class BaseFragment extends RoboFragment {
 		}
 	}
 
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		AndroidComponent component =
+				((BriarApplication) getActivity().getApplication())
+						.getApplicationComponent();
+		injectActivity(component);
+	}
+
+	public abstract void injectActivity(AndroidComponent component);
+
 	public interface BaseFragmentListener {
 		void showLoadingScreen(boolean isBlocking, int stringId);
+
 		void hideLoadingScreen();
+
 		void runOnUiThread(Runnable runnable);
+
 		void runOnDbThread(Runnable runnable);
 	}
 

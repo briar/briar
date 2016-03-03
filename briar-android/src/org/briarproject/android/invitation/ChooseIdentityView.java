@@ -24,8 +24,6 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-import roboguice.RoboGuice;
-
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
@@ -35,7 +33,7 @@ import static org.briarproject.android.invitation.AddContactActivity.REQUEST_CRE
 class ChooseIdentityView extends AddContactView
 implements OnItemSelectedListener, OnClickListener {
 
-	@Inject private CryptoComponent crypto;
+	@Inject protected CryptoComponent crypto;
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 
@@ -46,7 +44,8 @@ implements OnItemSelectedListener, OnClickListener {
 	void populate() {
 		removeAllViews();
 		Context ctx = getContext();
-		RoboGuice.injectMembers(ctx, this);
+		// TODO
+//		RoboGuice.injectMembers(ctx, this);
 
 		LayoutInflater inflater = (LayoutInflater) ctx.getSystemService
 				(Context.LAYOUT_INFLATER_SERVICE);

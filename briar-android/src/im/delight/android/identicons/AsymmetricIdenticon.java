@@ -23,11 +23,9 @@ import org.briarproject.api.crypto.CryptoComponent;
 
 import javax.inject.Inject;
 
-import roboguice.RoboGuice;
-
 public class AsymmetricIdenticon extends IdenticonView {
 
-	@Inject private CryptoComponent mCrypto;
+	@Inject protected CryptoComponent mCrypto;
 	private IdenticonBase mDelegate;
 
 	public AsymmetricIdenticon(Context context) {
@@ -51,7 +49,6 @@ public class AsymmetricIdenticon extends IdenticonView {
 	}
 
 	private void initDelegate() {
-		RoboGuice.injectMembers(getContext(), this);
 		mDelegate = new IdenticonBase() {
 			@Override
 			protected CryptoComponent getCrypto() {

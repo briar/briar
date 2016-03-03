@@ -3,6 +3,7 @@ package org.briarproject.android.panic;
 import android.os.Build;
 import android.os.Bundle;
 
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BaseActivity;
 
 import java.util.logging.Logger;
@@ -19,5 +20,10 @@ public class ExitActivity extends BaseActivity {
 		else finish();
 		LOG.info("Exiting");
 		System.exit(0);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+
 	}
 }

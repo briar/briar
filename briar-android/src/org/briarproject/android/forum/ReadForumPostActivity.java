@@ -12,6 +12,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.ElasticHorizontalSpace;
@@ -59,7 +60,7 @@ implements OnClickListener {
 	private int position = -1;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumManager forumManager;
+	@Inject protected volatile ForumManager forumManager;
 	private volatile MessageId messageId = null;
 
 	@Override
@@ -162,6 +163,11 @@ implements OnClickListener {
 		layout.addView(footer);
 
 		setContentView(layout);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

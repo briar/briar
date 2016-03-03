@@ -1,8 +1,7 @@
 package org.briarproject.transport;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
+import org.briarproject.api.crypto.StreamDecrypterFactory;
+import org.briarproject.api.crypto.StreamEncrypterFactory;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.transport.KeyManager;
@@ -11,15 +10,26 @@ import org.briarproject.api.transport.StreamWriterFactory;
 
 import javax.inject.Singleton;
 
-public class TransportModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	@Override
-	protected void configure() {
-		bind(StreamReaderFactory.class).to(StreamReaderFactoryImpl.class);
-		bind(StreamWriterFactory.class).to(StreamWriterFactoryImpl.class);
+@Module
+public class TransportModule {
+
+	@Provides
+	StreamReaderFactory provideStreamReaderFactory(
+			StreamDecrypterFactory streamDecrypterFactory) {
+		return new StreamReaderFactoryImpl(streamDecrypterFactory);
 	}
 
-	@Provides @Singleton
+	@Provides
+	StreamWriterFactory provideStreamWriterFactory(
+			StreamEncrypterFactory streamEncrypterFactory) {
+		return new StreamWriterFactoryImpl(streamEncrypterFactory);
+	}
+
+	@Provides
+	@Singleton
 	KeyManager getKeyManager(LifecycleManager lifecycleManager,
 			EventBus eventBus, KeyManagerImpl keyManager) {
 		lifecycleManager.register(keyManager);

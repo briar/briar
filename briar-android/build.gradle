@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'witness'
+apply plugin: 'com.neenbedankt.android-apt'
 
 repositories {
 	jcenter()
@@ -27,10 +28,13 @@ dependencies {
 		exclude module: 'support-v4'
 		exclude module: 'recyclerview-v7'
 	}
-	compile "org.roboguice:roboguice:2.0"
 	compile "info.guardianproject.panic:panic:0.5"
 	compile "info.guardianproject.trustedintents:trustedintents:0.2"
 	compile "de.hdodenhof:circleimageview:2.0.0"
+	apt 'com.google.dagger:dagger-compiler:2.0.2'
+	provided 'javax.annotation:jsr250-api:1.0'
+
+	compile 'cglib:cglib-nodep:3.1'
 }
 
 dependencyVerification {
@@ -42,7 +46,6 @@ dependencyVerification {
 			'com.android.support:design:41a9cd75ca78f25df5f573db7cedf8bb66beae00c330943923ba9f3e2051736d',
 			'com.android.support:support-annotations:f347a35b9748a4103b39a6714a77e2100f488d623fd6268e259c177b200e9d82',
 			'com.android.support:recyclerview-v7:7606373da0931a1e62588335465a0e390cd676c98117edab29220317495faefd',
-			'org.roboguice:roboguice:c5302f2648170ee6015a0d18fe0fcc87e09e415a34aeae3566e8d1a9dbb53f28',
 			'info.guardianproject.panic:panic:a7ed9439826db2e9901649892cf9afbe76f00991b768d8f4c26332d7c9406cb2',
 			'info.guardianproject.trustedintents:trustedintents:6221456d8821a8d974c2acf86306900237cf6afaaa94a4c9c44e161350f80f3e',
 	]

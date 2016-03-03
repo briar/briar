@@ -1,18 +1,37 @@
 package org.briarproject.system;
 
-import com.google.inject.AbstractModule;
+
+import android.app.Application;
 
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.api.system.SeedProvider;
 import org.briarproject.api.system.Timer;
 
-public class AndroidSystemModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	protected void configure() {
-		bind(Clock.class).to(SystemClock.class);
-		bind(Timer.class).to(SystemTimer.class);
-		bind(SeedProvider.class).to(AndroidSeedProvider.class);
-		bind(LocationUtils.class).to(AndroidLocationUtils.class);
+@Module
+public class AndroidSystemModule {
+
+	@Provides
+	Clock provideClock() {
+		return new SystemClock();
 	}
+
+	@Provides
+	Timer provideTimer() {
+		return new SystemTimer();
+	}
+
+	@Provides
+	SeedProvider provideSeedProvider(final Application app) {
+		return new AndroidSeedProvider(app);
+	}
+
+	@Provides
+	LocationUtils provideLocationUtils(final Application app) {
+		return new AndroidLocationUtils(app);
+	}
+
 }

@@ -1,12 +1,13 @@
 package org.briarproject.settings;
 
-import com.google.inject.Inject;
 
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
+
+import javax.inject.Inject;
 
 class SettingsManagerImpl implements SettingsManager {
 

@@ -1,20 +1,23 @@
 package org.briarproject.properties;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
-import org.briarproject.api.data.BdfList;
+import org.briarproject.api.data.BdfReader;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriter;
+import org.briarproject.api.data.BdfWriterFactory;
+import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.properties.TransportProperties;
@@ -24,14 +27,23 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.inject.Inject;
+
+import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
 class TransportPropertyManagerImpl implements TransportPropertyManager,
 		AddContactHook, RemoveContactHook {
@@ -43,18 +55,28 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	private static final byte[] LOCAL_GROUP_DESCRIPTOR = new byte[0];
 
 	private final DatabaseComponent db;
-	private final ClientHelper clientHelper;
 	private final PrivateGroupFactory privateGroupFactory;
+	private final MessageFactory messageFactory;
+	private final BdfReaderFactory bdfReaderFactory;
+	private final BdfWriterFactory bdfWriterFactory;
+	private final MetadataEncoder metadataEncoder;
+	private final MetadataParser metadataParser;
 	private final Clock clock;
 	private final Group localGroup;
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, GroupFactory groupFactory,
-			PrivateGroupFactory privateGroupFactory, Clock clock) {
+			GroupFactory groupFactory, PrivateGroupFactory privateGroupFactory,
+			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory, MetadataEncoder metadataEncoder,
+			MetadataParser metadataParser, Clock clock) {
 		this.db = db;
-		this.clientHelper = clientHelper;
 		this.privateGroupFactory = privateGroupFactory;
+		this.messageFactory = messageFactory;
+		this.bdfReaderFactory = bdfReaderFactory;
+		this.bdfWriterFactory = bdfWriterFactory;
+		this.metadataEncoder = metadataEncoder;
+		this.metadataParser = metadataParser;
 		this.clock = clock;
 		localGroup = groupFactory.createGroup(CLIENT_ID,
 				LOCAL_GROUP_DESCRIPTOR);
@@ -123,9 +145,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 						true);
 				if (latest != null) {
 					// Retrieve and parse the latest local properties
-					BdfList message = clientHelper.getMessageAsList(txn,
-							latest.messageId);
-					p = parseProperties(message);
+					byte[] raw = db.getRawMessage(txn, latest.messageId);
+					p = parseProperties(raw);
 				}
 				txn.setComplete();
 			} finally {
@@ -154,9 +175,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					LatestUpdate latest = findLatest(txn, g.getId(), t, false);
 					if (latest != null) {
 						// Retrieve and parse the latest remote properties
-						BdfList message = clientHelper.getMessageAsList(txn,
-								latest.messageId);
-						remote.put(c.getId(), parseProperties(message));
+						byte[] raw = db.getRawMessage(txn, latest.messageId);
+						remote.put(c.getId(), parseProperties(raw));
 					}
 				}
 				txn.setComplete();
@@ -186,9 +206,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					merged = p;
 					changed = true;
 				} else {
-					BdfList message = clientHelper.getMessageAsList(txn,
-							latest.messageId);
-					TransportProperties old = parseProperties(message);
+					byte[] raw = db.getRawMessage(txn, latest.messageId);
+					TransportProperties old = parseProperties(raw);
 					merged = new TransportProperties(old);
 					merged.putAll(p);
 					changed = !merged.equals(old);
@@ -231,9 +250,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					localGroup.getId(), true);
 			// Retrieve and parse the latest local properties
 			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
-				BdfList message = clientHelper.getMessageAsList(txn,
-						e.getValue().messageId);
-				local.put(e.getKey(), parseProperties(message));
+				byte[] raw = db.getRawMessage(txn, e.getValue().messageId);
+				local.put(e.getKey(), parseProperties(raw));
 			}
 			return local;
 		} catch (NoSuchGroupException e) {
@@ -248,35 +266,48 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			TransportId t, TransportProperties p, long version, boolean local,
 			boolean shared) throws DbException {
 		try {
-			BdfList body = encodeProperties(dev, t, p, version);
+			byte[] body = encodeProperties(dev, t, p, version);
 			long now = clock.currentTimeMillis();
-			Message m = clientHelper.createMessage(g, now, body);
-			BdfDictionary meta = new BdfDictionary();
-			meta.put("transportId", t.getString());
-			meta.put("version", version);
-			meta.put("local", local);
-			clientHelper.addLocalMessage(txn, m, CLIENT_ID, meta, shared);
+			Message m = messageFactory.createMessage(g, now, body);
+			BdfDictionary d = new BdfDictionary();
+			d.put("transportId", t.getString());
+			d.put("version", version);
+			d.put("local", local);
+			Metadata meta = metadataEncoder.encode(d);
+			db.addLocalMessage(txn, m, CLIENT_ID, meta, shared);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private BdfList encodeProperties(DeviceId dev, TransportId t,
+	private byte[] encodeProperties(DeviceId dev, TransportId t,
 			TransportProperties p, long version) {
-		return BdfList.of(dev, t.getString(), version, p);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		BdfWriter w = bdfWriterFactory.createWriter(out);
+		try {
+			w.writeListStart();
+			w.writeRaw(dev.getBytes());
+			w.writeString(t.getString());
+			w.writeLong(version);
+			w.writeDictionary(p);
+			w.writeListEnd();
+		} catch (IOException e) {
+			// Shouldn't happen with ByteArrayOutputStream
+			throw new RuntimeException(e);
+		}
+		return out.toByteArray();
 	}
 
 	private Map<TransportId, LatestUpdate> findLatest(Transaction txn,
 			GroupId g, boolean local) throws DbException, FormatException {
 		Map<TransportId, LatestUpdate> latestUpdates =
 				new HashMap<TransportId, LatestUpdate>();
-		Map<MessageId, BdfDictionary> metadata =
-				clientHelper.getMessageMetadataAsDictionary(txn, g);
-		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {
-			BdfDictionary meta = e.getValue();
-			if (meta.getBoolean("local") == local) {
-				TransportId t = new TransportId(meta.getString("transportId"));
-				long version = meta.getLong("version");
+		Map<MessageId, Metadata> metadata = db.getMessageMetadata(txn, g);
+		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
+			BdfDictionary d = metadataParser.parse(e.getValue());
+			if (d.getBoolean("local") == local) {
+				TransportId t = new TransportId(d.getString("transportId"));
+				long version = d.getLong("version");
 				LatestUpdate latest = latestUpdates.get(t);
 				if (latest == null || version > latest.version)
 					latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
@@ -288,13 +319,12 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	private LatestUpdate findLatest(Transaction txn, GroupId g, TransportId t,
 			boolean local) throws DbException, FormatException {
 		LatestUpdate latest = null;
-		Map<MessageId, BdfDictionary> metadata =
-				clientHelper.getMessageMetadataAsDictionary(txn, g);
-		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {
-			BdfDictionary meta = e.getValue();
-			if (meta.getString("transportId").equals(t.getString())
-					&& meta.getBoolean("local") == local) {
-				long version = meta.getLong("version");
+		Map<MessageId, Metadata> metadata = db.getMessageMetadata(txn, g);
+		for (Entry<MessageId, Metadata> e : metadata.entrySet()) {
+			BdfDictionary d = metadataParser.parse(e.getValue());
+			if (d.getString("transportId").equals(t.getString())
+					&& d.getBoolean("local") == local) {
+				long version = d.getLong("version");
 				if (latest == null || version > latest.version)
 					latest = new LatestUpdate(e.getKey(), version);
 			}
@@ -302,14 +332,33 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		return latest;
 	}
 
-	private TransportProperties parseProperties(BdfList message)
+	private TransportProperties parseProperties(byte[] raw)
 			throws FormatException {
-		// Device ID, transport ID, version, properties
-		BdfDictionary dictionary = message.getDictionary(3);
 		TransportProperties p = new TransportProperties();
-		for (String key : dictionary.keySet())
-			p.put(key, dictionary.getString(key));
-		return p;
+		ByteArrayInputStream in = new ByteArrayInputStream(raw,
+				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
+		BdfReader r = bdfReaderFactory.createReader(in);
+		try {
+			r.readListStart();
+			r.skipRaw(); // Device ID
+			r.skipString(); // Transport ID
+			r.skipLong(); // Version
+			r.readDictionaryStart();
+			while (!r.hasDictionaryEnd()) {
+				String key = r.readString(MAX_PROPERTY_LENGTH);
+				String value = r.readString(MAX_PROPERTY_LENGTH);
+				p.put(key, value);
+			}
+			r.readDictionaryEnd();
+			r.readListEnd();
+			if (!r.eof()) throw new FormatException();
+			return p;
+		} catch (FormatException e) {
+			throw e;
+		} catch (IOException e) {
+			// Shouldn't happen with ByteArrayInputStream
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static class LatestUpdate {
