@@ -4,6 +4,7 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.db.Metadata;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -16,9 +17,16 @@ import static org.junit.Assert.assertEquals;
 
 public class MetadataEncoderParserImplTest extends BriarTestCase {
 
-	MetadataEncoderImpl e = new MetadataEncoderImpl();
-	MetadataParserImpl p = new MetadataParserImpl();
-	BdfDictionary d = new BdfDictionary();
+	MetadataEncoderImpl e;
+	MetadataParserImpl p;
+	BdfDictionary d;
+
+	@Before
+	public void before() {
+		e = new MetadataEncoderImpl(new BdfWriterFactoryImpl());
+		p = new MetadataParserImpl(new BdfReaderFactoryImpl());
+		d = new BdfDictionary();
+	}
 
 	@Test
 	public void testBoolean() throws FormatException {
