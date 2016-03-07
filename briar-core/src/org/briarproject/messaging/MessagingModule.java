@@ -3,8 +3,8 @@ package org.briarproject.messaging;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
@@ -24,10 +24,10 @@ public class MessagingModule extends AbstractModule {
 
 	@Provides @Singleton
 	PrivateMessageValidator getValidator(ValidationManager validationManager,
-			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
-				bdfReaderFactory, metadataEncoder, clock);
+				clientHelper, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}

@@ -2,83 +2,45 @@ package org.briarproject.messaging;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
-import org.briarproject.api.data.BdfReader;
-import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.db.Metadata;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.MessageValidator;
 import org.briarproject.api.system.Clock;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.logging.Logger;
+import org.briarproject.clients.BdfMessageValidator;
 
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
-class PrivateMessageValidator implements MessageValidator {
+class PrivateMessageValidator extends BdfMessageValidator {
 
-	private static final Logger LOG =
-			Logger.getLogger(PrivateMessageValidator.class.getName());
-
-	private final BdfReaderFactory bdfReaderFactory;
-	private final MetadataEncoder metadataEncoder;
-	private final Clock clock;
-
-	PrivateMessageValidator(BdfReaderFactory bdfReaderFactory,
+	PrivateMessageValidator(ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
-		this.bdfReaderFactory = bdfReaderFactory;
-		this.metadataEncoder = metadataEncoder;
-		this.clock = clock;
+		super(clientHelper, metadataEncoder, clock);
 	}
 
 	@Override
-	public Metadata validateMessage(Message m, Group g) {
-		// Reject the message if it's too far in the future
-		long now = clock.currentTimeMillis();
-		if (m.getTimestamp() - now > MAX_CLOCK_DIFFERENCE) {
-			LOG.info("Timestamp is too far in the future");
-			return null;
-		}
-		try {
-			// Parse the message body
-			byte[] raw = m.getRaw();
-			ByteArrayInputStream in = new ByteArrayInputStream(raw,
-					MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
-			BdfReader r = bdfReaderFactory.createReader(in);
-			MessageId parent = null;
-			r.readListStart();
-			// Read the parent ID, if any
-			if (r.hasRaw()) {
-				byte[] id = r.readRaw(UniqueId.LENGTH);
-				if (id.length < UniqueId.LENGTH) throw new FormatException();
-				parent = new MessageId(id);
-			} else {
-				r.readNull();
-			}
-			// Read the content type
-			String contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
-			// Read the private message body
-			r.readRaw(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
-			r.readListEnd();
-			if (!r.eof()) throw new FormatException();
-			// Return the metadata
-			BdfDictionary d = new BdfDictionary();
-			d.put("timestamp", m.getTimestamp());
-			if (parent != null) d.put("parent", parent.getBytes());
-			d.put("contentType", contentType);
-			d.put("local", false);
-			d.put("read", false);
-			return metadataEncoder.encode(d);
-		} catch (IOException e) {
-			LOG.info("Invalid private message");
-			return null;
-		}
+	protected BdfDictionary validateMessage(BdfList message, Group g,
+			long timestamp) throws FormatException {
+		// Parent ID, content type, private message body
+		checkSize(message, 3);
+		// Parent ID is optional
+		byte[] parentId = message.getOptionalRaw(0);
+		checkLength(parentId, UniqueId.LENGTH);
+		// Content type
+		String contentType = message.getString(1);
+		checkLength(contentType, 0, MAX_CONTENT_TYPE_LENGTH);
+		// Private message body
+		byte[] body = message.getRaw(2);
+		checkLength(body, 0, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		// Return the metadata
+		BdfDictionary meta = new BdfDictionary();
+		meta.put("timestamp", timestamp);
+		if (parentId != null) meta.put("parent", parentId);
+		meta.put("contentType", contentType);
+		meta.put("local", false);
+		meta.put("read", false);
+		return meta;
 	}
 }

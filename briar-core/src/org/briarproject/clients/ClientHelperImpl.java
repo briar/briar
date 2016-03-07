@@ -16,6 +16,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
@@ -54,37 +55,34 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
+	public void addLocalMessage(Message m, ClientId c, BdfDictionary metadata,
+			boolean shared) throws DbException, FormatException {
+		Transaction txn = db.startTransaction();
+		try {
+			addLocalMessage(txn, m, c, metadata, shared);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void addLocalMessage(Transaction txn, Message m, ClientId c,
+			BdfDictionary metadata, boolean shared)
+			throws DbException, FormatException {
+		db.addLocalMessage(txn, m, c, metadataEncoder.encode(metadata), shared);
+	}
+
+	@Override
 	public Message createMessage(GroupId g, long timestamp, BdfDictionary body)
 			throws FormatException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BdfWriter writer = bdfWriterFactory.createWriter(out);
-		try {
-			writer.writeDictionary(body);
-		} catch (FormatException e) {
-			throw e;
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayOutputStream
-			throw new RuntimeException(e);
-		}
-		byte[] raw = out.toByteArray();
-		return messageFactory.createMessage(g, timestamp, raw);
+		return messageFactory.createMessage(g, timestamp, toByteArray(body));
 	}
 
 	@Override
 	public Message createMessage(GroupId g, long timestamp, BdfList body)
 			throws FormatException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BdfWriter writer = bdfWriterFactory.createWriter(out);
-		try {
-			writer.writeList(body);
-		} catch (FormatException e) {
-			throw e;
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayOutputStream
-			throw new RuntimeException(e);
-		}
-		byte[] raw = out.toByteArray();
-		return messageFactory.createMessage(g, timestamp, raw);
+		return messageFactory.createMessage(g, timestamp, toByteArray(body));
 	}
 
 	@Override
@@ -106,20 +104,8 @@ class ClientHelperImpl implements ClientHelper {
 			throws DbException, FormatException {
 		byte[] raw = db.getRawMessage(txn, m);
 		if (raw == null) return null;
-		ByteArrayInputStream in = new ByteArrayInputStream(raw,
-				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
-		BdfReader reader = bdfReaderFactory.createReader(in);
-		BdfDictionary dictionary;
-		try {
-			dictionary = reader.readDictionary();
-			if (!reader.eof()) throw new FormatException();
-		} catch (FormatException e) {
-			throw e;
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayInputStream
-			throw new RuntimeException(e);
-		}
-		return dictionary;
+		return toDictionary(raw, MESSAGE_HEADER_LENGTH,
+				raw.length - MESSAGE_HEADER_LENGTH);
 	}
 
 	@Override
@@ -141,20 +127,8 @@ class ClientHelperImpl implements ClientHelper {
 			throws DbException, FormatException {
 		byte[] raw = db.getRawMessage(txn, m);
 		if (raw == null) return null;
-		ByteArrayInputStream in = new ByteArrayInputStream(raw,
-				MESSAGE_HEADER_LENGTH, raw.length - MESSAGE_HEADER_LENGTH);
-		BdfReader reader = bdfReaderFactory.createReader(in);
-		BdfList list;
-		try {
-			list = reader.readList();
-			if (!reader.eof()) throw new FormatException();
-		} catch (FormatException e) {
-			throw e;
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayInputStream
-			throw new RuntimeException(e);
-		}
-		return list;
+		return toList(raw, MESSAGE_HEADER_LENGTH,
+				raw.length - MESSAGE_HEADER_LENGTH);
 	}
 
 	@Override
@@ -258,5 +232,64 @@ class ClientHelperImpl implements ClientHelper {
 	public void mergeMessageMetadata(Transaction txn, MessageId m,
 			BdfDictionary metadata) throws DbException, FormatException {
 		db.mergeMessageMetadata(txn, m, metadataEncoder.encode(metadata));
+	}
+
+	@Override
+	public byte[] toByteArray(BdfDictionary dictionary) throws FormatException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		BdfWriter writer = bdfWriterFactory.createWriter(out);
+		try {
+			writer.writeDictionary(dictionary);
+		} catch (FormatException e) {
+			throw e;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return out.toByteArray();
+	}
+
+	@Override
+	public byte[] toByteArray(BdfList list) throws FormatException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		BdfWriter writer = bdfWriterFactory.createWriter(out);
+		try {
+			writer.writeList(list);
+		} catch (FormatException e) {
+			throw e;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return out.toByteArray();
+	}
+
+	@Override
+	public BdfDictionary toDictionary(byte[] b, int off, int len)
+			throws FormatException {
+		ByteArrayInputStream in = new ByteArrayInputStream(b, off, len);
+		BdfReader reader = bdfReaderFactory.createReader(in);
+		try {
+			BdfDictionary dictionary = reader.readDictionary();
+			if (!reader.eof()) throw new FormatException();
+			return dictionary;
+		} catch (FormatException e) {
+			throw e;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public BdfList toList(byte[] b, int off, int len) throws FormatException {
+		ByteArrayInputStream in = new ByteArrayInputStream(b, off, len);
+		BdfReader reader = bdfReaderFactory.createReader(in);
+		try {
+			BdfList list = reader.readList();
+			if (!reader.eof()) throw new FormatException();
+			return list;
+		} catch (FormatException e) {
+			throw e;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

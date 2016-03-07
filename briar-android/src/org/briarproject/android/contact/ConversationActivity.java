@@ -19,6 +19,7 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.api.FormatException;
 import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -47,8 +48,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -430,9 +429,7 @@ public class ConversationActivity extends BriarActivity
 				try {
 					storeMessage(privateMessageFactory.createPrivateMessage(
 							groupId, timestamp, null, "text/plain", body));
-				} catch (GeneralSecurityException e) {
-					throw new RuntimeException(e);
-				} catch (IOException e) {
+				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
 			}
