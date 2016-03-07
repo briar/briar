@@ -294,7 +294,8 @@ class BluetoothPlugin implements DuplexPlugin {
 			chosen = f.get();
 			return new BluetoothTransportConnection(this, chosen);
 		} catch (InterruptedException e) {
-			LOG.info("Interrupted while waiting for connection");
+			LOG.info("Interrupted while exchanging invitations");
+			Thread.currentThread().interrupt();
 			return null;
 		} catch (ExecutionException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
