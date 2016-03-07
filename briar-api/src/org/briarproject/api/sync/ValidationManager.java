@@ -30,14 +30,19 @@ public interface ValidationManager {
 		}
 	}
 
-	/** Sets the message validator for the given client. */
+	/**
+	 * Sets the message validator for the given client.
+	 */
 	void registerMessageValidator(ClientId c, MessageValidator v);
 
-	/** Registers a hook to be called whenever a message is validated. */
-	void registerValidationHook(ValidationHook hook);
+	/**
+	 * Sets the incoming message hook for the given client. The hook will be
+	 * called once for each incoming message that passes validation.
+	 */
+	void registerIncomingMessageHook(ClientId c, IncomingMessageHook hook);
 
-	interface ValidationHook {
-		void validatingMessage(Transaction txn, Message m, ClientId c,
-				Metadata meta) throws DbException;
+	interface IncomingMessageHook {
+		void incomingMessage(Transaction txn, Message m, Metadata meta)
+				throws DbException;
 	}
 }

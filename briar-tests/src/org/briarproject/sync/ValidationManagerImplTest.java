@@ -17,7 +17,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageValidator;
-import org.briarproject.api.sync.ValidationManager.ValidationHook;
+import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.util.ByteUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -56,7 +56,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
 		final MessageValidator validator = context.mock(MessageValidator.class);
-		final ValidationHook hook = context.mock(ValidationHook.class);
+		final IncomingMessageHook hook = context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null);
 		final Transaction txn1 = new Transaction(null);
 		final Transaction txn2 = new Transaction(null);
@@ -87,7 +87,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).setMessageValid(txn2, message, clientId, true);
 			oneOf(db).setMessageShared(txn2, message, true);
 			// Call the hook for the first message
-			oneOf(hook).validatingMessage(txn2, message, clientId, metadata);
+			oneOf(hook).incomingMessage(txn2, message, metadata);
 			oneOf(db).endTransaction(txn2);
 			// Load the second raw message and group
 			oneOf(db).startTransaction();
@@ -110,7 +110,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
-		vm.registerValidationHook(hook);
+		vm.registerIncomingMessageHook(clientId, hook);
 		vm.start();
 
 		context.assertIsSatisfied();
@@ -124,7 +124,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
 		final MessageValidator validator = context.mock(MessageValidator.class);
-		final ValidationHook hook = context.mock(ValidationHook.class);
+		final IncomingMessageHook hook = context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null);
 		final Transaction txn1 = new Transaction(null);
 		final Transaction txn2 = new Transaction(null);
@@ -163,7 +163,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
-		vm.registerValidationHook(hook);
+		vm.registerIncomingMessageHook(clientId, hook);
 		vm.start();
 
 		context.assertIsSatisfied();
@@ -177,7 +177,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
 		final MessageValidator validator = context.mock(MessageValidator.class);
-		final ValidationHook hook = context.mock(ValidationHook.class);
+		final IncomingMessageHook hook = context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null);
 		final Transaction txn1 = new Transaction(null);
 		final Transaction txn2 = new Transaction(null);
@@ -219,7 +219,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
-		vm.registerValidationHook(hook);
+		vm.registerIncomingMessageHook(clientId, hook);
 		vm.start();
 
 		context.assertIsSatisfied();
@@ -232,7 +232,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
 		final MessageValidator validator = context.mock(MessageValidator.class);
-		final ValidationHook hook = context.mock(ValidationHook.class);
+		final IncomingMessageHook hook = context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null);
 		final Transaction txn1 = new Transaction(null);
 		context.checking(new Expectations() {{
@@ -252,14 +252,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).setMessageValid(txn1, message, clientId, true);
 			oneOf(db).setMessageShared(txn1, message, true);
 			// Call the hook
-			oneOf(hook).validatingMessage(txn1, message, clientId, metadata);
+			oneOf(hook).incomingMessage(txn1, message, metadata);
 			oneOf(db).endTransaction(txn1);
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
-		vm.registerValidationHook(hook);
+		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
@@ -272,12 +272,12 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
 		final MessageValidator validator = context.mock(MessageValidator.class);
-		final ValidationHook hook = context.mock(ValidationHook.class);
+		final IncomingMessageHook hook = context.mock(IncomingMessageHook.class);
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
-		vm.registerValidationHook(hook);
+		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, null));
 
 		context.assertIsSatisfied();
