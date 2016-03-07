@@ -20,7 +20,7 @@ class ForumListValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	public BdfDictionary validateMessage(BdfList message, Group g,
+	protected BdfDictionary validateMessage(BdfList message, Group g,
 			long timestamp) throws FormatException {
 		// Version, forum list
 		checkSize(message, 2);
