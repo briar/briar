@@ -9,6 +9,10 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
+import org.briarproject.data.DataModule;
+import org.briarproject.db.DatabaseModule;
+import org.briarproject.messaging.MessagingModule;
+import org.briarproject.sync.SyncModule;
 
 import dagger.Module;
 import dagger.Provides;

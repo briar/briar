@@ -16,9 +16,14 @@ import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.crypto.CryptoModule;
+import org.briarproject.db.DatabaseModule;
+import org.briarproject.event.EventModule;
+import org.briarproject.lifecycle.LifecycleModule;
 
 import java.util.concurrent.Executor;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;

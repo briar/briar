@@ -7,6 +7,7 @@ import org.briarproject.api.crypto.StreamDecrypterFactory;
 import org.briarproject.api.crypto.StreamEncrypterFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.system.SeedProvider;
+import org.briarproject.lifecycle.LifecycleModule;
 
 import java.security.SecureRandom;
 import java.util.concurrent.BlockingQueue;

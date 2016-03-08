@@ -67,5 +67,7 @@ public interface AndroidComponent {
 	void inject(ContactListFragment fragment);
 	void inject(SettingsFragment fragment);
 	void inject(ForumListFragment fragment);
+	// Eager singleton load
+	void inject(AndroidModule.EagerSingletons init);
 
 }

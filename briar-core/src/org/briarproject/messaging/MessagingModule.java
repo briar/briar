@@ -9,6 +9,9 @@ import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.contact.ContactModule;
+import org.briarproject.data.DataModule;
+import org.briarproject.sync.SyncModule;
 
 import javax.inject.Singleton;
 

@@ -9,6 +9,9 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.crypto.CryptoModule;
+import org.briarproject.data.DataModule;
+import org.briarproject.db.DatabaseModule;
 
 import javax.inject.Singleton;
 

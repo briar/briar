@@ -15,6 +15,11 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.contact.ContactModule;
+import org.briarproject.crypto.CryptoModule;
+import org.briarproject.data.DataModule;
+import org.briarproject.db.DatabaseModule;
+import org.briarproject.sync.SyncModule;
 
 import javax.inject.Singleton;
 

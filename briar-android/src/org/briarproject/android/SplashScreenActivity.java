@@ -8,6 +8,7 @@ import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
 import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -37,6 +38,8 @@ public class SplashScreenActivity extends BaseActivity {
 
 	@Inject
 	DatabaseConfig dbConfig;
+
+
 
 	public SplashScreenActivity() {
 		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);

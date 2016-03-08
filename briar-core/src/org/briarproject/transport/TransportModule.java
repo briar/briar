@@ -7,6 +7,8 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.event.EventModule;
+import org.briarproject.lifecycle.LifecycleModule;
 
 import javax.inject.Singleton;
 

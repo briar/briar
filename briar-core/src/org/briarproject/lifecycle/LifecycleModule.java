@@ -17,6 +17,7 @@ import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.event.EventModule;
 
 import dagger.Module;
 import dagger.Provides;

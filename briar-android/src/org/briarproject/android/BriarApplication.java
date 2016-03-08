@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 import android.app.Application;
 import android.content.Context;
 
+import org.briarproject.event.EventModule;
+
 public class BriarApplication extends Application {
 
 	private static final Logger LOG =
@@ -16,7 +18,7 @@ public class BriarApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		LOG.info("Created");
+		LOG.info("Application Created");
 		UncaughtExceptionHandler oldHandler =
 				Thread.getDefaultUncaughtExceptionHandler();
 		Context ctx = getApplicationContext();
@@ -27,6 +29,10 @@ public class BriarApplication extends Application {
 				.appModule(new AppModule(this))
 				.androidModule(new AndroidModule())
 				.build();
+		// We need to load the eager singletons directly after making the
+		// dependency graph
+		AndroidModule.injectEager(applicationComponent);
+
 	}
 
 	public AndroidComponent getApplicationComponent() {

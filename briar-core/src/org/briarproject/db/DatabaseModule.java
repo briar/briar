@@ -7,6 +7,9 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.data.DataModule;
+import org.briarproject.event.EventModule;
+import org.briarproject.lifecycle.LifecycleModule;
 
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -17,6 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
