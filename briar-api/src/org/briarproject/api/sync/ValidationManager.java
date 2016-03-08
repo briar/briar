@@ -41,7 +41,20 @@ public interface ValidationManager {
 	 */
 	void registerIncomingMessageHook(ClientId c, IncomingMessageHook hook);
 
+	interface MessageValidator {
+
+		/**
+		 * Validates the given message and returns its metadata if the message
+		 * is valid, or null if the message is invalid.
+		 */
+		Metadata validateMessage(Message m, Group g);
+	}
+
 	interface IncomingMessageHook {
+
+		/**
+		 * Called once for each incoming message that passes validation.
+		 */
 		void incomingMessage(Transaction txn, Message m, Metadata meta)
 				throws DbException;
 	}

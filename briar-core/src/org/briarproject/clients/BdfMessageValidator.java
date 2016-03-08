@@ -2,15 +2,15 @@ package org.briarproject.clients;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageQueueManager.QueueMessageValidator;
 import org.briarproject.api.clients.QueueMessage;
-import org.briarproject.api.clients.QueueMessageValidator;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageValidator;
+import org.briarproject.api.sync.ValidationManager.MessageValidator;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
@@ -104,7 +104,7 @@ public abstract class BdfMessageValidator implements MessageValidator,
 	}
 
 	protected void checkSize(BdfList list, int minSize, int maxSize)
-		throws FormatException {
+			throws FormatException {
 		if (list != null) {
 			if (list.size() < minSize) throw new FormatException();
 			if (list.size() > maxSize) throw new FormatException();

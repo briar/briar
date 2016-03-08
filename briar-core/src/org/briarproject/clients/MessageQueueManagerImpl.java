@@ -5,7 +5,6 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.QueueMessage;
 import org.briarproject.api.clients.QueueMessageFactory;
-import org.briarproject.api.clients.QueueMessageValidator;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
@@ -17,7 +16,6 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.MessageValidator;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.util.ByteUtils;
@@ -146,7 +144,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 	}
 
 	private static class DelegatingMessageValidator
-			implements MessageValidator {
+			implements ValidationManager.MessageValidator {
 
 		private final QueueMessageValidator delegate;
 

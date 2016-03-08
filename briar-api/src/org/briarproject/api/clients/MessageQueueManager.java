@@ -31,7 +31,21 @@ public interface MessageQueueManager {
 	 */
 	void registerIncomingMessageHook(ClientId c, IncomingQueueMessageHook hook);
 
+	interface QueueMessageValidator {
+
+		/**
+		 * Validates the given message and returns its metadata if the message
+		 * is valid, or null if the message is invalid.
+		 */
+		Metadata validateMessage(QueueMessage q, Group g);
+	}
+
 	interface IncomingQueueMessageHook {
+
+		/**
+		 * Called once for each incoming message that passes validation.
+		 * Messages are passed to the hook in order.
+		 */
 		void incomingMessage(Transaction txn, QueueMessage q, Metadata meta)
 				throws DbException;
 	}

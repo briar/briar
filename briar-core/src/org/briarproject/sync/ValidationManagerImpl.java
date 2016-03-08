@@ -20,7 +20,6 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.MessageValidator;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.util.ByteUtils;
 
@@ -74,7 +73,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@Override
-	public void registerIncomingMessageHook(ClientId c, IncomingMessageHook hook) {
+	public void registerIncomingMessageHook(ClientId c,
+			IncomingMessageHook hook) {
 		hooks.put(c, hook);
 	}
 
