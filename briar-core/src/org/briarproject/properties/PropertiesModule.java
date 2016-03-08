@@ -1,5 +1,6 @@
 package org.briarproject.properties;
 
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.MetadataEncoder;
@@ -23,10 +24,10 @@ public class PropertiesModule {
 	@Provides
 	@Singleton
 	TransportPropertyValidator getValidator(ValidationManager validationManager,
-			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		TransportPropertyValidator validator = new TransportPropertyValidator(
-				bdfReaderFactory, metadataEncoder, clock);
+				clientHelper, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}

@@ -1,5 +1,6 @@
 package org.briarproject.messaging;
 
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriterFactory;
@@ -25,19 +26,18 @@ public class MessagingModule {
 
 	@Provides
 	PrivateMessageFactory providePrivateMessageFactory(
-			MessageFactory messageFactory,
-			BdfWriterFactory bdfWriterFactory) {
-		return new PrivateMessageFactoryImpl(messageFactory, bdfWriterFactory);
+			ClientHelper clientHelper) {
+		return new PrivateMessageFactoryImpl(clientHelper);
 	}
 
 
 	@Provides
 	@Singleton
 	PrivateMessageValidator getValidator(ValidationManager validationManager,
-			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
-				bdfReaderFactory, metadataEncoder, clock);
+				clientHelper, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}

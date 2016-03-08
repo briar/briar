@@ -10,11 +10,14 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.ui.UiCallback;
+import org.briarproject.messaging.PrivateMessageValidator;
+import org.briarproject.properties.TransportPropertyValidator;
 
 import java.io.File;
 
@@ -41,6 +44,14 @@ public class AndroidModule {
 		AndroidNotificationManager androidNotificationManager;
 		@Inject
 		TransportPropertyManager transportPropertyManager;
+		@Inject
+		MessagingManager messagingManager;
+		@Inject
+		PrivateMessageValidator privateMessageValidator;
+		@Inject
+		TransportPropertyValidator transportPropertyValidator;
+
+
 	}
 
 	static void injectEager(AndroidComponent c) {

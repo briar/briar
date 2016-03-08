@@ -15,7 +15,7 @@ import static org.briarproject.api.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 
-class TransportPropertyValidator extends BdfMessageValidator {
+public class TransportPropertyValidator extends BdfMessageValidator {
 
 	TransportPropertyValidator(ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {

@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 import android.app.Application;
 import android.content.Context;
 
-import org.briarproject.event.EventModule;
-
 public class BriarApplication extends Application {
 
 	private static final Logger LOG =

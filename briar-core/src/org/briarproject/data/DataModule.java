@@ -23,13 +23,13 @@ public class DataModule {
 	}
 
 	@Provides
-	MetadataParser provideMetaDataParser() {
-		return new MetadataParserImpl();
+	MetadataParser provideMetaDataParser(BdfReaderFactory bdfReaderFactory) {
+		return new MetadataParserImpl(bdfReaderFactory);
 	}
 
 	@Provides
-	MetadataEncoder provideMetaDataEncoider() {
-		return new MetadataEncoderImpl();
+	MetadataEncoder provideMetaDataEncoider(BdfWriterFactory bdfWriterFactory) {
+		return new MetadataEncoderImpl(bdfWriterFactory);
 	}
 
 }

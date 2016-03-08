@@ -55,6 +55,7 @@ public class TestLifecycleModule {
 		};
 	}
 
+	@Provides
 	ShutdownManager provideShutdownManager() {
 		return new ShutdownManager() {
 			@Override

@@ -3,6 +3,7 @@ package org.briarproject.sync;
 import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestLifecycleModule;
 import org.briarproject.TestSystemModule;
+import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
@@ -22,7 +23,7 @@ import dagger.Component;
 		TestSystemModule.class, ContactModule.class, CryptoModule.class,
 		DatabaseModule.class, EventModule.class, SyncModule.class,
 		DataModule.class, TransportModule.class, ForumModule.class,
-		IdentityModule.class, MessagingModule.class})
+		IdentityModule.class, MessagingModule.class, ClientsModule.class})
 public interface ConstantsComponent {
 	void inject(ConstantsTest testCase);
 }

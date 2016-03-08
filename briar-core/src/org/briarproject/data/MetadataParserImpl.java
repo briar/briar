@@ -1,7 +1,5 @@
 package org.briarproject.data;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.FormatException;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfReader;
@@ -12,6 +10,8 @@ import org.briarproject.api.db.Metadata;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map.Entry;
+
+import javax.inject.Inject;
 
 import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.api.db.Metadata.REMOVE;
