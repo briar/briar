@@ -29,8 +29,9 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 		this.metadataParser = metadataParser;
 	}
 
-	protected abstract void incomingMessage(Transaction txn, BdfList message,
-			BdfDictionary meta) throws DbException, FormatException;
+	protected abstract void incomingMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary meta) throws DbException,
+			FormatException;
 
 	@Override
 	public void incomingMessage(Transaction txn, Message m, Metadata meta)
@@ -48,10 +49,10 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 			int headerLength) throws DbException {
 		try {
 			byte[] raw = m.getRaw();
-			BdfList message = clientHelper.toList(raw, headerLength,
+			BdfList body = clientHelper.toList(raw, headerLength,
 					raw.length - headerLength);
 			BdfDictionary metaDictionary = metadataParser.parse(meta);
-			incomingMessage(txn, message, metaDictionary);
+			incomingMessage(txn, m, body, metaDictionary);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

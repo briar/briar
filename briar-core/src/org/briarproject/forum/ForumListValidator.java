@@ -6,6 +6,7 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
@@ -20,15 +21,15 @@ class ForumListValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(BdfList message, Group g,
-			long timestamp) throws FormatException {
+	protected BdfDictionary validateMessage(Message m, Group g,
+			BdfList body) throws FormatException {
 		// Version, forum list
-		checkSize(message, 2);
+		checkSize(body, 2);
 		// Version
-		long version = message.getLong(0);
+		long version = body.getLong(0);
 		if (version < 0) throw new FormatException();
 		// Forum list
-		BdfList forumList = message.getList(1);
+		BdfList forumList = body.getList(1);
 		for (int i = 0; i < forumList.size(); i++) {
 			BdfList forum = forumList.getList(i);
 			// Name, salt

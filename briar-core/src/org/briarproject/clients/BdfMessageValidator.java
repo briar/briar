@@ -37,8 +37,8 @@ public abstract class BdfMessageValidator implements MessageValidator,
 		this.clock = clock;
 	}
 
-	protected abstract BdfDictionary validateMessage(BdfList message, Group g,
-			long timestamp) throws FormatException;
+	protected abstract BdfDictionary validateMessage(Message m, Group g,
+			BdfList body) throws FormatException;
 
 	@Override
 	public Metadata validateMessage(Message m, Group g) {
@@ -63,9 +63,9 @@ public abstract class BdfMessageValidator implements MessageValidator,
 			return null;
 		}
 		try {
-			BdfList message = clientHelper.toList(raw, headerLength,
+			BdfList body = clientHelper.toList(raw, headerLength,
 					raw.length - headerLength);
-			BdfDictionary meta = validateMessage(message, g, m.getTimestamp());
+			BdfDictionary meta = validateMessage(m, g, body);
 			if (meta == null) {
 				LOG.info("Invalid message");
 				return null;
