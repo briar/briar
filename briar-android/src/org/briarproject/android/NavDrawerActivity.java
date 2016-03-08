@@ -1,6 +1,5 @@
 package org.briarproject.android;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -20,9 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.forum.ForumListFragment;
+import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.fragment.SettingsFragment;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
@@ -58,9 +57,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerActivity.class.getName());
-
-	private final static String PREFS_USER_SETTINGS = "prefs_user_settings";
-	private final static String KEY_SEEN_WELCOME_MESSAGE = "welcome_message";
 
 	private ActionBarDrawerToggle drawerToggle;
 
@@ -149,12 +145,12 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	private void welcomeMessageCheck() {
-		SharedPreferences prefs = getSharedPreferences(PREFS_USER_SETTINGS,
-				Context.MODE_PRIVATE);
-		if (!prefs.getBoolean(KEY_SEEN_WELCOME_MESSAGE, false)) {
+		SharedPreferences prefs = getSharedPreferences(PREFS_NAME,
+				MODE_PRIVATE);
+		if (!prefs.getBoolean(PREF_SEEN_WELCOME_MESSAGE, false)) {
 			showMessageDialog(R.string.dialog_title_welcome,
 					R.string.dialog_welcome_message);
-			prefs.edit().putBoolean(KEY_SEEN_WELCOME_MESSAGE, true).apply();
+			prefs.edit().putBoolean(PREF_SEEN_WELCOME_MESSAGE, true).apply();
 		}
 	}
 

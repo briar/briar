@@ -14,9 +14,9 @@ import android.widget.LinearLayout;
 import com.google.inject.Injector;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.util.FileUtils;
 
 import java.util.logging.Logger;
 
@@ -26,6 +26,8 @@ import roboguice.activity.RoboSplashActivity;
 import static android.view.Gravity.CENTER;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static java.util.logging.Level.INFO;
+import static org.briarproject.android.BaseActivity.PREFS_NAME;
+import static org.briarproject.android.BaseActivity.PREF_DB_KEY;
 import static org.briarproject.android.TestingConstants.DEFAULT_LOG_LEVEL;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.android.TestingConstants.TESTING;
@@ -79,16 +81,16 @@ public class SplashScreenActivity extends RoboSplashActivity {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
-			String hex = prefs.getString("key", null);
+			SharedPreferences prefs = getSharedPreferences(PREFS_NAME,
+					MODE_PRIVATE);
+			String hex = prefs.getString(PREF_DB_KEY, null);
 			Injector i = RoboGuice.getBaseApplicationInjector(getApplication());
 			DatabaseConfig databaseConfig = i.getInstance(DatabaseConfig.class);
 			if (hex != null && databaseConfig.databaseExists()) {
 				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
 				prefs.edit().clear().apply();
-				FileUtils.deleteFileOrDir(
-						databaseConfig.getDatabaseDirectory());
+				AndroidUtils.deleteAppData(this);
 				startActivity(new Intent(this, SetupActivity.class));
 			}
 		}

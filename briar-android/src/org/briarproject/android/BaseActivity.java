@@ -38,8 +38,9 @@ import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 public abstract class BaseActivity extends AppCompatActivity
 		implements RoboContext {
 
-	private final static String PREFS_DB = "db";
-	private final static String PREFS_KEY = "key";
+	public final static String PREFS_NAME = "db";
+	public final static String PREF_DB_KEY = "key";
+	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
 
 	private final HashMap<Key<?>, Object> scopedObjects =
 			new HashMap<Key<?>, Object>();
@@ -128,18 +129,17 @@ public abstract class BaseActivity extends AppCompatActivity
 		return scopedObjects;
 	}
 
-	// FIXME: Factor out prefs code so it can be used by SplashScreenActivity
 	private SharedPreferences getSharedPrefs() {
-		return getSharedPreferences(PREFS_DB, MODE_PRIVATE);
+		return getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 	}
 
 	protected String getEncryptedDatabaseKey() {
-		return getSharedPrefs().getString(PREFS_KEY, null);
+		return getSharedPrefs().getString(PREF_DB_KEY, null);
 	}
 
 	protected void storeEncryptedDatabaseKey(final String hex) {
 		SharedPreferences.Editor editor = getSharedPrefs().edit();
-		editor.putString(PREFS_KEY, hex);
+		editor.putString(PREF_DB_KEY, hex);
 		editor.apply();
 	}
 

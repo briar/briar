@@ -21,7 +21,6 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.util.FileUtils;
 import org.briarproject.util.StringUtils;
 
 import java.util.concurrent.Executor;
@@ -53,7 +52,7 @@ public class PasswordActivity extends BaseActivity {
 
 		String hex = getEncryptedDatabaseKey();
 		if (hex == null || !databaseConfig.databaseExists()) {
-			clearSharedPrefsAndDeleteDatabase();
+			clearSharedPrefsAndDeleteEverything();
 			return;
 		}
 		encrypted = StringUtils.fromHexString(hex);
@@ -96,9 +95,9 @@ public class PasswordActivity extends BaseActivity {
 		startActivity(intent);
 	}
 
-	private void clearSharedPrefsAndDeleteDatabase() {
+	private void clearSharedPrefsAndDeleteEverything() {
 		clearSharedPrefs();
-		FileUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+		AndroidUtils.deleteAppData(this);
 		setResult(RESULT_CANCELED);
 		startActivity(new Intent(this, SetupActivity.class));
 		finish();
@@ -118,7 +117,7 @@ public class PasswordActivity extends BaseActivity {
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						clearSharedPrefsAndDeleteDatabase();
+						clearSharedPrefsAndDeleteEverything();
 					}
 				});
 		AlertDialog dialog = builder.create();
