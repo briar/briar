@@ -246,7 +246,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout) {
+			long timeout, boolean alice) {
 		throw new UnsupportedOperationException();
 	}
 

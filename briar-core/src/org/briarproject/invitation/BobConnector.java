@@ -51,7 +51,7 @@ class BobConnector extends Connector {
 	@Override
 	public void run() {
 		// Create an incoming or outgoing connection
-		DuplexTransportConnection conn = createInvitationConnection();
+		DuplexTransportConnection conn = createInvitationConnection(false);
 		if (conn == null) return;
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " connected");
 		// Carry out the key agreement protocol

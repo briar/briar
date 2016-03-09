@@ -23,5 +23,5 @@ public interface DuplexPlugin extends Plugin {
 	 * time.
 	 */
 	DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout);
+			long timeout, boolean alice);
 }

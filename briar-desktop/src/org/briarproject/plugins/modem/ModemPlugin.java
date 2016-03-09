@@ -154,7 +154,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout) {
+			long timeout, boolean alice) {
 		throw new UnsupportedOperationException();
 	}
 
