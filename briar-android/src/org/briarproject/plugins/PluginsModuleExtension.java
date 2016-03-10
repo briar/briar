@@ -3,7 +3,6 @@ package org.briarproject.plugins;
 import android.app.Application;
 import android.content.Context;
 
-
 import org.briarproject.api.android.PlatformExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
@@ -20,15 +19,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 
-import dagger.Module;
-import dagger.Provides;
+public class PluginsModuleExtension extends PluginsModule {
 
-@Module
-public class AndroidPluginsModule {
+	private final Application app;
 
-	@Provides
-	DuplexPluginConfig provideDuplexPluginConfig(@IoExecutor Executor ioExecutor,
-			PlatformExecutor platformExecutor, Application app,
+	public PluginsModuleExtension(Application app) {
+		this.app = app;
+	}
+
+	@Override
+	public DuplexPluginConfig provideDuplexPluginConfig(
+			@IoExecutor Executor ioExecutor, PlatformExecutor platformExecutor,
 			SecureRandom random, BackoffFactory backoffFactory,
 			LocationUtils locationUtils, EventBus eventBus) {
 		Context appContext = app.getApplicationContext();

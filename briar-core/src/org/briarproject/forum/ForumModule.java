@@ -4,25 +4,17 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfReaderFactory;
-import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.MetadataParser;
-import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
-import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
-import org.briarproject.contact.ContactModule;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.sync.SyncModule;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -30,6 +22,15 @@ import dagger.Provides;
 
 @Module
 public class ForumModule {
+
+	public static class EagerSingletons {
+		@Inject
+		ForumListValidator forumListValidator;
+		@Inject
+		ForumPostValidator forumPostValidator;
+		@Inject
+		ForumSharingManager forumSharingManager;
+	}
 
 	@Provides
 	@Singleton

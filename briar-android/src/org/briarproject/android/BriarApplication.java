@@ -6,6 +6,13 @@ import java.util.logging.Logger;
 import android.app.Application;
 import android.content.Context;
 
+import org.briarproject.CoreComponent;
+import org.briarproject.CoreEagerSingletons;
+import org.briarproject.DaggerCoreComponent;
+import org.briarproject.plugins.PluginsModuleExtension;
+import org.briarproject.system.PlatformModuleExtension;
+import org.briarproject.system.SystemModuleExtension;
+
 public class BriarApplication extends Application {
 
 	private static final Logger LOG =
@@ -23,14 +30,21 @@ public class BriarApplication extends Application {
 		CrashHandler newHandler = new CrashHandler(ctx, oldHandler);
 		Thread.setDefaultUncaughtExceptionHandler(newHandler);
 
+		CoreComponent coreComponent = DaggerCoreComponent.builder()
+				.systemModule(new SystemModuleExtension(this))
+				.platformModule(new PlatformModuleExtension(this))
+				.pluginsModule(new PluginsModuleExtension(this))
+				.build();
+
 		applicationComponent = DaggerAndroidComponent.builder()
 				.appModule(new AppModule(this))
-				.androidModule(new AndroidModule())
+				.coreComponent(coreComponent)
 				.build();
-		// We need to load the eager singletons directly after making the
-		// dependency graph
-		AndroidModule.injectEager(applicationComponent);
 
+		// We need to load the eager singletons directly after making the
+		// dependency graphs
+		CoreEagerSingletons.initEagerSingletons(coreComponent);
+		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
 	}
 
 	public AndroidComponent getApplicationComponent() {

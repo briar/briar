@@ -7,7 +7,6 @@ import org.briarproject.api.crypto.StreamDecrypterFactory;
 import org.briarproject.api.crypto.StreamEncrypterFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.system.SeedProvider;
-import org.briarproject.lifecycle.LifecycleModule;
 
 import java.security.SecureRandom;
 import java.util.concurrent.BlockingQueue;
@@ -17,6 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
@@ -27,6 +27,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Module
 public class CryptoModule {
+
+	public static class EagerSingletons {
+		@Inject
+		@CryptoExecutor Executor cryptoExecutor;
+	}
 
 	/**
 	 * The maximum number of executor threads.

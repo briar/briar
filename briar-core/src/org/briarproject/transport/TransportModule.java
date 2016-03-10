@@ -7,9 +7,8 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.event.EventModule;
-import org.briarproject.lifecycle.LifecycleModule;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -17,6 +16,10 @@ import dagger.Provides;
 
 @Module
 public class TransportModule {
+
+	public static class EagerSingletons {
+		@Inject KeyManager keyManager;
+	}
 
 	@Provides
 	StreamReaderFactory provideStreamReaderFactory(

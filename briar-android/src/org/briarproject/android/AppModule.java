@@ -1,9 +1,6 @@
 package org.briarproject.android;
 
 import android.app.Application;
-import android.content.Context;
-
-import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -18,7 +15,7 @@ public class AppModule {
 	}
 
 	@Provides
-	@Singleton
+	@ApplicationScope
 	Application providesApplication() {
 		return application;
 	}

@@ -9,6 +9,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.briarproject.api.db.DatabaseComponent;
@@ -17,13 +18,17 @@ import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.system.Clock;
-import org.briarproject.event.EventModule;
 
 import dagger.Module;
 import dagger.Provides;
 
 @Module
 public class LifecycleModule {
+
+	public static class EagerSingletons {
+		@Inject
+		@IoExecutor Executor executor;
+	}
 
 	private final ExecutorService ioExecutor;
 

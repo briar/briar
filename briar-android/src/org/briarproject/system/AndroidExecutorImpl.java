@@ -1,4 +1,4 @@
-package org.briarproject.android;
+package org.briarproject.system;
 
 import android.app.Application;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.api.android.PlatformExecutor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -14,11 +14,10 @@ import java.util.concurrent.FutureTask;
 
 import javax.inject.Inject;
 
-class AndroidExecutorImpl implements AndroidExecutor {
+class AndroidExecutorImpl implements PlatformExecutor {
 
 	private final Handler handler;
 
-	@Inject
 	AndroidExecutorImpl(Application app) {
 		Context ctx = app.getApplicationContext();
 		handler = new FutureTaskHandler(ctx.getMainLooper());

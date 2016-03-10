@@ -11,26 +11,21 @@ import org.briarproject.api.system.Timer;
 import dagger.Module;
 import dagger.Provides;
 
-@Module
-public class AndroidSystemModule {
+public class SystemModuleExtension extends SystemModule {
 
-	@Provides
-	Clock provideClock() {
-		return new SystemClock();
+	private final Application app;
+
+	public SystemModuleExtension(final Application app) {
+		this.app = app;
 	}
 
-	@Provides
-	Timer provideTimer() {
-		return new SystemTimer();
-	}
-
-	@Provides
-	SeedProvider provideSeedProvider(final Application app) {
+	@Override
+	public SeedProvider provideSeedProvider() {
 		return new AndroidSeedProvider(app);
 	}
 
-	@Provides
-	LocationUtils provideLocationUtils(final Application app) {
+	@Override
+	public LocationUtils provideLocationUtils() {
 		return new AndroidLocationUtils(app);
 	}
 

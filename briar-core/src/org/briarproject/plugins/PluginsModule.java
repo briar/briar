@@ -1,7 +1,9 @@
 package org.briarproject.plugins;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.briarproject.api.android.PlatformExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -9,13 +11,19 @@ import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
+import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
+import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.sync.SyncSessionFactory;
+import org.briarproject.api.system.LocationUtils;
 import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
 import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.Executor;
 
 import dagger.Module;
@@ -24,6 +32,11 @@ import dagger.Provides;
 
 @Module
 public class PluginsModule {
+
+	public static class EagerSingletons {
+		@Inject
+		PluginManager pluginManager;
+	}
 
 	@Provides
 	BackoffFactory provideBackoffFactory() {
@@ -61,5 +74,22 @@ public class PluginsModule {
 			PluginManagerImpl pluginManager) {
 		lifecycleManager.register(pluginManager);
 		return pluginManager;
+	}
+
+	@Provides
+	SimplexPluginConfig provideSimplexPluginConfig() {
+		return new SimplexPluginConfig() {
+			public Collection<SimplexPluginFactory> getFactories() {
+				return Collections.emptyList();
+			}
+		};
+	}
+
+	@Provides
+	public DuplexPluginConfig provideDuplexPluginConfig(@IoExecutor Executor ioExecutor,
+			PlatformExecutor platformExecutor, /*Application app,*/
+			SecureRandom random, BackoffFactory backoffFactory,
+			LocationUtils locationUtils, EventBus eventBus) {
+		return null;
 	}
 }
