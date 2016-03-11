@@ -40,6 +40,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
@@ -212,7 +213,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		controlConnection.authenticate(read(cookieFile));
 		// Tell Tor to exit when the control connection is closed
 		controlConnection.takeOwnership();
-		controlConnection.resetConf(Arrays.asList(OWNER));
+		controlConnection.resetConf(Collections.singletonList(OWNER));
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList(EVENTS));
@@ -555,7 +556,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO))
-				LOG.info("Could not connect to " + onion + ": " + e);
+				LOG.log(INFO, "Could not connect to " + onion + ": ", e);
 			return null;
 		}
 	}
