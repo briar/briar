@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static org.briarproject.api.clients.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
@@ -179,6 +180,11 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 			long queuePosition = ByteUtils.readUint64(m.getRaw(),
 					MESSAGE_HEADER_LENGTH);
 			QueueState queueState = loadQueueState(txn, m.getGroupId());
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Received message with position  "
+						+ queuePosition + ", expecting "
+						+ queueState.incomingPosition);
+			}
 			if (queuePosition < queueState.incomingPosition) {
 				// A message with this queue position has already been seen
 				LOG.warning("Deleting message with duplicate position");
@@ -186,10 +192,12 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 				db.deleteMessageMetadata(txn, m.getId());
 			} else if (queuePosition > queueState.incomingPosition) {
 				// The message is out of order, add it to the pending list
+				LOG.info("Message is out of order, adding to pending list");
 				queueState.pending.put(queuePosition, m.getId());
 				saveQueueState(txn, m.getGroupId(), queueState);
 			} else {
 				// The message is in order, pass it to the delegate
+				LOG.info("Message is in order, delivering");
 				QueueMessage q = new QueueMessage(m.getId(), m.getGroupId(),
 						m.getTimestamp(), queuePosition, m.getRaw());
 				delegate.incomingMessage(txn, q, meta);
@@ -200,6 +208,10 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 					byte[] raw = db.getRawMessage(txn, id);
 					meta = db.getMessageMetadata(txn, id);
 					q = queueMessageFactory.createMessage(id, raw);
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Delivering pending message with position "
+								+ q.getQueuePosition());
+					}
 					delegate.incomingMessage(txn, q, meta);
 				}
 				saveQueueState(txn, m.getGroupId(), queueState);
