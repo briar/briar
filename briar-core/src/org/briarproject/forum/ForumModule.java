@@ -35,10 +35,8 @@ public class ForumModule {
 	@Provides
 	@Singleton
 	ForumManager provideForumManager(DatabaseComponent db,
-			ContactManager contactManager, BdfReaderFactory bdfReaderFactory,
-			MetadataEncoder metadataEncoder, MetadataParser metadataParser) {
-		return new ForumManagerImpl(db, bdfReaderFactory, metadataEncoder,
-				metadataParser);
+			ClientHelper clientHelper) {
+		return new ForumManagerImpl(db, clientHelper);
 	}
 
 	@Provides
