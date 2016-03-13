@@ -1,4 +1,4 @@
-package org.briarproject.api.android;
+package org.briarproject.android.api;
 
 /**
  * Manages mappings between object references and serialisable handles. This

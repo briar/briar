@@ -1,4 +1,4 @@
-package org.briarproject.api.android;
+package org.briarproject.android.api;
 
 import org.briarproject.api.sync.GroupId;
 

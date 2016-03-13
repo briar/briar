@@ -7,7 +7,7 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.api.android.ReferenceManager;
+import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.AuthorId;

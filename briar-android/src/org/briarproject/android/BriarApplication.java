@@ -6,12 +6,7 @@ import java.util.logging.Logger;
 import android.app.Application;
 import android.content.Context;
 
-import org.briarproject.CoreComponent;
-import org.briarproject.CoreEagerSingletons;
-import org.briarproject.DaggerCoreComponent;
-import org.briarproject.plugins.PluginsModuleExtension;
-import org.briarproject.system.PlatformModuleExtension;
-import org.briarproject.system.SystemModuleExtension;
+import org.briarproject.CoreModule;
 
 public class BriarApplication extends Application {
 
@@ -30,20 +25,14 @@ public class BriarApplication extends Application {
 		CrashHandler newHandler = new CrashHandler(ctx, oldHandler);
 		Thread.setDefaultUncaughtExceptionHandler(newHandler);
 
-		CoreComponent coreComponent = DaggerCoreComponent.builder()
-				.systemModule(new SystemModuleExtension(this))
-				.platformModule(new PlatformModuleExtension(this))
-				.pluginsModule(new PluginsModuleExtension(this))
-				.build();
-
 		applicationComponent = DaggerAndroidComponent.builder()
 				.appModule(new AppModule(this))
-				.coreComponent(coreComponent)
+				.androidModule(new AndroidModule())
 				.build();
 
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
-		CoreEagerSingletons.initEagerSingletons(coreComponent);
+		CoreModule.initEagerSingletons(applicationComponent);
 		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
 	}
 

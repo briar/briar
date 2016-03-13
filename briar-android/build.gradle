@@ -98,3 +98,6 @@ android {
 		abortOnError false
 	}
 }
+dependencies {
+	compile 'cglib:cglib-nodep:3.1'
+}

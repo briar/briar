@@ -6,15 +6,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import org.briarproject.api.android.PlatformExecutor;
+import org.briarproject.android.api.AndroidExecutor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import javax.inject.Inject;
-
-class AndroidExecutorImpl implements PlatformExecutor {
+class AndroidExecutorImpl implements AndroidExecutor {
 
 	private final Handler handler;
 

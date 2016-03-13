@@ -8,11 +8,11 @@ import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
 import android.support.v7.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.FileUtils;
@@ -91,6 +91,7 @@ public class SplashScreenActivity extends BaseActivity {
 					startActivity(new Intent(this, NavDrawerActivity.class));
 				} else {
 					clearSharedPrefs();
+					AndroidUtils.deleteAppData(this);
 					FileUtils.deleteFileOrDir(
 							dbConfig.getDatabaseDirectory());
 					startActivity(new Intent(this, SetupActivity.class));

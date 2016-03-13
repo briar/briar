@@ -11,18 +11,16 @@ import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.transport.TransportModule;
 
-public class CoreEagerSingletons {
+public interface CoreEagerSingletons {
+	void inject(ContactModule.EagerSingletons init);
+	void inject(CryptoModule.EagerSingletons init);
+	void inject(DatabaseModule.EagerSingletons init);
+	void inject(ForumModule.EagerSingletons init);
+	void inject(LifecycleModule.EagerSingletons init);
+	void inject(MessagingModule.EagerSingletons init);
+	void inject(PluginsModule.EagerSingletons init);
+	void inject(PropertiesModule.EagerSingletons init);
+	void inject(SyncModule.EagerSingletons init);
+	void inject(TransportModule.EagerSingletons init);
 
-	public static void initEagerSingletons(CoreComponent c) {
-		c.inject(new ContactModule.EagerSingletons());
-		c.inject(new CryptoModule.EagerSingletons());
-		c.inject(new DatabaseModule.EagerSingletons());
-		c.inject(new ForumModule.EagerSingletons());
-		c.inject(new LifecycleModule.EagerSingletons());
-		c.inject(new MessagingModule.EagerSingletons());
-		c.inject(new PluginsModule.EagerSingletons());
-		c.inject(new PropertiesModule.EagerSingletons());
-		c.inject(new SyncModule.EagerSingletons());
-		c.inject(new TransportModule.EagerSingletons());
-	}
 }

@@ -20,13 +20,4 @@ public class SystemModule {
 		return new SystemTimer();
 	}
 
-	@Provides
-	public SeedProvider provideSeedProvider() {
-		return null;
-	}
-
-	@Provides
-	public LocationUtils provideLocationUtils() {
-		return null;
-	}
 }

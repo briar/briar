@@ -12,7 +12,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 import org.briarproject.R;
-import org.briarproject.api.android.PlatformExecutor;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.LifecycleManager.StartResult;
@@ -48,7 +48,7 @@ public class BriarService extends Service {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject protected volatile LifecycleManager lifecycleManager;
-	@Inject protected volatile PlatformExecutor platformExecutor;
+	@Inject protected volatile AndroidExecutor androidExecutor;
 	private volatile boolean started = false;
 
 	@Override
@@ -106,7 +106,7 @@ public class BriarService extends Service {
 	}
 
 	private void showStartupFailureNotification(final StartResult result) {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				NotificationCompat.Builder b =
 						new NotificationCompat.Builder(BriarService.this);

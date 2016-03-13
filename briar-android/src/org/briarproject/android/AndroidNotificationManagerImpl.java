@@ -12,8 +12,8 @@ import android.support.v4.app.TaskStackBuilder;
 import org.briarproject.R;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
-import org.briarproject.api.android.PlatformExecutor;
-import org.briarproject.api.android.AndroidNotificationManager;
+import org.briarproject.android.api.AndroidExecutor;
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -65,7 +65,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final SettingsManager settingsManager;
 	private final MessagingManager messagingManager;
 	private final ForumManager forumManager;
-	private final PlatformExecutor platformExecutor;
+	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 
 	// The following must only be accessed on the main UI thread
@@ -82,13 +82,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Inject
 	public AndroidNotificationManagerImpl(@DatabaseExecutor Executor dbExecutor,
 			SettingsManager settingsManager, MessagingManager messagingManager,
-			ForumManager forumManager, PlatformExecutor platformExecutor,
+			ForumManager forumManager, AndroidExecutor androidExecutor,
 			Application app) {
 		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
 		this.messagingManager = messagingManager;
 		this.forumManager = forumManager;
-		this.platformExecutor = platformExecutor;
+		this.androidExecutor = androidExecutor;
 		appContext = app.getApplicationContext();
 	}
 
@@ -118,7 +118,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	private void clearNotifications() {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				clearPrivateMessageNotification();
 				clearForumPostNotification();
@@ -155,7 +155,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	public void showPrivateMessageNotification(final GroupId g) {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				Integer count = contactCounts.get(g);
 				if (count == null) contactCounts.put(g, 1);
@@ -168,7 +168,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	public void clearPrivateMessageNotification(final GroupId g) {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				Integer count = contactCounts.remove(g);
 				if (count == null) return; // Already cleared
@@ -239,7 +239,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	public void showForumPostNotification(final GroupId g) {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				Integer count = forumCounts.get(g);
 				if (count == null) forumCounts.put(g, 1);
@@ -252,7 +252,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	public void clearForumPostNotification(final GroupId g) {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				Integer count = forumCounts.remove(g);
 				if (count == null) return; // Already cleared
@@ -311,7 +311,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	public void blockNotification(final GroupId g) {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				visibleGroup = g;
 			}
@@ -319,7 +319,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	public void unblockNotification(final GroupId g) {
-		platformExecutor.execute(new Runnable() {
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				if (g.equals(visibleGroup)) visibleGroup = null;
 			}

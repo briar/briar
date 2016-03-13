@@ -9,6 +9,7 @@ import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.FileUtils;
 import org.iilab.IilabEngineeringRSA2048Pin;
@@ -111,9 +112,7 @@ public class PanicResponderActivity extends BriarActivity {
 			public void run() {
 				clearSharedPrefs();
 				// TODO somehow delete/shred the database more thoroughly
-				FileUtils
-						.deleteFileOrDir(
-								databaseConfig.getDatabaseDirectory());
+				AndroidUtils.deleteAppData(PanicResponderActivity.this);
 				PanicResponder.deleteAllAppData(PanicResponderActivity.this);
 
 				// nothing left to do after everything is deleted,

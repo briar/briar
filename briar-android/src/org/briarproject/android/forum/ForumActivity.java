@@ -18,7 +18,7 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.android.AndroidNotificationManager;
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchMessageException;

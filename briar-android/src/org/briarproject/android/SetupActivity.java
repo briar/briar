@@ -17,7 +17,7 @@ import android.widget.TextView.OnEditorActionListener;
 import org.briarproject.R;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
-import org.briarproject.api.android.ReferenceManager;
+import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
