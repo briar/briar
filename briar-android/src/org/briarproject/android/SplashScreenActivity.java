@@ -92,8 +92,6 @@ public class SplashScreenActivity extends BaseActivity {
 				} else {
 					clearSharedPrefs();
 					AndroidUtils.deleteAppData(this);
-					FileUtils.deleteFileOrDir(
-							dbConfig.getDatabaseDirectory());
 					startActivity(new Intent(this, SetupActivity.class));
 				}
 			}

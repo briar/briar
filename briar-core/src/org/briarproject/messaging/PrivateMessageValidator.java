@@ -14,7 +14,7 @@ import org.briarproject.clients.BdfMessageValidator;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 
-public class PrivateMessageValidator extends BdfMessageValidator {
+class PrivateMessageValidator extends BdfMessageValidator {
 
 	PrivateMessageValidator(ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {

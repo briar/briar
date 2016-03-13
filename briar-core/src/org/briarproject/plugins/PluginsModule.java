@@ -69,15 +69,5 @@ public class PluginsModule {
 		lifecycleManager.register(pluginManager);
 		return pluginManager;
 	}
-/*
-	@Provides
-	SimplexPluginConfig provideSimplexPluginConfig() {
-		return null;
-	}
 
-	@Provides
-	public DuplexPluginConfig provideDuplexPluginConfig() {
-		return null;
-	}
-	*/
 }
