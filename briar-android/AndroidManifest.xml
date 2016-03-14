@@ -169,6 +169,19 @@
 			android:label="@string/startup_failed_activity_title">
 		</activity>
 		<activity
+			android:name=".android.SettingsActivity"
+			android:label="@string/settings_title"
+			android:parentActivityName=".android.NavDrawerActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.NavDrawerActivity"
+				/>
+			<intent-filter>
+				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+		</activity>
+		<activity
 			android:name=".android.panic.PanicPreferencesActivity"
 			android:label="@string/panic_setting">
 			<intent-filter>
