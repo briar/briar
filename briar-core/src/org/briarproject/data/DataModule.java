@@ -28,7 +28,7 @@ public class DataModule {
 	}
 
 	@Provides
-	MetadataEncoder provideMetaDataEncoider(BdfWriterFactory bdfWriterFactory) {
+	MetadataEncoder provideMetaDataEncoder(BdfWriterFactory bdfWriterFactory) {
 		return new MetadataEncoderImpl(bdfWriterFactory);
 	}
 

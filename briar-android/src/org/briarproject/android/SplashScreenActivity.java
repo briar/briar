@@ -86,14 +86,12 @@ public class SplashScreenActivity extends BaseActivity {
 		} else {
 			String hex = getEncryptedDatabaseKey();
 
-			if (dbConfig != null) {
-				if (hex != null && dbConfig.databaseExists()) {
-					startActivity(new Intent(this, NavDrawerActivity.class));
-				} else {
-					clearSharedPrefs();
-					AndroidUtils.deleteAppData(this);
-					startActivity(new Intent(this, SetupActivity.class));
-				}
+			if (hex != null && dbConfig.databaseExists()) {
+				startActivity(new Intent(this, NavDrawerActivity.class));
+			} else {
+				clearSharedPrefs();
+				AndroidUtils.deleteAppData(this);
+				startActivity(new Intent(this, SetupActivity.class));
 			}
 		}
 	}

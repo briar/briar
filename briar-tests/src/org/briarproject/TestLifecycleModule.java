@@ -9,6 +9,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -72,6 +74,7 @@ public class TestLifecycleModule {
 
 	@Provides
 	@IoExecutor
+	@Singleton
 	Executor provideExecutor() {
 		return Executors.newCachedThreadPool();
 	}
