@@ -3,28 +3,26 @@ package org.briarproject.clients;
 import com.google.inject.Inject;
 
 import org.briarproject.api.Bytes;
+import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.data.BdfWriter;
-import org.briarproject.api.data.BdfWriterFactory;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 
 	private final GroupFactory groupFactory;
-	private final BdfWriterFactory bdfWriterFactory;
+	private final ClientHelper clientHelper;
 
 	@Inject
 	PrivateGroupFactoryImpl(GroupFactory groupFactory,
-			BdfWriterFactory bdfWriterFactory) {
+			ClientHelper clientHelper) {
 		this.groupFactory = groupFactory;
-		this.bdfWriterFactory = bdfWriterFactory;
+		this.clientHelper = clientHelper;
 	}
 
 	@Override
@@ -36,22 +34,12 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 	}
 
 	private byte[] createGroupDescriptor(AuthorId local, AuthorId remote) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
-			w.writeListStart();
-			if (Bytes.COMPARATOR.compare(local, remote) < 0) {
-				w.writeRaw(local.getBytes());
-				w.writeRaw(remote.getBytes());
-			} else {
-				w.writeRaw(remote.getBytes());
-				w.writeRaw(local.getBytes());
-			}
-			w.writeListEnd();
-		} catch (IOException e) {
-			// Shouldn't happen with ByteArrayOutputStream
+			if (Bytes.COMPARATOR.compare(local, remote) < 0)
+				return clientHelper.toByteArray(BdfList.of(local, remote));
+			else return clientHelper.toByteArray(BdfList.of(remote, local));
+		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
-		return out.toByteArray();
 	}
 }

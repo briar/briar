@@ -13,6 +13,7 @@ import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
@@ -38,16 +39,16 @@ class ForumPostValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(BdfList message, Group g,
-			long timestamp) throws FormatException {
+	protected BdfDictionary validateMessage(Message m, Group g,
+			BdfList body) throws FormatException {
 		// Parent ID, author, content type, forum post body, signature
-		checkSize(message, 5);
+		checkSize(body, 5);
 		// Parent ID is optional
-		byte[] parent = message.getOptionalRaw(0);
+		byte[] parent = body.getOptionalRaw(0);
 		checkLength(parent, UniqueId.LENGTH);
 		// Author is optional
 		Author author = null;
-		BdfList authorList = message.getOptionalList(1);
+		BdfList authorList = body.getOptionalList(1);
 		if (authorList != null) {
 			// Name, public key
 			checkSize(authorList, 2);
@@ -58,13 +59,13 @@ class ForumPostValidator extends BdfMessageValidator {
 			author = authorFactory.createAuthor(name, publicKey);
 		}
 		// Content type
-		String contentType = message.getString(2);
+		String contentType = body.getString(2);
 		checkLength(contentType, 0, MAX_CONTENT_TYPE_LENGTH);
 		// Forum post body
-		byte[] body = message.getRaw(3);
-		checkLength(body, 0, MAX_FORUM_POST_BODY_LENGTH);
+		byte[] forumPostBody = body.getRaw(3);
+		checkLength(forumPostBody, 0, MAX_FORUM_POST_BODY_LENGTH);
 		// Signature is optional
-		byte[] sig = message.getOptionalRaw(4);
+		byte[] sig = body.getOptionalRaw(4);
 		checkLength(sig, 0, MAX_SIGNATURE_LENGTH);
 		// If there's an author there must be a signature and vice versa
 		if (author != null && sig == null) {
@@ -82,7 +83,7 @@ class ForumPostValidator extends BdfMessageValidator {
 				KeyParser keyParser = crypto.getSignatureKeyParser();
 				PublicKey key = keyParser.parsePublicKey(author.getPublicKey());
 				// Serialise the data to be signed
-				BdfList signed = BdfList.of(g.getId(), timestamp, parent,
+				BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
 						authorList, contentType, body);
 				// Verify the signature
 				Signature signature = crypto.getSignature();
@@ -99,7 +100,7 @@ class ForumPostValidator extends BdfMessageValidator {
 		}
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
-		meta.put("timestamp", timestamp);
+		meta.put("timestamp", m.getTimestamp());
 		if (parent != null) meta.put("parent", parent);
 		if (author != null) {
 			BdfDictionary authorMeta = new BdfDictionary();

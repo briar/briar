@@ -7,6 +7,7 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
@@ -21,22 +22,22 @@ class PrivateMessageValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(BdfList message, Group g,
-			long timestamp) throws FormatException {
+	protected BdfDictionary validateMessage(Message m, Group g,
+			BdfList body) throws FormatException {
 		// Parent ID, content type, private message body
-		checkSize(message, 3);
+		checkSize(body, 3);
 		// Parent ID is optional
-		byte[] parentId = message.getOptionalRaw(0);
+		byte[] parentId = body.getOptionalRaw(0);
 		checkLength(parentId, UniqueId.LENGTH);
 		// Content type
-		String contentType = message.getString(1);
+		String contentType = body.getString(1);
 		checkLength(contentType, 0, MAX_CONTENT_TYPE_LENGTH);
 		// Private message body
-		byte[] body = message.getRaw(2);
-		checkLength(body, 0, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		byte[] privateMessageBody = body.getRaw(2);
+		checkLength(privateMessageBody, 0, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
-		meta.put("timestamp", timestamp);
+		meta.put("timestamp", m.getTimestamp());
 		if (parentId != null) meta.put("parent", parentId);
 		meta.put("contentType", contentType);
 		meta.put("local", false);

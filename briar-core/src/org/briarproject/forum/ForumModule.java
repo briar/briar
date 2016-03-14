@@ -53,7 +53,8 @@ public class ForumModule extends AbstractModule {
 			ForumSharingManagerImpl forumSharingManager) {
 		contactManager.registerAddContactHook(forumSharingManager);
 		contactManager.registerRemoveContactHook(forumSharingManager);
-		validationManager.registerValidationHook(forumSharingManager);
+		validationManager.registerIncomingMessageHook(
+				ForumSharingManagerImpl.CLIENT_ID, forumSharingManager);
 		return forumSharingManager;
 	}
 }

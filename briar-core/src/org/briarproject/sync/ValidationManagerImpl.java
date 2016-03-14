@@ -20,16 +20,13 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.MessageValidator;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.util.ByteUtils;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -46,7 +43,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final Executor dbExecutor;
 	private final Executor cryptoExecutor;
 	private final Map<ClientId, MessageValidator> validators;
-	private final List<ValidationHook> hooks;
+	private final Map<ClientId, IncomingMessageHook> hooks;
 
 	@Inject
 	ValidationManagerImpl(DatabaseComponent db,
@@ -56,7 +53,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
 		validators = new ConcurrentHashMap<ClientId, MessageValidator>();
-		hooks = new CopyOnWriteArrayList<ValidationHook>();
+		hooks = new ConcurrentHashMap<ClientId, IncomingMessageHook>();
 	}
 
 	@Override
@@ -76,8 +73,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@Override
-	public void registerValidationHook(ValidationHook hook) {
-		hooks.add(hook);
+	public void registerIncomingMessageHook(ClientId c,
+			IncomingMessageHook hook) {
+		hooks.put(c, hook);
 	}
 
 	private void getMessagesToValidate(final ClientId c) {
@@ -170,8 +168,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							db.mergeMessageMetadata(txn, m.getId(), meta);
 							db.setMessageValid(txn, m, c, true);
 							db.setMessageShared(txn, m, true);
-							for (ValidationHook hook : hooks)
-								hook.validatingMessage(txn, m, c, meta);
+							IncomingMessageHook hook = hooks.get(c);
+							if (hook != null)
+								hook.incomingMessage(txn, m, meta);
 						}
 						txn.setComplete();
 					} finally {

@@ -2,22 +2,26 @@ package org.briarproject.clients;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageQueueManager.QueueMessageValidator;
+import org.briarproject.api.clients.QueueMessage;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageValidator;
+import org.briarproject.api.sync.ValidationManager.MessageValidator;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
 
+import static org.briarproject.api.clients.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
-public abstract class BdfMessageValidator implements MessageValidator {
+public abstract class BdfMessageValidator implements MessageValidator,
+		QueueMessageValidator {
 
 	protected static final Logger LOG =
 			Logger.getLogger(BdfMessageValidator.class.getName());
@@ -33,11 +37,20 @@ public abstract class BdfMessageValidator implements MessageValidator {
 		this.clock = clock;
 	}
 
-	protected abstract BdfDictionary validateMessage(BdfList message, Group g,
-			long timestamp) throws FormatException;
+	protected abstract BdfDictionary validateMessage(Message m, Group g,
+			BdfList body) throws FormatException;
 
 	@Override
 	public Metadata validateMessage(Message m, Group g) {
+		return validateMessage(m, g, MESSAGE_HEADER_LENGTH);
+	}
+
+	@Override
+	public Metadata validateMessage(QueueMessage q, Group g) {
+		return validateMessage(q, g, QUEUE_MESSAGE_HEADER_LENGTH);
+	}
+
+	private Metadata validateMessage(Message m, Group g, int headerLength) {
 		// Reject the message if it's too far in the future
 		long now = clock.currentTimeMillis();
 		if (m.getTimestamp() - now > MAX_CLOCK_DIFFERENCE) {
@@ -45,10 +58,14 @@ public abstract class BdfMessageValidator implements MessageValidator {
 			return null;
 		}
 		byte[] raw = m.getRaw();
+		if (raw.length <= headerLength) {
+			LOG.info("Message is too short");
+			return null;
+		}
 		try {
-			BdfList message = clientHelper.toList(raw, MESSAGE_HEADER_LENGTH,
-					raw.length - MESSAGE_HEADER_LENGTH);
-			BdfDictionary meta = validateMessage(message, g, m.getTimestamp());
+			BdfList body = clientHelper.toList(raw, headerLength,
+					raw.length - headerLength);
+			BdfDictionary meta = validateMessage(m, g, body);
 			if (meta == null) {
 				LOG.info("Invalid message");
 				return null;
@@ -87,7 +104,7 @@ public abstract class BdfMessageValidator implements MessageValidator {
 	}
 
 	protected void checkSize(BdfList list, int minSize, int maxSize)
-		throws FormatException {
+			throws FormatException {
 		if (list != null) {
 			if (list.size() < minSize) throw new FormatException();
 			if (list.size() > maxSize) throw new FormatException();

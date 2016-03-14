@@ -24,7 +24,7 @@ import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.ValidationManager.ValidationHook;
+import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
@@ -44,7 +44,7 @@ import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
 class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
-		RemoveContactHook, ValidationHook {
+		RemoveContactHook, IncomingMessageHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"cd11a5d04dccd9e2931d6fc3df456313"
@@ -103,15 +103,13 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	}
 
 	@Override
-	public void validatingMessage(Transaction txn, Message m, ClientId c,
-			Metadata meta) throws DbException {
-		if (c.equals(CLIENT_ID)) {
-			try {
-				ContactId contactId = getContactId(txn, m.getGroupId());
-				setForumVisibility(txn, contactId, getVisibleForums(txn, m));
-			} catch (FormatException e) {
-				throw new DbException(e);
-			}
+	public void incomingMessage(Transaction txn, Message m, Metadata meta)
+			throws DbException {
+		try {
+			ContactId contactId = getContactId(txn, m.getGroupId());
+			setForumVisibility(txn, contactId, getVisibleForums(txn, m));
+		} catch (FormatException e) {
+			throw new DbException(e);
 		}
 	}
 
