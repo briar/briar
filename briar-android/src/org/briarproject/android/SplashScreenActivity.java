@@ -15,7 +15,6 @@ import org.briarproject.R;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.util.FileUtils;
 
 import java.util.logging.Logger;
 
@@ -34,12 +33,8 @@ public class SplashScreenActivity extends BaseActivity {
 	// This build expires on 1 April 2016
 	private static final long EXPIRY_DATE = 1459465200 * 1000L;
 
-	private long now = System.currentTimeMillis();
-
 	@Inject
-	DatabaseConfig dbConfig;
-
-
+	protected DatabaseConfig dbConfig;
 
 	public SplashScreenActivity() {
 		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
@@ -70,6 +65,7 @@ public class SplashScreenActivity extends BaseActivity {
 			@Override
 			public void run() {
 				startNextActivity();
+				finish();
 			}
 		}, 500);
 	}
@@ -85,7 +81,6 @@ public class SplashScreenActivity extends BaseActivity {
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
 			String hex = getEncryptedDatabaseKey();
-
 			if (hex != null && dbConfig.databaseExists()) {
 				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
