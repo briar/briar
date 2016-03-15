@@ -11,8 +11,9 @@ import org.briarproject.api.settings.SettingsManager;
 import javax.inject.Inject;
 
 public class SettingsActivity extends BriarActivity {
-	@Inject private SettingsManager settingsManager;
-	@Inject private EventBus eventBus;
+
+	@Inject protected SettingsManager settingsManager;
+	@Inject protected EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -25,6 +26,11 @@ public class SettingsActivity extends BriarActivity {
 		}
 
 		setContentView(R.layout.activity_settings);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	public SettingsManager getSettingsManager() {

@@ -1,7 +1,10 @@
 package org.briarproject.clients;
 
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.QueueMessageFactory;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.MetadataEncoder;
@@ -9,10 +12,7 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.sync.SyncModule;
+import org.briarproject.api.sync.ValidationManager;
 
 import dagger.Module;
 import dagger.Provides;
@@ -31,10 +31,20 @@ public class ClientsModule {
 
 	@Provides
 	PrivateGroupFactory providePrivateGroupFactory(GroupFactory groupFactory,
-			BdfWriterFactory bdfWriterFactory) {
-		return new PrivateGroupFactoryImpl(groupFactory, bdfWriterFactory);
+			ClientHelper clientHelper) {
+		return new PrivateGroupFactoryImpl(groupFactory, clientHelper);
 	}
 
-		bind(QueueMessageFactory.class).to(QueueMessageFactoryImpl.class);
+	@Provides
+	MessageQueueManager provideMessageQueueManager(DatabaseComponent db,
+			ClientHelper clientHelper, QueueMessageFactory queueMessageFactory,
+			ValidationManager validationManager) {
+		return new MessageQueueManagerImpl(db, clientHelper,
+				queueMessageFactory, validationManager);
+	}
 
+	@Provides
+	QueueMessageFactory provideQueueMessageFactory(CryptoComponent crypto) {
+		return new QueueMessageFactoryImpl(crypto);
+	}
 }

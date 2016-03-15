@@ -11,7 +11,6 @@ import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.forum.ReadForumPostActivity;
 import org.briarproject.android.forum.ShareForumActivity;
 import org.briarproject.android.forum.WriteForumPostActivity;
-import org.briarproject.android.fragment.SettingsFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.panic.PanicPreferencesActivity;
@@ -63,9 +62,9 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	void inject(ForumActivity activity);
 
-	void inject(ContactListFragment fragment);
+	void inject(SettingsActivity activity);
 
-	void inject(SettingsFragment fragment);
+	void inject(ContactListFragment fragment);
 
 	void inject(ForumListFragment fragment);
 

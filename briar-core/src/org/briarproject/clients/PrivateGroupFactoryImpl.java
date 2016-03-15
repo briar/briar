@@ -1,6 +1,5 @@
 package org.briarproject.clients;
 
-import com.google.inject.Inject;
 
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
@@ -12,6 +11,8 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
+
+import javax.inject.Inject;
 
 class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 
