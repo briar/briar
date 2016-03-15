@@ -23,17 +23,14 @@ import static org.briarproject.android.identity.LocalAuthorItem.ANONYMOUS;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
 
 public class LocalAuthorSpinnerAdapter extends BaseAdapter
-implements SpinnerAdapter {
+		implements SpinnerAdapter {
 
 	private final Context ctx;
-	private final CryptoComponent crypto;
 	private final boolean includeAnonymous;
 	private final List<LocalAuthorItem> list = new ArrayList<LocalAuthorItem>();
 
-	public LocalAuthorSpinnerAdapter(Context ctx,
-			CryptoComponent crypto, boolean includeAnonymous) {
+	public LocalAuthorSpinnerAdapter(Context ctx, boolean includeAnonymous) {
 		this.ctx = ctx;
-		this.crypto = crypto;
 		this.includeAnonymous = includeAnonymous;
 	}
 
@@ -78,7 +75,7 @@ implements SpinnerAdapter {
 		} else {
 			name.setText(item.getLocalAuthor().getName());
 			avatar.setVisibility(View.VISIBLE);
-			avatar.setImageDrawable(new IdenticonDrawable(crypto,
+			avatar.setImageDrawable(new IdenticonDrawable(
 					item.getLocalAuthor().getId().getBytes()));
 		}
 		return view;

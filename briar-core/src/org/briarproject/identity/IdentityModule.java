@@ -1,23 +1,39 @@
 package org.briarproject.identity;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.ObjectReader;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.system.Clock;
+import org.briarproject.crypto.CryptoModule;
+import org.briarproject.data.DataModule;
+import org.briarproject.db.DatabaseModule;
 
-public class IdentityModule extends AbstractModule {
+import javax.inject.Singleton;
 
-	@Override
-	protected void configure() {
-		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
-		bind(IdentityManager.class).to(IdentityManagerImpl.class);
+import dagger.Module;
+import dagger.Provides;
+
+@Module
+public class IdentityModule {
+
+	@Provides
+	AuthorFactory provideAuthorFactory(CryptoComponent crypto,
+			BdfWriterFactory bdfWriterFactory, Clock clock) {
+		return new AuthorFactoryImpl(crypto, bdfWriterFactory, clock);
 	}
 
 	@Provides
-	ObjectReader<Author> getAuthorReader(AuthorFactory authorFactory) {
+	IdentityManager provideIdendityModule(DatabaseComponent db) {
+		return new IdentityManagerImpl(db);
+	}
+
+	@Provides
+	ObjectReader<Author> provideAuthorReader(AuthorFactory authorFactory) {
 		return new AuthorReader(authorFactory);
 	}
 }

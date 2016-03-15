@@ -1,7 +1,5 @@
 package org.briarproject.plugins;
 
-import com.google.inject.Provides;
-
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.plugins.BackoffFactory;
@@ -22,6 +20,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
+import dagger.Module;
+import dagger.Provides;
+
+@Module
 public class DesktopPluginsModule extends PluginsModule {
 
 	@Provides

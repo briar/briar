@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
+import org.briarproject.android.BriarApplication;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.util.BriarRecyclerView;
@@ -64,19 +66,22 @@ public class ContactListFragment extends BaseEventFragment {
 	}
 
 	@Inject
-	private CryptoComponent crypto;
-	@Inject
-	private ConnectionRegistry connectionRegistry;
+	protected ConnectionRegistry connectionRegistry;
 	private ContactListAdapter adapter = null;
 	private BriarRecyclerView list = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	private volatile ContactManager contactManager;
+	protected volatile ContactManager contactManager;
 	@Inject
-	private volatile MessagingManager messagingManager;
+	protected volatile MessagingManager messagingManager;
 	@Inject
-	private volatile EventBus eventBus;
+	protected volatile EventBus eventBus;
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
+	}
 
 	@Nullable
 	@Override
@@ -86,7 +91,7 @@ public class ContactListFragment extends BaseEventFragment {
 				inflater.inflate(R.layout.activity_contact_list, container,
 						false);
 
-		adapter = new ContactListAdapter(getContext(), crypto);
+		adapter = new ContactListAdapter(getContext());
 		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);

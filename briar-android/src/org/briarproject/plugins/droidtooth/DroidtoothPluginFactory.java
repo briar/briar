@@ -3,7 +3,7 @@ package org.briarproject.plugins.droidtooth;
 import android.content.Context;
 
 import org.briarproject.api.TransportId;
-import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;

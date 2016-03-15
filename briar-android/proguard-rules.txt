@@ -46,6 +46,8 @@
 -keep class javax.inject.** { *; }
 -keep class javax.annotation.** { *; }
 -keep class roboguice.** { *; }
+-keep class dagger.** { *; }
+-keep class com.google.** { *; }
 
 -dontwarn org.h2.**
 -dontnote org.h2.**
@@ -54,3 +56,6 @@
 -dontwarn roboguice.**
 -dontwarn net.sourceforge.jsocks.**
 -dontnote android.support.**
+-dontnote dagger.**
+-dontwarn dagger.**
+-dontwarn com.google.common.**

@@ -73,12 +73,10 @@ class ConversationAdapter extends
 						}
 					});
 	private Context ctx;
-	private CryptoComponent crypto;
 	private byte[] identiconKey;
 
-	public ConversationAdapter(Context context, CryptoComponent cryptoComponent) {
+	public ConversationAdapter(Context context) {
 		ctx = context;
-		crypto = cryptoComponent;
 	}
 
 	public void setIdenticonKey(byte[] key) {
@@ -133,7 +131,7 @@ class ConversationAdapter extends
 		} else {
 			if (identiconKey != null)
 				ui.avatar.setImageDrawable(
-						new IdenticonDrawable(crypto, identiconKey));
+						new IdenticonDrawable(identiconKey));
 			if (!header.isRead()) {
 				int left = ui.layout.getPaddingLeft();
 				int top = ui.layout.getPaddingTop();

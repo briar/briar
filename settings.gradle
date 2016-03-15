@@ -1,4 +1,4 @@
-include ':briar-api'
+include ':briar-api', ':briar-android-tests'
 include ':briar-core'
 include ':briar-desktop'
 include ':briar-tests'

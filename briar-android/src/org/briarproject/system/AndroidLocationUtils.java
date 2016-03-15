@@ -6,12 +6,12 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.system.LocationUtils;
 
 import java.util.Locale;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static android.content.Context.TELEPHONY_SERVICE;
 

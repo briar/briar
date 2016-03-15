@@ -1,7 +1,5 @@
 package org.briarproject;
 
-import com.google.inject.AbstractModule;
-
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
@@ -11,37 +9,74 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TestLifecycleModule extends AbstractModule {
+import javax.inject.Singleton;
 
-	@Override
-	protected void configure() {
-		bind(LifecycleManager.class).toInstance(new LifecycleManager() {
+import dagger.Module;
+import dagger.Provides;
 
-			public void register(Service s) {}
+@Module
+public class TestLifecycleModule {
 
-			public void registerForShutdown(ExecutorService e) {}
+	@Provides
+	LifecycleManager provideLifecycleManager() {
+		return new LifecycleManager() {
+			@Override
+			public void register(Service s) {
 
-			public StartResult startServices() { return StartResult.SUCCESS; }
+			}
 
-			public void stopServices() {}
+			@Override
+			public void registerForShutdown(ExecutorService e) {
 
-			public void waitForDatabase() throws InterruptedException {}
+			}
 
-			public void waitForStartup() throws InterruptedException {}
+			@Override
+			public StartResult startServices() {
+				return StartResult.SUCCESS;
+			}
 
-			public void waitForShutdown() throws InterruptedException {}
-		});
-		bind(ShutdownManager.class).toInstance(new ShutdownManager() {
+			@Override
+			public void stopServices() {
 
+			}
+
+			@Override
+			public void waitForDatabase() throws InterruptedException {
+
+			}
+
+			@Override
+			public void waitForStartup() throws InterruptedException {
+
+			}
+
+			@Override
+			public void waitForShutdown() throws InterruptedException {
+
+			}
+		};
+	}
+
+	@Provides
+	ShutdownManager provideShutdownManager() {
+		return new ShutdownManager() {
+			@Override
 			public int addShutdownHook(Runnable hook) {
 				return 0;
 			}
 
+			@Override
 			public boolean removeShutdownHook(int handle) {
 				return true;
 			}
-		});
-		bind(Executor.class).annotatedWith(IoExecutor.class).toInstance(
-				Executors.newCachedThreadPool());
+		};
 	}
+
+	@Provides
+	@IoExecutor
+	@Singleton
+	Executor provideExecutor() {
+		return Executors.newCachedThreadPool();
+	}
+
 }

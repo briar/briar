@@ -1,12 +1,8 @@
 package org.briarproject.sync;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import org.briarproject.BriarTestCase;
 import org.briarproject.ImmediateExecutor;
 import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
@@ -36,32 +32,22 @@ import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.clients.ClientsModule;
-import org.briarproject.contact.ContactModule;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.event.EventModule;
-import org.briarproject.identity.IdentityModule;
-import org.briarproject.lifecycle.LifecycleModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.transport.TransportModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
@@ -76,22 +62,15 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
 	private final AuthorId bobId = new AuthorId(TestUtils.getRandomId());
 
-	private Injector alice, bob;
+	private SimplexMessagingComponent alice, bob;
 
 	@Before
 	public void setUp() {
 		assertTrue(testDir.mkdirs());
-		alice = createInjector(aliceDir);
-		bob = createInjector(bobDir);
-	}
-
-	private Injector createInjector(File dir) {
-		return Guice.createInjector(new TestDatabaseModule(dir),
-				new TestSystemModule(), new ClientsModule(),
-				new ContactModule(), new CryptoModule(), new DatabaseModule(),
-				new DataModule(), new EventModule(), new IdentityModule(),
-				new LifecycleModule(), new MessagingModule(), new SyncModule(),
-				new TransportModule());
+		alice = DaggerSimplexMessagingComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(aliceDir)).build();
+		bob = DaggerSimplexMessagingComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(bobDir)).build();
 	}
 
 	@Test
@@ -101,22 +80,19 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private byte[] write() throws Exception {
 		// Instantiate Alice's services
-		LifecycleManager lifecycleManager =
-				alice.getInstance(LifecycleManager.class);
-		DatabaseComponent db = alice.getInstance(DatabaseComponent.class);
-		IdentityManager identityManager =
-				alice.getInstance(IdentityManager.class);
-		ContactManager contactManager = alice.getInstance(ContactManager.class);
-		MessagingManager messagingManager =
-				alice.getInstance(MessagingManager.class);
-		KeyManager keyManager = alice.getInstance(KeyManager.class);
+		LifecycleManager lifecycleManager = alice.getLifeCycleManager();
+		DatabaseComponent db = alice.getDatabaseComponent();
+		IdentityManager identityManager = alice.getIdentityManager();
+		ContactManager contactManager = alice.getContactManager();
+		MessagingManager messagingManager = alice.getMessagingManager();
+		KeyManager keyManager = alice.getKeyManager();
 		PrivateMessageFactory privateMessageFactory =
-				alice.getInstance(PrivateMessageFactory.class);
+				alice.getPrivateMessageFactory();
 		PacketWriterFactory packetWriterFactory =
-				alice.getInstance(PacketWriterFactory.class);
-		EventBus eventBus = alice.getInstance(EventBus.class);
+				alice.getPacketWriterFactory();
+		EventBus eventBus = alice.getEventBus();
 		StreamWriterFactory streamWriterFactory =
-				alice.getInstance(StreamWriterFactory.class);
+				alice.getStreamWriterFactory();
 
 		// Start the lifecycle manager
 		lifecycleManager.startServices();
@@ -172,20 +148,16 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private void read(byte[] stream) throws Exception {
 		// Instantiate Bob's services
-		LifecycleManager lifecycleManager =
-				bob.getInstance(LifecycleManager.class);
-		DatabaseComponent db = bob.getInstance(DatabaseComponent.class);
-		IdentityManager identityManager =
-				bob.getInstance(IdentityManager.class);
-		ContactManager contactManager = bob.getInstance(ContactManager.class);
-		KeyManager keyManager = bob.getInstance(KeyManager.class);
-		StreamReaderFactory streamReaderFactory =
-				bob.getInstance(StreamReaderFactory.class);
-		PacketReaderFactory packetReaderFactory =
-				bob.getInstance(PacketReaderFactory.class);
-		EventBus eventBus = bob.getInstance(EventBus.class);
+		LifecycleManager lifecycleManager = bob.getLifeCycleManager();
+		DatabaseComponent db = bob.getDatabaseComponent();
+		IdentityManager identityManager = bob.getIdentityManager();
+		ContactManager contactManager = bob.getContactManager();
+		KeyManager keyManager = bob.getKeyManager();
+		StreamReaderFactory streamReaderFactory = bob.getStreamReaderFactory();
+		PacketReaderFactory packetReaderFactory = bob.getPacketReaderFactory();
+		EventBus eventBus = bob.getEventBus();
 		// Bob needs a MessagingManager even though we're not using it directly
-		bob.getInstance(MessagingManager.class);
+		bob.getMessagingManager();
 
 		// Start the lifecyle manager
 		lifecycleManager.startServices();
@@ -210,7 +182,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 		// Set up an event listener
 		MessageListener listener = new MessageListener();
-		bob.getInstance(EventBus.class).addListener(listener);
+		bob.getEventBus().addListener(listener);
 		// Read and recognise the tag
 		ByteArrayInputStream in = new ByteArrayInputStream(stream);
 		byte[] tag = new byte[TAG_LENGTH];

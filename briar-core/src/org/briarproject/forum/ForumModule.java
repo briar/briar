@@ -1,12 +1,12 @@
 package org.briarproject.forum;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.data.MetadataParser;
+import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -14,18 +14,40 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-public class ForumModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	@Override
-	protected void configure() {
-		bind(ForumManager.class).to(ForumManagerImpl.class).in(Singleton.class);
-		bind(ForumPostFactory.class).to(ForumPostFactoryImpl.class);
+@Module
+public class ForumModule {
+
+	public static class EagerSingletons {
+		@Inject
+		ForumListValidator forumListValidator;
+		@Inject
+		ForumPostValidator forumPostValidator;
+		@Inject
+		ForumSharingManager forumSharingManager;
 	}
 
-	@Provides @Singleton
-	ForumPostValidator getForumPostValidator(
+	@Provides
+	@Singleton
+	ForumManager provideForumManager(DatabaseComponent db,
+			ClientHelper clientHelper) {
+		return new ForumManagerImpl(db, clientHelper);
+	}
+
+	@Provides
+	ForumPostFactory provideForumPostFactory(CryptoComponent crypto,
+			ClientHelper clientHelper) {
+		return new ForumPostFactoryImpl(crypto, clientHelper);
+	}
+
+	@Provides
+	@Singleton
+	ForumPostValidator provideForumPostValidator(
 			ValidationManager validationManager, CryptoComponent crypto,
 			AuthorFactory authorFactory, ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
@@ -36,8 +58,9 @@ public class ForumModule extends AbstractModule {
 		return validator;
 	}
 
-	@Provides @Singleton
-	ForumListValidator getForumListValidator(
+	@Provides
+	@Singleton
+	ForumListValidator provideForumListValidator(
 			ValidationManager validationManager, ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
 		ForumListValidator validator = new ForumListValidator(clientHelper,
@@ -47,8 +70,10 @@ public class ForumModule extends AbstractModule {
 		return validator;
 	}
 
-	@Provides @Singleton
-	ForumSharingManager getForumSharingManager(ContactManager contactManager,
+	@Provides
+	@Singleton
+	ForumSharingManager provideForumSharingManager(
+			ContactManager contactManager,
 			ValidationManager validationManager,
 			ForumSharingManagerImpl forumSharingManager) {
 		contactManager.registerAddContactHook(forumSharingManager);

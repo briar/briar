@@ -3,9 +3,7 @@ package org.briarproject.plugins;
 import android.app.Application;
 import android.content.Context;
 
-import com.google.inject.Provides;
-
-import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.BackoffFactory;
@@ -24,10 +22,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
-public class AndroidPluginsModule extends PluginsModule {
+import dagger.Module;
+import dagger.Provides;
+
+@Module
+public class AndroidPluginsModule {
 
 	@Provides
-	SimplexPluginConfig getSimplexPluginConfig() {
+	SimplexPluginConfig provideSimplexPluginConfig() {
 		return new SimplexPluginConfig() {
 			public Collection<SimplexPluginFactory> getFactories() {
 				return Collections.emptyList();
@@ -36,9 +38,9 @@ public class AndroidPluginsModule extends PluginsModule {
 	}
 
 	@Provides
-	DuplexPluginConfig getDuplexPluginConfig(@IoExecutor Executor ioExecutor,
-			AndroidExecutor androidExecutor, Application app,
-			SecureRandom random, BackoffFactory backoffFactory,
+	public DuplexPluginConfig provideDuplexPluginConfig(
+			@IoExecutor Executor ioExecutor, AndroidExecutor androidExecutor,
+			SecureRandom random, BackoffFactory backoffFactory, Application app,
 			LocationUtils locationUtils, EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
@@ -55,4 +57,5 @@ public class AndroidPluginsModule extends PluginsModule {
 			}
 		};
 	}
+
 }

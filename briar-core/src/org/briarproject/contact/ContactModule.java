@@ -1,20 +1,26 @@
 package org.briarproject.contact;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.lifecycle.LifecycleManager;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-public class ContactModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	@Override
-	protected void configure() {}
+@Module
+public class ContactModule {
 
-	@Provides @Singleton
-	ContactManager getContactManager(IdentityManager identityManager,
+	public static class EagerSingletons {
+		@Inject ContactManager contactManager;
+	}
+
+	@Provides
+	@Singleton
+	ContactManager getContactManager(LifecycleManager lifecycleManager,
+			IdentityManager identityManager,
 			ContactManagerImpl contactManager) {
 		identityManager.registerRemoveIdentityHook(contactManager);
 		return contactManager;

@@ -1,13 +1,10 @@
 package org.briarproject.android;
 
 import android.app.Application;
+import android.content.Context;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
-import org.briarproject.api.android.AndroidExecutor;
-import org.briarproject.api.android.AndroidNotificationManager;
-import org.briarproject.api.android.ReferenceManager;
+import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.event.EventBus;
@@ -16,11 +13,19 @@ import org.briarproject.api.ui.UiCallback;
 
 import java.io.File;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import static android.content.Context.MODE_PRIVATE;
+import dagger.Module;
+import dagger.Provides;
 
-public class AndroidModule extends AbstractModule {
+@Module
+public class AndroidModule {
+
+	static class EagerSingletons {
+		@Inject
+		AndroidNotificationManager androidNotificationManager;
+	}
 
 	private final UiCallback uiCallback;
 
@@ -42,18 +47,15 @@ public class AndroidModule extends AbstractModule {
 		};
 	}
 
-	@Override
-	protected void configure() {
-		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class).in(
-				Singleton.class);
-		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
-				Singleton.class);
-		bind(UiCallback.class).toInstance(uiCallback);
+	@Provides
+	public UiCallback provideUICallback() {
+		return uiCallback;
 	}
 
-	@Provides @Singleton
-	DatabaseConfig getDatabaseConfig(final Application app) {
-		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
+	@Provides
+	@Singleton
+	public DatabaseConfig provideDatabaseConfig(Application app) {
+		final File dir = app.getApplicationContext().getDir("db", Context.MODE_PRIVATE);
 		return new DatabaseConfig() {
 
 			private volatile SecretKey key = null;
@@ -80,12 +82,21 @@ public class AndroidModule extends AbstractModule {
 		};
 	}
 
-	@Provides @Singleton
-	AndroidNotificationManager getAndroidNotificationManager(
+	@Provides
+	@Singleton
+	ReferenceManager provideReferenceManager() {
+		return new ReferenceManagerImpl();
+	}
+
+	@Provides
+	@Singleton
+	AndroidNotificationManager provideAndroidNotificationManager(
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			AndroidNotificationManagerImpl notificationManager) {
 		lifecycleManager.register(notificationManager);
 		eventBus.addListener(notificationManager);
+
 		return notificationManager;
 	}
+
 }

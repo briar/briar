@@ -6,8 +6,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
-import org.briarproject.api.crypto.CryptoComponent;
-
 /**
  * Created by saiimons on 05/10/14.
  */
@@ -16,13 +14,9 @@ public class IdenticonDrawable extends Drawable {
 
 	private static final int CENTER_COLUMN_INDEX = 5;
 
-	public IdenticonDrawable(final CryptoComponent crypto, byte[] toShow) {
+	public IdenticonDrawable(byte[] toShow) {
 		super();
 		mDelegate = new IdenticonBase() {
-			@Override
-			protected CryptoComponent getCrypto() {
-				return crypto;
-			}
 
 			@Override
 			protected int getRowCount() {

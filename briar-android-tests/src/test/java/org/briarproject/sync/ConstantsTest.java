@@ -1,12 +1,6 @@
 package org.briarproject.sync;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import org.briarproject.BriarTestCase;
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestLifecycleModule;
-import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -21,22 +15,6 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.messaging.MessagingConstants;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
-import org.briarproject.clients.ClientsModule;
-import org.briarproject.contact.ContactModule;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.event.EventModule;
-import org.briarproject.forum.ForumModule;
-import org.briarproject.identity.IdentityModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.transport.TransportModule;
-import org.junit.Test;
-
-import java.util.Random;
-
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -45,26 +23,32 @@ import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESS
 import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
 import static org.junit.Assert.assertTrue;
 
+import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageId;
+import org.junit.Test;
+
+import java.util.Random;
+
+import javax.inject.Inject;
+
 public class ConstantsTest extends BriarTestCase {
 
 	// TODO: Break this up into tests that are relevant for each package
+	@Inject
+	CryptoComponent crypto;
+	@Inject
+	AuthorFactory authorFactory;
+	@Inject
+	PrivateMessageFactory privateMessageFactory;
+	@Inject
+	ForumPostFactory forumPostFactory;
 
-	private final CryptoComponent crypto;
-	private final AuthorFactory authorFactory;
-	private final PrivateMessageFactory privateMessageFactory;
-	private final ForumPostFactory forumPostFactory;
+	private final ConstantsComponent component;
 
 	public ConstantsTest() throws Exception {
-		Injector i = Guice.createInjector(new TestDatabaseModule(),
-				new TestLifecycleModule(), new TestSystemModule(),
-				new ClientsModule(), new ContactModule(), new CryptoModule(),
-				new DatabaseModule(), new DataModule(), new EventModule(),
-				new ForumModule(), new IdentityModule(), new MessagingModule(),
-				new SyncModule(), new TransportModule());
-		crypto = i.getInstance(CryptoComponent.class);
-		authorFactory = i.getInstance(AuthorFactory.class);
-		privateMessageFactory = i.getInstance(PrivateMessageFactory.class);
-		forumPostFactory = i.getInstance(ForumPostFactory.class);
+
+		component = DaggerConstantsComponent.builder().build();
+		component.inject(this);
 	}
 
 	@Test

@@ -1,7 +1,5 @@
 package org.briarproject.identity;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
@@ -13,8 +11,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-class IdentityManagerImpl implements IdentityManager {
+import javax.inject.Inject;
 
+class IdentityManagerImpl implements IdentityManager {
 	private final DatabaseComponent db;
 	private final List<AddIdentityHook> addHooks;
 	private final List<RemoveIdentityHook> removeHooks;

@@ -1,8 +1,5 @@
 package org.briarproject.db;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -20,11 +17,21 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class DatabaseModule extends AbstractModule {
+@Module
+public class DatabaseModule {
+
+	public static class EagerSingletons {
+		@Inject
+		@DatabaseExecutor ExecutorService executorService;
+	}
 
 	private final ExecutorService databaseExecutor;
 
@@ -39,30 +46,28 @@ public class DatabaseModule extends AbstractModule {
 				policy);
 	}
 
-	@Override
-	protected void configure() {}
-
-	@Provides @Singleton
-	Database<Connection> getDatabase(DatabaseConfig config,
+	@Provides
+	@Singleton
+	Database<Connection> provideDatabase(DatabaseConfig config,
 			SecureRandom random, Clock clock) {
 		return new H2Database(config, random, clock);
 	}
 
 	@Provides @Singleton
-	DatabaseComponent getDatabaseComponent(Database<Connection> db,
+	DatabaseComponent provideDatabaseComponent(Database<Connection> db,
 			EventBus eventBus, ShutdownManager shutdown) {
 		return new DatabaseComponentImpl<Connection>(db, Connection.class,
 				eventBus, shutdown);
 	}
 
 	@Provides @Singleton @DatabaseExecutor
-	ExecutorService getDatabaseExecutor(LifecycleManager lifecycleManager) {
+	ExecutorService provideDatabaseExecutorService(LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(databaseExecutor);
 		return databaseExecutor;
 	}
 
 	@Provides @Singleton @DatabaseExecutor
-	Executor getDatabaseExecutor(@DatabaseExecutor ExecutorService dbExecutor) {
+	Executor provideDatabaseExecutor(@DatabaseExecutor ExecutorService dbExecutor) {
 		return dbExecutor;
 	}
 }

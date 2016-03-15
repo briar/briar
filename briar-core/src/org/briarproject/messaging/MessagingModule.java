@@ -1,8 +1,5 @@
 package org.briarproject.messaging;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
@@ -11,18 +8,30 @@ import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 
 import static org.briarproject.messaging.MessagingManagerImpl.CLIENT_ID;
 
-public class MessagingModule extends AbstractModule {
+@Module
+public class MessagingModule {
 
-	@Override
-	protected void configure() {
-		bind(PrivateMessageFactory.class).to(PrivateMessageFactoryImpl.class);
+	public static class EagerSingletons {
+		@Inject MessagingManager messagingManager;
+		@Inject PrivateMessageValidator privateMessageValidator;
 	}
 
-	@Provides @Singleton
+	@Provides
+	PrivateMessageFactory providePrivateMessageFactory(
+			ClientHelper clientHelper) {
+		return new PrivateMessageFactoryImpl(clientHelper);
+	}
+
+	@Provides
+	@Singleton
 	PrivateMessageValidator getValidator(ValidationManager validationManager,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock) {
@@ -32,7 +41,8 @@ public class MessagingModule extends AbstractModule {
 		return validator;
 	}
 
-	@Provides @Singleton
+	@Provides
+	@Singleton
 	MessagingManager getMessagingManager(ContactManager contactManager,
 			MessagingManagerImpl messagingManager) {
 		contactManager.registerAddContactHook(messagingManager);

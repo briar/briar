@@ -1,7 +1,5 @@
 package org.briarproject.messaging;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
@@ -27,6 +25,8 @@ import org.briarproject.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 class MessagingManagerImpl implements MessagingManager, AddContactHook,
 		RemoveContactHook {

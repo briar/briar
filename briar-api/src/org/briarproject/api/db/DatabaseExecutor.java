@@ -8,7 +8,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.google.inject.BindingAnnotation;
+import javax.inject.Qualifier;
 
 /**
  * Annotation for injecting the executor for database tasks.
@@ -17,7 +17,7 @@ import com.google.inject.BindingAnnotation;
  * they're submitted, tasks are not executed concurrently, and submitting a
  * task will never block.
  */
-@BindingAnnotation
+@Qualifier
 @Target({ FIELD, METHOD, PARAMETER })
 @Retention(RUNTIME)
 public @interface DatabaseExecutor {}

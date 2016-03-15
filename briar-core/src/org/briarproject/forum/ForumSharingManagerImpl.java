@@ -1,7 +1,5 @@
 package org.briarproject.forum;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
@@ -38,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;

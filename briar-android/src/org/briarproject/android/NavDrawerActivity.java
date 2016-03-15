@@ -8,12 +8,12 @@ import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,7 +24,7 @@ import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.android.ReferenceManager;
+import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -42,9 +42,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import roboguice.RoboGuice;
-import roboguice.inject.InjectView;
-
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -60,33 +57,23 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Inject
-	private ReferenceManager referenceManager;
+	protected ReferenceManager referenceManager;
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	private volatile IdentityManager identityManager;
+	protected volatile IdentityManager identityManager;
 	@Inject
-	private PluginManager pluginManager;
+	protected PluginManager pluginManager;
 	@Inject
 	protected volatile EventBus eventBus;
 
-	@InjectView(R.id.toolbar)
 	private Toolbar toolbar;
-	@InjectView(R.id.drawer_layout)
 	private DrawerLayout drawerLayout;
-	@InjectView(R.id.nav_btn_contacts)
-	private AppCompatButton contactButton;
-	@InjectView(R.id.nav_btn_contacts)
-	private AppCompatButton forumsButton;
-	@InjectView(R.id.nav_btn_contacts)
-	private AppCompatButton settingsButton;
-	@InjectView(R.id.nav_menu_header)
-	private TextView menuHeader;
-	@InjectView(R.id.title_progress_bar)
-	private TextView progressTitle;
-	@InjectView(R.id.container_progress)
-	ViewGroup progressViewGroup;
-	@InjectView(R.id.transportsView)
+	private Button contactButton;
+	private Button forumsButton;
+	private Button settingsButton;
 	private GridView transportsView;
+	private TextView progressTitle;
+	private ViewGroup progressViewGroup;
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
@@ -104,6 +91,11 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		}
 	}
 
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
+	}
+
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(Bundle state) {
@@ -112,9 +104,16 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		if (isStartupFailed(getIntent()))
 			return;
 
-		// TODO inflate and inject with @ContentView with RoboGuice 3.0 and later
 		setContentView(R.layout.activity_nav_drawer);
-		RoboGuice.getInjector(this).injectViewMembers(this);
+
+		toolbar = (Toolbar)findViewById(R.id.toolbar);
+		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+		contactButton = (Button)findViewById(R.id.nav_btn_contacts);
+		forumsButton = (Button)findViewById(R.id.nav_btn_forums);
+		settingsButton = (Button)findViewById(R.id.nav_btn_settings);
+		transportsView = (GridView)findViewById(R.id.transportsView);
+		progressTitle = (TextView)findViewById(R.id.title_progress_bar);
+		progressViewGroup = (ViewGroup)findViewById(R.id.container_progress);
 
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);

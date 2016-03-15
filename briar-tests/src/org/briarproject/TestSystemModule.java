@@ -1,18 +1,29 @@
 package org.briarproject;
 
-import com.google.inject.AbstractModule;
-
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.SeedProvider;
 import org.briarproject.api.system.Timer;
 import org.briarproject.system.SystemClock;
 import org.briarproject.system.SystemTimer;
 
-public class TestSystemModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	protected void configure() {
-		bind(Clock.class).to(SystemClock.class);
-		bind(Timer.class).to(SystemTimer.class);
-		bind(SeedProvider.class).to(TestSeedProvider.class);
+@Module
+public class TestSystemModule {
+
+	@Provides
+	Clock provideClock() {
+		return new SystemClock();
+	}
+
+	@Provides
+	Timer provideSystemTimer() {
+		return new SystemTimer();
+	}
+
+	@Provides
+	SeedProvider provideSeedProvider() {
+		return new TestSeedProvider();
 	}
 }

@@ -17,14 +17,14 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.FormatException;
-import org.briarproject.api.android.AndroidNotificationManager;
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
@@ -71,10 +71,9 @@ public class ConversationActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
-	@Inject private CryptoComponent crypto;
-	@Inject private AndroidNotificationManager notificationManager;
-	@Inject private ConnectionRegistry connectionRegistry;
-	@Inject @CryptoExecutor private Executor cryptoExecutor;
+	@Inject protected AndroidNotificationManager notificationManager;
+	@Inject protected ConnectionRegistry connectionRegistry;
+	@Inject @CryptoExecutor protected Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private ConversationAdapter adapter = null;
 	private BriarRecyclerView list = null;
@@ -82,10 +81,10 @@ public class ConversationActivity extends BriarActivity
 	private ImageButton sendButton = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ContactManager contactManager;
-	@Inject private volatile MessagingManager messagingManager;
-	@Inject private volatile EventBus eventBus;
-	@Inject private volatile PrivateMessageFactory privateMessageFactory;
+	@Inject protected volatile ContactManager contactManager;
+	@Inject protected volatile MessagingManager messagingManager;
+	@Inject protected volatile EventBus eventBus;
+	@Inject protected volatile PrivateMessageFactory privateMessageFactory;
 	private volatile GroupId groupId = null;
 	private volatile ContactId contactId = null;
 	private volatile String contactName = null;
@@ -103,7 +102,7 @@ public class ConversationActivity extends BriarActivity
 
 		setContentView(R.layout.activity_conversation);
 
-		adapter = new ConversationAdapter(this, crypto);
+		adapter = new ConversationAdapter(this);
 		list = (BriarRecyclerView) findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
@@ -113,6 +112,11 @@ public class ConversationActivity extends BriarActivity
 		sendButton = (ImageButton) findViewById(R.id.sendButton);
 		sendButton.setEnabled(false); // Enabled after loading the conversation
 		sendButton.setOnClickListener(this);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

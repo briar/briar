@@ -1,7 +1,5 @@
 package org.briarproject.clients;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
@@ -29,6 +27,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.inject.Inject;
 
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 

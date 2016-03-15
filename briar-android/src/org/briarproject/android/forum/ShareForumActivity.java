@@ -11,6 +11,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.contact.SelectContactsDialog;
 import org.briarproject.android.invitation.AddContactActivity;
@@ -51,8 +52,8 @@ SelectContactsDialog.Listener {
 	private boolean changed = false;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ContactManager contactManager;
-	@Inject private volatile ForumSharingManager forumSharingManager;
+	@Inject protected volatile ContactManager contactManager;
+	@Inject protected volatile ForumSharingManager forumSharingManager;
 	private volatile GroupId groupId = null;
 	private volatile Collection<Contact> contacts = null;
 	private volatile Collection<ContactId> selected = null;
@@ -107,6 +108,11 @@ SelectContactsDialog.Listener {
 		layout.addView(progress);
 
 		setContentView(layout);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	public void onClick(View view) {

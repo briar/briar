@@ -1,14 +1,12 @@
 package org.briarproject.crypto;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.api.crypto.StreamDecrypterFactory;
 import org.briarproject.api.crypto.StreamEncrypterFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.system.SeedProvider;
 
 import java.security.SecureRandom;
 import java.util.concurrent.BlockingQueue;
@@ -18,13 +16,26 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class CryptoModule extends AbstractModule {
+@Module
+public class CryptoModule {
 
-	/** The maximum number of executor threads. */
+	public static class EagerSingletons {
+		@Inject
+		@CryptoExecutor Executor cryptoExecutor;
+	}
+
+	/**
+	 * The maximum number of executor threads.
+	 */
 	private static final int MAX_EXECUTOR_THREADS =
 			Runtime.getRuntime().availableProcessors();
 
@@ -41,19 +52,37 @@ public class CryptoModule extends AbstractModule {
 				60, SECONDS, queue, policy);
 	}
 
-	@Override
-	protected void configure() {
-		bind(AuthenticatedCipher.class).to(
-				XSalsa20Poly1305AuthenticatedCipher.class);
-		bind(CryptoComponent.class).to(
-				CryptoComponentImpl.class).in(Singleton.class);
-		bind(PasswordStrengthEstimator.class).to(
-				PasswordStrengthEstimatorImpl.class);
-		bind(StreamDecrypterFactory.class).to(StreamDecrypterFactoryImpl.class);
-		bind(StreamEncrypterFactory.class).to(StreamEncrypterFactoryImpl.class);
+	@Provides
+	AuthenticatedCipher provideAuthenticatedCipher() {
+		return new XSalsa20Poly1305AuthenticatedCipher();
 	}
 
-	@Provides @Singleton @CryptoExecutor
+	@Provides
+	@Singleton
+	CryptoComponent provideCryptoComponent(SeedProvider seedProvider) {
+		return new CryptoComponentImpl(seedProvider);
+	}
+
+	@Provides
+	PasswordStrengthEstimator providePasswordStrengthEstimator() {
+		return new PasswordStrengthEstimatorImpl();
+	}
+
+	@Provides
+	StreamDecrypterFactory provideStreamDecrypterFactory(
+			Provider<AuthenticatedCipher> cipherProvider) {
+		return new StreamDecrypterFactoryImpl(cipherProvider);
+	}
+
+	@Provides
+	StreamEncrypterFactory provideStreamEncrypterFactory(CryptoComponent crypto,
+			Provider<AuthenticatedCipher> cipherProvider) {
+		return new StreamEncrypterFactoryImpl(crypto, cipherProvider);
+	}
+
+	@Provides
+	@Singleton
+	@CryptoExecutor
 	Executor getCryptoExecutor(LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(cryptoExecutor);
 		return cryptoExecutor;
@@ -63,4 +92,5 @@ public class CryptoModule extends AbstractModule {
 	SecureRandom getSecureRandom(CryptoComponent crypto) {
 		return crypto.getSecureRandom();
 	}
+
 }

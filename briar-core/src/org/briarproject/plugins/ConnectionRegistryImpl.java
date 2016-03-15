@@ -1,7 +1,5 @@
 package org.briarproject.plugins;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.event.ContactConnectedEvent;
@@ -18,6 +16,8 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 

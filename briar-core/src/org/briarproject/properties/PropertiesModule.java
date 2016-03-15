@@ -1,8 +1,5 @@
 package org.briarproject.properties;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
@@ -10,16 +7,24 @@ import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 
 import static org.briarproject.properties.TransportPropertyManagerImpl.CLIENT_ID;
 
-public class PropertiesModule extends AbstractModule {
+@Module
+public class PropertiesModule {
 
-	@Override
-	protected void configure() {}
+	public static class EagerSingletons {
+		@Inject TransportPropertyValidator transportPropertyValidator;
+		@Inject TransportPropertyManager transportPropertyManager;
+	}
 
-	@Provides @Singleton
+	@Provides
+	@Singleton
 	TransportPropertyValidator getValidator(ValidationManager validationManager,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock) {

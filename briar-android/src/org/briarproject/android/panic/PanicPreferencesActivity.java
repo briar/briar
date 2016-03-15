@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 
 public class PanicPreferencesActivity extends BriarActivity {
@@ -20,6 +21,11 @@ public class PanicPreferencesActivity extends BriarActivity {
 		}
 
 		setContentView(R.layout.activity_panic_preferences);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {

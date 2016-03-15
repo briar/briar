@@ -11,7 +11,7 @@ import android.content.IntentFilter;
 
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.Backoff;

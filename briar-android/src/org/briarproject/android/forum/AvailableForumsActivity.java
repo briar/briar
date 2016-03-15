@@ -8,6 +8,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.contact.Contact;
@@ -47,9 +48,9 @@ implements EventListener, OnItemClickListener {
 	private ListView list = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile ForumManager forumManager;
-	@Inject private volatile ForumSharingManager forumSharingManager;
-	@Inject private volatile EventBus eventBus;
+	@Inject protected volatile ForumManager forumManager;
+	@Inject protected volatile ForumSharingManager forumSharingManager;
+	@Inject protected volatile EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -64,6 +65,11 @@ implements EventListener, OnItemClickListener {
 		// Show a progress bar while the list is loading
 		ListLoadingProgressBar loading = new ListLoadingProgressBar(this);
 		setContentView(loading);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

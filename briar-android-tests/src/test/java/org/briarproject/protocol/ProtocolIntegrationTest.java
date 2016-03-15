@@ -1,8 +1,7 @@
-package org.briarproject;
+package org.briarproject.protocol;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import org.briarproject.BriarTestCase;
+import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
@@ -22,20 +21,7 @@ import org.briarproject.api.sync.Request;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.event.EventModule;
-import org.briarproject.sync.SyncModule;
-import org.briarproject.transport.TransportModule;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
 
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
@@ -44,41 +30,50 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.inject.Inject;
+
 public class ProtocolIntegrationTest extends BriarTestCase {
 
-	private final StreamReaderFactory streamReaderFactory;
-	private final StreamWriterFactory streamWriterFactory;
-	private final PacketReaderFactory packetReaderFactory;
-	private final PacketWriterFactory packetWriterFactory;
+	@Inject
+	StreamReaderFactory streamReaderFactory;
+	@Inject
+	StreamWriterFactory streamWriterFactory;
+	@Inject
+	PacketReaderFactory packetReaderFactory;
+	@Inject
+	PacketWriterFactory packetWriterFactory;
 
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final SecretKey tagKey, headerKey;
 	private final Message message, message1;
 	private final Collection<MessageId> messageIds;
+	private final ProtocolTestComponent component;
 
 	public ProtocolIntegrationTest() throws Exception {
-		Injector i = Guice.createInjector(new TestDatabaseModule(),
-				new TestLifecycleModule(), new TestSystemModule(),
-				new CryptoModule(), new DatabaseModule(), new EventModule(),
-				new SyncModule(), new DataModule(),
-				new TransportModule());
-		streamReaderFactory = i.getInstance(StreamReaderFactory.class);
-		streamWriterFactory = i.getInstance(StreamWriterFactory.class);
-		packetReaderFactory = i.getInstance(PacketReaderFactory.class);
-		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
+
+		component = DaggerProtocolTestComponent.builder().build();
+		component.inject(this);
+
 		contactId = new ContactId(234);
 		transportId = new TransportId("id");
 		// Create the transport keys
 		tagKey = TestUtils.createSecretKey();
 		headerKey = TestUtils.createSecretKey();
 		// Create a group
-		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
+		GroupFactory groupFactory = component.getGroupFactory();
 		ClientId clientId = new ClientId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		Group group = groupFactory.createGroup(clientId, descriptor);
 		// Add two messages to the group
-		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
+		MessageFactory messageFactory = component.getMessageFactory();
 		long timestamp = System.currentTimeMillis();
 		String messageBody = "Hello world";
 		message = messageFactory.createMessage(group.getId(), timestamp,
@@ -159,4 +154,5 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		assertEquals(m1.getTimestamp(), m2.getTimestamp());
 		assertArrayEquals(m1.getRaw(), m2.getRaw());
 	}
+
 }

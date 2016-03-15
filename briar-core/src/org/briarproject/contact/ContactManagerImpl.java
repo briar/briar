@@ -1,7 +1,5 @@
 package org.briarproject.contact;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -20,6 +18,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.inject.Inject;
 
 class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 

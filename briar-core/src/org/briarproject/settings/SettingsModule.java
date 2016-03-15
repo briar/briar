@@ -1,13 +1,18 @@
 package org.briarproject.settings;
 
-import com.google.inject.AbstractModule;
-
+import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.settings.SettingsManager;
+import org.briarproject.db.DatabaseModule;
 
-public class SettingsModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	@Override
-	protected void configure() {
-		bind(SettingsManager.class).to(SettingsManagerImpl.class);
+@Module
+public class SettingsModule {
+
+	@Provides
+	SettingsManager provideSettingsManager(DatabaseComponent db) {
+		return new SettingsManagerImpl(db);
 	}
+
 }

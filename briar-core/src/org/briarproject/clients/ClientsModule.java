@@ -1,19 +1,40 @@
 package org.briarproject.clients;
 
-import com.google.inject.AbstractModule;
-
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
-import org.briarproject.api.clients.QueueMessageFactory;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriterFactory;
+import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.data.MetadataParser;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.sync.GroupFactory;
+import org.briarproject.api.sync.MessageFactory;
+import org.briarproject.data.DataModule;
+import org.briarproject.db.DatabaseModule;
+import org.briarproject.messaging.MessagingModule;
+import org.briarproject.sync.SyncModule;
 
-public class ClientsModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	@Override
-	protected void configure() {
-		bind(ClientHelper.class).to(ClientHelperImpl.class);
-		bind(MessageQueueManager.class).to(MessageQueueManagerImpl.class);
-		bind(PrivateGroupFactory.class).to(PrivateGroupFactoryImpl.class);
-		bind(QueueMessageFactory.class).to(QueueMessageFactoryImpl.class);
+@Module
+public class ClientsModule {
+
+	@Provides
+	ClientHelper provideClientHelper(DatabaseComponent db,
+			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory, MetadataParser metadataParser,
+			MetadataEncoder metadataEncoder) {
+		return new ClientHelperImpl(db, messageFactory, bdfReaderFactory,
+				bdfWriterFactory, metadataParser, metadataEncoder);
 	}
+
+	@Provides
+	PrivateGroupFactory providePrivateGroupFactory(GroupFactory groupFactory,
+			BdfWriterFactory bdfWriterFactory) {
+		return new PrivateGroupFactoryImpl(groupFactory, bdfWriterFactory);
+	}
+
+		bind(QueueMessageFactory.class).to(QueueMessageFactoryImpl.class);
+
 }

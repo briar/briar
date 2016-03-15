@@ -1,7 +1,5 @@
 package org.briarproject.properties;
 
-import com.google.inject.Inject;
-
 import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
@@ -32,6 +30,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.inject.Inject;
 
 class TransportPropertyManagerImpl implements TransportPropertyManager,
 		AddContactHook, RemoveContactHook {

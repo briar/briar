@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
@@ -67,7 +68,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(WriteForumPostActivity.class.getName());
 
-	@Inject @CryptoExecutor private Executor cryptoExecutor;
+	@Inject @CryptoExecutor protected Executor cryptoExecutor;
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
@@ -76,10 +77,10 @@ implements OnItemSelectedListener, OnClickListener {
 	private GroupId groupId = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile IdentityManager identityManager;
-	@Inject private volatile ForumManager forumManager;
-	@Inject private volatile ForumPostFactory forumPostFactory;
-	@Inject private volatile CryptoComponent crypto;
+	@Inject protected volatile IdentityManager identityManager;
+	@Inject protected volatile ForumManager forumManager;
+	@Inject protected volatile ForumPostFactory forumPostFactory;
+	@Inject protected volatile CryptoComponent crypto;
 	private volatile MessageId parentId = null;
 	private volatile long minTimestamp = -1;
 	private volatile LocalAuthor localAuthor = null;
@@ -123,7 +124,7 @@ implements OnItemSelectedListener, OnClickListener {
 		left.addRule(CENTER_VERTICAL);
 		header.addView(from, left);
 
-		adapter = new LocalAuthorSpinnerAdapter(this, crypto, true);
+		adapter = new LocalAuthorSpinnerAdapter(this, true);
 		spinner = new Spinner(this);
 		spinner.setId(2);
 		spinner.setAdapter(adapter);
@@ -155,6 +156,11 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(content);
 
 		setContentView(layout);
+	}
+
+	@Override
+	public void injectActivity(AndroidComponent component) {
+		component.inject(this);
 	}
 
 	@Override

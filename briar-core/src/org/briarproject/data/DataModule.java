@@ -1,19 +1,35 @@
 package org.briarproject.data;
 
-import com.google.inject.AbstractModule;
 
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.data.MetadataParser;
 
-public class DataModule extends AbstractModule {
+import dagger.Module;
+import dagger.Provides;
 
-	@Override
-	protected void configure() {
-		bind(BdfReaderFactory.class).to(BdfReaderFactoryImpl.class);
-		bind(BdfWriterFactory.class).to(BdfWriterFactoryImpl.class);
-		bind(MetadataParser.class).to(MetadataParserImpl.class);
-		bind(MetadataEncoder.class).to(MetadataEncoderImpl.class);
+@Module
+public class DataModule {
+
+	@Provides
+	BdfReaderFactory provideBdfReaderFactory() {
+		return new BdfReaderFactoryImpl();
 	}
+
+	@Provides
+	BdfWriterFactory provideBdfWriterFactory() {
+		return new BdfWriterFactoryImpl();
+	}
+
+	@Provides
+	MetadataParser provideMetaDataParser(BdfReaderFactory bdfReaderFactory) {
+		return new MetadataParserImpl(bdfReaderFactory);
+	}
+
+	@Provides
+	MetadataEncoder provideMetaDataEncoder(BdfWriterFactory bdfWriterFactory) {
+		return new MetadataEncoderImpl(bdfWriterFactory);
+	}
+
 }

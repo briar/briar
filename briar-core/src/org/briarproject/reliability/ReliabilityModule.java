@@ -1,14 +1,28 @@
 package org.briarproject.reliability;
 
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.reliability.ReliabilityLayerFactory;
 
-import com.google.inject.AbstractModule;
+import java.util.concurrent.Executor;
 
-public class ReliabilityModule extends AbstractModule {
+import javax.inject.Named;
 
-	@Override
-	protected void configure() {
-		bind(ReliabilityLayerFactory.class).to(
-				ReliabilityLayerFactoryImpl.class);
+import dagger.Module;
+import dagger.Provides;
+
+@Module
+public class ReliabilityModule {
+
+	@Provides
+	ReliabilityLayerFactory provideReliabilityFactoryByExector(@IoExecutor
+	Executor ioExecutor) {
+		return new ReliabilityLayerFactoryImpl(ioExecutor);
 	}
+
+	@Provides
+	ReliabilityLayerFactory provideReliabilityFactory(
+			ReliabilityLayerFactoryImpl reliabilityLayerFactory) {
+		return reliabilityLayerFactory;
+	}
+
 }
