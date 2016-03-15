@@ -43,7 +43,7 @@
 			<View
 				style="@style/Divider"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/nav_seperator_height"
+				android:layout_height="@dimen/nav_separator_height"
 				android:layout_marginLeft="@dimen/margin_large"/>
 
 			<android.support.v7.widget.AppCompatButton
@@ -58,7 +58,7 @@
 			<View
 				style="@style/Divider"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/margin_seperator"
+				android:layout_height="@dimen/margin_separator"
 				android:layout_marginLeft="@dimen/margin_large"/>
 
 			<android.support.v7.widget.AppCompatButton
@@ -73,7 +73,7 @@
 			<View
 				style="@style/Divider"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/margin_seperator"
+				android:layout_height="@dimen/margin_separator"
 				android:layout_marginLeft="@dimen/margin_large"/>
 
 			<android.support.v7.widget.AppCompatButton
@@ -88,7 +88,7 @@
 			<View
 				style="@style/Divider"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/margin_seperator"
+				android:layout_height="@dimen/margin_separator"
 				android:layout_marginLeft="@dimen/margin_large"/>
 
 			<FrameLayout

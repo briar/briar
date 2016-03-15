@@ -1,34 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<color name="briar_blue">#2D3E50</color>
+	<color name="briar_blue_dark">#0F1720</color>
+	<color name="briar_gold">#FCCF1C</color>
+	<color name="briar_green_light">#95D220</color>
+	<color name="briar_green_dark">#87C214</color>
+	<color name="briar_red">#C1392B</color>
+
 	<color name="window_background">#EEEEEE</color>
 	<color name="action_bar_text">#FFFFFF</color>
-	<color name="action_bar_background">#2D3E50</color>
+	<color name="action_bar_background">@color/briar_blue</color>
 	<color name="button_bar_background">#FFFFFF</color>
 	<color name="dashboard_background">#FFFFFF</color>
 	<color name="private_message_date">#AAAAAA</color>
 	<color name="unread_background">#FFFFFF</color>
 	<color name="horizontal_border">#CCCCCC</color>
-	<color name="forums_available_background">#FCCF1C</color>
+	<color name="forums_available_background">@color/briar_gold</color>
 	<color name="no_private_messages">#AAAAAA</color>
 	<color name="no_posts">#AAAAAA</color>
-	<color name="settings_title_text">#2D3E50</color>
-	<color name="settings_title_underline">#2D3E50</color>
 
-	<color name="briar_primary">#2D3E50</color>
-	<color name="briar_primary_dark">#0f1720</color>
-	<color name="briar_accent">#2D3E50</color>
-	<color name="briar_accent_dark">#0f1720</color>
+	<color name="briar_primary">@color/briar_blue</color>
+	<color name="briar_primary_dark">@color/briar_blue_dark</color>
 
-	<color name="briar_text_link">#75ab0d</color>
-	<color name="briar_green_light">#95d220</color>
-	<color name="briar_green_dark">#75ab0d</color>
-	<color name="briar_text_primary">#808080</color>
+	<color name="briar_accent">@color/briar_blue</color>
+	<color name="briar_accent_dark">@color/briar_blue_dark</color>
+
+	<color name="briar_text_link">@color/briar_green_dark</color>
+	<color name="briar_text_primary">@color/briar_primary</color>
 	<color name="briar_text_primary_inverse">#ffffff</color>
 
 	<!-- this is needed as preference_category_material layout uses this color as the text color -->
 	<color name="preference_fallback_accent_color">@color/briar_accent</color>
 	<color name="default_background">#ffffff</color>
-	<color name="default_seperator">#000000</color>
-	<color name="default_seperator_inverted">#ffffff</color>
+	<color name="default_separator">#000000</color>
+	<color name="default_separator_inverted">#ffffff</color>
 	<color name="menu_background">#FFFFFF</color>
 </resources>
