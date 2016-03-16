@@ -32,6 +32,12 @@ public class TestUtils {
 		return b;
 	}
 
+	public static byte[] getRandomBytes(int length) {
+		byte[] b = new byte[length];
+		random.nextBytes(b);
+		return b;
+	}
+
 	public static String createRandomString(int length) {
 		char[] c = new char[length];
 		for (int i = 0; i < length; i++)
