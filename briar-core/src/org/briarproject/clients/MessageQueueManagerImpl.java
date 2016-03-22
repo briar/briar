@@ -135,9 +135,20 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 
 		MessageId popIncomingMessageId() {
 			Iterator<Entry<Long, MessageId>> it = pending.entrySet().iterator();
-			if (!it.hasNext()) return null;
+			if (!it.hasNext()) {
+				LOG.info("No pending messages");
+				return null;
+			}
 			Entry<Long, MessageId> e = it.next();
-			if (!e.getKey().equals(incomingPosition)) return null;
+			if (!e.getKey().equals(incomingPosition)) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("First pending message is " + e.getKey() + ", "
+							+ " expecting " + incomingPosition);
+				}
+				return null;
+			}
+			if (LOG.isLoggable(INFO))
+				LOG.info("Removing pending message " + e.getKey());
 			it.remove();
 			incomingPosition++;
 			return e.getValue();
