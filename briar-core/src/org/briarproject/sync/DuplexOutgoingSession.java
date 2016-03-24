@@ -172,7 +172,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Ack a;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
 					txn.setComplete();
@@ -213,7 +213,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Collection<byte[]> b;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateRequestedBatch(txn, contactId,
 							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
@@ -255,7 +255,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Offer o;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					o = db.generateOffer(txn, contactId, MAX_MESSAGE_IDS,
 							maxLatency);
@@ -297,7 +297,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Request r;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					r = db.generateRequest(txn, contactId, MAX_MESSAGE_IDS);
 					txn.setComplete();

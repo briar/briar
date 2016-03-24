@@ -106,7 +106,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	@Override
 	public GroupId getConversationId(ContactId c) throws DbException {
 		Contact contact;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			contact = db.getContact(txn, c);
 			txn.setComplete();
@@ -121,7 +121,7 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 			throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);

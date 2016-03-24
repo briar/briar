@@ -99,7 +99,7 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					db.receiveAck(txn, contactId, ack);
 					txn.setComplete();
@@ -123,7 +123,7 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					db.receiveMessage(txn, contactId, message);
 					txn.setComplete();
@@ -147,7 +147,7 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					db.receiveOffer(txn, contactId, offer);
 					txn.setComplete();
@@ -171,7 +171,7 @@ class IncomingSession implements SyncSession, EventListener {
 
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					db.receiveRequest(txn, contactId, request);
 					txn.setComplete();

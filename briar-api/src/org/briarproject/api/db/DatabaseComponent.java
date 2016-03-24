@@ -45,8 +45,9 @@ public interface DatabaseComponent {
 
 	/**
 	 * Starts a new transaction and returns an object representing it.
+	 * @param readOnly true if the transaction will only be used for reading.
 	 */
-	Transaction startTransaction() throws DbException;
+	Transaction startTransaction(boolean readOnly) throws DbException;
 
 	/**
 	 * Ends a transaction. If the transaction is marked as complete, the

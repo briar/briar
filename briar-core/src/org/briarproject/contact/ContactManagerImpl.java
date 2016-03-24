@@ -51,7 +51,7 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 			long timestamp, boolean alice, boolean active)
 			throws DbException {
 		ContactId c;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			c = db.addContact(txn, remote, local, active);
 			keyManager.addContact(txn, c, master, timestamp, alice);
@@ -68,7 +68,7 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	@Override
 	public Contact getContact(ContactId c) throws DbException {
 		Contact contact;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			contact = db.getContact(txn, c);
 			txn.setComplete();
@@ -81,7 +81,7 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	@Override
 	public Collection<Contact> getActiveContacts() throws DbException {
 		Collection<Contact> contacts;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			contacts = db.getContacts(txn);
 			txn.setComplete();
@@ -95,7 +95,7 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 
 	@Override
 	public void removeContact(ContactId c) throws DbException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			removeContact(txn, c);
 			txn.setComplete();
@@ -107,7 +107,7 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	@Override
 	public void setContactActive(ContactId c, boolean active)
 			throws DbException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			db.setContactActive(txn, c, active);
 			txn.setComplete();

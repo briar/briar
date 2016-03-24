@@ -114,7 +114,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Ack a;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
 					txn.setComplete();
@@ -156,7 +156,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Collection<byte[]> b;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateBatch(txn, contactId,
 							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);

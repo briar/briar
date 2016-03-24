@@ -83,7 +83,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			public void run() {
 				try {
 					Queue<MessageId> unvalidated = new LinkedList<MessageId>();
-					Transaction txn = db.startTransaction();
+					Transaction txn = db.startTransaction(true);
 					try {
 						unvalidated.addAll(db.getMessagesToValidate(txn, c));
 						txn.setComplete();
@@ -106,7 +106,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				try {
 					Message m = null;
 					Group g = null;
-					Transaction txn = db.startTransaction();
+					Transaction txn = db.startTransaction(true);
 					try {
 						MessageId id = unvalidated.poll();
 						byte[] raw = db.getRawMessage(txn, id);
@@ -160,7 +160,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					Transaction txn = db.startTransaction();
+					Transaction txn = db.startTransaction(false);
 					try {
 						if (meta == null) {
 							db.setMessageValid(txn, m, c, false);
@@ -198,7 +198,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			public void run() {
 				try {
 					Group g;
-					Transaction txn = db.startTransaction();
+					Transaction txn = db.startTransaction(true);
 					try {
 						g = db.getGroup(txn, m.getGroupId());
 						txn.setComplete();

@@ -67,7 +67,7 @@ class TransportKeyManager {
 			// Load the transport keys from the DB
 			Map<ContactId, TransportKeys> loaded;
 			try {
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(true);
 				try {
 					loaded = db.getTransportKeys(txn, transportId);
 					txn.setComplete();
@@ -129,7 +129,7 @@ class TransportKeyManager {
 	private void updateTransportKeys(Map<ContactId, TransportKeys> rotated)
 		throws DbException {
 		if (!rotated.isEmpty()) {
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				db.updateTransportKeys(txn, rotated);
 				txn.setComplete();
@@ -198,7 +198,7 @@ class TransportKeyManager {
 					outKeys.getStreamCounter());
 			// Increment the stream counter and write it back to the DB
 			outKeys.incrementStreamCounter();
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				db.incrementStreamCounter(txn, c, transportId,
 						outKeys.getRotationPeriod());
@@ -244,7 +244,7 @@ class TransportKeyManager {
 				inContexts.remove(new Bytes(removeTag));
 			}
 			// Write the window back to the DB
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				db.setReorderingWindow(txn, tagCtx.contactId, transportId,
 						inKeys.getRotationPeriod(), window.getBase(),

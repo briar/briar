@@ -131,7 +131,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 
 	@Override
 	public void addForum(Forum f) throws DbException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			db.addGroup(txn, f.getGroup());
 			txn.setComplete();
@@ -144,7 +144,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	public void removeForum(Forum f) throws DbException {
 		try {
 			// Update the list shared with each contact
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				for (Contact c : db.getContacts(txn))
 					removeFromList(txn, getContactGroup(c).getId(), f);
@@ -162,7 +162,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	public Collection<Forum> getAvailableForums() throws DbException {
 		try {
 			Set<Forum> available = new HashSet<Forum>();
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(true);
 			try {
 				// Get any forums we subscribe to
 				Set<Group> subscribed = new HashSet<Group>(db.getGroups(txn,
@@ -196,7 +196,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	public Collection<Contact> getSharedBy(GroupId g) throws DbException {
 		try {
 			List<Contact> subscribers = new ArrayList<Contact>();
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(true);
 			try {
 				for (Contact c : db.getContacts(txn)) {
 					if (listContains(txn, getContactGroup(c).getId(), g, false))
@@ -216,7 +216,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	public Collection<ContactId> getSharedWith(GroupId g) throws DbException {
 		try {
 			List<ContactId> shared = new ArrayList<ContactId>();
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(true);
 			try {
 				for (Contact c : db.getContacts(txn)) {
 					if (listContains(txn, getContactGroup(c).getId(), g, true))
@@ -236,7 +236,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	public void setSharedWith(GroupId g, Collection<ContactId> shared)
 			throws DbException {
 		try {
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				// Retrieve the forum
 				Forum f = parseForum(db.getGroup(txn, g));
@@ -268,7 +268,7 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 	@Override
 	public void setSharedWithAll(GroupId g) throws DbException {
 		try {
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				// Retrieve the forum
 				Forum f = parseForum(db.getGroup(txn, g));

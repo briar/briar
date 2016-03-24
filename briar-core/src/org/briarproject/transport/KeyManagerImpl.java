@@ -73,7 +73,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			latencies.put(f.getId(), f.getMaxLatency());
 		try {
 			Collection<Contact> contacts;
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				contacts = db.getContacts(txn);
 				for (Entry<TransportId, Integer> e : latencies.entrySet())
@@ -123,7 +123,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		// Activate the contact if not already active
 		if (!activeContacts.containsKey(ctx.getContactId())) {
 			try {
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					db.setContactActive(txn, ctx.getContactId(), true);
 					txn.setComplete();

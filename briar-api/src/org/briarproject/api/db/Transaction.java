@@ -12,12 +12,14 @@ import java.util.List;
 public class Transaction {
 
 	private final Object txn;
+	private final boolean readOnly;
 
 	private List<Event> events = null;
 	private boolean complete = false;
 
-	public Transaction(Object txn) {
+	public Transaction(Object txn, boolean readOnly) {
 		this.txn = txn;
+		this.readOnly = readOnly;
 	}
 
 	/**
@@ -26,6 +28,13 @@ public class Transaction {
 	 */
 	public Object unbox() {
 		return txn;
+	}
+
+	/**
+	 * Returns true if the transaction can only be used for reading.
+	 */
+	public boolean isReadOnly() {
+		return readOnly;
 	}
 
 	/**
