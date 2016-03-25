@@ -45,21 +45,9 @@ public class SplashScreenActivity extends BaseActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setGravity(CENTER);
-		layout.setBackgroundColor(Color.WHITE);
-
-		int pad = LayoutUtils.getLargeItemPadding(this);
-
-		ImageView logo = new ImageView(this);
-		logo.setPadding(pad, pad, pad, pad);
-		logo.setImageResource(R.drawable.briar_logo_large);
-		layout.addView(logo);
-
 		setPreferencesDefaults();
 
-		setContentView(layout);
+		setContentView(R.layout.splash);
 
 		new Handler().postDelayed(new Runnable() {
 			@Override

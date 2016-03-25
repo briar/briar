@@ -26,6 +26,9 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import android.text.TextWatcher;
+import android.text.Editable;
+
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 import static android.view.Gravity.CENTER;
@@ -58,50 +61,34 @@ implements OnEditorActionListener, OnClickListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
-		int pad = LayoutUtils.getPadding(this);
-		layout.setPadding(pad, pad, pad, pad);
 
-		TextView chooseName = new TextView(this);
-		chooseName.setGravity(CENTER);
-		chooseName.setTextSize(18);
-		chooseName.setText(R.string.choose_forum_name);
-		layout.addView(chooseName);
+		setContentView(R.layout.activity_create_forum);
 
-		nameEntry = new EditText(this) {
+		nameEntry = (EditText) findViewById(R.id.createForumNameEntry);
+		TextWatcher nameEntryWatcher = new TextWatcher() {
+
 			@Override
-			protected void onTextChanged(CharSequence text, int start,
+			public void afterTextChanged(Editable s) {}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
 				enableOrDisableCreateButton();
 			}
 		};
-		nameEntry.setId(1);
-		nameEntry.setMaxLines(1);
-		nameEntry.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES);
 		nameEntry.setOnEditorActionListener(this);
-		layout.addView(nameEntry);
+		nameEntry.addTextChangedListener(nameEntryWatcher);
 
-		feedback = new TextView(this);
-		feedback.setGravity(CENTER);
-		feedback.setPadding(0, pad, 0, pad);
-		layout.addView(feedback);
+		feedback = (TextView) findViewById(R.id.createForumFeedback);
 
-		createForumButton = new Button(this);
-		createForumButton.setLayoutParams(WRAP_WRAP);
-		createForumButton.setText(R.string.create_forum_button);
+		createForumButton = (Button) findViewById(R.id.createForumButton);
 		createForumButton.setOnClickListener(this);
-		layout.addView(createForumButton);
 
-		progress = new ProgressBar(this);
-		progress.setLayoutParams(WRAP_WRAP);
-		progress.setIndeterminate(true);
-		progress.setVisibility(GONE);
-		layout.addView(progress);
+		progress = (ProgressBar) findViewById(R.id.createForumProgressBar);
 
-		setContentView(layout);
 	}
 
 	@Override
