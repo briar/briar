@@ -24,6 +24,10 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 		return RemovableDrivePlugin.ID;
 	}
 
+	public int getMaxLatency() {
+		return MAX_LATENCY;
+	}
+
 	public SimplexPlugin createPlugin(SimplexPluginCallback callback) {
 		RemovableDriveFinder finder;
 		RemovableDriveMonitor monitor;

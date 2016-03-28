@@ -13,15 +13,17 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.TransportAddedEvent;
-import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.plugins.PluginConfig;
+import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
+import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +42,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
 	private final ExecutorService dbExecutor;
+	private final PluginConfig pluginConfig;
 	private final Timer timer;
 	private final Clock clock;
 	private final Map<ContactId, Boolean> activeContacts;
@@ -47,11 +50,12 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	@Inject
 	KeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			@DatabaseExecutor ExecutorService dbExecutor, Timer timer,
-			Clock clock) {
+			@DatabaseExecutor ExecutorService dbExecutor,
+			PluginConfig pluginConfig, Timer timer, Clock clock) {
 		this.db = db;
 		this.crypto = crypto;
 		this.dbExecutor = dbExecutor;
+		this.pluginConfig = pluginConfig;
 		this.timer = timer;
 		this.clock = clock;
 		// Use a ConcurrentHashMap as a thread-safe set
@@ -61,21 +65,31 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	@Override
 	public boolean start() {
+		Map<TransportId, Integer> latencies =
+				new HashMap<TransportId, Integer>();
+		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories())
+			latencies.put(f.getId(), f.getMaxLatency());
+		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories())
+			latencies.put(f.getId(), f.getMaxLatency());
 		try {
 			Collection<Contact> contacts;
-			Map<TransportId, Integer> latencies;
 			Transaction txn = db.startTransaction();
 			try {
 				contacts = db.getContacts(txn);
-				latencies = db.getTransportLatencies(txn);
+				for (Entry<TransportId, Integer> e : latencies.entrySet())
+					db.addTransport(txn, e.getKey(), e.getValue());
 				txn.setComplete();
 			} finally {
 				db.endTransaction(txn);
 			}
 			for (Contact c : contacts)
 				if (c.isActive()) activeContacts.put(c.getId(), true);
-			for (Entry<TransportId, Integer> e : latencies.entrySet())
-				addTransport(e.getKey(), e.getValue());
+			for (Entry<TransportId, Integer> e : latencies.entrySet()) {
+				TransportKeyManager m = new TransportKeyManager(db, crypto,
+						timer, clock, e.getKey(), e.getValue());
+				managers.put(e.getKey(), m);
+				m.start();
+			}
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return false;
@@ -125,33 +139,13 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	public void eventOccurred(Event e) {
-		if (e instanceof TransportAddedEvent) {
-			TransportAddedEvent t = (TransportAddedEvent) e;
-			addTransport(t.getTransportId(), t.getMaxLatency());
-		} else if (e instanceof TransportRemovedEvent) {
-			removeTransport(((TransportRemovedEvent) e).getTransportId());
-		} else if (e instanceof ContactRemovedEvent) {
+		if (e instanceof ContactRemovedEvent) {
 			removeContact(((ContactRemovedEvent) e).getContactId());
 		} else if (e instanceof ContactStatusChangedEvent) {
 			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
 			if (c.isActive()) activeContacts.put(c.getContactId(), true);
 			else activeContacts.remove(c.getContactId());
 		}
-	}
-
-	private void addTransport(final TransportId t, final int maxLatency) {
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				TransportKeyManager m = new TransportKeyManager(db, crypto,
-						timer, clock, t, maxLatency);
-				// Don't add transport twice if event is received during startup
-				if (managers.putIfAbsent(t, m) == null) m.start();
-			}
-		});
-	}
-
-	private void removeTransport(TransportId t) {
-		managers.remove(t);
 	}
 
 	private void removeContact(final ContactId c) {

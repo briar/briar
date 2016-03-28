@@ -6,7 +6,6 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
-import org.briarproject.api.system.Clock;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -30,7 +29,6 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private static final Logger LOG =
 			Logger.getLogger(LifecycleManagerImpl.class.getName());
 
-	private final Clock clock;
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
 	private final Collection<Service> services;
@@ -41,8 +39,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 	@Inject
-	LifecycleManagerImpl(Clock clock, DatabaseComponent db, EventBus eventBus) {
-		this.clock = clock;
+	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus) {
 		this.db = db;
 		this.eventBus = eventBus;
 		services = new CopyOnWriteArrayList<Service>();
@@ -68,9 +65,9 @@ class LifecycleManagerImpl implements LifecycleManager {
 		}
 		try {
 			LOG.info("Starting services");
-			long now = clock.currentTimeMillis();
+			long start = System.currentTimeMillis();
 			boolean reopened = db.open();
-			long duration = clock.currentTimeMillis() - now;
+			long duration = System.currentTimeMillis() - start;
 			if (LOG.isLoggable(INFO)) {
 				if (reopened)
 					LOG.info("Reopening database took " + duration + " ms");
@@ -78,9 +75,9 @@ class LifecycleManagerImpl implements LifecycleManager {
 			}
 			dbLatch.countDown();
 			for (Service s : services) {
-				now = clock.currentTimeMillis();
+				start = System.currentTimeMillis();
 				boolean started = s.start();
-				duration = clock.currentTimeMillis() - now;
+				duration = System.currentTimeMillis() - start;
 				if (!started) {
 					if (LOG.isLoggable(WARNING)) {
 						String name = s.getClass().getName();

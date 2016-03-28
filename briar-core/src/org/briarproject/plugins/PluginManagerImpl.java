@@ -2,9 +2,7 @@ package org.briarproject.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
@@ -28,7 +26,6 @@ import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
-import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 
 import java.io.IOException;
@@ -56,8 +53,6 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final Executor ioExecutor;
 	private final EventBus eventBus;
 	private final PluginConfig pluginConfig;
-	private final Clock clock;
-	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionManager connectionManager;
 	private final SettingsManager settingsManager;
@@ -69,8 +64,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	@Inject
 	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
-			PluginConfig pluginConfig, Clock clock,
-			DatabaseComponent db, Poller poller,
+			PluginConfig pluginConfig, Poller poller,
 			ConnectionManager connectionManager,
 			SettingsManager settingsManager,
 			TransportPropertyManager transportPropertyManager,
@@ -78,8 +72,6 @@ class PluginManagerImpl implements PluginManager, Service {
 		this.ioExecutor = ioExecutor;
 		this.eventBus = eventBus;
 		this.pluginConfig = pluginConfig;
-		this.clock = clock;
-		this.db = db;
 		this.poller = poller;
 		this.connectionManager = connectionManager;
 		this.settingsManager = settingsManager;
@@ -181,26 +173,9 @@ class PluginManagerImpl implements PluginManager, Service {
 					return;
 				}
 				try {
-					long start = clock.currentTimeMillis();
-					Transaction txn = db.startTransaction();
-					try {
-						db.addTransport(txn, id, plugin.getMaxLatency());
-						txn.setComplete();
-					} finally {
-						db.endTransaction(txn);
-					}
-					long duration = clock.currentTimeMillis() - start;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Adding transport took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					return;
-				}
-				try {
-					long start = clock.currentTimeMillis();
+					long start = System.currentTimeMillis();
 					boolean started = plugin.start();
-					long duration = clock.currentTimeMillis() - start;
+					long duration = System.currentTimeMillis() - start;
 					if (started) {
 						plugins.put(id, plugin);
 						simplexPlugins.add(plugin);
@@ -250,26 +225,9 @@ class PluginManagerImpl implements PluginManager, Service {
 					return;
 				}
 				try {
-					long start = clock.currentTimeMillis();
-					Transaction txn = db.startTransaction();
-					try {
-						db.addTransport(txn, id, plugin.getMaxLatency());
-						txn.setComplete();
-					} finally {
-						db.endTransaction(txn);
-					}
-					long duration = clock.currentTimeMillis() - start;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Adding transport took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					return;
-				}
-				try {
-					long start = clock.currentTimeMillis();
+					long start = System.currentTimeMillis();
 					boolean started = plugin.start();
-					long duration = clock.currentTimeMillis() - start;
+					long duration = System.currentTimeMillis() - start;
 					if (started) {
 						plugins.put(id, plugin);
 						duplexPlugins.add(plugin);
@@ -307,9 +265,9 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		public void run() {
 			try {
-				long start = clock.currentTimeMillis();
+				long start = System.currentTimeMillis();
 				plugin.stop();
-				long duration = clock.currentTimeMillis() - start;
+				long duration = System.currentTimeMillis() - start;
 				if (LOG.isLoggable(INFO)) {
 					String name = plugin.getClass().getSimpleName();
 					LOG.info("Stopping " + name + " took " + duration + " ms");

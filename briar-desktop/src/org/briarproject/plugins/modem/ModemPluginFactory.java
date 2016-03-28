@@ -1,13 +1,13 @@
 package org.briarproject.plugins.modem;
 
-import java.util.concurrent.Executor;
-
 import org.briarproject.api.TransportId;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.reliability.ReliabilityLayerFactory;
 import org.briarproject.util.StringUtils;
+
+import java.util.concurrent.Executor;
 
 public class ModemPluginFactory implements DuplexPluginFactory {
 
@@ -24,6 +24,10 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 
 	public TransportId getId() {
 		return ModemPlugin.ID;
+	}
+
+	public int getMaxLatency() {
+		return MAX_LATENCY;
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {

@@ -44,6 +44,10 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		return TorPlugin.ID;
 	}
 
+	public int getMaxLatency() {
+		return MAX_LATENCY;
+	}
+
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 
 		// Check that we have a Tor binary for this architecture

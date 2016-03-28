@@ -3,7 +3,6 @@ package org.briarproject.sync;
 import org.briarproject.BriarTestCase;
 import org.briarproject.ImmediateExecutor;
 import org.briarproject.TestUtils;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.Transaction;
@@ -28,7 +27,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final ContactId contactId;
-	private final TransportId transportId;
 	private final MessageId messageId;
 	private final int maxLatency;
 	private final PacketWriter packetWriter;
@@ -40,7 +38,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		eventBus = context.mock(EventBus.class);
 		packetWriter = context.mock(PacketWriter.class);
 		contactId = new ContactId(234);
-		transportId = new TransportId("id");
 		messageId = new MessageId(TestUtils.getRandomId());
 		maxLatency = Integer.MAX_VALUE;
 	}
@@ -48,10 +45,10 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 	@Test
 	public void testNothingToSend() throws Exception {
 		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, maxLatency,
-				packetWriter);
+				dbExecutor, eventBus, contactId, maxLatency, packetWriter);
 		final Transaction noAckTxn = new Transaction(null);
 		final Transaction noMsgTxn = new Transaction(null);
+
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
@@ -73,7 +70,9 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
+
 		session.run();
+
 		context.assertIsSatisfied();
 	}
 
@@ -82,12 +81,12 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		final Ack ack = new Ack(Collections.singletonList(messageId));
 		final byte[] raw = new byte[1234];
 		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, maxLatency,
-				packetWriter);
+				dbExecutor, eventBus, contactId, maxLatency, packetWriter);
 		final Transaction ackTxn = new Transaction(null);
 		final Transaction noAckTxn = new Transaction(null);
 		final Transaction msgTxn = new Transaction(null);
 		final Transaction noMsgTxn = new Transaction(null);
+
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
@@ -124,7 +123,9 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
+
 		session.run();
+
 		context.assertIsSatisfied();
 	}
 }

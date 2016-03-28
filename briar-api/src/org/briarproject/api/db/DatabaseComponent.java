@@ -236,12 +236,6 @@ public interface DatabaseComponent {
 			TransportId t) throws DbException;
 
 	/**
-	 * Returns the maximum latencies in milliseconds of all transports.
-	 */
-	Map<TransportId, Integer> getTransportLatencies(Transaction txn)
-			throws DbException;
-
-	/**
 	 * Increments the outgoing stream counter for the given contact and
 	 * transport in the given rotation period .
 	 */

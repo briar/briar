@@ -90,8 +90,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionReader r) throws IOException {
 		InputStream streamReader = streamReaderFactory.createStreamReader(
 				r.getInputStream(), ctx);
-		return syncSessionFactory.createIncomingSession(
-				ctx.getContactId(), ctx.getTransportId(), streamReader);
+		return syncSessionFactory.createIncomingSession(ctx.getContactId(),
+				streamReader);
 	}
 
 	private SyncSession createSimplexOutgoingSession(StreamContext ctx,
@@ -99,8 +99,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		return syncSessionFactory.createSimplexOutgoingSession(
-				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
-				streamWriter);
+				ctx.getContactId(), w.getMaxLatency(), streamWriter);
 	}
 
 	private SyncSession createDuplexOutgoingSession(StreamContext ctx,
@@ -108,8 +107,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		return syncSessionFactory.createDuplexOutgoingSession(
-				ctx.getContactId(), ctx.getTransportId(), w.getMaxLatency(),
-				w.getMaxIdleTime(), streamWriter);
+				ctx.getContactId(), w.getMaxLatency(), w.getMaxIdleTime(),
+				streamWriter);
 	}
 
 	private class ManageIncomingSimplexConnection implements Runnable {

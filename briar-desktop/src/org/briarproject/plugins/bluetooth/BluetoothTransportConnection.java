@@ -1,16 +1,16 @@
 package org.briarproject.plugins.bluetooth;
 
+import org.briarproject.api.plugins.Plugin;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.microedition.io.StreamConnection;
-
-import org.briarproject.api.plugins.Plugin;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 
 class BluetoothTransportConnection implements DuplexTransportConnection {
 
@@ -38,10 +38,6 @@ class BluetoothTransportConnection implements DuplexTransportConnection {
 	}
 
 	private class Reader implements TransportConnectionReader {
-
-		public long getMaxLatency() {
-			return plugin.getMaxLatency();
-		}
 
 		public InputStream getInputStream() throws IOException {
 			return stream.openInputStream();

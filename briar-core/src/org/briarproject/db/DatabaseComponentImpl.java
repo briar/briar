@@ -33,8 +33,6 @@ import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.api.event.TransportAddedEvent;
-import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
@@ -192,10 +190,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public void addTransport(Transaction transaction, TransportId t,
 			int maxLatency) throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsTransport(txn, t)) {
+		if (!db.containsTransport(txn, t))
 			db.addTransport(txn, t, maxLatency);
-			transaction.attach(new TransportAddedEvent(t, maxLatency));
-		}
 	}
 
 	public void addTransportKeys(Transaction transaction, ContactId c,
@@ -420,12 +416,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getTransportKeys(txn, t);
 	}
 
-	public Map<TransportId, Integer> getTransportLatencies(
-			Transaction transaction) throws DbException {
-		T txn = unbox(transaction);
-		return db.getTransportLatencies(txn);
-	}
-
 	public void incrementStreamCounter(Transaction transaction, ContactId c,
 			TransportId t, long rotationPeriod) throws DbException {
 		T txn = unbox(transaction);
@@ -579,7 +569,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.removeTransport(txn, t);
-		transaction.attach(new TransportRemovedEvent(t));
 	}
 
 	public void setContactActive(Transaction transaction, ContactId c,

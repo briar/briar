@@ -1,6 +1,5 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -15,7 +14,6 @@ import org.briarproject.api.event.MessageSharedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.ShutdownEvent;
-import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.PacketWriter;
@@ -59,7 +57,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final Clock clock;
 	private final ContactId contactId;
-	private final TransportId transportId;
 	private final int maxLatency, maxIdleTime;
 	private final PacketWriter packetWriter;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
@@ -67,15 +64,13 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private volatile boolean interrupted = false;
 
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, Clock clock, ContactId contactId,
-			TransportId transportId, int maxLatency, int maxIdleTime,
-			PacketWriter packetWriter) {
+			EventBus eventBus, Clock clock, ContactId contactId, int maxLatency,
+			int maxIdleTime, PacketWriter packetWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.clock = clock;
 		this.contactId = contactId;
-		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.packetWriter = packetWriter;
@@ -167,9 +162,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				dbExecutor.execute(new GenerateRequest());
 		} else if (e instanceof ShutdownEvent) {
 			interrupt();
-		} else if (e instanceof TransportRemovedEvent) {
-			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if (t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 

@@ -2,8 +2,8 @@ package org.briarproject.plugins.droidtooth;
 
 import android.content.Context;
 
-import org.briarproject.api.TransportId;
 import org.briarproject.android.api.AndroidExecutor;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
@@ -38,6 +38,10 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 
 	public TransportId getId() {
 		return DroidtoothPlugin.ID;
+	}
+
+	public int getMaxLatency() {
+		return MAX_LATENCY;
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {

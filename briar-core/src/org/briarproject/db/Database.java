@@ -325,11 +325,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the maximum latencies in milliseconds of all transports.
-	 */
-	Map<TransportId, Integer> getTransportLatencies(T txn) throws DbException;
-
-	/**
 	 * Returns the IDs of all contacts to which the given group is visible.
 	 */
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;

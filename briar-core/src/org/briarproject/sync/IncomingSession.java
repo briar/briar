@@ -1,7 +1,6 @@
 package org.briarproject.sync;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -11,7 +10,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ShutdownEvent;
-import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.Offer;
@@ -37,19 +35,17 @@ class IncomingSession implements SyncSession, EventListener {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final ContactId contactId;
-	private final TransportId transportId;
 	private final PacketReader packetReader;
 
 	private volatile boolean interrupted = false;
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, ContactId contactId, TransportId transportId,
+			EventBus eventBus, ContactId contactId,
 			PacketReader packetReader) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
-		this.transportId = transportId;
 		this.packetReader = packetReader;
 	}
 
@@ -90,9 +86,6 @@ class IncomingSession implements SyncSession, EventListener {
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof ShutdownEvent) {
 			interrupt();
-		} else if (e instanceof TransportRemovedEvent) {
-			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if (t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 

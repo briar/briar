@@ -1,16 +1,16 @@
 package org.briarproject.plugins.droidtooth;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.bluetooth.BluetoothSocket;
 
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 
-import android.bluetooth.BluetoothSocket;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class DroidtoothTransportConnection implements DuplexTransportConnection {
 
@@ -38,10 +38,6 @@ class DroidtoothTransportConnection implements DuplexTransportConnection {
 	}
 
 	private class Reader implements TransportConnectionReader {
-
-		public long getMaxLatency() {
-			return plugin.getMaxLatency();
-		}
 
 		public InputStream getInputStream() throws IOException {
 			return socket.getInputStream();
