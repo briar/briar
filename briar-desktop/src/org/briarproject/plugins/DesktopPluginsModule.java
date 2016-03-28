@@ -3,9 +3,8 @@ package org.briarproject.plugins;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.plugins.BackoffFactory;
-import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
+import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
-import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.reliability.ReliabilityLayerFactory;
 import org.briarproject.plugins.bluetooth.BluetoothPluginFactory;
@@ -27,21 +26,7 @@ import dagger.Provides;
 public class DesktopPluginsModule extends PluginsModule {
 
 	@Provides
-	SimplexPluginConfig getSimplexPluginConfig(
-			@IoExecutor Executor ioExecutor) {
-		SimplexPluginFactory removable =
-				new RemovableDrivePluginFactory(ioExecutor);
-		final Collection<SimplexPluginFactory> factories =
-				Collections.singletonList(removable);
-		return new SimplexPluginConfig() {
-			public Collection<SimplexPluginFactory> getFactories() {
-				return factories;
-			}
-		};
-	}
-
-	@Provides
-	DuplexPluginConfig getDuplexPluginConfig(@IoExecutor Executor ioExecutor,
+	PluginConfig getPluginConfig(@IoExecutor Executor ioExecutor,
 			SecureRandom random, BackoffFactory backoffFactory,
 			ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager) {
@@ -53,11 +38,22 @@ public class DesktopPluginsModule extends PluginsModule {
 				backoffFactory);
 		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor,
 				backoffFactory, shutdownManager);
-		final Collection<DuplexPluginFactory> factories =
+		SimplexPluginFactory removable =
+				new RemovableDrivePluginFactory(ioExecutor);
+		final Collection<SimplexPluginFactory> simplex =
+				Collections.singletonList(removable);
+		final Collection<DuplexPluginFactory> duplex =
 				Arrays.asList(bluetooth, modem, lan, wan);
-		return new DuplexPluginConfig() {
-			public Collection<DuplexPluginFactory> getFactories() {
-				return factories;
+		return new PluginConfig() {
+
+			@Override
+			public Collection<DuplexPluginFactory> getDuplexFactories() {
+				return duplex;
+			}
+
+			@Override
+			public Collection<SimplexPluginFactory> getSimplexFactories() {
+				return simplex;
 			}
 		};
 	}

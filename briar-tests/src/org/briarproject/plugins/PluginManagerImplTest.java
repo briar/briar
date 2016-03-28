@@ -6,13 +6,12 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.plugins.ConnectionManager;
+import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.settings.SettingsManager;
@@ -40,10 +39,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 		}};
 		final Executor ioExecutor = Executors.newSingleThreadExecutor();
 		final EventBus eventBus = context.mock(EventBus.class);
-		final SimplexPluginConfig simplexPluginConfig =
-				context.mock(SimplexPluginConfig.class);
-		final DuplexPluginConfig duplexPluginConfig =
-				context.mock(DuplexPluginConfig.class);
+		final PluginConfig pluginConfig = context.mock(PluginConfig.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Poller poller = context.mock(Poller.class);
 		final ConnectionManager connectionManager =
@@ -79,7 +75,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 		final TransportId duplexFailId = new TransportId("duplex1");
 		context.checking(new Expectations() {{
 			// First simplex plugin
-			oneOf(simplexPluginConfig).getFactories();
+			oneOf(pluginConfig).getSimplexFactories();
 			will(returnValue(Arrays.asList(simplexFactory,
 					simplexFailFactory)));
 			oneOf(simplexFactory).getId();
@@ -114,7 +110,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(simplexFailPlugin).start();
 			will(returnValue(false)); // Failed to start
 			// First duplex plugin
-			oneOf(duplexPluginConfig).getFactories();
+			oneOf(pluginConfig).getDuplexFactories();
 			will(returnValue(Arrays.asList(duplexFactory, duplexFailFactory)));
 			oneOf(duplexFactory).getId();
 			will(returnValue(duplexId));
@@ -144,9 +140,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(duplexPlugin).stop();
 		}});
 		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, eventBus,
-				simplexPluginConfig, duplexPluginConfig, clock, db, poller,
-				connectionManager, settingsManager, transportPropertyManager,
-				uiCallback);
+				pluginConfig, clock, db, poller, connectionManager,
+				settingsManager, transportPropertyManager, uiCallback);
 
 		// Two plugins should be started and stopped
 		assertTrue(p.start());

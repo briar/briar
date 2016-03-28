@@ -13,17 +13,16 @@ import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
+import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
@@ -56,8 +55,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	private final Executor ioExecutor;
 	private final EventBus eventBus;
-	private final SimplexPluginConfig simplexPluginConfig;
-	private final DuplexPluginConfig duplexPluginConfig;
+	private final PluginConfig pluginConfig;
 	private final Clock clock;
 	private final DatabaseComponent db;
 	private final Poller poller;
@@ -71,8 +69,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	@Inject
 	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
-			SimplexPluginConfig simplexPluginConfig,
-			DuplexPluginConfig duplexPluginConfig, Clock clock,
+			PluginConfig pluginConfig, Clock clock,
 			DatabaseComponent db, Poller poller,
 			ConnectionManager connectionManager,
 			SettingsManager settingsManager,
@@ -80,8 +77,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			UiCallback uiCallback) {
 		this.ioExecutor = ioExecutor;
 		this.eventBus = eventBus;
-		this.simplexPluginConfig = simplexPluginConfig;
-		this.duplexPluginConfig = duplexPluginConfig;
+		this.pluginConfig = pluginConfig;
 		this.clock = clock;
 		this.db = db;
 		this.poller = poller;
@@ -99,14 +95,14 @@ class PluginManagerImpl implements PluginManager, Service {
 		// Instantiate and start the simplex plugins
 		LOG.info("Starting simplex plugins");
 		Collection<SimplexPluginFactory> sFactories =
-				simplexPluginConfig.getFactories();
+				pluginConfig.getSimplexFactories();
 		final CountDownLatch sLatch = new CountDownLatch(sFactories.size());
 		for (SimplexPluginFactory factory : sFactories)
 			ioExecutor.execute(new SimplexPluginStarter(factory, sLatch));
 		// Instantiate and start the duplex plugins
 		LOG.info("Starting duplex plugins");
 		Collection<DuplexPluginFactory> dFactories =
-				duplexPluginConfig.getFactories();
+				pluginConfig.getDuplexFactories();
 		final CountDownLatch dLatch = new CountDownLatch(dFactories.size());
 		for (DuplexPluginFactory factory : dFactories)
 			ioExecutor.execute(new DuplexPluginStarter(factory, dLatch));
