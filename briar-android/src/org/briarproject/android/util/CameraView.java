@@ -95,6 +95,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			previewConsumer.start(camera);
 		} catch (IOException e) {
 			LOG.log(WARNING, "Error starting camera preview", e);
+		} catch (RuntimeException e) {
+			LOG.log(WARNING, "Error starting camera preview", e);
 		}
 	}
 
@@ -120,7 +122,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 		if(LOG.isLoggable(INFO))
 			LOG.info("Display orientation " + orientation + " degrees");
-		camera.setDisplayOrientation(orientation);
+		try {
+			camera.setDisplayOrientation(orientation);
+		} catch (RuntimeException e) {
+			LOG.log(WARNING, "Error setting display orientation", e);
+		}
 		displayOrientation = orientation;
 	}
 
@@ -227,9 +233,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		surfaceHeight = h;
 		if (camera == null) return; // We are stopped
 		stopPreview();
-		Parameters params = camera.getParameters();
-		setPreviewSize(params);
-		applyParameters(params);
+		try {
+			Parameters params = camera.getParameters();
+			setPreviewSize(params);
+			applyParameters(params);
+		} catch (RuntimeException e) {
+			LOG.log(WARNING, "Error getting camera parameters", e);
+		}
 		startPreview(holder);
 	}
 
