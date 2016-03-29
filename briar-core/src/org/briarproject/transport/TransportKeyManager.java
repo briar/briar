@@ -60,51 +60,46 @@ class TransportKeyManager {
 		keys = new HashMap<ContactId, MutableTransportKeys>();
 	}
 
-	void start() {
+	void start(Transaction txn) throws DbException {
 		long now = clock.currentTimeMillis();
 		lock.lock();
 		try {
 			// Load the transport keys from the DB
-			Map<ContactId, TransportKeys> loaded;
-			try {
-				Transaction txn = db.startTransaction(true);
-				try {
-					loaded = db.getTransportKeys(txn, transportId);
-					txn.setComplete();
-				} finally {
-					db.endTransaction(txn);
-				}
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				return;
-			}
+			Map<ContactId, TransportKeys> loaded =
+					db.getTransportKeys(txn, transportId);
 			// Rotate the keys to the current rotation period
-			Map<ContactId, TransportKeys> rotated =
-					new HashMap<ContactId, TransportKeys>();
-			Map<ContactId, TransportKeys> current =
-					new HashMap<ContactId, TransportKeys>();
-			long rotationPeriod = now / rotationPeriodLength;
-			for (Entry<ContactId, TransportKeys> e : loaded.entrySet()) {
-				ContactId c = e.getKey();
-				TransportKeys k = e.getValue();
-				TransportKeys k1 = crypto.rotateTransportKeys(k,
-						rotationPeriod);
-				if (k1.getRotationPeriod() > k.getRotationPeriod())
-					rotated.put(c, k1);
-				current.put(c, k1);
-			}
+			RotationResult rotationResult = rotateKeys(loaded, now);
 			// Initialise mutable state for all contacts
-			for (Entry<ContactId, TransportKeys> e : current.entrySet())
-				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
+			addKeys(rotationResult.current);
 			// Write any rotated keys back to the DB
-			updateTransportKeys(rotated);
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (!rotationResult.rotated.isEmpty())
+				db.updateTransportKeys(txn, rotationResult.rotated);
 		} finally {
 			lock.unlock();
 		}
 		// Schedule the next key rotation
 		scheduleKeyRotation(now);
+	}
+
+	private RotationResult rotateKeys(Map<ContactId, TransportKeys> keys,
+			long now) {
+		RotationResult rotationResult = new RotationResult();
+		long rotationPeriod = now / rotationPeriodLength;
+		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
+			ContactId c = e.getKey();
+			TransportKeys k = e.getValue();
+			TransportKeys k1 = crypto.rotateTransportKeys(k, rotationPeriod);
+			if (k1.getRotationPeriod() > k.getRotationPeriod())
+				rotationResult.rotated.put(c, k1);
+			rotationResult.current.put(c, k1);
+		}
+		return rotationResult;
+	}
+
+	// Locking: lock
+	private void addKeys(Map<ContactId, TransportKeys> m) {
+		for (Entry<ContactId, TransportKeys> e : m.entrySet())
+			addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
 	}
 
 	// Locking: lock
@@ -126,23 +121,21 @@ class TransportKeyManager {
 		}
 	}
 
-	private void updateTransportKeys(Map<ContactId, TransportKeys> rotated)
-		throws DbException {
-		if (!rotated.isEmpty()) {
-			Transaction txn = db.startTransaction(false);
-			try {
-				db.updateTransportKeys(txn, rotated);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
-		}
-	}
-
 	private void scheduleKeyRotation(long now) {
 		TimerTask task = new TimerTask() {
 			public void run() {
-				rotateKeys();
+				try {
+					Transaction txn = db.startTransaction(false);
+					try {
+						rotateKeys(txn);
+						txn.setComplete();
+					} finally {
+						db.endTransaction(txn);
+					}
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
 			}
 		};
 		long delay = rotationPeriodLength - now % rotationPeriodLength;
@@ -185,7 +178,8 @@ class TransportKeyManager {
 		}
 	}
 
-	StreamContext getStreamContext(ContactId c) {
+	StreamContext getStreamContext(Transaction txn, ContactId c)
+			throws DbException {
 		lock.lock();
 		try {
 			// Look up the outgoing keys for the contact
@@ -198,24 +192,16 @@ class TransportKeyManager {
 					outKeys.getStreamCounter());
 			// Increment the stream counter and write it back to the DB
 			outKeys.incrementStreamCounter();
-			Transaction txn = db.startTransaction(false);
-			try {
-				db.incrementStreamCounter(txn, c, transportId,
-						outKeys.getRotationPeriod());
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			db.incrementStreamCounter(txn, c, transportId,
+					outKeys.getRotationPeriod());
 			return ctx;
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	StreamContext getStreamContext(byte[] tag) {
+	StreamContext getStreamContext(Transaction txn, byte[] tag)
+			throws DbException {
 		lock.lock();
 		try {
 			// Look up the incoming keys for the tag
@@ -244,53 +230,33 @@ class TransportKeyManager {
 				inContexts.remove(new Bytes(removeTag));
 			}
 			// Write the window back to the DB
-			Transaction txn = db.startTransaction(false);
-			try {
-				db.setReorderingWindow(txn, tagCtx.contactId, transportId,
-						inKeys.getRotationPeriod(), window.getBase(),
-						window.getBitmap());
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			db.setReorderingWindow(txn, tagCtx.contactId, transportId,
+					inKeys.getRotationPeriod(), window.getBase(),
+					window.getBitmap());
 			return ctx;
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
 		} finally {
 			lock.unlock();
 		}
 	}
 
-	private void rotateKeys() {
+	private void rotateKeys(Transaction txn) throws DbException {
 		long now = clock.currentTimeMillis();
 		lock.lock();
 		try {
 			// Rotate the keys to the current rotation period
-			Map<ContactId, TransportKeys> rotated =
+			Map<ContactId, TransportKeys> snapshot =
 					new HashMap<ContactId, TransportKeys>();
-			Map<ContactId, TransportKeys> current =
-					new HashMap<ContactId, TransportKeys>();
-			long rotationPeriod = now / rotationPeriodLength;
-			for (Entry<ContactId, MutableTransportKeys> e : keys.entrySet()) {
-				ContactId c = e.getKey();
-				TransportKeys k = e.getValue().snapshot();
-				TransportKeys k1 = crypto.rotateTransportKeys(k,
-						rotationPeriod);
-				if (k1.getRotationPeriod() > k.getRotationPeriod())
-					rotated.put(c, k1);
-				current.put(c, k1);
-			}
+			for (Entry<ContactId, MutableTransportKeys> e : keys.entrySet())
+				snapshot.put(e.getKey(), e.getValue().snapshot());
+			RotationResult rotationResult = rotateKeys(snapshot, now);
 			// Rebuild the mutable state for all contacts
 			inContexts.clear();
 			outContexts.clear();
 			keys.clear();
-			for (Entry<ContactId, TransportKeys> e : current.entrySet())
-				addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
+			addKeys(rotationResult.current);
 			// Write any rotated keys back to the DB
-			updateTransportKeys(rotated);
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (!rotationResult.rotated.isEmpty())
+				db.updateTransportKeys(txn, rotationResult.rotated);
 		} finally {
 			lock.unlock();
 		}
@@ -309,6 +275,16 @@ class TransportKeyManager {
 			this.contactId = contactId;
 			this.inKeys = inKeys;
 			this.streamNumber = streamNumber;
+		}
+	}
+
+	private static class RotationResult {
+
+		private final Map<ContactId, TransportKeys> current, rotated;
+
+		private RotationResult() {
+			current = new HashMap<ContactId, TransportKeys>();
+			rotated = new HashMap<ContactId, TransportKeys>();
 		}
 	}
 }

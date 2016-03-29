@@ -2,6 +2,7 @@ package org.briarproject.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
@@ -132,10 +133,14 @@ class ConnectionManagerImpl implements ConnectionManager {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				disposeReader(true, false);
+				return;
 			}
 			if (ctx == null) {
 				LOG.info("Unrecognised tag");
-				disposeReader(true, false);
+				disposeReader(false, false);
 				return;
 			}
 			ContactId contactId = ctx.getContactId();
@@ -176,11 +181,17 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 		public void run() {
 			// Allocate a stream context
-			StreamContext ctx = keyManager.getStreamContext(contactId,
-					transportId);
+			StreamContext ctx;
+			try {
+				ctx = keyManager.getStreamContext(contactId, transportId);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				disposeWriter(true);
+				return;
+			}
 			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
-				disposeWriter(true);
+				disposeWriter(false);
 				return;
 			}
 			connectionRegistry.registerConnection(contactId, transportId);
@@ -232,10 +243,14 @@ class ConnectionManagerImpl implements ConnectionManager {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				disposeReader(true, false);
+				return;
 			}
 			if (ctx == null) {
 				LOG.info("Unrecognised tag");
-				disposeReader(true, false);
+				disposeReader(false, false);
 				return;
 			}
 			contactId = ctx.getContactId();
@@ -261,11 +276,17 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 		private void runOutgoingSession() {
 			// Allocate a stream context
-			StreamContext ctx = keyManager.getStreamContext(contactId,
-					transportId);
+			StreamContext ctx;
+			try {
+				ctx = keyManager.getStreamContext(contactId, transportId);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				disposeWriter(true);
+				return;
+			}
 			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
-				disposeWriter(true);
+				disposeWriter(false);
 				return;
 			}
 			try {
@@ -320,11 +341,17 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 		public void run() {
 			// Allocate a stream context
-			StreamContext ctx = keyManager.getStreamContext(contactId,
-					transportId);
+			StreamContext ctx;
+			try {
+				ctx = keyManager.getStreamContext(contactId, transportId);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				disposeWriter(true);
+				return;
+			}
 			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
-				disposeWriter(true);
+				disposeWriter(false);
 				return;
 			}
 			connectionRegistry.registerConnection(contactId, transportId);
@@ -354,6 +381,10 @@ class ConnectionManagerImpl implements ConnectionManager {
 				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				disposeReader(true, true);
+				return;
+			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 				return;

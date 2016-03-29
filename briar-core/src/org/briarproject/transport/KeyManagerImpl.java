@@ -22,7 +22,6 @@ import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +31,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 class KeyManagerImpl implements KeyManager, Service, EventListener {
@@ -65,30 +65,28 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	@Override
 	public boolean start() {
-		Map<TransportId, Integer> latencies =
+		Map<TransportId, Integer> transports =
 				new HashMap<TransportId, Integer>();
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories())
-			latencies.put(f.getId(), f.getMaxLatency());
+			transports.put(f.getId(), f.getMaxLatency());
 		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories())
-			latencies.put(f.getId(), f.getMaxLatency());
+			transports.put(f.getId(), f.getMaxLatency());
 		try {
-			Collection<Contact> contacts;
 			Transaction txn = db.startTransaction(false);
 			try {
-				contacts = db.getContacts(txn);
-				for (Entry<TransportId, Integer> e : latencies.entrySet())
+				for (Contact c : db.getContacts(txn))
+					if (c.isActive()) activeContacts.put(c.getId(), true);
+				for (Entry<TransportId, Integer> e : transports.entrySet())
 					db.addTransport(txn, e.getKey(), e.getValue());
+				for (Entry<TransportId, Integer> e : transports.entrySet()) {
+					TransportKeyManager m = new TransportKeyManager(db, crypto,
+							timer, clock, e.getKey(), e.getValue());
+					managers.put(e.getKey(), m);
+					m.start(txn);
+				}
 				txn.setComplete();
 			} finally {
 				db.endTransaction(txn);
-			}
-			for (Contact c : contacts)
-				if (c.isActive()) activeContacts.put(c.getId(), true);
-			for (Entry<TransportId, Integer> e : latencies.entrySet()) {
-				TransportKeyManager m = new TransportKeyManager(db, crypto,
-						timer, clock, e.getKey(), e.getValue());
-				managers.put(e.getKey(), m);
-				m.start();
 			}
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -108,32 +106,43 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			m.addContact(txn, c, master, timestamp, alice);
 	}
 
-	public StreamContext getStreamContext(ContactId c, TransportId t) {
+	public StreamContext getStreamContext(ContactId c, TransportId t)
+			throws DbException {
 		// Don't allow outgoing streams to inactive contacts
 		if (!activeContacts.containsKey(c)) return null;
 		TransportKeyManager m = managers.get(t);
-		return m == null ? null : m.getStreamContext(c);
+		if (m == null) {
+			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			return null;
+		}
+		StreamContext ctx = null;
+		Transaction txn = db.startTransaction(false);
+		try {
+			ctx = m.getStreamContext(txn, c);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return ctx;
 	}
 
-	public StreamContext getStreamContext(TransportId t, byte[] tag) {
+	public StreamContext getStreamContext(TransportId t, byte[] tag)
+			throws DbException {
 		TransportKeyManager m = managers.get(t);
-		if (m == null) return null;
-		StreamContext ctx = m.getStreamContext(tag);
-		if (ctx == null) return null;
-		// Activate the contact if not already active
-		if (!activeContacts.containsKey(ctx.getContactId())) {
-			try {
-				Transaction txn = db.startTransaction(false);
-				try {
-					db.setContactActive(txn, ctx.getContactId(), true);
-					txn.setComplete();
-				} finally {
-					db.endTransaction(txn);
-				}
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				return null;
-			}
+		if (m == null) {
+			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			return null;
+		}
+		StreamContext ctx = null;
+		Transaction txn = db.startTransaction(false);
+		try {
+			ctx = m.getStreamContext(txn, tag);
+			// Activate the contact if not already active
+			if (ctx != null && !activeContacts.containsKey(ctx.getContactId()))
+				db.setContactActive(txn, ctx.getContactId(), true);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
 		}
 		return ctx;
 	}

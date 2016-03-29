@@ -37,6 +37,7 @@ import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TransportKeyManagerTest extends BriarTestCase {
 
@@ -57,7 +58,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
-		final Transaction txn = new Transaction(null, true);
+
 		final Map<ContactId, TransportKeys> loaded =
 				new LinkedHashMap<ContactId, TransportKeys>();
 		final TransportKeys shouldRotate = createTransportKeys(900, 0);
@@ -65,17 +66,15 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		loaded.put(contactId, shouldRotate);
 		loaded.put(contactId1, shouldNotRotate);
 		final TransportKeys rotated = createTransportKeys(1000, 0);
-		final Transaction txn1 = new Transaction(null, false);
+		final Transaction txn = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Get the current time (1 ms after start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000 + 1));
 			// Load the transport keys
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
-			oneOf(db).endTransaction(txn);
 			// Rotate the transport keys
 			oneOf(crypto).rotateTransportKeys(shouldRotate, 1000);
 			will(returnValue(rotated));
@@ -88,11 +87,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
-			oneOf(db).updateTransportKeys(txn1,
+			oneOf(db).updateTransportKeys(txn,
 					Collections.singletonMap(contactId, rotated));
-			oneOf(db).endTransaction(txn1);
 			// Schedule key rotation at the start of the next rotation period
 			oneOf(timer).schedule(with(any(TimerTask.class)),
 					with(rotationPeriodLength - 1));
@@ -100,7 +96,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
 				crypto, timer, clock, transportId, maxLatency);
-		transportKeyManager.start();
+		transportKeyManager.start(txn);
 
 		context.assertIsSatisfied();
 	}
@@ -112,10 +108,12 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
+
 		final boolean alice = true;
 		final TransportKeys transportKeys = createTransportKeys(999, 0);
 		final TransportKeys rotated = createTransportKeys(1000, 0);
 		final Transaction txn = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 999,
 					alice);
@@ -155,9 +153,11 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
 
+		final Transaction txn = new Transaction(null, false);
+
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
 				crypto, timer, clock, transportId, maxLatency);
-		assertNull(transportKeyManager.getStreamContext(contactId));
+		assertNull(transportKeyManager.getStreamContext(txn, contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -170,11 +170,13 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
+
 		final boolean alice = true;
 		// The stream counter has been exhausted
 		final TransportKeys transportKeys = createTransportKeys(1000,
 				MAX_32_BIT_UNSIGNED + 1);
 		final Transaction txn = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
 					alice);
@@ -201,7 +203,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
-		assertNull(transportKeyManager.getStreamContext(contactId));
+		assertNull(transportKeyManager.getStreamContext(txn, contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -213,12 +215,13 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
+
 		final boolean alice = true;
 		// The stream counter can be used one more time before being exhausted
 		final TransportKeys transportKeys = createTransportKeys(1000,
 				MAX_32_BIT_UNSIGNED);
 		final Transaction txn = new Transaction(null, false);
-		final Transaction txn1 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
 					alice);
@@ -238,11 +241,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			// Save the keys
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
 			// Increment the stream counter
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
-			oneOf(db).incrementStreamCounter(txn1, contactId, transportId,
-					1000);
-			oneOf(db).endTransaction(txn1);
+			oneOf(db).incrementStreamCounter(txn, contactId, transportId, 1000);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
@@ -252,7 +251,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
 		// The first request should return a stream context
-		StreamContext ctx = transportKeyManager.getStreamContext(contactId);
+		StreamContext ctx = transportKeyManager.getStreamContext(txn,
+				contactId);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
@@ -260,7 +260,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		assertEquals(headerKey, ctx.getHeaderKey());
 		assertEquals(MAX_32_BIT_UNSIGNED, ctx.getStreamNumber());
 		// The second request should return null, the counter is exhausted
-		assertNull(transportKeyManager.getStreamContext(contactId));
+		assertNull(transportKeyManager.getStreamContext(txn, contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -273,9 +273,11 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
+
 		final boolean alice = true;
 		final TransportKeys transportKeys = createTransportKeys(1000, 0);
 		final Transaction txn = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
 					alice);
@@ -302,7 +304,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
-		assertNull(transportKeyManager.getStreamContext(new byte[TAG_LENGTH]));
+		assertNull(transportKeyManager.getStreamContext(txn,
+				new byte[TAG_LENGTH]));
 
 		context.assertIsSatisfied();
 	}
@@ -314,12 +317,13 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
+
 		final boolean alice = true;
 		final TransportKeys transportKeys = createTransportKeys(1000, 0);
-		final Transaction txn = new Transaction(null, false);
-		final Transaction txn1 = new Transaction(null, false);
 		// Keep a copy of the tags
 		final List<byte[]> tags = new ArrayList<byte[]>();
+		final Transaction txn = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
 					alice);
@@ -343,11 +347,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 					with(tagKey), with((long) REORDERING_WINDOW_SIZE));
 			will(new EncodeTagAction(tags));
 			// Save the reordering window (previous rotation period, base 1)
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
-			oneOf(db).setReorderingWindow(txn1, contactId, transportId, 999,
+			oneOf(db).setReorderingWindow(txn, contactId, transportId, 999,
 					1, new byte[REORDERING_WINDOW_SIZE / 8]);
-			oneOf(db).endTransaction(txn1);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
@@ -360,7 +361,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		assertEquals(REORDERING_WINDOW_SIZE * 3, tags.size());
 		byte[] tag = tags.get(0);
 		// The first request should return a stream context
-		StreamContext ctx = transportKeyManager.getStreamContext(tag);
+		StreamContext ctx = transportKeyManager.getStreamContext(txn, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
@@ -370,7 +371,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		// Another tag should have been encoded
 		assertEquals(REORDERING_WINDOW_SIZE * 3 + 1, tags.size());
 		// The second request should return null, the tag has already been used
-		assertNull(transportKeyManager.getStreamContext(tag));
+		assertNull(transportKeyManager.getStreamContext(txn, tag));
 
 		context.assertIsSatisfied();
 	}
@@ -382,22 +383,21 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
 		final Timer timer = context.mock(Timer.class);
 		final Clock clock = context.mock(Clock.class);
-		final Transaction txn = new Transaction(null, true);
+
 		final TransportKeys transportKeys = createTransportKeys(1000, 0);
 		final Map<ContactId, TransportKeys> loaded =
 				Collections.singletonMap(contactId, transportKeys);
 		final TransportKeys rotated = createTransportKeys(1001, 0);
+		final Transaction txn = new Transaction(null, false);
 		final Transaction txn1 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000));
 			// Load the transport keys
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
-			oneOf(db).endTransaction(txn);
 			// Rotate the transport keys (the keys are unaffected)
 			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
@@ -411,6 +411,9 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(timer).schedule(with(any(TimerTask.class)),
 					with(rotationPeriodLength));
 			will(new RunTimerTaskAction());
+			// Start a transaction for key rotation
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn1));
 			// Get the current time (the start of rotation period 1001)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1001));
@@ -425,19 +428,19 @@ public class TransportKeyManagerTest extends BriarTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
 			oneOf(db).updateTransportKeys(txn1,
 					Collections.singletonMap(contactId, rotated));
-			oneOf(db).endTransaction(txn1);
 			// Schedule key rotation at the start of the next rotation period
 			oneOf(timer).schedule(with(any(TimerTask.class)),
 					with(rotationPeriodLength));
+			// Commit the key rotation transaction
+			oneOf(db).endTransaction(txn1);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
 				crypto, timer, clock, transportId, maxLatency);
-		transportKeyManager.start();
+		transportKeyManager.start(txn);
+		assertTrue(txn1.isComplete());
 
 		context.assertIsSatisfied();
 	}
