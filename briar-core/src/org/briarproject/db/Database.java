@@ -118,38 +118,52 @@ interface Database<T> {
 	/**
 	 * Returns true if the database contains the given contact for the given
 	 * local pseudonym.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsContact(T txn, AuthorId remote, AuthorId local)
 			throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given group.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given local pseudonym.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given message.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsMessage(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given transport.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given group and the group is
 	 * visible to the given contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsVisibleGroup(T txn, ContactId c, GroupId g)
 			throws DbException;
@@ -157,12 +171,16 @@ interface Database<T> {
 	/**
 	 * Returns true if the database contains the given message and the message
 	 * is visible to the given contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsVisibleMessage(T txn, ContactId c, MessageId m)
 			throws DbException;
 
 	/**
 	 * Returns the number of messages offered by the given contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	int countOfferedMessages(T txn, ContactId c) throws DbException;
 
@@ -171,35 +189,39 @@ interface Database<T> {
 	 * {@link #removeMessage(Object, MessageId)}, the message ID and any other
 	 * associated data are not deleted, and
 	 * {@link #containsMessage(Object, MessageId)} will continue to return true.
-	 * <p>
-	 * Locking: write.
 	 */
 	void deleteMessage(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Deletes any metadata associated with the given message.
-	 * <p>
-	 * Locking: write.
 	 */
 	void deleteMessageMetadata(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.
+	 * <p/>
+	 * Read-only.
 	 */
 	Contact getContact(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns all contacts.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<Contact> getContacts(T txn) throws DbException;
 
 	/**
 	 * Returns all contacts associated with the given local pseudonym.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns the unique ID for this device.
+	 * <p/>
+	 * Read-only.
 	 */
 	DeviceId getDeviceId(T txn) throws DbException;
 
@@ -212,48 +234,66 @@ interface Database<T> {
 
 	/**
 	 * Returns the group with the given ID.
+	 * <p/>
+	 * Read-only.
 	 */
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the metadata for the given group.
+	 * <p/>
+	 * Read-only.
 	 */
 	Metadata getGroupMetadata(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns all groups belonging to the given client.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<Group> getGroups(T txn, ClientId c) throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.
+	 * <p/>
+	 * Read-only.
 	 */
 	LocalAuthor getLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns all local pseudonyms.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
 	 * Returns the IDs of all messages in the given group.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getMessageIds(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the metadata for all messages in the given group.
+	 * <p/>
+	 * Read-only.
 	 */
 	Map<MessageId, Metadata> getMessageMetadata(T txn, GroupId g)
 			throws DbException;
 
 	/**
 	 * Returns the metadata for the given message.
+	 * <p/>
+	 * Read-only.
 	 */
 	Metadata getMessageMetadata(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the status of all messages in the given group with respect
 	 * to the given contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageStatus> getMessageStatus(T txn, ContactId c, GroupId g)
 			throws DbException;
@@ -261,6 +301,8 @@ interface Database<T> {
 	/**
 	 * Returns the status of the given message with respect to the given
 	 * contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	MessageStatus getMessageStatus(T txn, ContactId c, MessageId m)
 			throws DbException;
@@ -268,6 +310,8 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages received from the given contact that
 	 * need to be acknowledged, up to the given number of messages.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
 			throws DbException;
@@ -275,6 +319,8 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages that are eligible to be offered to the
 	 * given contact, up to the given number of messages.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
 			int maxMessages) throws DbException;
@@ -282,6 +328,8 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, up to the given total length.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength)
 			throws DbException;
@@ -289,6 +337,8 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of some messages that are eligible to be requested from
 	 * the given contact, up to the given number of messages.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToRequest(T txn, ContactId c,
 			int maxMessages) throws DbException;
@@ -296,12 +346,17 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of any messages that need to be validated by the given
 	 * client.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
 			throws DbException;
 
 	/**
-	 * Returns the message with the given ID, in serialised form.
+	 * Returns the message with the given ID, in serialised form, or null if
+	 * the message has been deleted.
+	 * <p/>
+	 * Read-only.
 	 */
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
 
@@ -309,23 +364,31 @@ interface Database<T> {
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact and have been requested by the contact, up to the given
 	 * total length.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
 			int maxLength) throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.
+	 * <p/>
+	 * Read-only.
 	 */
 	Settings getSettings(T txn, String namespace) throws DbException;
 
 	/**
 	 * Returns all transport keys for the given transport.
+	 * <p/>
+	 * Read-only.
 	 */
 	Map<ContactId, TransportKeys> getTransportKeys(T txn, TransportId t)
 			throws DbException;
 
 	/**
 	 * Returns the IDs of all contacts to which the given group is visible.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 

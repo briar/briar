@@ -142,70 +142,97 @@ public interface DatabaseComponent {
 
 	/**
 	 * Returns the contact with the given ID.
+	 * <p/>
+	 * Read-only.
 	 */
 	Contact getContact(Transaction txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns all contacts.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<Contact> getContacts(Transaction txn) throws DbException;
 
 	/**
 	 * Returns all contacts associated with the given local pseudonym.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<ContactId> getContacts(Transaction txn, AuthorId a)
 			throws DbException;
 
 	/**
 	 * Returns the unique ID for this device.
+	 * <p/>
+	 * Read-only.
 	 */
 	DeviceId getDeviceId(Transaction txn) throws DbException;
 
 	/**
 	 * Returns the group with the given ID.
+	 * <p/>
+	 * Read-only.
 	 */
 	Group getGroup(Transaction txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the metadata for the given group.
+	 * <p/>
+	 * Read-only.
 	 */
 	Metadata getGroupMetadata(Transaction txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns all groups belonging to the given client.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<Group> getGroups(Transaction txn, ClientId c) throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.
+	 * <p/>
+	 * Read-only.
 	 */
 	LocalAuthor getLocalAuthor(Transaction txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns all local pseudonyms.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<LocalAuthor> getLocalAuthors(Transaction txn) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated by the given
 	 * client.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToValidate(Transaction txn, ClientId c)
 			throws DbException;
 
 	/**
-	 * Returns the message with the given ID, in serialised form.
+	 * Returns the message with the given ID, in serialised form, or null if
+	 * the message has been deleted.
+	 * <p/>
+	 * Read-only.
 	 */
 	byte[] getRawMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the metadata for all messages in the given group.
+	 * <p/>
+	 * Read-only.
 	 */
 	Map<MessageId, Metadata> getMessageMetadata(Transaction txn, GroupId g)
 			throws DbException;
 
 	/**
 	 * Returns the metadata for the given message.
+	 * <p/>
+	 * Read-only.
 	 */
 	Metadata getMessageMetadata(Transaction txn, MessageId m)
 			throws DbException;
@@ -213,6 +240,8 @@ public interface DatabaseComponent {
 	/**
 	 * Returns the status of all messages in the given group with respect to
 	 * the given contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	Collection<MessageStatus> getMessageStatus(Transaction txn, ContactId c,
 			GroupId g) throws DbException;
@@ -220,17 +249,23 @@ public interface DatabaseComponent {
 	/**
 	 * Returns the status of the given message with respect to the given
 	 * contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	MessageStatus getMessageStatus(Transaction txn, ContactId c, MessageId m)
 			throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.
+	 * <p/>
+	 * Read-only.
 	 */
 	Settings getSettings(Transaction txn, String namespace) throws DbException;
 
 	/**
 	 * Returns all transport keys for the given transport.
+	 * <p/>
+	 * Read-only.
 	 */
 	Map<ContactId, TransportKeys> getTransportKeys(Transaction txn,
 			TransportId t) throws DbException;
@@ -244,6 +279,8 @@ public interface DatabaseComponent {
 
 	/**
 	 * Returns true if the given group is visible to the given contact.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean isVisibleToContact(Transaction txn, ContactId c, GroupId g)
 			throws DbException;
