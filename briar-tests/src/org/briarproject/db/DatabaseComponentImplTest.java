@@ -192,7 +192,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 				shutdown);
 
 		assertFalse(db.open());
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalAuthor(transaction, localAuthor);
 			assertEquals(contactId,
@@ -233,7 +233,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalMessage(transaction, message, clientId, metadata, true);
 			fail();
@@ -276,7 +276,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalMessage(transaction, message, clientId, metadata, true);
 			transaction.setComplete();
@@ -306,7 +306,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addTransportKeys(transaction, contactId, createTransportKeys());
 			fail();
@@ -316,7 +316,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.generateAck(transaction, contactId, 123);
 			fail();
@@ -326,7 +326,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.generateBatch(transaction, contactId, 123, 456);
 			fail();
@@ -336,7 +336,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.generateOffer(transaction, contactId, 123, 456);
 			fail();
@@ -346,7 +346,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.generateRequest(transaction, contactId, 123);
 			fail();
@@ -356,7 +356,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getContact(transaction, contactId);
 			fail();
@@ -366,7 +366,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getMessageStatus(transaction, contactId, groupId);
 			fail();
@@ -376,7 +376,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getMessageStatus(transaction, contactId, messageId);
 			fail();
@@ -386,7 +386,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.incrementStreamCounter(transaction, contactId, transportId, 0);
 			fail();
@@ -396,7 +396,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.isVisibleToContact(transaction, contactId, groupId);
 			fail();
@@ -406,7 +406,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			Ack a = new Ack(Collections.singletonList(messageId));
 			db.receiveAck(transaction, contactId, a);
@@ -417,7 +417,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.receiveMessage(transaction, contactId, message);
 			fail();
@@ -427,7 +427,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			Offer o = new Offer(Collections.singletonList(messageId));
 			db.receiveOffer(transaction, contactId, o);
@@ -438,7 +438,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			Request r = new Request(Collections.singletonList(messageId));
 			db.receiveRequest(transaction, contactId, r);
@@ -449,7 +449,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.removeContact(transaction, contactId);
 			fail();
@@ -459,7 +459,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.setContactActive(transaction, contactId, true);
 			fail();
@@ -469,7 +469,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.setReorderingWindow(transaction, contactId, transportId, 0, 0,
 					new byte[REORDERING_WINDOW_SIZE / 8]);
@@ -480,7 +480,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.setVisibleToContact(transaction, contactId, groupId, true);
 			fail();
@@ -512,7 +512,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addContact(transaction, author, localAuthorId, true);
 			fail();
@@ -522,7 +522,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getLocalAuthor(transaction, localAuthorId);
 			fail();
@@ -532,7 +532,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.removeLocalAuthor(transaction, localAuthorId);
 			fail();
@@ -568,7 +568,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.getGroup(transaction, groupId);
 			fail();
@@ -578,7 +578,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getGroupMetadata(transaction, groupId);
 			fail();
@@ -588,7 +588,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getMessageStatus(transaction, contactId, groupId);
 			fail();
@@ -598,7 +598,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.isVisibleToContact(transaction, contactId, groupId);
 			fail();
@@ -608,7 +608,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.mergeGroupMetadata(transaction, groupId, metadata);
 			fail();
@@ -618,7 +618,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.removeGroup(transaction, group);
 			fail();
@@ -628,7 +628,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.setVisibleToContact(transaction, contactId, groupId, true);
 			fail();
@@ -663,7 +663,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.deleteMessage(transaction, messageId);
 			fail();
@@ -673,7 +673,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.deleteMessageMetadata(transaction, messageId);
 			fail();
@@ -683,7 +683,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getRawMessage(transaction, messageId);
 			fail();
@@ -693,7 +693,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getMessageMetadata(transaction, messageId);
 			fail();
@@ -703,7 +703,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getMessageStatus(transaction, contactId, messageId);
 			fail();
@@ -713,7 +713,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.mergeMessageMetadata(transaction, messageId, metadata);
 			fail();
@@ -723,7 +723,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.setMessageShared(transaction, message, true);
 			fail();
@@ -733,7 +733,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.setMessageValid(transaction, message, clientId, true);
 			fail();
@@ -787,7 +787,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalAuthor(transaction, localAuthor);
 			assertEquals(contactId,
@@ -797,7 +797,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.getTransportKeys(transaction, transportId);
 			fail();
@@ -807,7 +807,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.incrementStreamCounter(transaction, contactId, transportId, 0);
 			fail();
@@ -817,7 +817,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.removeTransport(transaction, transportId);
 			fail();
@@ -827,7 +827,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction();
+		transaction = db.startTransaction(false);
 		try {
 			db.setReorderingWindow(transaction, contactId, transportId, 0, 0,
 					new byte[REORDERING_WINDOW_SIZE / 8]);
@@ -863,7 +863,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			Ack a = db.generateAck(transaction, contactId, 123);
 			assertEquals(messagesToAck, a.getMessageIds());
@@ -907,7 +907,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			assertEquals(messages, db.generateBatch(transaction, contactId,
 					size * 2, maxLatency));
@@ -944,7 +944,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			Offer o = db.generateOffer(transaction, contactId, 123, maxLatency);
 			assertEquals(ids, o.getMessageIds());
@@ -978,7 +978,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			Request r = db.generateRequest(transaction, contactId, 123);
 			assertEquals(ids, r.getMessageIds());
@@ -1023,7 +1023,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			assertEquals(messages, db.generateRequestedBatch(transaction,
 					contactId, size * 2, maxLatency));
@@ -1056,7 +1056,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			Ack a = new Ack(Collections.singletonList(messageId));
 			db.receiveAck(transaction, contactId, a);
@@ -1099,7 +1099,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.receiveMessage(transaction, contactId, message);
 			transaction.setComplete();
@@ -1135,7 +1135,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.receiveMessage(transaction, contactId, message);
 			transaction.setComplete();
@@ -1165,7 +1165,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.receiveMessage(transaction, contactId, message);
 			transaction.setComplete();
@@ -1217,7 +1217,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			Offer o = new Offer(Arrays.asList(messageId, messageId1,
 					messageId2, messageId3));
@@ -1252,7 +1252,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			Request r = new Request(Collections.singletonList(messageId));
 			db.receiveRequest(transaction, contactId, r);
@@ -1293,7 +1293,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.setVisibleToContact(transaction, contactId, groupId, true);
 			transaction.setComplete();
@@ -1326,7 +1326,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.setVisibleToContact(transaction, contactId, groupId, true);
 			transaction.setComplete();
@@ -1368,7 +1368,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			db.updateTransportKeys(transaction, keys);
 			assertEquals(keys, db.getTransportKeys(transaction, transportId));
@@ -1434,7 +1434,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction();
+		Transaction transaction = db.startTransaction(false);
 		try {
 			// First merge should broadcast an event
 			db.mergeSettings(transaction, update, "namespace");

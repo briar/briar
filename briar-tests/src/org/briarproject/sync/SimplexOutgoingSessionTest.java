@@ -3,7 +3,6 @@ package org.briarproject.sync;
 import org.briarproject.BriarTestCase;
 import org.briarproject.ImmediateExecutor;
 import org.briarproject.TestUtils;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.Transaction;
@@ -28,7 +27,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final ContactId contactId;
-	private final TransportId transportId;
 	private final MessageId messageId;
 	private final int maxLatency;
 	private final PacketWriter packetWriter;
@@ -40,7 +38,6 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		eventBus = context.mock(EventBus.class);
 		packetWriter = context.mock(PacketWriter.class);
 		contactId = new ContactId(234);
-		transportId = new TransportId("id");
 		messageId = new MessageId(TestUtils.getRandomId());
 		maxLatency = Integer.MAX_VALUE;
 	}
@@ -48,21 +45,21 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 	@Test
 	public void testNothingToSend() throws Exception {
 		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, maxLatency,
-				packetWriter);
-		final Transaction noAckTxn = new Transaction(null);
-		final Transaction noMsgTxn = new Transaction(null);
+				dbExecutor, eventBus, contactId, maxLatency, packetWriter);
+		final Transaction noAckTxn = new Transaction(null, false);
+		final Transaction noMsgTxn = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// No acks to send
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
 			oneOf(db).endTransaction(noAckTxn);
 			// No messages to send
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(noMsgTxn));
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(maxLatency));
@@ -73,7 +70,9 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
+
 		session.run();
+
 		context.assertIsSatisfied();
 	}
 
@@ -82,24 +81,24 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 		final Ack ack = new Ack(Collections.singletonList(messageId));
 		final byte[] raw = new byte[1234];
 		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, transportId, maxLatency,
-				packetWriter);
-		final Transaction ackTxn = new Transaction(null);
-		final Transaction noAckTxn = new Transaction(null);
-		final Transaction msgTxn = new Transaction(null);
-		final Transaction noMsgTxn = new Transaction(null);
+				dbExecutor, eventBus, contactId, maxLatency, packetWriter);
+		final Transaction ackTxn = new Transaction(null, false);
+		final Transaction noAckTxn = new Transaction(null, false);
+		final Transaction msgTxn = new Transaction(null, false);
+		final Transaction noMsgTxn = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// One ack to send
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(ackTxn));
 			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(ack));
 			oneOf(db).endTransaction(ackTxn);
 			oneOf(packetWriter).writeAck(ack);
 			// One message to send
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(msgTxn));
 			oneOf(db).generateBatch(with(msgTxn), with(contactId),
 					with(any(int.class)), with(maxLatency));
@@ -107,13 +106,13 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			oneOf(db).endTransaction(msgTxn);
 			oneOf(packetWriter).writeMessage(raw);
 			// No more acks
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
 			oneOf(db).endTransaction(noAckTxn);
 			// No more messages
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(noMsgTxn));
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(maxLatency));
@@ -124,7 +123,9 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
+
 		session.run();
+
 		context.assertIsSatisfied();
 	}
 }

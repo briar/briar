@@ -37,7 +37,7 @@ class IdentityManagerImpl implements IdentityManager {
 
 	@Override
 	public void addLocalAuthor(LocalAuthor localAuthor) throws DbException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			db.addLocalAuthor(txn, localAuthor);
 			for (AddIdentityHook hook : addHooks)
@@ -51,7 +51,7 @@ class IdentityManagerImpl implements IdentityManager {
 	@Override
 	public LocalAuthor getLocalAuthor(AuthorId a) throws DbException {
 		LocalAuthor author;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			author = db.getLocalAuthor(txn, a);
 			txn.setComplete();
@@ -64,7 +64,7 @@ class IdentityManagerImpl implements IdentityManager {
 	@Override
 	public Collection<LocalAuthor> getLocalAuthors() throws DbException {
 		Collection<LocalAuthor> authors;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			authors = db.getLocalAuthors(txn);
 			txn.setComplete();
@@ -76,7 +76,7 @@ class IdentityManagerImpl implements IdentityManager {
 
 	@Override
 	public void removeLocalAuthor(AuthorId a) throws DbException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			LocalAuthor localAuthor = db.getLocalAuthor(txn, a);
 			for (RemoveIdentityHook hook : removeHooks)

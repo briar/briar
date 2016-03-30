@@ -1,6 +1,10 @@
 package org.briarproject.lifecycle;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.lifecycle.IoExecutor;
+import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.lifecycle.ShutdownManager;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -12,15 +16,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.lifecycle.IoExecutor;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.lifecycle.ShutdownManager;
-import org.briarproject.api.system.Clock;
-
 import dagger.Module;
 import dagger.Provides;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Module
 public class LifecycleModule {
@@ -51,9 +50,9 @@ public class LifecycleModule {
 
 	@Provides
 	@Singleton
-	LifecycleManager provideLifeCycleManager(Clock clock, DatabaseComponent db,
+	LifecycleManager provideLifecycleManager(DatabaseComponent db,
 			EventBus eventBus) {
-		return new LifecycleManagerImpl(clock, db, eventBus);
+		return new LifecycleManagerImpl(db, eventBus);
 	}
 
 	@Provides
@@ -63,5 +62,4 @@ public class LifecycleModule {
 		lifecycleManager.registerForShutdown(ioExecutor);
 		return ioExecutor;
 	}
-
 }

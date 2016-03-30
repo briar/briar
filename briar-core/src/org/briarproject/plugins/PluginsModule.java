@@ -1,8 +1,5 @@
 package org.briarproject.plugins;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -19,9 +16,11 @@ import org.briarproject.api.transport.StreamWriterFactory;
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
-
 
 @Module
 public class PluginsModule {
@@ -45,8 +44,8 @@ public class PluginsModule {
 
 	@Provides
 	ConnectionManager provideConnectionManager(
-			@IoExecutor Executor ioExecutor,
-			KeyManager keyManager, StreamReaderFactory streamReaderFactory,
+			@IoExecutor Executor ioExecutor, KeyManager keyManager,
+			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			ConnectionRegistry connectionRegistry) {
@@ -61,7 +60,6 @@ public class PluginsModule {
 		return new ConnectionRegistryImpl(eventBus);
 	}
 
-
 	@Provides
 	@Singleton
 	PluginManager getPluginManager(LifecycleManager lifecycleManager,
@@ -69,5 +67,4 @@ public class PluginsModule {
 		lifecycleManager.register(pluginManager);
 		return pluginManager;
 	}
-
 }

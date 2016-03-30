@@ -57,7 +57,7 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public void addLocalMessage(Message m, ClientId c, BdfDictionary metadata,
 			boolean shared) throws DbException, FormatException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			addLocalMessage(txn, m, c, metadata, shared);
 			txn.setComplete();
@@ -89,7 +89,7 @@ class ClientHelperImpl implements ClientHelper {
 	public BdfDictionary getMessageAsDictionary(MessageId m) throws DbException,
 			FormatException {
 		BdfDictionary dictionary;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			dictionary = getMessageAsDictionary(txn, m);
 			txn.setComplete();
@@ -112,7 +112,7 @@ class ClientHelperImpl implements ClientHelper {
 	public BdfList getMessageAsList(MessageId m) throws DbException,
 			FormatException {
 		BdfList list;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			list = getMessageAsList(txn, m);
 			txn.setComplete();
@@ -135,7 +135,7 @@ class ClientHelperImpl implements ClientHelper {
 	public BdfDictionary getGroupMetadataAsDictionary(GroupId g)
 			throws DbException, FormatException {
 		BdfDictionary dictionary;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			dictionary = getGroupMetadataAsDictionary(txn, g);
 			txn.setComplete();
@@ -156,7 +156,7 @@ class ClientHelperImpl implements ClientHelper {
 	public BdfDictionary getMessageMetadataAsDictionary(MessageId m)
 			throws DbException, FormatException {
 		BdfDictionary dictionary;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			dictionary = getMessageMetadataAsDictionary(txn, m);
 			txn.setComplete();
@@ -177,7 +177,7 @@ class ClientHelperImpl implements ClientHelper {
 	public Map<MessageId, BdfDictionary> getMessageMetatataAsDictionary(
 			GroupId g) throws DbException, FormatException {
 		Map<MessageId, BdfDictionary> map;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			map = getMessageMetadataAsDictionary(txn, g);
 			txn.setComplete();
@@ -201,7 +201,7 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public void mergeGroupMetadata(GroupId g, BdfDictionary metadata)
 			throws DbException, FormatException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			mergeGroupMetadata(txn, g, metadata);
 			txn.setComplete();
@@ -219,7 +219,7 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public void mergeMessageMetadata(MessageId m, BdfDictionary metadata)
 			throws DbException, FormatException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			mergeMessageMetadata(txn, m, metadata);
 			txn.setComplete();

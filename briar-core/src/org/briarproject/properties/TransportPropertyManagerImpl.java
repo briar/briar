@@ -84,7 +84,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public void addRemoteProperties(ContactId c, DeviceId dev,
 			Map<TransportId, TransportProperties> props) throws DbException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			Group g = getContactGroup(db.getContact(txn, c));
 			for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
@@ -101,7 +101,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException {
 		Map<TransportId, TransportProperties> local;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			local = getLocalProperties(txn);
 			txn.setComplete();
@@ -116,7 +116,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			throws DbException {
 		try {
 			TransportProperties p = null;
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(true);
 			try {
 				// Find the latest local update
 				LatestUpdate latest = findLatest(txn, localGroup.getId(), t,
@@ -146,7 +146,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		try {
 			Map<ContactId, TransportProperties> remote =
 					new HashMap<ContactId, TransportProperties>();
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(true);
 			try {
 				for (Contact c : db.getContacts(txn)) {
 					Group g = getContactGroup(c);
@@ -173,7 +173,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException {
 		try {
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(false);
 			try {
 				// Create the local group if necessary
 				db.addGroup(txn, localGroup);

@@ -1,13 +1,13 @@
 package org.briarproject.plugins.file;
 
-import static java.util.logging.Level.WARNING;
+import org.briarproject.api.plugins.TransportConnectionReader;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
-import org.briarproject.api.plugins.TransportConnectionReader;
+import static java.util.logging.Level.WARNING;
 
 class FileTransportReader implements TransportConnectionReader {
 
@@ -22,10 +22,6 @@ class FileTransportReader implements TransportConnectionReader {
 		this.file = file;
 		this.in = in;
 		this.plugin = plugin;
-	}
-
-	public long getMaxLatency() {
-		return plugin.getMaxLatency();
 	}
 
 	public InputStream getInputStream() {

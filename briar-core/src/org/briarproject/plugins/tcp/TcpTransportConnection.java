@@ -1,15 +1,15 @@
 package org.briarproject.plugins.tcp;
 
+import org.briarproject.api.plugins.Plugin;
+import org.briarproject.api.plugins.TransportConnectionReader;
+import org.briarproject.api.plugins.TransportConnectionWriter;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.briarproject.api.plugins.Plugin;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 
 class TcpTransportConnection implements DuplexTransportConnection {
 
@@ -37,10 +37,6 @@ class TcpTransportConnection implements DuplexTransportConnection {
 	}
 
 	private class Reader implements TransportConnectionReader {
-
-		public long getMaxLatency() {
-			return plugin.getMaxLatency();
-		}
 
 		public InputStream getInputStream() throws IOException {
 			return socket.getInputStream();

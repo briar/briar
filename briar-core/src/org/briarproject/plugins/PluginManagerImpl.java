@@ -2,9 +2,7 @@ package org.briarproject.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
@@ -13,23 +11,21 @@ import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
+import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
-import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
-import org.briarproject.api.system.Clock;
 import org.briarproject.api.ui.UiCallback;
 
 import java.io.IOException;
@@ -56,10 +52,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	private final Executor ioExecutor;
 	private final EventBus eventBus;
-	private final SimplexPluginConfig simplexPluginConfig;
-	private final DuplexPluginConfig duplexPluginConfig;
-	private final Clock clock;
-	private final DatabaseComponent db;
+	private final PluginConfig pluginConfig;
 	private final Poller poller;
 	private final ConnectionManager connectionManager;
 	private final SettingsManager settingsManager;
@@ -71,19 +64,14 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	@Inject
 	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
-			SimplexPluginConfig simplexPluginConfig,
-			DuplexPluginConfig duplexPluginConfig, Clock clock,
-			DatabaseComponent db, Poller poller,
+			PluginConfig pluginConfig, Poller poller,
 			ConnectionManager connectionManager,
 			SettingsManager settingsManager,
 			TransportPropertyManager transportPropertyManager,
 			UiCallback uiCallback) {
 		this.ioExecutor = ioExecutor;
 		this.eventBus = eventBus;
-		this.simplexPluginConfig = simplexPluginConfig;
-		this.duplexPluginConfig = duplexPluginConfig;
-		this.clock = clock;
-		this.db = db;
+		this.pluginConfig = pluginConfig;
 		this.poller = poller;
 		this.connectionManager = connectionManager;
 		this.settingsManager = settingsManager;
@@ -99,14 +87,14 @@ class PluginManagerImpl implements PluginManager, Service {
 		// Instantiate and start the simplex plugins
 		LOG.info("Starting simplex plugins");
 		Collection<SimplexPluginFactory> sFactories =
-				simplexPluginConfig.getFactories();
+				pluginConfig.getSimplexFactories();
 		final CountDownLatch sLatch = new CountDownLatch(sFactories.size());
 		for (SimplexPluginFactory factory : sFactories)
 			ioExecutor.execute(new SimplexPluginStarter(factory, sLatch));
 		// Instantiate and start the duplex plugins
 		LOG.info("Starting duplex plugins");
 		Collection<DuplexPluginFactory> dFactories =
-				duplexPluginConfig.getFactories();
+				pluginConfig.getDuplexFactories();
 		final CountDownLatch dLatch = new CountDownLatch(dFactories.size());
 		for (DuplexPluginFactory factory : dFactories)
 			ioExecutor.execute(new DuplexPluginStarter(factory, dLatch));
@@ -185,26 +173,9 @@ class PluginManagerImpl implements PluginManager, Service {
 					return;
 				}
 				try {
-					long start = clock.currentTimeMillis();
-					Transaction txn = db.startTransaction();
-					try {
-						db.addTransport(txn, id, plugin.getMaxLatency());
-						txn.setComplete();
-					} finally {
-						db.endTransaction(txn);
-					}
-					long duration = clock.currentTimeMillis() - start;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Adding transport took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					return;
-				}
-				try {
-					long start = clock.currentTimeMillis();
+					long start = System.currentTimeMillis();
 					boolean started = plugin.start();
-					long duration = clock.currentTimeMillis() - start;
+					long duration = System.currentTimeMillis() - start;
 					if (started) {
 						plugins.put(id, plugin);
 						simplexPlugins.add(plugin);
@@ -254,26 +225,9 @@ class PluginManagerImpl implements PluginManager, Service {
 					return;
 				}
 				try {
-					long start = clock.currentTimeMillis();
-					Transaction txn = db.startTransaction();
-					try {
-						db.addTransport(txn, id, plugin.getMaxLatency());
-						txn.setComplete();
-					} finally {
-						db.endTransaction(txn);
-					}
-					long duration = clock.currentTimeMillis() - start;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Adding transport took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					return;
-				}
-				try {
-					long start = clock.currentTimeMillis();
+					long start = System.currentTimeMillis();
 					boolean started = plugin.start();
-					long duration = clock.currentTimeMillis() - start;
+					long duration = System.currentTimeMillis() - start;
 					if (started) {
 						plugins.put(id, plugin);
 						duplexPlugins.add(plugin);
@@ -311,9 +265,9 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		public void run() {
 			try {
-				long start = clock.currentTimeMillis();
+				long start = System.currentTimeMillis();
 				plugin.stop();
-				long duration = clock.currentTimeMillis() - start;
+				long duration = System.currentTimeMillis() - start;
 				if (LOG.isLoggable(INFO)) {
 					String name = plugin.getClass().getSimpleName();
 					LOG.info("Stopping " + name + " took " + duration + " ms");

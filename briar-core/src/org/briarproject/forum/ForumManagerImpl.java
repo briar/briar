@@ -83,7 +83,7 @@ class ForumManagerImpl implements ForumManager {
 	public Forum getForum(GroupId g) throws DbException {
 		try {
 			Group group;
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(true);
 			try {
 				group = db.getGroup(txn, g);
 				txn.setComplete();
@@ -100,7 +100,7 @@ class ForumManagerImpl implements ForumManager {
 	public Collection<Forum> getForums() throws DbException {
 		try {
 			Collection<Group> groups;
-			Transaction txn = db.startTransaction();
+			Transaction txn = db.startTransaction(true);
 			try {
 				groups = db.getGroups(txn, CLIENT_ID);
 				txn.setComplete();
@@ -132,7 +132,7 @@ class ForumManagerImpl implements ForumManager {
 		Set<AuthorId> localAuthorIds = new HashSet<AuthorId>();
 		Set<AuthorId> contactAuthorIds = new HashSet<AuthorId>();
 		Map<MessageId, BdfDictionary> metadata;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			// Load the IDs of the user's identities
 			for (LocalAuthor a : db.getLocalAuthors(txn))

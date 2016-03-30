@@ -21,7 +21,7 @@ class SettingsManagerImpl implements SettingsManager {
 	@Override
 	public Settings getSettings(String namespace) throws DbException {
 		Settings s;
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(true);
 		try {
 			s = db.getSettings(txn, namespace);
 			txn.setComplete();
@@ -33,7 +33,7 @@ class SettingsManagerImpl implements SettingsManager {
 
 	@Override
 	public void mergeSettings(Settings s, String namespace) throws DbException {
-		Transaction txn = db.startTransaction();
+		Transaction txn = db.startTransaction(false);
 		try {
 			db.mergeSettings(txn, s, namespace);
 			txn.setComplete();

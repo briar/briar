@@ -58,20 +58,20 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
-		final Transaction txn = new Transaction(null);
-		final Transaction txn1 = new Transaction(null);
-		final Transaction txn2 = new Transaction(null);
-		final Transaction txn3 = new Transaction(null);
-		final Transaction txn4 = new Transaction(null);
+		final Transaction txn = new Transaction(null, false);
+		final Transaction txn1 = new Transaction(null, false);
+		final Transaction txn2 = new Transaction(null, false);
+		final Transaction txn3 = new Transaction(null, false);
+		final Transaction txn4 = new Transaction(null, false);
 		context.checking(new Expectations() {{
 			// Get messages to validate
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
 			oneOf(db).endTransaction(txn);
 			// Load the first raw message and group
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
@@ -82,7 +82,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(metadata));
 			// Store the validation result for the first message
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(txn2));
 			oneOf(db).mergeMessageMetadata(txn2, messageId, metadata);
 			oneOf(db).setMessageValid(txn2, message, clientId, true);
@@ -91,7 +91,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(hook).incomingMessage(txn2, message, metadata);
 			oneOf(db).endTransaction(txn2);
 			// Load the second raw message and group
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn3));
 			oneOf(db).getRawMessage(txn3, messageId1);
 			will(returnValue(raw));
@@ -102,7 +102,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(validator).validateMessage(message1, group);
 			will(returnValue(null));
 			// Store the validation result for the second message
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(txn4));
 			oneOf(db).setMessageValid(txn4, message1, clientId, false);
 			oneOf(db).endTransaction(txn4);
@@ -127,25 +127,25 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
-		final Transaction txn = new Transaction(null);
-		final Transaction txn1 = new Transaction(null);
-		final Transaction txn2 = new Transaction(null);
-		final Transaction txn3 = new Transaction(null);
+		final Transaction txn = new Transaction(null, true);
+		final Transaction txn1 = new Transaction(null, true);
+		final Transaction txn2 = new Transaction(null, true);
+		final Transaction txn3 = new Transaction(null, false);
 		context.checking(new Expectations() {{
 			// Get messages to validate
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
 			oneOf(db).endTransaction(txn);
 			// Load the first raw message - *gasp* it's gone!
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(throwException(new NoSuchMessageException()));
 			oneOf(db).endTransaction(txn1);
 			// Load the second raw message and group
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
 			oneOf(db).getRawMessage(txn2, messageId1);
 			will(returnValue(raw));
@@ -156,7 +156,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(validator).validateMessage(message1, group);
 			will(returnValue(null));
 			// Store the validation result for the second message
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
 			oneOf(db).setMessageValid(txn3, message1, clientId, false);
 			oneOf(db).endTransaction(txn3);
@@ -181,19 +181,19 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
-		final Transaction txn = new Transaction(null);
-		final Transaction txn1 = new Transaction(null);
-		final Transaction txn2 = new Transaction(null);
-		final Transaction txn3 = new Transaction(null);
+		final Transaction txn = new Transaction(null, true);
+		final Transaction txn1 = new Transaction(null, true);
+		final Transaction txn2 = new Transaction(null, true);
+		final Transaction txn3 = new Transaction(null, false);
 		context.checking(new Expectations() {{
 			// Get messages to validate
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
 			oneOf(db).endTransaction(txn);
 			// Load the first raw message
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
@@ -202,7 +202,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(throwException(new NoSuchGroupException()));
 			oneOf(db).endTransaction(txn1);
 			// Load the second raw message and group
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
 			oneOf(db).getRawMessage(txn2, messageId1);
 			will(returnValue(raw));
@@ -213,7 +213,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(validator).validateMessage(message1, group);
 			will(returnValue(null));
 			// Store the validation result for the second message
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
 			oneOf(db).setMessageValid(txn3, message1, clientId, false);
 			oneOf(db).endTransaction(txn3);
@@ -237,11 +237,11 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
-		final Transaction txn = new Transaction(null);
-		final Transaction txn1 = new Transaction(null);
+		final Transaction txn = new Transaction(null, true);
+		final Transaction txn1 = new Transaction(null, false);
 		context.checking(new Expectations() {{
 			// Load the group
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
@@ -250,7 +250,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(metadata));
 			// Store the validation result
-			oneOf(db).startTransaction();
+			oneOf(db).startTransaction(false);
 			will(returnValue(txn1));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			oneOf(db).setMessageValid(txn1, message, clientId, true);

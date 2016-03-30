@@ -1,6 +1,5 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -41,24 +40,22 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 		this.packetWriterFactory = packetWriterFactory;
 	}
 
-	public SyncSession createIncomingSession(ContactId c, TransportId t,
-			InputStream in) {
+	public SyncSession createIncomingSession(ContactId c, InputStream in) {
 		PacketReader packetReader = packetReaderFactory.createPacketReader(in);
-		return new IncomingSession(db, dbExecutor, eventBus, c, t,
-				packetReader);
+		return new IncomingSession(db, dbExecutor, eventBus, c, packetReader);
 	}
 
-	public SyncSession createSimplexOutgoingSession(ContactId c, TransportId t,
+	public SyncSession createSimplexOutgoingSession(ContactId c,
 			int maxLatency, OutputStream out) {
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(out);
-		return new SimplexOutgoingSession(db, dbExecutor, eventBus, c, t,
+		return new SimplexOutgoingSession(db, dbExecutor, eventBus, c,
 				maxLatency, packetWriter);
 	}
 
-	public SyncSession createDuplexOutgoingSession(ContactId c, TransportId t,
-			int maxLatency, int maxIdleTime, OutputStream out) {
+	public SyncSession createDuplexOutgoingSession(ContactId c, int maxLatency,
+			int maxIdleTime, OutputStream out) {
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(out);
-		return new DuplexOutgoingSession(db, dbExecutor, eventBus, clock, c, t,
+		return new DuplexOutgoingSession(db, dbExecutor, eventBus, clock, c,
 				maxLatency, maxIdleTime, packetWriter);
 	}
 }

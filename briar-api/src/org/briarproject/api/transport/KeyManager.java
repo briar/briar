@@ -26,12 +26,14 @@ public interface KeyManager {
 	 * contact over the given transport, or null if an error occurs or the
 	 * contact does not support the transport.
 	 */
-	StreamContext getStreamContext(ContactId c, TransportId t);
+	StreamContext getStreamContext(ContactId c, TransportId t)
+			throws DbException;
 
 	/**
 	 * Looks up the given tag and returns a {@link StreamContext} for reading
 	 * from the corresponding stream, or null if an error occurs or the tag was
 	 * unexpected.
 	 */
-	StreamContext getStreamContext(TransportId t, byte[] tag);
+	StreamContext getStreamContext(TransportId t, byte[] tag)
+			throws DbException;
 }

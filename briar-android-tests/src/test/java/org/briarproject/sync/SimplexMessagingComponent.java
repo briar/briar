@@ -1,6 +1,7 @@
 package org.briarproject.sync;
 
 import org.briarproject.TestDatabaseModule;
+import org.briarproject.TestPluginsModule;
 import org.briarproject.TestSystemModule;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseComponent;
@@ -23,6 +24,7 @@ import org.briarproject.event.EventModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
+import org.briarproject.plugins.PluginsModule;
 import org.briarproject.transport.TransportModule;
 
 import javax.inject.Singleton;
@@ -30,23 +32,37 @@ import javax.inject.Singleton;
 import dagger.Component;
 
 @Singleton
-@Component(modules = {TestDatabaseModule.class, TestSystemModule.class,
-		LifecycleModule.class, ContactModule.class, CryptoModule.class,
-		DatabaseModule.class, EventModule.class, SyncModule.class,
-		DataModule.class, TransportModule.class, IdentityModule.class,
-		MessagingModule.class, ClientsModule.class})
+@Component(modules = {TestDatabaseModule.class, TestPluginsModule.class,
+		TestSystemModule.class, LifecycleModule.class, ContactModule.class,
+		CryptoModule.class, DatabaseModule.class, EventModule.class,
+		SyncModule.class, DataModule.class, TransportModule.class,
+		IdentityModule.class, MessagingModule.class, ClientsModule.class,
+		PluginsModule.class})
 public interface SimplexMessagingComponent {
+
 	void inject(SimplexMessagingIntegrationTest testCase);
-	LifecycleManager getLifeCycleManager();
+
+	LifecycleManager getLifecycleManager();
+
 	DatabaseComponent getDatabaseComponent();
+
 	IdentityManager getIdentityManager();
+
 	ContactManager getContactManager();
+
 	MessagingManager getMessagingManager();
+
 	KeyManager getKeyManager();
+
 	PrivateMessageFactory getPrivateMessageFactory();
+
 	PacketWriterFactory getPacketWriterFactory();
+
 	EventBus getEventBus();
+
 	StreamWriterFactory getStreamWriterFactory();
+
 	StreamReaderFactory getStreamReaderFactory();
+
 	PacketReaderFactory getPacketReaderFactory();
 }

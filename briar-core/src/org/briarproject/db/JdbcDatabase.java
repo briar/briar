@@ -1542,30 +1542,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<TransportId, Integer> getTransportLatencies(Connection txn)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT transportId, maxLatency FROM transports";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Map<TransportId, Integer> latencies =
-					new HashMap<TransportId, Integer>();
-			while (rs.next()) {
-				TransportId id = new TransportId(rs.getString(1));
-				latencies.put(id, rs.getInt(2));
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableMap(latencies);
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;

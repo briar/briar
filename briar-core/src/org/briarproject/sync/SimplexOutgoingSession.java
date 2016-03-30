@@ -1,6 +1,5 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -10,7 +9,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ShutdownEvent;
-import org.briarproject.api.event.TransportRemovedEvent;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.PacketWriter;
 import org.briarproject.api.sync.SyncSession;
@@ -48,7 +46,6 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final ContactId contactId;
-	private final TransportId transportId;
 	private final int maxLatency;
 	private final PacketWriter packetWriter;
 	private final AtomicInteger outstandingQueries;
@@ -57,13 +54,12 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private volatile boolean interrupted = false;
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, ContactId contactId, TransportId transportId,
+			EventBus eventBus, ContactId contactId,
 			int maxLatency, PacketWriter packetWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
-		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.packetWriter = packetWriter;
 		outstandingQueries = new AtomicInteger(2); // One per type of packet
@@ -108,9 +104,6 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			if (c.getContactId().equals(contactId)) interrupt();
 		} else if (e instanceof ShutdownEvent) {
 			interrupt();
-		} else if (e instanceof TransportRemovedEvent) {
-			TransportRemovedEvent t = (TransportRemovedEvent) e;
-			if (t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 
@@ -121,7 +114,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Ack a;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
 					txn.setComplete();
@@ -163,7 +156,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			try {
 				Collection<byte[]> b;
-				Transaction txn = db.startTransaction();
+				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateBatch(txn, contactId,
 							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);

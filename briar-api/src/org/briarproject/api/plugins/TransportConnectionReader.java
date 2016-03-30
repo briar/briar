@@ -9,10 +9,9 @@ import java.io.InputStream;
  */
 public interface TransportConnectionReader {
 
-	/** Returns the maximum latency of the transport in milliseconds. */
-	long getMaxLatency();
-
-	/** Returns an input stream for reading from the transport connection. */
+	/**
+	 * Returns an input stream for reading from the transport connection.
+	 */
 	InputStream getInputStream() throws IOException;
 
 	/**
@@ -20,10 +19,13 @@ public interface TransportConnectionReader {
 	 * simplex, the connection is closed. If the transport is duplex, the
 	 * connection is closed if <tt>exception</tt> is true or the other side of
 	 * the connection has been marked as closed.
-	 * @param exception true if the connection is being closed because of an
-	 * exception. This may affect how resources are disposed of.
+	 *
+	 * @param exception  true if the connection is being closed because of an
+	 *                   exception. This may affect how resources are disposed
+	 *                   of.
 	 * @param recognised true if the connection is definitely a Briar transport
-	 * connection. This may affect how resources are disposed of.
+	 *                   connection. This may affect how resources are disposed
+	 *                   of.
 	 */
 	void dispose(boolean exception, boolean recognised) throws IOException;
 }

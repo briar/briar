@@ -194,10 +194,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private class Reader implements TransportConnectionReader {
 
-			public long getMaxLatency() {
-				return ModemPlugin.this.getMaxLatency();
-			}
-
 			public InputStream getInputStream() throws IOException {
 				return modem.getInputStream();
 			}

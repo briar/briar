@@ -7,9 +7,8 @@ import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.BackoffFactory;
-import org.briarproject.api.plugins.duplex.DuplexPluginConfig;
+import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
-import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.plugins.droidtooth.DroidtoothPluginFactory;
@@ -29,17 +28,8 @@ import dagger.Provides;
 public class AndroidPluginsModule {
 
 	@Provides
-	SimplexPluginConfig provideSimplexPluginConfig() {
-		return new SimplexPluginConfig() {
-			public Collection<SimplexPluginFactory> getFactories() {
-				return Collections.emptyList();
-			}
-		};
-	}
-
-	@Provides
-	public DuplexPluginConfig provideDuplexPluginConfig(
-			@IoExecutor Executor ioExecutor, AndroidExecutor androidExecutor,
+	public PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
+			AndroidExecutor androidExecutor,
 			SecureRandom random, BackoffFactory backoffFactory, Application app,
 			LocationUtils locationUtils, EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
@@ -49,13 +39,19 @@ public class AndroidPluginsModule {
 				locationUtils, eventBus);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				backoffFactory, appContext);
-		final Collection<DuplexPluginFactory> factories =
+		final Collection<DuplexPluginFactory> duplex =
 				Arrays.asList(bluetooth, tor, lan);
-		return new DuplexPluginConfig() {
-			public Collection<DuplexPluginFactory> getFactories() {
-				return factories;
+		return new PluginConfig() {
+
+			@Override
+			public Collection<DuplexPluginFactory> getDuplexFactories() {
+				return duplex;
+			}
+
+			@Override
+			public Collection<SimplexPluginFactory> getSimplexFactories() {
+				return Collections.emptyList();
 			}
 		};
 	}
-
 }

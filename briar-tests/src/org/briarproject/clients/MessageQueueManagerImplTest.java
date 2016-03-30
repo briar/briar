@@ -56,7 +56,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(QueueMessageFactory.class);
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
-		final Transaction txn = new Transaction(null);
+		final Transaction txn = new Transaction(null, false);
 		final byte[] body = new byte[123];
 		final Metadata groupMetadata = new Metadata();
 		final Metadata messageMetadata = new Metadata();
@@ -249,7 +249,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
-		final Transaction txn = new Transaction(null);
+		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);
@@ -300,7 +300,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
-		final Transaction txn = new Transaction(null);
+		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);
@@ -355,7 +355,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
-		final Transaction txn = new Transaction(null);
+		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);
@@ -412,7 +412,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
-		final Transaction txn = new Transaction(null);
+		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);

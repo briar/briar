@@ -30,6 +30,10 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 		return LanTcpPlugin.ID;
 	}
 
+	public int getMaxLatency() {
+		return MAX_LATENCY;
+	}
+
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
