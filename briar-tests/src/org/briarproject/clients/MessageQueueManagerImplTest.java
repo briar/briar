@@ -56,6 +56,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(QueueMessageFactory.class);
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
+
 		final Transaction txn = new Transaction(null, false);
 		final byte[] body = new byte[123];
 		final Metadata groupMetadata = new Metadata();
@@ -63,6 +64,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final Metadata groupMetadata1 = new Metadata();
 		final byte[] queueState = new byte[123];
 		groupMetadata1.put(QUEUE_STATE_KEY, queueState);
+
 		context.checking(new Expectations() {{
 			// First message: queue state does not exist
 			oneOf(db).getGroupMetadata(txn, groupId);
@@ -123,6 +125,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(QueueMessageFactory.class);
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
+
 		final AtomicReference<MessageValidator> captured =
 				new AtomicReference<MessageValidator>();
 		final QueueMessageValidator queueMessageValidator =
@@ -131,13 +134,13 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final MessageId messageId = new MessageId(TestUtils.getRandomId());
 		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH - 1];
 		final Message message = new Message(messageId, groupId, timestamp, raw);
+
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
 			will(new CaptureArgumentAction<MessageValidator>(captured,
 					MessageValidator.class, 1));
 		}});
-
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
 				clientHelper, queueMessageFactory, validationManager);
@@ -161,6 +164,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(QueueMessageFactory.class);
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
+
 		final AtomicReference<MessageValidator> captured =
 				new AtomicReference<MessageValidator>();
 		final QueueMessageValidator queueMessageValidator =
@@ -171,13 +175,13 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		for (int i = 0; i < 8; i++)
 			raw[MESSAGE_HEADER_LENGTH + i] = (byte) 0xFF;
 		final Message message = new Message(messageId, groupId, timestamp, raw);
+
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
 			will(new CaptureArgumentAction<MessageValidator>(captured,
 					MessageValidator.class, 1));
 		}});
-
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
 				clientHelper, queueMessageFactory, validationManager);
@@ -201,6 +205,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(QueueMessageFactory.class);
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
+
 		final AtomicReference<MessageValidator> captured =
 				new AtomicReference<MessageValidator>();
 		final QueueMessageValidator queueMessageValidator =
@@ -210,6 +215,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final MessageId messageId = new MessageId(TestUtils.getRandomId());
 		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
 		final Message message = new Message(messageId, groupId, timestamp, raw);
+
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
@@ -220,7 +226,6 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 					with(any(QueueMessage.class)), with(group));
 			will(returnValue(messageMetadata));
 		}});
-
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
 				clientHelper, queueMessageFactory, validationManager);
@@ -249,6 +254,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
+
 		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
@@ -257,6 +263,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final MessageId messageId = new MessageId(TestUtils.getRandomId());
 		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
 		final Message message = new Message(messageId, groupId, timestamp, raw);
+
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
@@ -271,7 +278,6 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 			oneOf(db).deleteMessage(txn, messageId);
 			oneOf(db).deleteMessageMetadata(txn, messageId);
 		}});
-
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
 				clientHelper, queueMessageFactory, validationManager);
@@ -300,6 +306,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
+
 		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
@@ -310,6 +317,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		ByteUtils.writeUint64(1L, raw, MESSAGE_HEADER_LENGTH);
 		final Message message = new Message(messageId, groupId, timestamp, raw);
 		final BdfList pending = BdfList.of(BdfList.of(1L, messageId));
+
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
@@ -326,7 +334,6 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 			oneOf(db).mergeGroupMetadata(with(txn), with(groupId),
 					with(any(Metadata.class)));
 		}});
-
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
 				clientHelper, queueMessageFactory, validationManager);
@@ -355,6 +362,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
+
 		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
@@ -364,6 +372,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
 		final Message message = new Message(messageId, groupId, timestamp, raw);
 		final Metadata messageMetadata = new Metadata();
+
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
@@ -374,16 +383,15 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 			// Queue position 0 is expected
 			oneOf(clientHelper).toDictionary(queueState, 0, queueState.length);
 			will(new DecodeQueueStateAction(0L, 0L, new BdfList()));
-			// The message should be delegated
-			oneOf(incomingQueueMessageHook).incomingMessage(with(txn),
-					with(any(QueueMessage.class)), with(messageMetadata));
 			// Queue position 1 should be expected next
 			oneOf(clientHelper).toByteArray(with(any(BdfDictionary.class)));
 			will(new EncodeQueueStateAction(0L, 1L, new BdfList()));
 			oneOf(db).mergeGroupMetadata(with(txn), with(groupId),
 					with(any(Metadata.class)));
+			// The message should be delegated
+			oneOf(incomingQueueMessageHook).incomingMessage(with(txn),
+					with(any(QueueMessage.class)), with(messageMetadata));
 		}});
-
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
 				clientHelper, queueMessageFactory, validationManager);
@@ -412,6 +420,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<IncomingMessageHook>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
+
 		final Transaction txn = new Transaction(null, false);
 		final Metadata groupMetadata = new Metadata();
 		final byte[] queueState = new byte[123];
@@ -428,6 +437,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				timestamp, 1L, raw1);
 		final Metadata messageMetadata1 = new Metadata();
 		final BdfList pending = BdfList.of(BdfList.of(1L, messageId1));
+
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
@@ -438,7 +448,12 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 			// Queue position 0 is expected, position 1 is pending
 			oneOf(clientHelper).toDictionary(queueState, 0, queueState.length);
 			will(new DecodeQueueStateAction(0L, 0L, pending));
-			// The message should be delegated
+			// Queue position 2 should be expected next
+			oneOf(clientHelper).toByteArray(with(any(BdfDictionary.class)));
+			will(new EncodeQueueStateAction(0L, 2L, new BdfList()));
+			oneOf(db).mergeGroupMetadata(with(txn), with(groupId),
+					with(any(Metadata.class)));
+			// The new message should be delegated
 			oneOf(incomingQueueMessageHook).incomingMessage(with(txn),
 					with(any(QueueMessage.class)), with(messageMetadata));
 			// The pending message should be retrieved
@@ -451,13 +466,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 			// The pending message should be delegated
 			oneOf(incomingQueueMessageHook).incomingMessage(txn, message1,
 					messageMetadata1);
-			// Queue position 2 should be expected next
-			oneOf(clientHelper).toByteArray(with(any(BdfDictionary.class)));
-			will(new EncodeQueueStateAction(0L, 2L, new BdfList()));
-			oneOf(db).mergeGroupMetadata(with(txn), with(groupId),
-					with(any(Metadata.class)));
 		}});
-
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
 				clientHelper, queueMessageFactory, validationManager);
