@@ -20,7 +20,9 @@ import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.util.ByteUtils;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Logger;
@@ -207,15 +209,21 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 				queueState.pending.put(queuePosition, m.getId());
 				saveQueueState(txn, m.getGroupId(), queueState);
 			} else {
-				// The message is in order, pass it to the delegate
+				// The message is in order
 				LOG.info("Message is in order, delivering");
 				QueueMessage q = new QueueMessage(m.getId(), m.getGroupId(),
 						m.getTimestamp(), queuePosition, m.getRaw());
-				delegate.incomingMessage(txn, q, meta);
 				queueState.incomingPosition++;
-				// Pass any consecutive messages to the delegate
-				MessageId id;
-				while ((id = queueState.popIncomingMessageId()) != null) {
+				// Collect any consecutive messages
+				List<MessageId> consecutive = new ArrayList<MessageId>();
+				MessageId next;
+				while ((next = queueState.popIncomingMessageId()) != null)
+					consecutive.add(next);
+				// Save the queue state before passing control to the delegate
+				saveQueueState(txn, m.getGroupId(), queueState);
+				// Deliver the messages to the delegate
+				delegate.incomingMessage(txn, q, meta);
+				for (MessageId id : consecutive) {
 					byte[] raw = db.getRawMessage(txn, id);
 					meta = db.getMessageMetadata(txn, id);
 					q = queueMessageFactory.createMessage(id, raw);
@@ -225,7 +233,6 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 					}
 					delegate.incomingMessage(txn, q, meta);
 				}
-				saveQueueState(txn, m.getGroupId(), queueState);
 			}
 		}
 	}
