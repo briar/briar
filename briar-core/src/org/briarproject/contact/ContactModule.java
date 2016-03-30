@@ -10,7 +10,6 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
@@ -41,12 +40,10 @@ public class ContactModule {
 			AuthorFactory authorFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, Clock clock,
 			ConnectionManager connectionManager, ContactManager contactManager,
-			CryptoComponent crypto, KeyManager keyManager,
-			StreamReaderFactory streamReaderFactory,
+			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory) {
-		return new ContactExchangeTaskImpl(authorFactory,
-				bdfReaderFactory, bdfWriterFactory, clock, connectionManager,
-				contactManager, crypto, keyManager, streamReaderFactory,
-				streamWriterFactory);
+		return new ContactExchangeTaskImpl(authorFactory, bdfReaderFactory,
+				bdfWriterFactory, clock, connectionManager, contactManager,
+				crypto, streamReaderFactory, streamWriterFactory);
 	}
 }

@@ -16,5 +16,5 @@ public interface ContactExchangeTask {
 	void startExchange(ContactExchangeListener listener,
 			LocalAuthor localAuthor, SecretKey masterSecret,
 			DuplexTransportConnection conn, TransportId transportId,
-			boolean alice, boolean reuseConnection);
+			boolean alice);
 }

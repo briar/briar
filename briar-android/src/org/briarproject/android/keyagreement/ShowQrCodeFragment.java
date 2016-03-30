@@ -27,12 +27,11 @@ import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.CameraView;
-import org.briarproject.android.util.QrCodeUtils;
 import org.briarproject.android.util.QrCodeDecoder;
+import org.briarproject.android.util.QrCodeUtils;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.KeyAgreementAbortedEvent;
 import org.briarproject.api.event.KeyAgreementFailedEvent;
-import org.briarproject.api.event.KeyAgreementFinishedEvent;
 import org.briarproject.api.event.KeyAgreementListeningEvent;
 import org.briarproject.api.event.KeyAgreementStartedEvent;
 import org.briarproject.api.event.KeyAgreementWaitingEvent;
@@ -43,7 +42,6 @@ import org.briarproject.api.keyagreement.PayloadEncoder;
 import org.briarproject.api.keyagreement.PayloadParser;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -57,6 +55,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 
+@SuppressWarnings("deprecation")
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
 
@@ -77,13 +76,13 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private TextView status;
 	private ImageView qrCode;
 
-	private volatile KeyAgreementTask task;
-	private volatile boolean toggleBluetooth;
-	private volatile BluetoothAdapter adapter;
 	private BluetoothStateReceiver receiver;
-	private AtomicBoolean waitingForBluetooth = new AtomicBoolean();
 	private QrCodeDecoder decoder;
 	private boolean gotRemotePayload;
+
+	private volatile KeyAgreementTask task;
+	private volatile BluetoothAdapter adapter;
+	private volatile boolean waitingForBluetooth;
 
 	public static ShowQrCodeFragment newInstance() {
 		Bundle args = new Bundle();
@@ -132,10 +131,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		boolean portrait = display.getWidth() < display.getHeight();
 		qrLayout.setOrientation(portrait ? VERTICAL : HORIZONTAL);
 
-		// Only enable BT adapter if it is not already on.
 		adapter = BluetoothAdapter.getDefaultAdapter();
-		if (adapter != null)
-			toggleBluetooth = !adapter.isEnabled();
 	}
 
 	@Override
@@ -148,9 +144,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		receiver = new BluetoothStateReceiver();
 		getActivity().registerReceiver(receiver, filter);
 
-		if (adapter != null && toggleBluetooth) {
-			waitingForBluetooth.set(true);
-			toggleBluetooth(true);
+		// Enable BT adapter if it is not already on.
+		if (adapter != null && !adapter.isEnabled()) {
+			waitingForBluetooth = true;
+			AndroidUtils.enableBluetooth(adapter, true);
 		} else
 			startListening();
 	}
@@ -190,15 +187,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			@Override
 			public void run() {
 				task.stopListening();
-				if (toggleBluetooth) toggleBluetooth(false);
 			}
 		}).start();
-	}
-
-	private void toggleBluetooth(boolean enable) {
-		if (adapter != null) {
-			AndroidUtils.enableBluetooth(adapter, enable);
-		}
 	}
 
 	private void openCamera() {
@@ -286,9 +276,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} else if (e instanceof KeyAgreementAbortedEvent) {
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
-		} else if (e instanceof KeyAgreementFinishedEvent) {
-			// We want to reuse the connection, so don't disable Bluetooth
-			toggleBluetooth = false;
 		}
 	}
 
@@ -374,9 +361,9 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
-			if (state == STATE_ON && waitingForBluetooth.get()) {
+			if (state == STATE_ON && waitingForBluetooth) {
 				LOG.info("Bluetooth enabled");
-				waitingForBluetooth.set(false);
+				waitingForBluetooth = false;
 				startListening();
 			}
 		}

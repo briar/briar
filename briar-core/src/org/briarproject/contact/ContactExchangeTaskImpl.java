@@ -22,7 +22,6 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
@@ -51,7 +50,6 @@ public class ContactExchangeTaskImpl extends Thread
 	private final ConnectionManager connectionManager;
 	private final ContactManager contactManager;
 	private final CryptoComponent crypto;
-	private final KeyManager keyManager;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 
@@ -61,14 +59,12 @@ public class ContactExchangeTaskImpl extends Thread
 	private TransportId transportId;
 	private SecretKey masterSecret;
 	private boolean alice;
-	private boolean reuseConnection;
 
 	public ContactExchangeTaskImpl(AuthorFactory authorFactory,
 			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, Clock clock,
 			ConnectionManager connectionManager, ContactManager contactManager,
-			CryptoComponent crypto, KeyManager keyManager,
-			StreamReaderFactory streamReaderFactory,
+			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory) {
 		this.authorFactory = authorFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
@@ -77,7 +73,6 @@ public class ContactExchangeTaskImpl extends Thread
 		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
 		this.crypto = crypto;
-		this.keyManager = keyManager;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 	}
@@ -86,14 +81,13 @@ public class ContactExchangeTaskImpl extends Thread
 	public void startExchange(ContactExchangeListener listener,
 			LocalAuthor localAuthor, SecretKey masterSecret,
 			DuplexTransportConnection conn, TransportId transportId,
-			boolean alice, boolean reuseConnection) {
+			boolean alice) {
 		this.listener = listener;
 		this.localAuthor = localAuthor;
 		this.conn = conn;
 		this.transportId = transportId;
 		this.masterSecret = masterSecret;
 		this.alice = alice;
-		this.reuseConnection = reuseConnection;
 		start();
 	}
 
@@ -164,9 +158,8 @@ public class ContactExchangeTaskImpl extends Thread
 			ContactId contactId =
 					addContact(remoteAuthor, masterSecret, timestamp, true);
 			// Reuse the connection as a transport connection
-			if (reuseConnection)
-				connectionManager
-						.manageOutgoingConnection(contactId, transportId, conn);
+			connectionManager.manageOutgoingConnection(contactId, transportId,
+					conn);
 			// Pseudonym exchange succeeded
 			LOG.info("Pseudonym exchange succeeded");
 			listener.contactExchangeSucceeded(remoteAuthor);
@@ -235,9 +228,8 @@ public class ContactExchangeTaskImpl extends Thread
 	private ContactId addContact(Author remoteAuthor, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
 		// Add the contact to the database
-		ContactId contactId = contactManager.addContact(remoteAuthor,
-				localAuthor.getId(), master, timestamp, alice, true);
-		return contactId;
+		return contactManager.addContact(remoteAuthor, localAuthor.getId(),
+				master, timestamp, alice, true);
 	}
 
 	private void tryToClose(DuplexTransportConnection conn,

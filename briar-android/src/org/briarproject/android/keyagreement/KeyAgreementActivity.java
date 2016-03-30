@@ -184,7 +184,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 				contactExchangeTask.startExchange(KeyAgreementActivity.this,
 						localAuthor, result.getMasterKey(),
 						result.getConnection(), result.getTransportId(),
-						result.wasAlice(), true);
+						result.wasAlice());
 			}
 		});
 	}
