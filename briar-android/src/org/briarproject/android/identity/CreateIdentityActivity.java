@@ -14,6 +14,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
@@ -114,7 +115,7 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 

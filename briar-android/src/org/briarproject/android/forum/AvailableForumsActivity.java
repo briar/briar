@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.BriarRecyclerView;
@@ -61,7 +62,7 @@ public class AvailableForumsActivity extends BriarActivity
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 

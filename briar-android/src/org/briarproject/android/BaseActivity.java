@@ -1,11 +1,15 @@
 package org.briarproject.android;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import javax.inject.Inject;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
@@ -17,17 +21,28 @@ public abstract class BaseActivity extends AppCompatActivity {
 	public final static String PREF_DB_KEY = "key";
 	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
 
+	protected ActivityComponent activityComponent;
+
+	// TODO Shared prefs
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
-		BriarApplication application = (BriarApplication) getApplication();
-		injectActivity(application.getApplicationComponent());
+		AndroidComponent applicationComponent =
+				((BriarApplication) getApplication()).getApplicationComponent();
+
+		activityComponent = DaggerActivityComponent.builder()
+				.androidComponent(applicationComponent)
+				.activityModule(new ActivityModule(this))
+				.build();
+
+		injectActivity(activityComponent);
 	}
 
-	public abstract void injectActivity(AndroidComponent component);
+	public abstract void injectActivity(ActivityComponent component);
 
 	private SharedPreferences getSharedPrefs() {
 		return getSharedPreferences(PREFS_NAME, MODE_PRIVATE);

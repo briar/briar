@@ -2,6 +2,8 @@ package org.briarproject.android;
 
 import org.briarproject.CoreEagerSingletons;
 import org.briarproject.CoreModule;
+import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.AvailableForumsActivity;
@@ -23,9 +25,30 @@ import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
-import org.briarproject.android.util.BriarReportSender;
+import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.db.DatabaseExecutor;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumPostFactory;
+import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.invitation.InvitationTaskFactory;
+import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.MessagingManager;
+import org.briarproject.api.messaging.PrivateMessageFactory;
+import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.properties.TransportPropertyManager;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.plugins.AndroidPluginsModule;
 import org.briarproject.system.AndroidSystemModule;
+
+import java.util.concurrent.Executor;
 
 import javax.inject.Singleton;
 
@@ -39,16 +62,29 @@ import dagger.Component;
 		AndroidSystemModule.class
 })
 public interface AndroidComponent extends CoreEagerSingletons {
-
-	void inject(DevReportActivity devReportActivity);
-
-	void inject(SplashScreenActivity activity);
-
-	void inject(SetupActivity activity);
-
-	void inject(NavDrawerActivity activity);
-
-	void inject(PasswordActivity activity);
+	// Exposed objects
+	@CryptoExecutor Executor cryptoExecutor();
+	PasswordStrengthEstimator passwordStrengthIndicator();
+	CryptoComponent cryptoComponent();
+	DatabaseConfig databaseConfig();
+	AuthorFactory authFactory();
+	ReferenceManager referenceMangager();
+	@DatabaseExecutor Executor databaseExecutor();
+	LifecycleManager lifecycleManager();
+	IdentityManager identityManager();
+	PluginManager pluginManager();
+	EventBus eventBus();
+	InvitationTaskFactory invitationTaskFactory();
+	AndroidNotificationManager androidNotificationManager();
+	ConnectionRegistry connectionRegistry();
+	ContactManager contactManager();
+	MessagingManager messagingManager();
+	PrivateMessageFactory privateMessageFactory();
+	TransportPropertyManager transportPropertyManager();
+	ForumManager forumManager();
+	ForumSharingManager forumSharingManager();
+	ForumPostFactory forumPostFactory();
+	SettingsManager settingsManager();
 
 	void inject(BriarService activity);
 
@@ -63,6 +99,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	void inject(ConversationActivity activity);
 
 	void inject(CreateIdentityActivity activity);
+
+	void inject(TestingActivity activity);
 
 	void inject(AvailableForumsActivity activity);
 

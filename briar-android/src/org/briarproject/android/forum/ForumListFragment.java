@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.util.BriarRecyclerView;
@@ -50,6 +51,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	private static final Logger LOG =
 			Logger.getLogger(ForumListFragment.class.getName());
 
+	/*
 	public static ForumListFragment newInstance() {
 
 		Bundle args = new Bundle();
@@ -58,6 +60,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		fragment.setArguments(args);
 		return fragment;
 	}
+	*/
 
 	private BriarRecyclerView list;
 	private ForumListAdapter adapter;
@@ -66,6 +69,11 @@ public class ForumListFragment extends BaseEventFragment implements
 	// Fields that are accessed from background threads must be volatile
 	@Inject protected volatile ForumManager forumManager;
 	@Inject protected volatile ForumSharingManager forumSharingManager;
+
+	@Inject
+	public ForumListFragment() {
+
+	}
 
 	@Nullable
 	@Override
@@ -99,10 +107,10 @@ public class ForumListFragment extends BaseEventFragment implements
 		return TAG;
 	}
 
-	@Override
-	public void injectActivity(AndroidComponent component) {
-		component.inject(this);
-	}
+//	@Override
+//	public void injectActivity(ActivityComponent component) {
+//		component.inject(this);
+//	}
 
 	@Override
 	public void onResume() {

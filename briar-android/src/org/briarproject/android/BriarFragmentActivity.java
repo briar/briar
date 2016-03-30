@@ -10,7 +10,6 @@ import org.briarproject.R;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.fragment.DashboardFragment;
 
 /**
  * This class should be extended by classes that wish to utilise fragments in
@@ -23,9 +22,7 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 		if (actionBar == null)
 			return;
 
-		if (fragmentTag.equals(DashboardFragment.TAG)) {
-			actionBar.setTitle(R.string.dashboard_toolbar_header);
-		} else if (fragmentTag.equals(ContactListFragment.TAG)) {
+		if (fragmentTag.equals(ContactListFragment.TAG)) {
 			actionBar.setTitle(R.string.contacts_toolbar_header);
 		} else if (fragmentTag.equals(ForumListFragment.TAG)) {
 			actionBar.setTitle(R.string.forums_toolbar_header);
@@ -52,7 +49,8 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 			exiting. This models the typical Google navigation behaviour such
 			as in Gmail/Inbox.
 			 */
-			startFragment(ContactListFragment.newInstance());
+			// FIXME
+//			startFragment(ContactListFragment.newInstance());
 
 		} else {
 			super.onBackPressed();

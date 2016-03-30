@@ -13,12 +13,14 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
+import org.briarproject.android.BriarApplication;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
@@ -28,6 +30,7 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -52,13 +55,14 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 
-public class ContactListFragment extends BaseEventFragment {
+public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactListFragment.class.getName());
 
 	public final static String TAG = "ContactListFragment";
 
+	/*
 	public static ContactListFragment newInstance() {
 
 		Bundle args = new Bundle();
@@ -67,6 +71,7 @@ public class ContactListFragment extends BaseEventFragment {
 		fragment.setArguments(args);
 		return fragment;
 	}
+	*/
 
 	@Override
 	public String getUniqueTag() {
@@ -92,9 +97,14 @@ public class ContactListFragment extends BaseEventFragment {
 	@Inject
 	protected volatile EventBus eventBus;
 
-	@Override
-	public void injectActivity(AndroidComponent component) {
-		component.inject(this);
+
+//	@Override
+//	public void injectActivity(AndroidComponent component) {
+//		component.inject(this);
+//	}
+	@Inject
+	public ContactListFragment() {
+
 	}
 
 	@Nullable
@@ -155,7 +165,7 @@ public class ContactListFragment extends BaseEventFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-
+		eventBus.addListener(this);
 		loadContacts();
 	}
 
@@ -163,6 +173,7 @@ public class ContactListFragment extends BaseEventFragment {
 	public void onPause() {
 		super.onPause();
 		adapter.clear();
+		eventBus.removeListener(this);
 	}
 
 	private void loadContacts() {

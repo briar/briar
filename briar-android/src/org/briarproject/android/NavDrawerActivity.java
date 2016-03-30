@@ -68,9 +68,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private Toolbar toolbar;
 	private DrawerLayout drawerLayout;
-	private Button contactButton;
-	private Button forumsButton;
-	private Button settingsButton;
 	private GridView transportsView;
 	private TextView progressTitle;
 	private ViewGroup progressViewGroup;
@@ -85,14 +82,14 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			checkAuthorHandle(intent);
 			clearBackStack();
 			if (intent.getBooleanExtra(INTENT_FORUMS, false))
-				startFragment(ForumListFragment.newInstance());
+				startFragment(activityComponent.newForumListFragment());
 			else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
-				startFragment(ContactListFragment.newInstance());
+				startFragment(activityComponent.newContactListFragment());
 		}
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 
@@ -108,9 +105,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 		toolbar = (Toolbar)findViewById(R.id.toolbar);
 		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-		contactButton = (Button)findViewById(R.id.nav_btn_contacts);
-		forumsButton = (Button)findViewById(R.id.nav_btn_forums);
-		settingsButton = (Button)findViewById(R.id.nav_btn_settings);
 		transportsView = (GridView)findViewById(R.id.transportsView);
 		progressTitle = (TextView)findViewById(R.id.title_progress_bar);
 		progressViewGroup = (ViewGroup)findViewById(R.id.container_progress);
@@ -133,7 +127,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			}
 		};
 		drawerLayout.setDrawerListener(drawerToggle);
-		if (state == null) startFragment(ContactListFragment.newInstance());
+		if (state == null) startFragment(activityComponent.newContactListFragment());
 		checkAuthorHandle(getIntent());
 
 		initializeTransports(getLayoutInflater());
@@ -217,10 +211,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		clearBackStack();
 		switch (view.getId()) {
 			case R.id.nav_btn_contacts:
-				startFragment(ContactListFragment.newInstance());
+				startFragment(activityComponent.newContactListFragment());
 				break;
 			case R.id.nav_btn_forums:
-				startFragment(ForumListFragment.newInstance());
+				startFragment(activityComponent.newForumListFragment());
 				break;
 			case R.id.nav_btn_settings:
 				startActivity(new Intent(this, SettingsActivity.class));

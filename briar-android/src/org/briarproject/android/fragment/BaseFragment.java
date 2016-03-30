@@ -28,15 +28,13 @@ public abstract class BaseFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		BriarApplication application =
-				(BriarApplication) getActivity().getApplication();
-		injectActivity(application.getApplicationComponent());
+//		AndroidComponent component =
+//				((BriarApplication) getActivity().getApplication())
+//						.getApplicationComponent();
+//		injectActivity(component);
 	}
 
-	public abstract void injectActivity(AndroidComponent component);
-
 	public interface BaseFragmentListener {
-
 		void showLoadingScreen(boolean isBlocking, int stringId);
 
 		void hideLoadingScreen();
@@ -45,4 +43,5 @@ public abstract class BaseFragment extends Fragment {
 
 		void runOnDbThread(Runnable runnable);
 	}
+
 }
