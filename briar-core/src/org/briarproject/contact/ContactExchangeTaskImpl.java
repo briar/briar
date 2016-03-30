@@ -93,6 +93,9 @@ public class ContactExchangeTaskImpl extends Thread
 
 	@Override
 	public void run() {
+		// Derive the header keys for the transport streams
+		SecretKey aliceHeaderKey = crypto.deriveHeaderKey(masterSecret, true);
+		SecretKey bobHeaderKey = crypto.deriveHeaderKey(masterSecret, false);
 		BdfReader r;
 		BdfWriter w;
 		try {
@@ -100,13 +103,13 @@ public class ContactExchangeTaskImpl extends Thread
 			InputStream streamReader =
 					streamReaderFactory.createInvitationStreamReader(
 							conn.getReader().getInputStream(),
-							masterSecret);
+							alice ? bobHeaderKey : aliceHeaderKey);
 			r = bdfReaderFactory.createReader(streamReader);
 			// Create the writers
 			OutputStream streamWriter =
 					streamWriterFactory.createInvitationStreamWriter(
 							conn.getWriter().getOutputStream(),
-							masterSecret);
+							alice ? aliceHeaderKey : bobHeaderKey);
 			w = bdfWriterFactory.createWriter(streamWriter);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -115,7 +118,7 @@ public class ContactExchangeTaskImpl extends Thread
 			return;
 		}
 
-		// Derive the invitation nonces
+		// Derive the nonces to be signed
 		byte[] aliceNonce = crypto.deriveSignatureNonce(masterSecret, true);
 		byte[] bobNonce = crypto.deriveSignatureNonce(masterSecret, false);
 
@@ -155,8 +158,8 @@ public class ContactExchangeTaskImpl extends Thread
 
 		try {
 			// Add the contact
-			ContactId contactId =
-					addContact(remoteAuthor, masterSecret, timestamp, true);
+			ContactId contactId = addContact(remoteAuthor, masterSecret,
+					timestamp, alice);
 			// Reuse the connection as a transport connection
 			connectionManager.manageOutgoingConnection(contactId, transportId,
 					conn);
