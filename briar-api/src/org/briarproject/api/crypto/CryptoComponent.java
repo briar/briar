@@ -36,18 +36,17 @@ public interface CryptoComponent {
 	int deriveBTConfirmationCode(SecretKey master, boolean alice);
 
 	/**
-	 * Derives a header key for an invitation stream from the given master
-	 * secret.
+	 * Derives a stream header key from the given master secret.
 	 * @param alice whether the key is for use by Alice or Bob.
 	 */
-	SecretKey deriveBTInvitationKey(SecretKey master, boolean alice);
+	SecretKey deriveHeaderKey(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a nonce from the given master secret for one of the parties to
 	 * sign.
 	 * @param alice whether the nonce is for use by Alice or Bob.
 	 */
-	byte[] deriveBTSignatureNonce(SecretKey master, boolean alice);
+	byte[] deriveSignatureNonce(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a commitment to the provided public key.
@@ -107,7 +106,7 @@ public interface CryptoComponent {
 	 * Derives a master secret from two public keys and one of the corresponding
 	 * private keys.
 	 * <p/>
-	 * Part of BQP. This is a helper method that calls
+	 * This is a helper method that calls
 	 * deriveMasterSecret(deriveSharedSecret(theirPublicKey, ourKeyPair, alice))
 	 *
 	 * @param theirPublicKey the ephemeral public key of the remote party

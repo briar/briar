@@ -34,6 +34,7 @@
 	<string name="contact_list_title">Contacts</string>
 	<string name="no_contacts">No contacts</string>
 	<string name="add_contact_title">Add a Contact</string>
+	<string name="add_contact_title_step">Add a Contact - Step %1$d/%2$d</string>
 	<string name="your_nickname">Choose the identity you want to use:</string>
 	<string name="face_to_face">You must be face-to-face with the person you want to add as a contact. This will prevent anyone from impersonating you or reading your messages in future.</string>
 	<string name="continue_button">Continue</string>
@@ -52,6 +53,14 @@
 	<string name="codes_do_not_match">Codes do not match</string>
 	<string name="interfering">This could mean that someone is trying to interfere with your connection</string>
 	<string name="contact_added_toast">Contact added: %s</string>
+	<string name="contact_already_exists">Contact %s already exists</string>
+	<string name="contact_exchange_failed">Contact exchange failed</string>
+	<string name="scan_qr_code">Scan QR code</string>
+	<string name="qr_code_invalid">The QR code is invalid</string>
+	<string name="connecting_to_device">Connecting to device\u2026</string>
+	<string name="authenticating_with_device">Authenticating with device\u2026</string>
+	<string name="connection_aborted_local">Connection aborted by us! This could mean that someone is trying to interfere with your connection</string>
+	<string name="connection_aborted_remote">Connection aborted by your contact! This could mean that someone is trying to interfere with your connection</string>
 	<string name="no_private_messages">No messages</string>
 	<string name="private_message_hint">Type message</string>
 	<string name="message_sent_toast">Message sent</string>

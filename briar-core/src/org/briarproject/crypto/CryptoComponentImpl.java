@@ -63,24 +63,22 @@ class CryptoComponentImpl implements CryptoComponent {
 		return s.getBytes(Charset.forName("US-ASCII"));
 	}
 
-	// KDF label for bluetooth master key derivation
-	private static final byte[] BT_MASTER = ascii("MASTER");
 	// KDF labels for bluetooth confirmation code derivation
 	private static final byte[] BT_A_CONFIRM = ascii("ALICE_CONFIRMATION_CODE");
 	private static final byte[] BT_B_CONFIRM = ascii("BOB_CONFIRMATION_CODE");
-	// KDF labels for bluetooth invitation stream header key derivation
-	private static final byte[] BT_A_INVITE = ascii("ALICE_INVITATION_KEY");
-	private static final byte[] BT_B_INVITE = ascii("BOB_INVITATION_KEY");
-	// KDF labels for bluetooth signature nonce derivation
-	private static final byte[] BT_A_NONCE = ascii("ALICE_SIGNATURE_NONCE");
-	private static final byte[] BT_B_NONCE = ascii("BOB_SIGNATURE_NONCE");
+	// KDF labels for contact exchange stream header key derivation
+	private static final byte[] A_INVITE = ascii("ALICE_INVITATION_KEY");
+	private static final byte[] B_INVITE = ascii("BOB_INVITATION_KEY");
+	// KDF labels for contact exchange signature nonce derivation
+	private static final byte[] A_SIG_NONCE = ascii("ALICE_SIGNATURE_NONCE");
+	private static final byte[] B_SIG_NONCE = ascii("BOB_SIGNATURE_NONCE");
 	// Hash label for BQP public key commitment derivation
 	private static final byte[] COMMIT = ascii("COMMIT");
-	// Hash label for BQP shared secret derivation
+	// Hash label for shared secret derivation
 	private static final byte[] SHARED_SECRET = ascii("SHARED_SECRET");
 	// KDF label for BQP confirmation key derivation
 	private static final byte[] CONFIRMATION_KEY = ascii("CONFIRMATION_KEY");
-	// KDF label for BQP master key derivation
+	// KDF label for master key derivation
 	private static final byte[] MASTER_KEY = ascii("MASTER_KEY");
 	// KDF labels for tag key derivation
 	private static final byte[] A_TAG = ascii("ALICE_TAG_KEY");
@@ -210,12 +208,14 @@ class CryptoComponentImpl implements CryptoComponent {
 		return ByteUtils.readUint(b, CODE_BITS);
 	}
 
-	public SecretKey deriveBTInvitationKey(SecretKey master, boolean alice) {
-		return new SecretKey(macKdf(master, alice ? BT_A_INVITE : BT_B_INVITE));
+	public SecretKey deriveHeaderKey(SecretKey master,
+			boolean alice) {
+		return new SecretKey(macKdf(master, alice ? A_INVITE : B_INVITE));
 	}
 
-	public byte[] deriveBTSignatureNonce(SecretKey master, boolean alice) {
-		return macKdf(master, alice ? BT_A_NONCE : BT_B_NONCE);
+	public byte[] deriveSignatureNonce(SecretKey master,
+			boolean alice) {
+		return macKdf(master, alice ? A_SIG_NONCE : B_SIG_NONCE);
 	}
 
 	public byte[] deriveKeyCommitment(byte[] publicKey) {
@@ -436,29 +436,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		} catch (GeneralSecurityException e) {
 			return null; // Invalid ciphertext
 		}
-	}
-
-	// Key derivation function based on a hash function - see NIST SP 800-56A,
-	// section 5.8
-	private byte[] hashKdf(byte[]... inputs) {
-		Digest digest = new Blake2sDigest();
-		// The output of the hash function must be long enough to use as a key
-		int hashLength = digest.getDigestSize();
-		if (hashLength < SecretKey.LENGTH) throw new IllegalStateException();
-		// Calculate the hash over the concatenated length-prefixed inputs
-		byte[] length = new byte[INT_32_BYTES];
-		for (byte[] input : inputs) {
-			ByteUtils.writeUint32(input.length, length, 0);
-			digest.update(length, 0, length.length);
-			digest.update(input, 0, input.length);
-		}
-		byte[] hash = new byte[hashLength];
-		digest.doFinal(hash, 0);
-		// The output is the first SecretKey.LENGTH bytes of the hash
-		if (hash.length == SecretKey.LENGTH) return hash;
-		byte[] truncated = new byte[SecretKey.LENGTH];
-		System.arraycopy(hash, 0, truncated, 0, truncated.length);
-		return truncated;
 	}
 
 	// Key derivation function based on a pseudo-random function - see

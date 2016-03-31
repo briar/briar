@@ -125,8 +125,8 @@ class AliceConnector extends Connector {
 		if (LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
 		// Derive the header keys
-		SecretKey aliceHeaderKey = crypto.deriveBTInvitationKey(master, true);
-		SecretKey bobHeaderKey = crypto.deriveBTInvitationKey(master, false);
+		SecretKey aliceHeaderKey = crypto.deriveHeaderKey(master, true);
+		SecretKey bobHeaderKey = crypto.deriveHeaderKey(master, false);
 		// Create the readers
 		InputStream streamReader =
 				streamReaderFactory.createInvitationStreamReader(in,
@@ -138,8 +138,8 @@ class AliceConnector extends Connector {
 						aliceHeaderKey);
 		w = bdfWriterFactory.createWriter(streamWriter);
 		// Derive the invitation nonces
-		byte[] aliceNonce = crypto.deriveBTSignatureNonce(master, true);
-		byte[] bobNonce = crypto.deriveBTSignatureNonce(master, false);
+		byte[] aliceNonce = crypto.deriveSignatureNonce(master, true);
+		byte[] bobNonce = crypto.deriveSignatureNonce(master, false);
 		// Exchange pseudonyms, signed nonces, and timestamps
 		Author remoteAuthor;
 		long remoteTimestamp;

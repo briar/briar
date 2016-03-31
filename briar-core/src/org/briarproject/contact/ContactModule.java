@@ -1,8 +1,17 @@
 package org.briarproject.contact;
 
+import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.data.BdfReaderFactory;
+import org.briarproject.api.data.BdfWriterFactory;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.plugins.ConnectionManager;
+import org.briarproject.api.system.Clock;
+import org.briarproject.api.transport.StreamReaderFactory;
+import org.briarproject.api.transport.StreamWriterFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,5 +33,17 @@ public class ContactModule {
 			ContactManagerImpl contactManager) {
 		identityManager.registerRemoveIdentityHook(contactManager);
 		return contactManager;
+	}
+
+	@Provides
+	ContactExchangeTask provideContactExchangeTask(
+			AuthorFactory authorFactory, BdfReaderFactory bdfReaderFactory,
+			BdfWriterFactory bdfWriterFactory, Clock clock,
+			ConnectionManager connectionManager, ContactManager contactManager,
+			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
+			StreamWriterFactory streamWriterFactory) {
+		return new ContactExchangeTaskImpl(authorFactory, bdfReaderFactory,
+				bdfWriterFactory, clock, connectionManager, contactManager,
+				crypto, streamReaderFactory, streamWriterFactory);
 	}
 }

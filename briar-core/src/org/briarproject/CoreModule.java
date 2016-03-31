@@ -9,6 +9,7 @@ import org.briarproject.event.EventModule;
 import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.invitation.InvitationModule;
+import org.briarproject.keyagreement.KeyAgreementModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
@@ -23,7 +24,8 @@ import dagger.Module;
 
 @Module(includes = {DatabaseModule.class,
 		CryptoModule.class, LifecycleModule.class, ReliabilityModule.class,
-		MessagingModule.class, InvitationModule.class, ForumModule.class,
+		MessagingModule.class, InvitationModule.class, KeyAgreementModule.class,
+		ForumModule.class,
 		IdentityModule.class, EventModule.class, DataModule.class,
 		ContactModule.class, PropertiesModule.class, TransportModule.class,
 		SyncModule.class, SettingsModule.class, ClientsModule.class,

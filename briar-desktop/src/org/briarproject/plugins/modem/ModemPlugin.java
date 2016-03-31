@@ -3,6 +3,8 @@ package org.briarproject.plugins.modem;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
@@ -155,6 +157,20 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout, boolean alice) {
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean supportsKeyAgreement() {
+		return false;
+	}
+
+	public KeyAgreementListener createKeyAgreementListener(
+			byte[] commitment) {
+		throw new UnsupportedOperationException();
+	}
+
+	public DuplexTransportConnection createKeyAgreementConnection(
+			byte[] commitment, TransportDescriptor d, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 

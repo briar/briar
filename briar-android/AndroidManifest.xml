@@ -14,11 +14,13 @@
 		/>
 
 	<uses-feature android:name="android.hardware.bluetooth"/>
+	<uses-feature android:name="android.hardware.camera" />
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.BLUETOOTH" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.READ_LOGS"/>
 	<uses-permission android:name="android.permission.VIBRATE" />
@@ -159,6 +161,16 @@
 		<activity
 			android:name=".android.invitation.AddContactActivity"
 			android:label="@string/add_contact_title"
+			android:parentActivityName=".android.NavDrawerActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.NavDrawerActivity"
+				/>
+		</activity>
+		<activity
+			android:name=".android.keyagreement.KeyAgreementActivity"
+			android:label="@string/add_contact_title"
+			android:theme="@style/BriarThemeNoActionBar.Default"
 			android:parentActivityName=".android.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"

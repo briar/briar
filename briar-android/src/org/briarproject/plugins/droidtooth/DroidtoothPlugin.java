@@ -14,6 +14,9 @@ import org.briarproject.api.TransportId;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.keyagreement.KeyAgreementConnection;
+import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -66,6 +69,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 			"android.bluetooth.device.action.FOUND";
 	private static final String DISCOVERY_FINISHED =
 			"android.bluetooth.adapter.action.DISCOVERY_FINISHED";
+
+	private static final String PROP_ADDRESS = "address";
+	private static final String PROP_UUID = "uuid";
 
 	private final Executor ioExecutor;
 	private final AndroidExecutor androidExecutor;
@@ -161,7 +167,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				if (!StringUtils.isNullOrEmpty(address)) {
 					// Advertise the Bluetooth address to contacts
 					TransportProperties p = new TransportProperties();
-					p.put("address", address);
+					p.put(PROP_ADDRESS, address);
 					callback.mergeLocalProperties(p);
 				}
 				// Bind a server socket to accept connections from contacts
@@ -187,13 +193,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	private UUID getUuid() {
-		String uuid = callback.getLocalProperties().get("uuid");
+		String uuid = callback.getLocalProperties().get(PROP_UUID);
 		if (uuid == null) {
 			byte[] random = new byte[UUID_BYTES];
 			secureRandom.nextBytes(random);
 			uuid = UUID.nameUUIDFromBytes(random).toString();
 			TransportProperties p = new TransportProperties();
-			p.put("uuid", uuid);
+			p.put(PROP_UUID, uuid);
 			callback.mergeLocalProperties(p);
 		}
 		return UUID.fromString(uuid);
@@ -264,9 +270,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
 			final ContactId c = e.getKey();
 			if (connected.contains(c)) continue;
-			final String address = e.getValue().get("address");
+			final String address = e.getValue().get(PROP_ADDRESS);
 			if (StringUtils.isNullOrEmpty(address)) continue;
-			final String uuid = e.getValue().get("uuid");
+			final String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(new Runnable() {
 				public void run() {
@@ -325,9 +331,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 		if (!isRunning()) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if (p == null) return null;
-		String address = p.get("address");
+		String address = p.get(PROP_ADDRESS);
 		if (StringUtils.isNullOrEmpty(address)) return null;
-		String uuid = p.get("uuid");
+		String uuid = p.get(PROP_UUID);
 		if (StringUtils.isNullOrEmpty(uuid)) return null;
 		BluetoothSocket s = connect(address, uuid);
 		if (s == null) return null;
@@ -415,6 +421,48 @@ class DroidtoothPlugin implements DuplexPlugin {
 				}
 			}
 		});
+	}
+
+	public boolean supportsKeyAgreement() {
+		return true;
+	}
+
+	public KeyAgreementListener createKeyAgreementListener(
+			byte[] localCommitment) {
+		// No truncation necessary because COMMIT_LENGTH = 16
+		UUID uuid = UUID.nameUUIDFromBytes(localCommitment);
+		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
+		// Bind a server socket for receiving invitation connections
+		BluetoothServerSocket ss;
+		try {
+			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return null;
+		}
+		TransportProperties p = new TransportProperties();
+		String address = AndroidUtils.getBluetoothAddress(appContext, adapter);
+		if (!StringUtils.isNullOrEmpty(address))
+			p.put(PROP_ADDRESS, address);
+		TransportDescriptor d = new TransportDescriptor(ID, p);
+		return new BluetoothKeyAgreementListener(d, ss);
+	}
+
+	public DuplexTransportConnection createKeyAgreementConnection(
+			byte[] remoteCommitment, TransportDescriptor d, long timeout) {
+		if (!isRunning()) return null;
+		if (!ID.equals(d.getIdentifier())) return null;
+		TransportProperties p = d.getProperties();
+		if (p == null) return null;
+		String address = p.get(PROP_ADDRESS);
+		if (StringUtils.isNullOrEmpty(address)) return null;
+		// No truncation necessary because COMMIT_LENGTH = 16
+		UUID uuid = UUID.nameUUIDFromBytes(remoteCommitment);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Connecting to key agreement UUID " + uuid);
+		BluetoothSocket s = connect(address, uuid.toString());
+		if (s == null) return null;
+		return new DroidtoothTransportConnection(this, s);
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
@@ -543,6 +591,41 @@ class DroidtoothPlugin implements DuplexPlugin {
 			}
 			LOG.info("Data available");
 			return s;
+		}
+	}
+
+	private class BluetoothKeyAgreementListener extends KeyAgreementListener {
+
+		private final BluetoothServerSocket ss;
+
+		public BluetoothKeyAgreementListener(TransportDescriptor descriptor,
+				BluetoothServerSocket ss) {
+			super(descriptor);
+			this.ss = ss;
+		}
+
+		@Override
+		public Callable<KeyAgreementConnection> listen() {
+			return new Callable<KeyAgreementConnection>() {
+				@Override
+				public KeyAgreementConnection call() throws IOException {
+					BluetoothSocket s = ss.accept();
+					if (LOG.isLoggable(INFO))
+						LOG.info(ID.getString() + ": Incoming connection");
+					return new KeyAgreementConnection(
+							new DroidtoothTransportConnection(
+									DroidtoothPlugin.this, s), ID);
+				}
+			};
+		}
+
+		@Override
+		public void close() {
+			try {
+				ss.close();
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
 		}
 	}
 }
