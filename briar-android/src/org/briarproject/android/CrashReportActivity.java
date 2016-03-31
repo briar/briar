@@ -3,9 +3,7 @@ package org.briarproject.android;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -18,16 +16,11 @@ import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.LayoutUtils;
-import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
@@ -52,16 +45,10 @@ import static android.content.Intent.EXTRA_TEXT;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.TestingConstants.SHARE_CRASH_REPORTS;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class CrashReportActivity extends AppCompatActivity
 		implements OnClickListener {
@@ -69,9 +56,8 @@ public class CrashReportActivity extends AppCompatActivity
 	private static final Logger LOG =
 			Logger.getLogger(CrashReportActivity.class.getName());
 
-	private ScrollView scroll = null;
-	private ListLoadingProgressBar progress = null;
 	private LinearLayout status = null;
+	private View progress = null;
 
 	private volatile String stack = null;
 	private volatile int pid = -1;
@@ -80,48 +66,17 @@ public class CrashReportActivity extends AppCompatActivity
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		setContentView(R.layout.activity_crash);
+
+		status = (LinearLayout) findViewById(R.id.crash_status);
+		progress = findViewById(R.id.progress_wheel);
+
+		findViewById(R.id.share_crash_report).setOnClickListener(this);
 
 		Intent i = getIntent();
 		stack = i.getStringExtra("briar.STACK_TRACE");
 		pid = i.getIntExtra("briar.PID", -1);
 		bt = BluetoothAdapter.getDefaultAdapter();
-
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
-
-		scroll = new ScrollView(this);
-		scroll.setLayoutParams(MATCH_WRAP_1);
-		status = new LinearLayout(this);
-		status.setOrientation(VERTICAL);
-		status.setGravity(CENTER_HORIZONTAL);
-		int pad = LayoutUtils.getPadding(this);
-		status.setPadding(pad, pad, pad, pad);
-		scroll.addView(status);
-		layout.addView(scroll);
-
-		progress = new ListLoadingProgressBar(this);
-		progress.setVisibility(GONE);
-		layout.addView(progress);
-
-		if (SHARE_CRASH_REPORTS) {
-			layout.addView(new HorizontalBorder(this));
-			LinearLayout footer = new LinearLayout(this);
-			footer.setLayoutParams(MATCH_WRAP);
-			footer.setGravity(CENTER);
-			Resources res = getResources();
-			int background = res.getColor(R.color.button_bar_background);
-			footer.setBackgroundColor(background);
-			ImageButton share = new ImageButton(this);
-			share.setBackgroundResource(0);
-			share.setImageResource(R.drawable.social_share);
-			share.setOnClickListener(this);
-			footer.addView(share);
-			layout.addView(footer);
-		}
-
-		setContentView(layout);
 	}
 
 	@Override
@@ -143,9 +98,9 @@ public class CrashReportActivity extends AppCompatActivity
 	}
 
 	private void refresh() {
-		status.removeAllViews();
-		scroll.setVisibility(GONE);
+		status.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
+		status.removeAllViews();
 		new AsyncTask<Void, Void, Map<String, String>>() {
 
 			@Override
@@ -155,19 +110,15 @@ public class CrashReportActivity extends AppCompatActivity
 
 			@Override
 			protected void onPostExecute(Map<String, String> result) {
-				Context ctx = CrashReportActivity.this;
-				int pad = LayoutUtils.getPadding(ctx);
 				for (Entry<String, String> e : result.entrySet()) {
-					TextView title = new TextView(ctx);
-					title.setTextSize(18);
-					title.setText(e.getKey());
-					status.addView(title);
-					TextView content = new TextView(ctx);
-					content.setPadding(0, 0, 0, pad);
-					content.setText(e.getValue());
-					status.addView(content);
+					View v = getLayoutInflater()
+							.inflate(R.layout.list_item_crash, status, false);
+					((TextView) v.findViewById(R.id.title)).setText(e.getKey());
+					((TextView) v.findViewById(R.id.content))
+							.setText(e.getValue());
+					status.addView(v);
 				}
-				scroll.setVisibility(VISIBLE);
+				status.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
 			}
 		}.execute();

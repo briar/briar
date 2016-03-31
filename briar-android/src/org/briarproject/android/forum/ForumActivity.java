@@ -131,7 +131,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 
 		shareButton = new ImageButton(this);
 		shareButton.setBackgroundResource(0);
-		shareButton.setImageResource(R.drawable.social_share);
+		shareButton.setImageResource(R.drawable.social_share_old);
 		shareButton.setOnClickListener(this);
 		footer.addView(shareButton);
 		footer.addView(new ElasticHorizontalSpace(this));

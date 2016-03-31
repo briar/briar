@@ -128,7 +128,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 
 		share = new ImageButton(this);
 		share.setBackgroundResource(0);
-		share.setImageResource(R.drawable.social_share);
+		share.setImageResource(R.drawable.social_share_old);
 		share.setOnClickListener(this);
 		footer.addView(share);
 		footer.addView(new ElasticHorizontalSpace(this));
