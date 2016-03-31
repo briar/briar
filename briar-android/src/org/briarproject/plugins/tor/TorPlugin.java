@@ -13,6 +13,7 @@ import net.freehaven.tor.control.TorControlConnection;
 import net.sourceforge.jsocks.socks.Socks5Proxy;
 import net.sourceforge.jsocks.socks.SocksSocket;
 
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
@@ -25,6 +26,7 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.reporting.DevReporter;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.LocationUtils;
@@ -83,6 +85,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private final Executor ioExecutor;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
+	private final DevReporter reporter;
 	private final Clock clock;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
@@ -104,12 +107,13 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, Clock clock,
+			LocationUtils locationUtils, DevReporter reporter, Clock clock,
 			DuplexPluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
+		this.reporter = reporter;
 		this.clock = clock;
 		this.callback = callback;
 		this.architecture = architecture;
@@ -172,13 +176,14 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 			String torPath = torFile.getAbsolutePath();
 			String configPath = configFile.getAbsolutePath();
 			String pid = String.valueOf(android.os.Process.myPid());
-			String[] cmd = { torPath, "-f", configPath, OWNER, pid };
-			String[] env = { "HOME=" + torDirectory.getAbsolutePath() };
+			String[] cmd = {torPath, "-f", configPath, OWNER, pid};
+			String[] env = {"HOME=" + torDirectory.getAbsolutePath()};
 			Process torProcess;
 			try {
 				torProcess = Runtime.getRuntime().exec(cmd, env, torDirectory);
 			} catch (SecurityException e1) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e1.toString(), e1);
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e1.toString(), e1);
 				return false;
 			}
 			// Log the process's standard output until it detaches
@@ -225,6 +230,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 			if (phase != null && phase.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
 				bootstrapped = true;
+				sendCrashReports();
 			}
 		}
 		// Register to receive network status events
@@ -355,6 +361,16 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		}
 	}
 
+	private void sendCrashReports() {
+		ioExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				reporter.sendCrashReports(
+						AndroidUtils.getCrashReportDir(appContext), SOCKS_PORT);
+			}
+		});
+	}
+
 	private void bind() {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
@@ -420,7 +436,8 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 				obs.startWatching();
 				// Use the control connection to update the Tor config
 				List<String> config = Arrays.asList(
-						"HiddenServiceDir " + serviceDirectory.getAbsolutePath(),
+						"HiddenServiceDir " +
+								serviceDirectory.getAbsolutePath(),
 						"HiddenServicePort 80 127.0.0.1:" + port);
 				controlConnection.setConf(config);
 				controlConnection.saveConf();
@@ -593,20 +610,24 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		}
 	}
 
-	public void streamStatus(String status, String id, String target) {}
+	public void streamStatus(String status, String id, String target) {
+	}
 
 	public void orConnStatus(String status, String orName) {
 		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
 	}
 
-	public void bandwidthUsed(long read, long written) {}
+	public void bandwidthUsed(long read, long written) {
+	}
 
-	public void newDescriptors(List<String> orList) {}
+	public void newDescriptors(List<String> orList) {
+	}
 
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			bootstrapped = true;
+			sendCrashReports();
 			if (isRunning()) callback.transportEnabled();
 		}
 	}
@@ -669,7 +690,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 					} else if (blocked) {
 						LOG.info("Disabling network, country is blocked");
 						enableNetwork(false);
-					} else if (wifiOnly & !connectedToWifi){
+					} else if (wifiOnly & !connectedToWifi) {
 						LOG.info("Disabling network due to wifi setting");
 						enableNetwork(false);
 					} else {

@@ -3,6 +3,7 @@ package org.briarproject.api.crypto;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.transport.TransportKeys;
 
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
@@ -156,4 +157,9 @@ public interface CryptoComponent {
 	 * authenticated (for example, if the password is wrong).
 	 */
 	byte[] decryptWithPassword(byte[] ciphertext, String password);
+
+	/**
+	 * Encrypts the given plaintext to the given public key.
+	 */
+	String encryptToKey(byte[] publicKey, byte[] plaintext);
 }

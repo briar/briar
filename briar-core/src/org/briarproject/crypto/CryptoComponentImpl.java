@@ -18,6 +18,7 @@ import org.briarproject.util.ByteUtils;
 import org.briarproject.util.StringUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.CryptoException;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -28,6 +29,7 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.KeyParameter;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -435,6 +437,18 @@ class CryptoComponentImpl implements CryptoComponent {
 			return output;
 		} catch (GeneralSecurityException e) {
 			return null; // Invalid ciphertext
+		}
+	}
+
+	public String encryptToKey(byte[] publicKey, byte[] plaintext) {
+		MessageEncrypter encrypter = new MessageEncrypter(secureRandom);
+		try {
+			byte[] ciphertext = encrypter.encrypt(publicKey, plaintext);
+			return AsciiArmour.wrap(ciphertext, 70);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (CryptoException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

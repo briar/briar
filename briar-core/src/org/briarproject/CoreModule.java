@@ -17,6 +17,7 @@ import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.reliability.ReliabilityModule;
+import org.briarproject.reporting.ReportingModule;
 import org.briarproject.settings.SettingsModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.system.SystemModule;
@@ -42,6 +43,7 @@ import dagger.Module;
 		PluginsModule.class,
 		PropertiesModule.class,
 		ReliabilityModule.class,
+		ReportingModule.class,
 		SettingsModule.class,
 		SyncModule.class,
 		SystemModule.class,

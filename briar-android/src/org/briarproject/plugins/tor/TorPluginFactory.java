@@ -9,6 +9,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
+import org.briarproject.api.reporting.DevReporter;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.system.SystemClock;
@@ -28,14 +29,17 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private final Executor ioExecutor;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
+	private final DevReporter reporter;
 	private final EventBus eventBus;
 	private final Clock clock;
 
 	public TorPluginFactory(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, EventBus eventBus) {
+			LocationUtils locationUtils, DevReporter reporter,
+			EventBus eventBus) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
+		this.reporter = reporter;
 		this.eventBus = eventBus;
 		clock = new SystemClock();
 	}
@@ -68,9 +72,10 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		// Use position-independent executable for SDK >= 16
 		if (Build.VERSION.SDK_INT >= 16) architecture += "-pie";
 
-		TorPlugin plugin = new TorPlugin(ioExecutor, appContext, locationUtils,
-				clock, callback, architecture, MAX_LATENCY, MAX_IDLE_TIME,
-				POLLING_INTERVAL);
+		TorPlugin plugin =
+				new TorPlugin(ioExecutor, appContext, locationUtils, reporter,
+						clock, callback, architecture, MAX_LATENCY,
+						MAX_IDLE_TIME, POLLING_INTERVAL);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

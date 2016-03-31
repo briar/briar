@@ -8,7 +8,9 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.reporting.DevConfig;
 import org.briarproject.api.ui.UiCallback;
+import org.briarproject.util.StringUtils;
 
 import java.io.File;
 
@@ -86,6 +88,33 @@ public class AppModule {
 
 			public long getMaxSize() {
 				return Long.MAX_VALUE;
+			}
+		};
+	}
+
+	@Provides
+	@Singleton
+	public DevConfig provideDevConfig() {
+		return new DevConfig() {
+
+			// TODO fill in
+			private final byte[] DEV_PUB_KEY = StringUtils.fromHexString("");
+			private final String DEV_ONION = "";
+			private final int DEV_REPORT_PORT = 8080;
+
+			@Override
+			public byte[] getDevPublicKey() {
+				return DEV_PUB_KEY;
+			}
+
+			@Override
+			public String getDevOnionAddress() {
+				return DEV_ONION;
+			}
+
+			@Override
+			public int getDevReportPort() {
+				return DEV_REPORT_PORT;
 			}
 		};
 	}

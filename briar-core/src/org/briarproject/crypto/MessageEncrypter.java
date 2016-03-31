@@ -70,6 +70,14 @@ public class MessageEncrypter {
 		return generator.generateKeyPair();
 	}
 
+	byte[] encrypt(byte[] keyBytes, byte[] plaintext)
+			throws IOException, CryptoException {
+		InputStream in = new ByteArrayInputStream(keyBytes);
+		ECPublicKeyParameters publicKey =
+				(ECPublicKeyParameters) parser.readKey(in);
+		return encrypt(publicKey, plaintext);
+	}
+
 	byte[] encrypt(ECPublicKeyParameters pubKey, byte[] plaintext)
 			throws CryptoException {
 		IESEngine engine = getEngine();
@@ -159,10 +167,7 @@ public class MessageEncrypter {
 			}
 			// Encrypt a decrypted message
 			InputStream in = new FileInputStream(args[1]);
-			byte[] b = StringUtils.fromHexString(readFully(in).trim());
-			in = new ByteArrayInputStream(b);
-			ECPublicKeyParameters publicKey =
-					(ECPublicKeyParameters) encrypter.parser.readKey(in);
+			byte[] publicKey = StringUtils.fromHexString(readFully(in).trim());
 			String message = readFully(System.in);
 			byte[] plaintext = message.getBytes(Charset.forName("UTF-8"));
 			byte[] ciphertext = encrypter.encrypt(publicKey, plaintext);

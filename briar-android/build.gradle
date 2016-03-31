@@ -12,6 +12,9 @@ dependencies {
 	compile project(':briar-api')
 	compile project(':briar-core')
 	compile fileTree(dir: 'libs', include: '*.jar')
+	// This shouldn't be necessary; per section 23.4.4 of the Gradle docs:
+	// "file dependencies are included in transitive project dependencies within the same build".
+	compile files('../briar-core/libs/jsocks.jar')
 	compile "com.android.support:support-v4:$supportVersion"
 	compile("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'

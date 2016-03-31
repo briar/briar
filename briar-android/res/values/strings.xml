@@ -4,6 +4,8 @@
 	<string name="nav_drawer_close_description">Close the navigation drawer</string>
 	<string name="app_name">Briar</string>
 	<string name="crash_report_title">Briar Crash Report</string>
+	<string name="crash_report_saved">Crash report saved. It will be sent the next time you log into Briar.</string>
+	<string name="crash_report_not_saved">Could not save crash report to disk.</string>
 	<string name="ongoing_notification_title">Signed into Briar</string>
 	<string name="ongoing_notification_text">Touch to show the dashboard.</string>
 	<string name="setup_title">Briar Setup</string>
@@ -173,6 +175,8 @@
 	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
 	<string name="dialog_title_welcome">Welcome to Briar</string>
 	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
+	<string name="dialog_title_share_crash_report">Send to developers?</string>
+	<string name="dialog_message_share_crash_report">Would you like to send this crash report to the developers? It will be stored encrypted on your device until the next time you log into Briar, and then sent securely to the developers.</string>
 	<string name="dialog_button_ok">OK</string>
 	<string name="dialog_button_introduce">Introduce</string>
 	<string name="dialog_button_accept">Accept</string>
