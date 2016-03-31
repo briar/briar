@@ -84,7 +84,7 @@ class ForumPostValidator extends BdfMessageValidator {
 				PublicKey key = keyParser.parsePublicKey(author.getPublicKey());
 				// Serialise the data to be signed
 				BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
-						authorList, contentType, body);
+						authorList, contentType, forumPostBody);
 				// Verify the signature
 				Signature signature = crypto.getSignature();
 				signature.initVerify(key);
