@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
@@ -80,7 +79,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	private final EventBus eventBus;
 	private final ShutdownManager shutdown;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
-	private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+	private final ReentrantReadWriteLock lock =
+			new ReentrantReadWriteLock(true);
 
 	private volatile int shutdownHandle = -1;
 
@@ -119,6 +119,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	public Transaction startTransaction(boolean readOnly) throws DbException {
+		// Don't allow reentrant locking
+		if (lock.getReadHoldCount() > 0) throw new IllegalStateException();
+		if (lock.getWriteHoldCount() > 0) throw new IllegalStateException();
 		if (readOnly) lock.readLock().lock();
 		else lock.writeLock().lock();
 		try {

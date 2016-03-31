@@ -65,6 +65,7 @@ import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDO
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class DatabaseComponentImplTest extends BriarTestCase {
@@ -1446,5 +1447,54 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		}
 
 		context.assertIsSatisfied();
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testCannotStartReadTransactionDuringReadTransaction()
+			throws Exception {
+		testCannotStartTransactionDuringTransaction(true, true);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testCannotStartWriteTransactionDuringReadTransaction()
+			throws Exception {
+		testCannotStartTransactionDuringTransaction(true, false);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testCannotStartReadTransactionDuringWriteTransaction()
+			throws Exception {
+		testCannotStartTransactionDuringTransaction(false, true);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testCannotStartWriteTransactionDuringWriteTransaction()
+			throws Exception {
+		testCannotStartTransactionDuringTransaction(false, false);
+	}
+
+	private void testCannotStartTransactionDuringTransaction(
+			boolean firstTxnReadOnly, boolean secondTxnReadOnly)
+			throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
+
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(new Object()));
+		}});
+
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		assertNotNull(db.startTransaction(firstTxnReadOnly));
+		try {
+			db.startTransaction(secondTxnReadOnly);
+		} finally {
+			context.assertIsSatisfied();
+		}
 	}
 }
