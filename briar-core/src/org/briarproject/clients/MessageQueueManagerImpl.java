@@ -21,7 +21,6 @@ import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.util.ByteUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -64,20 +63,11 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		QueueState queueState = loadQueueState(txn, queue.getId());
 		long queuePosition = queueState.outgoingPosition;
 		queueState.outgoingPosition++;
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Sending message with position " +
-					queuePosition + " in group " +
-					queue.getId().hashCode() + " with transaction " +
-					txn.hashCode());
-		}
+		if (LOG.isLoggable(INFO))
+			LOG.info("Sending message with position " + queuePosition);
 		saveQueueState(txn, queue.getId(), queueState);
 		QueueMessage q = queueMessageFactory.createMessage(queue.getId(),
 				timestamp, queuePosition, body);
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("First bytes of message: " + Arrays.toString(
-					Arrays.copyOfRange(q.getRaw(), 0,
-							QUEUE_MESSAGE_HEADER_LENGTH)));
-		}
 		db.addLocalMessage(txn, q, queue.getClientId(), meta, true);
 		return q;
 	}
@@ -208,12 +198,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Received message with position  "
 						+ queuePosition + ", expecting "
-						+ queueState.incomingPosition + ". Received in group " +
-						m.getGroupId().hashCode() + " with transaction " +
-						txn.hashCode());
-				LOG.info("First bytes of message: " + Arrays.toString(
-						Arrays.copyOfRange(m.getRaw(), 0,
-								QUEUE_MESSAGE_HEADER_LENGTH)));
+						+ queueState.incomingPosition);
 			}
 			if (queuePosition < queueState.incomingPosition) {
 				// A message with this queue position has already been seen
