@@ -47,17 +47,26 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	}
 
 	@Override
+	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
+			SecretKey master,long timestamp, boolean alice, boolean active)
+			throws DbException {
+		ContactId c = db.addContact(txn, remote, local, active);
+		keyManager.addContact(txn, c, master, timestamp, alice);
+		Contact contact = db.getContact(txn, c);
+		for (AddContactHook hook : addHooks)
+			hook.addingContact(txn, contact);
+		return c;
+	}
+
+	@Override
 	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
 			long timestamp, boolean alice, boolean active)
 			throws DbException {
 		ContactId c;
 		Transaction txn = db.startTransaction(false);
 		try {
-			c = db.addContact(txn, remote, local, active);
-			keyManager.addContact(txn, c, master, timestamp, alice);
-			Contact contact = db.getContact(txn, c);
-			for (AddContactHook hook : addHooks)
-				hook.addingContact(txn, contact);
+			c = addContact(txn, remote, local, master, timestamp, alice,
+					active);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -114,6 +123,26 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 		} finally {
 			db.endTransaction(txn);
 		}
+	}
+
+	@Override
+	public boolean contactExists(Transaction txn, AuthorId remoteAuthorID,
+			AuthorId localAuthorId) throws DbException {
+		return db.containsContact(txn, remoteAuthorID, localAuthorId);
+	}
+
+	@Override
+	public boolean contactExists(AuthorId remoteAuthorID,
+			AuthorId localAuthorId) throws DbException {
+		boolean exists = false;
+		Transaction txn = db.startTransaction(true);
+		try {
+			exists = contactExists(txn, remoteAuthorID, localAuthorId);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return exists;
 	}
 
 	private void removeContact(Transaction txn, ContactId c)

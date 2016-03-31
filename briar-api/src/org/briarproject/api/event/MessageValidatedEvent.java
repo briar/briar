@@ -1,5 +1,6 @@
 package org.briarproject.api.event;
 
+import org.briarproject.api.db.Metadata;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Message;
 

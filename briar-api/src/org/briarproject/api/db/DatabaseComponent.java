@@ -163,6 +163,13 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Returns true if the database contains the given contact for the given
+	 * local pseudonym.
+	 */
+	boolean containsContact(Transaction txn, AuthorId remote, AuthorId local)
+			throws DbException;
+
+	/**
 	 * Returns the unique ID for this device.
 	 * <p/>
 	 * Read-only.

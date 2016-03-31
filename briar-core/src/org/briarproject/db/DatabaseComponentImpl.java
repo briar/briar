@@ -161,7 +161,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException();
 		ContactId c = db.addContact(txn, remote, local, active);
-		transaction.attach(new ContactAddedEvent(c));
+		transaction.attach(new ContactAddedEvent(c, active));
 		if (active) transaction.attach(new ContactStatusChangedEvent(c, true));
 		return c;
 	}
@@ -340,6 +340,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsLocalAuthor(txn, a))
 			throw new NoSuchLocalAuthorException();
 		return db.getContacts(txn, a);
+	}
+
+	public boolean containsContact(Transaction transaction, AuthorId remote,
+			AuthorId local) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, local))
+			throw new NoSuchLocalAuthorException();
+		return db.containsContact(txn, remote, local);
 	}
 
 	public DeviceId getDeviceId(Transaction transaction) throws DbException {

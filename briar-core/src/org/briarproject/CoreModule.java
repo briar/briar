@@ -8,6 +8,7 @@ import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
+import org.briarproject.introduction.IntroductionModule;
 import org.briarproject.invitation.InvitationModule;
 import org.briarproject.keyagreement.KeyAgreementModule;
 import org.briarproject.lifecycle.LifecycleModule;
@@ -29,7 +30,7 @@ import dagger.Module;
 		IdentityModule.class, EventModule.class, DataModule.class,
 		ContactModule.class, PropertiesModule.class, TransportModule.class,
 		SyncModule.class, SettingsModule.class, ClientsModule.class,
-		SystemModule.class, PluginsModule.class})
+		SystemModule.class, PluginsModule.class, IntroductionModule.class})
 public class CoreModule {
 
 	public static void initEagerSingletons(CoreEagerSingletons c) {
@@ -43,5 +44,6 @@ public class CoreModule {
 		c.inject(new PropertiesModule.EagerSingletons());
 		c.inject(new SyncModule.EagerSingletons());
 		c.inject(new TransportModule.EagerSingletons());
+		c.inject(new IntroductionModule.EagerSingletons());
 	}
 }

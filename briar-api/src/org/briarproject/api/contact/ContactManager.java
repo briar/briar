@@ -17,11 +17,20 @@ public interface ContactManager {
 	void registerRemoveContactHook(RemoveContactHook hook);
 
 	/**
+	 * Stores a contact within the given transaction associated with the given
+	 * local and remote pseudonyms, and returns an ID for the contact.
+	 */
+	ContactId addContact(Transaction txn, Author remote, AuthorId local,
+			SecretKey master, long timestamp, boolean alice, boolean active)
+			throws DbException;
+
+	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
-	ContactId addContact(Author remote, AuthorId local, SecretKey master,
-			long timestamp, boolean alice, boolean active) throws DbException;
+	ContactId addContact(Author remote, AuthorId local,
+			SecretKey master, long timestamp, boolean alice, boolean active)
+			throws DbException;
 
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;
@@ -34,6 +43,14 @@ public interface ContactManager {
 
 	/** Marks a contact as active or inactive. */
 	void setContactActive(ContactId c, boolean active) throws DbException;
+
+	/** Return true if a contact with this name and public key already exists */
+	boolean contactExists(Transaction txn, AuthorId remoteAuthorID,
+			AuthorId localAuthorId) throws DbException;
+
+	/** Return true if a contact with this name and public key already exists */
+	boolean contactExists(AuthorId remoteAuthorID, AuthorId localAuthorId)
+			throws DbException;
 
 	interface AddContactHook {
 		void addingContact(Transaction txn, Contact c) throws DbException;
