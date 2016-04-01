@@ -37,7 +37,7 @@ public class TransportModule {
 	@Singleton
 	KeyManager getKeyManager(LifecycleManager lifecycleManager,
 			EventBus eventBus, KeyManagerImpl keyManager) {
-		lifecycleManager.register(keyManager);
+		lifecycleManager.registerService(keyManager);
 		eventBus.addListener(keyManager);
 		return keyManager;
 	}

@@ -1,32 +1,49 @@
 package org.briarproject.api.lifecycle;
 
+import org.briarproject.api.clients.Client;
+
 import java.util.concurrent.ExecutorService;
 
 /**
- * Manages the lifecycle of the app, starting and stopping {@link Service
- * Services}, shutting down {@link java.util.concurrent.ExecutorService
+ * Manages the lifecycle of the app, starting {@link
+ * org.briarproject.api.clients.Client Clients}, starting and stopping {@link
+ * Service Services}, shutting down {@link java.util.concurrent.ExecutorService
  * ExecutorServices}, and opening and closing the {@link
  * org.briarproject.api.db.DatabaseComponent DatabaseComponent}.
  */
 public interface LifecycleManager {
 
-	/** The result of calling {@link LifecycleManager#startServices()}. */
-	enum StartResult { ALREADY_RUNNING, DB_ERROR, SERVICE_ERROR, SUCCESS }
+	/**
+	 * The result of calling {@link LifecycleManager#startServices()}.
+	 */
+	enum StartResult {
+		ALREADY_RUNNING, DB_ERROR, SERVICE_ERROR, SUCCESS
+	}
 
-	/** Registers a {@link Service} to be started and stopped. */
-	public void register(Service s);
+	/**
+	 * Registers a {@link Service} to be started and stopped.
+	 */
+	void registerService(Service s);
+
+	/**
+	 * Registers a {@link org.briarproject.api.clients.Client Client} to be
+	 * started.
+	 */
+	void registerClient(Client c);
 
 	/**
 	 * Registers an {@link java.util.concurrent.ExecutorService ExecutorService}
 	 * to be shut down.
 	 */
-	public void registerForShutdown(ExecutorService e);
+	void registerForShutdown(ExecutorService e);
 
 	/**
-	 * Starts any registered {@link Service Services} and opens the {@link
-	 * org.briarproject.api.db.DatabaseComponent DatabaseComponent}.
+	 * Opens the {@link org.briarproject.api.db.DatabaseComponent
+	 * DatabaseComponent} and starts any registered {@link
+	 * org.briarproject.api.clients.Client Clients} and {@link Service
+	 * Services}.
 	 */
-	public StartResult startServices();
+	StartResult startServices();
 
 	/**
 	 * Stops any registered {@link Service Services}, shuts down any
@@ -34,20 +51,21 @@ public interface LifecycleManager {
 	 * and closes the {@link org.briarproject.api.db.DatabaseComponent
 	 * DatabaseComponent}.
 	 */
-	public void stopServices();
+	void stopServices();
 
 	/**
 	 * Waits for the {@link org.briarproject.api.db.DatabaseComponent
 	 * DatabaseComponent} to be opened before returning.
 	 */
-	public void waitForDatabase() throws InterruptedException;
+	void waitForDatabase() throws InterruptedException;
 
 	/**
 	 * Waits for the {@link org.briarproject.api.db.DatabaseComponent
-	 * DatabaseComponent} to be opened and all registered {@link Service
+	 * DatabaseComponent} to be opened and all registered {@link
+	 * org.briarproject.api.clients.Client Clients} and {@link Service
 	 * Services} to start before returning.
 	 */
-	public void waitForStartup() throws InterruptedException;
+	void waitForStartup() throws InterruptedException;
 
 	/**
 	 * Waits for all registered {@link Service Services} to stop, all
@@ -55,5 +73,5 @@ public interface LifecycleManager {
 	 * to shut down, and the {@link org.briarproject.api.db.DatabaseComponent
 	 * DatabaseComponent} to be closed before returning.
 	 */
-	public void waitForShutdown() throws InterruptedException;
+	void waitForShutdown() throws InterruptedException;
 }

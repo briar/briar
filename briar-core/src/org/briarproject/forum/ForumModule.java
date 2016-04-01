@@ -3,14 +3,13 @@ package org.briarproject.forum;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
@@ -73,9 +72,11 @@ public class ForumModule {
 	@Provides
 	@Singleton
 	ForumSharingManager provideForumSharingManager(
+			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			ValidationManager validationManager,
 			ForumSharingManagerImpl forumSharingManager) {
+		lifecycleManager.registerClient(forumSharingManager);
 		contactManager.registerAddContactHook(forumSharingManager);
 		contactManager.registerRemoveContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(

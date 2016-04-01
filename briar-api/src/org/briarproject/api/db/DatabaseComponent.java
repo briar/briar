@@ -44,6 +44,7 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * This method acquires locks, so it must not be called while holding a
 	 * lock.
+	 *
 	 * @param readOnly true if the transaction will only be used for reading.
 	 */
 	Transaction startTransaction(boolean readOnly) throws DbException;
@@ -91,12 +92,26 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Returns true if the database contains the given contact for the given
+	 * local pseudonym.
+	 */
+	boolean containsContact(Transaction txn, AuthorId remote, AuthorId local)
+			throws DbException;
+
+	/**
+	 * Returns true if the database contains the given group.
+	 */
+	boolean containsGroup(Transaction txn, GroupId g) throws DbException;
+
+	/**
 	 * Deletes the message with the given ID. The message ID and any other
 	 * associated data are not deleted.
 	 */
 	void deleteMessage(Transaction txn, MessageId m) throws DbException;
 
-	/** Deletes any metadata associated with the given message. */
+	/**
+	 * Deletes any metadata associated with the given message.
+	 */
 	void deleteMessageMetadata(Transaction txn, MessageId m) throws DbException;
 
 	/**
@@ -160,13 +175,6 @@ public interface DatabaseComponent {
 	 * Read-only.
 	 */
 	Collection<ContactId> getContacts(Transaction txn, AuthorId a)
-			throws DbException;
-
-	/**
-	 * Returns true if the database contains the given contact for the given
-	 * local pseudonym.
-	 */
-	boolean containsContact(Transaction txn, AuthorId remote, AuthorId local)
 			throws DbException;
 
 	/**
@@ -359,7 +367,7 @@ public interface DatabaseComponent {
 	 * Marks the given contact as active or inactive.
 	 */
 	void setContactActive(Transaction txn, ContactId c, boolean active)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Marks the given message as shared or unshared.

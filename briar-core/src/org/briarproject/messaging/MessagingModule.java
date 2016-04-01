@@ -3,6 +3,7 @@ package org.briarproject.messaging;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.ValidationManager;
@@ -43,8 +44,10 @@ public class MessagingModule {
 
 	@Provides
 	@Singleton
-	MessagingManager getMessagingManager(ContactManager contactManager,
+	MessagingManager getMessagingManager(LifecycleManager lifecycleManager,
+			ContactManager contactManager,
 			MessagingManagerImpl messagingManager) {
+		lifecycleManager.registerClient(messagingManager);
 		contactManager.registerAddContactHook(messagingManager);
 		contactManager.registerRemoveContactHook(messagingManager);
 		return messagingManager;
