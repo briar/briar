@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
+import org.briarproject.android.event.LocalAuthorCreatedEvent;
 import org.briarproject.android.helper.SetupHelper;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
@@ -25,6 +26,7 @@ import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.event.Event;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.util.StringUtils;
@@ -64,15 +66,18 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		super.onCreate(state);
 		setContentView(R.layout.activity_setup);
 
-		nicknameEntryWrapper = (TextInputLayout)findViewById(R.id.nickname_entry_wrapper);
-		passwordEntryWrapper = (TextInputLayout)findViewById(R.id.password_entry_wrapper);
-		passwordConfirmationWrapper = (TextInputLayout)findViewById(R.id.password_confirm_wrapper);
-		nicknameEntry = (EditText)findViewById(R.id.nickname_entry);
-		passwordEntry = (EditText)findViewById(R.id.password_entry);
-		passwordConfirmation = (EditText)findViewById(R.id.password_confirm);
-		strengthMeter = (StrengthMeter)findViewById(R.id.strength_meter);
-		createAccountButton = (Button)findViewById(R.id.create_account);
-		progress = (ProgressBar)findViewById(R.id.progress_wheel);
+		nicknameEntryWrapper =
+				(TextInputLayout) findViewById(R.id.nickname_entry_wrapper);
+		passwordEntryWrapper =
+				(TextInputLayout) findViewById(R.id.password_entry_wrapper);
+		passwordConfirmationWrapper =
+				(TextInputLayout) findViewById(R.id.password_confirm_wrapper);
+		nicknameEntry = (EditText) findViewById(R.id.nickname_entry);
+		passwordEntry = (EditText) findViewById(R.id.password_entry);
+		passwordConfirmation = (EditText) findViewById(R.id.password_confirm);
+		strengthMeter = (StrengthMeter) findViewById(R.id.strength_meter);
+		createAccountButton = (Button) findViewById(R.id.create_account);
+		progress = (ProgressBar) findViewById(R.id.progress_wheel);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
@@ -144,32 +149,24 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		final String nickname = nicknameEntry.getText().toString();
 		final String password = passwordEntry.getText().toString();
 		setupHelper.createIdentity(nickname, password);
-//		// Store the DB key and create the identity in a background thread
-//		cryptoExecutor.execute(new Runnable() {
-//			public void run() {
-//				SecretKey key = crypto.generateSecretKey();
-//				databaseConfig.setEncryptionKey(key);
-//				String hex = encryptDatabaseKey(key, password);
-//				storeEncryptedDatabaseKey(hex);
-//				LocalAuthor localAuthor = createLocalAuthor(nickname);
-//				showDashboard(referenceManager.putReference(localAuthor,
-//						LocalAuthor.class));
-//			}
-//		});
 	}
 
-
+	@Override
+	public void eventOccurred(Event e) {
+		super.eventOccurred(e);
+		if (e instanceof LocalAuthorCreatedEvent) {
+			long handle = ((LocalAuthorCreatedEvent)e).getAuthorHandle();
+			showDashboard(handle);
+		}
+	}
 
 	private void showDashboard(final long handle) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				Intent i = new Intent(SetupActivity.this,
-						NavDrawerActivity.class);
-				i.putExtra(BriarActivity.KEY_LOCAL_AUTHOR_HANDLE, handle);
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-				startActivity(i);
-				finish();
-			}
-		});
+		Intent i = new Intent(SetupActivity.this,
+				NavDrawerActivity.class);
+		i.putExtra(BriarActivity.KEY_LOCAL_AUTHOR_HANDLE, handle);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
+		finish();
 	}
+}
 }

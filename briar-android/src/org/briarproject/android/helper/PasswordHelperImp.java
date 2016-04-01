@@ -42,12 +42,10 @@ public class PasswordHelperImp extends ConfigHelperImp
 			public void run() {
 				byte[] key = crypto.decryptWithPassword(encrypted, password);
 				if (key == null) {
-//					tryAgain();.
 					onPasswordValidated(false);
 				} else {
 					databaseConfig.setEncryptionKey(new SecretKey(key));
 					onPasswordValidated(true);
-//					setResultAndFinish();
 				}
 			}
 		});

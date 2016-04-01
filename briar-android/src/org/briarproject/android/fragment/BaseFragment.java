@@ -27,11 +27,6 @@ public abstract class BaseFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-//		AndroidComponent component =
-//				((BriarApplication) getActivity().getApplication())
-//						.getApplicationComponent();
-//		injectActivity(component);
 	}
 
 	public interface BaseFragmentListener {
