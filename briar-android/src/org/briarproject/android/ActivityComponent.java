@@ -1,8 +1,6 @@
 package org.briarproject.android;
 
 import android.app.Activity;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
@@ -16,13 +14,15 @@ import org.briarproject.android.forum.WriteForumPostActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.keyagreement.ChooseIdentityFragment;
+import org.briarproject.android.keyagreement.KeyAgreementActivity;
+import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
 
 import javax.inject.Named;
 
 import dagger.Component;
-import dagger.Provides;
 
 @ActivityScope
 @Component(modules = ActivityModule.class,
@@ -44,6 +44,8 @@ public interface ActivityComponent {
 
 	void inject(AddContactActivity activity);
 
+	void inject(KeyAgreementActivity activity);
+
 	void inject(ConversationActivity activity);
 
 	void inject(CreateIdentityActivity activity);
@@ -64,13 +66,23 @@ public interface ActivityComponent {
 
 	void inject(SettingsActivity activity);
 
+	void inject(ContactListFragment fragment);
+
+	void inject(ForumListFragment fragment);
+
+	void inject(ChooseIdentityFragment fragment);
+
+	void inject(ShowQrCodeFragment fragment);
+
 	@Named("ContactListFragment")
 	BaseFragment newContactListFragment();
 
 	@Named("ForumListFragment")
 	BaseFragment newForumListFragment();
 
-//	void inject(ContactListFragment fragment);
+	@Named("ChooseIdentityFragment")
+	BaseFragment newChooseIdentityFragment();
 
-//	void inject(ForumListFragment fragment);
+	@Named("ShowQrCodeFragment")
+	BaseFragment newShowQrCodeFragment();
 }

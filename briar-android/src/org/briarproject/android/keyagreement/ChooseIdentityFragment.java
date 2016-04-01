@@ -13,6 +13,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
@@ -59,11 +60,9 @@ public class ChooseIdentityFragment extends BaseFragment
 	@Inject
 	protected volatile IdentityManager identityManager;
 
-	public static ChooseIdentityFragment newInstance() {
-		Bundle args = new Bundle();
-		ChooseIdentityFragment fragment = new ChooseIdentityFragment();
-		fragment.setArguments(args);
-		return fragment;
+	@Inject
+	public ChooseIdentityFragment() {
+
 	}
 
 	@Override
@@ -80,11 +79,6 @@ public class ChooseIdentityFragment extends BaseFragment
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectActivity(AndroidComponent component) {
-		component.inject(this);
 	}
 
 	@Nullable

@@ -14,6 +14,8 @@ import org.briarproject.android.helper.SetupHelper;
 import org.briarproject.android.helper.SetupHelperImp;
 import org.briarproject.android.helper.ConfigHelper;
 import org.briarproject.android.helper.ConfigHelperImp;
+import org.briarproject.android.keyagreement.ChooseIdentityFragment;
+import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 
 import javax.inject.Named;
 
@@ -74,5 +76,22 @@ public class ActivityModule {
 		contactListFragment.setArguments(new Bundle());
 		return contactListFragment;
 	}
+
+	@Provides
+	@Named("ChooseIdentityFragment")
+	BaseFragment provideChooseIdendityFragment() {
+		ChooseIdentityFragment fragment = new ChooseIdentityFragment();
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
+
+	@Provides
+	@Named("ShowQrCodeFragment")
+	BaseFragment provideShowQrCodeFragment() {
+		ShowQrCodeFragment fragment = new ShowQrCodeFragment();
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
+
 
 }

@@ -15,6 +15,7 @@ import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarApplication;
 import org.briarproject.android.fragment.BaseEventFragment;
+import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
@@ -62,17 +63,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	public final static String TAG = "ContactListFragment";
 
-	/*
-	public static ContactListFragment newInstance() {
-
-		Bundle args = new Bundle();
-
-		ContactListFragment fragment = new ContactListFragment();
-		fragment.setArguments(args);
-		return fragment;
-	}
-	*/
-
 	@Override
 	public String getUniqueTag() {
 		return TAG;
@@ -98,10 +88,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	protected volatile EventBus eventBus;
 
 
-//	@Override
-//	public void injectActivity(AndroidComponent component) {
-//		component.inject(this);
-//	}
 	@Inject
 	public ContactListFragment() {
 

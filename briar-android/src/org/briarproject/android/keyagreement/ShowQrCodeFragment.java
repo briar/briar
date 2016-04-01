@@ -86,21 +86,14 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private volatile KeyAgreementTask task;
 	private volatile boolean waitingForBluetooth;
 
-	public static ShowQrCodeFragment newInstance() {
-		Bundle args = new Bundle();
-		ShowQrCodeFragment fragment = new ShowQrCodeFragment();
-		fragment.setArguments(args);
-		return fragment;
+	@Inject
+	public ShowQrCodeFragment() {
+
 	}
 
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectActivity(AndroidComponent component) {
-		component.inject(this);
 	}
 
 	@Nullable

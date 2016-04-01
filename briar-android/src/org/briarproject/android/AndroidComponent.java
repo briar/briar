@@ -7,25 +7,7 @@ import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.event.AppBus;
-import org.briarproject.android.forum.AvailableForumsActivity;
-import org.briarproject.android.forum.ContactSelectorFragment;
-import org.briarproject.android.forum.CreateForumActivity;
-import org.briarproject.android.forum.ForumActivity;
-import org.briarproject.android.forum.ForumListFragment;
-import org.briarproject.android.forum.ReadForumPostActivity;
-import org.briarproject.android.forum.ShareForumActivity;
-import org.briarproject.android.forum.ShareForumMessageFragment;
-import org.briarproject.android.forum.WriteForumPostActivity;
-import org.briarproject.android.identity.CreateIdentityActivity;
-import org.briarproject.android.introduction.ContactChooserFragment;
-import org.briarproject.android.introduction.IntroductionActivity;
-import org.briarproject.android.introduction.IntroductionMessageFragment;
-import org.briarproject.android.invitation.AddContactActivity;
-import org.briarproject.android.keyagreement.ChooseIdentityFragment;
-import org.briarproject.android.keyagreement.KeyAgreementActivity;
-import org.briarproject.android.keyagreement.ShowQrCodeFragment;
-import org.briarproject.android.panic.PanicPreferencesActivity;
-import org.briarproject.android.panic.PanicResponderActivity;
+import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
@@ -39,6 +21,9 @@ import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.invitation.InvitationTaskFactory;
+import org.briarproject.api.keyagreement.KeyAgreementTaskFactory;
+import org.briarproject.api.keyagreement.PayloadEncoder;
+import org.briarproject.api.keyagreement.PayloadParser;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
@@ -71,67 +56,51 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	DatabaseConfig databaseConfig();
 	AuthorFactory authFactory();
 	ReferenceManager referenceMangager();
-	@DatabaseExecutor Executor databaseExecutor();
+
+	@DatabaseExecutor
+	Executor databaseExecutor();
+
 	LifecycleManager lifecycleManager();
+
 	IdentityManager identityManager();
+
 	PluginManager pluginManager();
+
 	EventBus eventBus();
+
 	AppBus appEventBus();
+
 	InvitationTaskFactory invitationTaskFactory();
+
 	AndroidNotificationManager androidNotificationManager();
+
 	ConnectionRegistry connectionRegistry();
+
 	ContactManager contactManager();
+
 	MessagingManager messagingManager();
+
 	PrivateMessageFactory privateMessageFactory();
+
 	TransportPropertyManager transportPropertyManager();
+
 	ForumManager forumManager();
+
 	ForumSharingManager forumSharingManager();
+
 	ForumPostFactory forumPostFactory();
+
 	SettingsManager settingsManager();
 
+	ContactExchangeTask contactExchangeTask();
+
+	KeyAgreementTaskFactory keyAgreementTaskFactory();
+
+	PayloadEncoder payloadEncoder();
+
+	PayloadParser payloadParser();
+
 	void inject(BriarService activity);
-
-	void inject(PanicResponderActivity activity);
-
-	void inject(PanicPreferencesActivity activity);
-
-	void inject(AddContactActivity activity);
-
-	void inject(KeyAgreementActivity activity);
-
-	void inject(ConversationActivity activity);
-
-	void inject(CreateIdentityActivity activity);
-
-	void inject(TestingActivity activity);
-
-	void inject(AvailableForumsActivity activity);
-
-	void inject(WriteForumPostActivity activity);
-
-	void inject(CreateForumActivity activity);
-
-	void inject(ShareForumActivity activity);
-
-	void inject(ContactSelectorFragment fragment);
-
-	void inject(ShareForumMessageFragment fragment);
-
-	void inject(ReadForumPostActivity activity);
-
-	void inject(ForumActivity activity);
-
-	void inject(SettingsActivity activity);
-
-	void inject(ContactListFragment fragment);
-
-	void inject(ForumListFragment fragment);
-
-	void inject(ChooseIdentityFragment fragment);
-
-	void inject(ShowQrCodeFragment fragment);
-
-	void inject(IntroductionActivity activity);
 
 	void inject(ContactChooserFragment fragment);
 
