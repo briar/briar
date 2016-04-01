@@ -6,6 +6,7 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
+import org.briarproject.android.event.AppBus;
 import org.briarproject.android.forum.AvailableForumsActivity;
 import org.briarproject.android.forum.ContactSelectorFragment;
 import org.briarproject.android.forum.CreateForumActivity;
@@ -50,6 +51,7 @@ import org.briarproject.system.AndroidSystemModule;
 
 import java.util.concurrent.Executor;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Component;
@@ -74,6 +76,7 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	IdentityManager identityManager();
 	PluginManager pluginManager();
 	EventBus eventBus();
+	AppBus appEventBus();
 	InvitationTaskFactory invitationTaskFactory();
 	AndroidNotificationManager androidNotificationManager();
 	ConnectionRegistry connectionRegistry();

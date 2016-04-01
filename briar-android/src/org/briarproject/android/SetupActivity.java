@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
+import org.briarproject.android.helper.SetupHelper;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
 import org.briarproject.android.api.ReferenceManager;
@@ -45,17 +46,8 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENG
 public class SetupActivity extends BaseActivity implements OnClickListener,
 		OnEditorActionListener {
 
-	private static final Logger LOG =
-			Logger.getLogger(SetupActivity.class.getName());
-
-	@Inject @CryptoExecutor protected Executor cryptoExecutor;
-	@Inject protected PasswordStrengthEstimator strengthEstimator;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile CryptoComponent crypto;
-	@Inject protected volatile DatabaseConfig databaseConfig;
-	@Inject protected volatile AuthorFactory authorFactory;
-	@Inject protected volatile ReferenceManager referenceManager;
+	@Inject
+	SetupHelper setupHelper;
 
 	TextInputLayout nicknameEntryWrapper;
 	TextInputLayout passwordEntryWrapper;
@@ -123,7 +115,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		String firstPassword = passwordEntry.getText().toString();
 		String secondPassword = passwordConfirmation.getText().toString();
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
-		float strength = strengthEstimator.estimateStrength(firstPassword);
+//		float strength = strengthEstimator.estimateStrength(firstPassword);
+		float strength = setupHelper.estimatePasswordStrength(firstPassword);
 		strengthMeter.setStrength(strength);
 		AndroidUtils.setError(nicknameEntryWrapper,
 				getString(R.string.name_too_long),
@@ -150,41 +143,22 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		progress.setVisibility(VISIBLE);
 		final String nickname = nicknameEntry.getText().toString();
 		final String password = passwordEntry.getText().toString();
-		// Store the DB key and create the identity in a background thread
-		cryptoExecutor.execute(new Runnable() {
-			public void run() {
-				SecretKey key = crypto.generateSecretKey();
-				databaseConfig.setEncryptionKey(key);
-				String hex = encryptDatabaseKey(key, password);
-				storeEncryptedDatabaseKey(hex);
-				LocalAuthor localAuthor = createLocalAuthor(nickname);
-				showDashboard(referenceManager.putReference(localAuthor,
-						LocalAuthor.class));
-			}
-		});
+		setupHelper.createIdentity(nickname, password);
+//		// Store the DB key and create the identity in a background thread
+//		cryptoExecutor.execute(new Runnable() {
+//			public void run() {
+//				SecretKey key = crypto.generateSecretKey();
+//				databaseConfig.setEncryptionKey(key);
+//				String hex = encryptDatabaseKey(key, password);
+//				storeEncryptedDatabaseKey(hex);
+//				LocalAuthor localAuthor = createLocalAuthor(nickname);
+//				showDashboard(referenceManager.putReference(localAuthor,
+//						LocalAuthor.class));
+//			}
+//		});
 	}
 
-	private String encryptDatabaseKey(SecretKey key, String password) {
-		long now = System.currentTimeMillis();
-		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Key derivation took " + duration + " ms");
-		return StringUtils.toHexString(encrypted);
-	}
 
-	private LocalAuthor createLocalAuthor(String nickname) {
-		long now = System.currentTimeMillis();
-		KeyPair keyPair = crypto.generateSignatureKeyPair();
-		byte[] publicKey = keyPair.getPublic().getEncoded();
-		byte[] privateKey = keyPair.getPrivate().getEncoded();
-		LocalAuthor localAuthor = authorFactory.createLocalAuthor(nickname,
-				publicKey, privateKey);
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Identity creation took " + duration + " ms");
-		return localAuthor;
-	}
 
 	private void showDashboard(final long handle) {
 		runOnUiThread(new Runnable() {

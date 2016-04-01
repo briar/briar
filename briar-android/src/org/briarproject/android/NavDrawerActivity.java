@@ -1,5 +1,6 @@
 package org.briarproject.android;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -47,6 +48,8 @@ import static java.util.logging.Level.WARNING;
 
 public class NavDrawerActivity extends BriarFragmentActivity implements
 		BaseFragment.BaseFragmentListener, EventListener {
+
+	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
 
 	public static final String INTENT_CONTACTS = "intent_contacts";
 	public static final String INTENT_FORUMS = "intent_forums";
@@ -137,8 +140,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	private void welcomeMessageCheck() {
-		SharedPreferences prefs = getSharedPreferences(PREFS_NAME,
-				MODE_PRIVATE);
+		SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 		if (!prefs.getBoolean(PREF_SEEN_WELCOME_MESSAGE, false)) {
 			showMessageDialog(R.string.dialog_title_welcome,
 					R.string.dialog_welcome_message);

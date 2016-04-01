@@ -1,13 +1,16 @@
 package org.briarproject.android;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.CallSuper;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import org.briarproject.android.event.AppBus;
+import org.briarproject.android.event.ErrorEvent;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventListener;
 
 import javax.inject.Inject;
 
@@ -15,15 +18,13 @@ import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
-public abstract class BaseActivity extends AppCompatActivity {
-
-	public final static String PREFS_NAME = "db";
-	public final static String PREF_DB_KEY = "key";
-	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
+public abstract class BaseActivity extends AppCompatActivity implements
+		EventListener {
 
 	protected ActivityComponent activityComponent;
 
-	// TODO Shared prefs
+	@Inject
+	protected AppBus appBus;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -42,27 +43,27 @@ public abstract class BaseActivity extends AppCompatActivity {
 		injectActivity(activityComponent);
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		appBus.addListener(this);
+	}
+
+	@Override
+	protected void onPause() {
+		appBus.removeListener(this);
+		super.onPause();
+	}
+
+	@Override
+	@CallSuper
+	public void eventOccurred(Event e) {
+		if (e instanceof ErrorEvent) {
+			finish();
+		}
+	}
+
 	public abstract void injectActivity(ActivityComponent component);
-
-	private SharedPreferences getSharedPrefs() {
-		return getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-	}
-
-	protected String getEncryptedDatabaseKey() {
-		return getSharedPrefs().getString(PREF_DB_KEY, null);
-	}
-
-	protected void storeEncryptedDatabaseKey(final String hex) {
-		SharedPreferences.Editor editor = getSharedPrefs().edit();
-		editor.putString(PREF_DB_KEY, hex);
-		editor.apply();
-	}
-
-	protected void clearSharedPrefs() {
-		SharedPreferences.Editor editor = getSharedPrefs().edit();
-		editor.clear();
-		editor.apply();
-	}
 
 	protected void showSoftKeyboard(View view) {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
@@ -74,4 +75,5 @@ public abstract class BaseActivity extends AppCompatActivity {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
+
 }

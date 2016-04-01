@@ -4,15 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.sdk.BriarHelper;
-import org.briarproject.android.sdk.BriarHelperImp;
-
-import java.util.logging.Logger;
+import org.briarproject.android.helper.PasswordHelper;
+import org.briarproject.android.helper.PasswordHelperImp;
+import org.briarproject.android.helper.SetupHelper;
+import org.briarproject.android.helper.SetupHelperImp;
+import org.briarproject.android.helper.ConfigHelper;
+import org.briarproject.android.helper.ConfigHelperImp;
 
 import javax.inject.Named;
 
@@ -36,13 +37,14 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	BriarHelper provideBriarHelper(BriarHelperImp briarHelperImp) {
-		return briarHelperImp;
+	SetupHelper provideSetupHelper(SetupHelperImp setupHelperImp) {
+		return setupHelperImp;
 	}
 
 	@ActivityScope
-	Logger provideLogger(Activity activity) {
-		return Logger.getLogger(activity.getClass().getName());
+	@Provides
+	ConfigHelper provideConfigHelper(ConfigHelperImp configHelperImp) {
+		return configHelperImp;
 	}
 
 	@ActivityScope
@@ -51,6 +53,11 @@ public class ActivityModule {
 		return activity.getSharedPreferences("db", Context.MODE_PRIVATE);
 	}
 
+	@ActivityScope
+	@Provides
+	PasswordHelper providePasswordHelper(PasswordHelperImp passwordHelperImp) {
+		return passwordHelperImp;
+	}
 
 	@Provides
 	@Named("ForumListFragment")

@@ -9,9 +9,8 @@ import android.os.StrictMode.VmPolicy;
 import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.R;
-import org.briarproject.android.api.AndroidExecutor;
+import org.briarproject.android.helper.ConfigHelper;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.api.db.DatabaseConfig;
 
 import java.util.logging.Logger;
 
@@ -29,9 +28,7 @@ public class SplashScreenActivity extends BaseActivity {
 	private static final long EXPIRY_DATE = 1464735600 * 1000L;
 
 	@Inject
-	protected DatabaseConfig dbConfig;
-	@Inject
-	protected AndroidExecutor androidExecutor;
+	ConfigHelper configHelper;
 
 	public SplashScreenActivity() {
 		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
@@ -65,11 +62,10 @@ public class SplashScreenActivity extends BaseActivity {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			String hex = getEncryptedDatabaseKey();
-			if (hex != null && dbConfig.databaseExists()) {
+			if (configHelper.initialized()) {
 				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
-				clearSharedPrefs();
+				configHelper.clearPrefs();
 				AndroidUtils.deleteAppData(this);
 				startActivity(new Intent(this, SetupActivity.class));
 			}
