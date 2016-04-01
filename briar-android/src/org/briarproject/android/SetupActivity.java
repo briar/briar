@@ -169,4 +169,3 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		finish();
 	}
 }
-}
