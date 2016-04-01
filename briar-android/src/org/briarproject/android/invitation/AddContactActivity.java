@@ -36,6 +36,11 @@ implements InvitationListener {
 	static final int REQUEST_BLUETOOTH = 1;
 	static final int REQUEST_CREATE_IDENTITY = 2;
 
+	private static final int STEP_CHOOSE = 1;
+	private static final int STEP_INVITE = 2;
+	private static final int STEP_CONFIRM = 3;
+	private static final int STEPS = 3;
+
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
 
@@ -189,10 +194,23 @@ implements InvitationListener {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	void setView(AddContactView view) {
 		this.view = view;
 		view.init(this);
 		setContentView(view);
+
+		int step = 0;
+		if (view instanceof ChooseIdentityView) step = STEP_CHOOSE;
+		else if (view instanceof InvitationCodeView) step = STEP_INVITE;
+		else if (view instanceof ConfirmationCodeView) step = STEP_CONFIRM;
+		if (step > 0) {
+			getSupportActionBar().setTitle(
+					String.format(getString(R.string.add_contact_title_step),
+							step, STEPS));
+		} else {
+			getSupportActionBar().setTitle(R.string.add_contact_title);
+		}
 	}
 
 	void reset(AddContactView view) {

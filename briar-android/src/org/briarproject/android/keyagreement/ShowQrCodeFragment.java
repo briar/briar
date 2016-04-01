@@ -10,13 +10,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Base64;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,8 +50,6 @@ import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 
@@ -78,8 +74,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@IoExecutor
 	protected Executor ioExecutor;
 
-	private LinearLayout qrLayout;
 	private CameraView cameraView;
+	private View statusView;
 	private TextView status;
 	private ImageView qrCode;
 
@@ -119,8 +115,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		qrLayout = (LinearLayout) view.findViewById(R.id.qr_layout);
 		cameraView = (CameraView) view.findViewById(R.id.camera_view);
+		statusView = view.findViewById(R.id.status_container);
 		status = (TextView) view.findViewById(R.id.connect_status);
 		qrCode = (ImageView) view.findViewById(R.id.qr_code);
 	}
@@ -132,10 +128,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		getActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
 
 		decoder = new QrCodeDecoder(this);
-
-		Display display = getActivity().getWindowManager().getDefaultDisplay();
-		boolean portrait = display.getWidth() < display.getHeight();
-		qrLayout.setOrientation(portrait ? VERTICAL : HORIZONTAL);
 	}
 
 	@Override
@@ -165,13 +157,13 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (!gotRemotePayload) openCamera();
+		openCamera();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (!gotRemotePayload) releaseCamera();
+		releaseCamera();
 	}
 
 	@Override
@@ -183,7 +175,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	private void startListening() {
 		task = keyAgreementTaskFactory.getTask();
-		gotRemotePayload = false;
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -252,9 +243,11 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void reset() {
+		statusView.setVisibility(View.INVISIBLE);
 		cameraView.setVisibility(View.VISIBLE);
+		gotRemotePayload = false;
+		cameraView.startConsumer();
 		startListening();
-		openCamera();
 	}
 
 	private void qrCodeScanned(String content) {
@@ -262,7 +255,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			// TODO use Base32
 			Payload remotePayload = payloadParser.parse(
 					Base64.decode(content, 0));
-			cameraView.setVisibility(View.GONE);
+			cameraView.setVisibility(View.INVISIBLE);
+			statusView.setVisibility(View.VISIBLE);
 			status.setText(R.string.connecting_to_device);
 			task.connectAndRunProtocol(remotePayload);
 		} catch (IOException e) {
@@ -359,7 +353,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 				LOG.info("Got result from decoder");
 				if (!gotRemotePayload) {
 					gotRemotePayload = true;
-					releaseCamera();
+					cameraView.stopConsumer();
 					qrCodeScanned(result.getText());
 				}
 			}

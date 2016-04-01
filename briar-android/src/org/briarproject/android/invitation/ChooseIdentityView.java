@@ -9,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.identity.CreateIdentityActivity;
@@ -44,11 +43,6 @@ implements OnItemSelectedListener, OnClickListener {
 		LayoutInflater inflater = (LayoutInflater) ctx.getSystemService
 				(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.invitation_bluetooth_start, this);
-
-		// current step
-		// TODO this could go into the ActionBar eventually
-		TextView step = (TextView) view.findViewById(R.id.stepView);
-		step.setText(String.format(ctx.getString(R.string.step), 1, 3));
 
 		adapter = new LocalAuthorSpinnerAdapter(ctx, false);
 		spinner = (Spinner) view.findViewById(R.id.spinner);

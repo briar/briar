@@ -97,8 +97,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		try {
 			camera.setPreviewDisplay(holder);
 			camera.startPreview();
-			if (autoFocus) camera.autoFocus(this);
-			previewConsumer.start(camera);
+			startConsumer();
 		} catch (IOException | RuntimeException e) {
 			LOG.log(WARNING, "Error starting camera preview", e);
 		}
@@ -106,12 +105,21 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	private void stopPreview() {
 		try {
-			previewConsumer.stop();
-			if (autoFocus) camera.cancelAutoFocus();
+			stopConsumer();
 			camera.stopPreview();
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error stopping camera preview", e);
 		}
+	}
+
+	public void startConsumer() {
+		if (autoFocus) camera.autoFocus(this);
+		previewConsumer.start(camera);
+	}
+
+	public void stopConsumer() {
+		previewConsumer.stop();
+		if (autoFocus) camera.cancelAutoFocus();
 	}
 
 	private void setDisplayOrientation(int rotationDegrees) {
@@ -124,7 +132,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		} else {
 			orientation = (info.orientation - rotationDegrees + 360) % 360;
 		}
-		if(LOG.isLoggable(INFO))
+		if (LOG.isLoggable(INFO))
 			LOG.info("Display orientation " + orientation + " degrees");
 		try {
 			camera.setDisplayOrientation(orientation);
@@ -211,7 +219,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			}
 		}
 		if (bestSize != null) {
-			if(LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO))
 				LOG.info("Best size " + bestSize.width + "x" + bestSize.height);
 			params.setPreviewSize(bestSize.width, bestSize.height);
 		}

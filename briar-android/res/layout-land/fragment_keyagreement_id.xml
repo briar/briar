@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="horizontal"
+	android:paddingBottom="@dimen/margin_activity_vertical"
+	android:paddingEnd="@dimen/margin_activity_horizontal"
+	android:paddingLeft="@dimen/margin_activity_horizontal"
+	android:paddingRight="@dimen/margin_activity_horizontal"
+	android:paddingStart="@dimen/margin_activity_horizontal"
+	android:paddingTop="@dimen/margin_activity_vertical">
+
+	<ImageView
+		android:id="@+id/imageView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_marginRight="@dimen/margin_medium"
+		android:layout_weight="1"
+		android:adjustViewBounds="true"
+		android:scaleType="fitCenter"
+		android:src="@drawable/qr_code_intro"/>
+
+	<ScrollView
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_weight="1">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/yourNicknameView"
+				style="@style/BriarTextBody"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/your_nickname"/>
+
+			<Spinner
+				android:id="@+id/spinner"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_medium"
+				android:background="@drawable/spinner_border"
+				android:spinnerMode="dropdown"/>
+
+			<TextView
+				android:id="@+id/faceToFaceView"
+				style="@style/BriarTextBody"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_medium"
+				android:text="@string/face_to_face"/>
+
+			<Button
+				android:id="@+id/continueButton"
+				style="@style/BriarButton.Default"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:layout_marginTop="@dimen/margin_medium"
+				android:text="@string/continue_button"/>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+</LinearLayout>

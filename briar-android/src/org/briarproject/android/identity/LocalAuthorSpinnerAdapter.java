@@ -1,6 +1,8 @@
 package org.briarproject.android.identity;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,7 +99,17 @@ public class LocalAuthorSpinnerAdapter extends BaseAdapter
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		return getDropDownView(position, convertView, parent);
+		View view = getDropDownView(position, convertView, parent);
+		Drawable d = ctx.getResources()
+				.getDrawable(R.drawable.ic_expand_more_black_24dp);
+		if (d != null) {
+			d.setColorFilter(
+					ctx.getResources().getColor(R.color.spinner_arrow),
+					PorterDuff.Mode.SRC_IN);
+		}
+		((TextView) view.findViewById(R.id.nameView))
+				.setCompoundDrawablesWithIntrinsicBounds(null, null, d, null);
+		return view;
 	}
 
 	@Override

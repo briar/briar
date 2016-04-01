@@ -19,18 +19,6 @@
 		android:paddingTop="@dimen/margin_activity_vertical">
 
 		<TextView
-			android:id="@+id/stepView"
-			style="@style/BriarTextBody"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="end"
-			android:padding="@dimen/margin_medium"
-			tools:text="Step 3/3"
-			android:layout_alignParentTop="true"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentEnd="true"/>
-
-		<TextView
 			android:id="@+id/connectedView"
 			style="@style/BriarTextTitle"
 			android:textSize="@dimen/text_size_large"
@@ -38,7 +26,6 @@
 			android:layout_height="wrap_content"
 			android:text="@string/connected_to_contact"
 			android:padding="@dimen/margin_medium"
-			android:layout_below="@+id/stepView"
 			android:layout_centerHorizontal="true"
 			android:drawableLeft="@drawable/navigation_accept"
 			android:drawableStart="@drawable/navigation_accept"

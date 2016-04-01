@@ -19,25 +19,12 @@
 		android:paddingTop="@dimen/margin_activity_vertical">
 
 		<TextView
-			android:id="@+id/stepView"
-			style="@style/BriarTextBody"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="end"
-			android:layout_marginTop="@dimen/margin_medium"
-			tools:text="Step 2/3"
-			android:layout_alignParentTop="true"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentEnd="true"/>
-
-		<TextView
 			android:id="@+id/yourCodeView"
 			style="@style/BriarTextBody"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/your_invitation_code"
 			android:layout_marginTop="@dimen/margin_medium"
-			android:layout_below="@+id/stepView"
 			android:layout_centerHorizontal="true"/>
 
 		<TextView

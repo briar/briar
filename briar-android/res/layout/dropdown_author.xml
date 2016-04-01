@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:gravity="center_vertical">
@@ -12,14 +12,15 @@
 		android:layout_width="@dimen/dropdown_picture_size"
 		android:layout_height="@dimen/dropdown_picture_size"
 		android:layout_margin="@dimen/margin_small"
-		app:civ_border_width="@dimen/avatar_border_width"
-		app:civ_border_color="@color/briar_text_primary"/>
+		app:civ_border_color="@color/briar_text_primary"
+		app:civ_border_width="@dimen/avatar_border_width"/>
 
 	<TextView
 		android:id="@+id/nameView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/margin_small"
+		android:layout_weight="1"
 		android:ellipsize="end"
 		android:singleLine="true"
 		android:textSize="@dimen/text_size_medium"

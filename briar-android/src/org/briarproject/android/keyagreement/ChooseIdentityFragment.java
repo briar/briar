@@ -91,7 +91,7 @@ public class ChooseIdentityFragment extends BaseFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.invitation_bluetooth_start, container,
+		return inflater.inflate(R.layout.fragment_keyagreement_id, container,
 				false);
 	}
 
@@ -106,13 +106,12 @@ public class ChooseIdentityFragment extends BaseFragment
 
 		button = view.findViewById(R.id.continueButton);
 		button.setEnabled(false);
-		button.setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						lsnr.identitySelected(localAuthorId);
-					}
-				});
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				lsnr.identitySelected(localAuthorId);
+			}
+		});
 
 		loadLocalAuthors();
 	}

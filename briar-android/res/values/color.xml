@@ -39,4 +39,7 @@
 	<color name="default_separator">#000000</color>
 	<color name="default_separator_inverted">#ffffff</color>
 	<color name="menu_background">#FFFFFF</color>
+
+	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
+	<color name="spinner_arrow">@color/briar_blue_dark</color>
 </resources>

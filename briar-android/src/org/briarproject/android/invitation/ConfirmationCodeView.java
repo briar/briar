@@ -15,7 +15,6 @@ import android.widget.TextView;
 import org.briarproject.R;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 
 class ConfirmationCodeView extends AddContactView {
 
@@ -39,11 +38,6 @@ class ConfirmationCodeView extends AddContactView {
 		LayoutInflater inflater = (LayoutInflater) ctx.getSystemService
 				(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.invitation_bluetooth_confirmation_code, this);
-
-		// current step
-		// TODO this could go into the ActionBar eventually
-		TextView step = (TextView) view.findViewById(R.id.stepView);
-		step.setText(String.format(ctx.getString(R.string.step), 3, 3));
 
 		// local confirmation code
 		TextView code = (TextView) view.findViewById(R.id.codeView);
