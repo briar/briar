@@ -21,6 +21,7 @@ import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
+import org.briarproject.android.util.BriarReportSender;
 import org.briarproject.plugins.AndroidPluginsModule;
 import org.briarproject.system.AndroidSystemModule;
 
@@ -93,4 +94,6 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);
+
+	void inject(BriarReportSender briarReportSender);
 }

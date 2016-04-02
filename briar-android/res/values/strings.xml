@@ -4,6 +4,9 @@
 	<string name="nav_drawer_close_description">Close the navigation drawer</string>
 	<string name="app_name">Briar</string>
 	<string name="crash_report_title">Briar Crash Report</string>
+	<string name="describe_crash">Describe what happened</string>
+	<string name="optional_contact_email">Optional contact email</string>
+	<string name="could_not_load_crash_data">Could not load crash data.</string>
 	<string name="crash_report_saved">Crash report saved. It will be sent the next time you log into Briar.</string>
 	<string name="crash_report_not_saved">Could not save crash report to disk.</string>
 	<string name="ongoing_notification_title">Signed into Briar</string>
@@ -126,6 +129,10 @@
 	<string name="notify_sound_setting_default">Default ringtone</string>
 	<string name="notify_sound_setting_disabled">None</string>
 	<string name="choose_ringtone_title">Choose ringtone</string>
+	<string name="enable_acra_setting">Enable crash reporter</string>
+	<string name="acra_syslog_setting">Send system logs</string>
+	<string name="acra_user_email_setting">Optional contact email</string>
+	<string name="acra_alwaysaccept_setting">Always send reports</string>
 	<string name="panic_app_setting_title">Panic Button App</string>
 	<string name="panic_app_setting_summary">No app has been set</string>
 	<string name="panic_app_setting_none">None</string>
@@ -177,8 +184,8 @@
 	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
 	<string name="dialog_title_welcome">Welcome to Briar</string>
 	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
-	<string name="dialog_title_share_crash_report">Send to developers?</string>
-	<string name="dialog_message_share_crash_report">Would you like to send this crash report to the developers? It will be stored encrypted on your device until the next time you log into Briar, and then sent securely to the developers.</string>
+	<string name="dialog_title_share_crash_report">Briar has crashed</string>
+	<string name="dialog_message_share_crash_report">Would you like to review the crash report and send it to the developers? It will be stored encrypted on your device until the next time you log into Briar, and then sent securely to the developers.</string>
 	<string name="dialog_button_ok">OK</string>
 	<string name="dialog_button_introduce">Introduce</string>
 	<string name="dialog_button_accept">Accept</string>
