@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<LinearLayout
+			android:id="@+id/crash_status"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:orientation="vertical"
+			android:paddingBottom="@dimen/listitem_height_one_line_avatar"
+			android:paddingEnd="@dimen/margin_large"
+			android:paddingLeft="@dimen/margin_large"
+			android:paddingRight="@dimen/margin_large"
+			android:paddingStart="@dimen/margin_large"
+			android:paddingTop="@dimen/margin_large"/>
+	</ScrollView>
+
+	<ProgressBar
+		android:id="@+id/progress_wheel"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:indeterminate="true"/>
+
+	<android.support.design.widget.FloatingActionButton
+		android:id="@+id/share_crash_report"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentRight="true"
+		android:layout_marginBottom="@dimen/margin_large"
+		android:layout_marginEnd="@dimen/margin_large"
+		android:layout_marginRight="@dimen/margin_large"
+		android:background="@color/briar_accent"
+		android:src="@drawable/social_share"
+		android:tint="@color/action_bar_text"/>
+
+</RelativeLayout>
