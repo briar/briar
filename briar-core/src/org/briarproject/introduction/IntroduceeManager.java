@@ -28,6 +28,7 @@ import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.SessionId;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
+import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -157,11 +158,14 @@ class IntroduceeManager {
 		processStateUpdate(txn, engine.onMessageReceived(state, message));
 	}
 
-	public void acceptIntroduction(Transaction txn,
+	public void acceptIntroduction(Transaction txn, final ContactId contactId,
 			final SessionId sessionId) throws DbException, FormatException {
 
-		BdfDictionary state =
-				introductionManager.getSessionState(txn, sessionId.getBytes());
+		Contact c = contactManager.getContact(contactId);
+		Group g = introductionManager.getIntroductionGroup(c);
+
+		BdfDictionary state = introductionManager
+				.getSessionState(txn, g.getId(), sessionId.getBytes());
 
 		// get data to connect and derive a shared secret later
 		long now = clock.currentTimeMillis();
@@ -188,11 +192,14 @@ class IntroduceeManager {
 		processStateUpdate(txn, engine.onLocalAction(state, localAction));
 	}
 
-	public void declineIntroduction(Transaction txn, final SessionId sessionId)
-			throws DbException, FormatException {
+	public void declineIntroduction(Transaction txn, final ContactId contactId,
+			final SessionId sessionId) throws DbException, FormatException {
 
-		BdfDictionary state =
-				introductionManager.getSessionState(txn, sessionId.getBytes());
+		Contact c = contactManager.getContact(contactId);
+		Group g = introductionManager.getIntroductionGroup(c);
+
+		BdfDictionary state = introductionManager
+				.getSessionState(txn, g.getId(), sessionId.getBytes());
 
 		// update session state
 		state.put(ACCEPT, false);

@@ -663,9 +663,9 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				try {
 					if (accept) {
-						introductionManager.acceptIntroduction(sessionId);
+						introductionManager.acceptIntroduction(contactId, sessionId);
 					} else {
-						introductionManager.declineIntroduction(sessionId);
+						introductionManager.declineIntroduction(contactId, sessionId);
 					}
 					loadMessages();
 				} catch (DbException e) {
