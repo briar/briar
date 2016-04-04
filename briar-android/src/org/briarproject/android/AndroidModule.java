@@ -93,10 +93,8 @@ public class AndroidModule {
 	AndroidNotificationManager provideAndroidNotificationManager(
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			AndroidNotificationManagerImpl notificationManager) {
-		lifecycleManager.register(notificationManager);
+		lifecycleManager.registerService(notificationManager);
 		eventBus.addListener(notificationManager);
-
 		return notificationManager;
 	}
-
 }

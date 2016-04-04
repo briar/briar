@@ -3,6 +3,7 @@ package org.briarproject.properties;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
@@ -36,8 +37,10 @@ public class PropertiesModule {
 
 	@Provides @Singleton
 	TransportPropertyManager getTransportPropertyManager(
+			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			TransportPropertyManagerImpl transportPropertyManager) {
+		lifecycleManager.registerClient(transportPropertyManager);
 		contactManager.registerAddContactHook(transportPropertyManager);
 		contactManager.registerRemoveContactHook(transportPropertyManager);
 		return transportPropertyManager;

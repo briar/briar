@@ -231,6 +231,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.addTransportKeys(txn, c, k);
 	}
 
+	public boolean containsContact(Transaction transaction, AuthorId remote,
+			AuthorId local) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, local))
+			throw new NoSuchLocalAuthorException();
+		return db.containsContact(txn, remote, local);
+	}
+
+	public boolean containsGroup(Transaction transaction, GroupId g)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.containsGroup(txn, g);
+	}
+
 	public void deleteMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -343,14 +357,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsLocalAuthor(txn, a))
 			throw new NoSuchLocalAuthorException();
 		return db.getContacts(txn, a);
-	}
-
-	public boolean containsContact(Transaction transaction, AuthorId remote,
-			AuthorId local) throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
-			throw new NoSuchLocalAuthorException();
-		return db.containsContact(txn, remote, local);
 	}
 
 	public DeviceId getDeviceId(Transaction transaction) throws DbException {

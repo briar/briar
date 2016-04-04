@@ -16,6 +16,8 @@ import javax.inject.Inject;
 
 class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 
+	private static final byte[] LOCAL_GROUP_DESCRIPTOR = new byte[0];
+
 	private final GroupFactory groupFactory;
 	private final ClientHelper clientHelper;
 
@@ -24,6 +26,11 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 			ClientHelper clientHelper) {
 		this.groupFactory = groupFactory;
 		this.clientHelper = clientHelper;
+	}
+
+	@Override
+	public Group createLocalGroup(ClientId clientId) {
+		return groupFactory.createGroup(clientId, LOCAL_GROUP_DESCRIPTOR);
 	}
 
 	@Override

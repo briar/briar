@@ -3,6 +3,7 @@ package org.briarproject.properties;
 import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
@@ -13,13 +14,11 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -34,13 +33,11 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 
 class TransportPropertyManagerImpl implements TransportPropertyManager,
-		AddContactHook, RemoveContactHook {
+		Client, AddContactHook, RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"673ea091673561e28f70122f6a8ea8f4"
 					+ "97c3624b86fa07f785bb15f09fb87b4b"));
-
-	private static final byte[] LOCAL_GROUP_DESCRIPTOR = new byte[0];
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
@@ -50,20 +47,28 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, GroupFactory groupFactory,
-			PrivateGroupFactory privateGroupFactory, Clock clock) {
+			ClientHelper clientHelper, PrivateGroupFactory privateGroupFactory,
+			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.privateGroupFactory = privateGroupFactory;
 		this.clock = clock;
-		localGroup = groupFactory.createGroup(CLIENT_ID,
-				LOCAL_GROUP_DESCRIPTOR);
+		localGroup = privateGroupFactory.createLocalGroup(CLIENT_ID);
+	}
+
+	@Override
+	public void createLocalState(Transaction txn) throws DbException {
+		db.addGroup(txn, localGroup);
+		// Ensure we've set things up for any pre-existing contacts
+		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
+		// Return if we've already set things up for this contact
+		if (db.containsGroup(txn, g.getId())) return;
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
 		db.setVisibleToContact(txn, c.getId(), g.getId(), true);
@@ -126,9 +131,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				db.endTransaction(txn);
 			}
 			return p;
-		} catch (NoSuchGroupException e) {
-			// Local group doesn't exist - there are no local properties
-			return null;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -169,8 +171,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		try {
 			Transaction txn = db.startTransaction(false);
 			try {
-				// Create the local group if necessary
-				db.addGroup(txn, localGroup);
 				// Merge the new properties with any existing properties
 				TransportProperties merged;
 				boolean changed;
@@ -230,9 +230,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				local.put(e.getKey(), parseProperties(message));
 			}
 			return local;
-		} catch (NoSuchGroupException e) {
-			// Local group doesn't exist - there are no local properties
-			return Collections.emptyMap();
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

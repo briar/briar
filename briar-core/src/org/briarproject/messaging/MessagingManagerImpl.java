@@ -1,6 +1,7 @@
 package org.briarproject.messaging;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
@@ -28,7 +29,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-class MessagingManagerImpl implements MessagingManager, AddContactHook,
+class MessagingManagerImpl implements MessagingManager, Client, AddContactHook,
 		RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
@@ -48,10 +49,18 @@ class MessagingManagerImpl implements MessagingManager, AddContactHook,
 	}
 
 	@Override
+	public void createLocalState(Transaction txn) throws DbException {
+		// Ensure we've set things up for any pre-existing contacts
+		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+	}
+
+	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		try {
 			// Create a group to share with the contact
 			Group g = getContactGroup(c);
+			// Return if we've already set things up for this contact
+			if (db.containsGroup(txn, g.getId())) return;
 			// Store the group and share it with the contact
 			db.addGroup(txn, g);
 			db.setVisibleToContact(txn, c.getId(), g.getId(), true);

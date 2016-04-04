@@ -1,6 +1,7 @@
 package org.briarproject.forum;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.Contact;
@@ -43,14 +44,12 @@ import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
-class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
-		RemoveContactHook, IncomingMessageHook {
+class ForumSharingManagerImpl implements ForumSharingManager, Client,
+		AddContactHook, RemoveContactHook, IncomingMessageHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"cd11a5d04dccd9e2931d6fc3df456313"
 					+ "63bb3e9d9d0e9405fccdb051f41f5449"));
-
-	private static final byte[] LOCAL_GROUP_DESCRIPTOR = new byte[0];
 
 	private final DatabaseComponent db;
 	private final ForumManager forumManager;
@@ -73,8 +72,14 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		this.privateGroupFactory = privateGroupFactory;
 		this.random = random;
 		this.clock = clock;
-		localGroup = groupFactory.createGroup(CLIENT_ID,
-				LOCAL_GROUP_DESCRIPTOR);
+		localGroup = privateGroupFactory.createLocalGroup(CLIENT_ID);
+	}
+
+	@Override
+	public void createLocalState(Transaction txn) throws DbException {
+		db.addGroup(txn, localGroup);
+		// Ensure we've set things up for any pre-existing contacts
+		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
 	@Override
@@ -82,6 +87,8 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 		try {
 			// Create a group to share with the contact
 			Group g = getContactGroup(c);
+			// Return if we've already set things up for this contact
+			if (db.containsGroup(txn, g.getId())) return;
 			// Store the group and share it with the contact
 			db.addGroup(txn, g);
 			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
@@ -297,8 +304,6 @@ class ForumSharingManagerImpl implements ForumSharingManager, AddContactHook,
 
 	private List<Forum> getForumsSharedWithAllContacts(Transaction txn)
 			throws DbException, FormatException {
-		// Ensure the local group exists
-		db.addGroup(txn, localGroup);
 		// Find the latest update in the local group
 		LatestUpdate latest = findLatest(txn, localGroup.getId(), true);
 		if (latest == null) return Collections.emptyList();

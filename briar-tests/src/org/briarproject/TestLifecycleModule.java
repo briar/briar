@@ -1,5 +1,6 @@
 package org.briarproject;
 
+import org.briarproject.api.clients.Client;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
@@ -20,8 +21,14 @@ public class TestLifecycleModule {
 	@Provides
 	LifecycleManager provideLifecycleManager() {
 		return new LifecycleManager() {
+
 			@Override
-			public void register(Service s) {
+			public void registerService(Service s) {
+
+			}
+
+			@Override
+			public void registerClient(Client c) {
 
 			}
 
@@ -60,6 +67,7 @@ public class TestLifecycleModule {
 	@Provides
 	ShutdownManager provideShutdownManager() {
 		return new ShutdownManager() {
+
 			@Override
 			public int addShutdownHook(Runnable hook) {
 				return 0;
@@ -75,8 +83,7 @@ public class TestLifecycleModule {
 	@Provides
 	@IoExecutor
 	@Singleton
-	Executor provideExecutor() {
+	Executor provideIoExecutor() {
 		return Executors.newCachedThreadPool();
 	}
-
 }

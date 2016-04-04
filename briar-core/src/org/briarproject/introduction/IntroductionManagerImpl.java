@@ -1,6 +1,7 @@
 package org.briarproject.introduction;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
@@ -31,7 +32,6 @@ import org.briarproject.api.introduction.SessionId;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -82,13 +82,12 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 
 class IntroductionManagerImpl extends BdfIncomingMessageHook
-		implements IntroductionManager, AddContactHook, RemoveContactHook {
+		implements IntroductionManager, Client, AddContactHook,
+		RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"23b1897c198a90ae75b976ac023d0f32"
 					+ "80ca67b12f2346b2c23a34f34e2434c3"));
-
-	private static final byte[] LOCAL_GROUP_DESCRIPTOR = new byte[0];
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroductionManagerImpl.class.getName());
@@ -104,8 +103,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	@Inject
 	IntroductionManagerImpl(DatabaseComponent db,
 			MessageQueueManager messageQueueManager,
-			ClientHelper clientHelper, GroupFactory groupFactory,
-			PrivateGroupFactory privateGroupFactory,
+			ClientHelper clientHelper, PrivateGroupFactory privateGroupFactory,
 			MetadataEncoder metadataEncoder, MetadataParser metadataParser,
 			CryptoComponent cryptoComponent,
 			TransportPropertyManager transportPropertyManager,
@@ -117,6 +115,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		this.messageQueueManager = messageQueueManager;
 		this.privateGroupFactory = privateGroupFactory;
 		this.metadataEncoder = metadataEncoder;
+		// TODO: Inject these dependencies for easier testing
 		this.introducerManager =
 				new IntroducerManager(this, clientHelper, clock,
 						cryptoComponent);
@@ -124,8 +123,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 				new IntroduceeManager(db, this, clientHelper, clock,
 						cryptoComponent, transportPropertyManager,
 						authorFactory, contactManager);
-		localGroup =
-				groupFactory.createGroup(CLIENT_ID, LOCAL_GROUP_DESCRIPTOR);
+		localGroup = privateGroupFactory.createLocalGroup(CLIENT_ID);
 	}
 
 	@Override
@@ -134,10 +132,20 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
+	public void createLocalState(Transaction txn) throws DbException {
+		db.addGroup(txn, localGroup);
+		// Ensure we've set things up for any pre-existing contacts
+		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+	}
+
+	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		try {
-			// create an introduction group for sending introduction messages
+			// Create an introduction group for sending introduction messages
 			Group g = getIntroductionGroup(c);
+			// Return if we've already set things up for this contact
+			if (db.containsGroup(txn, g.getId())) return;
+			// Store the group and share it with the contact
 			db.addGroup(txn, g);
 			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
 			// Attach the contact ID to the group
@@ -169,7 +177,6 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 						introducerManager.abort(txn, d);
 					}
 				}
-
 			}
 		} catch (FormatException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -188,9 +195,6 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	@Override
 	protected void incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary message)	throws DbException {
-
-		// add local group for engine states to make sure it exists
-		db.addGroup(txn, localGroup);
 
 		// Get message data and type
 		GroupId groupId = m.getGroupId();
@@ -265,15 +269,13 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	public void makeIntroduction(Contact c1, Contact c2, String msg)
 			throws DbException, FormatException {
 
-			Transaction txn = db.startTransaction(false);
-			try {
-				// add local group for session states to make sure it exists
-				db.addGroup(txn, getLocalGroup());
-				introducerManager.makeIntroduction(txn, c1, c2, msg);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+		Transaction txn = db.startTransaction(false);
+		try {
+			introducerManager.makeIntroduction(txn, c1, c2, msg);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
 	}
 
 	@Override
@@ -468,7 +470,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			}
 			if (LOG.isLoggable(WARNING)) {
 				LOG.warning(
-						"No session state found for this message with session ID " +
+						"No session state found for message with session ID " +
 								Arrays.hashCode(sessionId));
 			}
 			throw new FormatException();
@@ -505,5 +507,4 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		db.deleteMessage(txn, messageId);
 		db.deleteMessageMetadata(txn, messageId);
 	}
-
 }

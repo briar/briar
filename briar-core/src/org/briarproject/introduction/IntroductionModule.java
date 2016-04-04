@@ -5,6 +5,7 @@ import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.introduction.IntroductionManager;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.system.Clock;
 
 import javax.inject.Inject;
@@ -41,15 +42,17 @@ public class IntroductionModule {
 	@Provides
 	@Singleton
 	IntroductionManager getIntroductionManager(
+			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			MessageQueueManager messageQueueManager,
 			IntroductionManagerImpl introductionManager) {
 
+		lifecycleManager.registerClient(introductionManager);
 		contactManager.registerAddContactHook(introductionManager);
 		contactManager.registerRemoveContactHook(introductionManager);
-		messageQueueManager
-				.registerIncomingMessageHook(introductionManager.getClientId(),
-						introductionManager);
+		messageQueueManager.registerIncomingMessageHook(
+				introductionManager.getClientId(),
+				introductionManager);
 
 		return introductionManager;
 	}

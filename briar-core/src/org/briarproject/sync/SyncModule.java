@@ -62,7 +62,7 @@ public class SyncModule {
 	@Singleton
 	ValidationManager getValidationManager(LifecycleManager lifecycleManager,
 			EventBus eventBus, ValidationManagerImpl validationManager) {
-		lifecycleManager.register(validationManager);
+		lifecycleManager.registerService(validationManager);
 		eventBus.addListener(validationManager);
 		return validationManager;
 	}

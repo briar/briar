@@ -1,14 +1,16 @@
 package org.briarproject.lifecycle;
 
+import org.briarproject.api.clients.Client;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -31,8 +33,9 @@ class LifecycleManagerImpl implements LifecycleManager {
 
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
-	private final Collection<Service> services;
-	private final Collection<ExecutorService> executors;
+	private final List<Service> services;
+	private final List<Client> clients;
+	private final List<ExecutorService> executors;
 	private final Semaphore startStopSemaphore = new Semaphore(1);
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
@@ -43,13 +46,20 @@ class LifecycleManagerImpl implements LifecycleManager {
 		this.db = db;
 		this.eventBus = eventBus;
 		services = new CopyOnWriteArrayList<Service>();
+		clients = new CopyOnWriteArrayList<Client>();
 		executors = new CopyOnWriteArrayList<ExecutorService>();
 	}
 
-	public void register(Service s) {
+	public void registerService(Service s) {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Registering service " + s.getClass().getName());
 		services.add(s);
+	}
+
+	public void registerClient(Client c) {
+		if (LOG.isLoggable(INFO))
+			LOG.info("Registering client " + c.getClass().getName());
+		clients.add(c);
 	}
 
 	public void registerForShutdown(ExecutorService e) {
@@ -74,15 +84,28 @@ class LifecycleManagerImpl implements LifecycleManager {
 				else LOG.info("Creating database took " + duration + " ms");
 			}
 			dbLatch.countDown();
+			Transaction txn = db.startTransaction(false);
+			try {
+				for (Client c : clients) {
+					start = System.currentTimeMillis();
+					c.createLocalState(txn);
+					duration = System.currentTimeMillis() - start;
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Starting " + c.getClass().getName()
+								+ " took " + duration + " ms");
+					}
+				}
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
 			for (Service s : services) {
 				start = System.currentTimeMillis();
 				boolean started = s.start();
 				duration = System.currentTimeMillis() - start;
 				if (!started) {
-					if (LOG.isLoggable(WARNING)) {
-						String name = s.getClass().getName();
-						LOG.warning(name + " did not start");
-					}
+					if (LOG.isLoggable(WARNING))
+						LOG.warning(s.getClass().getName() + " did not start");
 					return SERVICE_ERROR;
 				}
 				if (LOG.isLoggable(INFO)) {

@@ -64,7 +64,7 @@ public class PluginsModule {
 	@Singleton
 	PluginManager getPluginManager(LifecycleManager lifecycleManager,
 			PluginManagerImpl pluginManager) {
-		lifecycleManager.register(pluginManager);
+		lifecycleManager.registerService(pluginManager);
 		return pluginManager;
 	}
 }
