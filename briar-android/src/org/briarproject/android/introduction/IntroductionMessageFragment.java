@@ -180,7 +180,8 @@ public class IntroductionMessageFragment extends BaseFragment {
 
 				// actually make the introduction
 				try {
-					introductionManager.makeIntroduction(c1, c2, msg);
+					long timestamp = System.currentTimeMillis();
+					introductionManager.makeIntroduction(c1, c2, msg, timestamp);
 					introductionWasMade = true;
 					postIntroduction(false);
 				} catch (DbException e) {

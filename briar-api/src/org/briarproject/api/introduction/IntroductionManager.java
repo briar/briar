@@ -21,20 +21,23 @@ public interface IntroductionManager {
 	/**
 	 * sends two initial introduction messages
 	 */
-	void makeIntroduction(Contact c1, Contact c2, String msg)
+	void makeIntroduction(Contact c1, Contact c2, String msg,
+			final long timestamp)
 			throws DbException, FormatException;
 
 	/**
 	 * Accept an introduction that had been made
 	 */
 	void acceptIntroduction(final ContactId contactId,
-			final SessionId sessionId) throws DbException, FormatException;
+			final SessionId sessionId, final long timestamp)
+			throws DbException, FormatException;
 
 	/**
 	 * Decline an introduction that had been made
 	 */
 	void declineIntroduction(final ContactId contactId,
-			final SessionId sessionId) throws DbException, FormatException;
+			final SessionId sessionId, final long timestamp)
+			throws DbException, FormatException;
 
 	/**
 	 * Get all introduction messages for the contact with this contactId

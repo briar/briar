@@ -56,6 +56,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_1
 import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_2;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
+import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
@@ -104,6 +105,7 @@ public class IntroducerEngine
 				if (localAction.containsKey(MSG)) {
 					msg1.put(MSG, localAction.getString(MSG));
 				}
+				msg1.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg1);
 				logLocalAction(currentState, localState, msg1);
 				BdfDictionary msg2 = new BdfDictionary();
@@ -115,6 +117,7 @@ public class IntroducerEngine
 				if (localAction.containsKey(MSG)) {
 					msg2.put(MSG, localAction.getString(MSG));
 				}
+				msg2.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg2);
 				logLocalAction(currentState, localState, msg2);
 

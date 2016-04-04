@@ -109,6 +109,7 @@ public class IntroduceeEngine
 					msg.put(E_PUBLIC_KEY, localState.getRaw(OUR_PUBLIC_KEY));
 					msg.put(TRANSPORT, localAction.getDictionary(TRANSPORT));
 				}
+				msg.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg);
 				logAction(currentState, localState, msg);
 

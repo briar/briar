@@ -80,6 +80,6 @@
 
 	</RelativeLayout>
 
-	<View style="@style/Divider.ContactListDevider"/>
+	<View style="@style/Divider.ContactList"/>
 
 </LinearLayout>

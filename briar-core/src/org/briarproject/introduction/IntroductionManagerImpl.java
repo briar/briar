@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -268,12 +267,13 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void makeIntroduction(Contact c1, Contact c2, String msg)
+	public void makeIntroduction(Contact c1, Contact c2, String msg,
+			final long timestamp)
 			throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			introducerManager.makeIntroduction(txn, c1, c2, msg);
+			introducerManager.makeIntroduction(txn, c1, c2, msg, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -282,11 +282,13 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 	@Override
 	public void acceptIntroduction(final ContactId contactId,
-			final SessionId sessionId) throws DbException, FormatException {
+			final SessionId sessionId, final long timestamp)
+			throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			introduceeManager.acceptIntroduction(txn, contactId, sessionId);
+			introduceeManager
+					.acceptIntroduction(txn, contactId, sessionId, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -295,11 +297,13 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 	@Override
 	public void declineIntroduction(final ContactId contactId,
-			final SessionId sessionId) throws DbException, FormatException {
+			final SessionId sessionId, final long timestamp)
+			throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			introduceeManager.declineIntroduction(txn, contactId, sessionId);
+			introduceeManager
+					.declineIntroduction(txn, contactId, sessionId, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -501,9 +505,10 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		byte[] body = clientHelper.toByteArray(bdfList);
 		GroupId groupId = new GroupId(message.getRaw(GROUP_ID));
 		Group group = db.getGroup(txn, groupId);
-		long timestamp = System.currentTimeMillis();
-
+		long timestamp =
+				message.getLong(MESSAGE_TIME, System.currentTimeMillis());
 		message.put(MESSAGE_TIME, timestamp);
+
 		Metadata metadata = metadataEncoder.encode(message);
 
 		messageQueueManager

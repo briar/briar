@@ -14,7 +14,6 @@
 		android:id="@+id/noticeText"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:minWidth="80dp"
 		android:textIsSelectable="true"
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="italic"

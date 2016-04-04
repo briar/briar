@@ -6,7 +6,7 @@
 	<item
 		android:id="@+id/action_introduction"
 		android:icon="@drawable/introduction_white"
-		android:title="@string/make_introduction"
+		android:title="@string/introduction_button"
 		app:showAsAction="never"/>
 
 	<item

@@ -52,6 +52,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_K
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_PRIVATE_KEY;
@@ -159,9 +160,10 @@ class IntroduceeManager {
 	}
 
 	public void acceptIntroduction(Transaction txn, final ContactId contactId,
-			final SessionId sessionId) throws DbException, FormatException {
+			final SessionId sessionId, final long timestamp)
+			throws DbException, FormatException {
 
-		Contact c = contactManager.getContact(contactId);
+		Contact c = db.getContact(txn, contactId);
 		Group g = introductionManager.getIntroductionGroup(c);
 
 		BdfDictionary state = introductionManager
@@ -173,7 +175,7 @@ class IntroduceeManager {
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		Map<TransportId, TransportProperties> transportProperties =
-				transportPropertyManager.getLocalProperties();
+				transportPropertyManager.getLocalProperties(txn);
 
 		// update session state for later
 		state.put(ACCEPT, true);
@@ -186,6 +188,7 @@ class IntroduceeManager {
 		localAction.put(TYPE, TYPE_RESPONSE);
 		localAction.put(TRANSPORT,
 				encodeTransportProperties(transportProperties));
+		localAction.put(MESSAGE_TIME, timestamp);
 
 		// start engine and process its state update
 		IntroduceeEngine engine = new IntroduceeEngine();
@@ -193,9 +196,10 @@ class IntroduceeManager {
 	}
 
 	public void declineIntroduction(Transaction txn, final ContactId contactId,
-			final SessionId sessionId) throws DbException, FormatException {
+			final SessionId sessionId, final long timestamp)
+			throws DbException, FormatException {
 
-		Contact c = contactManager.getContact(contactId);
+		Contact c = db.getContact(txn, contactId);
 		Group g = introductionManager.getIntroductionGroup(c);
 
 		BdfDictionary state = introductionManager
@@ -207,6 +211,7 @@ class IntroduceeManager {
 		// define action
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_RESPONSE);
+		localAction.put(MESSAGE_TIME, timestamp);
 
 		// start engine and process its state update
 		IntroduceeEngine engine = new IntroduceeEngine();

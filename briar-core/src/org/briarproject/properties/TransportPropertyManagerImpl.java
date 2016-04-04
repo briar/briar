@@ -109,6 +109,27 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
+	public Map<TransportId, TransportProperties> getLocalProperties(
+			Transaction txn) throws DbException {
+		try {
+			Map<TransportId, TransportProperties> local =
+					new HashMap<TransportId, TransportProperties>();
+			// Find the latest local update for each transport
+			Map<TransportId, LatestUpdate> latest = findLatest(txn,
+					localGroup.getId(), true);
+			// Retrieve and parse the latest local properties
+			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
+				BdfList message = clientHelper.getMessageAsList(txn,
+						e.getValue().messageId);
+				local.put(e.getKey(), parseProperties(message));
+			}
+			return local;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public TransportProperties getLocalProperties(TransportId t)
 			throws DbException {
 		try {
@@ -210,26 +231,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private Group getContactGroup(Contact c) {
 		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
-	}
-
-	private Map<TransportId, TransportProperties> getLocalProperties(
-			Transaction txn) throws DbException {
-		try {
-			Map<TransportId, TransportProperties> local =
-					new HashMap<TransportId, TransportProperties>();
-			// Find the latest local update for each transport
-			Map<TransportId, LatestUpdate> latest = findLatest(txn,
-					localGroup.getId(), true);
-			// Retrieve and parse the latest local properties
-			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
-				BdfList message = clientHelper.getMessageAsList(txn,
-						e.getValue().messageId);
-				local.put(e.getKey(), parseProperties(message));
-			}
-			return local;
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, TransportId t,

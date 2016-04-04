@@ -23,7 +23,6 @@
 			android:id="@+id/introductionText"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:minWidth="175dp"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
 			android:textStyle="italic"

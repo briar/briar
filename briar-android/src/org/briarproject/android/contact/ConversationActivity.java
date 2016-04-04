@@ -661,11 +661,13 @@ public class ConversationActivity extends BriarActivity
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
+				long timestamp = System.currentTimeMillis();
+				timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 				try {
 					if (accept) {
-						introductionManager.acceptIntroduction(contactId, sessionId);
+						introductionManager.acceptIntroduction(contactId, sessionId, timestamp);
 					} else {
-						introductionManager.declineIntroduction(contactId, sessionId);
+						introductionManager.declineIntroduction(contactId, sessionId, timestamp);
 					}
 					loadMessages();
 				} catch (DbException e) {
