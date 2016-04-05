@@ -24,11 +24,8 @@ import org.briarproject.api.event.IntroductionSucceededEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.introduction.IntroductionManager;
-import org.briarproject.api.introduction.SessionId;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
-import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -39,6 +36,8 @@ import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
@@ -76,33 +75,36 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPO
 
 class IntroduceeManager {
 
-
 	private static final Logger LOG =
 			Logger.getLogger(IntroduceeManager.class.getName());
 
+	private final MessageSender messageSender;
 	private final DatabaseComponent db;
-	private final IntroductionManager introductionManager;
 	private final ClientHelper clientHelper;
 	private final Clock clock;
 	private final CryptoComponent cryptoComponent;
 	private final TransportPropertyManager transportPropertyManager;
 	private final AuthorFactory authorFactory;
 	private final ContactManager contactManager;
+	private final IntroductionGroupFactory introductionGroupFactory;
 
-	IntroduceeManager(DatabaseComponent db,
-			IntroductionManager introductionManager, ClientHelper clientHelper,
-			Clock clock, CryptoComponent cryptoComponent,
+	@Inject
+	IntroduceeManager(MessageSender messageSender, DatabaseComponent db,
+			ClientHelper clientHelper, Clock clock,
+			CryptoComponent cryptoComponent,
 			TransportPropertyManager transportPropertyManager,
-			AuthorFactory authorFactory, ContactManager contactManager) {
+			AuthorFactory authorFactory, ContactManager contactManager,
+			IntroductionGroupFactory introductionGroupFactory) {
 
+		this.messageSender = messageSender;
 		this.db = db;
-		this.introductionManager = introductionManager;
 		this.clientHelper = clientHelper;
 		this.clock = clock;
 		this.cryptoComponent = cryptoComponent;
 		this.transportPropertyManager = transportPropertyManager;
 		this.authorFactory = authorFactory;
 		this.contactManager = contactManager;
+		this.introductionGroupFactory = introductionGroupFactory;
 	}
 
 	public BdfDictionary initialize(Transaction txn, GroupId groupId,
@@ -113,9 +115,9 @@ class IntroduceeManager {
 		Bytes salt = new Bytes(new byte[64]);
 		cryptoComponent.getSecureRandom().nextBytes(salt.getBytes());
 
-		Message localMsg = clientHelper
-				.createMessage(introductionManager.getLocalGroup().getId(), now,
-						BdfList.of(salt));
+		Message localMsg = clientHelper.createMessage(
+				introductionGroupFactory.createLocalGroup().getId(), now,
+				BdfList.of(salt));
 		MessageId storageId = localMsg.getId();
 
 		// find out who is introducing us
@@ -133,7 +135,7 @@ class IntroduceeManager {
 		d.put(INTRODUCER, introducer.getAuthor().getName());
 		d.put(CONTACT_ID_1, introducer.getId().getInt());
 		d.put(LOCAL_AUTHOR_ID, introducer.getLocalAuthorId().getBytes());
-		d.put(NOT_OUR_RESPONSE, new byte[0]);
+		d.put(NOT_OUR_RESPONSE, storageId);
 		d.put(ANSWERED, false);
 
 		// check if the contact we are introduced to does already exist
@@ -147,7 +149,7 @@ class IntroduceeManager {
 
 		// save local state to database
 		clientHelper.addLocalMessage(txn, localMsg,
-				introductionManager.getClientId(), d, false);
+				IntroductionManagerImpl.CLIENT_ID, d, false);
 
 		return d;
 	}
@@ -159,15 +161,9 @@ class IntroduceeManager {
 		processStateUpdate(txn, engine.onMessageReceived(state, message));
 	}
 
-	public void acceptIntroduction(Transaction txn, final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
+	public void acceptIntroduction(Transaction txn, BdfDictionary state,
+			final long timestamp)
 			throws DbException, FormatException {
-
-		Contact c = db.getContact(txn, contactId);
-		Group g = introductionManager.getIntroductionGroup(c);
-
-		BdfDictionary state = introductionManager
-				.getSessionState(txn, g.getId(), sessionId.getBytes());
 
 		// get data to connect and derive a shared secret later
 		long now = clock.currentTimeMillis();
@@ -195,15 +191,9 @@ class IntroduceeManager {
 		processStateUpdate(txn, engine.onLocalAction(state, localAction));
 	}
 
-	public void declineIntroduction(Transaction txn, final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
+	public void declineIntroduction(Transaction txn, BdfDictionary state,
+			final long timestamp)
 			throws DbException, FormatException {
-
-		Contact c = db.getContact(txn, contactId);
-		Group g = introductionManager.getIntroductionGroup(c);
-
-		BdfDictionary state = introductionManager
-				.getSessionState(txn, g.getId(), sessionId.getBytes());
 
 		// update session state
 		state.put(ACCEPT, false);
@@ -233,7 +223,7 @@ class IntroduceeManager {
 
 		// send messages
 		for (BdfDictionary d : result.toSend) {
-			introductionManager.sendMessage(txn, d);
+			messageSender.sendMessage(txn, d);
 		}
 
 		// broadcast events
