@@ -3,74 +3,33 @@ package org.briarproject.plugins.droidtooth;
 import android.bluetooth.BluetoothSocket;
 
 import org.briarproject.api.plugins.Plugin;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.plugins.duplex.AbstractDuplexTransportConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-class DroidtoothTransportConnection implements DuplexTransportConnection {
+class DroidtoothTransportConnection extends AbstractDuplexTransportConnection {
 
-	private final Plugin plugin;
 	private final BluetoothSocket socket;
-	private final Reader reader;
-	private final Writer writer;
-	private final AtomicBoolean halfClosed, closed;
 
 	DroidtoothTransportConnection(Plugin plugin, BluetoothSocket socket) {
-		this.plugin = plugin;
+		super(plugin);
 		this.socket = socket;
-		reader = new Reader();
-		writer = new Writer();
-		halfClosed = new AtomicBoolean(false);
-		closed = new AtomicBoolean(false);
 	}
 
-	public TransportConnectionReader getReader() {
-		return reader;
+	@Override
+	protected InputStream getInputStream() throws IOException {
+		return socket.getInputStream();
 	}
 
-	public TransportConnectionWriter getWriter() {
-		return writer;
+	@Override
+	protected OutputStream getOutputStream() throws IOException {
+		return socket.getOutputStream();
 	}
 
-	private class Reader implements TransportConnectionReader {
-
-		public InputStream getInputStream() throws IOException {
-			return socket.getInputStream();
-		}
-
-		public void dispose(boolean exception, boolean recognised)
-				throws IOException {
-			if (halfClosed.getAndSet(true) || exception)
-				if (!closed.getAndSet(true)) socket.close();
-		}
-	}
-
-	private class Writer implements TransportConnectionWriter {
-
-		public int getMaxLatency() {
-			return plugin.getMaxLatency();
-		}
-
-		public int getMaxIdleTime() {
-			return plugin.getMaxIdleTime();
-		}
-
-		public long getCapacity() {
-			return Long.MAX_VALUE;
-		}
-
-		public OutputStream getOutputStream() throws IOException {
-			return socket.getOutputStream();
-		}
-
-		public void dispose(boolean exception) throws IOException {
-			if (halfClosed.getAndSet(true) || exception)
-				if (!closed.getAndSet(true)) socket.close();
-		}
+	@Override
+	protected void closeConnection(boolean exception) throws IOException {
+		socket.close();
 	}
 }

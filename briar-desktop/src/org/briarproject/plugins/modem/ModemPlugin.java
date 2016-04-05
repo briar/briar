@@ -5,8 +5,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
 import org.briarproject.api.keyagreement.TransportDescriptor;
-import org.briarproject.api.plugins.TransportConnectionReader;
-import org.briarproject.api.plugins.TransportConnectionWriter;
+import org.briarproject.api.plugins.duplex.AbstractDuplexTransportConnection;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -17,8 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
@@ -180,23 +177,24 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	private class ModemTransportConnection
-	implements DuplexTransportConnection {
+			extends AbstractDuplexTransportConnection {
 
-		private final AtomicBoolean halfClosed = new AtomicBoolean(false);
-		private final AtomicBoolean closed = new AtomicBoolean(false);
-		private final CountDownLatch disposalFinished = new CountDownLatch(1);
-		private final Reader reader = new Reader();
-		private final Writer writer = new Writer();
-
-		public TransportConnectionReader getReader() {
-			return reader;
+		private ModemTransportConnection() {
+			super(ModemPlugin.this);
 		}
 
-		public TransportConnectionWriter getWriter() {
-			return writer;
+		@Override
+		protected InputStream getInputStream() throws IOException {
+			return modem.getInputStream();
 		}
 
-		private void hangUp(boolean exception) {
+		@Override
+		protected OutputStream getOutputStream() throws IOException {
+			return modem.getOutputStream();
+		}
+
+		@Override
+		protected void closeConnection(boolean exception) {
 			LOG.info("Call disconnected");
 			try {
 				modem.hangUp();
@@ -205,43 +203,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				exception = true;
 			}
 			if (exception) resetModem();
-			disposalFinished.countDown();
-		}
-
-		private class Reader implements TransportConnectionReader {
-
-			public InputStream getInputStream() throws IOException {
-				return modem.getInputStream();
-			}
-
-			public void dispose(boolean exception, boolean recognised) {
-				if (halfClosed.getAndSet(true) || exception)
-					if (!closed.getAndSet(true)) hangUp(exception);
-			}
-		}
-
-		private class Writer implements TransportConnectionWriter {
-
-			public int getMaxLatency() {
-				return ModemPlugin.this.getMaxLatency();
-			}
-
-			public int getMaxIdleTime() {
-				return ModemPlugin.this.getMaxIdleTime();
-			}
-
-			public long getCapacity() {
-				return Long.MAX_VALUE;
-			}
-
-			public OutputStream getOutputStream() throws IOException {
-				return modem.getOutputStream();
-			}
-
-			public void dispose(boolean exception) {
-				if (halfClosed.getAndSet(true) || exception)
-					if (!closed.getAndSet(true)) hangUp(exception);
-			}
 		}
 	}
 }
