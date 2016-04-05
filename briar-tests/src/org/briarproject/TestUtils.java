@@ -1,14 +1,12 @@
 package org.briarproject;
 
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.util.FileUtils;
 
 import java.io.File;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.briarproject.api.UniqueId;
-import org.briarproject.api.crypto.SecretKey;
 
 public class TestUtils {
 
@@ -26,28 +24,24 @@ public class TestUtils {
 		testDir.getParentFile().delete(); // Delete if empty
 	}
 
-	public static byte[] getRandomId() {
-		byte[] b = new byte[UniqueId.LENGTH];
-		random.nextBytes(b);
-		return b;
-	}
-
 	public static byte[] getRandomBytes(int length) {
 		byte[] b = new byte[length];
 		random.nextBytes(b);
 		return b;
 	}
 
-	public static String createRandomString(int length) {
+	public static byte[] getRandomId() {
+		return getRandomBytes(UniqueId.LENGTH);
+	}
+
+	public static String getRandomString(int length) {
 		char[] c = new char[length];
 		for (int i = 0; i < length; i++)
 			c[i] = (char) ('a' + random.nextInt(26));
 		return new String(c);
 	}
 
-	public static SecretKey createSecretKey() {
-		byte[] b = new byte[SecretKey.LENGTH];
-		random.nextBytes(b);
-		return new SecretKey(b);
+	public static SecretKey getSecretKey() {
+		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}
 }

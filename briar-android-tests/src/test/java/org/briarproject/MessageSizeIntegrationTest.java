@@ -1,12 +1,8 @@
-package org.briarproject.sync;
+package org.briarproject;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.PrivateKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.forum.ForumConstants;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostFactory;
@@ -15,25 +11,21 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.messaging.MessagingConstants;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
-import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
-import static org.junit.Assert.assertTrue;
-
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.junit.Test;
 
-import java.util.Random;
-
 import javax.inject.Inject;
 
-public class ConstantsTest extends BriarTestCase {
+import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.junit.Assert.assertTrue;
 
-	// TODO: Break this up into tests that are relevant for each package
+public class MessageSizeIntegrationTest extends BriarTestCase {
+
 	@Inject
 	CryptoComponent crypto;
 	@Inject
@@ -43,43 +35,10 @@ public class ConstantsTest extends BriarTestCase {
 	@Inject
 	ForumPostFactory forumPostFactory;
 
-	private final ConstantsComponent component;
-
-	public ConstantsTest() throws Exception {
-
-		component = DaggerConstantsComponent.builder().build();
+	public MessageSizeIntegrationTest() throws Exception {
+		MessageSizeIntegrationTestComponent component =
+				DaggerMessageSizeIntegrationTestComponent.builder().build();
 		component.inject(this);
-	}
-
-	@Test
-	public void testAgreementPublicKeys() throws Exception {
-		// Generate 10 agreement key pairs
-		for (int i = 0; i < 10; i++) {
-			KeyPair keyPair = crypto.generateSignatureKeyPair();
-			// Check the length of the public key
-			byte[] publicKey = keyPair.getPublic().getEncoded();
-			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
-		}
-	}
-
-	@Test
-	public void testSignaturePublicKeys() throws Exception {
-		Random random = new Random();
-		Signature sig = crypto.getSignature();
-		// Generate 10 signature key pairs
-		for (int i = 0; i < 10; i++) {
-			KeyPair keyPair = crypto.generateSignatureKeyPair();
-			// Check the length of the public key
-			byte[] publicKey = keyPair.getPublic().getEncoded();
-			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
-			// Sign some random data and check the length of the signature
-			byte[] toBeSigned = new byte[1234];
-			random.nextBytes(toBeSigned);
-			sig.initSign(keyPair.getPrivate());
-			sig.update(toBeSigned);
-			byte[] signature = sig.sign();
-			assertTrue(signature.length <= MAX_SIGNATURE_LENGTH);
-		}
 	}
 
 	@Test
@@ -88,7 +47,7 @@ public class ConstantsTest extends BriarTestCase {
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
 		long timestamp = Long.MAX_VALUE;
 		MessageId parent = new MessageId(TestUtils.getRandomId());
-		String contentType = TestUtils.createRandomString(
+		String contentType = TestUtils.getRandomString(
 				MessagingConstants.MAX_CONTENT_TYPE_LENGTH);
 		byte[] body = new byte[MAX_PRIVATE_MESSAGE_BODY_LENGTH];
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
@@ -104,7 +63,7 @@ public class ConstantsTest extends BriarTestCase {
 	@Test
 	public void testForumPostFitsIntoPacket() throws Exception {
 		// Create a maximum-length author
-		String authorName = TestUtils.createRandomString(
+		String authorName = TestUtils.getRandomString(
 				MAX_AUTHOR_NAME_LENGTH);
 		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		Author author = authorFactory.createAuthor(authorName, authorPublic);
@@ -112,7 +71,7 @@ public class ConstantsTest extends BriarTestCase {
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
 		long timestamp = Long.MAX_VALUE;
 		MessageId parent = new MessageId(TestUtils.getRandomId());
-		String contentType = TestUtils.createRandomString(
+		String contentType = TestUtils.getRandomString(
 				ForumConstants.MAX_CONTENT_TYPE_LENGTH);
 		byte[] body = new byte[MAX_FORUM_POST_BODY_LENGTH];
 		PrivateKey privateKey = crypto.generateSignatureKeyPair().getPrivate();

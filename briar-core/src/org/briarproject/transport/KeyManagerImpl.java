@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
-	private final ExecutorService dbExecutor;
+	private final Executor dbExecutor;
 	private final PluginConfig pluginConfig;
 	private final Timer timer;
 	private final Clock clock;
@@ -50,8 +50,8 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	@Inject
 	KeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			@DatabaseExecutor ExecutorService dbExecutor,
-			PluginConfig pluginConfig, Timer timer, Clock clock) {
+			@DatabaseExecutor Executor dbExecutor, PluginConfig pluginConfig,
+			Timer timer, Clock clock) {
 		this.db = db;
 		this.crypto = crypto;
 		this.dbExecutor = dbExecutor;

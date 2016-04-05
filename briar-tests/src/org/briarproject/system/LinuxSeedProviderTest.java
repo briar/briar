@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import static org.briarproject.api.system.SeedProvider.SEED_BYTES;
@@ -68,8 +67,7 @@ public class LinuxSeedProviderTest extends BriarTestCase {
 			return;
 		}
 		// Generate a seed
-		byte[] seed = new byte[SEED_BYTES];
-		new Random().nextBytes(seed);
+		byte[] seed = TestUtils.getRandomBytes(SEED_BYTES);
 		// Write the seed to a file
 		File urandom = new File(testDir, "urandom");
 		urandom.delete();

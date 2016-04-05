@@ -63,7 +63,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	private static final int MAX_SIZE = 5 * ONE_MEGABYTE;
 
 	private final File testDir = TestUtils.getTestDirectory();
-	private final Random random = new Random();
 	private final GroupId groupId;
 	private final Group group;
 	private final Author author;
@@ -90,8 +89,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
 		messageId = new MessageId(TestUtils.getRandomId());
 		size = 1234;
-		raw = new byte[size];
-		random.nextBytes(raw);
+		raw = TestUtils.getRandomBytes(size);
 		message = new Message(messageId, groupId, timestamp, raw);
 		transportId = new TransportId("id");
 		contactId = new ContactId(1);
@@ -747,7 +745,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
 
 		// Update the reordering window and retrieve the transport keys
-		random.nextBytes(bitmap);
+		new Random().nextBytes(bitmap);
 		db.setReorderingWindow(txn, contactId, transportId, rotationPeriod,
 				base + 1, bitmap);
 		Map<ContactId, TransportKeys> newKeys =
@@ -1166,20 +1164,20 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	private TransportKeys createTransportKeys() {
-		SecretKey inPrevTagKey = TestUtils.createSecretKey();
-		SecretKey inPrevHeaderKey = TestUtils.createSecretKey();
+		SecretKey inPrevTagKey = TestUtils.getSecretKey();
+		SecretKey inPrevHeaderKey = TestUtils.getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
 				1, 123, new byte[4]);
-		SecretKey inCurrTagKey = TestUtils.createSecretKey();
-		SecretKey inCurrHeaderKey = TestUtils.createSecretKey();
+		SecretKey inCurrTagKey = TestUtils.getSecretKey();
+		SecretKey inCurrHeaderKey = TestUtils.getSecretKey();
 		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
 				2, 234, new byte[4]);
-		SecretKey inNextTagKey = TestUtils.createSecretKey();
-		SecretKey inNextHeaderKey = TestUtils.createSecretKey();
+		SecretKey inNextTagKey = TestUtils.getSecretKey();
+		SecretKey inNextHeaderKey = TestUtils.getSecretKey();
 		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
 				3, 345, new byte[4]);
-		SecretKey outCurrTagKey = TestUtils.createSecretKey();
-		SecretKey outCurrHeaderKey = TestUtils.createSecretKey();
+		SecretKey outCurrTagKey = TestUtils.getSecretKey();
+		SecretKey outCurrHeaderKey = TestUtils.getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
 				2, 456);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);

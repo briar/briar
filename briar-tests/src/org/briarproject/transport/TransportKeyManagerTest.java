@@ -46,9 +46,9 @@ public class TransportKeyManagerTest extends BriarTestCase {
 	private final long rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
 	private final ContactId contactId = new ContactId(123);
 	private final ContactId contactId1 = new ContactId(234);
-	private final SecretKey tagKey = TestUtils.createSecretKey();
-	private final SecretKey headerKey = TestUtils.createSecretKey();
-	private final SecretKey masterKey = TestUtils.createSecretKey();
+	private final SecretKey tagKey = TestUtils.getSecretKey();
+	private final SecretKey headerKey = TestUtils.getSecretKey();
+	private final SecretKey masterKey = TestUtils.getSecretKey();
 	private final Random random = new Random();
 
 	@Test

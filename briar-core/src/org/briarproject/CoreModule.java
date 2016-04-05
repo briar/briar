@@ -4,6 +4,7 @@ import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
+import org.briarproject.db.DatabaseExecutorModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.forum.ForumModule;
@@ -23,20 +24,35 @@ import org.briarproject.transport.TransportModule;
 
 import dagger.Module;
 
-@Module(includes = {DatabaseModule.class,
-		CryptoModule.class, LifecycleModule.class, ReliabilityModule.class,
-		MessagingModule.class, InvitationModule.class, KeyAgreementModule.class,
+@Module(includes = {
+		ClientsModule.class,
+		ContactModule.class,
+		CryptoModule.class,
+		DataModule.class,
+		DatabaseModule.class,
+		DatabaseExecutorModule.class,
+		EventModule.class,
 		ForumModule.class,
-		IdentityModule.class, EventModule.class, DataModule.class,
-		ContactModule.class, PropertiesModule.class, TransportModule.class,
-		SyncModule.class, SettingsModule.class, ClientsModule.class,
-		SystemModule.class, PluginsModule.class, IntroductionModule.class})
+		IdentityModule.class,
+		IntroductionModule.class,
+		InvitationModule.class,
+		KeyAgreementModule.class,
+		LifecycleModule.class,
+		MessagingModule.class,
+		PluginsModule.class,
+		PropertiesModule.class,
+		ReliabilityModule.class,
+		SettingsModule.class,
+		SyncModule.class,
+		SystemModule.class,
+		TransportModule.class
+})
 public class CoreModule {
 
 	public static void initEagerSingletons(CoreEagerSingletons c) {
 		c.inject(new ContactModule.EagerSingletons());
 		c.inject(new CryptoModule.EagerSingletons());
-		c.inject(new DatabaseModule.EagerSingletons());
+		c.inject(new DatabaseExecutorModule.EagerSingletons());
 		c.inject(new ForumModule.EagerSingletons());
 		c.inject(new LifecycleModule.EagerSingletons());
 		c.inject(new MessagingModule.EagerSingletons());

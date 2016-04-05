@@ -158,7 +158,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadString8() throws Exception {
-		String longest = TestUtils.createRandomString(Byte.MAX_VALUE);
+		String longest = TestUtils.getRandomString(Byte.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// "foo", the empty string, and 127 random letters
 		setContents("41" + "03" + "666F6F" + "41" + "00" +
@@ -180,7 +180,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipString8() throws Exception {
-		String longest = TestUtils.createRandomString(Byte.MAX_VALUE);
+		String longest = TestUtils.getRandomString(Byte.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// "foo", the empty string, and 127 random letters
 		setContents("41" + "03" + "666F6F" + "41" + "00" +
@@ -193,9 +193,9 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadString16() throws Exception {
-		String shortest = TestUtils.createRandomString(Byte.MAX_VALUE + 1);
+		String shortest = TestUtils.getRandomString(Byte.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
-		String longest = TestUtils.createRandomString(Short.MAX_VALUE);
+		String longest = TestUtils.getRandomString(Short.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// 128 random letters and 2^15 -1 random letters
 		setContents("42" + "0080" + shortHex + "42" + "7FFF" + longHex);
@@ -206,7 +206,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testReadString16ChecksMaxLength() throws Exception {
-		String shortest = TestUtils.createRandomString(Byte.MAX_VALUE + 1);
+		String shortest = TestUtils.getRandomString(Byte.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 128 random letters, twice
 		setContents("42" + "0080" + shortHex + "42" + "0080" + shortHex);
@@ -217,9 +217,9 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipString16() throws Exception {
-		String shortest = TestUtils.createRandomString(Byte.MAX_VALUE + 1);
+		String shortest = TestUtils.getRandomString(Byte.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
-		String longest = TestUtils.createRandomString(Short.MAX_VALUE);
+		String longest = TestUtils.getRandomString(Short.MAX_VALUE);
 		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		// 128 random letters and 2^15 - 1 random letters
 		setContents("42" + "0080" + shortHex + "42" + "7FFF" + longHex);
@@ -230,7 +230,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadString32() throws Exception {
-		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
+		String shortest = TestUtils.getRandomString(Short.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 2^15 random letters
 		setContents("44" + "00008000" + shortHex);
@@ -240,7 +240,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testReadString32ChecksMaxLength() throws Exception {
-		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
+		String shortest = TestUtils.getRandomString(Short.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 2^15 random letters, twice
 		setContents("44" + "00008000" + shortHex +
@@ -252,7 +252,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testSkipString32() throws Exception {
-		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
+		String shortest = TestUtils.getRandomString(Short.MAX_VALUE + 1);
 		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
 		// 2^15 random letters, twice
 		setContents("44" + "00008000" + shortHex +

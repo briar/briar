@@ -24,7 +24,7 @@ public class KeyDerivationTest extends BriarTestCase {
 
 	public KeyDerivationTest() {
 		crypto = new CryptoComponentImpl(new TestSeedProvider());
-		master = TestUtils.createSecretKey();
+		master = TestUtils.getSecretKey();
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class KeyDerivationTest extends BriarTestCase {
 
 	@Test
 	public void testMasterKeyAffectsOutput() {
-		SecretKey master1 = TestUtils.createSecretKey();
+		SecretKey master1 = TestUtils.getSecretKey();
 		assertFalse(Arrays.equals(master.getBytes(), master1.getBytes()));
 		TransportKeys k = crypto.deriveTransportKeys(transportId, master,
 				123, true);

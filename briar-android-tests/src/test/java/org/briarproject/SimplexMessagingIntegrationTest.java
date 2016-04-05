@@ -1,15 +1,9 @@
-package org.briarproject.sync;
+package org.briarproject;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.ImmediateExecutor;
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestUtils;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.identity.Author;
@@ -21,11 +15,8 @@ import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.PacketReader;
-import org.briarproject.api.sync.PacketReaderFactory;
-import org.briarproject.api.sync.PacketWriter;
-import org.briarproject.api.sync.PacketWriterFactory;
 import org.briarproject.api.sync.SyncSession;
+import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
@@ -54,19 +45,19 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
-	private final SecretKey master = TestUtils.createSecretKey();
+	private final SecretKey master = TestUtils.getSecretKey();
 	private final long timestamp = System.currentTimeMillis();
 	private final AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
 	private final AuthorId bobId = new AuthorId(TestUtils.getRandomId());
 
-	private SimplexMessagingComponent alice, bob;
+	private SimplexMessagingIntegrationTestComponent alice, bob;
 
 	@Before
 	public void setUp() {
 		assertTrue(testDir.mkdirs());
-		alice = DaggerSimplexMessagingComponent.builder()
+		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(aliceDir)).build();
-		bob = DaggerSimplexMessagingComponent.builder()
+		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(bobDir)).build();
 	}
 
@@ -78,18 +69,15 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private byte[] write() throws Exception {
 		// Instantiate Alice's services
 		LifecycleManager lifecycleManager = alice.getLifecycleManager();
-		DatabaseComponent db = alice.getDatabaseComponent();
 		IdentityManager identityManager = alice.getIdentityManager();
 		ContactManager contactManager = alice.getContactManager();
 		MessagingManager messagingManager = alice.getMessagingManager();
 		KeyManager keyManager = alice.getKeyManager();
 		PrivateMessageFactory privateMessageFactory =
 				alice.getPrivateMessageFactory();
-		PacketWriterFactory packetWriterFactory =
-				alice.getPacketWriterFactory();
-		EventBus eventBus = alice.getEventBus();
 		StreamWriterFactory streamWriterFactory =
 				alice.getStreamWriterFactory();
+		SyncSessionFactory syncSessionFactory = alice.getSyncSessionFactory();
 
 		// Start the lifecycle manager
 		lifecycleManager.startServices();
@@ -119,11 +107,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
 				out, ctx);
 		// Create an outgoing sync session
-		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
-				streamWriter);
-		SyncSession session = new SimplexOutgoingSession(db,
-				new ImmediateExecutor(), eventBus, contactId, MAX_LATENCY,
-				packetWriter);
+		SyncSession session = syncSessionFactory.createSimplexOutgoingSession(
+				contactId, MAX_LATENCY, streamWriter);
 		// Write whatever needs to be written
 		session.run();
 		streamWriter.close();
@@ -139,13 +124,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private void read(byte[] stream) throws Exception {
 		// Instantiate Bob's services
 		LifecycleManager lifecycleManager = bob.getLifecycleManager();
-		DatabaseComponent db = bob.getDatabaseComponent();
 		IdentityManager identityManager = bob.getIdentityManager();
 		ContactManager contactManager = bob.getContactManager();
 		KeyManager keyManager = bob.getKeyManager();
 		StreamReaderFactory streamReaderFactory = bob.getStreamReaderFactory();
-		PacketReaderFactory packetReaderFactory = bob.getPacketReaderFactory();
-		EventBus eventBus = bob.getEventBus();
+		SyncSessionFactory syncSessionFactory = bob.getSyncSessionFactory();
 		// Bob needs a MessagingManager even though we're not using it directly
 		bob.getMessagingManager();
 
@@ -176,10 +159,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		InputStream streamReader = streamReaderFactory.createStreamReader(
 				in, ctx);
 		// Create an incoming sync session
-		PacketReader packetReader = packetReaderFactory.createPacketReader(
-				streamReader);
-		SyncSession session = new IncomingSession(db, new ImmediateExecutor(),
-				eventBus, contactId, packetReader);
+		SyncSession session = syncSessionFactory.createIncomingSession(
+				contactId, streamReader);
 		// No messages should have been added yet
 		assertFalse(listener.messageAdded);
 		// Read whatever needs to be read

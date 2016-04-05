@@ -6,7 +6,6 @@ import org.briarproject.api.crypto.SecretKey;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Random;
 
 import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
@@ -19,17 +18,13 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	private final AuthenticatedCipher cipher;
 	private final SecretKey streamHeaderKey, frameKey;
 	private final byte[] tag, streamHeaderIv;
-	private final Random random;
 
 	public StreamEncrypterImplTest() {
 		cipher = new TestAuthenticatedCipher(); // Null cipher
-		streamHeaderKey = TestUtils.createSecretKey();
-		frameKey = TestUtils.createSecretKey();
-		tag = new byte[TAG_LENGTH];
-		streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
-		random = new Random();
-		random.nextBytes(tag);
-		random.nextBytes(streamHeaderIv);
+		streamHeaderKey = TestUtils.getSecretKey();
+		frameKey = TestUtils.getSecretKey();
+		tag = TestUtils.getRandomBytes(TAG_LENGTH);
+		streamHeaderIv = TestUtils.getRandomBytes(STREAM_HEADER_IV_LENGTH);
 	}
 
 	@Test
@@ -38,8 +33,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, 0, false);
 
@@ -64,8 +58,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, 0, true);
 
@@ -90,8 +83,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, 0, false);
 
@@ -115,8 +107,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, 0, true);
 
@@ -140,8 +131,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, paddingLength, false);
 
@@ -168,8 +158,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, paddingLength, true);
 
@@ -196,8 +185,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, paddingLength, false);
 
@@ -223,8 +211,7 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		s.writeFrame(payload, payloadLength, paddingLength, true);
 
@@ -250,11 +237,9 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
 				streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = new byte[payloadLength];
-		random.nextBytes(payload);
+		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 		int payloadLength1 = 345, paddingLength1 = 456;
-		byte[] payload1 = new byte[payloadLength1];
-		random.nextBytes(payload1);
+		byte[] payload1 = TestUtils.getRandomBytes(payloadLength1);
 
 		s.writeFrame(payload, payloadLength, paddingLength, false);
 		s.writeFrame(payload1, payloadLength1, paddingLength1, true);
