@@ -8,8 +8,8 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.ShutdownEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.lifecycle.ServiceException;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -101,16 +101,11 @@ class LifecycleManagerImpl implements LifecycleManager {
 			}
 			for (Service s : services) {
 				start = System.currentTimeMillis();
-				boolean started = s.start();
+				s.startService();
 				duration = System.currentTimeMillis() - start;
-				if (!started) {
-					if (LOG.isLoggable(WARNING))
-						LOG.warning(s.getClass().getName() + " did not start");
-					return SERVICE_ERROR;
-				}
 				if (LOG.isLoggable(INFO)) {
-					String name = s.getClass().getName();
-					LOG.info("Starting " + name + " took " + duration + " ms");
+					LOG.info("Starting " + s.getClass().getName()
+							+ " took " + duration + " ms");
 				}
 			}
 			startupLatch.countDown();
@@ -118,6 +113,9 @@ class LifecycleManagerImpl implements LifecycleManager {
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return DB_ERROR;
+		} catch (ServiceException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return SERVICE_ERROR;
 		} finally {
 			startStopSemaphore.release();
 		}
@@ -134,12 +132,9 @@ class LifecycleManagerImpl implements LifecycleManager {
 			LOG.info("Stopping services");
 			eventBus.broadcast(new ShutdownEvent());
 			for (Service s : services) {
-				boolean stopped = s.stop();
-				if (LOG.isLoggable(INFO)) {
-					String name = s.getClass().getName();
-					if (stopped) LOG.info("Service stopped: " + name);
-					else LOG.warning("Service failed to stop: " + name);
-				}
+				s.stopService();
+				if (LOG.isLoggable(INFO))
+					LOG.info("Service stopped: " + s.getClass().getName());
 			}
 			for (ExecutorService e : executors) e.shutdownNow();
 			if (LOG.isLoggable(INFO))
@@ -149,7 +144,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 			shutdownLatch.countDown();
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (IOException e) {
+		} catch (ServiceException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			startStopSemaphore.release();

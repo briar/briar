@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertTrue;
-
 public class PluginManagerImplTest extends BriarTestCase {
 
 	@Test
@@ -117,8 +115,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 				transportPropertyManager, uiCallback);
 
 		// Two plugins should be started and stopped
-		assertTrue(p.start());
-		assertTrue(p.stop());
+		p.startService();
+		p.stopService();
 
 		context.assertIsSatisfied();
 	}

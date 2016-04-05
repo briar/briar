@@ -112,7 +112,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
-		vm.start();
+		vm.startService();
 
 		context.assertIsSatisfied();
 	}
@@ -166,7 +166,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
-		vm.start();
+		vm.startService();
 
 		context.assertIsSatisfied();
 	}
@@ -223,7 +223,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 				cryptoExecutor);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
-		vm.start();
+		vm.startService();
 
 		context.assertIsSatisfied();
 	}

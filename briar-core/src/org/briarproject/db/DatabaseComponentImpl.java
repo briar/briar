@@ -50,7 +50,6 @@ import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,9 +100,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
 				}
 			}
 		};
@@ -112,7 +108,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return reopened;
 	}
 
-	public void close() throws DbException, IOException {
+	public void close() throws DbException {
 		if (closed.getAndSet(true)) return;
 		shutdown.removeShutdownHook(shutdownHandle);
 		db.close();
