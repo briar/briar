@@ -1,7 +1,6 @@
 package org.briarproject.android;
 
 import android.app.Application;
-import android.content.Context;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
@@ -19,6 +18,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static android.content.Context.MODE_PRIVATE;
+
 @Module
 public class AndroidModule {
 
@@ -27,10 +28,11 @@ public class AndroidModule {
 		AndroidNotificationManager androidNotificationManager;
 	}
 
+	private final Application application;
 	private final UiCallback uiCallback;
 
-	public AndroidModule() {
-		// Use a dummy UI callback
+	public AndroidModule(Application application) {
+		this.application = application;
 		uiCallback = new UiCallback() {
 
 			public int showChoice(String[] options, String... message) {
@@ -48,6 +50,12 @@ public class AndroidModule {
 	}
 
 	@Provides
+	@Singleton
+	Application providesApplication() {
+		return application;
+	}
+
+	@Provides
 	public UiCallback provideUICallback() {
 		return uiCallback;
 	}
@@ -55,7 +63,7 @@ public class AndroidModule {
 	@Provides
 	@Singleton
 	public DatabaseConfig provideDatabaseConfig(Application app) {
-		final File dir = app.getApplicationContext().getDir("db", Context.MODE_PRIVATE);
+		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		return new DatabaseConfig() {
 
 			private volatile SecretKey key = null;
