@@ -125,7 +125,7 @@ class IntroductionValidator extends BdfMessageValidator {
 			for (String tId : tp.keySet()) {
 				checkLength(tId, 1, MAX_TRANSPORT_ID_LENGTH);
 				BdfDictionary tProps = tp.getDictionary(tId);
-				checkSize(tProps, MAX_PROPERTIES_PER_TRANSPORT);
+				checkSize(tProps, 0, MAX_PROPERTIES_PER_TRANSPORT);
 				for (String propId : tProps.keySet()) {
 					checkLength(propId, 0, MAX_PROPERTY_LENGTH);
 					String prop = tProps.getString(propId);
