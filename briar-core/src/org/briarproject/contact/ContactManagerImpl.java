@@ -126,18 +126,18 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	}
 
 	@Override
-	public boolean contactExists(Transaction txn, AuthorId remoteAuthorID,
+	public boolean contactExists(Transaction txn, AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException {
-		return db.containsContact(txn, remoteAuthorID, localAuthorId);
+		return db.containsContact(txn, remoteAuthorId, localAuthorId);
 	}
 
 	@Override
-	public boolean contactExists(AuthorId remoteAuthorID,
+	public boolean contactExists(AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException {
 		boolean exists = false;
 		Transaction txn = db.startTransaction(true);
 		try {
-			exists = contactExists(txn, remoteAuthorID, localAuthorId);
+			exists = contactExists(txn, remoteAuthorId, localAuthorId);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);

@@ -10,17 +10,22 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.crypto.Signature;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriter;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.db.ContactExistsException;
+import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.properties.TransportProperties;
+import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
@@ -29,13 +34,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 
 public class ContactExchangeTaskImpl extends Thread
 		implements ContactExchangeTask {
@@ -43,35 +54,40 @@ public class ContactExchangeTaskImpl extends Thread
 	private static final Logger LOG =
 			Logger.getLogger(ContactExchangeTaskImpl.class.getName());
 
+	private final DatabaseComponent db;
 	private final AuthorFactory authorFactory;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final BdfWriterFactory bdfWriterFactory;
 	private final Clock clock;
 	private final ConnectionManager connectionManager;
 	private final ContactManager contactManager;
+	private final TransportPropertyManager transportPropertyManager;
 	private final CryptoComponent crypto;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 
-	private ContactExchangeListener listener;
-	private LocalAuthor localAuthor;
-	private DuplexTransportConnection conn;
-	private TransportId transportId;
-	private SecretKey masterSecret;
-	private boolean alice;
+	private volatile ContactExchangeListener listener;
+	private volatile LocalAuthor localAuthor;
+	private volatile DuplexTransportConnection conn;
+	private volatile TransportId transportId;
+	private volatile SecretKey masterSecret;
+	private volatile boolean alice;
 
-	public ContactExchangeTaskImpl(AuthorFactory authorFactory,
-			BdfReaderFactory bdfReaderFactory,
+	public ContactExchangeTaskImpl(DatabaseComponent db,
+			AuthorFactory authorFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, Clock clock,
 			ConnectionManager connectionManager, ContactManager contactManager,
+			TransportPropertyManager transportPropertyManager,
 			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory) {
+		this.db = db;
 		this.authorFactory = authorFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.bdfWriterFactory = bdfWriterFactory;
 		this.clock = clock;
 		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
+		this.transportPropertyManager = transportPropertyManager;
 		this.crypto = crypto;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
@@ -93,30 +109,44 @@ public class ContactExchangeTaskImpl extends Thread
 
 	@Override
 	public void run() {
-		// Derive the header keys for the transport streams
-		SecretKey aliceHeaderKey = crypto.deriveHeaderKey(masterSecret, true);
-		SecretKey bobHeaderKey = crypto.deriveHeaderKey(masterSecret, false);
-		BdfReader r;
-		BdfWriter w;
+		// Get the transport connection's input and output streams
+		InputStream in;
+		OutputStream out;
 		try {
-			// Create the readers
-			InputStream streamReader =
-					streamReaderFactory.createInvitationStreamReader(
-							conn.getReader().getInputStream(),
-							alice ? bobHeaderKey : aliceHeaderKey);
-			r = bdfReaderFactory.createReader(streamReader);
-			// Create the writers
-			OutputStream streamWriter =
-					streamWriterFactory.createInvitationStreamWriter(
-							conn.getWriter().getOutputStream(),
-							alice ? aliceHeaderKey : bobHeaderKey);
-			w = bdfWriterFactory.createWriter(streamWriter);
+			in = conn.getReader().getInputStream();
+			out = conn.getWriter().getOutputStream();
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			listener.contactExchangeFailed();
 			tryToClose(conn, true);
 			return;
 		}
+
+		// Get the local transport properties
+		Map<TransportId, TransportProperties> localProperties, remoteProperties;
+		try {
+			localProperties = transportPropertyManager.getLocalProperties();
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			listener.contactExchangeFailed();
+			tryToClose(conn, true);
+			return;
+		}
+
+		// Derive the header keys for the transport streams
+		SecretKey aliceHeaderKey = crypto.deriveHeaderKey(masterSecret, true);
+		SecretKey bobHeaderKey = crypto.deriveHeaderKey(masterSecret, false);
+
+		// Create the readers
+		InputStream streamReader =
+				streamReaderFactory.createInvitationStreamReader(in,
+						alice ? bobHeaderKey : aliceHeaderKey);
+		BdfReader r = bdfReaderFactory.createReader(streamReader);
+		// Create the writers
+		OutputStream streamWriter =
+				streamWriterFactory.createInvitationStreamWriter(out,
+						alice ? aliceHeaderKey : bobHeaderKey);
+		BdfWriter w = bdfWriterFactory.createWriter(streamWriter);
 
 		// Derive the nonces to be signed
 		byte[] aliceNonce = crypto.deriveSignatureNonce(masterSecret, true);
@@ -130,13 +160,19 @@ public class ContactExchangeTaskImpl extends Thread
 			if (alice) {
 				sendPseudonym(w, aliceNonce);
 				sendTimestamp(w, localTimestamp);
+				sendTransportProperties(w, localProperties);
+				w.flush();
 				remoteAuthor = receivePseudonym(r, bobNonce);
 				remoteTimestamp = receiveTimestamp(r);
+				remoteProperties = receiveTransportProperties(r);
 			} else {
 				remoteAuthor = receivePseudonym(r, aliceNonce);
 				remoteTimestamp = receiveTimestamp(r);
+				remoteProperties = receiveTransportProperties(r);
 				sendPseudonym(w, bobNonce);
 				sendTimestamp(w, localTimestamp);
+				sendTransportProperties(w, localProperties);
+				w.flush();
 			}
 			// Close the outgoing stream and expect EOF on the incoming stream
 			w.close();
@@ -159,7 +195,7 @@ public class ContactExchangeTaskImpl extends Thread
 		try {
 			// Add the contact
 			ContactId contactId = addContact(remoteAuthor, masterSecret,
-					timestamp, alice);
+					timestamp, alice, remoteProperties);
 			// Reuse the connection as a transport connection
 			connectionManager.manageOutgoingConnection(contactId, transportId,
 					conn);
@@ -187,19 +223,22 @@ public class ContactExchangeTaskImpl extends Thread
 		signature.update(nonce);
 		byte[] sig = signature.sign();
 		// Write the name, public key and signature
+		w.writeListStart();
 		w.writeString(localAuthor.getName());
 		w.writeRaw(localAuthor.getPublicKey());
 		w.writeRaw(sig);
-		w.flush();
+		w.writeListEnd();
 		LOG.info("Sent pseudonym");
 	}
 
 	private Author receivePseudonym(BdfReader r, byte[] nonce)
 			throws GeneralSecurityException, IOException {
 		// Read the name, public key and signature
+		r.readListStart();
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
 		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
 		byte[] sig = r.readRaw(MAX_SIGNATURE_LENGTH);
+		r.readListEnd();
 		LOG.info("Received pseudonym");
 		// Verify the signature
 		Signature signature = crypto.getSignature();
@@ -217,7 +256,6 @@ public class ContactExchangeTaskImpl extends Thread
 	private void sendTimestamp(BdfWriter w, long timestamp)
 			throws IOException {
 		w.writeLong(timestamp);
-		w.flush();
 		LOG.info("Sent timestamp");
 	}
 
@@ -228,11 +266,56 @@ public class ContactExchangeTaskImpl extends Thread
 		return timestamp;
 	}
 
+	private void sendTransportProperties(BdfWriter w,
+			Map<TransportId, TransportProperties> local) throws IOException {
+		w.writeListStart();
+		for (Entry<TransportId, TransportProperties> e : local.entrySet())
+			w.writeList(BdfList.of(e.getKey().getString(), e.getValue()));
+		w.writeListEnd();
+	}
+
+	private Map<TransportId, TransportProperties> receiveTransportProperties(
+			BdfReader r) throws IOException {
+		Map<TransportId, TransportProperties> remote =
+				new HashMap<TransportId, TransportProperties>();
+		r.readListStart();
+		while (!r.hasListEnd()) {
+			r.readListStart();
+			String id = r.readString(MAX_TRANSPORT_ID_LENGTH);
+			if (id.isEmpty()) throw new FormatException();
+			TransportProperties p = new TransportProperties();
+			r.readDictionaryStart();
+			while (!r.hasDictionaryEnd()) {
+				if (p.size() == MAX_PROPERTIES_PER_TRANSPORT)
+					throw new FormatException();
+				String key = r.readString(MAX_PROPERTY_LENGTH);
+				String value = r.readString(MAX_PROPERTY_LENGTH);
+				p.put(key, value);
+			}
+			r.readDictionaryEnd();
+			r.readListEnd();
+			remote.put(new TransportId(id), p);
+		}
+		r.readListEnd();
+		return remote;
+	}
+
 	private ContactId addContact(Author remoteAuthor, SecretKey master,
-			long timestamp, boolean alice) throws DbException {
-		// Add the contact to the database
-		return contactManager.addContact(remoteAuthor, localAuthor.getId(),
-				master, timestamp, alice, true);
+			long timestamp, boolean alice,
+			Map<TransportId, TransportProperties> remoteProperties)
+			throws DbException {
+		ContactId contactId;
+		Transaction txn = db.startTransaction(false);
+		try {
+			contactId = contactManager.addContact(txn, remoteAuthor,
+					localAuthor.getId(), master, timestamp, alice, true);
+			transportPropertyManager.addRemoteProperties(txn, contactId,
+					remoteProperties);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return contactId;
 	}
 
 	private void tryToClose(DuplexTransportConnection conn,
