@@ -114,6 +114,16 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 	}
 
+	public boolean isConnected(ContactId c, TransportId t) {
+		lock.lock();
+		try {
+			Map<ContactId, Integer> m = connections.get(t);
+			return m != null && m.containsKey(c);
+		} finally {
+			lock.unlock();
+		}
+	}
+
 	public boolean isConnected(ContactId c) {
 		lock.lock();
 		try {
