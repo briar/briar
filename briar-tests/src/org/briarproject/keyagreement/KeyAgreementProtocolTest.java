@@ -8,7 +8,6 @@ import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.keyagreement.Payload;
 import org.briarproject.api.keyagreement.PayloadEncoder;
-import org.briarproject.util.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -69,8 +68,8 @@ public class KeyAgreementProtocolTest extends BriarTestCase {
 		final Payload theirPayload = new Payload(BOB_COMMIT, null);
 		final Payload ourPayload = new Payload(ALICE_COMMIT, null);
 		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.createSecretKey();
-		final SecretKey masterSecret = TestUtils.createSecretKey();
+		final SecretKey sharedSecret = TestUtils.getSecretKey();
+		final SecretKey masterSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -133,8 +132,8 @@ public class KeyAgreementProtocolTest extends BriarTestCase {
 		final Payload theirPayload = new Payload(ALICE_COMMIT, null);
 		final Payload ourPayload = new Payload(BOB_COMMIT, null);
 		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.createSecretKey();
-		final SecretKey masterSecret = TestUtils.createSecretKey();
+		final SecretKey sharedSecret = TestUtils.getSecretKey();
+		final SecretKey masterSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -274,7 +273,7 @@ public class KeyAgreementProtocolTest extends BriarTestCase {
 		final Payload theirPayload = new Payload(BOB_COMMIT, null);
 		final Payload ourPayload = new Payload(ALICE_COMMIT, null);
 		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.createSecretKey();
+		final SecretKey sharedSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -339,7 +338,7 @@ public class KeyAgreementProtocolTest extends BriarTestCase {
 		final Payload theirPayload = new Payload(ALICE_COMMIT, null);
 		final Payload ourPayload = new Payload(BOB_COMMIT, null);
 		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.createSecretKey();
+		final SecretKey sharedSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,

@@ -1,6 +1,7 @@
 package org.briarproject.transport;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.TestUtils;
 import org.briarproject.api.crypto.StreamDecrypter;
 import org.briarproject.api.crypto.StreamEncrypter;
 import org.junit.Test;
@@ -10,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Random;
 
 import static org.briarproject.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAC_LENGTH;
@@ -19,20 +19,15 @@ import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class TransportIntegrationTest extends BriarTestCase {
-
-	private final Random random = new Random();
+public class StreamReaderWriterIntegrationTest extends BriarTestCase {
 
 	@Test
 	public void testWriteAndRead() throws Exception {
 		// Generate a random tag
-		byte[] tag = new byte[TAG_LENGTH];
-		random.nextBytes(tag);
+		byte[] tag = TestUtils.getRandomBytes(TAG_LENGTH);
 		// Generate two frames with random payloads
-		byte[] payload1 = new byte[123];
-		random.nextBytes(payload1);
-		byte[] payload2 = new byte[321];
-		random.nextBytes(payload2);
+		byte[] payload1 = TestUtils.getRandomBytes(123);
+		byte[] payload2 = TestUtils.getRandomBytes(321);
 		// Write the tag and the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamEncrypter encrypter = new TestStreamEncrypter(out, tag);

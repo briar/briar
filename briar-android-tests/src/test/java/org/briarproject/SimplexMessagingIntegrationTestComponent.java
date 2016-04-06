@@ -1,17 +1,12 @@
-package org.briarproject.sync;
+package org.briarproject;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestPluginsModule;
-import org.briarproject.TestSystemModule;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
-import org.briarproject.api.sync.PacketReaderFactory;
-import org.briarproject.api.sync.PacketWriterFactory;
+import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
@@ -25,6 +20,7 @@ import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
+import org.briarproject.sync.SyncModule;
 import org.briarproject.transport.TransportModule;
 
 import javax.inject.Singleton;
@@ -32,19 +28,28 @@ import javax.inject.Singleton;
 import dagger.Component;
 
 @Singleton
-@Component(modules = {TestDatabaseModule.class, TestPluginsModule.class,
-		TestSystemModule.class, LifecycleModule.class, ContactModule.class,
-		CryptoModule.class, DatabaseModule.class, EventModule.class,
-		SyncModule.class, DataModule.class, TransportModule.class,
-		IdentityModule.class, MessagingModule.class, ClientsModule.class,
-		PluginsModule.class})
-public interface SimplexMessagingComponent {
+@Component(modules = {
+		TestDatabaseModule.class,
+		TestPluginsModule.class,
+		TestSystemModule.class,
+		ClientsModule.class,
+		ContactModule.class,
+		CryptoModule.class,
+		DataModule.class,
+		DatabaseModule.class,
+		EventModule.class,
+		IdentityModule.class,
+		LifecycleModule.class,
+		MessagingModule.class,
+		PluginsModule.class,
+		SyncModule.class,
+		TransportModule.class
+})
+public interface SimplexMessagingIntegrationTestComponent {
 
 	void inject(SimplexMessagingIntegrationTest testCase);
 
 	LifecycleManager getLifecycleManager();
-
-	DatabaseComponent getDatabaseComponent();
 
 	IdentityManager getIdentityManager();
 
@@ -56,13 +61,11 @@ public interface SimplexMessagingComponent {
 
 	PrivateMessageFactory getPrivateMessageFactory();
 
-	PacketWriterFactory getPacketWriterFactory();
-
 	EventBus getEventBus();
 
 	StreamWriterFactory getStreamWriterFactory();
 
 	StreamReaderFactory getStreamReaderFactory();
 
-	PacketReaderFactory getPacketReaderFactory();
+	SyncSessionFactory getSyncSessionFactory();
 }

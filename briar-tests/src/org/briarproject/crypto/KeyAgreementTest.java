@@ -13,7 +13,7 @@ import static org.junit.Assert.assertArrayEquals;
 public class KeyAgreementTest extends BriarTestCase {
 
 	@Test
-	public void testBTKeyAgreement() throws Exception {
+	public void testDeriveMasterSecret() throws Exception {
 		SeedProvider seedProvider = new TestSeedProvider();
 		CryptoComponent crypto = new CryptoComponentImpl(seedProvider);
 		KeyPair aPair = crypto.generateAgreementKeyPair();
@@ -26,7 +26,7 @@ public class KeyAgreementTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testKeyAgreement() throws Exception {
+	public void testDeriveSharedSecret() throws Exception {
 		SeedProvider seedProvider = new TestSeedProvider();
 		CryptoComponent crypto = new CryptoComponentImpl(seedProvider);
 		KeyPair aPair = crypto.generateAgreementKeyPair();

@@ -2,6 +2,7 @@ package org.briarproject.crypto;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestSeedProvider;
+import org.briarproject.TestUtils;
 import org.junit.Test;
 
 import java.util.Random;
@@ -18,9 +19,7 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 
 	@Test
 	public void testEncryptionAndDecryption() {
-		Random random = new Random();
-		byte[] input = new byte[1234];
-		random.nextBytes(input);
+		byte[] input = TestUtils.getRandomBytes(1234);
 		String password = "password";
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
 		byte[] output = crypto.decryptWithPassword(ciphertext, password);
@@ -29,13 +28,11 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 
 	@Test
 	public void testInvalidCiphertextReturnsNull() {
-		Random random = new Random();
-		byte[] input = new byte[1234];
-		random.nextBytes(input);
+		byte[] input = TestUtils.getRandomBytes(1234);
 		String password = "password";
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
 		// Modify the ciphertext
-		int position = random.nextInt(ciphertext.length);
+		int position = new Random().nextInt(ciphertext.length);
 		ciphertext[position] = (byte) (ciphertext[position] ^ 0xFF);
 		byte[] output = crypto.decryptWithPassword(ciphertext, password);
 		assertNull(output);

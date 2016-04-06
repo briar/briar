@@ -118,7 +118,7 @@ public class TransportPropertyValidatorTest extends BriarTestCase {
 
 		/* Generate a string or arbitrary length for the transport id*/
 		String wrongTransportIdString =
-				TestUtils.createRandomString(MAX_TRANSPORT_ID_LENGTH + 1);
+				TestUtils.getRandomString(MAX_TRANSPORT_ID_LENGTH + 1);
 		BdfList body = BdfList.of(deviceId, wrongTransportIdString, 4,
 				bdfDictionary);
 		tpv.validateMessage(message, group, body);

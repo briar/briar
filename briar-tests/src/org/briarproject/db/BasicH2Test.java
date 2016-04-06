@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static java.sql.Types.BINARY;
 import static org.junit.Assert.assertEquals;
@@ -48,10 +47,9 @@ public class BasicH2Test extends BriarTestCase {
 		// Create the table
 		createTable(connection);
 		// Generate an ID and two names
-		byte[] id = new byte[32];
-		new Random().nextBytes(id);
-		String oldName = TestUtils.createRandomString(50);
-		String newName = TestUtils.createRandomString(50);
+		byte[] id = TestUtils.getRandomId();
+		String oldName = TestUtils.getRandomString(50);
+		String newName = TestUtils.getRandomString(50);
 		// Insert the ID and old name into the table
 		insertRow(id, oldName);
 		// Check that the old name can be retrieved using the ID
@@ -75,14 +73,13 @@ public class BasicH2Test extends BriarTestCase {
 		// Create the table
 		createTable(connection);
 		// Generate some IDs and two sets of names
-		byte[][] ids = new byte[BATCH_SIZE][32];
+		byte[][] ids = new byte[BATCH_SIZE][];
 		String[] oldNames = new String[BATCH_SIZE];
 		String[] newNames = new String[BATCH_SIZE];
-		Random random = new Random();
 		for (int i = 0; i < BATCH_SIZE; i++) {
-			random.nextBytes(ids[i]);
-			oldNames[i] = TestUtils.createRandomString(50);
-			newNames[i] = TestUtils.createRandomString(50);
+			ids[i] = TestUtils.getRandomId();
+			oldNames[i] = TestUtils.getRandomString(50);
+			newNames[i] = TestUtils.getRandomString(50);
 		}
 		// Insert the IDs and old names into the table as a batch
 		insertBatch(ids, oldNames);

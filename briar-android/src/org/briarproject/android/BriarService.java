@@ -55,8 +55,8 @@ public class BriarService extends Service {
 	public void onCreate() {
 		super.onCreate();
 
-		((BriarApplication) this.getApplication())
-				.getApplicationComponent().inject(this);
+		BriarApplication application = (BriarApplication) getApplication();
+		application.getApplicationComponent().inject(this);
 
 		LOG.info("Created");
 		if (created.getAndSet(true)) {

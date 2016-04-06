@@ -1,12 +1,12 @@
 package org.briarproject.android;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.logging.Logger;
-
 import android.app.Application;
 import android.content.Context;
 
 import org.briarproject.CoreModule;
+
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.logging.Logger;
 
 public class BriarApplication extends Application {
 
@@ -18,7 +18,7 @@ public class BriarApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		LOG.info("Application Created");
+		LOG.info("Created");
 		UncaughtExceptionHandler oldHandler =
 				Thread.getDefaultUncaughtExceptionHandler();
 		Context ctx = getApplicationContext();
@@ -27,7 +27,6 @@ public class BriarApplication extends Application {
 
 		applicationComponent = DaggerAndroidComponent.builder()
 				.appModule(new AppModule(this))
-				.androidModule(new AndroidModule())
 				.build();
 
 		// We need to load the eager singletons directly after making the

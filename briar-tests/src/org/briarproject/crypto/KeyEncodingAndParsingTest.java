@@ -2,22 +2,36 @@ package org.briarproject.crypto;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestSeedProvider;
+import org.briarproject.TestUtils;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
+import org.briarproject.api.crypto.Signature;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
-import java.util.Random;
 
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 public class KeyEncodingAndParsingTest extends BriarTestCase {
 
 	private final CryptoComponentImpl crypto =
 			new CryptoComponentImpl(new TestSeedProvider());
+
+	@Test
+	public void testAgreementPublicKeyLength() throws Exception {
+		// Generate 10 agreement key pairs
+		for (int i = 0; i < 10; i++) {
+			KeyPair keyPair = crypto.generateSignatureKeyPair();
+			// Check the length of the public key
+			byte[] publicKey = keyPair.getPublic().getEncoded();
+			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
+		}
+	}
 
 	@Test
 	public void testAgreementPublicKeyEncodingAndParsing() throws Exception {
@@ -61,24 +75,43 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		int pubLength = p.getPublic().getEncoded().length;
 		int privLength = p.getPrivate().getEncoded().length;
 		// Parse some random byte arrays - expect GeneralSecurityException
-		Random random = new Random();
-		byte[] pubFuzz = new byte[pubLength];
-		byte[] privFuzz = new byte[privLength];
 		for (int i = 0; i < 1000; i++) {
-			random.nextBytes(pubFuzz);
 			try {
-				parser.parsePublicKey(pubFuzz);
+				parser.parsePublicKey(TestUtils.getRandomBytes(pubLength));
 			} catch (GeneralSecurityException expected) {
-			} catch (Exception e) {
-				fail();
+				// Expected
 			}
-			random.nextBytes(privFuzz);
 			try {
-				parser.parsePrivateKey(privFuzz);
+				parser.parsePrivateKey(TestUtils.getRandomBytes(privLength));
 			} catch (GeneralSecurityException expected) {
-			} catch (Exception e) {
-				fail();
+				// Expected
 			}
+		}
+	}
+
+	@Test
+	public void testSignaturePublicKeyLength() throws Exception {
+		// Generate 10 signature key pairs
+		for (int i = 0; i < 10; i++) {
+			KeyPair keyPair = crypto.generateSignatureKeyPair();
+			// Check the length of the public key
+			byte[] publicKey = keyPair.getPublic().getEncoded();
+			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
+		}
+	}
+
+	@Test
+	public void testSignatureLength() throws Exception {
+		Signature sig = crypto.getSignature();
+		// Generate 10 signature key pairs
+		for (int i = 0; i < 10; i++) {
+			KeyPair keyPair = crypto.generateSignatureKeyPair();
+			// Sign some random data and check the length of the signature
+			byte[] toBeSigned = TestUtils.getRandomBytes(1234);
+			sig.initSign(keyPair.getPrivate());
+			sig.update(toBeSigned);
+			byte[] signature = sig.sign();
+			assertTrue(signature.length <= MAX_SIGNATURE_LENGTH);
 		}
 	}
 
@@ -124,23 +157,16 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		int pubLength = p.getPublic().getEncoded().length;
 		int privLength = p.getPrivate().getEncoded().length;
 		// Parse some random byte arrays - expect GeneralSecurityException
-		Random random = new Random();
-		byte[] pubFuzz = new byte[pubLength];
-		byte[] privFuzz = new byte[privLength];
 		for (int i = 0; i < 1000; i++) {
-			random.nextBytes(pubFuzz);
 			try {
-				parser.parsePublicKey(pubFuzz);
+				parser.parsePublicKey(TestUtils.getRandomBytes(pubLength));
 			} catch (GeneralSecurityException expected) {
-			} catch (Exception e) {
-				fail();
+				// Expected
 			}
-			random.nextBytes(privFuzz);
 			try {
-				parser.parsePrivateKey(privFuzz);
+				parser.parsePrivateKey(TestUtils.getRandomBytes(privLength));
 			} catch (GeneralSecurityException expected) {
-			} catch (Exception e) {
-				fail();
+				// Expected
 			}
 		}
 	}
