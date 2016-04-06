@@ -34,7 +34,6 @@ import static org.briarproject.api.introduction.IntroduceeProtocolState.FINISHED
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
-import static org.briarproject.api.introduction.IntroductionConstants.DEVICE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
@@ -108,7 +107,6 @@ public class IntroduceeEngine
 				if (localState.getBoolean(ACCEPT)) {
 					msg.put(TIME, localState.getLong(OUR_TIME));
 					msg.put(E_PUBLIC_KEY, localState.getRaw(OUR_PUBLIC_KEY));
-					msg.put(DEVICE_ID, localAction.getRaw(DEVICE_ID));
 					msg.put(TRANSPORT, localAction.getDictionary(TRANSPORT));
 				}
 				messages.add(msg);
@@ -231,7 +229,6 @@ public class IntroduceeEngine
 		if (msg.getBoolean(ACCEPT)) {
 			localState.put(TIME, msg.getLong(TIME));
 			localState.put(E_PUBLIC_KEY, msg.getRaw(E_PUBLIC_KEY));
-			localState.put(DEVICE_ID, msg.getRaw(DEVICE_ID));
 			localState.put(TRANSPORT, msg.getDictionary(TRANSPORT));
 		}
 	}

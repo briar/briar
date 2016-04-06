@@ -45,12 +45,13 @@ class PollerImpl implements Poller {
 
 	public void addPlugin(Plugin p) {
 		// Randomise first polling interval
-		schedule(p, randomise(p.getPollingInterval()), false);
+		if (p.shouldPoll())
+			schedule(p, randomise(p.getPollingInterval()), false);
 	}
 
 	public void pollNow(Plugin p) {
 		// Randomise next polling interval
-		schedule(p, 0, true);
+		if (p.shouldPoll()) schedule(p, 0, true);
 	}
 
 	private int randomise(int interval) {

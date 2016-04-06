@@ -1,7 +1,6 @@
 package org.briarproject.properties;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
@@ -25,19 +24,16 @@ public class TransportPropertyValidator extends BdfMessageValidator {
 	@Override
 	protected BdfDictionary validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
-		// Device ID, transport ID, version, properties
-		checkSize(body, 4);
-		// Device ID
-		byte[] deviceId = body.getRaw(0);
-		checkLength(deviceId, UniqueId.LENGTH);
+		// Transport ID, version, properties
+		checkSize(body, 3);
 		// Transport ID
-		String transportId = body.getString(1);
+		String transportId = body.getString(0);
 		checkLength(transportId, 1, MAX_TRANSPORT_ID_LENGTH);
 		// Version
-		long version = body.getLong(2);
+		long version = body.getLong(1);
 		if (version < 0) throw new FormatException();
 		// Properties
-		BdfDictionary dictionary = body.getDictionary(3);
+		BdfDictionary dictionary = body.getDictionary(2);
 		checkSize(dictionary, 0, MAX_PROPERTIES_PER_TRANSPORT);
 		for (String key : dictionary.keySet()) {
 			checkLength(key, 0, MAX_PROPERTY_LENGTH);

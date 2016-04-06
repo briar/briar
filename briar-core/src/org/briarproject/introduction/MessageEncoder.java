@@ -5,7 +5,6 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.api.introduction.IntroductionConstants.DEVICE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
@@ -21,7 +20,8 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPO
 
 public class MessageEncoder {
 
-	public static BdfList encodeMessage(BdfDictionary d) throws FormatException {
+	public static BdfList encodeMessage(BdfDictionary d)
+			throws FormatException {
 
 		BdfList body;
 		long type = d.getLong(TYPE);
@@ -39,7 +39,8 @@ public class MessageEncoder {
 		return body;
 	}
 
-	private static BdfList encodeRequest(BdfDictionary d) throws FormatException {
+	private static BdfList encodeRequest(BdfDictionary d)
+			throws FormatException {
 		BdfList list = BdfList.of(TYPE_REQUEST, d.getRaw(SESSION_ID),
 				d.getString(NAME), d.getRaw(PUBLIC_KEY));
 
@@ -49,14 +50,14 @@ public class MessageEncoder {
 		return list;
 	}
 
-	private static BdfList encodeResponse(BdfDictionary d) throws FormatException {
+	private static BdfList encodeResponse(BdfDictionary d)
+			throws FormatException {
 		BdfList list = BdfList.of(TYPE_RESPONSE, d.getRaw(SESSION_ID),
 				d.getBoolean(ACCEPT));
 
 		if (d.getBoolean(ACCEPT)) {
 			list.add(d.getLong(TIME));
 			list.add(d.getRaw(E_PUBLIC_KEY));
-			list.add(d.getRaw(DEVICE_ID));
 			list.add(d.getDictionary(TRANSPORT));
 		}
 		// TODO Sign the response, see #256

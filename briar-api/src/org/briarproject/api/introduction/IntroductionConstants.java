@@ -23,7 +23,6 @@ public interface IntroductionConstants {
 	String MSG = "msg";
 	String ACCEPT = "accept";
 	String TIME = "time";
-	String DEVICE_ID = "deviceId";
 	String TRANSPORT = "transport";
 	String MESSAGE_ID = "messageId";
 	String MESSAGE_TIME = "timestamp";

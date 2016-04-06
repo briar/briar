@@ -191,7 +191,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			}
 			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
-				disposeWriter(false);
+				disposeWriter(true);
 				return;
 			}
 			connectionRegistry.registerConnection(contactId, transportId);
@@ -286,7 +286,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			}
 			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
-				disposeWriter(false);
+				disposeWriter(true);
 				return;
 			}
 			try {
@@ -351,10 +351,9 @@ class ConnectionManagerImpl implements ConnectionManager {
 			}
 			if (ctx == null) {
 				LOG.warning("Could not allocate stream context");
-				disposeWriter(false);
+				disposeWriter(true);
 				return;
 			}
-			connectionRegistry.registerConnection(contactId, transportId);
 			// Start the incoming session on another thread
 			ioExecutor.execute(new Runnable() {
 				public void run() {
@@ -369,8 +368,6 @@ class ConnectionManagerImpl implements ConnectionManager {
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeWriter(true);
-			} finally {
-				connectionRegistry.unregisterConnection(contactId, transportId);
 			}
 		}
 
@@ -382,17 +379,17 @@ class ConnectionManagerImpl implements ConnectionManager {
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, true);
+				disposeReader(true, false);
 				return;
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, true);
+				disposeReader(true, false);
 				return;
 			}
 			// Unrecognised tags are suspicious in this case
 			if (ctx == null) {
 				LOG.warning("Unrecognised tag for returning stream");
-				disposeReader(true, true);
+				disposeReader(true, false);
 				return;
 			}
 			// Check that the stream comes from the expected contact
@@ -401,6 +398,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				disposeReader(true, true);
 				return;
 			}
+			connectionRegistry.registerConnection(contactId, transportId);
 			try {
 				// Create and run the incoming session
 				incomingSession = createIncomingSession(ctx, reader);
@@ -409,6 +407,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
+			} finally {
+				connectionRegistry.unregisterConnection(contactId, transportId);
 			}
 		}
 

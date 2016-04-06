@@ -41,7 +41,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	}
 
 	public void registerConnection(ContactId c, TransportId t) {
-		LOG.info("Connection registered");
+		if (LOG.isLoggable(INFO)) LOG.info("Connection registered: " + t);
 		boolean firstConnection = false;
 		lock.lock();
 		try {
@@ -63,7 +63,6 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		} finally {
 			lock.unlock();
 		}
-
 		if (firstConnection) {
 			LOG.info("Contact connected");
 			eventBus.broadcast(new ContactConnectedEvent(c));
@@ -71,7 +70,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	}
 
 	public void unregisterConnection(ContactId c, TransportId t) {
-		LOG.info("Connection unregistered");
+		if (LOG.isLoggable(INFO)) LOG.info("Connection unregistered: " + t);
 		boolean lastConnection = false;
 		lock.lock();
 		try {
@@ -95,15 +94,13 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		} finally {
 			lock.unlock();
 		}
-
 		if (lastConnection) {
 			LOG.info("Contact disconnected");
 			eventBus.broadcast(new ContactDisconnectedEvent(c));
 		}
 	}
 
-	public Collection<ContactId> getConnectedContacts(
-			TransportId t) {
+	public Collection<ContactId> getConnectedContacts(TransportId t) {
 		lock.lock();
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
@@ -115,7 +112,16 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		} finally {
 			lock.unlock();
 		}
+	}
 
+	public boolean isConnected(ContactId c, TransportId t) {
+		lock.lock();
+		try {
+			Map<ContactId, Integer> m = connections.get(t);
+			return m != null && m.containsKey(c);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public boolean isConnected(ContactId c) {
@@ -125,6 +131,5 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		} finally {
 			lock.unlock();
 		}
-
 	}
 }

@@ -20,8 +20,6 @@ import org.briarproject.util.StringUtils;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.introduction.IntroducerProtocolState.PREPARE_REQUESTS;
 import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_1;

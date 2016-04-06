@@ -16,5 +16,7 @@ public interface ConnectionRegistry {
 
 	Collection<ContactId> getConnectedContacts(TransportId t);
 
+	boolean isConnected(ContactId c, TransportId t);
+
 	boolean isConnected(ContactId c);
 }
