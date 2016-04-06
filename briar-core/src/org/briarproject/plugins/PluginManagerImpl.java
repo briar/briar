@@ -8,6 +8,7 @@ import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.lifecycle.ServiceException;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
@@ -83,7 +84,7 @@ class PluginManagerImpl implements PluginManager, Service {
 	}
 
 	@Override
-	public boolean start() {
+	public void startService() throws ServiceException {
 		// Instantiate and start the simplex plugins
 		LOG.info("Starting simplex plugins");
 		Collection<SimplexPluginFactory> sFactories =
@@ -103,15 +104,12 @@ class PluginManagerImpl implements PluginManager, Service {
 			sLatch.await();
 			dLatch.await();
 		} catch (InterruptedException e) {
-			LOG.warning("Interrupted while starting plugins");
-			Thread.currentThread().interrupt();
-			return false;
+			throw new ServiceException(e);
 		}
-		return true;
 	}
 
 	@Override
-	public boolean stop() {
+	public void stopService() throws ServiceException {
 		// Stop the poller
 		LOG.info("Stopping poller");
 		poller.stop();
@@ -131,11 +129,8 @@ class PluginManagerImpl implements PluginManager, Service {
 		try {
 			latch.await();
 		} catch (InterruptedException e) {
-			LOG.warning("Interrupted while stopping plugins");
-			Thread.currentThread().interrupt();
-			return false;
+			throw new ServiceException(e);
 		}
-		return true;
 	}
 
 	public Plugin getPlugin(TransportId t) {

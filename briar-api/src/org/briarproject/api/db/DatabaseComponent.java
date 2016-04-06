@@ -19,7 +19,6 @@ import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.transport.TransportKeys;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public interface DatabaseComponent {
 	/**
 	 * Waits for any open transactions to finish and closes the database.
 	 */
-	void close() throws DbException, IOException;
+	void close() throws DbException;
 
 	/**
 	 * Starts a new transaction and returns an object representing it.

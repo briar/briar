@@ -3,14 +3,14 @@ package org.briarproject.api.lifecycle;
 public interface Service {
 
 	/**
-	 * Starts the service and returns true if it started successfully.
-	 * This method must not be called concurrently with {@link #stop()}.
+	 * Starts the service.This method must not be called concurrently with
+	 * {@link #stopService()}.
 	 */
-	public boolean start();
+	void startService() throws ServiceException;
 
 	/**
-	 * Stops the service and returns true if it stopped successfully.
-	 * This method must not be called concurrently with {@link #start()}.
+	 * Stops the service. This method must not be called concurrently with
+	 * {@link #startService()}.
 	 */
-	public boolean stop();
+	void stopService() throws ServiceException;
 }

@@ -19,7 +19,6 @@ import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.ValidationManager.Validity;
 import org.briarproject.api.transport.TransportKeys;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ interface Database<T> {
 	 * Prevents new transactions from starting, waits for all current
 	 * transactions to finish, and closes the database.
 	 */
-	void close() throws DbException, IOException;
+	void close() throws DbException;
 
 	/**
 	 * Starts a new transaction and returns an object representing it.

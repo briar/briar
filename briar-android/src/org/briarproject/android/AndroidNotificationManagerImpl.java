@@ -10,10 +10,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import org.briarproject.R;
-import org.briarproject.android.contact.ConversationActivity;
-import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.contact.ConversationActivity;
+import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -22,6 +22,7 @@ import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.lifecycle.ServiceException;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
@@ -31,7 +32,10 @@ import org.briarproject.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -93,37 +97,30 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
-	public boolean start() {
-		loadSettings();
-		return true;
-	}
-
-	private void loadSettings() {
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
+	public void startService() throws ServiceException {
+		try {
+			settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+		} catch (DbException e) {
+			throw new ServiceException(e);
+		}
 	}
 
 	@Override
-	public boolean stop() {
-		clearNotifications();
-		return true;
-	}
-
-	private void clearNotifications() {
-		androidExecutor.execute(new Runnable() {
-			public void run() {
+	public void stopService() throws ServiceException {
+		Future<Void> f = androidExecutor.submit(new Callable<Void>() {
+			public Void call() {
 				clearPrivateMessageNotification();
 				clearForumPostNotification();
+				return null;
 			}
 		});
+		try {
+			f.get();
+		} catch (InterruptedException e) {
+			throw new ServiceException(e);
+		} catch (ExecutionException e) {
+			throw new ServiceException(e);
+		}
 	}
 
 	private void clearPrivateMessageNotification() {
@@ -152,6 +149,19 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 					showForumPostNotification(m.getMessage().getGroupId());
 			}
 		}
+	}
+
+	private void loadSettings() {
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
 	}
 
 	public void showPrivateMessageNotification(final GroupId g) {

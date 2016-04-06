@@ -14,6 +14,7 @@ import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.lifecycle.ServiceException;
 import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
@@ -32,7 +33,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 
 class KeyManagerImpl implements KeyManager, Service, EventListener {
 
@@ -64,7 +64,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public boolean start() {
+	public void startService() throws ServiceException {
 		Map<TransportId, Integer> transports =
 				new HashMap<TransportId, Integer>();
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories())
@@ -89,15 +89,12 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 				db.endTransaction(txn);
 			}
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return false;
+			throw new ServiceException(e);
 		}
-		return true;
 	}
 
 	@Override
-	public boolean stop() {
-		return true;
+	public void stopService() {
 	}
 
 	public void addContact(Transaction txn, ContactId c, SecretKey master,

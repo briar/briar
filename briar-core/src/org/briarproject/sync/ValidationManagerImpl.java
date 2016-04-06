@@ -57,14 +57,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@Override
-	public boolean start() {
+	public void startService() {
 		for (ClientId c : validators.keySet()) getMessagesToValidate(c);
-		return true;
 	}
 
 	@Override
-	public boolean stop() {
-		return true;
+	public void stopService() {
 	}
 
 	@Override
