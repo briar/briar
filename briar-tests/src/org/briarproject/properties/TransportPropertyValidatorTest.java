@@ -31,57 +31,57 @@ public class TransportPropertyValidatorTest extends BriarTestCase {
 	private final Message message;
 	private final TransportPropertyValidator tpv;
 
-    public TransportPropertyValidatorTest() {
+	public TransportPropertyValidatorTest() {
 		transportId = new TransportId("test");
-	    bdfDictionary = new BdfDictionary();
+		bdfDictionary = new BdfDictionary();
 
-	    GroupId groupId = new GroupId(TestUtils.getRandomId());
-	    ClientId clientId = new ClientId(TestUtils.getRandomId());
-	    byte[] descriptor = TestUtils.getRandomBytes(12);
-	    group = new Group(groupId, clientId, descriptor);
+		GroupId groupId = new GroupId(TestUtils.getRandomId());
+		ClientId clientId = new ClientId(TestUtils.getRandomId());
+		byte[] descriptor = TestUtils.getRandomBytes(12);
+		group = new Group(groupId, clientId, descriptor);
 
-	    MessageId messageId = new MessageId(TestUtils.getRandomId());
-	    long timestamp = System.currentTimeMillis();
-	    byte[] body = TestUtils.getRandomBytes(123);
-	    message = new Message(messageId, groupId, timestamp, body);
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		long timestamp = System.currentTimeMillis();
+		byte[] body = TestUtils.getRandomBytes(123);
+		message = new Message(messageId, groupId, timestamp, body);
 
-	    Mockery context = new Mockery();
-	    ClientHelper clientHelper = context.mock(ClientHelper.class);
-	    MetadataEncoder metadataEncoder = context.mock(MetadataEncoder.class);
-	    Clock clock = context.mock(Clock.class);
+		Mockery context = new Mockery();
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		MetadataEncoder metadataEncoder = context.mock(MetadataEncoder.class);
+		Clock clock = context.mock(Clock.class);
 
 		tpv = new TransportPropertyValidator(clientHelper, metadataEncoder,
 				clock);
-    }
+	}
 
-    @Test
-    public void testValidateProperMessage() throws IOException {
+	@Test
+	public void testValidateProperMessage() throws IOException {
 
 		BdfList body = BdfList.of(transportId.getString(), 4, bdfDictionary);
 
-	    BdfDictionary result = tpv.validateMessage(message, group, body);
+		BdfDictionary result = tpv.validateMessage(message, group, body);
 
 		assertEquals("test", result.getString("transportId"));
 		assertEquals(4, result.getLong("version").longValue());
 	}
 
-    @Test(expected = FormatException.class)
-    public void testValidateWrongVersionValue() throws IOException {
+	@Test(expected = FormatException.class)
+	public void testValidateWrongVersionValue() throws IOException {
 
 		BdfList body = BdfList.of(transportId.getString(), -1, bdfDictionary);
 		tpv.validateMessage(message, group, body);
 	}
 
-    @Test(expected = FormatException.class)
-    public void testValidateWrongVersionType() throws IOException {
+	@Test(expected = FormatException.class)
+	public void testValidateWrongVersionType() throws IOException {
 
 		BdfList body = BdfList.of(transportId.getString(), bdfDictionary,
 				bdfDictionary);
 		tpv.validateMessage(message, group, body);
 	}
 
-    @Test(expected = FormatException.class)
-    public void testValidateLongTransportId() throws IOException {
+	@Test(expected = FormatException.class)
+	public void testValidateLongTransportId() throws IOException {
 
 		String wrongTransportIdString =
 				TestUtils.getRandomString(MAX_TRANSPORT_ID_LENGTH + 1);
@@ -97,9 +97,9 @@ public class TransportPropertyValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-    public void testValidateTooManyProperties() throws IOException {
+	public void testValidateTooManyProperties() throws IOException {
 
-	    BdfDictionary d = new BdfDictionary();
+		BdfDictionary d = new BdfDictionary();
 		for (int i = 0; i < MAX_PROPERTIES_PER_TRANSPORT + 1; i++)
 			d.put(String.valueOf(i), i);
 		BdfList body = BdfList.of(transportId.getString(), 4, d);
