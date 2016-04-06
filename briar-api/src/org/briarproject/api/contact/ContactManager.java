@@ -45,11 +45,11 @@ public interface ContactManager {
 	void setContactActive(ContactId c, boolean active) throws DbException;
 
 	/** Return true if a contact with this name and public key already exists */
-	boolean contactExists(Transaction txn, AuthorId remoteAuthorID,
+	boolean contactExists(Transaction txn, AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException;
 
 	/** Return true if a contact with this name and public key already exists */
-	boolean contactExists(AuthorId remoteAuthorID, AuthorId localAuthorId)
+	boolean contactExists(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException;
 
 	interface AddContactHook {

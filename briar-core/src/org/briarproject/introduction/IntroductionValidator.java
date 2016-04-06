@@ -1,8 +1,6 @@
 package org.briarproject.introduction;
 
-import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
@@ -13,10 +11,10 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
+import static org.briarproject.api.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.api.introduction.IntroductionConstants.DEVICE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
@@ -31,6 +29,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
@@ -102,17 +101,16 @@ class IntroductionValidator extends BdfMessageValidator {
 	private BdfDictionary validateResponse(BdfList message)
 			throws FormatException {
 
-		checkSize(message, 3, 7);
+		checkSize(message, 3, 6);
 
 		// parse accept/decline
 		boolean accept = message.getBoolean(2);
 
 		long time = 0;
 		byte[] pubkey = null;
-		byte[] deviceId = null;
 		BdfDictionary tp = new BdfDictionary();
 		if (accept) {
-			checkSize(message, 7);
+			checkSize(message, 6);
 
 			// parse timestamp
 			time = message.getLong(3);
@@ -121,16 +119,13 @@ class IntroductionValidator extends BdfMessageValidator {
 			pubkey = message.getRaw(4);
 			checkLength(pubkey, 0, MAX_PUBLIC_KEY_LENGTH);
 
-			// parse device ID
-			deviceId = message.getRaw(5);
-			checkLength(deviceId, DeviceId.LENGTH);
-
 			// parse transport properties
-			tp = message.getDictionary(6);
+			tp = message.getDictionary(5);
 			if (tp.size() < 1) throw new FormatException();
 			for (String tId : tp.keySet()) {
-				checkLength(tId, 1, TransportId.MAX_TRANSPORT_ID_LENGTH);
+				checkLength(tId, 1, MAX_TRANSPORT_ID_LENGTH);
 				BdfDictionary tProps = tp.getDictionary(tId);
+				checkSize(tProps, MAX_PROPERTIES_PER_TRANSPORT);
 				for (String propId : tProps.keySet()) {
 					checkLength(propId, 0, MAX_PROPERTY_LENGTH);
 					String prop = tProps.getString(propId);
@@ -147,7 +142,6 @@ class IntroductionValidator extends BdfMessageValidator {
 		if (accept) {
 			d.put(TIME, time);
 			d.put(E_PUBLIC_KEY, pubkey);
-			d.put(DEVICE_ID, deviceId);
 			d.put(TRANSPORT, tp);
 		}
 		return d;

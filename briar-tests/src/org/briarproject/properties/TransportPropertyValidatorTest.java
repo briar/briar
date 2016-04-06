@@ -2,10 +2,8 @@ package org.briarproject.properties;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
-import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
@@ -28,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 public class TransportPropertyValidatorTest extends BriarTestCase {
 
 	private final TransportId transportId;
-	private final DeviceId deviceId;
 	private final BdfDictionary bdfDictionary;
 	private final Group group;
 	private final Message message;
@@ -36,7 +33,6 @@ public class TransportPropertyValidatorTest extends BriarTestCase {
 
     public TransportPropertyValidatorTest() {
 		transportId = new TransportId("test");
-	    deviceId = new DeviceId(TestUtils.getRandomId());
 	    bdfDictionary = new BdfDictionary();
 
 	    GroupId groupId = new GroupId(TestUtils.getRandomId());
@@ -61,54 +57,25 @@ public class TransportPropertyValidatorTest extends BriarTestCase {
     @Test
     public void testValidateProperMessage() throws IOException {
 
-		BdfList body = BdfList.of(deviceId, transportId.getString(), 4,
-				bdfDictionary);
+		BdfList body = BdfList.of(transportId.getString(), 4, bdfDictionary);
 
 	    BdfDictionary result = tpv.validateMessage(message, group, body);
 
 		assertEquals("test", result.getString("transportId"));
-		assertEquals(result.getLong("version").longValue(), 4);
+		assertEquals(4, result.getLong("version").longValue());
 	}
 
     @Test(expected = FormatException.class)
     public void testValidateWrongVersionValue() throws IOException {
 
-		/* Will create a negative version number */
-		BdfList body = BdfList.of(deviceId, transportId.getString(), -1,
-				bdfDictionary);
+		BdfList body = BdfList.of(transportId.getString(), -1, bdfDictionary);
 		tpv.validateMessage(message, group, body);
 	}
 
     @Test(expected = FormatException.class)
     public void testValidateWrongVersionType() throws IOException {
 
-		/* Instead of sending a version number I'm sending a dict */
-		BdfList body = BdfList.of(deviceId, transportId.getString(),
-				bdfDictionary, bdfDictionary);
-		tpv.validateMessage(message, group, body);
-	}
-
-    @Test(expected = FormatException.class)
-    public void testValidateShortDeviceId() throws IOException {
-
-		/* Will create a Device Id with a short length, getRaw should work */
-		BdfList body = BdfList.of(new byte[UniqueId.LENGTH - 1],
-				transportId.getString(), 1, bdfDictionary);
-		tpv.validateMessage(message, group, body);
-	}
-
-    @Test(expected = FormatException.class)
-	public void testValidateLongDeviceId() throws IOException {
-
-		BdfList body = BdfList.of(new byte[UniqueId.LENGTH + 1],
-				transportId.getString(), 1, bdfDictionary);
-		tpv.validateMessage(message, group, body);
-	}
-
-    @Test(expected = FormatException.class)
-	public void testValidateWrongDeviceId() throws IOException {
-
-		BdfList body = BdfList.of(bdfDictionary, transportId.getString(), 1,
+		BdfList body = BdfList.of(transportId.getString(), bdfDictionary,
 				bdfDictionary);
 		tpv.validateMessage(message, group, body);
 	}
@@ -116,22 +83,26 @@ public class TransportPropertyValidatorTest extends BriarTestCase {
     @Test(expected = FormatException.class)
     public void testValidateLongTransportId() throws IOException {
 
-		/* Generate a string or arbitrary length for the transport id*/
 		String wrongTransportIdString =
 				TestUtils.getRandomString(MAX_TRANSPORT_ID_LENGTH + 1);
-		BdfList body = BdfList.of(deviceId, wrongTransportIdString, 4,
-				bdfDictionary);
+		BdfList body = BdfList.of(wrongTransportIdString, 4, bdfDictionary);
 		tpv.validateMessage(message, group, body);
 	}
 
-    @Test(expected = FormatException.class)
+	@Test(expected = FormatException.class)
+	public void testValidateEmptyTransportId() throws IOException {
+
+		BdfList body = BdfList.of("", 4, bdfDictionary);
+		tpv.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
     public void testValidateTooManyProperties() throws IOException {
 
-		/* Generate a big map for the BdfDictionary*/
 	    BdfDictionary d = new BdfDictionary();
 		for (int i = 0; i < MAX_PROPERTIES_PER_TRANSPORT + 1; i++)
 			d.put(String.valueOf(i), i);
-		BdfList body = BdfList.of(deviceId, transportId.getString(), 4, d);
+		BdfList body = BdfList.of(transportId.getString(), 4, d);
 		tpv.validateMessage(message, group, body);
 	}
 }

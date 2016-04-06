@@ -2,7 +2,6 @@ package org.briarproject.introduction;
 
 
 import org.briarproject.api.Bytes;
-import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.clients.ClientHelper;
@@ -47,7 +46,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.ADDED_CONT
 import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
-import static org.briarproject.api.introduction.IntroductionConstants.DEVICE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
@@ -167,7 +165,6 @@ class IntroduceeManager {
 
 		// get data to connect and derive a shared secret later
 		long now = clock.currentTimeMillis();
-		byte[] deviceId = db.getDeviceId(txn).getBytes();
 		KeyPair keyPair = cryptoComponent.generateAgreementKeyPair();
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
@@ -183,14 +180,12 @@ class IntroduceeManager {
 		// define action
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_RESPONSE);
-		localAction.put(DEVICE_ID, deviceId);
 		localAction.put(TRANSPORT,
 				encodeTransportProperties(transportProperties));
 
 		// start engine and process its state update
 		IntroduceeEngine engine = new IntroduceeEngine();
-		processStateUpdate(txn,
-				engine.onLocalAction(state, localAction));
+		processStateUpdate(txn, engine.onLocalAction(state, localAction));
 	}
 
 	public void declineIntroduction(Transaction txn, final SessionId sessionId)
@@ -313,11 +308,10 @@ class IntroduceeManager {
 			localState.put(ADDED_CONTACT_ID, contactId.getInt());
 
 			// let the transport manager know how to connect to the contact
-			DeviceId deviceId = new DeviceId(localState.getRaw(DEVICE_ID));
 			Map<TransportId, TransportProperties> transportProperties =
 					parseTransportProperties(localState);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
-					deviceId, transportProperties);
+					transportProperties);
 
 			// delete the ephemeral private key by overwriting with NULL value
 			// this ensures future ephemeral keys can not be recovered when

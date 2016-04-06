@@ -1,6 +1,5 @@
 package org.briarproject.properties;
 
-import org.briarproject.api.DeviceId;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.clients.Client;
@@ -73,10 +72,9 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		db.addGroup(txn, g);
 		db.setVisibleToContact(txn, c.getId(), g.getId(), true);
 		// Copy the latest local properties into the group
-		DeviceId dev = db.getDeviceId(txn);
 		Map<TransportId, TransportProperties> local = getLocalProperties(txn);
 		for (Entry<TransportId, TransportProperties> e : local.entrySet()) {
-			storeMessage(txn, g.getId(), dev, e.getKey(), e.getValue(), 1,
+			storeMessage(txn, g.getId(), e.getKey(), e.getValue(), 1,
 					true, true);
 		}
 	}
@@ -87,11 +85,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
-	public void addRemoteProperties(Transaction txn, ContactId c, DeviceId dev,
+	public void addRemoteProperties(Transaction txn, ContactId c,
 			Map<TransportId, TransportProperties> props) throws DbException {
 		Group g = getContactGroup(db.getContact(txn, c));
 		for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
-			storeMessage(txn, g.getId(), dev, e.getKey(), e.getValue(), 0,
+			storeMessage(txn, g.getId(), e.getKey(), e.getValue(), 0,
 					false, false);
 		}
 	}
@@ -189,16 +187,15 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				}
 				if (changed) {
 					// Store the merged properties in the local group
-					DeviceId dev = db.getDeviceId(txn);
 					long version = latest == null ? 1 : latest.version + 1;
-					storeMessage(txn, localGroup.getId(), dev, t, merged,
-							version, true, false);
+					storeMessage(txn, localGroup.getId(), t, merged, version,
+							true, false);
 					// Store the merged properties in each contact's group
 					for (Contact c : db.getContacts(txn)) {
 						Group g = getContactGroup(c);
 						latest = findLatest(txn, g.getId(), t, true);
 						version = latest == null ? 1 : latest.version + 1;
-						storeMessage(txn, g.getId(), dev, t, merged, version,
+						storeMessage(txn, g.getId(), t, merged, version,
 								true, true);
 					}
 				}
@@ -235,11 +232,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		}
 	}
 
-	private void storeMessage(Transaction txn, GroupId g, DeviceId dev,
-			TransportId t, TransportProperties p, long version, boolean local,
-			boolean shared) throws DbException {
+	private void storeMessage(Transaction txn, GroupId g, TransportId t,
+			TransportProperties p, long version, boolean local, boolean shared)
+			throws DbException {
 		try {
-			BdfList body = encodeProperties(dev, t, p, version);
+			BdfList body = encodeProperties(t, p, version);
 			long now = clock.currentTimeMillis();
 			Message m = clientHelper.createMessage(g, now, body);
 			BdfDictionary meta = new BdfDictionary();
@@ -252,9 +249,9 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		}
 	}
 
-	private BdfList encodeProperties(DeviceId dev, TransportId t,
-			TransportProperties p, long version) {
-		return BdfList.of(dev, t.getString(), version, p);
+	private BdfList encodeProperties(TransportId t, TransportProperties p,
+			long version) {
+		return BdfList.of(t.getString(), version, p);
 	}
 
 	private Map<TransportId, LatestUpdate> findLatest(Transaction txn,
@@ -295,8 +292,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private TransportProperties parseProperties(BdfList message)
 			throws FormatException {
-		// Device ID, transport ID, version, properties
-		BdfDictionary dictionary = message.getDictionary(3);
+		// Transport ID, version, properties
+		BdfDictionary dictionary = message.getDictionary(2);
 		TransportProperties p = new TransportProperties();
 		for (String key : dictionary.keySet())
 			p.put(key, dictionary.getString(key));
