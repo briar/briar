@@ -21,7 +21,7 @@ import dagger.Provides;
 import static android.content.Context.MODE_PRIVATE;
 
 @Module
-public class AndroidModule {
+public class AppModule {
 
 	static class EagerSingletons {
 		@Inject
@@ -31,7 +31,7 @@ public class AndroidModule {
 	private final Application application;
 	private final UiCallback uiCallback;
 
-	public AndroidModule(Application application) {
+	public AppModule(Application application) {
 		this.application = application;
 		uiCallback = new UiCallback() {
 

@@ -28,7 +28,7 @@ import dagger.Component;
 @Singleton
 @Component(modules = {
 		CoreModule.class,
-		AndroidModule.class,
+		AppModule.class,
 		AndroidPluginsModule.class,
 		AndroidSystemModule.class
 })
@@ -81,5 +81,5 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	void inject(ShowQrCodeFragment fragment);
 
 	// Eager singleton load
-	void inject(AndroidModule.EagerSingletons init);
+	void inject(AppModule.EagerSingletons init);
 }

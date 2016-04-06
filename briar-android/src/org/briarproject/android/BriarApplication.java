@@ -26,7 +26,7 @@ public class BriarApplication extends Application {
 		Thread.setDefaultUncaughtExceptionHandler(newHandler);
 
 		applicationComponent = DaggerAndroidComponent.builder()
-				.androidModule(new AndroidModule(this))
+				.appModule(new AppModule(this))
 				.build();
 
 		// We need to load the eager singletons directly after making the
