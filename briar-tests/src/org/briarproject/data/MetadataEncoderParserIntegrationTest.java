@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class MetadataEncoderParserImplTest extends BriarTestCase {
+public class MetadataEncoderParserIntegrationTest extends BriarTestCase {
 
 	MetadataEncoderImpl e;
 	MetadataParserImpl p;

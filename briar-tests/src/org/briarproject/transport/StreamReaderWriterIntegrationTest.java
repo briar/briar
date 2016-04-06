@@ -19,7 +19,7 @@ import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class TransportIntegrationTest extends BriarTestCase {
+public class StreamReaderWriterIntegrationTest extends BriarTestCase {
 
 	@Test
 	public void testWriteAndRead() throws Exception {
