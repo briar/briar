@@ -287,7 +287,7 @@ implements InvitationListener {
 				localInvitationCode, code);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
 		task.addListener(AddContactActivity.this);
-		// Add a second listener so we can remove the first in onDestroy(),
+		// Add a second listener so we can remove the first in onActivityDestroy(),
 		// allowing the activity to be garbage collected if it's destroyed
 		task.addListener(new ReferenceCleaner(referenceManager, taskHandle));
 		task.connect();

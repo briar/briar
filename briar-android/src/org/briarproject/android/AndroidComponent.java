@@ -4,9 +4,6 @@ import org.briarproject.CoreEagerSingletons;
 import org.briarproject.CoreModule;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.contact.ContactListFragment;
-import org.briarproject.android.contact.ConversationActivity;
-import org.briarproject.android.event.AppBus;
 import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -67,8 +64,6 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	PluginManager pluginManager();
 
 	EventBus eventBus();
-
-	AppBus appEventBus();
 
 	InvitationTaskFactory invitationTaskFactory();
 

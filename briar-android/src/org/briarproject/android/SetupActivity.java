@@ -15,24 +15,12 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
-import org.briarproject.android.event.LocalAuthorCreatedEvent;
-import org.briarproject.android.helper.SetupHelper;
+import org.briarproject.android.controller.ResultHandler;
+import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
-import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.crypto.KeyPair;
-import org.briarproject.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.util.StringUtils;
 
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
+import org.briarproject.util.StringUtils;
 
 import javax.inject.Inject;
 
@@ -40,7 +28,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static java.util.logging.Level.INFO;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
@@ -49,7 +36,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		OnEditorActionListener {
 
 	@Inject
-	SetupHelper setupHelper;
+	SetupController setupController;
 
 	TextInputLayout nicknameEntryWrapper;
 	TextInputLayout passwordEntryWrapper;
@@ -120,8 +107,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		String firstPassword = passwordEntry.getText().toString();
 		String secondPassword = passwordConfirmation.getText().toString();
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
-//		float strength = strengthEstimator.estimateStrength(firstPassword);
-		float strength = setupHelper.estimatePasswordStrength(firstPassword);
+		float strength = setupController.estimatePasswordStrength(firstPassword);
 		strengthMeter.setStrength(strength);
 		AndroidUtils.setError(nicknameEntryWrapper,
 				getString(R.string.name_too_long),
@@ -148,19 +134,22 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		progress.setVisibility(VISIBLE);
 		final String nickname = nicknameEntry.getText().toString();
 		final String password = passwordEntry.getText().toString();
-		setupHelper.createIdentity(nickname, password);
+		setupController.createIdentity(nickname, password,
+				new ResultHandler<Long, RuntimeException>() {
+					@Override
+					public void onResult(Long result) {
+						if (result != null)
+							showMain(result);
+					}
+
+					@Override
+					public void onException(RuntimeException exception) {
+
+					}
+				});
 	}
 
-	@Override
-	public void eventOccurred(Event e) {
-		super.eventOccurred(e);
-		if (e instanceof LocalAuthorCreatedEvent) {
-			long handle = ((LocalAuthorCreatedEvent)e).getAuthorHandle();
-			showDashboard(handle);
-		}
-	}
-
-	private void showDashboard(final long handle) {
+	private void showMain(final long handle) {
 		Intent i = new Intent(SetupActivity.this,
 				NavDrawerActivity.class);
 		i.putExtra(BriarActivity.KEY_LOCAL_AUTHOR_HANDLE, handle);

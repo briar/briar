@@ -16,10 +16,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
-import org.briarproject.android.event.PasswordValidateEvent;
-import org.briarproject.android.helper.PasswordHelper;
+import org.briarproject.android.controller.EncryptedKeyNullException;
+import org.briarproject.android.controller.PasswordController;
+import org.briarproject.android.controller.ResultHandler;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.api.event.Event;
 
 import javax.inject.Inject;
 
@@ -36,7 +36,7 @@ public class PasswordActivity extends BaseActivity {
 	private EditText password;
 
 	@Inject
-	PasswordHelper passwordHelper;
+	PasswordController passwordHelper;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -125,22 +125,23 @@ public class PasswordActivity extends BaseActivity {
 		hideSoftKeyboard(password);
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
-		passwordHelper.validatePassword(password.getText().toString());
-	}
+		passwordHelper.validatePassword(password.getText().toString(),
+				new ResultHandler<Boolean, EncryptedKeyNullException>() {
+					@Override
+					public void onResult(Boolean result) {
+						if (result != null && result) {
+							setResult(RESULT_OK);
+							finish();
+						} else {
+							tryAgain();
+						}
+					}
 
-	@Override
-	public void eventOccurred(Event e) {
-		super.eventOccurred(e);
-		if (e instanceof PasswordValidateEvent) {
-			boolean validated = ((PasswordValidateEvent)e).passwordValidated();
-			if (validated) {
-				setResult(RESULT_OK);
-				finish();
-			}
-			else {
-				tryAgain();
-			}
-		}
+					@Override
+					public void onException(EncryptedKeyNullException e) {
+						// TODO ?
+					}
+				});
 	}
 
 	private void tryAgain() {

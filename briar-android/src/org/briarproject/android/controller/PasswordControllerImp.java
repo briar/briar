@@ -1,10 +1,7 @@
-package org.briarproject.android.helper;
+package org.briarproject.android.controller;
 
 import android.app.Activity;
 
-import org.briarproject.android.event.AppBus;
-import org.briarproject.android.event.ErrorEvent;
-import org.briarproject.android.event.PasswordValidateEvent;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
@@ -14,8 +11,8 @@ import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
-public class PasswordHelperImp extends ConfigHelperImp
-		implements PasswordHelper {
+public class PasswordControllerImp extends ConfigControllerImp
+		implements PasswordController {
 
 	@Inject
 	@CryptoExecutor
@@ -24,38 +21,38 @@ public class PasswordHelperImp extends ConfigHelperImp
 	protected CryptoComponent crypto;
 	@Inject
 	protected Activity activity;
-	@Inject
-	protected AppBus appBus;
 
 	@Inject
-	public PasswordHelperImp() {
+	public PasswordControllerImp() {
 
 	}
 
 	@Override
-	public void validatePassword(final String password) {
+	public void validatePassword(final String password,
+			final ResultHandler<Boolean, EncryptedKeyNullException> resultHandler) {
 		final byte[] encrypted = getEncryptedKey();
 		if (encrypted == null) {
-			appBus.broadcast(new ErrorEvent());
+			resultHandler.onException(new EncryptedKeyNullException());
 		}
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				byte[] key = crypto.decryptWithPassword(encrypted, password);
 				if (key == null) {
-					onPasswordValidated(false);
+					onPasswordValidated(false, resultHandler);
 				} else {
 					databaseConfig.setEncryptionKey(new SecretKey(key));
-					onPasswordValidated(true);
+					onPasswordValidated(true, resultHandler);
 				}
 			}
 		});
 	}
 
-	private void onPasswordValidated(final boolean validated) {
+	private void onPasswordValidated(final boolean validated,
+			final ResultHandler<Boolean, EncryptedKeyNullException> resultHandler) {
 		activity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				appBus.broadcast(new PasswordValidateEvent(validated));
+				resultHandler.onResult(validated);
 			}
 		});
 	}
@@ -63,6 +60,6 @@ public class PasswordHelperImp extends ConfigHelperImp
 
 	private byte[] getEncryptedKey() {
 		String hex = getEncryptedDatabaseKey();
-		return hex == null? null : StringUtils.fromHexString(hex);
+		return hex == null ? null : StringUtils.fromHexString(hex);
 	}
 }

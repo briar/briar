@@ -1,11 +1,10 @@
-package org.briarproject.android.helper;
+package org.briarproject.android.controller;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
 
+import org.briarproject.android.BaseActivity;
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.event.AppBus;
-import org.briarproject.android.event.LocalAuthorCreatedEvent;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
@@ -23,10 +22,10 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 
-public class SetupHelperImp implements SetupHelper {
+public class SetupControllerImp implements SetupController {
 
 	private static final Logger LOG =
-			Logger.getLogger(SetupHelperImp.class.getName());
+			Logger.getLogger(SetupControllerImp.class.getName());
 
 	private final static String PREF_DB_KEY = "key";
 
@@ -45,16 +44,13 @@ public class SetupHelperImp implements SetupHelper {
 	protected volatile AuthorFactory authorFactory;
 	@Inject
 	protected volatile ReferenceManager referenceManager;
-
 	@Inject
 	protected Activity activity;
 	@Inject
 	protected SharedPreferences briarPrefs;
-	@Inject
-	protected AppBus appBus;
 
 	@Inject
-	public SetupHelperImp() {
+	public SetupControllerImp() {
 
 	}
 
@@ -86,7 +82,8 @@ public class SetupHelperImp implements SetupHelper {
 	}
 
 	@Override
-	public void createIdentity(final String nickname, final String password) {
+	public void createIdentity(final String nickname, final String password,
+			final ResultHandler<Long, RuntimeException> resultHandler) {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				SecretKey key = crypto.generateSecretKey();
@@ -94,18 +91,20 @@ public class SetupHelperImp implements SetupHelper {
 				String hex = encryptDatabaseKey(key, password);
 				storeEncryptedDatabaseKey(hex);
 				final LocalAuthor localAuthor = createLocalAuthor(nickname);
-				onIdentityCreated(referenceManager.putReference(localAuthor,
-						LocalAuthor.class));
+				long handle = referenceManager.putReference(localAuthor,
+						LocalAuthor.class);
+				onIdentityCreated(handle, resultHandler);
 
 			}
 		});
 	}
 
-	private void onIdentityCreated(final long handle) {
+	private void onIdentityCreated(final long handle,
+			final ResultHandler<Long, RuntimeException> resultHandler) {
 		activity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				appBus.broadcast(new LocalAuthorCreatedEvent(handle));
+				resultHandler.onResult(handle);
 			}
 		});
 	}

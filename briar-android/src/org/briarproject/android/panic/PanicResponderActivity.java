@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.helper.ConfigHelper;
+import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.api.db.DatabaseConfig;
 import org.iilab.IilabEngineeringRSA2048Pin;
 
 import java.util.logging.Logger;
@@ -32,7 +30,7 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(PanicResponderActivity.class.getName());
-	@Inject protected ConfigHelper configHelper;
+	@Inject protected ConfigController configController;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -108,7 +106,7 @@ public class PanicResponderActivity extends BriarActivity {
 	private void deleteAllData() {
 		androidExecutor.execute(new Runnable() {
 			public void run() {
-				configHelper.clearPrefs();
+				configController.clearPrefs();
 				// TODO somehow delete/shred the database more thoroughly
 				AndroidUtils.deleteAppData(PanicResponderActivity.this);
 				PanicResponder.deleteAllAppData(PanicResponderActivity.this);

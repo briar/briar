@@ -1,6 +1,6 @@
-package org.briarproject.android.helper;
+package org.briarproject.android.controller;
 
-public interface ConfigHelper {
+public interface ConfigController {
 	String getEncryptedDatabaseKey();
 
 	void clearPrefs();

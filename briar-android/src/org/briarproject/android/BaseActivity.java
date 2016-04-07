@@ -2,29 +2,31 @@ package org.briarproject.android;
 
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.CallSuper;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import org.briarproject.android.event.AppBus;
-import org.briarproject.android.event.ErrorEvent;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventListener;
+import org.briarproject.android.controller.ActivityLifecycleController;
 
-import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
-public abstract class BaseActivity extends AppCompatActivity implements
-		EventListener {
+public abstract class BaseActivity extends AppCompatActivity {
 
 	protected ActivityComponent activityComponent;
 
-	@Inject
-	protected AppBus appBus;
+	private List<ActivityLifecycleController> lifecycleControllers =
+			new ArrayList<ActivityLifecycleController>();
+
+	public void addLifecycleController(
+			ActivityLifecycleController lifecycleController) {
+		this.lifecycleControllers.add(lifecycleController);
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,22 +46,36 @@ public abstract class BaseActivity extends AppCompatActivity implements
 	}
 
 	@Override
+	public void onPostCreate(Bundle savedInstanceState,
+			PersistableBundle persistentState) {
+		super.onPostCreate(savedInstanceState, persistentState);
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityCreate();
+		}
+
+	}
+
+	@Override
 	protected void onResume() {
 		super.onResume();
-		appBus.addListener(this);
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityResume();
+		}
 	}
 
 	@Override
 	protected void onPause() {
-		appBus.removeListener(this);
 		super.onPause();
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityPause();
+		}
 	}
 
 	@Override
-	@CallSuper
-	public void eventOccurred(Event e) {
-		if (e instanceof ErrorEvent) {
-			finish();
+	protected void onDestroy() {
+		super.onDestroy();
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityDestroy();
 		}
 	}
 

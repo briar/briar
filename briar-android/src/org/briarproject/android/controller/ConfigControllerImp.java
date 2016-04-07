@@ -1,4 +1,4 @@
-package org.briarproject.android.helper;
+package org.briarproject.android.controller;
 
 import android.content.SharedPreferences;
 
@@ -6,7 +6,7 @@ import org.briarproject.api.db.DatabaseConfig;
 
 import javax.inject.Inject;
 
-public class ConfigHelperImp implements ConfigHelper {
+public class ConfigControllerImp implements ConfigController {
 
 	private final static String PREF_DB_KEY = "key";
 
@@ -16,7 +16,7 @@ public class ConfigHelperImp implements ConfigHelper {
 	protected volatile DatabaseConfig databaseConfig;
 
 	@Inject
-	public ConfigHelperImp() {
+	public ConfigControllerImp() {
 
 	}
 
