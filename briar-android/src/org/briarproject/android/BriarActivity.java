@@ -39,21 +39,6 @@ public abstract class BriarActivity extends BaseActivity {
 	private static final Logger LOG =
 			Logger.getLogger(BriarActivity.class.getName());
 
-	/*
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
-	@Inject
-	DatabaseConfig databaseConfig;
-	private boolean bound = false;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	@DatabaseExecutor
-	protected volatile Executor dbExecutor;
-	@Inject
-	protected volatile LifecycleManager lifecycleManager;
-	*/
 	@Inject
 	protected BriarController briarController;
 
@@ -62,7 +47,6 @@ public abstract class BriarActivity extends BaseActivity {
 		super.onCreate(state);
 
 		briarController.startAndBindService();
-//		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 
 	@Override

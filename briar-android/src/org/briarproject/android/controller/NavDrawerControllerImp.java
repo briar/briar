@@ -17,7 +17,6 @@ import org.briarproject.api.plugins.PluginManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -54,13 +53,13 @@ public class NavDrawerControllerImp extends BriarControllerImp
 	@Override
 	public void onActivityCreate() {
 		super.onActivityCreate();
-		initializeTransports();
 	}
 
 	@Override
 	public void onActivityResume() {
 		super.onActivityResume();
 		eventBus.addListener(this);
+		LOG.info("onActivityResume");
 	}
 
 	@Override
@@ -97,12 +96,12 @@ public class NavDrawerControllerImp extends BriarControllerImp
 		});
 	}
 
-	private void initializeTransports() {
-		transports.clear();
-		transports.add(pluginManager.getPlugin(new TransportId("tor")));
-		transports.add(pluginManager.getPlugin(new TransportId("bt")));
-		transports.add(pluginManager.getPlugin(new TransportId("lan")));
-	}
+//	private void initializeTransports() {
+//		transports.clear();
+//		transports.add(pluginManager.getPlugin(new TransportId("tor")));
+//		transports.add(pluginManager.getPlugin(new TransportId("bt")));
+//		transports.add(pluginManager.getPlugin(new TransportId("lan")));
+//	}
 
 	@Override
 	public void setTransportListener(TransportStateListener transportListener) {
@@ -111,12 +110,8 @@ public class NavDrawerControllerImp extends BriarControllerImp
 
 	@Override
 	public boolean transportRunning(TransportId transportId) {
-		for (Plugin transport : transports) {
-			if (transport.getId().equals(transportId)) {
-				return transport.isRunning();
-			}
-		}
-		return false;
+		Plugin plugin = pluginManager.getPlugin(transportId);
+		return plugin != null && plugin.isRunning();
 	}
 
 	@Override

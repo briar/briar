@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -46,13 +47,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public void onPostCreate(Bundle savedInstanceState,
-			PersistableBundle persistentState) {
-		super.onPostCreate(savedInstanceState, persistentState);
+	public void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		// Post call used for controllers to ensure that the onCreate method
+		// override in inherited Activities has finished
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate();
 		}
-
 	}
 
 	@Override
