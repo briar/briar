@@ -59,7 +59,6 @@ public class NavDrawerControllerImp extends BriarControllerImp
 	public void onActivityResume() {
 		super.onActivityResume();
 		eventBus.addListener(this);
-		LOG.info("onActivityResume");
 	}
 
 	@Override
@@ -95,13 +94,6 @@ public class NavDrawerControllerImp extends BriarControllerImp
 			}
 		});
 	}
-
-//	private void initializeTransports() {
-//		transports.clear();
-//		transports.add(pluginManager.getPlugin(new TransportId("tor")));
-//		transports.add(pluginManager.getPlugin(new TransportId("bt")));
-//		transports.add(pluginManager.getPlugin(new TransportId("lan")));
-//	}
 
 	@Override
 	public void setTransportListener(TransportStateListener transportListener) {
