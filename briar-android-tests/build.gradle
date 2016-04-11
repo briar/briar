@@ -31,6 +31,7 @@ dependencies {
     compile project(':briar-api')
     compile project(':briar-core')
     testCompile 'junit:junit:4.12'
+    testCompile 'net.jodah:concurrentunit:0.4.2'
     compile 'com.android.support:appcompat-v7:23.2.0'
     testApt 'com.google.dagger:dagger-compiler:2.0.2'
     provided 'javax.annotation:jsr250-api:1.0'

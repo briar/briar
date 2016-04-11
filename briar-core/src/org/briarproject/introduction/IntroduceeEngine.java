@@ -5,6 +5,7 @@ import org.briarproject.api.ProtocolEngine;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.IntroductionAbortedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroduceeAction;
@@ -25,6 +26,8 @@ import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ABORT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ACCEPT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_DECLINE;
 import static org.briarproject.api.introduction.IntroduceeAction.REMOTE_ABORT;
+import static org.briarproject.api.introduction.IntroduceeAction.REMOTE_ACCEPT;
+import static org.briarproject.api.introduction.IntroduceeAction.REMOTE_DECLINE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_ACK;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REMOTE_RESPONSE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
@@ -92,7 +95,7 @@ public class IntroduceeEngine
 							currentState.name());
 				}
 				if (currentState == ERROR) return noUpdate(localState);
-				else abortSession(currentState, localState);
+				else return abortSession(currentState, localState);
 			}
 
 			if (action == LOCAL_ACCEPT || action == LOCAL_DECLINE) {
@@ -194,6 +197,11 @@ public class IntroduceeEngine
 			}
 			// we are done (probably declined response) and ignore this message
 			else if (currentState == FINISHED) {
+				if(action == REMOTE_DECLINE || action == REMOTE_ACCEPT) {
+					// record response data,
+					// so we later know which response was ours
+					addResponseData(localState, msg);
+				}
 				return noUpdate(localState);
 			}
 			// this should not happen
@@ -355,8 +363,14 @@ public class IntroduceeEngine
 		msg.put(GROUP_ID, localState.getRaw(GROUP_ID));
 		msg.put(SESSION_ID, localState.getRaw(SESSION_ID));
 		List<BdfDictionary> messages = Collections.singletonList(msg);
-		// TODO inform about protocol abort via new Event?
-		List<Event> events = Collections.emptyList();
+
+		// send abort event
+		ContactId contactId =
+				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
+		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
+		Event event = new IntroductionAbortedEvent(contactId, sessionId);
+		List<Event> events = Collections.singletonList(event);
+
 		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
 				localState, messages, events);
 	}

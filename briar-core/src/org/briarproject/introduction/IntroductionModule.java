@@ -3,13 +3,9 @@ package org.briarproject.introduction;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.system.Clock;
 
 import javax.inject.Inject;
@@ -18,17 +14,19 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.api.sync.ValidationManager.MessageValidator;
+
 @Module
 public class IntroductionModule {
 
 	public static class EagerSingletons {
 		@Inject IntroductionManager introductionManager;
-		@Inject IntroductionValidator introductionValidator;
+		@Inject MessageValidator introductionValidator;
 	}
 
 	@Provides
 	@Singleton
-	IntroductionValidator getValidator(MessageQueueManager messageQueueManager,
+	MessageValidator getValidator(MessageQueueManager messageQueueManager,
 			IntroductionManager introductionManager,
 			MetadataEncoder metadataEncoder, ClientHelper clientHelper,
 			Clock clock) {
