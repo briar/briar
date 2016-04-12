@@ -229,7 +229,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary state;
 			try {
 				state = getSessionState(txn, groupId,
-						message.getRaw(SESSION_ID, new byte[0]));
+						message.getRaw(SESSION_ID));
 			} catch (FormatException e) {
 				LOG.warning("Could not find state for message, deleting...");
 				deleteMessage(txn, m.getId());

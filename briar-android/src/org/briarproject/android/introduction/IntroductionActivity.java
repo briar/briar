@@ -27,6 +27,8 @@ public class IntroductionActivity extends BriarActivity implements
 
 		Intent intent = getIntent();
 		contactId = intent.getIntExtra(CONTACT_ID, -1);
+		if (contactId == -1)
+			throw new IllegalArgumentException("Wrong ContactId");
 
 		setContentView(R.layout.activity_introduction);
 

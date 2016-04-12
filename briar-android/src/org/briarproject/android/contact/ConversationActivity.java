@@ -90,7 +90,6 @@ public class ConversationActivity extends BriarActivity
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
-	private static final int INTRODUCTION_REQUEST_CODE = 0;
 
 	@Inject protected AndroidNotificationManager notificationManager;
 	@Inject protected ConnectionRegistry connectionRegistry;
@@ -128,12 +127,12 @@ public class ConversationActivity extends BriarActivity
 		setContentView(R.layout.activity_conversation);
 
 		// Custom Toolbar
-		final Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
 		toolbarAvatar = (CircleImageView) tb.findViewById(R.id.contactAvatar);
 		toolbarStatus = (ImageView) tb.findViewById(R.id.contactStatus);
 		toolbarTitle = (TextView) tb.findViewById(R.id.contactName);
 		setSupportActionBar(tb);
-		final ActionBar ab = getSupportActionBar();
+		ActionBar ab = getSupportActionBar();
 		if (ab != null) {
 			ab.setDisplayShowHomeEnabled(true);
 			ab.setDisplayHomeAsUpEnabled(true);
@@ -202,25 +201,13 @@ public class ConversationActivity extends BriarActivity
 				ActivityOptionsCompat options = ActivityOptionsCompat
 						.makeCustomAnimation(this, android.R.anim.slide_in_left,
 								android.R.anim.slide_out_right);
-				ActivityCompat.startActivityForResult(this, intent,
-						INTRODUCTION_REQUEST_CODE, options.toBundle());
+				ActivityCompat.startActivity(this, intent, options.toBundle());
 				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
-		}
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode,
-			Intent data) {
-
-		if (requestCode == INTRODUCTION_REQUEST_CODE) {
-			if (resultCode == RESULT_OK) {
-				loadData();
-			}
 		}
 	}
 
@@ -274,7 +261,7 @@ public class ConversationActivity extends BriarActivity
 					toolbarStatus
 							.setContentDescription(getString(R.string.offline));
 				}
-				adapter.setIdenticonKey(contactIdenticonKey, contactName);
+				adapter.setContactInformation(contactIdenticonKey, contactName);
 			}
 		});
 	}
@@ -284,6 +271,8 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
+					if (contactId == null)
+						contactId = messagingManager.getContactId(groupId);
 					Collection<PrivateMessageHeader> headers =
 							messagingManager.getMessageHeaders(contactId);
 					Collection<IntroductionMessage> introductions =
@@ -372,11 +361,10 @@ public class ConversationActivity extends BriarActivity
 					if (item.getId().equals(m)) {
 						item.setBody(body);
 						adapter.notifyItemChanged(messages.keyAt(i));
+						list.scrollToPosition(adapter.getItemCount() - 1);
 						return;
 					}
 				}
-				// Scroll to the bottom
-				list.scrollToPosition(adapter.getItemCount() - 1);
 			}
 		});
 	}
@@ -385,11 +373,9 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (adapter != null) {
-					adapter.add(item);
-					// Scroll to the bottom
-					list.scrollToPosition(adapter.getItemCount() - 1);
-				}
+				adapter.add(item);
+				// Scroll to the bottom
+				list.scrollToPosition(adapter.getItemCount() - 1);
 			}
 		});
 	}
@@ -609,6 +595,10 @@ public class ConversationActivity extends BriarActivity
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
+					// make sure contactId is initialised
+					if (contactId == null)
+						contactId = messagingManager.getContactId(groupId);
+					// remove contact with that ID
 					contactManager.removeContact(contactId);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -657,7 +647,8 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void respondToIntroduction(final SessionId sessionId, final boolean accept) {
+	public void respondToIntroduction(final SessionId sessionId,
+			final boolean accept) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -665,9 +656,13 @@ public class ConversationActivity extends BriarActivity
 				timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 				try {
 					if (accept) {
-						introductionManager.acceptIntroduction(contactId, sessionId, timestamp);
+						introductionManager
+								.acceptIntroduction(contactId, sessionId,
+										timestamp);
 					} else {
-						introductionManager.declineIntroduction(contactId, sessionId, timestamp);
+						introductionManager
+								.declineIntroduction(contactId, sessionId,
+										timestamp);
 					}
 					loadMessages();
 				} catch (DbException e) {

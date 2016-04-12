@@ -1,6 +1,5 @@
 package org.briarproject.android.introduction;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -37,7 +36,7 @@ public class IntroductionMessageFragment extends BaseFragment {
 	private static final Logger LOG =
 			Logger.getLogger(IntroductionMessageFragment.class.getName());
 
-	public final static String TAG = "ContactChooserFragment";
+	public final static String TAG = "IntroductionMessageFragment";
 	private IntroductionActivity introductionActivity;
 	private ViewHolder ui;
 
@@ -45,7 +44,6 @@ public class IntroductionMessageFragment extends BaseFragment {
 	private final static String CONTACT_ID_2 = "contact2";
 
 	// Fields that are accessed from background threads must be volatile
-	private volatile boolean introductionWasMade = false;
 	@Inject
 	protected volatile ContactManager contactManager;
 	@Inject
@@ -129,8 +127,8 @@ public class IntroductionMessageFragment extends BaseFragment {
 							.getContact(new ContactId(contactId2));
 					setUpViews(c1, c2);
 				} catch (DbException e) {
-					// TODO
-					e.printStackTrace();
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
 				}
 			}
 		});
@@ -167,54 +165,49 @@ public class IntroductionMessageFragment extends BaseFragment {
 	}
 
 	public void onButtonClick(final Contact c1, final Contact c2) {
+		// disable button to prevent accidental double invitations
+		ui.button.setEnabled(false);
+
 		String msg = ui.message.getText().toString();
 		makeIntroduction(c1, c2, msg);
+
+		// don't wait for the introduction to be made before finishing activity
+		introductionActivity.hideSoftKeyboard(ui.message);
+		introductionActivity.finish();
 	}
 
 	private void makeIntroduction(final Contact c1, final Contact c2,
 			final String msg) {
 		introductionActivity.runOnDbThread(new Runnable() {
 			public void run() {
-				// prevent double introductions
-				if (introductionWasMade) return;
-
 				// actually make the introduction
 				try {
 					long timestamp = System.currentTimeMillis();
 					introductionManager.makeIntroduction(c1, c2, msg, timestamp);
-					introductionWasMade = true;
-					postIntroduction(false);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					postIntroduction(true);
+					introductionError();
 				} catch (FormatException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					postIntroduction(true);
+					introductionError();
 				}
 			}
 		});
 	}
 
-	private void postIntroduction(final boolean error) {
+	private void introductionError() {
 		introductionActivity.runOnUiThread(new Runnable() {
 			public void run() {
-				introductionActivity.hideSoftKeyboard(ui.message);
-				if (error) {
-					Toast.makeText(introductionActivity,
-							R.string.introduction_error, Toast.LENGTH_SHORT)
-							.show();
-					introductionActivity.setResult(Activity.RESULT_CANCELED);
-				} else {
-					introductionActivity.setResult(Activity.RESULT_OK);
-				}
-				introductionActivity.finish();
+				Toast.makeText(introductionActivity,
+						R.string.introduction_error, Toast.LENGTH_SHORT)
+						.show();
 			}
 		});
 	}
 
-	private class ViewHolder {
+	private static class ViewHolder {
 		ProgressBar progressBar;
 		ViewGroup header;
 		CircleImageView avatar1;

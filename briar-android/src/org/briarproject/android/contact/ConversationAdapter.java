@@ -88,19 +88,12 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			IntroductionHandler introductionHandler) {
 		ctx = context;
 		intro = introductionHandler;
-		setHasStableIds(true);
 	}
 
-	public void setIdenticonKey(byte[] key, String contactName) {
-		this.identiconKey = key;
+	public void setContactInformation(byte[] identiconKey, String contactName) {
+		this.identiconKey = identiconKey;
 		this.contactName = contactName;
-		// FIXME this breaks the progress animation because it is called early before data is loaded
 		notifyDataSetChanged();
-	}
-
-	@Override
-	public long getItemId(int position) {
-		return getItem(position).getId().hashCode();
 	}
 
 	@Override
@@ -147,11 +140,10 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	@Override
-	public void onBindViewHolder(final ViewHolder ui, final int position) {
+	public void onBindViewHolder(ViewHolder ui, int position) {
 		ConversationItem item = getItem(position);
 		if (item instanceof ConversationMessageItem) {
-			bindMessage((MessageHolder) ui, (ConversationMessageItem) item,
-					position);
+			bindMessage((MessageHolder) ui, (ConversationMessageItem) item);
 		} else if (item instanceof ConversationIntroductionOutItem) {
 			bindIntroduction((IntroductionHolder) ui,
 					(ConversationIntroductionOutItem) item, position);
@@ -159,18 +151,16 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			bindIntroduction((IntroductionHolder) ui,
 					(ConversationIntroductionInItem) item, position);
 		} else if (item instanceof ConversationNoticeOutItem) {
-			bindNotice((NoticeHolder) ui, (ConversationNoticeOutItem) item,
-					position);
+			bindNotice((NoticeHolder) ui, (ConversationNoticeOutItem) item);
 		} else if (item instanceof ConversationNoticeInItem) {
-			bindNotice((NoticeHolder) ui, (ConversationNoticeInItem) item,
-					position);
+			bindNotice((NoticeHolder) ui, (ConversationNoticeInItem) item);
 		} else {
 			throw new IllegalArgumentException("Unhandled Conversation Item");
 		}
 	}
 
-	private void bindMessage(final MessageHolder ui,
-			ConversationMessageItem item, final int position) {
+	private void bindMessage(MessageHolder ui, ConversationMessageItem item) {
+
 		PrivateMessageHeader header = item.getHeader();
 
 		if (item.getType() == MSG_OUT) {
@@ -213,7 +203,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		ui.date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
 	}
 
-	private void bindIntroduction(final IntroductionHolder ui,
+	private void bindIntroduction(IntroductionHolder ui,
 			final ConversationIntroductionInItem item, final int position) {
 
 		final IntroductionRequest ir = item.getIntroductionRequest();
@@ -259,7 +249,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 		// Incoming Introduction Request (Not Answered)
 		else {
-			if (item.getIntroductionRequest().doesExist()) {
+			if (item.getIntroductionRequest().contactExists()) {
 				ui.text.setText(ctx.getString(
 						R.string.introduction_request_exists_received,
 						contactName, ir.getName()));
@@ -292,8 +282,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 				DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
 	}
 
-	private void bindNotice(final NoticeHolder ui,
-			final ConversationNoticeItem item, final int position) {
+	private void bindNotice(NoticeHolder ui, ConversationNoticeItem item) {
 
 		ui.text.setText(item.getText());
 		ui.date.setText(
@@ -375,16 +364,10 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	public void clear() {
-		this.items.beginBatchedUpdates();
-
-		while(items.size() != 0) {
-			items.removeItemAt(0);
-		}
-
-		this.items.endBatchedUpdates();
+		items.clear();
 	}
 
-	protected class MessageHolder extends RecyclerView.ViewHolder {
+	private static class MessageHolder extends RecyclerView.ViewHolder {
 
 		public ViewGroup layout;
 		public TextView body;
@@ -408,7 +391,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 	}
 
-	protected class IntroductionHolder extends RecyclerView.ViewHolder {
+	private static class IntroductionHolder extends RecyclerView.ViewHolder {
 
 		public ViewGroup layout;
 		public View messageLayout;
@@ -437,7 +420,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 	}
 
-	protected class NoticeHolder extends RecyclerView.ViewHolder {
+	private static class NoticeHolder extends RecyclerView.ViewHolder {
 
 		public ViewGroup layout;
 		public TextView text;

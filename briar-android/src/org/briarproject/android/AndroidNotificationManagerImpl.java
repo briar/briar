@@ -15,6 +15,7 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -161,21 +162,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 					showForumPostNotification(m.getMessage().getGroupId());
 			}
 		} else if (e instanceof IntroductionRequestReceivedEvent) {
-			try {
-				GroupId group = messagingManager.getConversationId(
-						((IntroductionRequestReceivedEvent) e).getContactId());
-				showPrivateMessageNotification(group);
-			} catch (DbException ex) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, ex.toString(), ex);
-			}
+			ContactId c = ((IntroductionRequestReceivedEvent) e).getContactId();
+			showIntroductionNotifications(c);
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
-			try {
-				GroupId group = messagingManager.getConversationId(
-						((IntroductionResponseReceivedEvent) e).getContactId());
-				showPrivateMessageNotification(group);
-			} catch (DbException ex) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, ex.toString(), ex);
-			}
+			ContactId c = ((IntroductionResponseReceivedEvent) e).getContactId();
+			showIntroductionNotifications(c);
 		} else if (e instanceof IntroductionSucceededEvent) {
 			Contact c = ((IntroductionSucceededEvent) e).getContact();
 			showIntroductionSucceededNotification(c);
@@ -363,6 +354,20 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		androidExecutor.execute(new Runnable() {
 			public void run() {
 				if (g.equals(visibleGroup)) visibleGroup = null;
+			}
+		});
+	}
+
+	private void showIntroductionNotifications(final ContactId c) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					GroupId group = messagingManager.getConversationId(c);
+					showPrivateMessageNotification(group);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
 			}
 		});
 	}

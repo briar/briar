@@ -103,10 +103,7 @@ public class ContactChooserFragment extends BaseFragment {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
 						if (c1 == null) {
-							Toast.makeText(getActivity(),
-									R.string.introduction_error,
-									Toast.LENGTH_SHORT).show();
-							return;
+							throw new RuntimeException("c1 not initialized");
 						}
 						Contact c2 = item.getContact();
 						if (!c1.getLocalAuthorId()
@@ -227,6 +224,7 @@ public class ContactChooserFragment extends BaseFragment {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loading message headers took " + duration + " ms");
 
+		now = System.currentTimeMillis();
 		Collection<IntroductionMessage> introductions =
 				introductionManager
 						.getIntroductionMessages(id);

@@ -303,6 +303,7 @@ public class ContactListFragment extends BaseEventFragment {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loading message headers took " + duration + " ms");
 
+		now = System.currentTimeMillis();
 		Collection<IntroductionMessage> introductions =
 				introductionManager
 						.getIntroductionMessages(id);
