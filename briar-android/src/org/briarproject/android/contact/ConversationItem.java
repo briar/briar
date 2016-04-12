@@ -6,11 +6,13 @@ import org.briarproject.R;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
+import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
 public abstract class ConversationItem {
 
+	// this is needed for RecyclerView adapter which requires an int type
 	final static int MSG_IN = 0;
 	final static int MSG_IN_UNREAD = 1;
 	final static int MSG_OUT = 2;
@@ -35,6 +37,13 @@ public abstract class ConversationItem {
 
 	long getTime() {
 		return time;
+	}
+
+	public static ConversationItem from(PrivateMessageHeader h) {
+		if (h.isLocal())
+			return new ConversationMessageOutItem(h);
+		else
+			return new ConversationMessageInItem(h);
 	}
 
 	public static ConversationItem from(IntroductionRequest ir) {

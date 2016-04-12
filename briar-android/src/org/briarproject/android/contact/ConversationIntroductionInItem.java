@@ -3,35 +3,20 @@ package org.briarproject.android.contact;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.sync.MessageId;
 
-public class ConversationIntroductionInItem extends ConversationItem implements
-		ConversationItem.IncomingItem {
+public class ConversationIntroductionInItem extends ConversationIntroductionItem
+		implements ConversationItem.IncomingItem {
 
-	private IntroductionRequest ir;
-	private boolean answered, read;
+	private boolean read;
 
 	public ConversationIntroductionInItem(IntroductionRequest ir) {
-		super(ir.getMessageId(), ir.getTime());
+		super(ir);
 
-		this.ir = ir;
-		this.answered = ir.wasAnswered();
 		this.read = ir.isRead();
 	}
 
 	@Override
 	int getType() {
 		return INTRODUCTION_IN;
-	}
-
-	public IntroductionRequest getIntroductionRequest() {
-		return ir;
-	}
-
-	public boolean wasAnswered() {
-		return answered;
-	}
-
-	public void setAnswered(boolean answered) {
-		this.answered = answered;
 	}
 
 	@Override

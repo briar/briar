@@ -1,7 +1,6 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.sync.MessageId;
 
 /**
  * This class is needed and can not be replaced by an ConversationNoticeOutItem,
@@ -9,7 +8,7 @@ import org.briarproject.api.sync.MessageId;
  * to be displayed as a regular private message.
  */
 public class ConversationIntroductionOutItem
-		extends ConversationIntroductionInItem
+		extends ConversationIntroductionItem
 		implements ConversationItem.OutgoingItem {
 
 	private boolean sent, seen;

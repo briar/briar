@@ -163,10 +163,10 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 		PrivateMessageHeader header = item.getHeader();
 
-		if (item.getType() == MSG_OUT) {
-			if (item.isSeen()) {
+		if (item instanceof ConversationItem.OutgoingItem) {
+			if (((OutgoingItem) item).isSeen()) {
 				ui.status.setImageResource(R.drawable.message_delivered_white);
-			} else if (item.isSent()) {
+			} else if (((OutgoingItem) item).isSent()) {
 				ui.status.setImageResource(R.drawable.message_sent_white);
 			} else {
 				ui.status.setImageResource(R.drawable.message_stored_white);
@@ -204,7 +204,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	private void bindIntroduction(IntroductionHolder ui,
-			final ConversationIntroductionInItem item, final int position) {
+			final ConversationIntroductionItem item, final int position) {
 
 		final IntroductionRequest ir = item.getIntroductionRequest();
 

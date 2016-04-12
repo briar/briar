@@ -304,7 +304,8 @@ public class ConversationActivity extends BriarActivity
 				} else {
 					for (PrivateMessageHeader h : headers) {
 						ConversationMessageItem item =
-								new ConversationMessageItem(h);
+								(ConversationMessageItem) ConversationItem
+										.from(h);
 						byte[] body = bodyCache.get(h.getId());
 						if (body == null) loadMessageBody(h);
 						else item.setBody(body);

@@ -6,19 +6,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.transition.ChangeBounds;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.contact.ConversationItem;
-import org.briarproject.android.contact.ConversationMessageItem;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
@@ -218,7 +215,7 @@ public class ContactChooserFragment extends BaseFragment {
 		Collection<PrivateMessageHeader> headers =
 				messagingManager.getMessageHeaders(id);
 		for (PrivateMessageHeader h : headers) {
-			messages.add(new ConversationMessageItem(h));
+			messages.add(ConversationItem.from(h));
 		}
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
