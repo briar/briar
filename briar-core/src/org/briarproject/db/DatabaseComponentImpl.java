@@ -157,6 +157,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsLocalAuthor(txn, local))
 			throw new NoSuchLocalAuthorException();
+		if (db.containsLocalAuthor(txn, remote.getId()))
+			throw new ContactExistsException();
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException();
 		ContactId c = db.addContact(txn, remote, local, active);

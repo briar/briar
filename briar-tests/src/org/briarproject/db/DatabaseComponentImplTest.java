@@ -6,6 +6,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.db.ContactExistsException;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchContactException;
@@ -143,6 +144,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// addContact()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
+			oneOf(database).containsLocalAuthor(txn, authorId);
+			will(returnValue(false));
 			oneOf(database).containsContact(txn, authorId, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addContact(txn, author, localAuthorId, true);
@@ -767,6 +770,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// addContact()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(true));
+			oneOf(database).containsLocalAuthor(txn, authorId);
+			will(returnValue(false));
 			oneOf(database).containsContact(txn, authorId, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addContact(txn, author, localAuthorId, true);
@@ -1484,7 +1489,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
-			will(returnValue(new Object()));
+			will(returnValue(txn));
 		}});
 
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
@@ -1493,8 +1498,81 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		assertNotNull(db.startTransaction(firstTxnReadOnly));
 		try {
 			db.startTransaction(secondTxnReadOnly);
+			fail();
 		} finally {
 			context.assertIsSatisfied();
 		}
+	}
+
+	@Test
+	public void testCannotAddLocalIdentityAsContact() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
+
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(true));
+			// Contact is a local identity
+			oneOf(database).containsLocalAuthor(txn, authorId);
+			will(returnValue(true));
+			oneOf(database).abortTransaction(txn);
+		}});
+
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		Transaction transaction = db.startTransaction(false);
+		try {
+			db.addContact(transaction, author, localAuthorId, true);
+			fail();
+		} catch (ContactExistsException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testCannotAddDuplicateContact() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final EventBus eventBus = context.mock(EventBus.class);
+
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(true));
+			oneOf(database).containsLocalAuthor(txn, authorId);
+			will(returnValue(false));
+			// Contact already exists for this local identity
+			oneOf(database).containsContact(txn, authorId, localAuthorId);
+			will(returnValue(true));
+			oneOf(database).abortTransaction(txn);
+		}});
+
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		Transaction transaction = db.startTransaction(false);
+		try {
+			db.addContact(transaction, author, localAuthorId, true);
+			fail();
+		} catch (ContactExistsException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		context.assertIsSatisfied();
 	}
 }
