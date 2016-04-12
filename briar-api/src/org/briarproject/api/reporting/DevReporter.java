@@ -2,6 +2,7 @@ package org.briarproject.api.reporting;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * A task for reporting back to the developers.
@@ -9,20 +10,20 @@ import java.io.FileNotFoundException;
 public interface DevReporter {
 
 	/**
-	 * Store a crash report encrypted on-disk to be sent later.
+	 * Store a report encrypted on-disk to be sent later.
 	 *
-	 * @param crashReportDir the directory where crash reports are stored.
-	 * @param crashReport    the crash report in the form expected by the server.
+	 * @param reportDir the directory where reports are stored.
+	 * @param report    the report in the form expected by the server.
 	 * @throws FileNotFoundException if the report could not be written.
 	 */
-	void encryptCrashReportToFile(File crashReportDir, String filename,
-			String crashReport) throws FileNotFoundException;
+	void encryptReportToFile(File reportDir, String filename,
+			String report) throws FileNotFoundException;
 
 	/**
-	 * Send crash reports previously stored on-disk.
+	 * Send reports previously stored on-disk.
 	 *
-	 * @param crashReportDir the directory where crash reports are stored.
-	 * @param socksPort      the SOCKS port of a Tor client.
+	 * @param reportDir the directory where reports are stored.
+	 * @param socksPort the SOCKS port of a Tor client.
 	 */
-	void sendCrashReports(File crashReportDir, int socksPort);
+	void sendReports(File reportDir, int socksPort);
 }

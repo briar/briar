@@ -39,7 +39,7 @@ public class BriarReportSender implements ReportSender {
 			throw new ReportSenderException("Couldn't create JSON", e);
 		}
 		try {
-			reporter.encryptCrashReportToFile(
+			reporter.encryptReportToFile(
 					AndroidUtils.getReportDir(context),
 					errorContent.getProperty(ReportField.REPORT_ID),
 					crashReport);

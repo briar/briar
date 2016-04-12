@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
@@ -11,10 +12,11 @@
 		android:layout_height="wrap_content">
 
 		<TextView
+			android:id="@+id/title"
 			style="@style/TextAppearance.AppCompat.Large.Inverse"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/crash_report_title"/>
+			tools:text="@string/crash_report_title"/>
 	</android.support.v7.widget.Toolbar>
 
 	<RelativeLayout
@@ -35,8 +37,8 @@
 				android:layout_marginLeft="@dimen/margin_large"
 				android:layout_marginRight="@dimen/margin_large"
 				android:layout_marginStart="@dimen/margin_large"
-				android:hint="@string/describe_crash"
-				android:inputType="textMultiLine|textCapSentences"/>
+				android:inputType="textMultiLine|textCapSentences"
+				tools:hint="@string/describe_crash"/>
 
 			<EditText
 				android:id="@+id/user_email"
@@ -51,13 +53,24 @@
 				android:inputType="textEmailAddress"
 				android:maxLines="1"/>
 
+			<CheckBox
+				android:id="@+id/include_debug_report"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="@dimen/margin_large"
+				android:layout_marginLeft="@dimen/margin_large"
+				android:layout_marginRight="@dimen/margin_large"
+				android:layout_marginStart="@dimen/margin_large"
+				android:layout_marginTop="@dimen/margin_small"
+				android:text="@string/include_debug_report"/>
+
 			<ScrollView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/margin_small">
 
 				<LinearLayout
-					android:id="@+id/crash_status"
+					android:id="@+id/report_content"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center_horizontal"
@@ -78,10 +91,11 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
-			android:indeterminate="true"/>
+			android:indeterminate="true"
+			android:visibility="gone"/>
 
 		<android.support.design.widget.FloatingActionButton
-			android:id="@+id/share_crash_report"
+			android:id="@+id/share_dev_report"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentBottom="true"

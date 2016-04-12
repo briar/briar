@@ -42,7 +42,7 @@
 			</intent-filter>
 		</service>
 		<activity
-			android:name=".android.CrashReportActivity"
+			android:name=".android.DevReportActivity"
 			android:excludeFromRecents="true"
 			android:exported="false"
 			android:finishOnTaskLaunch="true"

@@ -53,17 +53,17 @@ class DevReporterImpl implements DevReporter {
 	}
 
 	@Override
-	public void encryptCrashReportToFile(File crashReportDir, String filename,
-			String crashReport) throws FileNotFoundException {
+	public void encryptReportToFile(File reportDir, String filename,
+			String report) throws FileNotFoundException {
 		String encryptedReport =
 				crypto.encryptToKey(devConfig.getDevPublicKey(),
-						StringUtils.toUtf8(crashReport));
+						StringUtils.toUtf8(report));
 
-		File report = new File(crashReportDir, filename);
+		File f = new File(reportDir, filename);
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(
-					new OutputStreamWriter(new FileOutputStream(report)));
+					new OutputStreamWriter(new FileOutputStream(f)));
 			writer.append(encryptedReport);
 			writer.flush();
 		} finally {
@@ -73,10 +73,10 @@ class DevReporterImpl implements DevReporter {
 	}
 
 	@Override
-	public void sendCrashReports(File crashReportDir, int socksPort) {
-		File[] reports = crashReportDir.listFiles();
+	public void sendReports(File reportDir, int socksPort) {
+		File[] reports = reportDir.listFiles();
 		if (reports == null || reports.length == 0)
-			return; // No crash reports to send
+			return; // No reports to send
 
 		LOG.info("Connecting to developers");
 		Socket s;
@@ -88,7 +88,7 @@ class DevReporterImpl implements DevReporter {
 			return;
 		}
 
-		LOG.info("Sending crash reports to developers");
+		LOG.info("Sending reports to developers");
 		OutputStream output;
 		PrintWriter writer = null;
 		try {
@@ -106,7 +106,7 @@ class DevReporterImpl implements DevReporter {
 				writer.flush();
 				f.delete();
 			}
-			LOG.info("Crash reports sent");
+			LOG.info("Reports sent");
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING))
 				LOG.log(WARNING, "Connection to developers failed", e);
