@@ -1,46 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	tools:context=".android.contact.ConversationActivity">
+
+	<android.support.v7.widget.Toolbar
+		android:id="@+id/toolbar"
+		style="@style/BriarToolbar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:minHeight="?attr/actionBarSize"
+		app:layout_collapseMode="pin"
+		app:layout_scrollFlags="scroll|enterAlways"
+		app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent">
+
+			<include layout="@layout/contact_avatar_status"/>
+
+			<TextView
+				android:id="@+id/contactName"
+				style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="@dimen/margin_medium"
+				android:layout_marginStart="@dimen/margin_medium"
+				android:gravity="center"
+				tools:text="Contact Name"/>
+
+		</LinearLayout>
+
+	</android.support.v7.widget.Toolbar>
 
 	<org.briarproject.android.util.BriarRecyclerView
 		android:id="@+id/conversationView"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_weight="1"/>
+		android:layout_weight="1"
+		android:background="@color/conversation_background"/>
 
 	<View style="@style/Divider.Horizontal"/>
 
 	<LinearLayout
-		android:orientation="horizontal"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="@color/button_bar_background"
+		android:orientation="horizontal"
 		android:paddingLeft="@dimen/margin_medium"
 		android:paddingStart="@dimen/margin_medium">
 
 		<EditText
 			android:id="@+id/contentView"
 			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:hint="@string/private_message_hint"
+			android:layout_height="match_parent"
 			android:layout_weight="1"
+			android:hint="@string/private_message_hint"
 			android:inputType="text|textMultiLine|textCapSentences"/>
 
 		<ImageButton
 			android:id="@+id/sendButton"
 			android:layout_width="38dp"
 			android:layout_height="38dp"
-			android:layout_gravity="bottom"
-			android:src="@drawable/social_send_now"
-			android:background="?attr/selectableItemBackground"
-			android:scaleType="fitEnd"
+			android:layout_margin="@dimen/margin_small"
+			android:background="@drawable/round_button"
+			android:src="@drawable/social_send_now_white"
 			android:contentDescription="@string/send"
-			android:paddingRight="@dimen/margin_medium"
-			android:paddingEnd="@dimen/margin_medium"
-			android:paddingBottom="@dimen/margin_medium"/>
+		    android:elevation="@dimen/margin_tiny"
+			/>
+
 	</LinearLayout>
 
 </LinearLayout>

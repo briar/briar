@@ -30,6 +30,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY1;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY2;
@@ -38,6 +39,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRO
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
@@ -99,7 +101,7 @@ class IntroducerManager {
 	}
 
 	public void makeIntroduction(Transaction txn, Contact c1, Contact c2,
-			String msg) throws DbException, FormatException {
+			String msg, long timestamp) throws DbException, FormatException {
 
 		// TODO check for existing session with those contacts?
 		//      deny new introduction under which conditions?
@@ -115,6 +117,7 @@ class IntroducerManager {
 		}
 		localAction.put(PUBLIC_KEY1, c1.getAuthor().getPublicKey());
 		localAction.put(PUBLIC_KEY2, c2.getAuthor().getPublicKey());
+		localAction.put(MESSAGE_TIME, timestamp);
 
 		// start engine and process its state update
 		IntroducerEngine engine = new IntroducerEngine();

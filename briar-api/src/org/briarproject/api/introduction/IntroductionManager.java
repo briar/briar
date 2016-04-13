@@ -8,6 +8,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
@@ -20,19 +21,22 @@ public interface IntroductionManager {
 	/**
 	 * sends two initial introduction messages
 	 */
-	void makeIntroduction(Contact c1, Contact c2, String msg)
+	void makeIntroduction(Contact c1, Contact c2, String msg,
+			final long timestamp)
 			throws DbException, FormatException;
 
 	/**
 	 * Accept an introduction that had been made
 	 */
-	void acceptIntroduction(final SessionId sessionId)
+	void acceptIntroduction(final ContactId contactId,
+			final SessionId sessionId, final long timestamp)
 			throws DbException, FormatException;
 
 	/**
 	 * Decline an introduction that had been made
 	 */
-	void declineIntroduction(final SessionId sessionId)
+	void declineIntroduction(final ContactId contactId,
+			final SessionId sessionId, final long timestamp)
 			throws DbException, FormatException;
 
 	/**
@@ -46,8 +50,8 @@ public interface IntroductionManager {
 
 
 	/** Get the session state for the given session ID */
-	BdfDictionary getSessionState(Transaction txn, byte[] sessionId)
-			throws DbException, FormatException;
+	BdfDictionary getSessionState(Transaction txn, GroupId groupId,
+			byte[] sessionId) throws DbException, FormatException;
 
 	/** Gets the group used for introductions with Contact c */
 	Group getIntroductionGroup(Contact c);

@@ -29,7 +29,7 @@ public class IntroductionRequest extends IntroductionResponse {
 		return answered;
 	}
 
-	public boolean doesExist() {
+	public boolean contactExists() {
 		return exists;
 	}
 

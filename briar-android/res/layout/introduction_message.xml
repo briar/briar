@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fillViewport="true">
+
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:padding="@dimen/margin_activity_horizontal"
+		android:orientation="vertical">
+
+		<RelativeLayout
+			android:id="@+id/introductionHeader"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/margin_medium">
+
+			<de.hdodenhof.circleimageview.CircleImageView
+				android:id="@+id/avatarContact1"
+				android:layout_width="@dimen/listitem_picture_size"
+				android:layout_height="@dimen/listitem_picture_size"
+				android:layout_centerHorizontal="true"
+				android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+				android:layout_marginRight="@dimen/listitem_horizontal_margin"
+				android:layout_toLeftOf="@+id/introductionIcon"
+				android:layout_toStartOf="@+id/introductionIcon"
+				app:civ_border_color="@color/briar_text_primary"
+				app:civ_border_width="@dimen/avatar_border_width"
+				tools:src="@drawable/ic_launcher"/>
+
+			<ImageView
+				android:id="@+id/introductionIcon"
+				android:layout_width="@dimen/listitem_picture_size"
+				android:layout_height="@dimen/listitem_picture_size"
+				android:layout_centerHorizontal="true"
+				android:src="@drawable/ic_contact_introduction"
+				tools:ignore="ContentDescription"/>
+
+			<de.hdodenhof.circleimageview.CircleImageView
+				android:id="@+id/avatarContact2"
+				android:layout_width="@dimen/listitem_picture_size"
+				android:layout_height="@dimen/listitem_picture_size"
+				android:layout_centerHorizontal="true"
+				android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+				android:layout_marginStart="@dimen/listitem_horizontal_margin"
+				android:layout_toEndOf="@+id/introductionIcon"
+				android:layout_toRightOf="@+id/introductionIcon"
+				android:transitionName="avatar"
+				app:civ_border_color="@color/briar_text_primary"
+				app:civ_border_width="@dimen/avatar_border_width"
+				tools:src="@drawable/ic_launcher"/>
+
+		</RelativeLayout>
+
+		<ProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			tools:visibility="gone"/>
+
+		<TextView
+			android:id="@+id/introductionText"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_marginTop="@dimen/margin_medium"
+			android:layout_weight="1"
+			android:gravity="top"
+			android:textSize="@dimen/text_size_medium"
+			tools:text="@string/introduction_message_text"/>
+
+		<EditText
+			android:id="@+id/introductionMessageView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_medium"
+			android:gravity="bottom"
+			android:hint="@string/introduction_message_hint"
+			android:inputType="text|textMultiLine|textCapSentences"/>
+
+		<Button
+			android:id="@+id/makeIntroductionButton"
+			style="@style/BriarButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/introduction_button"
+			/>
+
+	</LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

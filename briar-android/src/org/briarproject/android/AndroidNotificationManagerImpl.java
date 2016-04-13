@@ -14,10 +14,15 @@ import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.IntroductionRequestReceivedEvent;
+import org.briarproject.api.event.IntroductionResponseReceivedEvent;
+import org.briarproject.api.event.IntroductionSucceededEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.forum.ForumManager;
@@ -57,6 +62,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
 	private static final int FORUM_POST_NOTIFICATION_ID = 4;
+	private static final int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 5;
 	private static final String CONTACT_URI =
 			"content://org.briarproject/contact";
 	private static final String FORUM_URI =
@@ -111,6 +117,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			public Void call() {
 				clearPrivateMessageNotification();
 				clearForumPostNotification();
+				clearIntroductionSuccessNotification();
 				return null;
 			}
 		});
@@ -135,6 +142,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		nm.cancel(FORUM_POST_NOTIFICATION_ID);
 	}
 
+	private void clearIntroductionSuccessNotification() {
+		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.cancel(INTRODUCTION_SUCCESS_NOTIFICATION_ID);
+	}
+
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
@@ -148,6 +161,15 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				else if (c.equals(forumManager.getClientId()))
 					showForumPostNotification(m.getMessage().getGroupId());
 			}
+		} else if (e instanceof IntroductionRequestReceivedEvent) {
+			ContactId c = ((IntroductionRequestReceivedEvent) e).getContactId();
+			showIntroductionNotifications(c);
+		} else if (e instanceof IntroductionResponseReceivedEvent) {
+			ContactId c = ((IntroductionResponseReceivedEvent) e).getContactId();
+			showIntroductionNotifications(c);
+		} else if (e instanceof IntroductionSucceededEvent) {
+			Contact c = ((IntroductionSucceededEvent) e).getContact();
+			showIntroductionSucceededNotification(c);
 		}
 	}
 
@@ -335,4 +357,49 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			}
 		});
 	}
+
+	private void showIntroductionNotifications(final ContactId c) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					GroupId group = messagingManager.getConversationId(c);
+					showPrivateMessageNotification(group);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	private void showIntroductionSucceededNotification(final Contact c) {
+		androidExecutor.execute(new Runnable() {
+			public void run() {
+				NotificationCompat.Builder b =
+						new NotificationCompat.Builder(appContext);
+				b.setSmallIcon(R.drawable.introduction_notification);
+
+				b.setContentTitle(appContext
+						.getString(R.string.introduction_success_title));
+				b.setContentText(appContext
+						.getString(R.string.introduction_success_text,
+								c.getAuthor().getName()));
+				b.setDefaults(getDefaults());
+				b.setAutoCancel(true);
+
+				Intent i = new Intent(appContext, NavDrawerActivity.class);
+				i.putExtra(NavDrawerActivity.INTENT_CONTACTS, true);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				TaskStackBuilder t = TaskStackBuilder.create(appContext);
+				t.addParentStack(NavDrawerActivity.class);
+				t.addNextIntent(i);
+				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+
+				Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
+				NotificationManager nm = (NotificationManager) o;
+				nm.notify(INTRODUCTION_SUCCESS_NOTIFICATION_ID, b.build());
+			}
+		});
+	}
+
 }

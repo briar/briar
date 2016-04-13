@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -62,6 +61,8 @@ import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
+import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
@@ -227,8 +228,8 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		else if (type == TYPE_RESPONSE || type == TYPE_ACK || type == TYPE_ABORT) {
 			BdfDictionary state;
 			try {
-				state = getSessionState(txn,
-						message.getRaw(SESSION_ID, new byte[0]));
+				state = getSessionState(txn, groupId,
+						message.getRaw(SESSION_ID));
 			} catch (FormatException e) {
 				LOG.warning("Could not find state for message, deleting...");
 				deleteMessage(txn, m.getId());
@@ -266,12 +267,13 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void makeIntroduction(Contact c1, Contact c2, String msg)
+	public void makeIntroduction(Contact c1, Contact c2, String msg,
+			final long timestamp)
 			throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			introducerManager.makeIntroduction(txn, c1, c2, msg);
+			introducerManager.makeIntroduction(txn, c1, c2, msg, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -279,12 +281,14 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void acceptIntroduction(final SessionId sessionId)
+	public void acceptIntroduction(final ContactId contactId,
+			final SessionId sessionId, final long timestamp)
 			throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			introduceeManager.acceptIntroduction(txn, sessionId);
+			introduceeManager
+					.acceptIntroduction(txn, contactId, sessionId, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -292,12 +296,14 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void declineIntroduction(final SessionId sessionId)
+	public void declineIntroduction(final ContactId contactId,
+			final SessionId sessionId, final long timestamp)
 			throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			introduceeManager.declineIntroduction(txn, sessionId);
+			introduceeManager
+					.declineIntroduction(txn, contactId, sessionId, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -322,8 +328,6 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			statuses = db.getMessageStatus(txn, contactId, g);
 
 			// turn messages into classes for the UI
-			Map<SessionId, BdfDictionary> sessionStates =
-					new HashMap<SessionId, BdfDictionary>();
 			for (MessageStatus s : statuses) {
 				MessageId messageId = s.getMessageId();
 				BdfDictionary msg = metadata.get(messageId);
@@ -335,11 +339,8 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 					// get session state
 					SessionId sessionId = new SessionId(msg.getRaw(SESSION_ID));
-					BdfDictionary state = sessionStates.get(sessionId);
-					if (state == null) {
-						state = getSessionState(txn, sessionId.getBytes());
-					}
-					sessionStates.put(sessionId, state);
+					BdfDictionary state =
+							getSessionState(txn, g, sessionId.getBytes());
 
 					boolean local;
 					long time = msg.getLong(MESSAGE_TIME);
@@ -453,19 +454,31 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
-	public BdfDictionary getSessionState(Transaction txn, byte[] sessionId)
-			throws DbException, FormatException {
+	public BdfDictionary getSessionState(Transaction txn, GroupId groupId,
+			byte[] sessionId) throws DbException, FormatException {
 
 		try {
-			return clientHelper.getMessageMetadataAsDictionary(txn,
-					new MessageId(sessionId));
+			// See if we can find the state directly for the introducer
+			BdfDictionary state = clientHelper
+					.getMessageMetadataAsDictionary(txn,
+							new MessageId(sessionId));
+			GroupId g1 = new GroupId(state.getRaw(GROUP_ID_1));
+			GroupId g2 = new GroupId(state.getRaw(GROUP_ID_2));
+			if (!g1.equals(groupId) && !g2.equals(groupId)) {
+				throw new NoSuchMessageException();
+			}
+			return state;
 		} catch (NoSuchMessageException e) {
+			// State not found directly, so iterate over all states
+			// to find state for introducee
 			Map<MessageId, BdfDictionary> map = clientHelper
 					.getMessageMetadataAsDictionary(txn,
 							localGroup.getId());
 			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
 				if (Arrays.equals(m.getValue().getRaw(SESSION_ID), sessionId)) {
-					return m.getValue();
+					BdfDictionary state = m.getValue();
+					GroupId g = new GroupId(state.getRaw(GROUP_ID));
+					if (g.equals(groupId)) return state;
 				}
 			}
 			if (LOG.isLoggable(WARNING)) {
@@ -492,9 +505,10 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		byte[] body = clientHelper.toByteArray(bdfList);
 		GroupId groupId = new GroupId(message.getRaw(GROUP_ID));
 		Group group = db.getGroup(txn, groupId);
-		long timestamp = System.currentTimeMillis();
-
+		long timestamp =
+				message.getLong(MESSAGE_TIME, System.currentTimeMillis());
 		message.put(MESSAGE_TIME, timestamp);
+
 		Metadata metadata = metadataEncoder.encode(message);
 
 		messageQueueManager

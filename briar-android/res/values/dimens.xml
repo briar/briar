@@ -23,8 +23,12 @@
 	<dimen name="listitem_horizontal_margin">16dp</dimen>
 	<dimen name="listitem_text_left_margin">72dp</dimen>
 	<dimen name="listitem_height_one_line_avatar">56dp</dimen>
-	<dimen name="listitem_picture_size">40dp</dimen>
+	<dimen name="listitem_picture_size">48dp</dimen>
 	<dimen name="dropdown_picture_size">32dp</dimen>
 	<dimen name="avatar_border_width">1dp</dimen>
+
+	<dimen name="message_bubble_margin_tail">14dp</dimen>
+	<dimen name="message_bubble_margin_non_tail">51dp</dimen>
+	<dimen name="message_bubble_timestamp_margin">15dp</dimen>
 
 </resources>

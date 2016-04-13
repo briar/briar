@@ -1,42 +1,53 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
+import static org.briarproject.android.contact.ConversationItem.IncomingItem;
+
 // This class is not thread-safe
-class ContactListItem {
+public class ContactListItem {
 
 	private final Contact contact;
+	private final LocalAuthor localAuthor;
 	private final GroupId groupId;
 	private boolean connected, empty;
 	private long timestamp;
 	private int unread;
 
-	ContactListItem(Contact contact, boolean connected, GroupId groupId,
-			Collection<PrivateMessageHeader> headers) {
+	public ContactListItem(Contact contact, LocalAuthor localAuthor,
+			boolean connected,
+			GroupId groupId,
+			Collection<ConversationItem> messages) {
 		this.contact = contact;
+		this.localAuthor = localAuthor;
 		this.groupId = groupId;
 		this.connected = connected;
-		setHeaders(headers);
+		setMessages(messages);
 	}
 
-	void setHeaders(Collection<PrivateMessageHeader> headers) {
-		empty = headers.isEmpty();
+	void setMessages(Collection<ConversationItem> messages) {
+		empty = messages.isEmpty();
 		timestamp = 0;
 		unread = 0;
 		if (!empty) {
-			for (PrivateMessageHeader h : headers) {
-				if (h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
-				if (!h.isRead()) unread++;
+			for (ConversationItem i : messages) {
+				if (i.getTime() > timestamp) timestamp = i.getTime();
+				if (i instanceof IncomingItem && !((IncomingItem) i).isRead())
+					unread++;
 			}
 		}
 	}
 
-	Contact getContact() {
+	public Contact getContact() {
 		return contact;
+	}
+
+	public LocalAuthor getLocalAuthor() {
+		return localAuthor;
 	}
 
 	GroupId getGroupId() {

@@ -20,6 +20,14 @@ public interface TransportPropertyManager {
 	Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException;
 
+	/**
+	 * Returns the local transport properties for all transports.
+	 * <br/>
+	 * Read-Only
+	 * */
+	Map<TransportId, TransportProperties> getLocalProperties(Transaction txn)
+			throws DbException;
+
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
 

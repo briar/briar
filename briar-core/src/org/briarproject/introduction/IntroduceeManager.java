@@ -28,6 +28,7 @@ import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.SessionId;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
+import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -51,6 +52,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_K
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_PRIVATE_KEY;
@@ -157,11 +159,15 @@ class IntroduceeManager {
 		processStateUpdate(txn, engine.onMessageReceived(state, message));
 	}
 
-	public void acceptIntroduction(Transaction txn,
-			final SessionId sessionId) throws DbException, FormatException {
+	public void acceptIntroduction(Transaction txn, final ContactId contactId,
+			final SessionId sessionId, final long timestamp)
+			throws DbException, FormatException {
 
-		BdfDictionary state =
-				introductionManager.getSessionState(txn, sessionId.getBytes());
+		Contact c = db.getContact(txn, contactId);
+		Group g = introductionManager.getIntroductionGroup(c);
+
+		BdfDictionary state = introductionManager
+				.getSessionState(txn, g.getId(), sessionId.getBytes());
 
 		// get data to connect and derive a shared secret later
 		long now = clock.currentTimeMillis();
@@ -169,7 +175,7 @@ class IntroduceeManager {
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		Map<TransportId, TransportProperties> transportProperties =
-				transportPropertyManager.getLocalProperties();
+				transportPropertyManager.getLocalProperties(txn);
 
 		// update session state for later
 		state.put(ACCEPT, true);
@@ -182,17 +188,22 @@ class IntroduceeManager {
 		localAction.put(TYPE, TYPE_RESPONSE);
 		localAction.put(TRANSPORT,
 				encodeTransportProperties(transportProperties));
+		localAction.put(MESSAGE_TIME, timestamp);
 
 		// start engine and process its state update
 		IntroduceeEngine engine = new IntroduceeEngine();
 		processStateUpdate(txn, engine.onLocalAction(state, localAction));
 	}
 
-	public void declineIntroduction(Transaction txn, final SessionId sessionId)
+	public void declineIntroduction(Transaction txn, final ContactId contactId,
+			final SessionId sessionId, final long timestamp)
 			throws DbException, FormatException {
 
-		BdfDictionary state =
-				introductionManager.getSessionState(txn, sessionId.getBytes());
+		Contact c = db.getContact(txn, contactId);
+		Group g = introductionManager.getIntroductionGroup(c);
+
+		BdfDictionary state = introductionManager
+				.getSessionState(txn, g.getId(), sessionId.getBytes());
 
 		// update session state
 		state.put(ACCEPT, false);
@@ -200,6 +211,7 @@ class IntroduceeManager {
 		// define action
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_RESPONSE);
+		localAction.put(MESSAGE_TIME, timestamp);
 
 		// start engine and process its state update
 		IntroduceeEngine engine = new IntroduceeEngine();

@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
 	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/listitem_height_one_line_avatar"
-		android:background="?attr/selectableItemBackground">
+		android:layout_height="wrap_content"
+		android:paddingTop="@dimen/listitem_horizontal_margin"
+		android:paddingBottom="@dimen/listitem_horizontal_margin"
+		android:background="?attr/selectableItemBackground"
+		>
 
 		<de.hdodenhof.circleimageview.CircleImageView
 			android:id="@+id/avatarView"
@@ -21,56 +24,62 @@
 			android:layout_centerVertical="true"
 			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 			android:layout_marginStart="@dimen/listitem_horizontal_margin"
+			android:transitionName="avatar"
+			app:civ_border_color="@color/briar_text_primary"
 			app:civ_border_width="@dimen/avatar_border_width"
-			app:civ_border_color="@color/briar_text_primary"/>
+			tools:src="@drawable/ic_launcher"/>
 
 		<LinearLayout
-			android:id="@+id/bulbHolder"
+			android:id="@+id/textViews"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
+			android:orientation="vertical"
 			android:layout_centerVertical="true"
-			android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-			android:layout_marginRight="@dimen/listitem_horizontal_margin"
-			android:gravity="right"
-			android:orientation="vertical">
+			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+			android:layout_marginStart="@dimen/listitem_horizontal_margin"
+			android:layout_toLeftOf="@+id/bulbView"
+			android:layout_toRightOf="@+id/avatarView"
+			android:layout_toEndOf="@+id/avatarView">
 
-			<ImageView
-				android:id="@+id/bulbView"
+			<TextView
+				android:id="@+id/nameView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				tools:src="@drawable/contact_disconnected"/>
+				android:maxLines="2"
+				android:textColor="@android:color/primary_text_light"
+				android:textSize="@dimen/text_size_medium"
+				tools:text="This is a name of a contact"/>
 
 			<TextView
 				android:id="@+id/dateView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textColor="@color/no_private_messages"
+				android:textColor="@android:color/secondary_text_light"
+				android:textSize="@dimen/text_size_small"
 				tools:text="Dec 24"/>
+
+			<TextView
+				android:id="@+id/identityView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textColor="@android:color/tertiary_text_light"
+				android:textSize="@dimen/text_size_tiny"
+				tools:text="My Identity"/>
 
 		</LinearLayout>
 
-		<TextView
-			android:id="@+id/nameView"
+		<ImageView
+			android:id="@+id/bulbView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentStart="true"
+			android:layout_alignParentEnd="true"
+			android:layout_alignParentRight="true"
 			android:layout_centerVertical="true"
-			android:layout_marginEnd="@dimen/margin_small"
-			android:layout_marginLeft="@dimen/listitem_text_left_margin"
-			android:layout_marginRight="@dimen/margin_small"
-			android:layout_marginStart="@dimen/listitem_text_left_margin"
-			android:layout_toLeftOf="@id/bulbHolder"
-			android:layout_toStartOf="@id/bulbHolder"
-			android:gravity="center_vertical"
-			android:maxLines="2"
-			android:textSize="@dimen/text_size_medium"
-			tools:text="This is a name of a contact. It can be quite long."/>
+			android:layout_marginRight="@dimen/listitem_horizontal_margin"
+			tools:src="@drawable/contact_connected"/>
 
 	</RelativeLayout>
 
-	<View style="@style/Divider.Horizontal"/>
+	<View style="@style/Divider.ContactList"/>
 
 </LinearLayout>
