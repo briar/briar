@@ -60,6 +60,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.READ;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_1;
 import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_2;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
@@ -186,9 +187,11 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 				state = introduceeManager.initialize(txn, groupId, message);
 			} catch (FormatException e) {
 				if (LOG.isLoggable(WARNING)) {
-					LOG.warning("Could not initialize introducee state");
+					LOG.warning(
+							"Could not initialize introducee state, deleting...");
 					LOG.log(WARNING, e.toString(), e);
 				}
+				deleteMessage(txn, m.getId());
 				return;
 			}
 			try {
@@ -361,7 +364,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 						list.add(ir);
 					} else if (type == TYPE_REQUEST) {
 						String message;
-						boolean answered, exists;
+						boolean answered, exists, introducesOtherIdentity;
 						if (state.getLong(ROLE) == ROLE_INTRODUCER) {
 							local = true;
 							authorId =
@@ -370,6 +373,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							message = msg.getOptionalString(MSG);
 							answered = false;
 							exists = false;
+							introducesOtherIdentity = false;
 						} else {
 							local = false;
 							authorId = new AuthorId(
@@ -378,11 +382,14 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							message = state.getOptionalString(MSG);
 							answered = state.getBoolean(ANSWERED);
 							exists = state.getBoolean(EXISTS);
+							introducesOtherIdentity =
+									state.getBoolean(REMOTE_AUTHOR_IS_US);
 						}
 						IntroductionRequest ir = new IntroductionRequest(
 								sessionId, messageId, time, local, s.isSent(),
 								s.isSeen(), read, authorId, name, accepted,
-								message, answered, exists);
+								message, answered, exists,
+								introducesOtherIdentity);
 						list.add(ir);
 					}
 				} catch (FormatException e) {

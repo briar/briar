@@ -47,6 +47,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK;
@@ -328,10 +329,12 @@ public class IntroduceeEngine
 		String name = msg.getString(NAME);
 		String message = msg.getOptionalString(MSG);
 		boolean exists = localState.getBoolean(EXISTS);
+		boolean introducesOtherIdentity =
+				localState.getBoolean(REMOTE_AUTHOR_IS_US);
 
 		IntroductionRequest ir = new IntroductionRequest(sessionId, messageId,
 				time, false, false, false, false, authorId, name, false,
-				message, false, exists);
+				message, false, exists, introducesOtherIdentity);
 		return new IntroductionRequestReceivedEvent(contactId, ir);
 	}
 

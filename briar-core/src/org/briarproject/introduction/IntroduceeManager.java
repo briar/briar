@@ -59,6 +59,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
@@ -146,6 +147,17 @@ class IntroduceeManager {
 				introducer.getLocalAuthorId());
 		d.put(EXISTS, exists);
 		d.put(REMOTE_AUTHOR_ID, remoteAuthorId);
+
+		// check if someone is trying to introduce us to ourselves
+		if(remoteAuthorId.equals(introducer.getLocalAuthorId())) {
+			LOG.warning("Received Introduction Request to Ourselves");
+			throw new FormatException();
+		}
+
+		// check if remote author is actually one of our other identities
+		boolean introducesOtherIdentity =
+				db.containsLocalAuthor(txn, remoteAuthorId);
+		d.put(REMOTE_AUTHOR_IS_US, introducesOtherIdentity);
 
 		// save local state to database
 		clientHelper.addLocalMessage(txn, localMsg,

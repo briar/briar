@@ -51,6 +51,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
@@ -239,6 +240,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.put(ANSWERED, false);
 		state.put(EXISTS, true);
 		state.put(REMOTE_AUTHOR_ID, introducee2.getAuthor().getId());
+		state.put(REMOTE_AUTHOR_IS_US, false);
 
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
@@ -267,6 +269,10 @@ public class IntroduceeManagerTest extends BriarTestCase {
 					.contactExists(txn, introducee2.getAuthor().getId(),
 							introducer.getLocalAuthorId());
 			will(returnValue(contactExists));
+
+			// checks if remote author is one of our identities
+			oneOf(db).containsLocalAuthor(txn, introducee2.getAuthor().getId());
+			will(returnValue(false));
 
 			// store session state
 			oneOf(clientHelper)

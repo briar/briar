@@ -243,6 +243,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.containsGroup(txn, g);
 	}
 
+	@Override
+	public boolean containsLocalAuthor(Transaction transaction, AuthorId local)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.containsLocalAuthor(txn, local);
+	}
+
 	public void deleteMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
