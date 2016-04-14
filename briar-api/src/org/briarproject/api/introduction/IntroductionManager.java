@@ -45,22 +45,4 @@ public interface IntroductionManager {
 	Collection<IntroductionMessage> getIntroductionMessages(ContactId contactId)
 			throws DbException;
 
-	/** Marks an introduction message as read or unread. */
-	void setReadFlag(MessageId m, boolean read) throws DbException;
-
-
-	/** Get the session state for the given session ID */
-	BdfDictionary getSessionState(Transaction txn, GroupId groupId,
-			byte[] sessionId) throws DbException, FormatException;
-
-	/** Gets the group used for introductions with Contact c */
-	Group getIntroductionGroup(Contact c);
-
-	/** Get the local group used to store session states */
-	Group getLocalGroup();
-
-	/** Send an introduction message */
-	void sendMessage(Transaction txn, BdfDictionary message)
-			throws DbException, FormatException;
-
 }

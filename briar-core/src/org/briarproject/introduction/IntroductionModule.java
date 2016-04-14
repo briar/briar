@@ -3,9 +3,13 @@ package org.briarproject.introduction;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.system.Clock;
 
 import javax.inject.Inject;

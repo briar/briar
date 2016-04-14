@@ -10,7 +10,6 @@ import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -19,6 +18,8 @@ import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.introduction.IntroducerProtocolState.PREPARE_REQUESTS;
@@ -39,7 +40,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRO
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
@@ -49,19 +49,22 @@ class IntroducerManager {
 	private static final Logger LOG =
 		Logger.getLogger(IntroducerManager.class.getName());
 
-	private final IntroductionManager introductionManager;
+	private final MessageSender messageSender;
 	private final ClientHelper clientHelper;
 	private final Clock clock;
 	private final CryptoComponent cryptoComponent;
+	private final IntroductionGroupFactory introductionGroupFactory;
 
-	IntroducerManager(IntroductionManager introductionManager,
-			ClientHelper clientHelper, Clock clock,
-			CryptoComponent cryptoComponent) {
+	@Inject
+	IntroducerManager(MessageSender messageSender, ClientHelper clientHelper,
+			Clock clock, CryptoComponent cryptoComponent,
+			IntroductionGroupFactory introductionGroupFactory) {
 
-		this.introductionManager = introductionManager;
+		this.messageSender = messageSender;
 		this.clientHelper = clientHelper;
 		this.clock = clock;
 		this.cryptoComponent = cryptoComponent;
+		this.introductionGroupFactory = introductionGroupFactory;
 	}
 
 	public BdfDictionary initialize(Transaction txn, Contact c1, Contact c2)
@@ -72,13 +75,13 @@ class IntroducerManager {
 		Bytes salt = new Bytes(new byte[64]);
 		cryptoComponent.getSecureRandom().nextBytes(salt.getBytes());
 
-		Message m = clientHelper
-				.createMessage(introductionManager.getLocalGroup().getId(), now,
-						BdfList.of(salt));
+		Message m = clientHelper.createMessage(
+				introductionGroupFactory.createLocalGroup().getId(), now,
+				BdfList.of(salt));
 		MessageId sessionId = m.getId();
 
-		Group g1 = introductionManager.getIntroductionGroup(c1);
-		Group g2 = introductionManager.getIntroductionGroup(c2);
+		Group g1 = introductionGroupFactory.createIntroductionGroup(c1);
+		Group g2 = introductionGroupFactory.createIntroductionGroup(c2);
 
 		BdfDictionary d = new BdfDictionary();
 		d.put(SESSION_ID, sessionId);
@@ -95,7 +98,9 @@ class IntroducerManager {
 		d.put(AUTHOR_ID_2, c2.getAuthor().getId());
 
 		// save local state to database
-		clientHelper.addLocalMessage(txn, m, introductionManager.getClientId(), d, false);
+		clientHelper
+				.addLocalMessage(txn, m, IntroductionManagerImpl.CLIENT_ID, d,
+						false);
 
 		return d;
 	}
@@ -143,7 +148,7 @@ class IntroducerManager {
 
 		// send messages
 		for (BdfDictionary d : result.toSend) {
-			introductionManager.sendMessage(txn, d);
+			messageSender.sendMessage(txn, d);
 		}
 
 		// broadcast events
