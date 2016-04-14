@@ -14,6 +14,8 @@ import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.ValidationManager;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -36,6 +38,7 @@ public class ClientsModule {
 	}
 
 	@Provides
+	@Singleton
 	MessageQueueManager provideMessageQueueManager(DatabaseComponent db,
 			ClientHelper clientHelper, QueueMessageFactory queueMessageFactory,
 			ValidationManager validationManager) {
