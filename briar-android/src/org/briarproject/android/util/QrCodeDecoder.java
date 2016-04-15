@@ -77,6 +77,8 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 				result = reader.decode(bitmap);
 			} catch (ReaderException e) {
 				return null; // No barcode found
+			} catch (RuntimeException e) {
+				return null; // Decoding failed due to bug in decoder
 			} finally {
 				reader.reset();
 			}
