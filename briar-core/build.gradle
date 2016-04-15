@@ -13,14 +13,12 @@ dependencies {
 	compile fileTree(dir: 'libs', include: '*.jar')
 	compile "com.madgag.spongycastle:core:1.54.0.0"
 	compile "com.h2database:h2:1.4.190"
-	compile "com.google.zxing:core:3.2.1"
 }
 
 dependencyVerification {
 	verify = [
 			'com.madgag.spongycastle:core:1e7fa4b19ccccd1011364ab838d0b4702470c178bbbdd94c5c90b2d4d749ea1e',
 			'com.h2database:h2:23ba495a07bbbb3bd6c3084d10a96dad7a23741b8b6d64b213459a784195a98c',
-			'com.google.zxing:core:b4d82452e7a6bf6ec2698904b332431717ed8f9a850224f295aec89de80f2259',
 	]
 }
 
