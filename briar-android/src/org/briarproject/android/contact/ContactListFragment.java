@@ -155,6 +155,11 @@ public class ContactListFragment extends BaseEventFragment {
 		loadContacts();
 	}
 
+	@Override
+	public void onPause() {
+		super.onPause();
+		adapter.clear();
+	}
 
 	private void loadContacts() {
 		listener.runOnDbThread(new Runnable() {
@@ -195,7 +200,6 @@ public class ContactListFragment extends BaseEventFragment {
 	private void displayContacts(final List<ContactListItem> contacts) {
 		listener.runOnUiThread(new Runnable() {
 			public void run() {
-				adapter.clear();
 				if (contacts.size() == 0) list.showData();
 				else adapter.addAll(contacts);
 			}

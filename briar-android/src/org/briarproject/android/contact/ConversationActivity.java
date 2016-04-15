@@ -81,8 +81,8 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
+import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
 
 public class ConversationActivity extends BriarActivity
 		implements EventListener, OnClickListener,
@@ -302,6 +302,8 @@ public class ConversationActivity extends BriarActivity
 					// so let the list know to hide progress bar
 					list.showData();
 				} else {
+					List<ConversationItem> items =
+							new ArrayList<ConversationItem>();
 					for (PrivateMessageHeader h : headers) {
 						ConversationMessageItem item =
 								(ConversationMessageItem) ConversationItem
@@ -309,7 +311,7 @@ public class ConversationActivity extends BriarActivity
 						byte[] body = bodyCache.get(h.getId());
 						if (body == null) loadMessageBody(h);
 						else item.setBody(body);
-						adapter.add(item);
+						items.add(item);
 					}
 					for (IntroductionMessage m : introductions) {
 						ConversationItem item;
@@ -322,8 +324,9 @@ public class ConversationActivity extends BriarActivity
 											contactName,
 											(IntroductionResponse) m);
 						}
-						adapter.add(item);
+						items.add(item);
 					}
+					adapter.addAll(items);
 					// Scroll to the bottom
 					list.scrollToPosition(adapter.getItemCount() - 1);
 				}
