@@ -132,6 +132,12 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	@Override
+	public void onPause() {
+		super.onPause();
+		adapter.clear();
+	}
+
+	@Override
 	public String getUniqueTag() {
 		return TAG;
 	}
@@ -175,7 +181,6 @@ public class ContactChooserFragment extends BaseFragment {
 		introductionActivity.runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.setLocalAuthor(localAuthorId);
-				adapter.clear();
 				if (contacts.size() == 0) list.showData();
 				else adapter.addAll(contacts);
 			}

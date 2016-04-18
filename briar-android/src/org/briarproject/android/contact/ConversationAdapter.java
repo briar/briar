@@ -18,19 +18,21 @@ import org.briarproject.api.introduction.SessionId;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
 
+import java.util.List;
+
 import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.support.v7.widget.RecyclerView.ViewHolder;
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_IN;
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_OUT;
+import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 import static org.briarproject.android.contact.ConversationItem.MSG_IN;
 import static org.briarproject.android.contact.ConversationItem.MSG_IN_UNREAD;
 import static org.briarproject.android.contact.ConversationItem.MSG_OUT;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_IN;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_OUT;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
-import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 
 class ConversationAdapter extends RecyclerView.Adapter {
 
@@ -365,6 +367,10 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	public void clear() {
 		items.clear();
+	}
+
+	public void addAll(List<ConversationItem> items) {
+		this.items.addAll(items);
 	}
 
 	private static class MessageHolder extends RecyclerView.ViewHolder {
