@@ -12,6 +12,8 @@ import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.controller.ConfigControllerImpl;
 import org.briarproject.android.controller.DbController;
 import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.forum.ForumController;
+import org.briarproject.android.forum.ForumControllerImpl;
 import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.NavDrawerControllerImpl;
 import org.briarproject.android.controller.PasswordController;
@@ -21,6 +23,7 @@ import org.briarproject.android.controller.SetupControllerImpl;
 import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.forum.ContactSelectorFragment;
 import org.briarproject.android.forum.ForumListFragment;
+import org.briarproject.android.forum.ForumTestControllerImpl;
 import org.briarproject.android.forum.ShareForumMessageFragment;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.introduction.ContactChooserFragment;
@@ -96,6 +99,22 @@ public class ActivityModule {
 	protected DbController provideDBController(
 			DbControllerImpl dbController) {
 		return dbController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected ForumController provideForumController(
+			ForumControllerImpl forumController) {
+		activity.addLifecycleController(forumController);
+		return forumController;
+	}
+
+	@Named("ForumTestController")
+	@ActivityScope
+	@Provides
+	protected ForumController provideForumTestController(
+			ForumTestControllerImpl forumController) {
+		return forumController;
 	}
 
 	@ActivityScope

@@ -1,6 +1,7 @@
 package org.briarproject.android.util;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -18,6 +19,7 @@ public class BriarRecyclerView extends FrameLayout {
 	private TextView emptyView;
 	private ProgressBar progressBar;
 	private RecyclerView.AdapterDataObserver emptyObserver;
+	private boolean isScrollingToEnd = false;
 
 	public BriarRecyclerView(Context context) {
 		super(context);
@@ -25,6 +27,11 @@ public class BriarRecyclerView extends FrameLayout {
 
 	public BriarRecyclerView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+
+		TypedArray attributes = context.obtainStyledAttributes(attrs,
+				R.styleable.BriarRecyclerView);
+		isScrollingToEnd = attributes
+				.getBoolean(R.styleable.BriarRecyclerView_scrollToEnd, true);
 	}
 
 	public BriarRecyclerView(Context context, AttributeSet attrs,
@@ -44,7 +51,7 @@ public class BriarRecyclerView extends FrameLayout {
 		showProgressBar();
 
 		// scroll down when opening keyboard
-		if (Build.VERSION.SDK_INT >= 11) {
+		if (isScrollingToEnd && Build.VERSION.SDK_INT >= 11) {
 			recyclerView.addOnLayoutChangeListener(
 					new View.OnLayoutChangeListener() {
 						@Override

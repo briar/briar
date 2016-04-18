@@ -43,4 +43,6 @@
 
 	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
 	<color name="spinner_arrow">@color/briar_blue_dark</color>
+	<color name="forum_discussion_nested_line">#cfd2d4</color>
+	<color name="forum_cell_highlight">#ffffff</color>
 </resources>
