@@ -1,6 +1,5 @@
 package org.briarproject.introduction;
 
-
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
@@ -39,6 +38,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
@@ -51,6 +51,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_K
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
@@ -170,7 +171,7 @@ class IntroduceeManager {
 			BdfDictionary message) throws DbException, FormatException {
 
 		IntroduceeEngine engine = new IntroduceeEngine();
-		processStateUpdate(txn, engine.onMessageReceived(state, message));
+		processStateUpdate(txn, message, engine.onMessageReceived(state, message));
 	}
 
 	public void acceptIntroduction(Transaction txn, BdfDictionary state,
@@ -200,7 +201,7 @@ class IntroduceeManager {
 
 		// start engine and process its state update
 		IntroduceeEngine engine = new IntroduceeEngine();
-		processStateUpdate(txn, engine.onLocalAction(state, localAction));
+		processStateUpdate(txn, null, engine.onLocalAction(state, localAction));
 	}
 
 	public void declineIntroduction(Transaction txn, BdfDictionary state,
@@ -217,11 +218,11 @@ class IntroduceeManager {
 
 		// start engine and process its state update
 		IntroduceeEngine engine = new IntroduceeEngine();
-		processStateUpdate(txn,
+		processStateUpdate(txn, null,
 				engine.onLocalAction(state, localAction));
 	}
 
-	private void processStateUpdate(Transaction txn,
+	private void processStateUpdate(Transaction txn, BdfDictionary msg,
 			IntroduceeEngine.StateUpdate<BdfDictionary, BdfDictionary>
 					result) throws DbException, FormatException {
 
@@ -242,6 +243,16 @@ class IntroduceeManager {
 		for (Event event : result.toBroadcast) {
 			txn.attach(event);
 		}
+
+		// delete message
+		if (result.deleteMessage && msg != null) {
+			MessageId messageId = new MessageId(msg.getRaw(MESSAGE_ID));
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Deleting message with id " + messageId.hashCode());
+			}
+			db.deleteMessage(txn, messageId);
+			db.deleteMessageMetadata(txn, messageId);
+		}
 	}
 
 	private void performTasks(Transaction txn, BdfDictionary localState)
@@ -252,8 +263,6 @@ class IntroduceeManager {
 		// remember task and remove it from localState
 		long task = localState.getLong(TASK);
 		localState.put(TASK, BdfDictionary.NULL_VALUE);
-
-
 
 		if (task == TASK_ADD_CONTACT) {
 			if (localState.getBoolean(EXISTS)) {
@@ -374,7 +383,7 @@ class IntroduceeManager {
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_ABORT);
 		try {
-			processStateUpdate(txn,
+			processStateUpdate(txn, null,
 					engine.onLocalAction(state, localAction));
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

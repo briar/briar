@@ -51,6 +51,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
+import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK;
@@ -195,14 +196,11 @@ public class IntroduceeEngine
 				messages = Collections.emptyList();
 				events = Collections.emptyList();
 			}
-			// we are done (probably declined response) and ignore this message
+			// we are done (probably declined response), ignore & delete message
 			else if (currentState == FINISHED) {
-				if(action == REMOTE_DECLINE || action == REMOTE_ACCEPT) {
-					// record response data,
-					// so we later know which response was ours
-					addResponseData(localState, msg);
-				}
-				return noUpdate(localState);
+				return new StateUpdate<BdfDictionary, BdfDictionary>(true,
+						false, localState, new ArrayList<BdfDictionary>(0),
+						new ArrayList<Event>(0));
 			}
 			// this should not happen
 			else {
@@ -341,8 +339,8 @@ public class IntroduceeEngine
 				localState.getBoolean(REMOTE_AUTHOR_IS_US);
 
 		IntroductionRequest ir = new IntroductionRequest(sessionId, messageId,
-				time, false, false, false, false, authorId, name, false,
-				message, false, exists, introducesOtherIdentity);
+				ROLE_INTRODUCEE, time, false, false, false, false, authorId,
+				name, false, message, false, exists, introducesOtherIdentity);
 		return new IntroductionRequestReceivedEvent(contactId, ir);
 	}
 

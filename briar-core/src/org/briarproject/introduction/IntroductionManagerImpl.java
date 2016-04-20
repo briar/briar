@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.introduction.IntroduceeProtocolState.FINISHED;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
 import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_1;
@@ -331,6 +332,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					BdfDictionary state =
 							getSessionState(txn, g, sessionId.getBytes());
 
+					int role = state.getLong(ROLE).intValue();
 					boolean local;
 					long time = msg.getLong(MESSAGE_TIME);
 					boolean accepted = msg.getBoolean(ACCEPT, false);
@@ -338,7 +340,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					AuthorId authorId;
 					String name;
 					if (type == TYPE_RESPONSE) {
-						if (state.getLong(ROLE) == ROLE_INTRODUCER) {
+						if (role == ROLE_INTRODUCER) {
 							if (!concernsThisContact(contactId, messageId, state)) {
 								// this response is not from contactId
 								continue;
@@ -350,22 +352,30 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 						} else {
 							if (Arrays.equals(state.getRaw(NOT_OUR_RESPONSE),
 									messageId.getBytes())) {
-								// this response is not ours, don't include it
-								continue;
+								// this response is not ours,
+								// check if it was a decline
+								if (!accepted) {
+									local = false;
+								} else {
+									// don't include positive responses
+									continue;
+								}
+							} else {
+								local = true;
 							}
-							local = true;
 							authorId = new AuthorId(
 									state.getRaw(REMOTE_AUTHOR_ID));
 							name = state.getString(NAME);
 						}
 						IntroductionResponse ir = new IntroductionResponse(
-								sessionId, messageId, time, local, s.isSent(),
-								s.isSeen(), read, authorId, name, accepted);
+								sessionId, messageId, role, time, local,
+								s.isSent(), s.isSeen(), read, authorId, name,
+								accepted);
 						list.add(ir);
 					} else if (type == TYPE_REQUEST) {
 						String message;
 						boolean answered, exists, introducesOtherIdentity;
-						if (state.getLong(ROLE) == ROLE_INTRODUCER) {
+						if (role == ROLE_INTRODUCER) {
 							local = true;
 							authorId =
 									getAuthorIdForIntroducer(contactId, state);
@@ -380,15 +390,17 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 									state.getRaw(REMOTE_AUTHOR_ID));
 							name = state.getString(NAME);
 							message = state.getOptionalString(MSG);
-							answered = state.getBoolean(ANSWERED);
+							boolean finished = state.getLong(STATE) ==
+									FINISHED.getValue();
+							answered = finished || state.getBoolean(ANSWERED);
 							exists = state.getBoolean(EXISTS);
 							introducesOtherIdentity =
 									state.getBoolean(REMOTE_AUTHOR_IS_US);
 						}
 						IntroductionRequest ir = new IntroductionRequest(
-								sessionId, messageId, time, local, s.isSent(),
-								s.isSeen(), read, authorId, name, accepted,
-								message, answered, exists,
+								sessionId, messageId, role, time, local,
+								s.isSent(), s.isSeen(), read, authorId, name,
+								accepted, message, answered, exists,
 								introducesOtherIdentity);
 						list.add(ir);
 					}
