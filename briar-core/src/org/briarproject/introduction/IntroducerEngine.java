@@ -5,6 +5,7 @@ import org.briarproject.api.ProtocolEngine;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.IntroductionAbortedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroducerAction;
@@ -56,7 +57,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_1
 import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_2;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
-import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
@@ -288,11 +288,11 @@ public class IntroducerEngine
 
 		ContactId contactId =
 				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
-		AuthorId authorId = new AuthorId(localState.getRaw(AUTHOR_ID_1, new byte[32])); // TODO remove byte[]
+		AuthorId authorId = new AuthorId(localState.getRaw(AUTHOR_ID_1));
 		if (Arrays.equals(msg.getRaw(GROUP_ID), localState.getRaw(GROUP_ID_2))) {
 			contactId =
 					new ContactId(localState.getLong(CONTACT_ID_2).intValue());
-			authorId = new AuthorId(localState.getRaw(AUTHOR_ID_2, new byte[32])); // TODO remove byte[]
+			authorId = new AuthorId(localState.getRaw(AUTHOR_ID_2));
 		}
 
 		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
@@ -365,8 +365,19 @@ public class IntroducerEngine
 		msg2.put(SESSION_ID, localState.getRaw(SESSION_ID));
 		msg2.put(GROUP_ID, localState.getRaw(GROUP_ID_2));
 		messages.add(msg2);
-		// TODO inform about protocol abort via new Event?
-		List<Event> events = Collections.emptyList();
+
+		// send one abort event per contact
+		List<Event> events = new ArrayList<Event>(2);
+		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
+		ContactId contactId1 =
+				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
+		ContactId contactId2 =
+				new ContactId(localState.getLong(CONTACT_ID_2).intValue());
+		Event event1 = new IntroductionAbortedEvent(contactId1, sessionId);
+		events.add(event1);
+		Event event2 = new IntroductionAbortedEvent(contactId2, sessionId);
+		events.add(event2);
+
 		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
 				localState, messages, events);
 	}
