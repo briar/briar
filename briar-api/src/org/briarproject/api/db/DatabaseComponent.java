@@ -103,6 +103,12 @@ public interface DatabaseComponent {
 	boolean containsGroup(Transaction txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns true if the database contains the given local author.
+	 */
+	boolean containsLocalAuthor(Transaction txn, AuthorId local)
+			throws DbException;
+
+	/**
 	 * Deletes the message with the given ID. The message ID and any other
 	 * associated data are not deleted.
 	 */

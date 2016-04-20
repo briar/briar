@@ -57,6 +57,7 @@ public interface IntroductionConstants {
 	String ADDED_CONTACT_ID = "addedContactId";
 	String NOT_OUR_RESPONSE = "notOurResponse";
 	String EXISTS = "contactExists";
+	String REMOTE_AUTHOR_IS_US = "remoteAuthorIsUs";
 	String ANSWERED = "answered";
 
 	String TASK = "task";

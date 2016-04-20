@@ -261,15 +261,23 @@ class ConversationAdapter extends RecyclerView.Adapter {
 								contactName, ir.getName()));
 			}
 
-			ui.acceptButton.setVisibility(View.VISIBLE);
-			ui.acceptButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					intro.respondToIntroduction(ir.getSessionId(), true);
-					item.setAnswered(true);
-					notifyItemChanged(position);
-				}
-			});
+			if (item.getIntroductionRequest().doesIntroduceOtherIdentity()) {
+				// don't allow accept when one of our identities is introduced
+				ui.acceptButton.setVisibility(View.GONE);
+				ui.text.setText(ctx.getString(
+						R.string.introduction_request_for_our_identity_received,
+						contactName, ir.getName()));
+			} else {
+				ui.acceptButton.setVisibility(View.VISIBLE);
+				ui.acceptButton.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						intro.respondToIntroduction(ir.getSessionId(), true);
+						item.setAnswered(true);
+						notifyItemChanged(position);
+					}
+				});
+			}
 			ui.declineButton.setVisibility(View.VISIBLE);
 			ui.declineButton.setOnClickListener(new View.OnClickListener() {
 				@Override

@@ -6,12 +6,12 @@ import org.briarproject.api.sync.MessageId;
 public class IntroductionRequest extends IntroductionResponse {
 
 	private final String message;
-	private final boolean answered, exists;
+	private final boolean answered, exists, introducesOtherIdentity;
 
 	public IntroductionRequest(SessionId sessionId, MessageId messageId,
 			long time, boolean local, boolean sent, boolean seen, boolean read,
 			AuthorId authorId, String name, boolean accepted, String message,
-			boolean answered, boolean exists) {
+			boolean answered, boolean exists, boolean introducesOtherIdentity) {
 
 		super(sessionId, messageId, time, local, sent, seen, read, authorId,
 				name, accepted);
@@ -19,6 +19,7 @@ public class IntroductionRequest extends IntroductionResponse {
 		this.message = message;
 		this.answered = answered;
 		this.exists = exists;
+		this.introducesOtherIdentity = introducesOtherIdentity;
 	}
 
 	public String getMessage() {
@@ -33,4 +34,7 @@ public class IntroductionRequest extends IntroductionResponse {
 		return exists;
 	}
 
+	public boolean doesIntroduceOtherIdentity() {
+		return introducesOtherIdentity;
+	}
 }
