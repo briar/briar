@@ -1,8 +1,10 @@
 package org.briarproject.api.reporting;
 
+import org.briarproject.api.crypto.PublicKey;
+
 public interface DevConfig {
 
-	byte[] getDevPublicKey();
+	PublicKey getDevPublicKey();
 
 	String getDevOnionAddress();
 

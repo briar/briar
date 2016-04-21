@@ -4,6 +4,8 @@ import android.app.Application;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.event.EventBus;
@@ -13,6 +15,7 @@ import org.briarproject.api.ui.UiCallback;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -94,16 +97,25 @@ public class AppModule {
 
 	@Provides
 	@Singleton
-	public DevConfig provideDevConfig() {
+	public DevConfig provideDevConfig(CryptoComponent crypto) {
+		final PublicKey pub;
+		try {
+			// TODO fill in
+			pub = crypto.getMessageKeyParser()
+					.parsePublicKey(StringUtils.fromHexString(""));
+		} catch (GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		}
+
 		return new DevConfig() {
 
+			private final PublicKey DEV_PUB_KEY = pub;
 			// TODO fill in
-			private final byte[] DEV_PUB_KEY = StringUtils.fromHexString("");
 			private final String DEV_ONION = "";
 			private final int DEV_REPORT_PORT = 8080;
 
 			@Override
-			public byte[] getDevPublicKey() {
+			public PublicKey getDevPublicKey() {
 				return DEV_PUB_KEY;
 			}
 

@@ -1,6 +1,9 @@
 package org.briarproject.crypto;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.crypto.PrivateKey;
+import org.briarproject.api.crypto.PublicKey;
 import org.junit.Test;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.CryptoException;
@@ -18,9 +21,9 @@ public class MessageEncrypterTest extends BriarTestCase {
 	@Test
 	public void testEncryptionAndDecryption() throws Exception {
 		MessageEncrypter m = new MessageEncrypter(random);
-		AsymmetricCipherKeyPair kp = m.generateKeyPair();
-		ECPublicKeyParameters pub = (ECPublicKeyParameters) kp.getPublic();
-		ECPrivateKeyParameters priv = (ECPrivateKeyParameters) kp.getPrivate();
+		KeyPair kp = m.generateKeyPair();
+		PublicKey pub = kp.getPublic();
+		PrivateKey priv = kp.getPrivate();
 		byte[] plaintext = new byte[123];
 		random.nextBytes(plaintext);
 		byte[] ciphertext = m.encrypt(pub, plaintext);
@@ -31,9 +34,9 @@ public class MessageEncrypterTest extends BriarTestCase {
 	@Test(expected = CryptoException.class)
 	public void testDecryptionFailsWithAlteredCiphertext() throws Exception {
 		MessageEncrypter m = new MessageEncrypter(random);
-		AsymmetricCipherKeyPair kp = m.generateKeyPair();
-		ECPublicKeyParameters pub = (ECPublicKeyParameters) kp.getPublic();
-		ECPrivateKeyParameters priv = (ECPrivateKeyParameters) kp.getPrivate();
+		KeyPair kp = m.generateKeyPair();
+		PublicKey pub = kp.getPublic();
+		PrivateKey priv = kp.getPrivate();
 		byte[] ciphertext = m.encrypt(pub, new byte[123]);
 		ciphertext[random.nextInt(ciphertext.length)] ^= 0xFF;
 		m.decrypt(priv, ciphertext);

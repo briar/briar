@@ -1,5 +1,9 @@
 package org.briarproject.crypto;
 
+import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.crypto.KeyParser;
+import org.briarproject.api.crypto.PrivateKey;
+import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.util.StringUtils;
 import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
 import org.spongycastle.asn1.x9.X9ECParameters;
@@ -10,7 +14,6 @@ import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.CryptoException;
 import org.spongycastle.crypto.DerivationFunction;
 import org.spongycastle.crypto.KeyEncoder;
-import org.spongycastle.crypto.KeyParser;
 import org.spongycastle.crypto.Mac;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -30,13 +33,11 @@ import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.IESWithCipherParameters;
 import org.spongycastle.crypto.parsers.ECIESPublicKeyParser;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Scanner;
@@ -44,6 +45,7 @@ import java.util.Scanner;
 public class MessageEncrypter {
 
 	private static final ECDomainParameters PARAMETERS;
+	private static final int MESSAGE_KEY_BITS = 512;
 	private static final int MAC_KEY_BITS = 256;
 	private static final int CIPHER_KEY_BITS = 256;
 	private static final int LINE_LENGTH = 70;
@@ -55,40 +57,52 @@ public class MessageEncrypter {
 	}
 
 	private final ECKeyPairGenerator generator;
-	private final EphemeralKeyPairGenerator ephemeralGenerator;
 	private final KeyParser parser;
+	private final EphemeralKeyPairGenerator ephemeralGenerator;
+	private final PublicKeyParser ephemeralParser;
 
 	MessageEncrypter(SecureRandom random) {
 		generator = new ECKeyPairGenerator();
 		generator.init(new ECKeyGenerationParameters(PARAMETERS, random));
+		parser = new Sec1KeyParser(PARAMETERS, MESSAGE_KEY_BITS);
 		KeyEncoder encoder = new PublicKeyEncoder();
 		ephemeralGenerator = new EphemeralKeyPairGenerator(generator, encoder);
-		parser = new PublicKeyParser(PARAMETERS);
+		ephemeralParser = new PublicKeyParser(PARAMETERS);
 	}
 
-	AsymmetricCipherKeyPair generateKeyPair() {
-		return generator.generateKeyPair();
+	KeyPair generateKeyPair() {
+		AsymmetricCipherKeyPair keyPair = generator.generateKeyPair();
+		// Return a wrapper that uses the SEC 1 encoding
+		ECPublicKeyParameters ecPublicKey =
+				(ECPublicKeyParameters) keyPair.getPublic();
+		PublicKey publicKey = new Sec1PublicKey(ecPublicKey);
+		ECPrivateKeyParameters ecPrivateKey =
+				(ECPrivateKeyParameters) keyPair.getPrivate();
+		PrivateKey privateKey =
+				new Sec1PrivateKey(ecPrivateKey, MESSAGE_KEY_BITS);
+		return new KeyPair(publicKey, privateKey);
 	}
 
-	byte[] encrypt(byte[] keyBytes, byte[] plaintext)
-			throws IOException, CryptoException {
-		InputStream in = new ByteArrayInputStream(keyBytes);
-		ECPublicKeyParameters publicKey =
-				(ECPublicKeyParameters) parser.readKey(in);
-		return encrypt(publicKey, plaintext);
+	KeyParser getKeyParser() {
+		return parser;
 	}
 
-	byte[] encrypt(ECPublicKeyParameters pubKey, byte[] plaintext)
-			throws CryptoException {
+	byte[] encrypt(PublicKey pub, byte[] plaintext) throws CryptoException {
+		if (!(pub instanceof Sec1PublicKey))
+			throw new IllegalArgumentException();
 		IESEngine engine = getEngine();
-		engine.init(pubKey, getCipherParameters(), ephemeralGenerator);
+		engine.init(((Sec1PublicKey) pub).getKey(), getCipherParameters(),
+				ephemeralGenerator);
 		return engine.processBlock(plaintext, 0, plaintext.length);
 	}
 
-	byte[] decrypt(ECPrivateKeyParameters privKey, byte[] ciphertext)
+	byte[] decrypt(PrivateKey priv, byte[] ciphertext)
 			throws CryptoException {
+		if (!(priv instanceof Sec1PrivateKey))
+			throw new IllegalArgumentException();
 		IESEngine engine = getEngine();
-		engine.init(privKey, getCipherParameters(), parser);
+		engine.init(((Sec1PrivateKey) priv).getKey(), getCipherParameters(),
+				ephemeralParser);
 		return engine.processBlock(ciphertext, 0, ciphertext.length);
 	}
 
@@ -146,18 +160,15 @@ public class MessageEncrypter {
 				return;
 			}
 			// Generate a key pair
-			AsymmetricCipherKeyPair keyPair = encrypter.generateKeyPair();
-			ECPublicKeyParameters publicKey =
-					(ECPublicKeyParameters) keyPair.getPublic();
-			byte[] publicKeyBytes = publicKey.getQ().getEncoded(false);
+			KeyPair keyPair = encrypter.generateKeyPair();
 			PrintStream out = new PrintStream(new FileOutputStream(args[1]));
-			out.print(StringUtils.toHexString(publicKeyBytes));
+			out.print(
+					StringUtils.toHexString(keyPair.getPublic().getEncoded()));
 			out.flush();
 			out.close();
-			ECPrivateKeyParameters privateKey =
-					(ECPrivateKeyParameters) keyPair.getPrivate();
 			out = new PrintStream(new FileOutputStream(args[2]));
-			out.print(privateKey.getD().toString(16).toUpperCase());
+			out.print(
+					StringUtils.toHexString(keyPair.getPrivate().getEncoded()));
 			out.flush();
 			out.close();
 		} else if (args[0].equals("encrypt")) {
@@ -167,7 +178,9 @@ public class MessageEncrypter {
 			}
 			// Encrypt a decrypted message
 			InputStream in = new FileInputStream(args[1]);
-			byte[] publicKey = StringUtils.fromHexString(readFully(in).trim());
+			byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
+			PublicKey publicKey =
+					encrypter.getKeyParser().parsePublicKey(keyBytes);
 			String message = readFully(System.in);
 			byte[] plaintext = message.getBytes(Charset.forName("UTF-8"));
 			byte[] ciphertext = encrypter.encrypt(publicKey, plaintext);
@@ -179,10 +192,9 @@ public class MessageEncrypter {
 			}
 			// Decrypt an encrypted message
 			InputStream in = new FileInputStream(args[1]);
-			byte[] b = StringUtils.fromHexString(readFully(in).trim());
-			BigInteger d = new BigInteger(1, b);
-			ECPrivateKeyParameters privateKey = new ECPrivateKeyParameters(d,
-					PARAMETERS);
+			byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
+			PrivateKey privateKey =
+					encrypter.getKeyParser().parsePrivateKey(keyBytes);
 			byte[] ciphertext = AsciiArmour.unwrap(readFully(System.in));
 			byte[] plaintext = encrypter.decrypt(privateKey, ciphertext);
 			System.out.println(new String(plaintext, Charset.forName("UTF-8")));
@@ -193,7 +205,8 @@ public class MessageEncrypter {
 
 	private static void printUsage() {
 		System.err.println("Usage:");
-		System.err.println("MessageEncrypter generate <public_key_file> <private_key_file>");
+		System.err.println(
+				"MessageEncrypter generate <public_key_file> <private_key_file>");
 		System.err.println("MessageEncrypter encrypt <public_key_file>");
 		System.err.println("MessageEncrypter decrypt <private_key_file>");
 	}

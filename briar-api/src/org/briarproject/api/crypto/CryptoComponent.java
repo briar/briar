@@ -27,6 +27,8 @@ public interface CryptoComponent {
 
 	KeyParser getSignatureKeyParser();
 
+	KeyParser getMessageKeyParser();
+
 	/** Generates a random invitation code. */
 	int generateBTInvitationCode();
 
@@ -161,5 +163,5 @@ public interface CryptoComponent {
 	/**
 	 * Encrypts the given plaintext to the given public key.
 	 */
-	String encryptToKey(byte[] publicKey, byte[] plaintext);
+	String encryptToKey(PublicKey publicKey, byte[] plaintext);
 }

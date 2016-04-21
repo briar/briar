@@ -29,7 +29,6 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.KeyParameter;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -95,6 +94,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
 	private final ECKeyPairGenerator signatureKeyPairGenerator;
 	private final KeyParser agreementKeyParser, signatureKeyParser;
+	private final MessageEncrypter messageEncrypter;
 
 	@Inject
 	CryptoComponentImpl(SeedProvider seedProvider) {
@@ -117,6 +117,7 @@ class CryptoComponentImpl implements CryptoComponent {
 				AGREEMENT_KEY_PAIR_BITS);
 		signatureKeyParser = new Sec1KeyParser(PARAMETERS,
 				SIGNATURE_KEY_PAIR_BITS);
+		messageEncrypter = new MessageEncrypter(secureRandom);
 	}
 
 	public SecretKey generateSecretKey() {
@@ -196,6 +197,10 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public KeyParser getSignatureKeyParser() {
 		return signatureKeyParser;
+	}
+
+	public KeyParser getMessageKeyParser() {
+		return messageEncrypter.getKeyParser();
 	}
 
 	public int generateBTInvitationCode() {
@@ -440,13 +445,10 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public String encryptToKey(byte[] publicKey, byte[] plaintext) {
-		MessageEncrypter encrypter = new MessageEncrypter(secureRandom);
+	public String encryptToKey(PublicKey publicKey, byte[] plaintext) {
 		try {
-			byte[] ciphertext = encrypter.encrypt(publicKey, plaintext);
+			byte[] ciphertext = messageEncrypter.encrypt(publicKey, plaintext);
 			return AsciiArmour.wrap(ciphertext, 70);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		} catch (CryptoException e) {
 			throw new RuntimeException(e);
 		}
