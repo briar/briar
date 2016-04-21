@@ -3,3 +3,5 @@ gen
 build
 local.properties
 .settings
+assets/geoip.zip
+assets/tor-*.zip
