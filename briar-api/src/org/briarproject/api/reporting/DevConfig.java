@@ -7,6 +7,4 @@ public interface DevConfig {
 	PublicKey getDevPublicKey();
 
 	String getDevOnionAddress();
-
-	int getDevReportPort();
 }

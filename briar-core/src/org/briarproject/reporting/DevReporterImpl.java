@@ -22,7 +22,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -33,7 +32,7 @@ class DevReporterImpl implements DevReporter {
 	private static final Logger LOG =
 			Logger.getLogger(DevReporterImpl.class.getName());
 
-	private static final int TIMEOUT = 30 * 1000; // 30 seconds
+	private static final int SOCKET_TIMEOUT = 30 * 1000; // 30 seconds
 	private static final String PREFIX = "briar-";
 	private static final String REPORT_EXT = ".report";
 	private static final String CRLF = "\r\n";
@@ -46,13 +45,12 @@ class DevReporterImpl implements DevReporter {
 		this.devConfig = devConfig;
 	}
 
-	private Socket connectToDevelopers(int socksPort, int devPort)
+	private Socket connectToDevelopers(int socksPort)
 			throws UnknownHostException, SocksException, SocketException {
 		Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", socksPort);
 		proxy.resolveAddrLocally(false);
-		Socket s =
-				new SocksSocket(proxy, devConfig.getDevOnionAddress(), devPort);
-		s.setSoTimeout(TIMEOUT);
+		Socket s = new SocksSocket(proxy, devConfig.getDevOnionAddress(), 80);
+		s.setSoTimeout(SOCKET_TIMEOUT);
 		return s;
 	}
 
@@ -63,7 +61,7 @@ class DevReporterImpl implements DevReporter {
 				crypto.encryptToKey(devConfig.getDevPublicKey(),
 						StringUtils.toUtf8(crashReport));
 
-		String filename = PREFIX + new Date().getTime() + REPORT_EXT;
+		String filename = PREFIX + System.currentTimeMillis() + REPORT_EXT;
 		File report = new File(crashReportDir, filename);
 		PrintWriter writer = null;
 		try {
@@ -83,14 +81,13 @@ class DevReporterImpl implements DevReporter {
 		if (reports == null || reports.length == 0)
 			return; // No crash reports to send
 
-		LOG.info("Connecting to developers' Hidden Service");
+		LOG.info("Connecting to developers");
 		Socket s;
 		try {
-			s = connectToDevelopers(socksPort,
-					devConfig.getDevReportPort());
+			s = connectToDevelopers(socksPort);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, "Tor SOCKS proxy failed", e);
+				LOG.log(WARNING, "Could not connect to developers", e);
 			return;
 		}
 
@@ -109,9 +106,9 @@ class DevReporterImpl implements DevReporter {
 					writer.append(line).append(CRLF);
 				}
 				writer.append(CRLF);
+				writer.flush();
 				f.delete();
 			}
-			writer.flush();
 			LOG.info("Crash reports sent");
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING))

@@ -24,6 +24,8 @@ import dagger.Module;
 import dagger.Provides;
 
 import static android.content.Context.MODE_PRIVATE;
+import static org.briarproject.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
+import static org.briarproject.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
 @Module
 public class AppModule {
@@ -97,36 +99,22 @@ public class AppModule {
 
 	@Provides
 	@Singleton
-	public DevConfig provideDevConfig(CryptoComponent crypto) {
-		final PublicKey pub;
-		try {
-			// TODO fill in
-			pub = crypto.getMessageKeyParser()
-					.parsePublicKey(StringUtils.fromHexString(""));
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-
+	public DevConfig provideDevConfig(final CryptoComponent crypto) {
 		return new DevConfig() {
-
-			private final PublicKey DEV_PUB_KEY = pub;
-			// TODO fill in
-			private final String DEV_ONION = "";
-			private final int DEV_REPORT_PORT = 8080;
 
 			@Override
 			public PublicKey getDevPublicKey() {
-				return DEV_PUB_KEY;
+				try {
+					return crypto.getMessageKeyParser().parsePublicKey(
+							StringUtils.fromHexString(DEV_PUBLIC_KEY_HEX));
+				} catch (GeneralSecurityException e) {
+					throw new RuntimeException(e);
+				}
 			}
 
 			@Override
 			public String getDevOnionAddress() {
-				return DEV_ONION;
-			}
-
-			@Override
-			public int getDevReportPort() {
-				return DEV_REPORT_PORT;
+				return DEV_ONION_ADDRESS;
 			}
 		};
 	}
