@@ -48,6 +48,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.BriarActivity.GROUP_ID;
 
 public class ContactListFragment extends BaseEventFragment {
 
@@ -108,7 +109,7 @@ public class ContactListFragment extends BaseEventFragment {
 						GroupId groupId = item.getGroupId();
 						Intent i = new Intent(getActivity(),
 								ConversationActivity.class);
-						i.putExtra("briar.GROUP_ID", groupId.getBytes());
+						i.putExtra(GROUP_ID, groupId.getBytes());
 
 						if (Build.VERSION.SDK_INT >= 16) {
 							ActivityOptionsCompat options =

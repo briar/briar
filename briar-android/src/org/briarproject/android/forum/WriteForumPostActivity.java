@@ -59,6 +59,8 @@ import static android.widget.RelativeLayout.RIGHT_OF;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
+import static org.briarproject.android.forum.ForumActivity.MIN_TIMESTAMP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 
 public class WriteForumPostActivity extends BriarActivity
@@ -91,13 +93,13 @@ implements OnItemSelectedListener, OnClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
+		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String forumName = i.getStringExtra("briar.FORUM_NAME");
+		String forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName == null) throw new IllegalStateException();
 		setTitle(forumName);
-		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
+		minTimestamp = i.getLongExtra(MIN_TIMESTAMP, -1);
 		if (minTimestamp == -1) throw new IllegalStateException();
 		b = i.getByteArrayExtra("briar.PARENT_ID");
 		if (b != null) parentId = new MessageId(b);

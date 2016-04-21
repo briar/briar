@@ -55,6 +55,7 @@ import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
@@ -232,7 +233,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			if (contactCounts.size() == 1) {
 				Intent i = new Intent(appContext, ConversationActivity.class);
 				GroupId g = contactCounts.keySet().iterator().next();
-				i.putExtra("briar.GROUP_ID", g.getBytes());
+				i.putExtra(GROUP_ID, g.getBytes());
 				String idHex = StringUtils.toHexString(g.getBytes());
 				i.setData(Uri.parse(CONTACT_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
@@ -315,7 +316,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			if (forumCounts.size() == 1) {
 				Intent i = new Intent(appContext, ForumActivity.class);
 				GroupId g = forumCounts.keySet().iterator().next();
-				i.putExtra("briar.GROUP_ID", g.getBytes());
+				i.putExtra(GROUP_ID, g.getBytes());
 				String idHex = StringUtils.toHexString(g.getBytes());
 				i.setData(Uri.parse(FORUM_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);

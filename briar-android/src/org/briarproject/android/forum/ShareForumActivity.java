@@ -35,6 +35,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
@@ -63,10 +64,10 @@ SelectContactsDialog.Listener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
+		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String forumName = i.getStringExtra("briar.FORUM_NAME");
+		String forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName == null) throw new IllegalStateException();
 		setTitle(forumName);
 
@@ -97,7 +98,7 @@ SelectContactsDialog.Listener {
 
 		shareButton = new Button(this);
 		shareButton.setLayoutParams(WRAP_WRAP);
-		shareButton.setText(R.string.share_button);
+		shareButton.setText(R.string.forum_share_button);
 		shareButton.setOnClickListener(this);
 		layout.addView(shareButton);
 

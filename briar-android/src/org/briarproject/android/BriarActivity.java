@@ -30,6 +30,7 @@ public abstract class BriarActivity extends BaseActivity {
 	public static final String KEY_LOCAL_AUTHOR_HANDLE =
 			"briar.LOCAL_AUTHOR_HANDLE";
 	public static final String KEY_STARTUP_FAILED = "briar.STARTUP_FAILED";
+	public static final String GROUP_ID = "briar.GROUP_ID";
 
 	public static final int REQUEST_PASSWORD = 1;
 

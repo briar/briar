@@ -79,7 +79,8 @@
 	<string name="forum_created_toast">Forum created</string>
 	<string name="forum_share_with_all">Share this forum with all contacts</string>
 	<string name="forum_share_with_some">Share this forum with chosen contacts</string>
-	<string name="share_button">Share Forum</string>
+	<string name="forum_share_button">Share Forum</string>
+	<string name="forum_compose_post">New Forum Post</string>
 	<string name="from">From:</string>
 	<string name="anonymous">Anonymous</string>
 	<string name="new_identity_item">New identity\u2026</string>
