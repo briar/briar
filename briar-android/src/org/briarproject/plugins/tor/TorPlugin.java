@@ -495,17 +495,18 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 
 	private void enableNetwork(boolean enable) throws IOException {
 		if (!running) return;
+		if (networkEnabled == enable) return;
 		if (LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
 		if (enable) wakeLock.acquire();
-		if (!enable) {
-			circuitBuilt.set(false);
-			descriptorsPublished.set(0);
-			descriptorsPublishedTime = Long.MAX_VALUE;
-			callback.transportDisabled();
-		}
+		circuitBuilt.set(false);
+		descriptorsPublished.set(0);
+		descriptorsPublishedTime = Long.MAX_VALUE;
 		networkEnabled = enable;
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
-		if (!enable) wakeLock.release();
+		if (!enable) {
+			callback.transportDisabled();
+			wakeLock.release();
+		}
 	}
 
 	public void stop() throws IOException {
