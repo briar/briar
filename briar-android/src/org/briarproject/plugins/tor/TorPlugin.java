@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.FileObserver;
+import android.os.PowerManager;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
@@ -57,9 +58,11 @@ import java.util.zip.ZipInputStream;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.POWER_SERVICE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -94,6 +97,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private final File cookieFile, hostnameFile;
 	private final AtomicBoolean circuitBuilt;
 	private final AtomicInteger descriptorsPublished;
+	private final PowerManager.WakeLock wakeLock;
 
 	private volatile boolean running = false, networkEnabled = false;
 	private volatile boolean bootstrapped = false;
@@ -132,6 +136,10 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		hostnameFile = new File(torDirectory, "hs/hostname");
 		circuitBuilt = new AtomicBoolean(false);
 		descriptorsPublished = new AtomicInteger(0);
+		Object o = appContext.getSystemService(POWER_SERVICE);
+		PowerManager pm = (PowerManager) o;
+		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "TorPlugin");
+		wakeLock.setReferenceCounted(false);
 	}
 
 	public TransportId getId() {
@@ -488,6 +496,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 	private void enableNetwork(boolean enable) throws IOException {
 		if (!running) return;
 		if (LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
+		if (enable) wakeLock.acquire();
 		if (!enable) {
 			circuitBuilt.set(false);
 			descriptorsPublished.set(0);
@@ -496,6 +505,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		}
 		networkEnabled = enable;
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
+		if (!enable) wakeLock.release();
 	}
 
 	public void stop() throws IOException {
@@ -517,6 +527,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
+		wakeLock.release();
 	}
 
 	public boolean isRunning() {
@@ -709,15 +720,18 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 		@Override
 		public void onReceive(Context ctx, Intent i) {
 			if (!running) return;
-			online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
-			// Some devices fail to set EXTRA_NO_CONNECTIVITY, double check
-			Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
-			ConnectivityManager cm = (ConnectivityManager) o;
-			NetworkInfo net = cm.getActiveNetworkInfo();
-			if (net == null || !net.isConnected()) online = false;
-			connectedToWifi = (net != null && net.getType() == TYPE_WIFI
-					&& net.isConnected());
-			updateConnectionStatus();
+			if (CONNECTIVITY_ACTION.equals(i.getAction())) {
+				LOG.info("Detected connectivity change");
+				online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
+				// Some devices fail to set EXTRA_NO_CONNECTIVITY, double check
+				Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
+				ConnectivityManager cm = (ConnectivityManager) o;
+				NetworkInfo net = cm.getActiveNetworkInfo();
+				if (net == null || !net.isConnected()) online = false;
+				connectedToWifi = (net != null && net.getType() == TYPE_WIFI
+						&& net.isConnected());
+				updateConnectionStatus();
+			}
 		}
 	}
 }
