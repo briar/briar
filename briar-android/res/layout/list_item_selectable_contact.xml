@@ -29,55 +29,30 @@
 			app:civ_border_width="@dimen/avatar_border_width"
 			tools:src="@drawable/ic_launcher"/>
 
-		<LinearLayout
-			android:id="@+id/textViews"
+		<TextView
+			android:id="@+id/nameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:orientation="vertical"
 			android:layout_centerVertical="true"
 			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 			android:layout_marginStart="@dimen/listitem_horizontal_margin"
-			android:layout_toLeftOf="@+id/bulbView"
+			android:layout_toEndOf="@+id/avatarView"
+			android:layout_toLeftOf="@+id/checkBox"
 			android:layout_toRightOf="@+id/avatarView"
-			android:layout_toEndOf="@+id/avatarView">
+			android:maxLines="2"
+			android:textColor="@android:color/primary_text_light"
+			android:textSize="@dimen/text_size_large"
+			tools:text="This is a name of a contact"/>
 
-			<TextView
-				android:id="@+id/nameView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:maxLines="2"
-				android:textColor="@android:color/primary_text_light"
-				android:textSize="@dimen/text_size_medium"
-				tools:text="This is a name of a contact"/>
-
-			<TextView
-				android:id="@+id/dateView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textColor="@android:color/secondary_text_light"
-				android:textSize="@dimen/text_size_small"
-				tools:text="Dec 24"/>
-
-			<TextView
-				android:id="@+id/identityView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textColor="@android:color/tertiary_text_light"
-				android:textSize="@dimen/text_size_tiny"
-				android:visibility="gone"
-				tools:text="My Identity"/>
-
-		</LinearLayout>
-
-		<ImageView
-			android:id="@+id/bulbView"
+		<CheckBox
+			android:id="@+id/checkBox"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
 			android:layout_centerVertical="true"
 			android:layout_marginRight="@dimen/listitem_horizontal_margin"
-			tools:src="@drawable/contact_connected"/>
+			android:clickable="false"/>
 
 	</RelativeLayout>
 

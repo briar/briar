@@ -47,7 +47,7 @@ public class ContactChooserFragment extends BaseFragment {
 	public final static String TAG = "ContactChooserFragment";
 	private IntroductionActivity introductionActivity;
 	private BriarRecyclerView list;
-	private ContactListAdapter adapter;
+	private ContactChooserAdapter adapter;
 	private int contactId;
 
 	private static final Logger LOG =
@@ -111,8 +111,7 @@ public class ContactChooserFragment extends BaseFragment {
 						}
 					}
 				};
-		adapter =
-				new ContactListAdapter(getActivity(), onItemClickListener, true);
+		adapter = new ContactChooserAdapter(getActivity(), onItemClickListener);
 
 		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));

@@ -101,7 +101,7 @@ public class ContactListFragment extends BaseEventFragment {
 				inflater.inflate(R.layout.activity_contact_list, container,
 						false);
 
-		ContactListAdapter.OnItemClickListener onItemClickListener =
+		BaseContactListAdapter.OnItemClickListener onItemClickListener =
 				new ContactListAdapter.OnItemClickListener() {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
@@ -124,8 +124,7 @@ public class ContactListFragment extends BaseEventFragment {
 					}
 				};
 
-		adapter = new ContactListAdapter(getContext(), onItemClickListener,
-				false);
+		adapter = new ContactListAdapter(getContext(), onItemClickListener);
 		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
