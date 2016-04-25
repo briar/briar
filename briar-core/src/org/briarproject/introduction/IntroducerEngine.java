@@ -55,6 +55,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY2;
 import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_1;
 import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_2;
+import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
@@ -302,8 +303,9 @@ public class IntroducerEngine
 		boolean accept = msg.getBoolean(ACCEPT);
 
 		IntroductionResponse ir =
-				new IntroductionResponse(sessionId, messageId, time, false,
-						false, false, false, authorId, name, accept);
+				new IntroductionResponse(sessionId, messageId, ROLE_INTRODUCER,
+						time, false, false, false, false, authorId, name,
+						accept);
 		return new IntroductionResponseReceivedEvent(contactId, ir);
 	}
 

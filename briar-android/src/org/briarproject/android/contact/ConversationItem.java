@@ -77,9 +77,15 @@ public abstract class ConversationItem {
 						R.string.introduction_response_accepted_received,
 						contactName, ir.getName());
 			} else {
-				text = ctx.getString(
-						R.string.introduction_response_declined_received,
-						contactName, ir.getName());
+				if (ir.isIntroducer()) {
+					text = ctx.getString(
+							R.string.introduction_response_declined_received,
+							contactName, ir.getName());
+				} else {
+					text = ctx.getString(
+							R.string.introduction_response_declined_received_by_introducee,
+							contactName, ir.getName());
+				}
 			}
 			return new ConversationNoticeInItem(ir.getMessageId(), text,
 					ir.getTime(), ir.isRead());

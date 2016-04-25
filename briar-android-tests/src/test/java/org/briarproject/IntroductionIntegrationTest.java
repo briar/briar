@@ -50,6 +50,7 @@ import javax.inject.Inject;
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.TestPluginsModule.TRANSPORT_ID;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -293,7 +294,19 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			assertFalse(contactManager2
 					.contactExists(author1.getId(), author2.getId()));
 
-			assertDefaultUiMessages();
+			assertEquals(2,
+					introductionManager0.getIntroductionMessages(contactId1)
+							.size());
+			assertEquals(2,
+					introductionManager0.getIntroductionMessages(contactId2)
+							.size());
+			assertEquals(2,
+					introductionManager1.getIntroductionMessages(contactId0)
+							.size());
+			// introducee2 should also have the decline response of introducee1
+			assertEquals(3,
+					introductionManager2.getIntroductionMessages(contactId0)
+							.size());
 		} finally {
 			stopLifecycles();
 		}
@@ -369,6 +382,97 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			assertFalse(contactManager2
 					.contactExists(author1.getId(), author2.getId()));
 
+			assertEquals(2,
+					introductionManager0.getIntroductionMessages(contactId1)
+							.size());
+			assertEquals(2,
+					introductionManager0.getIntroductionMessages(contactId2)
+							.size());
+			// introducee1 also sees the decline response from introducee2
+			assertEquals(3,
+					introductionManager1.getIntroductionMessages(contactId0)
+							.size());
+			assertEquals(2,
+					introductionManager2.getIntroductionMessages(contactId0)
+							.size());
+		} finally {
+			stopLifecycles();
+		}
+	}
+
+	@Test
+	public void testIntroductionSessionDelayedFirstDecline() throws Exception {
+		startLifecycles();
+		try {
+			// Add Identities
+			addDefaultIdentities();
+
+			// Add Transport Properties
+			addTransportProperties();
+
+			// Add introducees as contacts
+			contactId1 = contactManager0.addContact(author1, author0.getId(),
+					master, clock.currentTimeMillis(), true, true
+			);
+			contactId2 = contactManager0.addContact(author2, author0.getId(),
+					master, clock.currentTimeMillis(), true, true
+			);
+			// Add introducer back
+			contactId0 = contactManager1.addContact(author0, author1.getId(),
+					master, clock.currentTimeMillis(), false, true
+			);
+			ContactId contactId02 = contactManager2.addContact(author0,
+					author2.getId(), master, clock.currentTimeMillis(), false,
+					true
+			);
+			assertTrue(contactId0.equals(contactId02));
+
+			// listen to events
+			IntroducerListener listener0 = new IntroducerListener();
+			t0.getEventBus().addListener(listener0);
+			IntroduceeListener listener1 = new IntroduceeListener(1, false);
+			t1.getEventBus().addListener(listener1);
+			IntroduceeListener listener2 = new IntroduceeListener(2, false);
+			t2.getEventBus().addListener(listener2);
+
+			// make introduction
+			long time = clock.currentTimeMillis();
+			Contact introducee1 = contactManager0.getContact(contactId1);
+			Contact introducee2 = contactManager0.getContact(contactId2);
+			introductionManager0
+					.makeIntroduction(introducee1, introducee2, null, time);
+
+			// sync request messages
+			deliverMessage(sync0, contactId0, sync1, contactId1);
+			deliverMessage(sync0, contactId0, sync2, contactId2);
+
+			// wait for requests to arrive
+			eventWaiter.await(TIMEOUT, 2);
+			assertTrue(listener1.requestReceived);
+			assertTrue(listener2.requestReceived);
+
+			// sync first response
+			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener0.response1Received);
+
+			// sync second response
+			deliverMessage(sync2, contactId2, sync0, contactId0, "2 to 0");
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener0.response2Received);
+
+			// sync first forwarded response
+			deliverMessage(sync0, contactId0, sync2, contactId2);
+
+			// note how the second response will not be forwarded anymore
+
+			assertFalse(contactManager1
+					.contactExists(author2.getId(), author1.getId()));
+			assertFalse(contactManager2
+					.contactExists(author1.getId(), author2.getId()));
+
+			// since introducee2 was already in FINISHED state when
+			// introducee1's response arrived, she ignores and deletes it
 			assertDefaultUiMessages();
 		} finally {
 			stopLifecycles();
@@ -614,14 +718,18 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 	}
 
 	private void assertDefaultUiMessages() throws DbException {
-		assertTrue(introductionManager0.getIntroductionMessages(contactId1)
-				.size() == 2);
-		assertTrue(introductionManager0.getIntroductionMessages(contactId2)
-				.size() == 2);
-		assertTrue(introductionManager1.getIntroductionMessages(contactId0)
-				.size() == 2);
-		assertTrue(introductionManager2.getIntroductionMessages(contactId0)
-				.size() == 2);
+		assertEquals(2,
+				introductionManager0.getIntroductionMessages(contactId1)
+						.size());
+		assertEquals(2,
+				introductionManager0.getIntroductionMessages(contactId2)
+						.size());
+		assertEquals(2,
+				introductionManager1.getIntroductionMessages(contactId0)
+						.size());
+		assertEquals(2,
+				introductionManager2.getIntroductionMessages(contactId0)
+						.size());
 	}
 
 	private class IntroduceeListener implements EventListener {

@@ -10,10 +10,11 @@ public class IntroductionResponse extends IntroductionMessage {
 	private final boolean accepted;
 
 	public IntroductionResponse(SessionId sessionId, MessageId messageId,
-			long time, boolean local, boolean sent, boolean seen, boolean read,
-			AuthorId remoteAuthorId, String name, boolean accepted) {
+			int role, long time, boolean local, boolean sent, boolean seen,
+			boolean read, AuthorId remoteAuthorId, String name,
+			boolean accepted) {
 
-		super(sessionId, messageId, time, local, sent, seen, read);
+		super(sessionId, messageId, role, time, local, sent, seen, read);
 
 		this.remoteAuthorId = remoteAuthorId;
 		this.name = name;
@@ -28,4 +29,7 @@ public class IntroductionResponse extends IntroductionMessage {
 		return accepted;
 	}
 
+	public AuthorId getRemoteAuthorId() {
+		return remoteAuthorId;
+	}
 }
