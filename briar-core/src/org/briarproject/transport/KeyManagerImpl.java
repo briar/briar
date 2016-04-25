@@ -134,9 +134,6 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		Transaction txn = db.startTransaction(false);
 		try {
 			ctx = m.getStreamContext(txn, tag);
-			// Activate the contact if not already active
-			if (ctx != null && !activeContacts.containsKey(ctx.getContactId()))
-				db.setContactActive(txn, ctx.getContactId(), true);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
