@@ -4,13 +4,18 @@ import android.app.Application;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.reporting.DevConfig;
 import org.briarproject.api.ui.UiCallback;
+import org.briarproject.util.StringUtils;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,6 +24,8 @@ import dagger.Module;
 import dagger.Provides;
 
 import static android.content.Context.MODE_PRIVATE;
+import static org.briarproject.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
+import static org.briarproject.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
 @Module
 public class AppModule {
@@ -86,6 +93,28 @@ public class AppModule {
 
 			public long getMaxSize() {
 				return Long.MAX_VALUE;
+			}
+		};
+	}
+
+	@Provides
+	@Singleton
+	public DevConfig provideDevConfig(final CryptoComponent crypto) {
+		return new DevConfig() {
+
+			@Override
+			public PublicKey getDevPublicKey() {
+				try {
+					return crypto.getMessageKeyParser().parsePublicKey(
+							StringUtils.fromHexString(DEV_PUBLIC_KEY_HEX));
+				} catch (GeneralSecurityException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			@Override
+			public String getDevOnionAddress() {
+				return DEV_ONION_ADDRESS;
 			}
 		};
 	}

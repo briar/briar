@@ -18,6 +18,7 @@ import org.briarproject.util.ByteUtils;
 import org.briarproject.util.StringUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.CryptoException;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -93,6 +94,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
 	private final ECKeyPairGenerator signatureKeyPairGenerator;
 	private final KeyParser agreementKeyParser, signatureKeyParser;
+	private final MessageEncrypter messageEncrypter;
 
 	@Inject
 	CryptoComponentImpl(SeedProvider seedProvider) {
@@ -115,6 +117,7 @@ class CryptoComponentImpl implements CryptoComponent {
 				AGREEMENT_KEY_PAIR_BITS);
 		signatureKeyParser = new Sec1KeyParser(PARAMETERS,
 				SIGNATURE_KEY_PAIR_BITS);
+		messageEncrypter = new MessageEncrypter(secureRandom);
 	}
 
 	public SecretKey generateSecretKey() {
@@ -164,8 +167,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Return a wrapper that uses the SEC 1 encoding
 		ECPublicKeyParameters ecPublicKey =
 				(ECPublicKeyParameters) keyPair.getPublic();
-		PublicKey publicKey = new Sec1PublicKey(ecPublicKey,
-				AGREEMENT_KEY_PAIR_BITS);
+		PublicKey publicKey = new Sec1PublicKey(ecPublicKey
+		);
 		ECPrivateKeyParameters ecPrivateKey =
 				(ECPrivateKeyParameters) keyPair.getPrivate();
 		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,
@@ -183,8 +186,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Return a wrapper that uses the SEC 1 encoding
 		ECPublicKeyParameters ecPublicKey =
 				(ECPublicKeyParameters) keyPair.getPublic();
-		PublicKey publicKey = new Sec1PublicKey(ecPublicKey,
-				SIGNATURE_KEY_PAIR_BITS);
+		PublicKey publicKey = new Sec1PublicKey(ecPublicKey
+		);
 		ECPrivateKeyParameters ecPrivateKey =
 				(ECPrivateKeyParameters) keyPair.getPrivate();
 		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,
@@ -194,6 +197,10 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public KeyParser getSignatureKeyParser() {
 		return signatureKeyParser;
+	}
+
+	public KeyParser getMessageKeyParser() {
+		return messageEncrypter.getKeyParser();
 	}
 
 	public int generateBTInvitationCode() {
@@ -435,6 +442,15 @@ class CryptoComponentImpl implements CryptoComponent {
 			return output;
 		} catch (GeneralSecurityException e) {
 			return null; // Invalid ciphertext
+		}
+	}
+
+	public String encryptToKey(PublicKey publicKey, byte[] plaintext) {
+		try {
+			byte[] ciphertext = messageEncrypter.encrypt(publicKey, plaintext);
+			return AsciiArmour.wrap(ciphertext, 70);
+		} catch (CryptoException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

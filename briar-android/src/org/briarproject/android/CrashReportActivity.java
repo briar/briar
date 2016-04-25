@@ -2,7 +2,9 @@ package org.briarproject.android;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,12 +20,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.api.reporting.DevReporter;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,12 +41,10 @@ import java.util.Scanner;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-import static android.content.Intent.ACTION_SEND;
-import static android.content.Intent.EXTRA_EMAIL;
-import static android.content.Intent.EXTRA_SUBJECT;
-import static android.content.Intent.EXTRA_TEXT;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
@@ -59,6 +62,9 @@ public class CrashReportActivity extends AppCompatActivity
 	private LinearLayout status = null;
 	private View progress = null;
 
+	@Inject
+	protected DevReporter reporter;
+
 	private volatile String stack = null;
 	private volatile int pid = -1;
 	private volatile BluetoothAdapter bt = null;
@@ -67,6 +73,9 @@ public class CrashReportActivity extends AppCompatActivity
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_crash);
+
+		((BriarApplication) getApplication()).getApplicationComponent()
+				.inject(this);
 
 		status = (LinearLayout) findViewById(R.id.crash_status);
 		progress = findViewById(R.id.progress_wheel);
@@ -94,7 +103,20 @@ public class CrashReportActivity extends AppCompatActivity
 	}
 
 	public void onClick(View view) {
-		share();
+		// TODO Encapsulate the dialog in a re-usable fragment
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.dialog_title_share_crash_report);
+		builder.setMessage(R.string.dialog_message_share_crash_report);
+		builder.setNegativeButton(R.string.cancel_button, null);
+		builder.setPositiveButton(R.string.send,
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						saveCrashReport();
+					}
+				});
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 
 	private void refresh() {
@@ -324,7 +346,7 @@ public class CrashReportActivity extends AppCompatActivity
 		return Character.toUpperCase(first) + s.substring(1);
 	}
 
-	private void share() {
+	private void saveCrashReport() {
 		StringBuilder s = new StringBuilder();
 		for (Entry<String, String> e : getStatusMap().entrySet()) {
 			s.append(e.getKey());
@@ -332,12 +354,19 @@ public class CrashReportActivity extends AppCompatActivity
 			s.append(e.getValue());
 			s.append("\n\n");
 		}
-		String body = s.toString();
-		Intent i = new Intent(ACTION_SEND);
-		i.setType("message/rfc822");
-		i.putExtra(EXTRA_EMAIL, new String[] { "contact@briarproject.org" });
-		i.putExtra(EXTRA_SUBJECT, "Crash report");
-		i.putExtra(EXTRA_TEXT, body);
-		startActivity(Intent.createChooser(i, "Send to developers"));
+		final String crashReport = s.toString();
+		try {
+			reporter.encryptCrashReportToFile(
+					AndroidUtils.getCrashReportDir(this), crashReport);
+			Toast.makeText(this, R.string.crash_report_saved, Toast.LENGTH_LONG)
+					.show();
+			finish();
+		} catch (FileNotFoundException e) {
+			if (LOG.isLoggable(WARNING))
+				LOG.log(WARNING, "Error while saving encrypted crash report",
+						e);
+			Toast.makeText(this, R.string.crash_report_not_saved,
+					Toast.LENGTH_SHORT).show();
+		}
 	}
 }

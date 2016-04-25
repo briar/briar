@@ -17,10 +17,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class AndroidUtils {
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
+
+	private static final String STORED_CRASH_REPORTS = "crash-reports";
 
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
@@ -83,5 +87,9 @@ public class AndroidUtils {
 					FileUtils.deleteFileOrDir(child);
 			}
 		}
+	}
+
+	public static File getCrashReportDir(Context ctx) {
+		return ctx.getDir(STORED_CRASH_REPORTS, MODE_PRIVATE);
 	}
 }
