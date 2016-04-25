@@ -37,6 +37,8 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
+import static org.briarproject.android.forum.ForumActivity.MIN_TIMESTAMP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
@@ -68,10 +70,10 @@ implements OnClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
+		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		forumName = i.getStringExtra("briar.FORUM_NAME");
+		forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName == null) throw new IllegalStateException();
 		setTitle(forumName);
 		b = i.getByteArrayExtra("briar.MESSAGE_ID");
@@ -81,7 +83,7 @@ implements OnClickListener {
 		if (contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 		if (timestamp == -1) throw new IllegalStateException();
-		minTimestamp = i.getLongExtra("briar.MIN_TIMESTAMP", -1);
+		minTimestamp = i.getLongExtra(MIN_TIMESTAMP, -1);
 		if (minTimestamp == -1) throw new IllegalStateException();
 		position = i.getIntExtra("briar.POSITION", -1);
 		if (position == -1) throw new IllegalStateException();
@@ -234,10 +236,10 @@ implements OnClickListener {
 			finish();
 		} else if (view == replyButton) {
 			Intent i = new Intent(this, WriteForumPostActivity.class);
-			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.FORUM_NAME", forumName);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			i.putExtra(FORUM_NAME, forumName);
 			i.putExtra("briar.PARENT_ID", messageId.getBytes());
-			i.putExtra("briar.MIN_TIMESTAMP", minTimestamp);
+			i.putExtra(MIN_TIMESTAMP, minTimestamp);
 			startActivity(i);
 			setResult(RESULT_REPLY);
 			finish();

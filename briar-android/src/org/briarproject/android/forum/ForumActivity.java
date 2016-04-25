@@ -1,13 +1,13 @@
 package org.briarproject.android.forum;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -15,10 +15,8 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.ElasticHorizontalSpace;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchMessageException;
@@ -53,11 +51,13 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ReadForumPostActivity.RESULT_PREV_NEXT;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class ForumActivity extends BriarActivity implements EventListener,
-		OnClickListener, OnItemClickListener {
+		OnItemClickListener {
+
+	public static final String FORUM_NAME = "briar.FORUM_NAME";
+	public static final String MIN_TIMESTAMP = "briar.MIN_TIMESTAMP";
 
 	private static final int REQUEST_READ = 2;
 	private static final Logger LOG =
@@ -69,7 +69,6 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	private ForumAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private ImageButton composeButton = null, shareButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject protected volatile ForumManager forumManager;
@@ -82,10 +81,10 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
+		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String forumName = i.getStringExtra("briar.FORUM_NAME");
+		String forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName != null) setTitle(forumName);
 
 		LinearLayout layout = new LinearLayout(this);
@@ -113,30 +112,6 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		loading = new ListLoadingProgressBar(this);
 		layout.addView(loading);
 
-		layout.addView(new HorizontalBorder(this));
-
-		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(MATCH_WRAP);
-		footer.setGravity(CENTER);
-		Resources res = getResources();
-		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		footer.addView(new ElasticHorizontalSpace(this));
-
-		composeButton = new ImageButton(this);
-		composeButton.setBackgroundResource(0);
-		composeButton.setImageResource(R.drawable.content_new_email);
-		composeButton.setOnClickListener(this);
-		footer.addView(composeButton);
-		footer.addView(new ElasticHorizontalSpace(this));
-
-		shareButton = new ImageButton(this);
-		shareButton.setBackgroundResource(0);
-		shareButton.setImageResource(R.drawable.social_share_old);
-		shareButton.setOnClickListener(this);
-		footer.addView(shareButton);
-		footer.addView(new ElasticHorizontalSpace(this));
-		layout.addView(footer);
-
 		setContentView(layout);
 	}
 
@@ -153,6 +128,37 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		notificationManager.clearForumPostNotification(groupId);
 		loadForum();
 		loadHeaders();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.forum_actions, menu);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case R.id.action_forum_compose_post:
+				Intent i = new Intent(this, WriteForumPostActivity.class);
+				i.putExtra(GROUP_ID, groupId.getBytes());
+				i.putExtra(FORUM_NAME, forum.getName());
+				i.putExtra(MIN_TIMESTAMP, getMinTimestampForNewPost());
+				startActivity(i);
+				return true;
+			case R.id.action_forum_share:
+				Intent i2 = new Intent(this, ShareForumActivity.class);
+				i2.putExtra(GROUP_ID, groupId.getBytes());
+				i2.putExtra(FORUM_NAME, forum.getName());
+				startActivity(i2);
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	private void loadForum() {
@@ -334,21 +340,6 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		}
 	}
 
-	public void onClick(View view) {
-		if (view == composeButton) {
-			Intent i = new Intent(this, WriteForumPostActivity.class);
-			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.FORUM_NAME", forum.getName());
-			i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewPost());
-			startActivity(i);
-		} else if (view == shareButton) {
-			Intent i = new Intent(this, ShareForumActivity.class);
-			i.putExtra("briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("briar.FORUM_NAME", forum.getName());
-			startActivity(i);
-		}
-	}
-
 	private long getMinTimestampForNewPost() {
 		// Don't use an earlier timestamp than the newest post
 		long timestamp = 0;
@@ -368,8 +359,8 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	private void displayPost(int position) {
 		ForumPostHeader header = adapter.getItem(position).getHeader();
 		Intent i = new Intent(this, ReadForumPostActivity.class);
-		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.FORUM_NAME", forum.getName());
+		i.putExtra(GROUP_ID, groupId.getBytes());
+		i.putExtra(FORUM_NAME, forum.getName());
 		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
 		Author author = header.getAuthor();
 		if (author != null) {
@@ -379,7 +370,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		i.putExtra("briar.AUTHOR_STATUS", header.getAuthorStatus().name());
 		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
 		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
-		i.putExtra("briar.MIN_TIMESTAMP", getMinTimestampForNewPost());
+		i.putExtra(MIN_TIMESTAMP, getMinTimestampForNewPost());
 		i.putExtra("briar.POSITION", position);
 		startActivityForResult(i, REQUEST_READ);
 	}

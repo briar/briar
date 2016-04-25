@@ -53,6 +53,8 @@ import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.BriarActivity.GROUP_ID;
+import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
@@ -373,8 +375,8 @@ public class ForumListFragment extends BaseEventFragment implements
 			long id) {
 		Intent i = new Intent(getContext(), ForumActivity.class);
 		Forum f = adapter.getItem(position).getForum();
-		i.putExtra("briar.GROUP_ID", f.getId().getBytes());
-		i.putExtra("briar.FORUM_NAME", f.getName());
+		i.putExtra(GROUP_ID, f.getId().getBytes());
+		i.putExtra(FORUM_NAME, f.getName());
 		startActivity(i);
 	}
 

@@ -36,6 +36,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
@@ -164,8 +165,8 @@ implements OnEditorActionListener, OnClickListener {
 			public void run() {
 				Intent i = new Intent(CreateForumActivity.this,
 						ForumActivity.class);
-				i.putExtra("briar.GROUP_ID", f.getId().getBytes());
-				i.putExtra("briar.FORUM_NAME", f.getName());
+				i.putExtra(GROUP_ID, f.getId().getBytes());
+				i.putExtra(FORUM_NAME, f.getName());
 				startActivity(i);
 				Toast.makeText(CreateForumActivity.this,
 						R.string.forum_created_toast, LENGTH_LONG).show();
