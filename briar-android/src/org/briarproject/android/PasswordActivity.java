@@ -1,10 +1,10 @@
 package org.briarproject.android;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -116,7 +116,8 @@ public class PasswordActivity extends BaseActivity {
 
 	public void onForgottenPasswordClick(View v) {
 		// TODO Encapsulate the dialog in a re-usable fragment
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				R.style.BriarDialogTheme);
 		builder.setTitle(R.string.dialog_title_lost_password);
 		builder.setMessage(R.string.dialog_message_lost_password);
 		builder.setNegativeButton(R.string.cancel_button, null);

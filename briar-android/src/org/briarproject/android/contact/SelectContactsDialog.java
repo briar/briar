@@ -1,10 +1,10 @@
 package org.briarproject.android.contact;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
+import android.support.v7.app.AlertDialog;
 
 import org.briarproject.R;
 import org.briarproject.api.contact.Contact;
@@ -37,7 +37,8 @@ public class SelectContactsDialog implements OnMultiChoiceClickListener {
 	public Dialog build(Context ctx) {
 		if (listener == null || contacts == null || selected == null)
 			throw new IllegalStateException();
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+		AlertDialog.Builder builder = new AlertDialog.Builder(ctx,
+				R.style.BriarDialogTheme);
 		int size = contacts.size();
 		String[] names = new String[size];
 		boolean[] checked = new boolean[size];
