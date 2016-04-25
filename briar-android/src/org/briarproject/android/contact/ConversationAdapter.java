@@ -20,8 +20,6 @@ import org.briarproject.util.StringUtils;
 
 import java.util.List;
 
-import im.delight.android.identicons.IdenticonDrawable;
-
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.support.v7.widget.RecyclerView.ViewHolder;
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_IN;
@@ -83,7 +81,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 					});
 	private Context ctx;
 	private IntroductionHandler intro;
-	private byte[] identiconKey;
 	private String contactName;
 
 	public ConversationAdapter(Context context,
@@ -92,8 +89,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		intro = introductionHandler;
 	}
 
-	public void setContactInformation(byte[] identiconKey, String contactName) {
-		this.identiconKey = identiconKey;
+	public void setContactName(String contactName) {
 		this.contactName = contactName;
 		notifyDataSetChanged();
 	}
@@ -174,8 +170,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 				ui.status.setImageResource(R.drawable.message_stored_white);
 			}
 		} else {
-			if (identiconKey != null)
-				ui.avatar.setImageDrawable(new IdenticonDrawable(identiconKey));
 			if (item.getType() == MSG_IN_UNREAD) {
 				// TODO implement new unread message highlight according to #232
 /*				int left = ui.layout.getPaddingLeft();
@@ -215,10 +209,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ui.messageLayout.setVisibility(View.GONE);
 		} else {
 			ui.messageLayout.setVisibility(View.VISIBLE);
-			if (item.getType() == INTRODUCTION_IN && identiconKey != null) {
-				ui.message.avatar.setImageDrawable(
-						new IdenticonDrawable(identiconKey));
-			}
 			ui.message.body.setText(message);
 			ui.message.date.setText(
 					DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
@@ -387,7 +377,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		public TextView body;
 		public TextView date;
 		public ImageView status;
-		public ImageView avatar;
 
 		public MessageHolder(View v, int type) {
 			super(v);
@@ -399,8 +388,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			// outgoing message (local)
 			if (type == MSG_OUT) {
 				status = (ImageView) v.findViewById(R.id.msgStatus);
-			} else {
-				avatar = (ImageView) v.findViewById(R.id.msgAvatar);
 			}
 		}
 	}

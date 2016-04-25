@@ -261,7 +261,7 @@ public class ConversationActivity extends BriarActivity
 					toolbarStatus
 							.setContentDescription(getString(R.string.offline));
 				}
-				adapter.setContactInformation(contactIdenticonKey, contactName);
+				adapter.setContactName(contactName);
 			}
 		});
 	}

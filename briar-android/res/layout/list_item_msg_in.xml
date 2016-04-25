@@ -1,51 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+	android:id="@+id/msgLayout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
+	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:orientation="horizontal">
+	android:layout_marginLeft="@dimen/message_bubble_margin_tail"
+	android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
+	android:background="@drawable/msg_in"
+	android:orientation="vertical">
 
-	<de.hdodenhof.circleimageview.CircleImageView
-		android:id="@+id/msgAvatar"
-		android:layout_width="@dimen/listitem_picture_size"
-		android:layout_height="@dimen/listitem_picture_size"
-		android:layout_marginLeft="@dimen/margin_medium"
-		android:layout_marginStart="@dimen/margin_medium"
-		android:visibility="gone"
-		app:civ_border_color="@color/briar_text_primary"
-		app:civ_border_width="@dimen/avatar_border_width"
-		tools:src="@drawable/ic_launcher"/>
-
-	<LinearLayout
-		android:id="@+id/msgLayout"
+	<TextView
+		android:id="@+id/msgBody"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:background="@drawable/msg_in"
-		android:orientation="vertical"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail">
+		android:textIsSelectable="true"
+		android:textSize="@dimen/text_size_medium"
+		tools:text="Short message"/>
 
-		<TextView
-			android:id="@+id/msgBody"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textIsSelectable="true"
-			android:textSize="@dimen/text_size_medium"
-			tools:text="Short message"/>
-
-		<TextView
-			android:id="@+id/msgTime"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="right|end"
-			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
-			android:maxLines="1"
-			android:textColor="@color/private_message_date"
-			android:textSize="@dimen/text_size_tiny"
-			tools:text="Dec 24, 13:37"/>
-
-	</LinearLayout>
+	<TextView
+		android:id="@+id/msgTime"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right|end"
+		android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
+		android:maxLines="1"
+		android:textColor="@color/private_message_date"
+		android:textSize="@dimen/text_size_tiny"
+		tools:text="Dec 24, 13:37"/>
 
 </LinearLayout>
