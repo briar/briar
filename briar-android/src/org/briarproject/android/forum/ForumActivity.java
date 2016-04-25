@@ -2,6 +2,8 @@ package org.briarproject.android.forum;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +44,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
@@ -152,9 +156,13 @@ public class ForumActivity extends BriarActivity implements EventListener,
 				return true;
 			case R.id.action_forum_share:
 				Intent i2 = new Intent(this, ShareForumActivity.class);
+				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
 				i2.putExtra(FORUM_NAME, forum.getName());
-				startActivity(i2);
+				ActivityOptionsCompat options = ActivityOptionsCompat
+						.makeCustomAnimation(this, android.R.anim.slide_in_left,
+								android.R.anim.slide_out_right);
+				ActivityCompat.startActivity(this, i2, options.toBundle());
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

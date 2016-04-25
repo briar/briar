@@ -2,66 +2,58 @@ package org.briarproject.android.forum;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.contact.SelectContactsDialog;
-import org.briarproject.android.invitation.AddContactActivity;
-import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.android.contact.BaseContactListAdapter;
+import org.briarproject.android.contact.ContactListItem;
+import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
-public class ShareForumActivity extends BriarActivity
-implements OnClickListener, NoContactsDialog.Listener,
-SelectContactsDialog.Listener {
+public class ShareForumActivity extends BriarActivity implements
+		BaseContactListAdapter.OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ShareForumActivity.class.getName());
 
-	private RadioGroup radioGroup = null;
-	private RadioButton shareWithAll = null, shareWithSome = null;
-	private Button shareButton = null;
-	private ProgressBar progress = null;
-	private boolean changed = false;
+	private ContactSelectorAdapter adapter;
 
 	// Fields that are accessed from background threads must be volatile
+	@Inject protected volatile IdentityManager identityManager;
 	@Inject protected volatile ContactManager contactManager;
 	@Inject protected volatile ForumSharingManager forumSharingManager;
-	private volatile GroupId groupId = null;
-	private volatile Collection<Contact> contacts = null;
-	private volatile Collection<ContactId> selected = null;
+	private volatile GroupId groupId;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
+		setContentView(R.layout.introduction_contact_chooser);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
@@ -71,44 +63,43 @@ SelectContactsDialog.Listener {
 		if (forumName == null) throw new IllegalStateException();
 		setTitle(forumName);
 
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
-		int pad = LayoutUtils.getPadding(this);
-		layout.setPadding(pad, pad, pad, pad);
+		adapter = new ContactSelectorAdapter(this, this);
+		BriarRecyclerView list =
+				(BriarRecyclerView) findViewById(R.id.contactList);
+		list.setLayoutManager(new LinearLayoutManager(this));
+		list.setAdapter(adapter);
+		list.setEmptyText(getString(R.string.no_contacts));
+	}
 
-		radioGroup = new RadioGroup(this);
-		radioGroup.setOrientation(VERTICAL);
-		radioGroup.setPadding(0, 0, 0, pad);
+	@Override
+	public void onResume() {
+		super.onResume();
 
-		shareWithAll = new RadioButton(this);
-		shareWithAll.setId(2);
-		shareWithAll.setText(R.string.forum_share_with_all);
-		shareWithAll.setOnClickListener(this);
-		radioGroup.addView(shareWithAll);
+		loadContactsAndVisibility();
+	}
 
-		shareWithSome = new RadioButton(this);
-		shareWithSome.setId(3);
-		shareWithSome.setText(R.string.forum_share_with_some);
-		shareWithSome.setOnClickListener(this);
-		radioGroup.addView(shareWithSome);
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.forum_share_actions, menu);
 
-		layout.addView(radioGroup);
+		return super.onCreateOptionsMenu(menu);
+	}
 
-		shareButton = new Button(this);
-		shareButton.setLayoutParams(WRAP_WRAP);
-		shareButton.setText(R.string.forum_share_button);
-		shareButton.setOnClickListener(this);
-		layout.addView(shareButton);
-
-		progress = new ProgressBar(this);
-		progress.setLayoutParams(WRAP_WRAP);
-		progress.setIndeterminate(true);
-		progress.setVisibility(GONE);
-		layout.addView(progress);
-
-		setContentView(layout);
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+			case R.id.action_share_forum:
+				storeVisibility();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -116,41 +107,29 @@ SelectContactsDialog.Listener {
 		component.inject(this);
 	}
 
-	public void onClick(View view) {
-		if (view == shareWithAll) {
-			changed = true;
-		} else if (view == shareWithSome) {
-			changed = true;
-			if (contacts == null) loadVisibility();
-			else displayVisibility();
-		} else if (view == shareButton) {
-			if (changed) {
-				share();
-			} else {
-				finish();
-			}
-		}
-	}
-
-	private void share() {
-		// Replace the button with a progress bar
-		shareButton.setVisibility(GONE);
-		progress.setVisibility(VISIBLE);
-		// Update the group in a background thread
-		storeVisibility(shareWithAll.isChecked());
-	}
-
-	private void loadVisibility() {
+	private void loadContactsAndVisibility() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					contacts = contactManager.getActiveContacts();
-					selected = forumSharingManager.getSharedWith(groupId);
+					List<ContactListItem> contacts =
+							new ArrayList<ContactListItem>();
+					Collection<ContactId> selectedContacts =
+							new HashSet<ContactId>(
+									forumSharingManager.getSharedWith(groupId));
+
+					for (Contact c : contactManager.getActiveContacts()) {
+						LocalAuthor localAuthor = identityManager
+								.getLocalAuthor(c.getLocalAuthorId());
+						boolean selected = selectedContacts.contains(c.getId());
+						contacts.add(
+								new SelectableContactListItem(c, localAuthor,
+										groupId, selected));
+					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayVisibility();
+					displayContacts(contacts);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -159,32 +138,22 @@ SelectContactsDialog.Listener {
 		});
 	}
 
-	private void displayVisibility() {
+	private void displayContacts(final List<ContactListItem> contact) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if (contacts.isEmpty()) {
-					NoContactsDialog builder = new NoContactsDialog();
-					builder.setListener(ShareForumActivity.this);
-					builder.build(ShareForumActivity.this).show();
-				} else {
-					SelectContactsDialog builder = new SelectContactsDialog();
-					builder.setListener(ShareForumActivity.this);
-					builder.setContacts(contacts);
-					builder.setSelected(selected);
-					builder.build(ShareForumActivity.this).show();
-				}
+				adapter.addAll(contact);
 			}
 		});
 	}
 
-	private void storeVisibility(final boolean all) {
+	private void storeVisibility() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					if (all) forumSharingManager.setSharedWithAll(groupId);
-					else forumSharingManager.setSharedWith(groupId,
-							selected);
+					Collection<ContactId> selected =
+							adapter.getSelectedContactIds();
+					forumSharingManager.setSharedWith(groupId, selected);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Update took " + duration + " ms");
@@ -197,20 +166,10 @@ SelectContactsDialog.Listener {
 		});
 	}
 
-	public void contactCreationSelected() {
-		startActivity(new Intent(this, AddContactActivity.class));
+	@Override
+	public void onItemClick(View view, ContactListItem item) {
+		((SelectableContactListItem) item).toggleSelected();
+		adapter.notifyItemChanged(adapter.findItemPosition(item), item);
 	}
 
-	public void contactCreationCancelled() {
-		radioGroup.clearCheck();
-	}
-
-	public void contactsSelected(Collection<ContactId> selected) {
-		this.selected = Collections.unmodifiableCollection(selected);
-		share();
-	}
-
-	public void contactSelectionCancelled() {
-		radioGroup.clearCheck();
-	}
 }
