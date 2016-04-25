@@ -164,6 +164,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Transaction txn = db.startTransaction(true);
 			try {
 				for (Contact c : db.getContacts(txn)) {
+					// Don't return properties for inactive contacts
+					if (!c.isActive()) continue;
 					Group g = getContactGroup(c);
 					// Find the latest remote update
 					LatestUpdate latest = findLatest(txn, g.getId(), t, false);
