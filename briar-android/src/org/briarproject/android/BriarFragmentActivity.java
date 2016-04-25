@@ -1,10 +1,10 @@
 package org.briarproject.android;
 
-import android.app.AlertDialog;
 import android.support.annotation.AnimRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.ContactListFragment;
@@ -68,7 +68,8 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 
 	protected void showMessageDialog(int titleStringId, int msgStringId) {
 		// TODO replace with custom dialog fragment ?
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				R.style.BriarDialogTheme);
 		builder.setTitle(titleStringId);
 		builder.setMessage(msgStringId);
 		builder.setPositiveButton(R.string.dialog_button_ok, null);

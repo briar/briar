@@ -2,7 +2,6 @@ package org.briarproject.android;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -104,7 +104,8 @@ public class CrashReportActivity extends AppCompatActivity
 
 	public void onClick(View view) {
 		// TODO Encapsulate the dialog in a re-usable fragment
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				R.style.BriarDialogTheme);
 		builder.setTitle(R.string.dialog_title_share_crash_report);
 		builder.setMessage(R.string.dialog_message_share_crash_report);
 		builder.setNegativeButton(R.string.cancel_button, null);
