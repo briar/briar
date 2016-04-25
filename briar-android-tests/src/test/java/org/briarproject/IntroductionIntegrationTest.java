@@ -616,14 +616,14 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			assertFalse(contactManager1
 					.contactExists(author2.getId(), author1.getId()));
 
-			assertTrue(introductionManager0.getIntroductionMessages(contactId1)
-					.size() == 2);
-			assertTrue(introductionManager0.getIntroductionMessages(contactId2)
-					.size() == 2);
-			assertTrue(introductionManager1.getIntroductionMessages(contactId01)
-					.size() == 2);
-			assertTrue(introductionManager1.getIntroductionMessages(contactId02)
-					.size() == 2);
+			assertEquals(2, introductionManager0.getIntroductionMessages(
+					contactId1).size());
+			assertEquals(2, introductionManager0.getIntroductionMessages(
+					contactId2).size());
+			assertEquals(2, introductionManager1.getIntroductionMessages(
+					contactId01).size());
+			assertEquals(2, introductionManager1.getIntroductionMessages(
+					contactId02).size());
 		} finally {
 			stopLifecycles();
 		}
@@ -718,18 +718,14 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 	}
 
 	private void assertDefaultUiMessages() throws DbException {
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId1)
-						.size());
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId2)
-						.size());
-		assertEquals(2,
-				introductionManager1.getIntroductionMessages(contactId0)
-						.size());
-		assertEquals(2,
-				introductionManager2.getIntroductionMessages(contactId0)
-						.size());
+		assertEquals(2, introductionManager0.getIntroductionMessages(
+				contactId1).size());
+		assertEquals(2, introductionManager0.getIntroductionMessages(
+				contactId2).size());
+		assertEquals(2, introductionManager1.getIntroductionMessages(
+				contactId0).size());
+		assertEquals(2, introductionManager2.getIntroductionMessages(
+				contactId0).size());
 	}
 
 	private class IntroduceeListener implements EventListener {
