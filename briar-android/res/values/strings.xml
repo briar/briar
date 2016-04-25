@@ -157,13 +157,13 @@
 	<string name="introduction_request_sent">You have asked to introduce %1$s to %2$s.</string>
 	<string name="introduction_request_received">%1$s has asked to introduce you to %2$s. Do you want to add %2$s to your contact list?</string>
 	<string name="introduction_request_exists_received">%1$s has asked to introduce you to %2$s, but %2$s is already in your contact list. Since %1$s might not know that, you can still respond:</string>
-	<string name="introduction_request_for_our_identity_received">%1$s has asked to introduce you to %2$s, but %2$s is one of your other identities. For that reason you cannot accept the introduction:</string>
+	<string name="introduction_request_for_our_identity_received">%1$s has asked to introduce you to %2$s, but %2$s is one of your other identities, so you cannot accept the introduction:</string>
 	<string name="introduction_request_answered_received">%1$s has asked to introduce you to %2$s.</string>
 	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
 	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
-	<string name="introduction_response_accepted_received">%1$s accepted to be introduced to %2$s.</string>
-	<string name="introduction_response_declined_received">%1$s declined to be introduced to %2$s.</string>
-	<string name="introduction_response_declined_received_by_introducee">%1$s has informed us that %2$s has declined the introduction.</string>
+	<string name="introduction_response_accepted_received">%1$s accepted the introduction to %2$s.</string>
+	<string name="introduction_response_declined_received">%1$s declined the introduction to %2$s.</string>
+	<string name="introduction_response_declined_received_by_introducee">%1$s says that %2$s declined the introduction.</string>
 	<string name="introduction_success_title">Introduced contact was added</string>
 	<string name="introduction_success_text">You have been introduced to %1$s.</string>
 

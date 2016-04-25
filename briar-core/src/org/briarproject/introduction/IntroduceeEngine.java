@@ -26,8 +26,6 @@ import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ABORT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ACCEPT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_DECLINE;
 import static org.briarproject.api.introduction.IntroduceeAction.REMOTE_ABORT;
-import static org.briarproject.api.introduction.IntroduceeAction.REMOTE_ACCEPT;
-import static org.briarproject.api.introduction.IntroduceeAction.REMOTE_DECLINE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_ACK;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REMOTE_RESPONSE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
@@ -199,8 +197,9 @@ public class IntroduceeEngine
 			// we are done (probably declined response), ignore & delete message
 			else if (currentState == FINISHED) {
 				return new StateUpdate<BdfDictionary, BdfDictionary>(true,
-						false, localState, new ArrayList<BdfDictionary>(0),
-						new ArrayList<Event>(0));
+						false, localState,
+						Collections.<BdfDictionary>emptyList(),
+						Collections.<Event>emptyList());
 			}
 			// this should not happen
 			else {
@@ -377,8 +376,7 @@ public class IntroduceeEngine
 			BdfDictionary localState) throws FormatException {
 
 		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, new ArrayList<BdfDictionary>(0),
-				new ArrayList<Event>(0));
+				localState, Collections.<BdfDictionary>emptyList(),
+				Collections.<Event>emptyList());
 	}
-
 }

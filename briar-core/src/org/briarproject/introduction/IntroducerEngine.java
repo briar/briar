@@ -388,8 +388,7 @@ public class IntroducerEngine
 			BdfDictionary localState) throws FormatException {
 
 		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, new ArrayList<BdfDictionary>(0),
-				new ArrayList<Event>(0));
+				localState, Collections.<BdfDictionary>emptyList(),
+				Collections.<Event>emptyList());
 	}
-
 }
