@@ -10,6 +10,7 @@
 	<dimen name="margin_medium">8dp</dimen>
 	<dimen name="margin_large">16dp</dimen>
 	<dimen name="margin_xlarge">32dp</dimen>
+	<dimen name="margin_xxlarge">64dp</dimen>
 
 	<!-- v2 dimens -->
 	<dimen name="text_size_tiny">12sp</dimen>
