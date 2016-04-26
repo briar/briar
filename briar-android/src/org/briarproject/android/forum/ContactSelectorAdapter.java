@@ -1,6 +1,11 @@
 package org.briarproject.android.forum;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,10 +52,16 @@ public class ContactSelectorAdapter
 		} else {
 			ui.checkBox.setChecked(false);
 		}
+
+		if (item.isDisabled()) {
+			// we share this forum already with that contact
+			ui.layout.setEnabled(false);
+			grayOutItem(ui);
+		}
 	}
 
 	public Collection<ContactId> getSelectedContactIds() {
-		Collection<ContactId> selected = new ArrayList<ContactId>();
+		Collection<ContactId> selected = new ArrayList<>();
 
 		for (int i = 0; i < contacts.size(); i++) {
 			SelectableContactListItem item =
@@ -76,6 +87,21 @@ public class ContactSelectorAdapter
 	@Override
 	public int compareContactListItems(ContactListItem c1, ContactListItem c2) {
 		return compareByName(c1, c2);
+	}
+
+	private void grayOutItem(final SelectableContactHolder ui) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			float alpha = 0.25f;
+			ui.avatar.setAlpha(alpha);
+			ui.name.setAlpha(alpha);
+			ui.checkBox.setAlpha(alpha);
+		} else {
+			ColorFilter colorFilter = new PorterDuffColorFilter(Color.GRAY,
+					PorterDuff.Mode.MULTIPLY);
+			ui.avatar.setColorFilter(colorFilter);
+			ui.name.setEnabled(false);
+			ui.checkBox.setEnabled(false);
+		}
 	}
 
 }

@@ -3,6 +3,7 @@ package org.briarproject.android.contact;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.sync.MessageId;
 
+// This class is not thread-safe
 public class ConversationIntroductionInItem extends ConversationIntroductionItem
 		implements ConversationItem.IncomingItem {
 

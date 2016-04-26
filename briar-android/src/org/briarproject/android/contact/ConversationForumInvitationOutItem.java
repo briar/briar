@@ -1,29 +1,29 @@
 package org.briarproject.android.contact;
 
-import org.briarproject.api.introduction.IntroductionRequest;
+import org.briarproject.api.forum.ForumInvitationMessage;
 
 /**
  * This class is needed and can not be replaced by an ConversationNoticeOutItem,
- * because it carries the optional introduction message
+ * because it carries the optional invitation message
  * to be displayed as a regular private message.
  *
- *  This class is not thread-safe
+ * This class is not thread-safe
  */
-public class ConversationIntroductionOutItem
-		extends ConversationIntroductionItem
+public class ConversationForumInvitationOutItem
+		extends ConversationForumInvitationItem
 		implements ConversationItem.OutgoingItem {
 
 	private boolean sent, seen;
 
-	public ConversationIntroductionOutItem(IntroductionRequest ir) {
-		super(ir);
-		this.sent = ir.isSent();
-		this.seen = ir.isSeen();
+	public ConversationForumInvitationOutItem(ForumInvitationMessage fim) {
+		super(fim);
+		this.sent = fim.isSent();
+		this.seen = fim.isSeen();
 	}
 
 	@Override
 	int getType() {
-		return INTRODUCTION_OUT;
+		return FORUM_INVITATION_OUT;
 	}
 
 	@Override

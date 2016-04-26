@@ -3,6 +3,7 @@ package org.briarproject.android.forum;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
@@ -49,6 +50,7 @@ import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
@@ -68,6 +70,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	public static final String MIN_TIMESTAMP = "briar.MIN_TIMESTAMP";
 
 	private static final int REQUEST_READ = 2;
+	private static final int REQUEST_FORUM_SHARED = 3;
 	private static final Logger LOG =
 			Logger.getLogger(ForumActivity.class.getName());
 
@@ -165,7 +168,9 @@ public class ForumActivity extends BriarActivity implements EventListener,
 				ActivityOptionsCompat options = ActivityOptionsCompat
 						.makeCustomAnimation(this, android.R.anim.slide_in_left,
 								android.R.anim.slide_out_right);
-				ActivityCompat.startActivity(this, i2, options.toBundle());
+				ActivityCompat
+						.startActivityForResult(this, i2, REQUEST_FORUM_SHARED,
+								options.toBundle());
 				return true;
 			case R.id.action_forum_delete:
 				showUnsubscribeDialog();
@@ -296,6 +301,12 @@ public class ForumActivity extends BriarActivity implements EventListener,
 			int position = data.getIntExtra("briar.POSITION", -1);
 			if (position >= 0 && position < adapter.getCount())
 				displayPost(position);
+		}
+		else if (request == REQUEST_FORUM_SHARED && result == RESULT_OK) {
+			Snackbar s = Snackbar.make(list, R.string.forum_shared_snackbar,
+					LENGTH_LONG);
+			s.getView().setBackgroundResource(R.color.briar_primary);
+			s.show();
 		}
 	}
 

@@ -2,98 +2,41 @@ package org.briarproject.android.forum;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.contact.BaseContactListAdapter;
-import org.briarproject.android.contact.ContactListItem;
-import org.briarproject.android.util.BriarRecyclerView;
-import org.briarproject.api.contact.Contact;
+import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.forum.ForumSharingManager;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 
 public class ShareForumActivity extends BriarActivity implements
-		BaseContactListAdapter.OnItemClickListener {
+		BaseFragment.BaseFragmentListener {
 
-	private static final Logger LOG =
-			Logger.getLogger(ShareForumActivity.class.getName());
-
-	private ContactSelectorAdapter adapter;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile IdentityManager identityManager;
-	@Inject protected volatile ContactManager contactManager;
-	@Inject protected volatile ForumSharingManager forumSharingManager;
-	private volatile GroupId groupId;
+	public final static String CONTACTS = "contacts";
 
 	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.introduction_contact_chooser);
+		setContentView(R.layout.activity_share_forum);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
-		if (b == null) throw new IllegalStateException();
-		groupId = new GroupId(b);
+		if (b == null) throw new IllegalStateException("No GroupId");
+		GroupId groupId = new GroupId(b);
 
-		adapter = new ContactSelectorAdapter(this, this);
-		BriarRecyclerView list =
-				(BriarRecyclerView) findViewById(R.id.contactList);
-		list.setLayoutManager(new LinearLayoutManager(this));
-		list.setAdapter(adapter);
-		list.setEmptyText(getString(R.string.no_contacts));
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-
-		loadContactsAndVisibility();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu items for use in the action bar
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.forum_share_actions, menu);
-
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			case R.id.action_share_forum:
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (savedInstanceState == null) {
+			ContactSelectorFragment contactSelectorFragment =
+					ContactSelectorFragment.newInstance(groupId);
+			getSupportFragmentManager().beginTransaction()
+					.add(R.id.shareForumContainer, contactSelectorFragment)
+					.commit();
 		}
 	}
 
@@ -102,47 +45,59 @@ public class ShareForumActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	private void loadContactsAndVisibility() {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					List<ContactListItem> contacts = new ArrayList<>();
-					Collection<ContactId> selectedContacts = new HashSet<>(
-							forumSharingManager.getSharedWith(groupId));
+	public void showMessageScreen(GroupId groupId,
+			Collection<ContactId> contacts) {
 
-					for (Contact c : contactManager.getActiveContacts()) {
-						LocalAuthor localAuthor = identityManager
-								.getLocalAuthor(c.getLocalAuthorId());
-						boolean selected = selectedContacts.contains(c.getId());
-						contacts.add(
-								new SelectableContactListItem(c, localAuthor,
-										groupId, selected));
-					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Load took " + duration + " ms");
-					displayContacts(contacts);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
+		ShareForumMessageFragment messageFragment =
+				ShareForumMessageFragment.newInstance(groupId, contacts);
+
+		getSupportFragmentManager().beginTransaction()
+				.setCustomAnimations(android.R.anim.fade_in,
+						android.R.anim.fade_out,
+						android.R.anim.slide_in_left,
+						android.R.anim.slide_out_right)
+				.replace(R.id.shareForumContainer, messageFragment,
+						ContactSelectorFragment.TAG)
+				.addToBackStack(null)
+				.commit();
 	}
 
-	private void displayContacts(final List<ContactListItem> contact) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				adapter.addAll(contact);
-			}
-		});
+	public static ArrayList<Integer> getContactsFromIds(
+			Collection<ContactId> contacts) {
+
+		// transform ContactIds to Integers so they can be added to a bundle
+		ArrayList<Integer> intContacts = new ArrayList<>(contacts.size());
+		for (ContactId contactId : contacts) {
+			intContacts.add(contactId.getInt());
+		}
+		return intContacts;
+	}
+
+	public void sharingSuccessful(View v) {
+		setResult(RESULT_OK);
+		hideSoftKeyboard(v);
+		supportFinishAfterTransition();
+	}
+
+	protected static Collection<ContactId> getContactsFromIntegers(
+			ArrayList<Integer> intContacts) {
+
+		// turn contact integers from a bundle back to ContactIds
+		List<ContactId> contacts = new ArrayList<>(intContacts.size());
+		for(Integer c : intContacts) {
+			contacts.add(new ContactId(c));
+		}
+		return contacts;
 	}
 
 	@Override
-	public void onItemClick(View view, ContactListItem item) {
-		((SelectableContactListItem) item).toggleSelected();
-		adapter.notifyItemChanged(adapter.findItemPosition(item), item);
+	public void showLoadingScreen(boolean isBlocking, int stringId) {
+		// this is handled by the recycler view in ContactSelectorFragment
+	}
+
+	@Override
+	public void hideLoadingScreen() {
+		// this is handled by the recycler view in ContactSelectorFragment
 	}
 
 }

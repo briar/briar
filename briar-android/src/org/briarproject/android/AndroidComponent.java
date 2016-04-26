@@ -5,11 +5,13 @@ import org.briarproject.CoreModule;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.AvailableForumsActivity;
+import org.briarproject.android.forum.ContactSelectorFragment;
 import org.briarproject.android.forum.CreateForumActivity;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.forum.ReadForumPostActivity;
 import org.briarproject.android.forum.ShareForumActivity;
+import org.briarproject.android.forum.ShareForumMessageFragment;
 import org.briarproject.android.forum.WriteForumPostActivity;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.introduction.ContactChooserFragment;
@@ -69,6 +71,10 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	void inject(CreateForumActivity activity);
 
 	void inject(ShareForumActivity activity);
+
+	void inject(ContactSelectorFragment fragment);
+
+	void inject(ShareForumMessageFragment fragment);
 
 	void inject(ReadForumPostActivity activity);
 

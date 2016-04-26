@@ -11,14 +11,15 @@ import java.util.Collections;
 // This class is not thread-safe
 public class SelectableContactListItem extends ContactListItem {
 
-	private boolean selected;
+	private boolean selected, disabled;
 
 	public SelectableContactListItem(Contact contact, LocalAuthor localAuthor,
-			GroupId groupId, boolean selected) {
+			GroupId groupId, boolean selected, boolean disabled) {
 
 		super(contact, localAuthor, false, groupId, Collections.<ConversationItem>emptyList());
 
 		this.selected = selected;
+		this.disabled = disabled;
 	}
 
 	public void setSelected(boolean selected) {
@@ -31,6 +32,10 @@ public class SelectableContactListItem extends ContactListItem {
 
 	public void toggleSelected() {
 		selected = !selected;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
 	}
 
 }

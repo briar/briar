@@ -20,6 +20,7 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
@@ -164,13 +165,16 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			}
 		} else if (e instanceof IntroductionRequestReceivedEvent) {
 			ContactId c = ((IntroductionRequestReceivedEvent) e).getContactId();
-			showIntroductionNotifications(c);
+			showNotificationForPrivateConversation(c);
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
 			ContactId c = ((IntroductionResponseReceivedEvent) e).getContactId();
-			showIntroductionNotifications(c);
+			showNotificationForPrivateConversation(c);
 		} else if (e instanceof IntroductionSucceededEvent) {
 			Contact c = ((IntroductionSucceededEvent) e).getContact();
 			showIntroductionSucceededNotification(c);
+		} else if (e instanceof ForumInvitationReceivedEvent) {
+			ContactId c = ((ForumInvitationReceivedEvent) e).getContactId();
+			showNotificationForPrivateConversation(c);
 		}
 	}
 
@@ -359,7 +363,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
-	private void showIntroductionNotifications(final ContactId c) {
+	private void showNotificationForPrivateConversation(final ContactId c) {
 		androidExecutor.execute(new Runnable() {
 			public void run() {
 				try {
