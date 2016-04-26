@@ -1,4 +1,4 @@
-package org.briarproject.api;
+package org.briarproject.api.clients;
 
 import org.briarproject.api.event.Event;
 

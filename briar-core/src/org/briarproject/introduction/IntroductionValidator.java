@@ -5,7 +5,7 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;

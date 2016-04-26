@@ -1,7 +1,7 @@
 package org.briarproject.introduction;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.ProtocolEngine;
+import org.briarproject.api.clients.ProtocolEngine;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.event.Event;
@@ -11,7 +11,7 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroduceeAction;
 import org.briarproject.api.introduction.IntroduceeProtocolState;
 import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;

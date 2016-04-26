@@ -1,5 +1,6 @@
 package org.briarproject.api.introduction;
 
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.MessageId;
 

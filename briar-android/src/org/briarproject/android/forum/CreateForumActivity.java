@@ -19,7 +19,7 @@ import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.forum.ForumManager;
 import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
@@ -47,7 +47,7 @@ public class CreateForumActivity extends BriarActivity
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
+	protected volatile ForumManager forumManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -126,8 +126,8 @@ public class CreateForumActivity extends BriarActivity
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Forum f = forumSharingManager.createForum(name);
-					forumSharingManager.addForum(f);
+					Forum f = forumManager.createForum(name);
+					forumManager.addForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing forum took " + duration + " ms");

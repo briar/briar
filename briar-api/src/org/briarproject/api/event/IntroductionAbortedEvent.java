@@ -1,7 +1,7 @@
 package org.briarproject.api.event;
 
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.clients.SessionId;
 
 public class IntroductionAbortedEvent extends Event {
 

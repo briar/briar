@@ -68,7 +68,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 			Logger.getLogger(ForumActivity.class.getName());
 
 	@Inject protected AndroidNotificationManager notificationManager;
-	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
+	private Map<MessageId, byte[]> bodyCache = new HashMap<>();
 	private TextView empty = null;
 	private ForumAdapter adapter = null;
 	private ListView list = null;
@@ -158,7 +158,6 @@ public class ForumActivity extends BriarActivity implements EventListener,
 				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				i2.putExtra(FORUM_NAME, forum.getName());
 				ActivityOptionsCompat options = ActivityOptionsCompat
 						.makeCustomAnimation(this, android.R.anim.slide_in_left,
 								android.R.anim.slide_out_right);
@@ -302,7 +301,7 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	}
 
 	private void markPostsRead() {
-		List<MessageId> unread = new ArrayList<MessageId>();
+		List<MessageId> unread = new ArrayList<>();
 		int count = adapter.getCount();
 		for (int i = 0; i < count; i++) {
 			ForumPostHeader h = adapter.getItem(i).getHeader();

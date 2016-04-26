@@ -1,15 +1,11 @@
 package org.briarproject.api.introduction;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.ClientId;
-import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
