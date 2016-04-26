@@ -10,7 +10,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +20,8 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.controller.NavDrawerController;
-import org.briarproject.android.controller.ResultHandler;
 import org.briarproject.android.controller.TransportStateListener;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
@@ -160,14 +159,14 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private void storeLocalAuthor(final LocalAuthor a) {
 		controller.storeLocalAuthor(a,
-				new ResultHandler<Void, DbException>() {
+				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
-					public void onResult(Void result) {
+					public void onResultUi(Void result) {
 						hideLoadingScreen();
 					}
 
 					@Override
-					public void onException(DbException exception) {
+					public void onExceptionUi(DbException exception) {
 
 					}
 				});

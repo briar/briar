@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.contact.ConversationItem;
@@ -66,6 +65,11 @@ public class ContactChooserFragment extends BaseFragment {
 	@Inject
 	protected volatile ConnectionRegistry connectionRegistry;
 
+	@Inject
+	public ContactChooserFragment() {
+
+	}
+
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
@@ -75,11 +79,6 @@ public class ContactChooserFragment extends BaseFragment {
 			throw new java.lang.InstantiationError(
 					"This fragment is only meant to be attached to the IntroductionActivity");
 		}
-	}
-
-	@Override
-	public void injectActivity(AndroidComponent component) {
-		component.inject(this);
 	}
 
 	@Override

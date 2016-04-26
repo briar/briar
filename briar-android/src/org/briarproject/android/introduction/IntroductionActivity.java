@@ -3,6 +3,7 @@ package org.briarproject.android.introduction;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
@@ -10,7 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import org.briarproject.R;
-import org.briarproject.android.AndroidComponent;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.contact.Contact;
@@ -33,15 +34,15 @@ public class IntroductionActivity extends BriarActivity implements
 		setContentView(R.layout.activity_introduction);
 
 		if (savedInstanceState == null) {
-			ContactChooserFragment chooserFragment =
-					new ContactChooserFragment();
 			getSupportFragmentManager().beginTransaction()
-					.add(R.id.introductionContainer, chooserFragment).commit();
+					.add(R.id.introductionContainer,
+							activityComponent.newContactChooserFragment())
+					.commit();
 		}
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 
@@ -85,13 +86,14 @@ public class IntroductionActivity extends BriarActivity implements
 			final Contact c2) {
 
 		IntroductionMessageFragment messageFragment =
-				IntroductionMessageFragment
-						.newInstance(c1.getId().getInt(), c2.getId().getInt());
+				activityComponent.newIntroductionMessageFragment();
+		messageFragment.initBundle(c1.getId().getInt(), c2.getId().getInt());
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			messageFragment.setSharedElementEnterTransition(new ChangeBounds());
 			messageFragment.setEnterTransition(new Fade());
-			messageFragment.setSharedElementReturnTransition(new ChangeBounds());
+			messageFragment
+					.setSharedElementReturnTransition(new ChangeBounds());
 		}
 
 		getSupportFragmentManager().beginTransaction()

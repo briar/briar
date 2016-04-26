@@ -2,9 +2,7 @@ package org.briarproject.android;
 
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -44,6 +42,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 				.build();
 
 		injectActivity(activityComponent);
+
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityCreate();
+		}
 	}
 
 	@Override
@@ -51,9 +53,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 		super.onPostCreate(savedInstanceState);
 		// Post call used for controllers to ensure that the onCreate method
 		// override in inherited Activities has finished
-		for (ActivityLifecycleController alc : lifecycleControllers) {
-			alc.onActivityCreate();
-		}
+//		for (ActivityLifecycleController alc : lifecycleControllers) {
+//			alc.onActivityCreate();
+//		}
 	}
 
 	@Override

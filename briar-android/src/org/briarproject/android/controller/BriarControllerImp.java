@@ -7,6 +7,7 @@ import android.support.annotation.CallSuper;
 
 import org.briarproject.android.BriarService;
 import org.briarproject.android.BriarService.BriarServiceConnection;
+import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -75,7 +76,7 @@ public class BriarControllerImp implements BriarController {
 	}
 
 	@Override
-	public void signOut(final ResultHandler<Void, RuntimeException> eventHandler) {
+	public void signOut(final ResultHandler<Void> eventHandler) {
 		new Thread() {
 			@Override
 			public void run() {
@@ -90,14 +91,8 @@ public class BriarControllerImp implements BriarController {
 					service.waitForShutdown();
 				} catch (InterruptedException e) {
 					LOG.warning("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
 				}
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						eventHandler.onResult(null);
-					}
-				});
+				eventHandler.onResult(null);
 			}
 		}.start();
 	}

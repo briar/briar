@@ -13,6 +13,9 @@ import org.briarproject.android.forum.ShareForumActivity;
 import org.briarproject.android.forum.WriteForumPostActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
+import org.briarproject.android.introduction.ContactChooserFragment;
+import org.briarproject.android.introduction.IntroductionActivity;
+import org.briarproject.android.introduction.IntroductionMessageFragment;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.keyagreement.ChooseIdentityFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
@@ -74,6 +77,12 @@ public interface ActivityComponent {
 
 	void inject(ShowQrCodeFragment fragment);
 
+	void inject(IntroductionActivity activity);
+
+	void inject(ContactChooserFragment fragment);
+
+	void inject(IntroductionMessageFragment fragment);
+
 	@Named("ContactListFragment")
 	BaseFragment newContactListFragment();
 
@@ -85,4 +94,10 @@ public interface ActivityComponent {
 
 	@Named("ShowQrCodeFragment")
 	BaseFragment newShowQrCodeFragment();
+
+	@Named("ContactChooserFragment")
+	BaseFragment newContactChooserFragment();
+
+	@Named("IntroductionMessageFragment")
+	IntroductionMessageFragment newIntroductionMessageFragment();
 }

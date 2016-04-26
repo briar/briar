@@ -19,6 +19,8 @@ import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.SetupControllerImp;
 import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.controller.ConfigControllerImp;
+import org.briarproject.android.introduction.ContactChooserFragment;
+import org.briarproject.android.introduction.IntroductionMessageFragment;
 import org.briarproject.android.keyagreement.ChooseIdentityFragment;
 import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 
@@ -135,5 +137,20 @@ public class ActivityModule {
 		return fragment;
 	}
 
+	@Provides
+	@Named("ContactChooserFragment")
+	BaseFragment provideContactChooserFragment() {
+		ContactChooserFragment fragment = new ContactChooserFragment();
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
+
+	@Provides
+	@Named("IntroductionMessageFragment")
+	IntroductionMessageFragment provideIntroductionMessageFragment() {
+		IntroductionMessageFragment fragment = new IntroductionMessageFragment();
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
 
 }

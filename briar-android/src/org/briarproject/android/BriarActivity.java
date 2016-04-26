@@ -4,18 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 
-import org.briarproject.android.BriarService.BriarBinder;
-import org.briarproject.android.BriarService.BriarServiceConnection;
 import org.briarproject.android.controller.BriarController;
-import org.briarproject.android.controller.ResultHandler;
+import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.panic.ExitActivity;
-import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.api.db.DatabaseExecutor;
-import org.briarproject.api.lifecycle.LifecycleManager;
 
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -68,23 +61,13 @@ public abstract class BriarActivity extends BaseActivity {
 		}
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		briarController.unbindService();
-	}
-
 	protected void signOut(final boolean removeFromRecentApps) {
-		briarController.signOut(new ResultHandler<Void, RuntimeException>() {
+		briarController.signOut(new UiResultHandler<Void>(this) {
+
 			@Override
-			public void onResult(Void result) {
+			public void onResultUi(Void result) {
 				if (removeFromRecentApps) startExitActivity();
 				else finishAndExit();
-			}
-
-			@Override
-			public void onException(RuntimeException exception) {
-				// TODO ?
 			}
 		});
 	}
@@ -111,10 +94,12 @@ public abstract class BriarActivity extends BaseActivity {
 		System.exit(0);
 	}
 
+	@Deprecated
 	public void runOnDbThread(final Runnable task) {
 		briarController.runOnDbThread(task);
 	}
 
+	@Deprecated
 	protected void finishOnUiThread() {
 		runOnUiThread(new Runnable() {
 			public void run() {

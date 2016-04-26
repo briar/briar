@@ -1,6 +1,8 @@
 package org.briarproject.android.controller;
 
 
+import org.briarproject.android.controller.handler.ResultHandler;
+
 public interface BriarController extends ActivityLifecycleController {
 	void runOnDbThread(final Runnable task);
 
@@ -10,5 +12,5 @@ public interface BriarController extends ActivityLifecycleController {
 
 	boolean encryptionKey();
 
-	void signOut(ResultHandler<Void, RuntimeException> eventHandler);
+	void signOut(ResultHandler<Void> eventHandler);
 }

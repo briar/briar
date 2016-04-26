@@ -6,7 +6,6 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -287,7 +286,7 @@ implements InvitationListener {
 				localInvitationCode, code);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
 		task.addListener(AddContactActivity.this);
-		// Add a second listener so we can remove the first in onActivityDestroy(),
+		// Add a second listener so we can remove the first in onDestroy(),
 		// allowing the activity to be garbage collected if it's destroyed
 		task.addListener(new ReferenceCleaner(referenceManager, taskHandle));
 		task.connect();

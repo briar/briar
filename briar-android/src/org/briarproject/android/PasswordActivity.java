@@ -3,6 +3,7 @@ package org.briarproject.android;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -16,9 +17,8 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
-import org.briarproject.android.controller.EncryptedKeyNullException;
 import org.briarproject.android.controller.PasswordController;
-import org.briarproject.android.controller.ResultHandler;
+import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.util.AndroidUtils;
 
 import javax.inject.Inject;
@@ -36,13 +36,13 @@ public class PasswordActivity extends BaseActivity {
 	private EditText password;
 
 	@Inject
-	PasswordController passwordHelper;
+	PasswordController passwordController;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if (!passwordHelper.initialized()) {
+		if (!passwordController.initialized()) {
 			clearSharedPrefsAndDeleteEverything();
 			return;
 		}
@@ -92,7 +92,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void clearSharedPrefsAndDeleteEverything() {
-		passwordHelper.clearPrefs();
+		passwordController.clearPrefs();
 		AndroidUtils.deleteAppData(this);
 		setResult(RESULT_CANCELED);
 		startActivity(new Intent(this, SetupActivity.class));
@@ -125,21 +125,16 @@ public class PasswordActivity extends BaseActivity {
 		hideSoftKeyboard(password);
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
-		passwordHelper.validatePassword(password.getText().toString(),
-				new ResultHandler<Boolean, EncryptedKeyNullException>() {
+		passwordController.validatePassword(password.getText().toString(),
+				new UiResultHandler<Boolean>(this) {
 					@Override
-					public void onResult(Boolean result) {
-						if (result != null && result) {
+					public void onResultUi(@NonNull Boolean result) {
+						if (result) {
 							setResult(RESULT_OK);
 							finish();
 						} else {
 							tryAgain();
 						}
-					}
-
-					@Override
-					public void onException(EncryptedKeyNullException e) {
-						// TODO ?
 					}
 				});
 	}

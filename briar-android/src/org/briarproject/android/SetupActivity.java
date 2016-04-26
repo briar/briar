@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,11 +16,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
-import org.briarproject.android.controller.ResultHandler;
 import org.briarproject.android.controller.SetupController;
+import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
-
 import org.briarproject.util.StringUtils;
 
 import javax.inject.Inject;
@@ -135,16 +135,10 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		final String nickname = nicknameEntry.getText().toString();
 		final String password = passwordEntry.getText().toString();
 		setupController.createIdentity(nickname, password,
-				new ResultHandler<Long, RuntimeException>() {
+				new UiResultHandler<Long>(this) {
 					@Override
-					public void onResult(Long result) {
-						if (result != null)
-							showMain(result);
-					}
-
-					@Override
-					public void onException(RuntimeException exception) {
-
+					public void onResultUi(@NonNull Long result) {
+						showMain(result);
 					}
 				});
 	}

@@ -3,8 +3,8 @@ package org.briarproject.android.controller;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import org.briarproject.android.BaseActivity;
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
@@ -83,7 +83,7 @@ public class SetupControllerImp implements SetupController {
 
 	@Override
 	public void createIdentity(final String nickname, final String password,
-			final ResultHandler<Long, RuntimeException> resultHandler) {
+			final ResultHandler<Long> resultHandler) {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				SecretKey key = crypto.generateSecretKey();
@@ -93,17 +93,6 @@ public class SetupControllerImp implements SetupController {
 				final LocalAuthor localAuthor = createLocalAuthor(nickname);
 				long handle = referenceManager.putReference(localAuthor,
 						LocalAuthor.class);
-				onIdentityCreated(handle, resultHandler);
-
-			}
-		});
-	}
-
-	private void onIdentityCreated(final long handle,
-			final ResultHandler<Long, RuntimeException> resultHandler) {
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
 				resultHandler.onResult(handle);
 			}
 		});

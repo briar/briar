@@ -3,6 +3,7 @@ package org.briarproject.android.controller;
 import android.app.Activity;
 
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -84,7 +85,8 @@ public class NavDrawerControllerImp extends BriarControllerImp
 		}
 	}
 
-	private void transportStateUpdate(final TransportId id, final boolean enabled) {
+	private void transportStateUpdate(final TransportId id,
+			final boolean enabled) {
 		activity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -108,7 +110,8 @@ public class NavDrawerControllerImp extends BriarControllerImp
 
 	@Override
 	public void storeLocalAuthor(final LocalAuthor author,
-			final ResultHandler<Void, DbException> resultHandler) {
+			final ResultExceptionHandler<Void, DbException> resultHandler) {
+
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -117,22 +120,11 @@ public class NavDrawerControllerImp extends BriarControllerImp
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing author took " + duration + " ms");
-					activity.runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							resultHandler.onResult(null);
-						}
-					});
+					resultHandler.onResult(null);
 				} catch (final DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-
-					activity.runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							resultHandler.onException(e);
-						}
-					});
+					resultHandler.onException(e);
 				}
 			}
 		});

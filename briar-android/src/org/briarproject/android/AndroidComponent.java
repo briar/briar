@@ -17,6 +17,7 @@ import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.keyagreement.KeyAgreementTaskFactory;
 import org.briarproject.api.keyagreement.PayloadEncoder;
@@ -33,7 +34,6 @@ import org.briarproject.system.AndroidSystemModule;
 
 import java.util.concurrent.Executor;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Component;
@@ -94,6 +94,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	PayloadEncoder payloadEncoder();
 
 	PayloadParser payloadParser();
+
+	IntroductionManager introductionManager();
 
 	void inject(BriarService activity);
 
