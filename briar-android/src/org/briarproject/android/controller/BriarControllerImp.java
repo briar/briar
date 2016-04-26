@@ -45,6 +45,7 @@ public class BriarControllerImp implements BriarController {
 	@Override
 	@CallSuper
 	public void onActivityCreate() {
+		LOG.info("onActivityCreate : " + databaseConfig.getEncryptionKey());
 		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 
@@ -97,7 +98,7 @@ public class BriarControllerImp implements BriarController {
 		}.start();
 	}
 
-	public void unbindService() {
+	private void unbindService() {
 		if (bound) activity.unbindService(serviceConnection);
 	}
 

@@ -180,7 +180,7 @@ public class BriarService extends Service {
 
 	/** Starts the shutdown process. */
 	public void shutdown() {
-		stopSelf(); // This will call onActivityDestroy()
+		stopSelf(); // This will call onDestroy()
 	}
 
 	public class BriarBinder extends Binder {

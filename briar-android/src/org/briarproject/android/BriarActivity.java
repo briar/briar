@@ -38,8 +38,6 @@ public abstract class BriarActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-
-		briarController.startAndBindService();
 	}
 
 	@Override

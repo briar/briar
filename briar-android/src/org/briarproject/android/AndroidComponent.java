@@ -47,11 +47,17 @@ import dagger.Component;
 })
 public interface AndroidComponent extends CoreEagerSingletons {
 	// Exposed objects
-	@CryptoExecutor Executor cryptoExecutor();
+	@CryptoExecutor
+	Executor cryptoExecutor();
+
 	PasswordStrengthEstimator passwordStrengthIndicator();
+
 	CryptoComponent cryptoComponent();
+
 	DatabaseConfig databaseConfig();
+
 	AuthorFactory authFactory();
+
 	ReferenceManager referenceMangager();
 
 	@DatabaseExecutor

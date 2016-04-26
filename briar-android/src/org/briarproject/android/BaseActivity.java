@@ -49,16 +49,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		// Post call used for controllers to ensure that the onCreate method
-		// override in inherited Activities has finished
-//		for (ActivityLifecycleController alc : lifecycleControllers) {
-//			alc.onActivityCreate();
-//		}
-	}
-
-	@Override
 	protected void onResume() {
 		super.onResume();
 		for (ActivityLifecycleController alc : lifecycleControllers) {
