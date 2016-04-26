@@ -91,7 +91,6 @@ public class ShareForumActivity extends BriarActivity implements
 				onBackPressed();
 				return true;
 			case R.id.action_share_forum:
-				storeVisibility();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -136,26 +135,6 @@ public class ShareForumActivity extends BriarActivity implements
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.addAll(contact);
-			}
-		});
-	}
-
-	private void storeVisibility() {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Collection<ContactId> selected =
-							adapter.getSelectedContactIds();
-					forumSharingManager.setSharedWith(groupId, selected);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Update took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-				finishOnUiThread();
 			}
 		});
 	}

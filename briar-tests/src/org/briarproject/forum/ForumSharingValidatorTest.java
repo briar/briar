@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-public class ForumListValidatorTest extends BriarTestCase {
+public class ForumSharingValidatorTest extends BriarTestCase {
 
 	@Test
 	public void testUnitTestsExist() {

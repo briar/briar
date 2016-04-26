@@ -1,6 +1,7 @@
 package org.briarproject.forum;
 
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
@@ -27,9 +28,9 @@ public class ForumModule {
 
 	public static class EagerSingletons {
 		@Inject
-		ForumListValidator forumListValidator;
-		@Inject
 		ForumPostValidator forumPostValidator;
+		@Inject
+		ForumSharingValidator forumSharingValidator;
 		@Inject
 		ForumSharingManager forumSharingManager;
 	}
@@ -63,13 +64,15 @@ public class ForumModule {
 
 	@Provides
 	@Singleton
-	ForumListValidator provideForumListValidator(
-			ValidationManager validationManager, ClientHelper clientHelper,
+	ForumSharingValidator provideSharingValidator(
+			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
-		ForumListValidator validator = new ForumListValidator(clientHelper,
+
+		ForumSharingValidator validator = new ForumSharingValidator(clientHelper,
 				metadataEncoder, clock);
-		validationManager.registerMessageValidator(
+		messageQueueManager.registerMessageValidator(
 				ForumSharingManagerImpl.CLIENT_ID, validator);
+
 		return validator;
 	}
 
@@ -78,15 +81,17 @@ public class ForumModule {
 	ForumSharingManager provideForumSharingManager(
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
-			ValidationManager validationManager,
+			MessageQueueManager messageQueueManager,
 			ForumManager forumManager,
 			ForumSharingManagerImpl forumSharingManager) {
+
 		lifecycleManager.registerClient(forumSharingManager);
 		contactManager.registerAddContactHook(forumSharingManager);
 		contactManager.registerRemoveContactHook(forumSharingManager);
-		validationManager.registerIncomingMessageHook(
+		messageQueueManager.registerIncomingMessageHook(
 				ForumSharingManagerImpl.CLIENT_ID, forumSharingManager);
 		forumManager.registerRemoveForumHook(forumSharingManager);
+
 		return forumSharingManager;
 	}
 }
