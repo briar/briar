@@ -1,29 +1,23 @@
 package org.briarproject.android;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
 import android.support.v7.preference.PreferenceManager;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import org.briarproject.R;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseConfig;
 
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.view.Gravity.CENTER;
 import static org.briarproject.android.TestingConstants.DEFAULT_LOG_LEVEL;
 import static org.briarproject.android.TestingConstants.TESTING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 public class SplashScreenActivity extends BaseActivity {
 

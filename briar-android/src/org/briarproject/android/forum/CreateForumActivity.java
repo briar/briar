@@ -2,12 +2,13 @@ package org.briarproject.android.forum;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -16,7 +17,6 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -26,26 +26,16 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import android.text.TextWatcher;
-import android.text.Editable;
-
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 
 public class CreateForumActivity extends BriarActivity
-implements OnEditorActionListener, OnClickListener {
+		implements OnEditorActionListener, OnClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(CreateForumActivity.class.getName());
@@ -56,7 +46,8 @@ implements OnEditorActionListener, OnClickListener {
 	private TextView feedback = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile ForumSharingManager forumSharingManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -68,10 +59,13 @@ implements OnEditorActionListener, OnClickListener {
 		TextWatcher nameEntryWatcher = new TextWatcher() {
 
 			@Override
-			public void afterTextChanged(Editable s) {}
+			public void afterTextChanged(Editable s) {
+			}
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
 
 			@Override
 			public void onTextChanged(CharSequence text, int start,
