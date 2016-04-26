@@ -52,7 +52,7 @@ public class IntroductionMessageFragment extends BaseFragment {
 		Bundle args = new Bundle();
 		args.putInt(CONTACT_ID_1, contactId1);
 		args.putInt(CONTACT_ID_2, contactId2);
-		this.setArguments(args);
+		setArguments(args);
 	}
 
 	@Inject

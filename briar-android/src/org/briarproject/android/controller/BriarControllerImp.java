@@ -45,7 +45,6 @@ public class BriarControllerImp implements BriarController {
 	@Override
 	@CallSuper
 	public void onActivityCreate() {
-		LOG.info("onActivityCreate : " + databaseConfig.getEncryptionKey());
 		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 

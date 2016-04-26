@@ -49,8 +49,7 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 			exiting. This models the typical Google navigation behaviour such
 			as in Gmail/Inbox.
 			 */
-			// FIXME
-//			startFragment(ContactListFragment.newInstance());
+			startFragment(activityComponent.newContactListFragment());
 
 		} else {
 			super.onBackPressed();
