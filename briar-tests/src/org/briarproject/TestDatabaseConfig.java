@@ -17,7 +17,9 @@ public class TestDatabaseConfig implements DatabaseConfig {
 	}
 
 	public boolean databaseExists() {
-		return dir.isDirectory() && dir.listFiles().length > 0;
+		if (!dir.isDirectory()) return false;
+		File[] files = dir.listFiles();
+		return files != null && files.length > 0;
 	}
 
 	public File getDatabaseDirectory() {

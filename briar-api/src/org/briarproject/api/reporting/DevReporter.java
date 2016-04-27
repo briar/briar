@@ -15,8 +15,8 @@ public interface DevReporter {
 	 * @param crashReport    the crash report in the form expected by the server.
 	 * @throws FileNotFoundException if the report could not be written.
 	 */
-	void encryptCrashReportToFile(File crashReportDir, String crashReport)
-			throws FileNotFoundException;
+	void encryptCrashReportToFile(File crashReportDir, String filename,
+			String crashReport) throws FileNotFoundException;
 
 	/**
 	 * Send crash reports previously stored on-disk.

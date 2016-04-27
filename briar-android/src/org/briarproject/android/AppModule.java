@@ -76,7 +76,9 @@ public class AppModule {
 			private volatile SecretKey key = null;
 
 			public boolean databaseExists() {
-				return dir.isDirectory() && dir.listFiles().length > 0;
+				if (!dir.isDirectory()) return false;
+				File[] files = dir.listFiles();
+				return files != null && files.length > 0;
 			}
 
 			public File getDatabaseDirectory() {

@@ -366,7 +366,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 			@Override
 			public void run() {
 				reporter.sendCrashReports(
-						AndroidUtils.getCrashReportDir(appContext), SOCKS_PORT);
+						AndroidUtils.getReportDir(appContext), SOCKS_PORT);
 			}
 		});
 	}

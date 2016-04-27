@@ -1,47 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
-	<ScrollView
+	<android.support.v7.widget.Toolbar
+		style="@style/BriarToolbar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
+		<TextView
+			style="@style/TextAppearance.AppCompat.Large.Inverse"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/crash_report_title"/>
+	</android.support.v7.widget.Toolbar>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
 		<LinearLayout
-			android:id="@+id/crash_status"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:paddingTop="@dimen/margin_medium">
+
+			<EditText
+				android:id="@+id/user_comment"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="@dimen/margin_large"
+				android:layout_marginLeft="@dimen/margin_large"
+				android:layout_marginRight="@dimen/margin_large"
+				android:layout_marginStart="@dimen/margin_large"
+				android:hint="@string/describe_crash"
+				android:inputType="textMultiLine|textCapSentences"/>
+
+			<EditText
+				android:id="@+id/user_email"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="@dimen/margin_large"
+				android:layout_marginLeft="@dimen/margin_large"
+				android:layout_marginRight="@dimen/margin_large"
+				android:layout_marginStart="@dimen/margin_large"
+				android:layout_marginTop="@dimen/margin_small"
+				android:hint="@string/optional_contact_email"
+				android:inputType="textEmailAddress"
+				android:maxLines="1"/>
+
+			<ScrollView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_small">
+
+				<LinearLayout
+					android:id="@+id/crash_status"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center_horizontal"
+					android:orientation="vertical"
+					android:paddingBottom="@dimen/listitem_height_one_line_avatar"
+					android:paddingEnd="@dimen/margin_large"
+					android:paddingLeft="@dimen/margin_large"
+					android:paddingRight="@dimen/margin_large"
+					android:paddingStart="@dimen/margin_large"
+					android:paddingTop="@dimen/margin_small"/>
+
+			</ScrollView>
+		</LinearLayout>
+
+		<ProgressBar
+			android:id="@+id/progress_wheel"
+			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:gravity="center_horizontal"
-			android:orientation="vertical"
-			android:paddingBottom="@dimen/listitem_height_one_line_avatar"
-			android:paddingEnd="@dimen/margin_large"
-			android:paddingLeft="@dimen/margin_large"
-			android:paddingRight="@dimen/margin_large"
-			android:paddingStart="@dimen/margin_large"
-			android:paddingTop="@dimen/margin_large"/>
-	</ScrollView>
+			android:layout_centerInParent="true"
+			android:indeterminate="true"/>
 
-	<ProgressBar
-		android:id="@+id/progress_wheel"
-		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_centerInParent="true"
-		android:indeterminate="true"/>
+		<android.support.design.widget.FloatingActionButton
+			android:id="@+id/share_crash_report"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentEnd="true"
+			android:layout_alignParentRight="true"
+			android:layout_marginBottom="@dimen/margin_large"
+			android:layout_marginEnd="@dimen/margin_large"
+			android:layout_marginRight="@dimen/margin_large"
+			android:background="@color/briar_accent"
+			android:src="@drawable/social_share"
+			android:tint="@color/action_bar_text"/>
 
-	<android.support.design.widget.FloatingActionButton
-		android:id="@+id/share_crash_report"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_alignParentEnd="true"
-		android:layout_alignParentRight="true"
-		android:layout_marginBottom="@dimen/margin_large"
-		android:layout_marginEnd="@dimen/margin_large"
-		android:layout_marginRight="@dimen/margin_large"
-		android:background="@color/briar_accent"
-		android:src="@drawable/social_share"
-		android:tint="@color/action_bar_text"/>
-
-</RelativeLayout>
+	</RelativeLayout>
+</LinearLayout>

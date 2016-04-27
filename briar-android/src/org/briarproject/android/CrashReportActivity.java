@@ -1,73 +1,58 @@
 package org.briarproject.android;
 
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import org.acra.ACRA;
+import org.acra.ACRAConstants;
+import org.acra.ReportField;
+import org.acra.collector.CrashReportData;
+import org.acra.dialog.BaseCrashReportDialog;
+import org.acra.file.CrashReportPersister;
+import org.acra.prefs.SharedPreferencesFactory;
 import org.briarproject.R;
-import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.reporting.DevReporter;
-import org.briarproject.util.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Scanner;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-import static android.net.ConnectivityManager.TYPE_MOBILE;
-import static android.net.ConnectivityManager.TYPE_WIFI;
-import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
 
-public class CrashReportActivity extends AppCompatActivity
-		implements OnClickListener {
+public class CrashReportActivity extends BaseCrashReportDialog
+		implements DialogInterface.OnClickListener,
+		DialogInterface.OnCancelListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(CrashReportActivity.class.getName());
 
+	private static final String STATE_REVIEWING = "reviewing";
+
+	private SharedPreferencesFactory sharedPreferencesFactory;
+	private EditText userCommentView = null;
+	private EditText userEmailView = null;
 	private LinearLayout status = null;
 	private View progress = null;
 
 	@Inject
 	protected DevReporter reporter;
 
-	private volatile String stack = null;
-	private volatile int pid = -1;
-	private volatile BluetoothAdapter bt = null;
+	boolean reviewing;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -77,46 +62,78 @@ public class CrashReportActivity extends AppCompatActivity
 		((BriarApplication) getApplication()).getApplicationComponent()
 				.inject(this);
 
+		sharedPreferencesFactory =
+				new SharedPreferencesFactory(getApplicationContext(),
+						getConfig());
+
+		userCommentView = (EditText) findViewById(R.id.user_comment);
+		userEmailView = (EditText) findViewById(R.id.user_email);
 		status = (LinearLayout) findViewById(R.id.crash_status);
 		progress = findViewById(R.id.progress_wheel);
 
-		findViewById(R.id.share_crash_report).setOnClickListener(this);
+		findViewById(R.id.share_crash_report).setOnClickListener(
+				new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						processReport();
+					}
+				});
 
-		Intent i = getIntent();
-		stack = i.getStringExtra("briar.STACK_TRACE");
-		pid = i.getIntExtra("briar.PID", -1);
-		bt = BluetoothAdapter.getDefaultAdapter();
+		final SharedPreferences prefs = sharedPreferencesFactory.create();
+		String userEmail = prefs.getString(ACRA.PREF_USER_EMAIL_ADDRESS, "");
+		userEmailView.setText(userEmail);
+
+		if (state != null)
+			reviewing = state.getBoolean(STATE_REVIEWING, false);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (!reviewing) showDialog();
 		refresh();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		state.putBoolean(STATE_REVIEWING, reviewing);
 	}
 
 	@Override
 	public void onBackPressed() {
 		// show home screen, otherwise we are crashing again
-		Intent intent = new Intent(Intent.ACTION_MAIN);
-		intent.addCategory(Intent.CATEGORY_HOME);
-		startActivity(intent);
+		//Intent intent = new Intent(Intent.ACTION_MAIN);
+		//intent.addCategory(Intent.CATEGORY_HOME);
+		//startActivity(intent);
+		closeReport();
 	}
 
-	public void onClick(View view) {
-		// TODO Encapsulate the dialog in a re-usable fragment
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		if (which == DialogInterface.BUTTON_POSITIVE) {
+			dialog.dismiss();
+		} else {
+			dialog.cancel();
+		}
+	}
+
+	@Override
+	public void onCancel(DialogInterface dialog) {
+		closeReport();
+	}
+
+	private void showDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,
 				R.style.BriarDialogTheme);
-		builder.setTitle(R.string.dialog_title_share_crash_report);
-		builder.setMessage(R.string.dialog_message_share_crash_report);
-		builder.setNegativeButton(R.string.cancel_button, null);
-		builder.setPositiveButton(R.string.send,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						saveCrashReport();
-					}
-				});
+		builder.setTitle(R.string.dialog_title_share_crash_report)
+				.setIcon(R.drawable.ic_warning_black_24dp)
+				.setMessage(R.string.dialog_message_share_crash_report)
+				.setPositiveButton(R.string.dialog_button_ok, this)
+				.setNegativeButton(R.string.cancel_button, this);
 		AlertDialog dialog = builder.create();
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.setOnCancelListener(this);
 		dialog.show();
 	}
 
@@ -124,21 +141,40 @@ public class CrashReportActivity extends AppCompatActivity
 		status.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
 		status.removeAllViews();
-		new AsyncTask<Void, Void, Map<String, String>>() {
+		new AsyncTask<Void, Void, CrashReportData>() {
 
 			@Override
-			protected Map<String, String> doInBackground(Void... args) {
-				return getStatusMap();
+			protected CrashReportData doInBackground(Void... args) {
+				File reportFile = (File) getIntent().getSerializableExtra(
+						ACRAConstants.EXTRA_REPORT_FILE);
+				final CrashReportPersister persister =
+						new CrashReportPersister();
+				try {
+					return persister.load(reportFile);
+				} catch (IOException e) {
+					LOG.log(WARNING, "Could not load report file", e);
+					return null;
+				}
 			}
 
 			@Override
-			protected void onPostExecute(Map<String, String> result) {
-				for (Entry<String, String> e : result.entrySet()) {
-					View v = getLayoutInflater()
-							.inflate(R.layout.list_item_crash, status, false);
-					((TextView) v.findViewById(R.id.title)).setText(e.getKey());
-					((TextView) v.findViewById(R.id.content))
-							.setText(e.getValue());
+			protected void onPostExecute(CrashReportData crashData) {
+				LayoutInflater inflater = getLayoutInflater();
+				if (crashData != null) {
+					for (Entry<ReportField, String> e : crashData.entrySet()) {
+						View v = inflater.inflate(R.layout.list_item_crash,
+								status, false);
+						((TextView) v.findViewById(R.id.title))
+								.setText(e.getKey().toString());
+						((TextView) v.findViewById(R.id.content))
+								.setText(e.getValue());
+						status.addView(v);
+					}
+				} else {
+					View v = inflater.inflate(
+							android.R.layout.simple_list_item_1, status, false);
+					((TextView) v.findViewById(android.R.id.text1))
+							.setText(R.string.could_not_load_crash_data);
 					status.addView(v);
 				}
 				status.setVisibility(VISIBLE);
@@ -147,227 +183,28 @@ public class CrashReportActivity extends AppCompatActivity
 		}.execute();
 	}
 
-	// FIXME: Load strings from resources if we're keeping this activity
-	@SuppressLint("NewApi")
-	private Map<String, String> getStatusMap() {
-		Map<String, String> statusMap = new LinkedHashMap<String, String>();
+	private void processReport() {
+		// Retrieve user comment
+		final String comment = userCommentView != null ?
+				userCommentView.getText().toString() : "";
 
-		// Device type
-		String deviceType;
-		String manufacturer = Build.MANUFACTURER;
-		String model = Build.MODEL;
-		String brand = Build.BRAND;
-		if (model.startsWith(manufacturer)) deviceType = capitalize(model);
-		else deviceType = capitalize(manufacturer) + " " + model;
-		if (!StringUtils.isNullOrEmpty(brand))
-			deviceType += " (" + capitalize(brand) + ")";
-		statusMap.put("Device type:", deviceType);
-
-		// Android version
-		String release = Build.VERSION.RELEASE;
-		int sdk = Build.VERSION.SDK_INT;
-		statusMap.put("Android version:", release + " (" + sdk + ")");
-
-		// CPU architectures
-		Collection<String> abis = AndroidUtils.getSupportedArchitectures();
-		String joined = StringUtils.join(abis, ", ");
-		statusMap.put("Architecture:", joined);
-
-		// System memory
-		Object o = getSystemService(ACTIVITY_SERVICE);
-		ActivityManager am = (ActivityManager) o;
-		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
-		am.getMemoryInfo(mem);
-		String systemMemory;
-		if (Build.VERSION.SDK_INT >= 16) {
-			systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
-					+ (mem.availMem / 1024 / 1204) + " MiB free, "
-					+ (mem.threshold / 1024 / 1024) + " MiB threshold";
+		// Store the user email
+		final String userEmail;
+		final SharedPreferences prefs = sharedPreferencesFactory.create();
+		if (userEmailView != null) {
+			userEmail = userEmailView.getText().toString();
+			final SharedPreferences.Editor prefEditor = prefs.edit();
+			prefEditor.putString(ACRA.PREF_USER_EMAIL_ADDRESS, userEmail);
+			prefEditor.commit();
 		} else {
-			systemMemory = (mem.availMem / 1024 / 1204) + " MiB free, "
-					+ (mem.threshold / 1024 / 1024) + " MiB threshold";
+			userEmail = prefs.getString(ACRA.PREF_USER_EMAIL_ADDRESS, "");
 		}
-		statusMap.put("System memory:", systemMemory);
-
-		// Virtual machine memory
-		Runtime runtime = Runtime.getRuntime();
-		long heap = runtime.totalMemory();
-		long heapFree = runtime.freeMemory();
-		long heapMax = runtime.maxMemory();
-		String vmMemory = (heap / 1024 / 1024) + " MiB allocated, "
-				+ (heapFree / 1024 / 1024) + " MiB free, "
-				+ (heapMax / 1024 / 1024) + " MiB maximum";
-		statusMap.put("Virtual machine memory:", vmMemory);
-
-		// Internal storage
-		File root = Environment.getRootDirectory();
-		long rootTotal = root.getTotalSpace();
-		long rootFree = root.getFreeSpace();
-		String internal = (rootTotal / 1024 / 1024) + " MiB total, "
-				+ (rootFree / 1024 / 1024) + " MiB free";
-		statusMap.put("Internal storage:", internal);
-
-		// External storage (SD card)
-		File sd = Environment.getExternalStorageDirectory();
-		long sdTotal = sd.getTotalSpace();
-		long sdFree = sd.getFreeSpace();
-		String external = (sdTotal / 1024 / 1024) + " MiB total, "
-				+ (sdFree / 1024 / 1024) + " MiB free";
-		statusMap.put("External storage:", external);
-
-		// Is mobile data available?
-		o = getSystemService(CONNECTIVITY_SERVICE);
-		ConnectivityManager cm = (ConnectivityManager) o;
-		NetworkInfo mobile = cm.getNetworkInfo(TYPE_MOBILE);
-		boolean mobileAvailable = mobile != null && mobile.isAvailable();
-		// Is mobile data enabled?
-		boolean mobileEnabled = false;
-		try {
-			Class<?> clazz = Class.forName(cm.getClass().getName());
-			Method method = clazz.getDeclaredMethod("getMobileDataEnabled");
-			method.setAccessible(true);
-			mobileEnabled = (Boolean) method.invoke(cm);
-		} catch (ClassNotFoundException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (NoSuchMethodException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (IllegalAccessException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (IllegalArgumentException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (InvocationTargetException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-		// Is mobile data connected ?
-		boolean mobileConnected = mobile != null && mobile.isConnected();
-
-		String mobileStatus;
-		if (mobileAvailable) mobileStatus = "Available, ";
-		else mobileStatus = "Not available, ";
-		if (mobileEnabled) mobileStatus += "enabled, ";
-		else mobileStatus += "not enabled, ";
-		if (mobileConnected) mobileStatus += "connected";
-		else mobileStatus += "not connected";
-		statusMap.put("Mobile data:", mobileStatus);
-
-		// Is wifi available?
-		NetworkInfo wifi = cm.getNetworkInfo(TYPE_WIFI);
-		boolean wifiAvailable = wifi != null && wifi.isAvailable();
-		// Is wifi enabled?
-		WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
-		boolean wifiEnabled = wm != null &&
-				wm.getWifiState() == WIFI_STATE_ENABLED;
-		// Is wifi connected?
-		boolean wifiConnected = wifi != null && wifi.isConnected();
-
-		String wifiStatus;
-		if (wifiAvailable) wifiStatus = "Available, ";
-		else wifiStatus = "Not available, ";
-		if (wifiEnabled) wifiStatus += "enabled, ";
-		else wifiStatus += "not enabled, ";
-		if (wifiConnected) wifiStatus += "connected";
-		else wifiStatus += "not connected";
-		if (wm != null) {
-			WifiInfo wifiInfo = wm.getConnectionInfo();
-			if (wifiInfo != null) {
-				int ip = wifiInfo.getIpAddress(); // Nice API, Google
-				int ip1 = ip & 0xFF;
-				int ip2 = (ip >> 8) & 0xFF;
-				int ip3 = (ip >> 16) & 0xFF;
-				int ip4 = (ip >> 24) & 0xFF;
-				String address = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-				wifiStatus += "\nAddress: " + address;
-			}
-		}
-		statusMap.put("Wi-Fi:", wifiStatus);
-
-		// Is Bluetooth available?
-		boolean btAvailable = bt != null;
-		// Is Bluetooth enabled?
-		boolean btEnabled = bt != null && bt.isEnabled() &&
-				!StringUtils.isNullOrEmpty(bt.getAddress());
-		// Is Bluetooth connectable?
-		boolean btConnectable = bt != null &&
-				(bt.getScanMode() == SCAN_MODE_CONNECTABLE ||
-						bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-		// Is Bluetooth discoverable?
-		boolean btDiscoverable = bt != null &&
-				bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-
-		String btStatus;
-		if (btAvailable) btStatus = "Available, ";
-		else btStatus = "Not available, ";
-		if (btEnabled) btStatus += "enabled, ";
-		else btStatus += "not enabled, ";
-		if (btConnectable) btStatus += "connectable, ";
-		else btStatus += "not connectable, ";
-		if (btDiscoverable) btStatus += "discoverable";
-		else btStatus += "not discoverable";
-		if (bt != null) btStatus += "\nAddress: " + bt.getAddress();
-		try {
-			String btAddr = Settings.Secure.getString(getContentResolver(),
-					"bluetooth_address");
-			btStatus += "\nAddress from settings: " + btAddr;
-		} catch (SecurityException e) {
-			btStatus += "\nCould not get address from settings";
-		}
-		statusMap.put("Bluetooth:", btStatus);
-
-		// Stack trace
-		if (stack != null) statusMap.put("Stack trace:", stack);
-
-		// All log output from the crashed process
-		if (pid != -1) {
-			StringBuilder log = new StringBuilder();
-			try {
-				Pattern pattern = Pattern.compile(".*\\( *" + pid + "\\).*");
-				Process process = runtime.exec("logcat -d -v time *:I");
-				Scanner scanner = new Scanner(process.getInputStream());
-				while (scanner.hasNextLine()) {
-					String line = scanner.nextLine();
-					if (pattern.matcher(line).matches()) {
-						log.append(line);
-						log.append('\n');
-					}
-				}
-				scanner.close();
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
-			statusMap.put("Debugging log:", log.toString());
-		}
-
-		return Collections.unmodifiableMap(statusMap);
+		sendCrash(comment, userEmail);
+		finish();
 	}
 
-	private String capitalize(String s) {
-		if (StringUtils.isNullOrEmpty(s)) return s;
-		char first = s.charAt(0);
-		if (Character.isUpperCase(first)) return s;
-		return Character.toUpperCase(first) + s.substring(1);
-	}
-
-	private void saveCrashReport() {
-		StringBuilder s = new StringBuilder();
-		for (Entry<String, String> e : getStatusMap().entrySet()) {
-			s.append(e.getKey());
-			s.append('\n');
-			s.append(e.getValue());
-			s.append("\n\n");
-		}
-		final String crashReport = s.toString();
-		try {
-			reporter.encryptCrashReportToFile(
-					AndroidUtils.getCrashReportDir(this), crashReport);
-			Toast.makeText(this, R.string.crash_report_saved, Toast.LENGTH_LONG)
-					.show();
-			finish();
-		} catch (FileNotFoundException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, "Error while saving encrypted crash report",
-						e);
-			Toast.makeText(this, R.string.crash_report_not_saved,
-					Toast.LENGTH_SHORT).show();
-		}
+	private void closeReport() {
+		cancelReports();
+		finish();
 	}
 }

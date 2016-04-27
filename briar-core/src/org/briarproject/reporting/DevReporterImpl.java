@@ -33,8 +33,6 @@ class DevReporterImpl implements DevReporter {
 			Logger.getLogger(DevReporterImpl.class.getName());
 
 	private static final int SOCKET_TIMEOUT = 30 * 1000; // 30 seconds
-	private static final String PREFIX = "briar-";
-	private static final String REPORT_EXT = ".report";
 	private static final String CRLF = "\r\n";
 
 	private CryptoComponent crypto;
@@ -55,13 +53,12 @@ class DevReporterImpl implements DevReporter {
 	}
 
 	@Override
-	public void encryptCrashReportToFile(File crashReportDir,
+	public void encryptCrashReportToFile(File crashReportDir, String filename,
 			String crashReport) throws FileNotFoundException {
 		String encryptedReport =
 				crypto.encryptToKey(devConfig.getDevPublicKey(),
 						StringUtils.toUtf8(crashReport));
 
-		String filename = PREFIX + System.currentTimeMillis() + REPORT_EXT;
 		File report = new File(crashReportDir, filename);
 		PrintWriter writer = null;
 		try {
