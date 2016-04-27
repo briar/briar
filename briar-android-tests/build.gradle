@@ -37,7 +37,7 @@ dependencies {
     compile project(':briar-core')
     testCompile 'junit:junit:4.12'
     testCompile 'net.jodah:concurrentunit:0.4.2'
-    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:appcompat-v7:23.2.1'
     testApt 'com.google.dagger:dagger-compiler:2.0.2'
     provided 'javax.annotation:jsr250-api:1.0'
     testCompile project(':briar-tests')
@@ -45,10 +45,12 @@ dependencies {
 
 dependencyVerification {
     verify = [
-            'com.android.support:appcompat-v7:14ab04eb2e3f302a082b79c308f6283d21909d1feb831a4e117cdacdad70adb7',
             'com.google.dagger:dagger:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
             'com.google.dagger:dagger-compiler:b74bc9de063dd4c6400b232231f2ef5056145b8fbecbf5382012007dd1c071b3',
-            'com.android.support:support-v4:992666398b80724a2f95ea3d7bf7c3d94fb810dcba7ae1aa6e38c0d6120d2603',
-            'com.android.support:support-annotations:7f21659b084da073b77b6f7fe7ab250c4f23346238d4efdbbbb937e017ae4693',
+            'com.android.support:appcompat-v7:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',
+            'com.android.support:support-v4:81ce890f26d35c75ad17d0f998a7e3230330c3b41e0b629566bc744bee89e448',
+            'com.android.support:animated-vector-drawable:06d1963b85aa917099d7757e6a7b3e4dc06889413dc747f625ae8683606db3a1',
+            'com.android.support:support-vector-drawable:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
+            'com.android.support:support-annotations:786ab0d060774fb95cfdaf4878771e14b85733b1af9d72a4aae762dc7c1dff9f',
     ]
 }
