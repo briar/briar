@@ -314,26 +314,14 @@ public class DevReportActivity extends BaseCrashReportDialog
 				}
 
 				if (success) {
-					// Retrieve user comment
-					final String comment = userCommentView != null ?
-							userCommentView.getText().toString() : "";
-
-					// Store the user email
-					final String userEmail;
-					if (userEmailView != null) {
-						userEmail = userEmailView.getText().toString();
-						final SharedPreferences.Editor prefEditor =
-								prefs.edit();
-						prefEditor
-								.putString(ACRA.PREF_USER_EMAIL_ADDRESS,
-										userEmail);
-						prefEditor.commit();
-					} else {
-						userEmail =
-								prefs.getString(ACRA.PREF_USER_EMAIL_ADDRESS,
-										"");
-					}
-					sendCrash(comment, userEmail);
+					// Retrieve user's comment and email address, if any
+					String comment = "";
+					if (userCommentView != null)
+						comment = userCommentView.getText().toString();
+					String email = "";
+					if (userEmailView != null)
+						email = userEmailView.getText().toString();
+					sendCrash(comment, email);
 				}
 				finish();
 			}
