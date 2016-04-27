@@ -9,17 +9,18 @@ import org.acra.annotation.ReportsCrashes;
 import org.briarproject.CoreModule;
 import org.briarproject.R;
 import org.briarproject.android.util.BriarReportPrimer;
+import org.briarproject.android.util.BriarReportSenderFactory;
 
 import java.util.logging.Logger;
 
 @ReportsCrashes(
 		reportPrimerClass = BriarReportPrimer.class,
 		logcatArguments = {"-d", "-v", "time", "*:I"},
-		reportSenderFactoryClasses = {
-				org.briarproject.android.util.BriarReportSenderFactory.class},
+		reportSenderFactoryClasses = {BriarReportSenderFactory.class},
 		mode = ReportingInteractionMode.DIALOG,
 		reportDialogClass = CrashReportActivity.class,
-		resDialogOkToast = R.string.crash_report_saved
+		resDialogOkToast = R.string.crash_report_saved,
+		deleteOldUnsentReportsOnApplicationStart = false
 )
 public class BriarApplication extends Application {
 
@@ -31,8 +32,6 @@ public class BriarApplication extends Application {
 	@Override
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
-
-		// The following line triggers the initialization of ACRA
 		ACRA.init(this);
 	}
 
