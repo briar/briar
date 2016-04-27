@@ -141,15 +141,21 @@ class ForumManagerImpl implements ForumManager {
 
 	@Override
 	public Forum getForum(GroupId g) throws DbException {
+		Forum forum;
+		Transaction txn = db.startTransaction(true);
 		try {
-			Group group;
-			Transaction txn = db.startTransaction(true);
-			try {
-				group = db.getGroup(txn, g);
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			forum = getForum(txn, g);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return forum;
+	}
+
+	@Override
+	public Forum getForum(Transaction txn, GroupId g) throws DbException {
+		try {
+			Group group = db.getGroup(txn, g);
 			return parseForum(group);
 		} catch (FormatException e) {
 			throw new DbException(e);

@@ -31,6 +31,9 @@ public interface ForumManager {
 	/** Returns the forum with the given ID. */
 	Forum getForum(GroupId g) throws DbException;
 
+	/** Returns the forum with the given ID. */
+	Forum getForum(Transaction txn, GroupId g) throws DbException;
+
 	/** Returns all forums to which the user subscribes. */
 	Collection<Forum> getForums() throws DbException;
 
