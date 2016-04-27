@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
 apply plugin: 'witness'
 apply plugin: 'com.neenbedankt.android-apt'
 
@@ -24,6 +22,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    dexOptions {
+        incremental true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
 dependencies {
@@ -46,5 +51,4 @@ dependencyVerification {
             'com.android.support:support-v4:992666398b80724a2f95ea3d7bf7c3d94fb810dcba7ae1aa6e38c0d6120d2603',
             'com.android.support:support-annotations:7f21659b084da073b77b6f7fe7ab250c4f23346238d4efdbbbb937e017ae4693',
     ]
-
 }

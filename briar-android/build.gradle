@@ -11,7 +11,6 @@ repositories {
 }
 
 dependencies {
-
 	def supportVersion = '23.1.1'
 	compile project(':briar-api')
 	compile project(':briar-core')
@@ -35,14 +34,14 @@ dependencies {
 		exclude module: 'support-v4'
 		exclude module: 'recyclerview-v7'
 	}
-	compile ("ch.acra:acra:4.8.5") {
+	compile('ch.acra:acra:4.8.5') {
 		exclude module: 'support-v4'
 		exclude module: 'support-annotations'
 	}
-	compile "info.guardianproject.panic:panic:0.5"
-	compile "info.guardianproject.trustedintents:trustedintents:0.2"
-	compile "de.hdodenhof:circleimageview:2.0.0"
-	compile "com.google.zxing:core:3.2.1"
+	compile 'info.guardianproject.panic:panic:0.5'
+	compile 'info.guardianproject.trustedintents:trustedintents:0.2'
+	compile 'de.hdodenhof:circleimageview:2.0.0'
+	compile 'com.google.zxing:core:3.2.1'
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 	provided 'javax.annotation:jsr250-api:1.0'
 }
@@ -110,6 +109,9 @@ android {
 
 	lintOptions {
 		abortOnError false
+	}
+	dexOptions {
+		incremental true
 	}
 }
 

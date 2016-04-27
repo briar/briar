@@ -9,7 +9,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:1.5.0'
+		classpath 'com.android.tools.build:gradle:2.1.0'
 		classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
 		classpath 'de.undercouch:gradle-download-task:2.1.0'
 		classpath files('briar-core/libs/gradle-witness.jar')
