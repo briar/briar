@@ -48,6 +48,9 @@
 -keep class roboguice.** { *; }
 -keep class dagger.** { *; }
 -keep class com.google.** { *; }
+-keep class javax.** { *; }
+-keep class org.eclipse.** { *; }
+-keep class com.squareup.** { *; }
 
 -dontwarn org.h2.**
 -dontnote org.h2.**

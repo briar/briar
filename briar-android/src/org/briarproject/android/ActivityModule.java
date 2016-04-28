@@ -54,34 +54,33 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	SetupController provideSetupController(
-			SetupControllerImp setupControllerImp) {
-		return setupControllerImp;
+	protected SetupController provideSetupController() {
+		return new SetupControllerImp();
 	}
 
 	@ActivityScope
 	@Provides
-	ConfigController provideConfigController(
+	protected ConfigController provideConfigController(
 			ConfigControllerImp configControllerImp) {
 		return configControllerImp;
 	}
 
 	@ActivityScope
 	@Provides
-	SharedPreferences provideSharedPreferences(Activity activity) {
+	protected SharedPreferences provideSharedPreferences(Activity activity) {
 		return activity.getSharedPreferences("db", Context.MODE_PRIVATE);
 	}
 
 	@ActivityScope
 	@Provides
-	PasswordController providePasswordController(
+	protected PasswordController providePasswordController(
 			PasswordControllerImp passwordControllerImp) {
 		return passwordControllerImp;
 	}
 
 	@ActivityScope
 	@Provides
-	BriarController provideBriarController(
+	protected BriarController provideBriarController(
 			BriarControllerImp briarControllerImp) {
 		activity.addLifecycleController(briarControllerImp);
 		return briarControllerImp;
@@ -89,7 +88,7 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	NavDrawerController provideNavDrawerController(
+	protected NavDrawerController provideNavDrawerController(
 			NavDrawerControllerImp navDrawerControllerImp) {
 		activity.addLifecycleController(navDrawerControllerImp);
 		if (activity instanceof TransportStateListener) {
@@ -101,7 +100,7 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	BriarServiceConnection provideBriarServiceConnection() {
+	protected BriarServiceConnection provideBriarServiceConnection() {
 		return new BriarServiceConnection();
 	}
 

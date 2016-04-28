@@ -8,12 +8,16 @@ import android.provider.Settings;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import static android.provider.Settings.Secure.ANDROID_ID;
 
 class AndroidSeedProvider extends LinuxSeedProvider {
+
+	private static final Logger LOG =
+			Logger.getLogger(LinuxSeedProvider.class.getName());
 
 	private final Context appContext;
 

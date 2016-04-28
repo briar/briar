@@ -27,8 +27,6 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
@@ -66,7 +64,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		createAccountButton = (Button) findViewById(R.id.create_account);
 		progress = (ProgressBar) findViewById(R.id.progress_wheel);
 
-		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+//		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		TextWatcher tw = new TextWatcher() {
 			@Override
@@ -125,6 +123,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		hideSoftKeyboard(v);
+
 		return true;
 	}
 

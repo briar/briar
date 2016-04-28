@@ -8,6 +8,7 @@ apply plugin: 'de.undercouch.download'
 
 repositories {
 	jcenter()
+	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
@@ -44,6 +45,18 @@ dependencies {
 	compile 'com.google.zxing:core:3.2.1'
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 	provided 'javax.annotation:jsr250-api:1.0'
+
+	testCompile 'junit:junit:4.12'
+	testCompile 'net.jodah:concurrentunit:0.4.2'
+	testApt 'com.google.dagger:dagger-compiler:2.4'
+	testCompile project(path: ':briar-tests')
+	testCompile 'org.robolectric:robolectric:3.1-SNAPSHOT'
+	testCompile 'org.mockito:mockito-core:1.10.19'
+
+	androidTestCompile 'org.robolectric:robolectric:3.0'
+	androidTestCompile 'org.mockito:mockito-core:1.10.19'
+	androidTestApt 'com.google.dagger:dagger-compiler:2.4'
+	androidTestCompile 'junit:junit:4.12'
 }
 
 dependencyVerification {
@@ -81,7 +94,19 @@ android {
 		}
 
 		// Move the tests to tests/java, tests/res, etc...
-		instrumentTest.setRoot('tests')
+		//instrumentTest.setRoot('tests')
+//		unitTest.setRoot('tests')
+
+		androidTest.setRoot('androidTest')
+		androidTest {
+			java.srcDirs = ['androidTest/java']
+		}
+
+		test.setRoot('test')
+		test {
+			java.srcDirs = ['test/java']
+		}
+
 
 		// Move the build types to build-types/<type>
 		// For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...

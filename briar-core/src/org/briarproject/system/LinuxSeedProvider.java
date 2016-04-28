@@ -1,6 +1,6 @@
 package org.briarproject.system;
 
-import static java.util.logging.Level.WARNING;
+import org.briarproject.api.system.SeedProvider;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.briarproject.api.system.SeedProvider;
+import static java.util.logging.Level.WARNING;
 
 class LinuxSeedProvider implements SeedProvider {
 
@@ -42,6 +42,8 @@ class LinuxSeedProvider implements SeedProvider {
 			out.close();
 		} catch (IOException e) {
 			// On some devices /dev/urandom isn't writable - this isn't fatal
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} catch (NullPointerException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		// Read the seed from the pool

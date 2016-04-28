@@ -38,7 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 		activityComponent = DaggerActivityComponent.builder()
 				.androidComponent(applicationComponent)
-				.activityModule(new ActivityModule(this))
+				.activityModule(getActivityModule())
 				.build();
 
 		injectActivity(activityComponent);
@@ -46,6 +46,11 @@ public abstract class BaseActivity extends AppCompatActivity {
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate();
 		}
+	}
+
+	// This exists to make test overrides easier
+	protected ActivityModule getActivityModule() {
+		return new ActivityModule(this);
 	}
 
 	@Override
