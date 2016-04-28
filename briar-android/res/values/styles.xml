@@ -6,6 +6,7 @@
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>
+		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:textColorPrimary">@color/briar_text_primary</item>
 		<item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
 		<item name="android:textColorSecondary">@color/briar_text_primary</item>
@@ -17,6 +18,7 @@
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_primary</item>
+		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:textColorPrimary">@color/briar_text_primary</item>
 		<item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
 		<item name="android:textColorSecondary">@color/briar_text_primary</item>
@@ -101,7 +103,7 @@
 
 	<style name="Divider.ContactList" parent="Divider">
 		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">2dp</item>
+		<item name="android:layout_height">1dp</item>
 		<item name="android:layout_marginLeft">@dimen/margin_large</item>
 	</style>
 

@@ -7,8 +7,7 @@
 	<color name="briar_green_dark">#87C214</color>
 	<color name="briar_red">#C1392B</color>
 
-	<color name="window_background">#EEEEEE</color>
-	<color name="conversation_background">#efebe9</color>
+	<color name="window_background">#eceff1</color>
 	<color name="action_bar_text">#FFFFFF</color>
 	<color name="action_bar_background">@color/briar_blue</color>
 	<color name="button_bar_background">#FFFFFF</color>

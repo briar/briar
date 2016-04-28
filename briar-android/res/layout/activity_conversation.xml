@@ -42,8 +42,7 @@
 		android:id="@+id/conversationView"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_weight="1"
-		android:background="@color/conversation_background"/>
+		android:layout_weight="1"/>
 
 	<View style="@style/Divider.Horizontal"/>
 
