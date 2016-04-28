@@ -131,4 +131,9 @@ public class BriarRecyclerView extends FrameLayout {
 		if (recyclerView == null) initViews();
 		recyclerView.scrollToPosition(position);
 	}
+
+	public RecyclerView getRecyclerView() {
+		return this.recyclerView;
+	}
+
 }

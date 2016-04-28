@@ -10,9 +10,9 @@
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingTop="@dimen/listitem_horizontal_margin"
-		android:paddingBottom="@dimen/listitem_horizontal_margin"
 		android:background="?attr/selectableItemBackground"
+		android:paddingBottom="@dimen/listitem_horizontal_margin"
+		android:paddingTop="@dimen/listitem_horizontal_margin"
 		>
 
 		<de.hdodenhof.circleimageview.CircleImageView
@@ -24,7 +24,6 @@
 			android:layout_centerVertical="true"
 			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 			android:layout_marginStart="@dimen/listitem_horizontal_margin"
-			android:transitionName="avatar"
 			app:civ_border_color="@color/briar_primary"
 			app:civ_border_width="@dimen/avatar_border_width"
 			tools:src="@drawable/ic_launcher"/>
@@ -33,13 +32,13 @@
 			android:id="@+id/textViews"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:orientation="vertical"
 			android:layout_centerVertical="true"
 			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 			android:layout_marginStart="@dimen/listitem_horizontal_margin"
+			android:layout_toEndOf="@+id/avatarView"
 			android:layout_toLeftOf="@+id/bulbView"
 			android:layout_toRightOf="@+id/avatarView"
-			android:layout_toEndOf="@+id/avatarView">
+			android:orientation="vertical">
 
 			<TextView
 				android:id="@+id/nameView"

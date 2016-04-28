@@ -5,7 +5,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,16 +110,24 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 								ConversationActivity.class);
 						i.putExtra(GROUP_ID, groupId.getBytes());
 
-						if (Build.VERSION.SDK_INT >= 16) {
-							ActivityOptionsCompat options =
-									ActivityOptionsCompat.
-											makeSceneTransitionAnimation(
-													getActivity(),
-													view, "avatar");
-							getActivity().startActivity(i, options.toBundle());
-						} else {
-							startActivity(i);
-						}
+						ContactListAdapter.ContactHolder holder =
+								(ContactListAdapter.ContactHolder) list
+										.getRecyclerView()
+										.findViewHolderForAdapterPosition(
+												adapter.findItemPosition(item));
+						Pair<View, String> avatar =
+								Pair.create((View) holder.avatar, ViewCompat
+										.getTransitionName(holder.avatar));
+						Pair<View, String> bulb =
+								Pair.create((View) holder.bulb, ViewCompat
+										.getTransitionName(holder.bulb));
+						ActivityOptionsCompat options =
+								ActivityOptionsCompat
+										.makeSceneTransitionAnimation(
+												getActivity(), avatar,
+												bulb);
+						ActivityCompat.startActivity(getActivity(), i,
+								options.toBundle());
 					}
 				};
 
