@@ -9,16 +9,13 @@
 
 	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="@dimen/listitem_horizontal_margin"
-		android:paddingBottom="@dimen/listitem_horizontal_margin"
-		android:background="?attr/selectableItemBackground"
-		>
+		android:layout_height="@dimen/listitem_height_contact_selector"
+		android:background="?attr/selectableItemBackground">
 
 		<de.hdodenhof.circleimageview.CircleImageView
 			android:id="@+id/avatarView"
-			android:layout_width="@dimen/listitem_picture_size"
-			android:layout_height="@dimen/listitem_picture_size"
+			android:layout_width="@dimen/listitem_selectable_picture_size"
+			android:layout_height="@dimen/listitem_selectable_picture_size"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
 			android:layout_centerVertical="true"
@@ -40,7 +37,6 @@
 			android:layout_toLeftOf="@+id/checkBox"
 			android:layout_toRightOf="@+id/avatarView"
 			android:maxLines="2"
-			android:textColor="@android:color/primary_text_light"
 			android:textSize="@dimen/text_size_large"
 			tools:text="This is a name of a contact"/>
 
