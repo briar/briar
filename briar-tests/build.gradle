@@ -29,6 +29,10 @@ dependencyVerification {
 			'org.jmock:jmock-legacy:19c76059eb254775ba884fc8039bc5c7d1700dc68cc55ad3be5b405a2a8a1819',
 			'org.hamcrest:hamcrest-library:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
 			'org.hamcrest:hamcrest-core:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
+			'cglib:cglib-nodep:3a9ab1f5de15b49dedc7e96d35363c4c43a2b2cd42275f5d4731846042f3fcf2',
+			'org.ow2.asm:asm:71c4f78e437b8fdcd9cc0dfd2abea8c089eb677005a6a5cff320206cc52b46cc',
+			'org.beanshell:bsh:9b04edc75d19db54f1b4e8b5355e9364384c6cf71eb0a1b9724c159d779879f8',
+			'org.objenesis:objenesis:c74330cc6b806c804fd37e74487b4fe5d7c2750c5e15fbc6efa13bdee1bdef80',
 	]
 }
 
