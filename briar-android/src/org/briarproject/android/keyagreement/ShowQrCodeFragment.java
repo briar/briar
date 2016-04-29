@@ -40,8 +40,10 @@ import org.briarproject.api.keyagreement.KeyAgreementTaskFactory;
 import org.briarproject.api.keyagreement.Payload;
 import org.briarproject.api.keyagreement.PayloadEncoder;
 import org.briarproject.api.keyagreement.PayloadParser;
+import org.briarproject.api.lifecycle.IoExecutor;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -72,6 +74,9 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	protected PayloadParser payloadParser;
 	@Inject
 	protected AndroidExecutor androidExecutor;
+	@Inject
+	@IoExecutor
+	protected Executor ioExecutor;
 
 	private LinearLayout qrLayout;
 	private CameraView cameraView;
@@ -179,21 +184,21 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private void startListening() {
 		task = keyAgreementTaskFactory.getTask();
 		gotRemotePayload = false;
-		new Thread(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				task.listen();
 			}
-		}).start();
+		});
 	}
 
 	private void stopListening() {
-		new Thread(new Runnable() {
+		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				task.stopListening();
 			}
-		}).start();
+		});
 	}
 
 	private void openCamera() {
