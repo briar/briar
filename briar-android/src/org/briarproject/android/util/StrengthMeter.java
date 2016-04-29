@@ -23,11 +23,11 @@ import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 public class StrengthMeter extends ProgressBar {
 
 	private static final int MAX = 100;
-	private static final int RED = Color.rgb(255, 0, 0);
-	private static final int ORANGE = Color.rgb(255, 160, 0);
-	private static final int YELLOW = Color.rgb(255, 255, 0);
-	private static final int LIME = Color.rgb(180, 255, 0);
-	private static final int GREEN = Color.rgb(0, 255, 0);
+	public static final int RED = Color.rgb(255, 0, 0);
+	public static final int ORANGE = Color.rgb(255, 160, 0);
+	public static final int YELLOW = Color.rgb(255, 255, 0);
+	public static final int LIME = Color.rgb(180, 255, 0);
+	public static final int GREEN = Color.rgb(0, 255, 0);
 
 	private final ShapeDrawable bar;
 
@@ -55,6 +55,10 @@ public class StrengthMeter extends ProgressBar {
 	@Override
 	public int getMax() {
 		return MAX;
+	}
+
+	public int getColor() {
+		return bar.getPaint().getColor();
 	}
 
 	public void setStrength(float strength) {

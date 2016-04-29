@@ -3,6 +3,7 @@
 -dontpreverify
 -dontobfuscate
 -verbose
+-useuniqueclassmembernames
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 # For comfortability in case we do obfuscate
 # -renamesourcefileattribute SourceFile
@@ -48,9 +49,20 @@
 -keep class roboguice.** { *; }
 -keep class dagger.** { *; }
 -keep class com.google.** { *; }
--keep class javax.** { *; }
--keep class org.eclipse.** { *; }
--keep class com.squareup.** { *; }
+
+-dontwarn org.hamcrest.**
+-dontwarn com.squareup.**
+-dontwarn com.google.android.**
+
+-keep class com.google.android.** {
+   *;
+}
+-keep class com.google.common.** {
+   *;
+}
+-keep class org.hamcrest.** {
+   *;
+}
 
 -dontwarn org.h2.**
 -dontnote org.h2.**

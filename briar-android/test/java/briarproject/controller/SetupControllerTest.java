@@ -8,6 +8,8 @@ import javax.inject.Inject;
 
 public class SetupControllerTest extends BriarTestCase {
 
+
+
 	@Inject
 	SetupController setupController;
 

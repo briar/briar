@@ -54,8 +54,9 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	protected SetupController provideSetupController() {
-		return new SetupControllerImp();
+	protected SetupController provideSetupController(
+			SetupControllerImp setupControllerImp) {
+		return setupControllerImp;
 	}
 
 	@ActivityScope
@@ -147,7 +148,8 @@ public class ActivityModule {
 	@Provides
 	@Named("IntroductionMessageFragment")
 	IntroductionMessageFragment provideIntroductionMessageFragment() {
-		IntroductionMessageFragment fragment = new IntroductionMessageFragment();
+		IntroductionMessageFragment fragment =
+				new IntroductionMessageFragment();
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
