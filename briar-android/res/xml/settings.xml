@@ -68,7 +68,7 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory
-		android:title="Crash reports">
+		android:title="@string/crash_report_settings_title">
 
 		<CheckBoxPreference
 			android:defaultValue="true"
@@ -93,6 +93,15 @@
 			android:dependency="acra.enable"
 			android:key="acra.alwaysaccept"
 			android:title="@string/acra_alwaysaccept_setting"/>
+
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:title="@string/feedback_settings_title">
+
+		<Preference
+			android:key="pref_key_send_feedback"
+			android:title="@string/send_feedback"/>
 
 	</PreferenceCategory>
 

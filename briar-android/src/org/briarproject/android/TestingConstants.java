@@ -1,9 +1,9 @@
 package org.briarproject.android;
 
+import java.util.logging.Level;
+
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.OFF;
-
-import java.util.logging.Level;
 
 public interface TestingConstants {
 
@@ -23,12 +23,4 @@ public interface TestingConstants {
 	 * intentionally.
 	 */
 	boolean PREVENT_SCREENSHOTS = TESTING ? false : true;
-
-	/**
-	 * Whether to allow TestingActivity to be launched from SettingsFragment.
-	 */
-	boolean SHOW_TESTING_ACTIVITY = TESTING ? true : false;
-
-	/** Whether to allow crash reports to be submitted by email. */
-	boolean SHARE_CRASH_REPORTS = TESTING ? true : false;
 }
