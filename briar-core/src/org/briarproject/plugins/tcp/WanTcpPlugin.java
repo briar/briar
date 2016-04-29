@@ -1,6 +1,7 @@
 package org.briarproject.plugins.tcp;
 
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.properties.TransportProperties;
@@ -9,6 +10,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -16,6 +18,8 @@ import java.util.concurrent.Executor;
 class WanTcpPlugin extends TcpPlugin {
 
 	static final TransportId ID = new TransportId("wan");
+
+	private static final String PROP_IP_PORT = "ipPort";
 
 	private final PortMapper portMapper;
 
@@ -35,8 +39,7 @@ class WanTcpPlugin extends TcpPlugin {
 	protected List<SocketAddress> getLocalSocketAddresses() {
 		// Use the same address and port as last time if available
 		TransportProperties p = callback.getLocalProperties();
-		String oldAddress = p.get("address"), oldPort = p.get("port");
-		InetSocketAddress old = parseSocketAddress(oldAddress, oldPort);
+		InetSocketAddress old = parseSocketAddress(p.get(PROP_IP_PORT));
 		List<SocketAddress> addrs = new LinkedList<SocketAddress>();
 		for (InetAddress a : getLocalIpAddresses()) {
 			if (isAcceptableAddress(a)) {
@@ -70,6 +73,15 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
+	protected List<InetSocketAddress> getRemoteSocketAddresses(ContactId c) {
+		TransportProperties p = callback.getRemoteProperties().get(c);
+		if (p == null) return Collections.emptyList();
+		InetSocketAddress parsed = parseSocketAddress(p.get(PROP_IP_PORT));
+		if (parsed == null) return Collections.emptyList();
+		return Collections.singletonList(parsed);
+	}
+
+	@Override
 	protected boolean isConnectable(InetSocketAddress remote) {
 		if (remote.getPort() == 0) return false;
 		return isAcceptableAddress(remote.getAddress());
@@ -83,8 +95,7 @@ class WanTcpPlugin extends TcpPlugin {
 				a = mappingResult.getExternal();
 		}
 		TransportProperties p = new TransportProperties();
-		p.put("address", getHostAddress(a.getAddress()));
-		p.put("port", String.valueOf(a.getPort()));
+		p.put(PROP_IP_PORT, getIpPortString(a));
 		callback.mergeLocalProperties(p);
 	}
 }

@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -91,14 +92,17 @@ public class LanTcpPluginTest extends BriarTestCase {
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
-		String addrString = callback.local.get("address");
-		assertNotNull(addrString);
+		String ipPorts = callback.local.get("ipPorts");
+		assertNotNull(ipPorts);
+		String[] split = ipPorts.split(",");
+		assertEquals(1, split.length);
+		split = split[0].split(":");
+		assertEquals(2, split.length);
+		String addrString = split[0], portString = split[1];
 		InetAddress addr = InetAddress.getByName(addrString);
 		assertTrue(addr instanceof Inet4Address);
 		assertFalse(addr.isLoopbackAddress());
 		assertTrue(addr.isLinkLocalAddress() || addr.isSiteLocalAddress());
-		String portString = callback.local.get("port");
-		assertNotNull(portString);
 		int port = Integer.parseInt(portString);
 		assertTrue(port > 0 && port < 65536);
 		// The plugin should be listening on the port
@@ -124,11 +128,17 @@ public class LanTcpPluginTest extends BriarTestCase {
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
-		String addr = callback.local.get("address");
-		assertNotNull(addr);
+		assertTrue(callback.propertiesLatch.await(5, SECONDS));
+		String ipPorts = callback.local.get("ipPorts");
+		assertNotNull(ipPorts);
+		String[] split = ipPorts.split(",");
+		assertEquals(1, split.length);
+		split = split[0].split(":");
+		assertEquals(2, split.length);
+		String addrString = split[0];
 		// Listen on the same interface as the plugin
 		final ServerSocket ss = new ServerSocket();
-		ss.bind(new InetSocketAddress(addr, 0), 10);
+		ss.bind(new InetSocketAddress(addrString, 0), 10);
 		int port = ss.getLocalPort();
 		final CountDownLatch latch = new CountDownLatch(1);
 		final AtomicBoolean error = new AtomicBoolean(false);
@@ -145,8 +155,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 		}.start();
 		// Tell the plugin about the port
 		TransportProperties p = new TransportProperties();
-		p.put("address", addr);
-		p.put("port", String.valueOf(port));
+		p.put("ipPorts", addrString + ":" + port);
 		callback.remote.put(contactId, p);
 		// Connect to the port
 		DuplexTransportConnection d = plugin.createConnection(contactId);
@@ -175,7 +184,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 	private static class Callback implements DuplexPluginCallback {
 
 		private final Map<ContactId, TransportProperties> remote =
-				new Hashtable<ContactId, TransportProperties>();
+				new Hashtable<>();
 		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();
@@ -192,7 +201,8 @@ public class LanTcpPluginTest extends BriarTestCase {
 			return remote;
 		}
 
-		public void mergeSettings(Settings s) {}
+		public void mergeSettings(Settings s) {
+		}
 
 		public void mergeLocalProperties(TransportProperties p) {
 			local.putAll(p);
@@ -207,18 +217,22 @@ public class LanTcpPluginTest extends BriarTestCase {
 			return false;
 		}
 
-		public void showMessage(String... message) {}
+		public void showMessage(String... message) {
+		}
 
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			connectionsLatch.countDown();
 		}
 
 		public void outgoingConnectionCreated(ContactId c,
-				DuplexTransportConnection d) {}
+				DuplexTransportConnection d) {
+		}
 
-		public void transportEnabled() {}
+		public void transportEnabled() {
+		}
 
-		public void transportDisabled() {}
+		public void transportDisabled() {
+		}
 	}
 
 	private static class TestBackoff implements Backoff {
@@ -227,8 +241,10 @@ public class LanTcpPluginTest extends BriarTestCase {
 			return 60 * 1000;
 		}
 
-		public void increment() {}
+		public void increment() {
+		}
 
-		public void reset() {}
+		public void reset() {
+		}
 	}
 }
