@@ -18,8 +18,8 @@ import java.util.logging.Logger;
 		logcatArguments = {"-d", "-v", "time", "*:I"},
 		reportSenderFactoryClasses = {BriarReportSenderFactory.class},
 		mode = ReportingInteractionMode.DIALOG,
-		reportDialogClass = CrashReportActivity.class,
-		resDialogOkToast = R.string.crash_report_saved,
+		reportDialogClass = DevReportActivity.class,
+		resDialogOkToast = R.string.dev_report_saved,
 		deleteOldUnsentReportsOnApplicationStart = false
 )
 public class BriarApplication extends Application {

@@ -15,9 +15,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import org.acra.ACRA;
 import org.briarproject.R;
 import org.briarproject.android.SettingsActivity;
 import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.android.util.UserFeedback;
 import org.briarproject.android.widget.PreferenceDividerDecoration;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -131,6 +133,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		if (SHOW_TESTING_ACTIVITY) {
 			addPreferencesFromResource(R.xml.settings_debug);
+			findPreference("send_feedback").setOnPreferenceClickListener(
+					new Preference.OnPreferenceClickListener() {
+						@Override
+						public boolean onPreferenceClick(Preference preference) {
+							triggerFeedback();
+							return true;
+						}
+					});
 		}
 
 		loadSettings();
@@ -209,6 +219,16 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				notifySound.setSummary(text);
 			}
 		});
+	}
+
+	private void triggerFeedback() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				ACRA.getErrorReporter()
+						.handleException(new UserFeedback(), false);
+			}
+		}).start();
 	}
 
 	@Override

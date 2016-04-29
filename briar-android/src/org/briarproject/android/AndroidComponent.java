@@ -38,7 +38,7 @@ import dagger.Component;
 })
 public interface AndroidComponent extends CoreEagerSingletons {
 
-	void inject(CrashReportActivity crashReportActivity);
+	void inject(DevReportActivity devReportActivity);
 
 	void inject(SplashScreenActivity activity);
 

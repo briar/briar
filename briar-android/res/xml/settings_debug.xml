@@ -14,6 +14,10 @@
 
 		</Preference>
 
+		<Preference
+			android:key="send_feedback"
+			android:title="Send feedback"/>
+
 	</PreferenceCategory>
 
 </PreferenceScreen>
