@@ -44,7 +44,6 @@ import static android.media.RingtoneManager.TYPE_NOTIFICATION;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.TestingConstants.SHOW_TESTING_ACTIVITY;
 
 public class SettingsFragment extends PreferenceFragmentCompat
 		implements EventListener, Preference.OnPreferenceChangeListener {
@@ -131,17 +130,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					}
 				});
 
-		if (SHOW_TESTING_ACTIVITY) {
-			addPreferencesFromResource(R.xml.settings_debug);
-			findPreference("send_feedback").setOnPreferenceClickListener(
-					new Preference.OnPreferenceClickListener() {
-						@Override
-						public boolean onPreferenceClick(Preference preference) {
-							triggerFeedback();
-							return true;
-						}
-					});
-		}
+		findPreference("pref_key_send_feedback").setOnPreferenceClickListener(
+				new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference preference) {
+						triggerFeedback();
+						return true;
+					}
+				});
 
 		loadSettings();
 	}

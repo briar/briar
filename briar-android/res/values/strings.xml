@@ -112,6 +112,8 @@
 		<item quantity="one">New forum post.</item>
 		<item quantity="other">%d new forum posts.</item>
 	</plurals>
+
+	<!-- Settings -->
 	<string name="settings_title">Settings</string>
 	<string name="network_settings_title">Networks</string>
 	<string name="bluetooth_setting">Connect via Bluetooth</string>
@@ -131,11 +133,13 @@
 	<string name="notify_sound_setting_default">Default ringtone</string>
 	<string name="notify_sound_setting_disabled">None</string>
 	<string name="choose_ringtone_title">Choose ringtone</string>
+	<string name="crash_report_settings_title">Crash reports</string>
 	<string name="enable_acra_setting">Enable crash reporter</string>
 	<string name="acra_syslog_setting">Send system logs</string>
 	<string name="acra_user_email_setting">Optional contact email</string>
 	<string name="acra_alwaysaccept_setting">Always send reports</string>
 	<string name="panic_app_setting_title">Panic Button App</string>
+	<string name="unknown_app">an unknown app</string>
 	<string name="panic_app_setting_summary">No app has been set</string>
 	<string name="panic_app_setting_none">None</string>
 	<string name="lock_setting_title">Sign Out</string>
@@ -144,6 +148,9 @@
 	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
 	<string name="uninstall_setting_title">Uninstall Briar</string>
 	<string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
+	<string name="feedback_settings_title">Feedback</string>
+	<string name="send_feedback">Send feedback</string>
+
 	<string name="step">Step %1$d/%2$d</string>
 	<string name="online">Online</string>
 	<string name="offline">Offline</string>
@@ -152,7 +159,6 @@
 	<string name="transport_bt">Bluetooth</string>
 	<string name="transport_lan">Wi-Fi</string>
 	<string name="no_data">No data</string>
-	<string name="unknown_app">an unknown app</string>
 
 	<!-- Introduction Client -->
 	<string name="introduction_activity_title">Select Contact</string>
