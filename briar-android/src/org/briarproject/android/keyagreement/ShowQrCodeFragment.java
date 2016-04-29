@@ -24,8 +24,8 @@ import com.google.zxing.Result;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.fragment.BaseEventFragment;
-import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.CameraView;
 import org.briarproject.android.util.QrCodeDecoder;
 import org.briarproject.android.util.QrCodeUtils;
@@ -70,6 +70,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	protected PayloadEncoder payloadEncoder;
 	@Inject
 	protected PayloadParser payloadParser;
+	@Inject
+	protected AndroidExecutor androidExecutor;
 
 	private LinearLayout qrLayout;
 	private CameraView cameraView;
@@ -81,7 +83,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private boolean gotRemotePayload;
 
 	private volatile KeyAgreementTask task;
-	private volatile BluetoothAdapter adapter;
 	private volatile boolean waitingForBluetooth;
 
 	public static ShowQrCodeFragment newInstance() {
@@ -130,8 +131,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		Display display = getActivity().getWindowManager().getDefaultDisplay();
 		boolean portrait = display.getWidth() < display.getHeight();
 		qrLayout.setOrientation(portrait ? VERTICAL : HORIZONTAL);
-
-		adapter = BluetoothAdapter.getDefaultAdapter();
 	}
 
 	@Override
@@ -145,11 +144,17 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		getActivity().registerReceiver(receiver, filter);
 
 		// Enable BT adapter if it is not already on.
+		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
-			AndroidUtils.enableBluetooth(adapter, true);
-		} else
+			androidExecutor.execute(new Runnable() {
+				public void run() {
+					adapter.enable();
+				}
+			});
+		} else {
 			startListening();
+		}
 	}
 
 	@Override

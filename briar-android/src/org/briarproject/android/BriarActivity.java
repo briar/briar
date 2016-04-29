@@ -41,7 +41,8 @@ public abstract class BriarActivity extends BaseActivity {
 			new BriarServiceConnection();
 
 	@Inject
-	DatabaseConfig databaseConfig;
+	protected DatabaseConfig databaseConfig;
+
 	private boolean bound = false;
 
 	// Fields that are accessed from background threads must be volatile
@@ -94,6 +95,7 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	protected void signOut(final boolean removeFromRecentApps) {
+		// Use a new thread to avoid deadlock with executor tasks
 		new Thread() {
 			@Override
 			public void run() {

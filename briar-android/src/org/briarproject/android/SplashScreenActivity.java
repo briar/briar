@@ -9,6 +9,7 @@ import android.os.StrictMode.VmPolicy;
 import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.R;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.db.DatabaseConfig;
 
@@ -29,6 +30,8 @@ public class SplashScreenActivity extends BaseActivity {
 
 	@Inject
 	protected DatabaseConfig dbConfig;
+	@Inject
+	protected AndroidExecutor androidExecutor;
 
 	public SplashScreenActivity() {
 		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
@@ -87,12 +90,11 @@ public class SplashScreenActivity extends BaseActivity {
 	}
 
 	private void setPreferencesDefaults() {
-		new Thread() {
-			@Override
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				PreferenceManager.setDefaultValues(SplashScreenActivity.this,
 						R.xml.panic_preferences, false);
 			}
-		}.start();
+		});
 	}
 }

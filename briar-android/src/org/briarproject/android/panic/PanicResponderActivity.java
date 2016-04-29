@@ -9,9 +9,9 @@ import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.util.FileUtils;
 import org.iilab.IilabEngineeringRSA2048Pin;
 
 import java.util.logging.Logger;
@@ -23,6 +23,7 @@ import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
+import static android.content.Intent.ACTION_DELETE;
 import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_PURGE;
 import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_UNINSTALL;
@@ -31,7 +32,11 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(PanicResponderActivity.class.getName());
-	@Inject protected DatabaseConfig databaseConfig;
+
+	@Inject
+	protected DatabaseConfig databaseConfig;
+	@Inject
+	protected AndroidExecutor androidExecutor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,16 +67,14 @@ public class PanicResponderActivity extends BriarActivity {
 						deleteAllData();
 
 						LOG.info("Uninstalling...");
-						Intent uninstall = new Intent(Intent.ACTION_DELETE);
+						Intent uninstall = new Intent(ACTION_DELETE);
 						uninstall.setData(
 								Uri.parse("package:" + getPackageName()));
 						startActivity(uninstall);
-					}
-					else if (sharedPref.getBoolean(KEY_PURGE, false)) {
+					} else if (sharedPref.getBoolean(KEY_PURGE, false)) {
 						LOG.info("Purging all data...");
 						deleteAllData();
-					}
-					else if (sharedPref.getBoolean(KEY_LOCK, true)) {
+					} else if (sharedPref.getBoolean(KEY_LOCK, true)) {
 						LOG.info("Signing out...");
 						signOut(true);
 					}
@@ -107,8 +110,7 @@ public class PanicResponderActivity extends BriarActivity {
 	}
 
 	private void deleteAllData() {
-		new Thread() {
-			@Override
+		androidExecutor.execute(new Runnable() {
 			public void run() {
 				clearSharedPrefs();
 				// TODO somehow delete/shred the database more thoroughly
@@ -120,7 +122,6 @@ public class PanicResponderActivity extends BriarActivity {
 				LOG.info("Signing out...");
 				signOut(true);
 			}
-		}.start();
+		});
 	}
-
 }

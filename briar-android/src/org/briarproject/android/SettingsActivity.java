@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import org.briarproject.R;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.settings.SettingsManager;
 
@@ -12,8 +13,12 @@ import javax.inject.Inject;
 
 public class SettingsActivity extends BriarActivity {
 
-	@Inject protected SettingsManager settingsManager;
-	@Inject protected EventBus eventBus;
+	@Inject
+	protected AndroidExecutor androidExecutor;
+	@Inject
+	protected SettingsManager settingsManager;
+	@Inject
+	protected EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -31,6 +36,10 @@ public class SettingsActivity extends BriarActivity {
 	@Override
 	public void injectActivity(AndroidComponent component) {
 		component.inject(this);
+	}
+
+	public AndroidExecutor getAndroidExecutor() {
+		return androidExecutor;
 	}
 
 	public SettingsManager getSettingsManager() {

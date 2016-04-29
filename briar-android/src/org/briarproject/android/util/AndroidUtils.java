@@ -48,17 +48,6 @@ public class AndroidUtils {
 			til.setError(null);
 	}
 
-	public static void enableBluetooth(final BluetoothAdapter adapter,
-			final boolean enable) {
-		new Thread() {
-			@Override
-			public void run() {
-				if (enable) adapter.enable();
-				else adapter.disable();
-			}
-		}.start();
-	}
-
 	public static String getBluetoothAddress(Context ctx,
 			BluetoothAdapter adapter) {
 		// Return the adapter's address if it's valid and not fake

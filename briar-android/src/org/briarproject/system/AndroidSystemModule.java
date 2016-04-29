@@ -6,6 +6,8 @@ import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.api.system.SeedProvider;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -23,7 +25,8 @@ public class AndroidSystemModule {
 	}
 
 	@Provides
-	public AndroidExecutor providePlatformExecutor(Application app) {
-		return new AndroidExecutorImpl(app);
+	@Singleton
+	public AndroidExecutor provideAndroidExecutor() {
+		return new AndroidExecutorImpl();
 	}
 }
