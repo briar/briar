@@ -21,27 +21,18 @@ public class BriarRecyclerView extends FrameLayout {
 
 	public BriarRecyclerView(Context context) {
 		super(context);
-
-		initViews();
 	}
 
 	public BriarRecyclerView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-
-		initViews();
 	}
 
 	public BriarRecyclerView(Context context, AttributeSet attrs,
 			int defStyle) {
 		super(context, attrs, defStyle);
-
-		initViews();
 	}
 
 	private void initViews() {
-		if (isInEditMode()) {
-			return;
-		}
 
 		View v = LayoutInflater.from(getContext()).inflate(
 				R.layout.briar_recycler_view, this, true);
@@ -54,22 +45,24 @@ public class BriarRecyclerView extends FrameLayout {
 
 		// scroll down when opening keyboard
 		if (Build.VERSION.SDK_INT >= 11) {
-			recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-				@Override
-				public void onLayoutChange(View v,
-						int left, int top, int right, int bottom,
-						int oldLeft, int oldTop, int oldRight, int oldBottom) {
-					if (bottom < oldBottom) {
-						recyclerView.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								scrollToPosition(
-										recyclerView.getAdapter().getItemCount() - 1);
+			recyclerView.addOnLayoutChangeListener(
+					new View.OnLayoutChangeListener() {
+						@Override
+						public void onLayoutChange(View v, int left, int top,
+								int right, int bottom, int oldLeft, int oldTop,
+								int oldRight, int oldBottom) {
+							if (bottom < oldBottom) {
+								recyclerView.postDelayed(new Runnable() {
+									@Override
+									public void run() {
+										scrollToPosition(
+												recyclerView.getAdapter()
+														.getItemCount() - 1);
+									}
+								}, 100);
 							}
-						}, 100);
-					}
-				}
-			});
+						}
+					});
 		}
 
 		emptyObserver = new RecyclerView.AdapterDataObserver() {
@@ -82,10 +75,13 @@ public class BriarRecyclerView extends FrameLayout {
 	}
 
 	public void setLayoutManager(RecyclerView.LayoutManager layout) {
+		if (recyclerView == null) initViews();
 		recyclerView.setLayoutManager(layout);
 	}
 
 	public void setAdapter(RecyclerView.Adapter adapter) {
+		if (recyclerView == null) initViews();
+
 		RecyclerView.Adapter oldAdapter = recyclerView.getAdapter();
 		if (oldAdapter != null) {
 			oldAdapter.unregisterAdapterDataObserver(emptyObserver);
@@ -105,35 +101,34 @@ public class BriarRecyclerView extends FrameLayout {
 	}
 
 	public void setEmptyText(String text) {
+		if (recyclerView == null) initViews();
 		emptyView.setText(text);
 	}
 
 	public void showProgressBar() {
-		recyclerView.setVisibility(View.INVISIBLE);
-		emptyView.setVisibility(View.INVISIBLE);
-		progressBar.setVisibility(View.VISIBLE);
+		if (recyclerView == null) initViews();
+		recyclerView.setVisibility(INVISIBLE);
+		emptyView.setVisibility(INVISIBLE);
+		progressBar.setVisibility(VISIBLE);
 	}
 
 	public void showData() {
-		RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
+		if (recyclerView == null) initViews();
+		RecyclerView.Adapter adapter = recyclerView.getAdapter();
 		if (adapter != null) {
 			if (adapter.getItemCount() == 0) {
-				emptyView.setVisibility(View.VISIBLE);
-				recyclerView.setVisibility(View.INVISIBLE);
+				emptyView.setVisibility(VISIBLE);
+				recyclerView.setVisibility(INVISIBLE);
 			} else {
-				emptyView.setVisibility(View.INVISIBLE);
-				recyclerView.setVisibility(View.VISIBLE);
+				emptyView.setVisibility(INVISIBLE);
+				recyclerView.setVisibility(VISIBLE);
 			}
-			progressBar.setVisibility(View.INVISIBLE);
+			progressBar.setVisibility(INVISIBLE);
 		}
 	}
 
 	public void scrollToPosition(int position) {
+		if (recyclerView == null) initViews();
 		recyclerView.scrollToPosition(position);
 	}
-
-	public RecyclerView getRecyclerView() {
-		return recyclerView;
-	}
-
 }
