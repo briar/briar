@@ -1,18 +1,20 @@
 package org.briarproject.android.forum;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,8 +23,6 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
-import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
@@ -43,12 +43,12 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.Menu.NONE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
@@ -56,7 +56,6 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 public class ForumListFragment extends BaseEventFragment implements
@@ -82,8 +81,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	private ForumListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private TextView available = null;
-	private ImageButton newForumButton = null;
+	private Snackbar snackbar;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject protected volatile ForumManager forumManager;
@@ -93,12 +91,13 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+
+		setHasOptionsMenu(true);
+
 		LinearLayout layout = new LinearLayout(getContext());
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
-
-		int pad = LayoutUtils.getPadding(getContext());
 
 		empty = new TextView(getContext());
 		empty.setLayoutParams(MATCH_WRAP_1);
@@ -121,32 +120,6 @@ public class ForumListFragment extends BaseEventFragment implements
 		loading = new ListLoadingProgressBar(getContext());
 		layout.addView(loading);
 
-		available = new TextView(getContext());
-		available.setLayoutParams(MATCH_WRAP);
-		available.setGravity(CENTER);
-		available.setTextSize(18);
-		available.setPadding(pad, pad, pad, pad);
-		Resources res = getResources();
-		int background = res.getColor(R.color.forums_available_background);
-		available.setBackgroundColor(background);
-		available.setOnClickListener(this);
-		available.setVisibility(GONE);
-		layout.addView(available);
-
-		layout.addView(new HorizontalBorder(getContext()));
-
-		LinearLayout footer = new LinearLayout(getContext());
-		footer.setLayoutParams(MATCH_WRAP);
-		footer.setOrientation(HORIZONTAL);
-		footer.setGravity(CENTER);
-		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
-		newForumButton = new ImageButton(getContext());
-		newForumButton.setBackgroundResource(0);
-		newForumButton.setImageResource(R.drawable.social_new_chat);
-		newForumButton.setOnClickListener(this);
-		footer.addView(newForumButton);
-		layout.addView(footer);
-
 		return layout;
 	}
 
@@ -163,7 +136,34 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
+
+		snackbar = Snackbar.make(getView(), "", LENGTH_INDEFINITE);
+		snackbar.getView().setBackgroundResource(R.color.briar_primary);
+		snackbar.setAction(R.string.show_forums, this);
+		snackbar.setActionTextColor(ContextCompat
+				.getColor(getContext(), R.color.briar_button_positive));
+
 		loadHeaders();
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.forum_list_actions, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case R.id.action_create_forum:
+				Intent intent =
+						new Intent(getContext(), CreateForumActivity.class);
+				startActivity(intent);
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	private void loadHeaders() {
@@ -203,7 +203,7 @@ public class ForumListFragment extends BaseEventFragment implements
 			public void run() {
 				empty.setVisibility(GONE);
 				list.setVisibility(GONE);
-				available.setVisibility(GONE);
+				snackbar.dismiss();
 				loading.setVisibility(VISIBLE);
 				adapter.clear();
 			}
@@ -240,10 +240,10 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThread(new Runnable() {
 			public void run() {
 				if (availableCount == 0) {
-					available.setVisibility(GONE);
+					snackbar.dismiss();
 				} else {
-					available.setVisibility(VISIBLE);
-					available.setText(getResources().getQuantityString(
+					snackbar.show();
+					snackbar.setText(getResources().getQuantityString(
 							R.plurals.forums_shared, availableCount,
 							availableCount));
 				}
@@ -363,12 +363,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	public void onClick(View view) {
-		if (view == available) {
-			startActivity(new Intent(getContext(),
-					AvailableForumsActivity.class));
-		} else if (view == newForumButton) {
-			startActivity(new Intent(getContext(), CreateForumActivity.class));
-		}
+		// snackbar click
+		startActivity(new Intent(getContext(), AvailableForumsActivity.class));
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,

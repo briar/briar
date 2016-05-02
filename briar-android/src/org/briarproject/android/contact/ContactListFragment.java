@@ -98,7 +98,7 @@ public class ContactListFragment extends BaseEventFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View contentView =
-				inflater.inflate(R.layout.activity_contact_list, container,
+				inflater.inflate(R.layout.fragment_contact_list, container,
 						false);
 
 		BaseContactListAdapter.OnItemClickListener onItemClickListener =

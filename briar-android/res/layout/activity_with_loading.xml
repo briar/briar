@@ -22,15 +22,13 @@
 		<FrameLayout
 			android:id="@+id/content_fragment"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:background="@color/default_background"/>
+			android:layout_height="match_parent"/>
 
 		<RelativeLayout
 			android:id="@+id/container_progress"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_gravity="center"
-			android:background="@color/default_background"
 			android:visibility="invisible"
 			tools:visibility="visible">
 
