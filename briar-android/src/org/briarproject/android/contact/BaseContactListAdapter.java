@@ -21,14 +21,14 @@ import static android.support.v7.util.SortedList.INVALID_POSITION;
 public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.BaseContactHolder>
 		extends RecyclerView.Adapter<VH> {
 
-	protected SortedList<ContactListItem> contacts;
+	protected final SortedList<ContactListItem> contacts;
 	protected final OnItemClickListener listener;
 	protected Context ctx;
 
 	public BaseContactListAdapter(Context context, OnItemClickListener listener) {
 		this.ctx = context;
 		this.listener = listener;
-		this.contacts = new SortedList<ContactListItem>(ContactListItem.class,
+		this.contacts = new SortedList<>(ContactListItem.class,
 				new SortedListCallBacks());
 	}
 

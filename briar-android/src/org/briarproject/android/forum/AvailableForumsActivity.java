@@ -1,34 +1,30 @@
 package org.briarproject.android.forum;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.ListLoadingProgressBar;
+import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
-import org.briarproject.api.sync.ClientId;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -36,16 +32,15 @@ import javax.inject.Inject;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.forum.AvailableForumsAdapter.AvailableForumClickListener;
 
 public class AvailableForumsActivity extends BriarActivity
-implements EventListener, OnItemClickListener {
+		implements EventListener, AvailableForumClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(AvailableForumsActivity.class.getName());
 
-	private AvailableForumsAdapter adapter = null;
-	private ListView list = null;
+	private AvailableForumsAdapter adapter;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject protected volatile ForumManager forumManager;
@@ -56,15 +51,13 @@ implements EventListener, OnItemClickListener {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		adapter = new AvailableForumsAdapter(this);
-		list = new ListView(this);
-		list.setLayoutParams(MATCH_MATCH);
-		list.setAdapter(adapter);
-		list.setOnItemClickListener(this);
+		setContentView(R.layout.activity_available_forums);
 
-		// Show a progress bar while the list is loading
-		ListLoadingProgressBar loading = new ListLoadingProgressBar(this);
-		setContentView(loading);
+		adapter = new AvailableForumsAdapter(this, this);
+		BriarRecyclerView list =
+				(BriarRecyclerView) findViewById(R.id.availableForumsView);
+		list.setLayoutManager(new LinearLayoutManager(this));
+		list.setAdapter(adapter);
 	}
 
 	@Override
@@ -113,11 +106,12 @@ implements EventListener, OnItemClickListener {
 					LOG.info("No forums available, finishing");
 					finish();
 				} else {
-					setContentView(list);
 					adapter.clear();
+					List<AvailableForumsItem> list =
+							new ArrayList<>(available.size());
 					for (ForumContacts f : available)
-						adapter.add(new AvailableForumsItem(f));
-					adapter.sort(AvailableForumsItemComparator.INSTANCE);
+						list.add(new AvailableForumsItem(f));
+					adapter.addAll(list);
 				}
 			}
 		});
@@ -145,37 +139,33 @@ implements EventListener, OnItemClickListener {
 				LOG.info("Forum removed, reloading");
 				loadForums();
 			}
-		} else if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			ClientId c = m.getClientId();
-			if (m.isValid() && !m.isLocal()
-					&& c.equals(forumSharingManager.getClientId())) {
-				LOG.info("Available forums updated, reloading");
-				loadForums();
-			}
+		} else if (e instanceof ForumInvitationReceivedEvent) {
+			LOG.info("Available forums updated, reloading");
+			loadForums();
 		}
 	}
 
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		AvailableForumsItem item = adapter.getItem(position);
-		Collection<ContactId> shared = new ArrayList<>();
-		for (Contact c : item.getContacts()) shared.add(c.getId());
-		subscribe(item.getForum(), shared);
-		String joined = getString(R.string.forum_joined_toast);
-		Toast.makeText(this, joined, LENGTH_SHORT).show();
+	public void onItemClick(AvailableForumsItem item, boolean accept) {
+		respondToInvitation(item.getForum(), accept);
+
+		// show toast
+		int res = R.string.forum_declined_toast;
+		if (accept) res = R.string.forum_joined_toast;
+		Toast.makeText(this, res, LENGTH_SHORT).show();
 	}
 
-	private void subscribe(final Forum f, final Collection<ContactId> shared) {
+	private void respondToInvitation(final Forum f, final boolean accept) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					forumManager.addForum(f);
+					forumSharingManager.respondToInvitation(f, accept);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
+				loadForums();
 			}
 		});
 	}
+
 }
