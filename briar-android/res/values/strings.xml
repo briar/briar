@@ -78,8 +78,8 @@
 		<item quantity="other">%d forums shared by contacts</item>
 	</plurals>
 	<string name="show_forums">Show</string>
-	<string name="unsubscribe">Unsubscribe</string>
-	<string name="unsubscribed_toast">Unsubscribed</string>
+	<string name="forum_leave">Leave Forum</string>
+	<string name="forum_left_toast">Forum Left</string>
 	<string name="no_forum_posts">No posts</string>
 	<string name="create_forum_title">New Forum</string>
 	<string name="choose_forum_name">Choose a name for your forum:</string>
@@ -194,7 +194,10 @@
 	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
 	<string name="dialog_title_share_crash_report">Briar has crashed</string>
 	<string name="dialog_message_share_crash_report">Would you like to review the crash report and send it to the developers? It will be stored encrypted on your device until the next time you log into Briar, and then sent securely to the developers.</string>
+	<string name="dialog_title_remove_forum">Confirm Leaving Forum</string>
+	<string name="dialog_message_remove_forum">Are you sure that you want to remove this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
 	<string name="dialog_button_ok">OK</string>
+	<string name="dialog_button_remove">Remove</string>
 	<string name="dialog_button_introduce">Introduce</string>
 	<string name="dialog_button_accept">Accept</string>
 	<string name="dialog_button_decline">Decline</string>
