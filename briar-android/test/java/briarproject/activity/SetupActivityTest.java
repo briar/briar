@@ -1,5 +1,6 @@
 package briarproject.activity;
 
+import android.content.Intent;
 import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
 import android.widget.EditText;
@@ -8,26 +9,46 @@ import com.google.common.base.Strings;
 
 import org.briarproject.BuildConfig;
 import org.briarproject.R;
-import org.briarproject.android.ActivityModule;
+import org.briarproject.android.NavDrawerActivity;
 import org.briarproject.android.SetupActivity;
-import org.briarproject.android.controller.SetupController;
-import org.briarproject.android.controller.SetupControllerImp;
 import org.briarproject.android.util.StrengthMeter;
-import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.api.identity.AuthorConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowActivity;
 
+import java.util.logging.Logger;
+
+import static briarproject.activity.MockedSetupActivity.NO_PASS;
+import static briarproject.activity.MockedSetupActivity.QSTRONG_PASS;
+import static briarproject.activity.MockedSetupActivity.QWEAK_PASS;
+import static briarproject.activity.MockedSetupActivity.STRONG_PASS;
+import static briarproject.activity.MockedSetupActivity.WEAK_PASS;
 import static junit.framework.Assert.assertEquals;
+import static org.briarproject.android.util.StrengthMeter.GREEN;
+import static org.briarproject.android.util.StrengthMeter.LIME;
+import static org.briarproject.android.util.StrengthMeter.ORANGE;
+import static org.briarproject.android.util.StrengthMeter.RED;
+import static org.briarproject.android.util.StrengthMeter.YELLOW;
+import static org.briarproject.api.crypto.PasswordStrengthEstimator.NONE;
+import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
+import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.api.crypto.PasswordStrengthEstimator.STRONG;
+import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
+import static org.junit.Assert.assertNotEquals;
+import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class SetupActivityTest {
+
+	private static final Logger LOG =
+			Logger.getLogger(SetupActivityTest.class.getName());
+
 
 	private SetupActivity setupActivity;
 	TextInputLayout nicknameEntryWrapper;
@@ -39,32 +60,9 @@ public class SetupActivityTest {
 	StrengthMeter strengthMeter;
 	Button createAccountButton;
 
-	class TestSetupActivity extends SetupActivity {
-
-		@Override
-		protected ActivityModule getActivityModule() {
-			return new ActivityModule(this) {
-
-				@Override
-				protected SetupController provideSetupController(
-						SetupControllerImp setupControllerImp) {
-					SetupController setupController =
-							Mockito.mock(SetupControllerImp.class);
-					Mockito.when(
-							setupController.estimatePasswordStrength("strong"))
-							.thenReturn(PasswordStrengthEstimator.STRONG);
-//					Mockito.when(
-//							setupController.estimatePasswordStrength("qstrong"))
-//							.thenReturn(PasswordStrengthEstimator.QUITE_STRONG);
-					return setupController;
-				}
-			};
-		}
-	}
-
 	@Before
 	public void setUp() {
-		setupActivity = Robolectric.setupActivity(SetupActivity.class);
+		setupActivity = Robolectric.setupActivity(MockedSetupActivity.class);
 		nicknameEntryWrapper = (TextInputLayout) setupActivity
 				.findViewById(R.id.nickname_entry_wrapper);
 		passwordEntryWrapper = (TextInputLayout) setupActivity
@@ -83,21 +81,54 @@ public class SetupActivityTest {
 				(Button) setupActivity.findViewById(R.id.create_account);
 	}
 
+	private void testStrengthMeter(String pass, float strength, int color) {
+		passwordEntry.setText(pass);
+		assertEquals(strengthMeter.getProgress(),
+				(int) (strengthMeter.getMax() * strength));
+		assertEquals(color, strengthMeter.getColor());
+	}
+
 	@Test
-	public void test() {
+	public void testUI() {
+		// Nick
 		String longNick =
 				Strings.padEnd("*", AuthorConstants.MAX_AUTHOR_NAME_LENGTH + 1,
 						'*');
 		nicknameEntry.setText(longNick);
 		assertEquals(nicknameEntryWrapper.getError(),
 				setupActivity.getString(R.string.name_too_long));
+		assertEquals(createAccountButton.isEnabled(), false);
+		// strength estimator
+		testStrengthMeter(STRONG_PASS, STRONG, GREEN);
+		assertEquals(createAccountButton.isEnabled(), false);
+		testStrengthMeter(QSTRONG_PASS, QUITE_STRONG, LIME);
+		assertEquals(createAccountButton.isEnabled(), false);
+		testStrengthMeter(QWEAK_PASS, QUITE_WEAK, YELLOW);
+		assertEquals(createAccountButton.isEnabled(), false);
+		testStrengthMeter(WEAK_PASS, WEAK, ORANGE);
+		assertEquals(createAccountButton.isEnabled(), false);
+		testStrengthMeter(NO_PASS, NONE, RED);
+		assertEquals(createAccountButton.isEnabled(), false);
 
-		passwordEntry.setText("strong");
-		assertEquals(strengthMeter.getProgress(),
-				strengthMeter.getMax() * PasswordStrengthEstimator.STRONG);
-
-//		passwordEntry.setText("strong");
-//		assertEquals(StrengthMeter.GREEN, strengthMeter.getColor());
-//		setupActivity.
+		// pass confirmation
+		nicknameEntry.setText("nick.nickerton");
+		passwordEntry.setText("really.safe.password");
+		passwordConfirmation.setText("really.safe.pass");
+		assertEquals(createAccountButton.isEnabled(), false);
+		assertEquals(passwordConfirmationWrapper.getError(),
+				setupActivity.getString(R.string.passwords_do_not_match));
+		passwordEntry.setText("really.safe.pass");
+		passwordConfirmation.setText("really.safe.pass");
+		assertNotEquals(passwordConfirmationWrapper.getError(),
+				setupActivity.getString(R.string.passwords_do_not_match));
+		assertEquals(createAccountButton.isEnabled(), true);
+		// confirm correct Activity started
+		createAccountButton.performClick();
+		assertEquals(setupActivity.isFinishing(), true);
+		ShadowActivity shadowActivity = shadowOf(setupActivity);
+		Intent intent = shadowActivity.peekNextStartedActivity();
+		assertEquals(intent.getComponent().getClassName(),
+				NavDrawerActivity.class.getName());
 	}
+
 }

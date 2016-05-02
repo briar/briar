@@ -27,8 +27,8 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
+import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
