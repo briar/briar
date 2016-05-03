@@ -15,4 +15,10 @@
 		android:title="@string/forum_share_button"
 		app:showAsAction="ifRoom"/>
 
+	<item
+		android:id="@+id/action_forum_delete"
+		android:icon="@drawable/social_remove_person"
+		android:title="@string/forum_leave"
+		app:showAsAction="never"/>
+
 </menu>

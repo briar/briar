@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,11 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
@@ -46,11 +42,9 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Menu.NONE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
-import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -74,8 +68,6 @@ public class ForumListFragment extends BaseEventFragment implements
 		fragment.setArguments(args);
 		return fragment;
 	}
-
-	private static final int MENU_ITEM_UNSUBSCRIBE = 1;
 
 	private TextView empty = null;
 	private ForumListAdapter adapter = null;
@@ -112,7 +104,6 @@ public class ForumListFragment extends BaseEventFragment implements
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
-		list.setOnCreateContextMenuListener(this);
 		list.setVisibility(GONE);
 		layout.addView(list);
 
@@ -376,40 +367,4 @@ public class ForumListFragment extends BaseEventFragment implements
 		startActivity(i);
 	}
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View view,
-			ContextMenuInfo info) {
-		String delete = getString(R.string.unsubscribe);
-		menu.add(NONE, MENU_ITEM_UNSUBSCRIBE, NONE, delete);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem menuItem) {
-		if (menuItem.getItemId() == MENU_ITEM_UNSUBSCRIBE) {
-			ContextMenuInfo info = menuItem.getMenuInfo();
-			int position = ((AdapterContextMenuInfo) info).position;
-			ForumListItem item = adapter.getItem(position);
-			unsubscribe(item.getForum());
-			String unsubscribed = getString(R.string.unsubscribed_toast);
-			Toast.makeText(getContext(), unsubscribed, LENGTH_SHORT).show();
-		}
-		return true;
-	}
-
-	private void unsubscribe(final Forum f) {
-		listener.runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					forumManager.removeForum(f);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Removing forum took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
 }

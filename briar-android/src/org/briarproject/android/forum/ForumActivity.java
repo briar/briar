@@ -1,9 +1,11 @@
 package org.briarproject.android.forum;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,6 +15,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
@@ -51,6 +54,7 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ReadForumPostActivity.RESULT_PREV_NEXT;
@@ -162,6 +166,9 @@ public class ForumActivity extends BriarActivity implements EventListener,
 						.makeCustomAnimation(this, android.R.anim.slide_in_left,
 								android.R.anim.slide_out_right);
 				ActivityCompat.startActivity(this, i2, options.toBundle());
+				return true;
+			case R.id.action_forum_delete:
+				showUnsubscribeDialog();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -381,4 +388,43 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		i.putExtra("briar.POSITION", position);
 		startActivityForResult(i, REQUEST_READ);
 	}
+
+	private void showUnsubscribeDialog() {
+		DialogInterface.OnClickListener okListener =
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						unsubscribe(forum);
+						Toast.makeText(ForumActivity.this,
+								R.string.forum_left_toast, LENGTH_SHORT)
+								.show();
+					}
+				};
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ForumActivity.this,
+						R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.dialog_title_remove_forum));
+		builder.setMessage(getString(R.string.dialog_message_remove_forum));
+		builder.setPositiveButton(R.string.dialog_button_remove, okListener);
+		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.show();
+	}
+
+	private void unsubscribe(final Forum f) {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					long now = System.currentTimeMillis();
+					forumManager.removeForum(f);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Removing forum took " + duration + " ms");
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
 }
