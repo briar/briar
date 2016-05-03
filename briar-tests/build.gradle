@@ -27,6 +27,7 @@ dependencyVerification {
 			'org.jmock:jmock:75d4bdaf636879f0215830c5e6ab99407069a625eaffde5d57b32d887b75dc14',
 			'org.jmock:jmock-junit4:81e3fff46ed56738a6f3f5147525d1d85cda591ce5df007cc193e735cee31113',
 			'org.jmock:jmock-legacy:19c76059eb254775ba884fc8039bc5c7d1700dc68cc55ad3be5b405a2a8a1819',
+			'org.jmock:jmock-testjar:c3642147a5980771dde19d5f1d782d4790a7f9b1521bf9c8cd2b4c23f6384730',
 			'org.hamcrest:hamcrest-library:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
 			'org.hamcrest:hamcrest-core:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
 			'cglib:cglib-nodep:3a9ab1f5de15b49dedc7e96d35363c4c43a2b2cd42275f5d4731846042f3fcf2',

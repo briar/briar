@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import org.acra.ACRA;
 import org.briarproject.R;
 import org.briarproject.android.SettingsActivity;
-import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.util.UserFeedback;
 import org.briarproject.android.widget.PreferenceDividerDecoration;
 import org.briarproject.api.db.DbException;
@@ -55,6 +55,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Logger.getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
+	private AndroidExecutor androidExecutor;
 	private ListPreference enableBluetooth;
 	private ListPreference torOverMobile;
 	private CheckBoxPreference notifyPrivateMessages;
@@ -74,6 +75,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		try {
 			listener = (SettingsActivity) context;
+			androidExecutor = listener.getAndroidExecutor();
 			settingsManager = listener.getSettingsManager();
 			eventBus = listener.getEventBus();
 		} catch (ClassCastException e) {
@@ -218,23 +220,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void triggerFeedback() {
-		new Thread(new Runnable() {
-			@Override
+		androidExecutor.execute(new Runnable() {
 			public void run() {
-				ACRA.getErrorReporter()
-						.handleException(new UserFeedback(), false);
+				ACRA.getErrorReporter().handleException(new UserFeedback(),
+						false);
 			}
-		}).start();
+		});
 	}
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object o) {
 		if (preference == enableBluetooth) {
 			bluetoothSetting = Boolean.valueOf((String) o);
-			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			if (adapter != null) {
-				AndroidUtils.enableBluetooth(adapter, bluetoothSetting);
-			}
+			enableOrDisableBluetooth(bluetoothSetting);
 			storeBluetoothSettings();
 		} else if (preference == torOverMobile) {
 			torSetting = Boolean.valueOf((String) o);
@@ -253,6 +251,18 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeSettings(s);
 		}
 		return true;
+	}
+
+	private void enableOrDisableBluetooth(final boolean enable) {
+		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		if (adapter != null) {
+			androidExecutor.execute(new Runnable() {
+				public void run() {
+					if (enable) adapter.enable();
+					else adapter.disable();
+				}
+			});
+		}
 	}
 
 	private void storeTorSettings() {
