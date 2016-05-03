@@ -403,9 +403,9 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		AlertDialog.Builder builder =
 				new AlertDialog.Builder(ForumActivity.this,
 						R.style.BriarDialogTheme);
-		builder.setTitle(getString(R.string.dialog_title_remove_forum));
-		builder.setMessage(getString(R.string.dialog_message_remove_forum));
-		builder.setPositiveButton(R.string.dialog_button_remove, okListener);
+		builder.setTitle(getString(R.string.dialog_title_leave_forum));
+		builder.setMessage(getString(R.string.dialog_message_leave_forum));
+		builder.setPositiveButton(R.string.dialog_button_leave, okListener);
 		builder.setNegativeButton(android.R.string.cancel, null);
 		builder.show();
 	}

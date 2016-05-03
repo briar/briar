@@ -83,8 +83,7 @@ implements EventListener, OnItemClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					Collection<ForumContacts> available =
-							new ArrayList<ForumContacts>();
+					Collection<ForumContacts> available = new ArrayList<>();
 					long now = System.currentTimeMillis();
 					for (Forum f : forumSharingManager.getAvailableForums()) {
 						try {
@@ -160,11 +159,11 @@ implements EventListener, OnItemClickListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		AvailableForumsItem item = adapter.getItem(position);
-		Collection<ContactId> shared = new ArrayList<ContactId>();
+		Collection<ContactId> shared = new ArrayList<>();
 		for (Contact c : item.getContacts()) shared.add(c.getId());
 		subscribe(item.getForum(), shared);
-		String subscribed = getString(R.string.subscribed_toast);
-		Toast.makeText(this, subscribed, LENGTH_SHORT).show();
+		String joined = getString(R.string.forum_joined_toast);
+		Toast.makeText(this, joined, LENGTH_SHORT).show();
 	}
 
 	private void subscribe(final Forum f, final Collection<ContactId> shared) {

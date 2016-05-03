@@ -78,7 +78,7 @@
 	</plurals>
 	<string name="show_forums">Show</string>
 	<string name="forum_leave">Leave Forum</string>
-	<string name="forum_left_toast">Forum Left</string>
+	<string name="forum_left_toast">Left Forum</string>
 	<string name="no_forum_posts">No posts</string>
 	<string name="create_forum_title">New Forum</string>
 	<string name="choose_forum_name">Choose a name for your forum:</string>
@@ -95,7 +95,7 @@
 	<string name="identity_created_toast">Identity created</string>
 	<string name="forum_post_hint">Type forum post</string>
 	<string name="available_forums_title">Available Forums</string>
-	<string name="subscribed_toast">Subscribed</string>
+	<string name="forum_joined_toast">Joined Forum</string>
 	<string name="shared_by_format">Shared by %s</string>
 	<string name="no_contacts_prompt">You don\'t have any contacts. Add a contact now?</string>
 	<string name="add_button">Add</string>
@@ -193,10 +193,10 @@
 	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
 	<string name="dialog_title_share_crash_report">Briar has crashed</string>
 	<string name="dialog_message_share_crash_report">Would you like to review the crash report and send it to the developers? It will be stored encrypted on your device until the next time you log into Briar, and then sent securely to the developers.</string>
-	<string name="dialog_title_remove_forum">Confirm Leaving Forum</string>
-	<string name="dialog_message_remove_forum">Are you sure that you want to remove this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
+	<string name="dialog_title_leave_forum">Confirm Leaving Forum</string>
+	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
 	<string name="dialog_button_ok">OK</string>
-	<string name="dialog_button_remove">Remove</string>
+	<string name="dialog_button_leave">Leave</string>
 	<string name="dialog_button_introduce">Introduce</string>
 	<string name="dialog_button_accept">Accept</string>
 	<string name="dialog_button_decline">Decline</string>
