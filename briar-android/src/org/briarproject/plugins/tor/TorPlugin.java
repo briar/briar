@@ -597,7 +597,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	public void circuitStatus(String status, String id, String path) {
-		if (status.equals("BUILT") && connectionStatus.setCircuitBuilt()) {
+		if (status.equals("BUILT") &&
+				connectionStatus.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
 			if (isRunning()) callback.transportEnabled();
 		}
@@ -729,7 +730,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			bootstrapped = true;
 		}
 
-		private synchronized boolean setCircuitBuilt() {
+		private synchronized boolean getAndSetCircuitBuilt() {
 			boolean firstCircuit = !circuitBuilt;
 			circuitBuilt = true;
 			return firstCircuit;
