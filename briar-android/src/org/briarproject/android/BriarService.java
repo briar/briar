@@ -28,6 +28,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
+import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
@@ -73,7 +74,7 @@ public class BriarService extends Service {
 		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
 		b.setSmallIcon(R.drawable.ongoing_notification_icon);
 		b.setContentTitle(getText(R.string.ongoing_notification_title));
-		b.setContentText(getText(R.string.ongoing_notification_text));
+		b.setContentText("");
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
 		Intent i = new Intent(this, NavDrawerActivity.class);
@@ -84,6 +85,7 @@ public class BriarService extends Service {
 			b.setCategory(CATEGORY_SERVICE);
 			b.setVisibility(VISIBILITY_SECRET);
 		}
+		b.setPriority(PRIORITY_MIN);
 		startForeground(ONGOING_NOTIFICATION_ID, b.build());
 		// Start the services in a background thread
 		new Thread() {

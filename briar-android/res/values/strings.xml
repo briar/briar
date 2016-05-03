@@ -12,7 +12,6 @@
 	<string name="could_not_load_report_data">Could not load report data.</string>
 	<string name="dev_report_saved">Report saved. It will be sent the next time you log into Briar.</string>
 	<string name="ongoing_notification_title">Signed into Briar</string>
-	<string name="ongoing_notification_text">Touch to show the dashboard.</string>
 	<string name="setup_title">Briar Setup</string>
 	<string name="choose_nickname">Choose your nickname:</string>
 	<string name="choose_password">Choose your password:</string>
