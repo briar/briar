@@ -1,19 +1,22 @@
-package org.briarproject.android.util;
+package org.briarproject.android.report;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import org.acra.ReportField;
 import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.acra.util.JSONReportBuilder;
 import org.briarproject.android.AndroidComponent;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.reporting.DevReporter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import javax.inject.Inject;
+
+import static org.acra.ReportField.REPORT_ID;
 
 public class BriarReportSender implements ReportSender {
 
@@ -27,11 +30,10 @@ public class BriarReportSender implements ReportSender {
 	}
 
 	@Override
-	public void send(@NonNull Context context,
+	public void send(@NonNull Context ctx,
 			@NonNull CrashReportData errorContent)
 			throws ReportSenderException {
 		component.inject(this);
-
 		String crashReport;
 		try {
 			crashReport = errorContent.toJSON().toString();
@@ -39,10 +41,9 @@ public class BriarReportSender implements ReportSender {
 			throw new ReportSenderException("Couldn't create JSON", e);
 		}
 		try {
-			reporter.encryptReportToFile(
-					AndroidUtils.getReportDir(context),
-					errorContent.getProperty(ReportField.REPORT_ID),
-					crashReport);
+			File reportDir = AndroidUtils.getReportDir(ctx);
+			String reportId = errorContent.getProperty(REPORT_ID);
+			reporter.encryptReportToFile(reportDir, reportId, crashReport);
 		} catch (FileNotFoundException e) {
 			throw new ReportSenderException("Failed to encrypt report", e);
 		}

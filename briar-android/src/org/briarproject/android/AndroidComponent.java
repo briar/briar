@@ -5,7 +5,7 @@ import org.briarproject.CoreModule;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.util.BriarReportSender;
+import org.briarproject.android.report.BriarReportSender;
 import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -112,12 +112,10 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	@IoExecutor
 	Executor ioExecutor();
 
-	void inject(DevReportActivity devReportActivity);
-
 	void inject(BriarService activity);
+
+	void inject(BriarReportSender briarReportSender);
 
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);
-
-	void inject(BriarReportSender briarReportSender);
 }

@@ -1,4 +1,4 @@
-package org.briarproject.android;
+package org.briarproject.android.report;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -79,15 +79,13 @@ public class DevReportActivity extends BaseCrashReportDialog
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setContentView(R.layout.activity_dev_report);
 
-		BriarApplication app = (BriarApplication) getApplication();
-		app.getApplicationComponent().inject(this);
+		setContentView(R.layout.activity_dev_report);
 
 		sharedPreferencesFactory = new SharedPreferencesFactory(
 				getApplicationContext(), getConfig());
 
-		final SharedPreferences prefs = sharedPreferencesFactory.create();
+		SharedPreferences prefs = sharedPreferencesFactory.create();
 		excludedFields = new HashSet<>();
 		if (Build.VERSION.SDK_INT >= 11) {
 			for (String name : prefs.getStringSet(PREF_EXCLUDED_FIELDS,
@@ -121,13 +119,12 @@ public class DevReportActivity extends BaseCrashReportDialog
 					report.setVisibility(GONE);
 			}
 		});
-		share.setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						processReport();
-					}
-				});
+		share.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				processReport();
+			}
+		});
 
 		String userEmail = prefs.getString(ACRA.PREF_USER_EMAIL_ADDRESS, "");
 		userEmailView.setText(userEmail);
