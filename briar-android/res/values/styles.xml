@@ -107,6 +107,11 @@
 		<item name="android:layout_marginLeft">@dimen/margin_large</item>
 	</style>
 
+	<style name="Divider.ForumList" parent="Divider">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">1dp</item>
+	</style>
+
 	<style name="NavMenuButton" parent="Widget.AppCompat.Button.Borderless.Colored">
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:textColor">@android:color/tertiary_text_light</item>
