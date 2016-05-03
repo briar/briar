@@ -44,25 +44,31 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	public CameraView(Context context) {
 		super(context);
-		initialize();
 	}
 
 	public CameraView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		initialize();
 	}
 
 	public CameraView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		initialize();
 	}
 
-	private void initialize() {
+	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
 		setKeepScreenOn(true);
 		SurfaceHolder holder = getHolder();
 		if (Build.VERSION.SDK_INT < 11)
 			holder.setType(SURFACE_TYPE_PUSH_BUFFERS);
 		holder.addCallback(this);
+	}
+
+	@Override
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		setKeepScreenOn(false);
+		getHolder().removeCallback(this);
 	}
 
 	public void start(Camera camera, PreviewConsumer previewConsumer,
@@ -93,9 +99,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			camera.startPreview();
 			if (autoFocus) camera.autoFocus(this);
 			previewConsumer.start(camera);
-		} catch (IOException e) {
-			LOG.log(WARNING, "Error starting camera preview", e);
-		} catch (RuntimeException e) {
+		} catch (IOException | RuntimeException e) {
 			LOG.log(WARNING, "Error starting camera preview", e);
 		}
 	}
@@ -246,7 +250,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		LOG.info("Surface destroyed");
 		surfaceExists = false;
-		holder.removeCallback(this);
 	}
 
 	public void onAutoFocus(boolean success, final Camera camera) {
