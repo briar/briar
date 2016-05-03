@@ -67,13 +67,13 @@
 	<style name="BriarButton.Default"/>
 
 	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">#ff0000</item>
+		<item name="android:textColor">@color/briar_button_negative</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:padding">@dimen/margin_large</item>
 	</style>
 
 	<style name="BriarButtonFlat.Positive" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">#06b9ff</item>
+		<item name="android:textColor">@color/briar_button_positive</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:padding">@dimen/margin_large</item>
 	</style>

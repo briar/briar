@@ -31,10 +31,11 @@
 	<color name="briar_text_primary_inverse">#ffffff</color>
 	<color name="briar_text_secondary">#333333</color>
 	<color name="briar_text_tertiary">#333333</color>
+	<color name="briar_button_positive">#06b9ff</color>
+	<color name="briar_button_negative">#ff0000</color>
 
 	<!-- this is needed as preference_category_material layout uses this color as the text color -->
 	<color name="preference_fallback_accent_color">@color/briar_accent</color>
-	<color name="default_background">#ffffff</color>
 	<color name="default_separator">#000000</color>
 	<color name="default_separator_inverted">#ffffff</color>
 	<color name="menu_background">#FFFFFF</color>
