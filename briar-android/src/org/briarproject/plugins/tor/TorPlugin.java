@@ -681,7 +681,7 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
 						country);
 				Settings s = callback.getSettings();
-				boolean wifiOnly = s.getBoolean("torOverWifi", false);
+				boolean useMobileData = s.getBoolean("torOverMobile", true);
 
 				try {
 					if (!online) {
@@ -690,8 +690,8 @@ class TorPlugin implements DuplexPlugin, EventHandler,
 					} else if (blocked) {
 						LOG.info("Disabling network, country is blocked");
 						enableNetwork(false);
-					} else if (wifiOnly & !connectedToWifi) {
-						LOG.info("Disabling network due to wifi setting");
+					} else if (!useMobileData & !connectedToWifi) {
+						LOG.info("Disabling network due to data setting");
 						enableNetwork(false);
 					} else {
 						enableNetwork(true);
