@@ -19,7 +19,7 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;

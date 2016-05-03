@@ -33,7 +33,6 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
 
 public class ShareForumActivity extends BriarActivity implements
 		BaseContactListAdapter.OnItemClickListener {
@@ -59,9 +58,6 @@ public class ShareForumActivity extends BriarActivity implements
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String forumName = i.getStringExtra(FORUM_NAME);
-		if (forumName == null) throw new IllegalStateException();
-		setTitle(forumName);
 
 		adapter = new ContactSelectorAdapter(this, this);
 		BriarRecyclerView list =
@@ -112,11 +108,9 @@ public class ShareForumActivity extends BriarActivity implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					List<ContactListItem> contacts =
-							new ArrayList<ContactListItem>();
-					Collection<ContactId> selectedContacts =
-							new HashSet<ContactId>(
-									forumSharingManager.getSharedWith(groupId));
+					List<ContactListItem> contacts = new ArrayList<>();
+					Collection<ContactId> selectedContacts = new HashSet<>(
+							forumSharingManager.getSharedWith(groupId));
 
 					for (Contact c : contactManager.getActiveContacts()) {
 						LocalAuthor localAuthor = identityManager

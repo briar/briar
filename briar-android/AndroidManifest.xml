@@ -141,11 +141,11 @@
 
 		<activity
 			android:name=".android.forum.ShareForumActivity"
-			android:label="@string/app_name"
-			android:parentActivityName=".android.NavDrawerActivity">
+			android:label="@string/forums_share_toolbar_header"
+			android:parentActivityName=".android.forum.ForumActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
+				android:value=".android.forum.ForumActivity"
 				/>
 		</activity>
 

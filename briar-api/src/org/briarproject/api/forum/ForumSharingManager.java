@@ -13,15 +13,6 @@ public interface ForumSharingManager {
 	/** Returns the unique ID of the forum sharing client. */
 	ClientId getClientId();
 
-	/** Creates a forum with the given name. */
-	Forum createForum(String name);
-
-	/** Subscribes to a forum. */
-	void addForum(Forum f) throws DbException;
-
-	/** Unsubscribes from a forum. */
-	void removeForum(Forum f) throws DbException;
-
 	/** Returns all forums to which the user could subscribe. */
 	Collection<Forum> getAvailableForums() throws DbException;
 
@@ -38,6 +29,4 @@ public interface ForumSharingManager {
 	void setSharedWith(GroupId g, Collection<ContactId> shared)
 			throws DbException;
 
-	/** Shares a forum with all current and future contacts. */
-	void setSharedWithAll(GroupId g) throws DbException;
 }

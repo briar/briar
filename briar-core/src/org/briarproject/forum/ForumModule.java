@@ -10,8 +10,11 @@ import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
+
+import java.security.SecureRandom;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,8 +37,9 @@ public class ForumModule {
 	@Provides
 	@Singleton
 	ForumManager provideForumManager(DatabaseComponent db,
-			ClientHelper clientHelper) {
-		return new ForumManagerImpl(db, clientHelper);
+			ClientHelper clientHelper,
+			GroupFactory groupFactory, SecureRandom random) {
+		return new ForumManagerImpl(db, clientHelper, groupFactory, random);
 	}
 
 	@Provides
@@ -75,12 +79,14 @@ public class ForumModule {
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			ValidationManager validationManager,
+			ForumManager forumManager,
 			ForumSharingManagerImpl forumSharingManager) {
 		lifecycleManager.registerClient(forumSharingManager);
 		contactManager.registerAddContactHook(forumSharingManager);
 		contactManager.registerRemoveContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(
 				ForumSharingManagerImpl.CLIENT_ID, forumSharingManager);
+		forumManager.registerRemoveForumHook(forumSharingManager);
 		return forumSharingManager;
 	}
 }

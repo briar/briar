@@ -19,7 +19,6 @@ import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -28,7 +27,6 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,12 +38,12 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
-import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.api.forum.ForumManager.RemoveForumHook;
 
 class ForumSharingManagerImpl implements ForumSharingManager, Client,
-		AddContactHook, RemoveContactHook, IncomingMessageHook {
+		AddContactHook, RemoveContactHook, IncomingMessageHook,
+		RemoveForumHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"cd11a5d04dccd9e2931d6fc3df456313"
@@ -54,30 +52,23 @@ class ForumSharingManagerImpl implements ForumSharingManager, Client,
 	private final DatabaseComponent db;
 	private final ForumManager forumManager;
 	private final ClientHelper clientHelper;
-	private final GroupFactory groupFactory;
 	private final PrivateGroupFactory privateGroupFactory;
-	private final SecureRandom random;
 	private final Clock clock;
-	private final Group localGroup;
 
 	@Inject
 	ForumSharingManagerImpl(DatabaseComponent db, ForumManager forumManager,
-			ClientHelper clientHelper, GroupFactory groupFactory,
-			PrivateGroupFactory privateGroupFactory, SecureRandom random,
+			ClientHelper clientHelper, PrivateGroupFactory privateGroupFactory,
 			Clock clock) {
+
 		this.db = db;
 		this.forumManager = forumManager;
 		this.clientHelper = clientHelper;
-		this.groupFactory = groupFactory;
 		this.privateGroupFactory = privateGroupFactory;
-		this.random = random;
 		this.clock = clock;
-		localGroup = privateGroupFactory.createLocalGroup(CLIENT_ID);
 	}
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
-		db.addGroup(txn, localGroup);
 		// Ensure we've set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
@@ -96,9 +87,6 @@ class ForumSharingManagerImpl implements ForumSharingManager, Client,
 			BdfDictionary meta = new BdfDictionary();
 			meta.put("contactId", c.getId().getInt());
 			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
-			// Share any forums that are shared with all contacts
-			List<Forum> shared = getForumsSharedWithAllContacts(txn);
-			storeMessage(txn, g.getId(), shared, 0);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -126,40 +114,10 @@ class ForumSharingManagerImpl implements ForumSharingManager, Client,
 	}
 
 	@Override
-	public Forum createForum(String name) {
-		int length = StringUtils.toUtf8(name).length;
-		if (length == 0) throw new IllegalArgumentException();
-		if (length > MAX_FORUM_NAME_LENGTH)
-			throw new IllegalArgumentException();
-		byte[] salt = new byte[FORUM_SALT_LENGTH];
-		random.nextBytes(salt);
-		return createForum(name, salt);
-	}
-
-	@Override
-	public void addForum(Forum f) throws DbException {
-		Transaction txn = db.startTransaction(false);
+	public void removingForum(Transaction txn, Forum f) throws DbException {
 		try {
-			db.addGroup(txn, f.getGroup());
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
-
-	@Override
-	public void removeForum(Forum f) throws DbException {
-		try {
-			// Update the list shared with each contact
-			Transaction txn = db.startTransaction(false);
-			try {
-				for (Contact c : db.getContacts(txn))
-					removeFromList(txn, getContactGroup(c).getId(), f);
-				db.removeGroup(txn, f.getGroup());
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
+			for (Contact c : db.getContacts(txn))
+				removeFromList(txn, getContactGroup(c).getId(), f);
 		} catch (IOException e) {
 			throw new DbException(e);
 		}
@@ -247,8 +205,6 @@ class ForumSharingManagerImpl implements ForumSharingManager, Client,
 			try {
 				// Retrieve the forum
 				Forum f = parseForum(db.getGroup(txn, g));
-				// Remove the forum from the list shared with all contacts
-				removeFromList(txn, localGroup.getId(), f);
 				// Update the list shared with each contact
 				shared = new HashSet<ContactId>(shared);
 				for (Contact c : db.getContacts(txn)) {
@@ -272,44 +228,8 @@ class ForumSharingManagerImpl implements ForumSharingManager, Client,
 		}
 	}
 
-	@Override
-	public void setSharedWithAll(GroupId g) throws DbException {
-		try {
-			Transaction txn = db.startTransaction(false);
-			try {
-				// Retrieve the forum
-				Forum f = parseForum(db.getGroup(txn, g));
-				// Add the forum to the list shared with all contacts
-				addToList(txn, localGroup.getId(), f);
-				// Add the forum to the list shared with each contact
-				for (Contact c : db.getContacts(txn)) {
-					Group cg = getContactGroup(c);
-					if (addToList(txn, cg.getId(), f)) {
-						if (listContains(txn, cg.getId(), g, false))
-							db.setVisibleToContact(txn, c.getId(), g, true);
-					}
-				}
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
-			}
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
 	private Group getContactGroup(Contact c) {
 		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
-	}
-
-	private List<Forum> getForumsSharedWithAllContacts(Transaction txn)
-			throws DbException, FormatException {
-		// Find the latest update in the local group
-		LatestUpdate latest = findLatest(txn, localGroup.getId(), true);
-		if (latest == null) return Collections.emptyList();
-		// Retrieve and parse the latest update
-		BdfList message = clientHelper.getMessageAsList(txn, latest.messageId);
-		return parseForumList(message);
 	}
 
 	private LatestUpdate findLatest(Transaction txn, GroupId g, boolean local)
@@ -334,7 +254,8 @@ class ForumSharingManagerImpl implements ForumSharingManager, Client,
 		for (int i = 0; i < forumList.size(); i++) {
 			// Name, salt
 			BdfList forum = forumList.getList(i);
-			forums.add(createForum(forum.getString(0), forum.getRaw(1)));
+			forums.add(forumManager
+					.createForum(forum.getString(0), forum.getRaw(1)));
 		}
 		return forums;
 	}
@@ -397,18 +318,6 @@ class ForumSharingManagerImpl implements ForumSharingManager, Client,
 				db.setVisibleToContact(txn, c, g.getId(), false);
 			else if (!isVisible && shouldBeVisible)
 				db.setVisibleToContact(txn, c, g.getId(), true);
-		}
-	}
-
-	private Forum createForum(String name, byte[] salt) {
-		try {
-			BdfList forum = BdfList.of(name, salt);
-			byte[] descriptor = clientHelper.toByteArray(forum);
-			Group g = groupFactory.createGroup(forumManager.getClientId(),
-					descriptor);
-			return new Forum(g, name, salt);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
 		}
 	}
 

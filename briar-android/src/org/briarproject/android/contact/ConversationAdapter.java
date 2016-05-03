@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
 

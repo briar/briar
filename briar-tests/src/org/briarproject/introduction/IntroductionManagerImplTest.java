@@ -18,7 +18,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;

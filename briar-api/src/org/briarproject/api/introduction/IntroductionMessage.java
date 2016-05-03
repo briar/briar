@@ -1,5 +1,6 @@
 package org.briarproject.api.introduction;
 
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.MessageId;
 
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;

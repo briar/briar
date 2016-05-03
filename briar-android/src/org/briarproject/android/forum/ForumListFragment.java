@@ -401,7 +401,7 @@ public class ForumListFragment extends BaseEventFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					forumSharingManager.removeForum(f);
+					forumManager.removeForum(f);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing forum took " + duration + " ms");

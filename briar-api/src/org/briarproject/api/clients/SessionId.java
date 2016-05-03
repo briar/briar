@@ -1,10 +1,10 @@
-package org.briarproject.api.introduction;
+package org.briarproject.api.clients;
 
 import org.briarproject.api.sync.MessageId;
 
 /**
- * Type-safe wrapper for a byte array that uniquely identifies an
- * introduction session.
+ * Type-safe wrapper for a byte array
+ * that uniquely identifies a protocol session.
  */
 public class SessionId extends MessageId {
 

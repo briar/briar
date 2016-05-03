@@ -19,7 +19,7 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroduceeProtocolState;
-import org.briarproject.api.introduction.SessionId;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;

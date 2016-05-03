@@ -171,7 +171,7 @@ implements EventListener, OnItemClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					forumSharingManager.addForum(f);
+					forumManager.addForum(f);
 					forumSharingManager.setSharedWith(f.getId(), shared);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
