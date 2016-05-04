@@ -84,9 +84,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(simplexPlugin)); // Created
 			oneOf(simplexPlugin).start();
 			will(returnValue(true)); // Started
-			oneOf(simplexPlugin).shouldPoll();
-			will(returnValue(true));
-			oneOf(poller).addPlugin(simplexPlugin);
 			// Second simplex plugin
 			oneOf(simplexFailFactory).getId();
 			will(returnValue(simplexFailId));
@@ -105,8 +102,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(duplexPlugin)); // Created
 			oneOf(duplexPlugin).start();
 			will(returnValue(true)); // Started
-			oneOf(duplexPlugin).shouldPoll();
-			will(returnValue(false));
 			// Second duplex plugin
 			oneOf(duplexFailFactory).getId();
 			will(returnValue(duplexFailId));
@@ -193,9 +188,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(simplexPlugin)); // Created
 			oneOf(simplexPlugin).start();
 			will(returnValue(true)); // Started
-			oneOf(simplexPlugin).shouldPoll();
-			will(returnValue(true)); // Should poll
-			oneOf(poller).addPlugin(simplexPlugin);
 			// Second simplex plugin
 			oneOf(simplexFactory1).getId();
 			will(returnValue(simplexId1));
@@ -204,8 +196,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(simplexPlugin1)); // Created
 			oneOf(simplexPlugin1).start();
 			will(returnValue(true)); // Started
-			oneOf(simplexPlugin1).shouldPoll();
-			will(returnValue(false)); // Should not poll
 			// First duplex plugin
 			oneOf(pluginConfig).getDuplexFactories();
 			will(returnValue(Arrays.asList(duplexFactory, duplexFactory1)));
@@ -216,9 +206,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(duplexPlugin)); // Created
 			oneOf(duplexPlugin).start();
 			will(returnValue(true)); // Started
-			oneOf(duplexPlugin).shouldPoll();
-			will(returnValue(true)); // Should poll
-			oneOf(poller).addPlugin(duplexPlugin);
 			// Second duplex plugin
 			oneOf(duplexFactory1).getId();
 			will(returnValue(duplexId1));
@@ -227,8 +214,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(duplexPlugin1)); // Created
 			oneOf(duplexPlugin1).start();
 			will(returnValue(true)); // Started
-			oneOf(duplexPlugin1).shouldPoll();
-			will(returnValue(false)); // Should not poll
 			// Start listening for events
 			oneOf(eventBus).addListener(with(any(EventListener.class)));
 			// eventOccurred()

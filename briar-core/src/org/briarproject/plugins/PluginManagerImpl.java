@@ -142,10 +142,12 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 		}
 	}
 
+	@Override
 	public Plugin getPlugin(TransportId t) {
 		return plugins.get(t);
 	}
 
+	@Override
 	public Collection<DuplexPlugin> getInvitationPlugins() {
 		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		for (DuplexPlugin d : duplexPlugins)
@@ -153,6 +155,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 		return Collections.unmodifiableList(supported);
 	}
 
+	@Override
 	public Collection<DuplexPlugin> getKeyAgreementPlugins() {
 		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		for (DuplexPlugin d : duplexPlugins)
@@ -194,6 +197,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 
 	private void connectToContact(final ContactId c, final SimplexPlugin p) {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				TransportId t = p.getId();
 				if (!connectionRegistry.isConnected(c, t)) {
@@ -207,6 +211,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 
 	private void connectToContact(final ContactId c, final DuplexPlugin p) {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				TransportId t = p.getId();
 				if (!connectionRegistry.isConnected(c, t)) {
@@ -229,6 +234,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			this.latch = latch;
 		}
 
+		@Override
 		public void run() {
 			try {
 				TransportId id = factory.getId();
@@ -248,7 +254,6 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 					if (started) {
 						plugins.put(id, plugin);
 						simplexPlugins.add(plugin);
-						if (plugin.shouldPoll()) poller.addPlugin(plugin);
 						if (LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.info("Starting " + name + " took " +
@@ -281,6 +286,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			this.latch = latch;
 		}
 
+		@Override
 		public void run() {
 			try {
 				TransportId id = factory.getId();
@@ -300,7 +306,6 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 					if (started) {
 						plugins.put(id, plugin);
 						duplexPlugins.add(plugin);
-						if (plugin.shouldPoll()) poller.addPlugin(plugin);
 						if (LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.info("Starting " + name + " took " +
@@ -332,6 +337,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			this.latch = latch;
 		}
 
+		@Override
 		public void run() {
 			try {
 				long start = System.currentTimeMillis();
@@ -357,6 +363,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			this.id = id;
 		}
 
+		@Override
 		public Settings getSettings() {
 			try {
 				return settingsManager.getSettings(id.getString());
@@ -366,6 +373,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			}
 		}
 
+		@Override
 		public TransportProperties getLocalProperties() {
 			try {
 				TransportProperties p =
@@ -377,6 +385,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			}
 		}
 
+		@Override
 		public Map<ContactId, TransportProperties> getRemoteProperties() {
 			try {
 				return transportPropertyManager.getRemoteProperties(id);
@@ -386,6 +395,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			}
 		}
 
+		@Override
 		public void mergeSettings(Settings s) {
 			try {
 				settingsManager.mergeSettings(s, id.getString());
@@ -394,6 +404,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			}
 		}
 
+		@Override
 		public void mergeLocalProperties(TransportProperties p) {
 			try {
 				transportPropertyManager.mergeLocalProperties(id, p);
@@ -402,24 +413,29 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			}
 		}
 
+		@Override
 		public int showChoice(String[] options, String... message) {
 			return uiCallback.showChoice(options, message);
 		}
 
+		@Override
 		public boolean showConfirmationMessage(String... message) {
 			return uiCallback.showConfirmationMessage(message);
 		}
 
+		@Override
 		public void showMessage(String... message) {
 			uiCallback.showMessage(message);
 		}
 
+		@Override
 		public void transportEnabled() {
 			eventBus.broadcast(new TransportEnabledEvent(id));
 			Plugin p = plugins.get(id);
 			if (p != null) poller.pollNow(p);
 		}
 
+		@Override
 		public void transportDisabled() {
 			eventBus.broadcast(new TransportDisabledEvent(id));
 		}
@@ -432,10 +448,12 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			super(id);
 		}
 
+		@Override
 		public void readerCreated(TransportConnectionReader r) {
 			connectionManager.manageIncomingConnection(id, r);
 		}
 
+		@Override
 		public void writerCreated(ContactId c, TransportConnectionWriter w) {
 			connectionManager.manageOutgoingConnection(c, id, w);
 		}
@@ -448,10 +466,12 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			super(id);
 		}
 
+		@Override
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			connectionManager.manageIncomingConnection(id, d);
 		}
 
+		@Override
 		public void outgoingConnectionCreated(ContactId c,
 				DuplexTransportConnection d) {
 			connectionManager.manageOutgoingConnection(c, id, d);
