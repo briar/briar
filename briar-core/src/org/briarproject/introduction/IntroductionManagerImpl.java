@@ -3,6 +3,7 @@ package org.briarproject.introduction;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -20,14 +21,12 @@ import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
 
@@ -93,12 +92,11 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 	@Inject
 	IntroductionManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
-			MetadataParser metadataParser, Clock clock,
-			IntroducerManager introducerManager,
+			MetadataParser metadataParser, IntroducerManager introducerManager,
 			IntroduceeManager introduceeManager,
 			IntroductionGroupFactory introductionGroupFactory) {
 
-		super(clientHelper, metadataParser, clock);
+		super(clientHelper, metadataParser);
 		this.db = db;
 		this.introducerManager = introducerManager;
 		this.introduceeManager = introduceeManager;
