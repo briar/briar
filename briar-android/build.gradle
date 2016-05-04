@@ -105,6 +105,9 @@ android {
 		test.setRoot('test')
 		test {
 			java.srcDirs = ['test/java']
+			testOptions {
+				unitTests.returnDefaultValues = true
+			}
 		}
 
 

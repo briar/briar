@@ -1,6 +1,8 @@
 package briarproject.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,47 +12,45 @@ import com.google.common.base.Strings;
 import org.briarproject.BuildConfig;
 import org.briarproject.R;
 import org.briarproject.android.NavDrawerActivity;
-import org.briarproject.android.SetupActivity;
+import org.briarproject.android.controller.SetupController;
+import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.android.util.StrengthMeter;
 import org.briarproject.api.identity.AuthorConstants;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
-import java.util.logging.Logger;
-
-import static briarproject.activity.MockedSetupActivity.NO_PASS;
-import static briarproject.activity.MockedSetupActivity.QSTRONG_PASS;
-import static briarproject.activity.MockedSetupActivity.QWEAK_PASS;
-import static briarproject.activity.MockedSetupActivity.STRONG_PASS;
-import static briarproject.activity.MockedSetupActivity.WEAK_PASS;
 import static junit.framework.Assert.assertEquals;
-import static org.briarproject.android.util.StrengthMeter.GREEN;
-import static org.briarproject.android.util.StrengthMeter.LIME;
-import static org.briarproject.android.util.StrengthMeter.ORANGE;
-import static org.briarproject.android.util.StrengthMeter.RED;
-import static org.briarproject.android.util.StrengthMeter.YELLOW;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.NONE;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.STRONG;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class SetupActivityTest {
 
-	private static final Logger LOG =
-			Logger.getLogger(SetupActivityTest.class.getName());
-
-
-	private SetupActivity setupActivity;
+	TestSetupActivity setupActivity;
 	TextInputLayout nicknameEntryWrapper;
 	TextInputLayout passwordEntryWrapper;
 	TextInputLayout passwordConfirmationWrapper;
@@ -60,9 +60,15 @@ public class SetupActivityTest {
 	StrengthMeter strengthMeter;
 	Button createAccountButton;
 
+	@Mock
+	SetupController setupController;
+	@Captor
+	ArgumentCaptor<ResultHandler<Long>> resultCaptor;
+
 	@Before
 	public void setUp() {
-		setupActivity = Robolectric.setupActivity(MockedSetupActivity.class);
+		MockitoAnnotations.initMocks(this);
+		setupActivity = Robolectric.setupActivity(TestSetupActivity.class);
 		nicknameEntryWrapper = (TextInputLayout) setupActivity
 				.findViewById(R.id.nickname_entry_wrapper);
 		passwordEntryWrapper = (TextInputLayout) setupActivity
@@ -89,46 +95,134 @@ public class SetupActivityTest {
 	}
 
 	@Test
-	public void testUI() {
-		// Nick
-		String longNick =
-				Strings.padEnd("*", AuthorConstants.MAX_AUTHOR_NAME_LENGTH + 1,
-						'*');
-		nicknameEntry.setText(longNick);
-		assertEquals(nicknameEntryWrapper.getError(),
-				setupActivity.getString(R.string.name_too_long));
-		assertEquals(createAccountButton.isEnabled(), false);
-		// strength estimator
-		testStrengthMeter(STRONG_PASS, STRONG, GREEN);
-		assertEquals(createAccountButton.isEnabled(), false);
-		testStrengthMeter(QSTRONG_PASS, QUITE_STRONG, LIME);
-		assertEquals(createAccountButton.isEnabled(), false);
-		testStrengthMeter(QWEAK_PASS, QUITE_WEAK, YELLOW);
-		assertEquals(createAccountButton.isEnabled(), false);
-		testStrengthMeter(WEAK_PASS, WEAK, ORANGE);
-		assertEquals(createAccountButton.isEnabled(), false);
-		testStrengthMeter(NO_PASS, NONE, RED);
-		assertEquals(createAccountButton.isEnabled(), false);
-
-		// pass confirmation
-		nicknameEntry.setText("nick.nickerton");
+	public void testPasswordMatchUI() {
+		// Password mismatch
 		passwordEntry.setText("really.safe.password");
 		passwordConfirmation.setText("really.safe.pass");
 		assertEquals(createAccountButton.isEnabled(), false);
 		assertEquals(passwordConfirmationWrapper.getError(),
 				setupActivity.getString(R.string.passwords_do_not_match));
+		// Button enabled
 		passwordEntry.setText("really.safe.pass");
 		passwordConfirmation.setText("really.safe.pass");
-		assertNotEquals(passwordConfirmationWrapper.getError(),
+		// Confirm that the password mismatch error message is not visible
+		Assert.assertNotEquals(passwordConfirmationWrapper.getError(),
 				setupActivity.getString(R.string.passwords_do_not_match));
+		// Nick has not been set, expect the button to be disabled
+		assertEquals(createAccountButton.isEnabled(), false);
+	}
+
+	@Test
+	public void testCreateAccountUI() {
+
+		SetupController mockedController = this.setupController;
+		setupActivity.setController(mockedController);
+		// Mock strong password strength answer
+		when(mockedController.estimatePasswordStrength(anyString())).thenReturn(
+				STRONG);
+		String safePass = "really.safe.password";
+		String nick = "nick.nickerton";
+		passwordEntry.setText(safePass);
+		passwordConfirmation.setText(safePass);
+		nicknameEntry.setText(nick);
+		// Confirm that the create account button is clickable
 		assertEquals(createAccountButton.isEnabled(), true);
-		// confirm correct Activity started
 		createAccountButton.performClick();
+		// Verify that the controller's method was called with the correct
+		// params and get the callback
+		verify(mockedController, times(1))
+				.createIdentity(eq(nick), eq(safePass), resultCaptor.capture());
+		// execute the callback
+		resultCaptor.getValue().onResult(1L);
 		assertEquals(setupActivity.isFinishing(), true);
+		// Confirm that the correct Activity has been started
 		ShadowActivity shadowActivity = shadowOf(setupActivity);
 		Intent intent = shadowActivity.peekNextStartedActivity();
 		assertEquals(intent.getComponent().getClassName(),
 				NavDrawerActivity.class.getName());
+	}
+
+	@Test
+	public void testNickUI() {
+		Assert.assertNotNull(setupActivity);
+		String longNick =
+				Strings.padEnd("*", AuthorConstants.MAX_AUTHOR_NAME_LENGTH + 1,
+						'*');
+		nicknameEntry.setText(longNick);
+		// Password should be too long
+		assertEquals(nicknameEntryWrapper.getError(),
+				setupActivity.getString(R.string.name_too_long));
+	}
+
+	@Test
+	public void testAccountCreation() {
+		SetupController controller = setupActivity.getController();
+		// mock a resulthandler
+		ResultHandler<Long> resultHandler =
+				(ResultHandler<Long>) mock(ResultHandler.class);
+		controller
+				.createIdentity("nick", "some.strong.pass", resultHandler);
+		// blocking verification call with timeout that waits until the mocked
+		// result gets called with handle 0L, the expected value
+		verify(resultHandler, timeout(2000).times(1)).onResult(0L);
+		SharedPreferences prefs =
+				setupActivity.getSharedPreferences("db", Context.MODE_PRIVATE);
+		// Confirm database key
+		assertTrue(prefs.contains("key"));
+		// Note that Robolectric uses its own persistant storage that it
+		// wipes clean after each test run, no need to clean up manually.
+	}
+
+	@Test
+	public void testStrengthMeter() {
+		SetupController controller = setupActivity.getController();
+
+		String strongPass = "very.strong.password.123";
+		String weakPass = "we";
+		String quiteStrongPass = "quite.strong";
+
+		float val = controller.estimatePasswordStrength(strongPass);
+		assertTrue(val == STRONG);
+		val = controller.estimatePasswordStrength(weakPass);
+		assertTrue(val < WEAK && val > NONE);
+		val = controller.estimatePasswordStrength(quiteStrongPass);
+		assertTrue(val < STRONG && val > QUITE_WEAK);
+	}
+
+	@Test
+	public void testStrengthMeterUI() {
+		Assert.assertNotNull(setupActivity);
+		// replace the setup controller with our mocked copy
+		SetupController mockedController = this.setupController;
+		setupActivity.setController(mockedController);
+		// Mock answers for UI testing only
+		when(mockedController.estimatePasswordStrength("strong")).thenReturn(
+				STRONG);
+		when(mockedController.estimatePasswordStrength("qstring")).thenReturn(
+				QUITE_STRONG);
+		when(mockedController.estimatePasswordStrength("qweak")).thenReturn(
+				QUITE_WEAK);
+		when(mockedController.estimatePasswordStrength("weak")).thenReturn(
+				WEAK);
+		when(mockedController.estimatePasswordStrength("empty")).thenReturn(
+				NONE);
+		// Test the meters progress and color for several values
+		testStrengthMeter("strong", STRONG, StrengthMeter.GREEN);
+		Mockito.verify(mockedController, Mockito.times(1))
+				.estimatePasswordStrength(eq("strong"));
+		testStrengthMeter("qstring", QUITE_STRONG, StrengthMeter.LIME);
+		Mockito.verify(mockedController, Mockito.times(1))
+				.estimatePasswordStrength(eq("qstring"));
+		testStrengthMeter("qweak", QUITE_WEAK, StrengthMeter.YELLOW);
+		Mockito.verify(mockedController, Mockito.times(1))
+				.estimatePasswordStrength(eq("qweak"));
+		testStrengthMeter("weak", WEAK, StrengthMeter.ORANGE);
+		Mockito.verify(mockedController, Mockito.times(1))
+				.estimatePasswordStrength(eq("weak"));
+		// Not sure this should be the correct behaviour on an empty input ?
+		testStrengthMeter("empty", NONE, StrengthMeter.RED);
+		Mockito.verify(mockedController, Mockito.times(1))
+				.estimatePasswordStrength(eq("empty"));
 	}
 
 }

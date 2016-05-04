@@ -34,7 +34,10 @@ class AndroidSeedProvider extends LinuxSeedProvider {
 		if (Build.FINGERPRINT != null) out.writeUTF(Build.FINGERPRINT);
 		if (Build.SERIAL != null) out.writeUTF(Build.SERIAL);
 		ContentResolver contentResolver = appContext.getContentResolver();
-		out.writeUTF(Settings.Secure.getString(contentResolver, ANDROID_ID));
-		super.writeToEntropyPool(out);
+		String str = Settings.Secure.getString(contentResolver, ANDROID_ID);
+		if (str != null) {
+			out.writeUTF(str);
+			super.writeToEntropyPool(out);
+		}
 	}
 }

@@ -84,15 +84,23 @@ public class SetupControllerImp implements SetupController {
 	@Override
 	public void createIdentity(final String nickname, final String password,
 			final ResultHandler<Long> resultHandler) {
+		LOG.info("createIdentity called");
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
+				LOG.info("createIdentity running");
 				SecretKey key = crypto.generateSecretKey();
+				LOG.info("createIdentity 1");
 				databaseConfig.setEncryptionKey(key);
+				LOG.info("createIdentity 2");
 				String hex = encryptDatabaseKey(key, password);
+				LOG.info("createIdentity 3");
 				storeEncryptedDatabaseKey(hex);
+				LOG.info("createIdentity 4");
 				final LocalAuthor localAuthor = createLocalAuthor(nickname);
+				LOG.info("createIdentity 5");
 				long handle = referenceManager.putReference(localAuthor,
 						LocalAuthor.class);
+				LOG.info("createIdentity 6");
 				resultHandler.onResult(handle);
 			}
 		});

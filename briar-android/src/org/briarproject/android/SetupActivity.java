@@ -36,7 +36,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		OnEditorActionListener {
 
 	@Inject
-	SetupController setupController;
+	protected SetupController setupController;
 
 	TextInputLayout nicknameEntryWrapper;
 	TextInputLayout passwordEntryWrapper;

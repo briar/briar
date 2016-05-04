@@ -43,8 +43,6 @@ class LinuxSeedProvider implements SeedProvider {
 		} catch (IOException e) {
 			// On some devices /dev/urandom isn't writable - this isn't fatal
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (NullPointerException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		// Read the seed from the pool
 		try {
