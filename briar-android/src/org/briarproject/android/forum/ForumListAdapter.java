@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.TextAvatarView;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.sync.GroupId;
 
@@ -91,6 +92,8 @@ public class ForumListAdapter extends
 		final ForumListItem item = getItem(position);
 
 		// TODO add avatar. See #337
+		ui.avatar.setText(item.getForum().getName().substring(0, 1));
+		ui.avatar.setBackgroundBytes(item.getForum().getId().getBytes());
 
 		// Forum Name
 		ui.name.setText(item.getForum().getName());
@@ -176,6 +179,7 @@ public class ForumListAdapter extends
 	protected static class ForumViewHolder extends RecyclerView.ViewHolder {
 
 		private final ViewGroup layout;
+		private final TextAvatarView avatar;
 		private final TextView name;
 		private final TextView unread;
 		private final TextView date;
@@ -184,6 +188,7 @@ public class ForumListAdapter extends
 			super(v);
 
 			layout = (ViewGroup) v;
+			avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
 			name = (TextView) v.findViewById(R.id.forumNameView);
 			unread = (TextView) v.findViewById(R.id.unreadView);
 			date = (TextView) v.findViewById(R.id.dateView);

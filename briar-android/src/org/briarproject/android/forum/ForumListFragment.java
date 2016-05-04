@@ -83,7 +83,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_forums));
 
-		snackbar = Snackbar.make(contentView, "", LENGTH_INDEFINITE);
+		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.setAction(R.string.show_forums, this);
 		snackbar.setActionTextColor(ContextCompat
