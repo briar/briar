@@ -74,7 +74,7 @@ public class BriarService extends Service {
 		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
 		b.setSmallIcon(R.drawable.ongoing_notification_icon);
 		b.setContentTitle(getText(R.string.ongoing_notification_title));
-		b.setContentText("");
+		b.setContentText(getText(R.string.ongoing_notification_text));
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
 		Intent i = new Intent(this, NavDrawerActivity.class);
