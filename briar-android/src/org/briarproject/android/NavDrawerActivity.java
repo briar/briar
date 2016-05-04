@@ -133,7 +133,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			}
 		};
 		drawerLayout.setDrawerListener(drawerToggle);
-		startFragment(ContactListFragment.newInstance());
+		if (state == null) startFragment(ContactListFragment.newInstance());
 		checkAuthorHandle(getIntent());
 
 		initializeTransports(getLayoutInflater());
