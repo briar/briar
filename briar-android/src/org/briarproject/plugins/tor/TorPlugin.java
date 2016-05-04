@@ -23,13 +23,13 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
 import org.briarproject.api.keyagreement.TransportDescriptor;
+import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.reporting.DevReporter;
 import org.briarproject.api.settings.Settings;
-import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.LocationUtils;
 import org.briarproject.util.StringUtils;
 
@@ -79,7 +79,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
 	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
-	private static final int MIN_DESCRIPTORS_PUBLISHED = 3;
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
 
@@ -87,10 +86,10 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
-	private final Clock clock;
+	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
-	private final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
+	private final int maxLatency, maxIdleTime, socketTimeout;
 	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
@@ -103,23 +102,22 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, DevReporter reporter, Clock clock,
+			LocationUtils locationUtils, DevReporter reporter, Backoff backoff,
 			DuplexPluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime, int pollingInterval) {
+			int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
-		this.clock = clock;
+		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
-		this.pollingInterval = pollingInterval;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
-		connectionStatus = new ConnectionStatus(pollingInterval);
+		connectionStatus = new ConnectionStatus();
 		torDirectory = appContext.getDir("tor", MODE_PRIVATE);
 		torFile = new File(torDirectory, "tor");
 		geoIpFile = new File(torDirectory, "geoip");
@@ -228,7 +226,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (phase != null && phase.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
 				connectionStatus.setBootstrapped();
-				sendCrashReports();
+				sendDevReports();
 			}
 		}
 		// Register to receive network status events
@@ -359,12 +357,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void sendCrashReports() {
+	private void sendDevReports() {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				reporter.sendReports(
-						AndroidUtils.getReportDir(appContext), SOCKS_PORT);
+				File reportDir = AndroidUtils.getReportDir(appContext);
+				reporter.sendReports(reportDir, SOCKS_PORT);
 			}
 		});
 	}
@@ -404,6 +402,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 						publishHiddenService(localPort);
 					}
 				});
+				backoff.reset();
 				// Accept incoming hidden service connections from Tor
 				acceptContactConnections(ss);
 			}
@@ -470,6 +469,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				return;
 			}
 			LOG.info("Connection received");
+			backoff.reset();
 			TorTransportConnection conn = new TorTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
 		}
@@ -517,25 +517,25 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	public int getPollingInterval() {
-		return pollingInterval;
+		return backoff.getPollingInterval();
 	}
 
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
-		if (connectionStatus.shouldPoll(clock.currentTimeMillis())) {
-			// TODO: Pass properties to connectAndCallBack()
-			for (ContactId c : callback.getRemoteProperties().keySet())
-				if (!connected.contains(c)) connectAndCallBack(c);
-		} else {
-			LOG.info("Hidden service descriptor published, not polling");
-		}
+		backoff.increment();
+		// TODO: Pass properties to connectAndCallBack()
+		for (ContactId c : callback.getRemoteProperties().keySet())
+			if (!connected.contains(c)) connectAndCallBack(c);
 	}
 
 	private void connectAndCallBack(final ContactId c) {
 		ioExecutor.execute(new Runnable() {
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
-				if (d != null) callback.outgoingConnectionCreated(c, d);
+				if (d != null) {
+					backoff.reset();
+					callback.outgoingConnectionCreated(c, d);
+				}
 			}
 		});
 	}
@@ -593,6 +593,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (status.equals("BUILT") &&
 				connectionStatus.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
+			backoff.reset();
 			if (isRunning()) callback.transportEnabled();
 		}
 	}
@@ -614,14 +615,15 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			connectionStatus.setBootstrapped();
-			sendCrashReports();
+			sendDevReports();
+			backoff.reset();
 			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
 	public void unrecognized(String type, String msg) {
 		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED"))
-			connectionStatus.descriptorPublished(clock.currentTimeMillis());
+			LOG.info("Descriptor uploaded");
 	}
 
 	private static class WriteObserver extends FileObserver {
@@ -707,17 +709,9 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private static class ConnectionStatus {
 
-		private final int pollingInterval;
-
 		// All of the following are locking: this
 		private boolean networkEnabled = false;
 		private boolean bootstrapped = false, circuitBuilt = false;
-		private int descriptorsPublished = 0;
-		private long descriptorsPublishedTime = Long.MAX_VALUE;
-
-		private ConnectionStatus(int pollingInterval) {
-			this.pollingInterval = pollingInterval;
-		}
 
 		private synchronized void setBootstrapped() {
 			bootstrapped = true;
@@ -729,26 +723,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return firstCircuit;
 		}
 
-		private synchronized void descriptorPublished(long now) {
-			descriptorsPublished++;
-			if (descriptorsPublished == MIN_DESCRIPTORS_PUBLISHED)
-				descriptorsPublishedTime = now;
-		}
-
 		private synchronized void enableNetwork(boolean enable) {
 			networkEnabled = enable;
 			circuitBuilt = false;
-			descriptorsPublished = 0;
-			descriptorsPublishedTime = Long.MAX_VALUE;
 		}
 
 		private synchronized boolean isConnected() {
 			return networkEnabled && bootstrapped && circuitBuilt;
-		}
-
-		private synchronized boolean shouldPoll(long now) {
-			return descriptorsPublished < MIN_DESCRIPTORS_PUBLISHED
-					|| now - descriptorsPublishedTime < 2 * pollingInterval;
 		}
 	}
 }

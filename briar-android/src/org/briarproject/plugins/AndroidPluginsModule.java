@@ -38,7 +38,7 @@ public class AndroidPluginsModule {
 		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
 				androidExecutor, appContext, random, backoffFactory);
 		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
-				locationUtils, reporter, eventBus);
+				locationUtils, reporter, eventBus, backoffFactory);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				backoffFactory, appContext);
 		final Collection<DuplexPluginFactory> duplex =
