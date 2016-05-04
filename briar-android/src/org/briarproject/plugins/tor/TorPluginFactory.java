@@ -24,8 +24,8 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
-	private static final int MIN_POLLING_INTERVAL = 2 * 60 * 1000; // 2 minutes
-	private static final int MAX_POLLING_INTERVAL = 60 * 60 * 1000; // 1 hour
+	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
+	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
@@ -46,14 +46,17 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		this.backoffFactory = backoffFactory;
 	}
 
+	@Override
 	public TransportId getId() {
 		return TorPlugin.ID;
 	}
 
+	@Override
 	public int getMaxLatency() {
 		return MAX_LATENCY;
 	}
 
+	@Override
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 
 		// Check that we have a Tor binary for this architecture
