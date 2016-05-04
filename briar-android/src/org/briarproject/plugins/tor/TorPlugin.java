@@ -561,7 +561,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO))
-				LOG.log(INFO, "Could not connect to " + onion + ": ", e);
+				LOG.info("Could not connect to " + onion + ": " + e.toString());
 			return null;
 		}
 	}
