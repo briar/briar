@@ -10,9 +10,9 @@ import java.util.Collection;
  */
 public interface ConnectionRegistry {
 
-	void registerConnection(ContactId c, TransportId t);
+	void registerConnection(ContactId c, TransportId t, boolean incoming);
 
-	void unregisterConnection(ContactId c, TransportId t);
+	void unregisterConnection(ContactId c, TransportId t, boolean incoming);
 
 	Collection<ContactId> getConnectedContacts(TransportId t);
 

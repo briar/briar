@@ -2,6 +2,8 @@ package org.briarproject.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.event.ConnectionClosedEvent;
+import org.briarproject.api.event.ConnectionOpenedEvent;
 import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.EventBus;
@@ -40,8 +42,12 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		contactCounts = new HashMap<ContactId, Integer>();
 	}
 
-	public void registerConnection(ContactId c, TransportId t) {
-		if (LOG.isLoggable(INFO)) LOG.info("Connection registered: " + t);
+	public void registerConnection(ContactId c, TransportId t,
+			boolean incoming) {
+		if (LOG.isLoggable(INFO)) {
+			if (incoming) LOG.info("Incoming connection registered: " + t);
+			else LOG.info("Outgoing connection registered: " + t);
+		}
 		boolean firstConnection = false;
 		lock.lock();
 		try {
@@ -63,14 +69,19 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		} finally {
 			lock.unlock();
 		}
+		eventBus.broadcast(new ConnectionOpenedEvent(c, t, incoming));
 		if (firstConnection) {
 			LOG.info("Contact connected");
 			eventBus.broadcast(new ContactConnectedEvent(c));
 		}
 	}
 
-	public void unregisterConnection(ContactId c, TransportId t) {
-		if (LOG.isLoggable(INFO)) LOG.info("Connection unregistered: " + t);
+	public void unregisterConnection(ContactId c, TransportId t,
+			boolean incoming) {
+		if (LOG.isLoggable(INFO)) {
+			if (incoming) LOG.info("Incoming connection unregistered: " + t);
+			else LOG.info("Outgoing connection unregistered: " + t);
+		}
 		boolean lastConnection = false;
 		lock.lock();
 		try {
@@ -94,6 +105,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		} finally {
 			lock.unlock();
 		}
+		eventBus.broadcast(new ConnectionClosedEvent(c, t, incoming));
 		if (lastConnection) {
 			LOG.info("Contact disconnected");
 			eventBus.broadcast(new ContactDisconnectedEvent(c));

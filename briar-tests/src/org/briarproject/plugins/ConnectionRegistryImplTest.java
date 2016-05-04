@@ -3,6 +3,8 @@ package org.briarproject.plugins;
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.event.ConnectionClosedEvent;
+import org.briarproject.api.event.ConnectionOpenedEvent;
 import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.EventBus;
@@ -35,6 +37,10 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
+			exactly(5).of(eventBus).broadcast(with(any(
+					ConnectionOpenedEvent.class)));
+			exactly(2).of(eventBus).broadcast(with(any(
+					ConnectionClosedEvent.class)));
 			exactly(3).of(eventBus).broadcast(with(any(
 					ContactConnectedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
@@ -49,43 +55,46 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
 		// Check that a registered connection shows up - this should
-		// broadcast a ContactConnectedEvent
-		c.registerConnection(contactId, transportId);
+		// broadcast a ConnectionOpenedEvent and a ContactConnectedEvent
+		c.registerConnection(contactId, transportId, true);
 		assertEquals(Collections.singletonList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
-		// Register an identical connection - lookup should be unaffected
-		c.registerConnection(contactId, transportId);
+		// Register an identical connection - this should broadcast a
+		// ConnectionOpenedEvent and lookup should be unaffected
+		c.registerConnection(contactId, transportId, true);
 		assertEquals(Collections.singletonList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
-		// Unregister one of the connections - lookup should be unaffected
-		c.unregisterConnection(contactId, transportId);
+		// Unregister one of the connections - this should broadcast a
+		// ConnectionClosedEvent and lookup should be unaffected
+		c.unregisterConnection(contactId, transportId, true);
 		assertEquals(Collections.singletonList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
-		// Unregister the other connection - lookup should be affected -
-		// this should broadcast a ContactDisconnectedEvent
-		c.unregisterConnection(contactId, transportId);
+		// Unregister the other connection - this should broadcast a
+		// ConnectionClosedEvent and a ContactDisconnectedEvent
+		c.unregisterConnection(contactId, transportId, true);
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
 		// Try to unregister the connection again - exception should be thrown
 		try {
-			c.unregisterConnection(contactId, transportId);
+			c.unregisterConnection(contactId, transportId, true);
 			fail();
 		} catch (IllegalArgumentException expected) {
 			// Expected
 		}
 		// Register both contacts with one transport, one contact with both -
-		// this should broadcast two ContactConnectedEvents
-		c.registerConnection(contactId, transportId);
-		c.registerConnection(contactId1, transportId);
-		c.registerConnection(contactId1, transportId1);
+		// this should broadcast three ConnectionOpenedEvents and two
+		// ContactConnectedEvents
+		c.registerConnection(contactId, transportId, true);
+		c.registerConnection(contactId1, transportId, true);
+		c.registerConnection(contactId1, transportId1, true);
 		Collection<ContactId> connected = c.getConnectedContacts(transportId);
 		assertEquals(2, connected.size());
 		assertTrue(connected.contains(contactId));

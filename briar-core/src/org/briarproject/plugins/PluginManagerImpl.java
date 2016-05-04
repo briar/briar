@@ -3,6 +3,7 @@ package org.briarproject.plugins;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.ConnectionClosedEvent;
 import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -163,7 +164,16 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactStatusChangedEvent) {
 			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
-			if (c.isActive()) connectToContact(c.getContactId());
+			if (c.isActive()) {
+				// Connect to the newly activated contact
+				connectToContact(c.getContactId());
+			}
+		} else if (e instanceof ConnectionClosedEvent) {
+			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
+			if (!c.isIncoming()) {
+				// Connect to the disconnected contact
+				connectToContact(c.getContactId(), c.getTransportId());
+			}
 		}
 	}
 
@@ -172,6 +182,14 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 			if (s.shouldPoll()) connectToContact(c, s);
 		for (DuplexPlugin d : duplexPlugins)
 			if (d.shouldPoll()) connectToContact(c, d);
+	}
+
+	private void connectToContact(ContactId c, TransportId t) {
+		Plugin p = plugins.get(t);
+		if (p instanceof SimplexPlugin && p.shouldPoll())
+			connectToContact(c, (SimplexPlugin) p);
+		else if (p instanceof DuplexPlugin && p.shouldPoll())
+			connectToContact(c, (DuplexPlugin) p);
 	}
 
 	private void connectToContact(final ContactId c, final SimplexPlugin p) {
