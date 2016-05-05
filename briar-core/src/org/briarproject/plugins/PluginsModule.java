@@ -7,6 +7,7 @@ import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.system.Clock;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
@@ -39,9 +40,9 @@ public class PluginsModule {
 			ScheduledExecutorService scheduler,
 			ConnectionManager connectionManager,
 			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
-			SecureRandom random, EventBus eventBus) {
+			SecureRandom random, Clock clock, EventBus eventBus) {
 		Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, random);
+				connectionRegistry, pluginManager, random, clock);
 		eventBus.addListener(poller);
 		return poller;
 	}

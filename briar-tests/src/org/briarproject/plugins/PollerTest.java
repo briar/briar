@@ -6,6 +6,7 @@ import org.briarproject.RunAction;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.event.ConnectionClosedEvent;
+import org.briarproject.api.event.ConnectionOpenedEvent;
 import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.plugins.ConnectionManager;
@@ -16,6 +17,7 @@ import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
+import org.briarproject.api.system.Clock;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -33,9 +35,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class PollerTest extends BriarTestCase {
 
 	private final ContactId contactId = new ContactId(234);
+	private final int pollingInterval = 60 * 1000;
+	private final long now = System.currentTimeMillis();
 
 	@Test
-	public void testConnectToNewContact() throws Exception {
+	public void testConnectOnContactStatusChanged() throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		final Executor ioExecutor = new ImmediateExecutor();
@@ -47,6 +51,7 @@ public class PollerTest extends BriarTestCase {
 				context.mock(ConnectionRegistry.class);
 		final PluginManager pluginManager = context.mock(PluginManager.class);
 		final SecureRandom random = context.mock(SecureRandom.class);
+		final Clock clock = context.mock(Clock.class);
 
 		// Two simplex plugins: one supports polling, the other doesn't
 		final SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
@@ -112,7 +117,7 @@ public class PollerTest extends BriarTestCase {
 		}});
 
 		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, random);
+				connectionRegistry, pluginManager, random, clock);
 
 		p.eventOccurred(new ContactStatusChangedEvent(contactId, true));
 
@@ -120,7 +125,8 @@ public class PollerTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReconnectToDisconnectedContact() throws Exception {
+	public void testRescheduleAndReconnectOnConnectionClosed()
+			throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		final Executor ioExecutor = new ImmediateExecutor();
@@ -132,6 +138,7 @@ public class PollerTest extends BriarTestCase {
 				context.mock(ConnectionRegistry.class);
 		final PluginManager pluginManager = context.mock(PluginManager.class);
 		final SecureRandom random = context.mock(SecureRandom.class);
+		final Clock clock = context.mock(Clock.class);
 
 		final DuplexPlugin plugin = context.mock(DuplexPlugin.class);
 		final TransportId transportId = new TransportId("id");
@@ -139,15 +146,30 @@ public class PollerTest extends BriarTestCase {
 				context.mock(DuplexTransportConnection.class);
 
 		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+			// reschedule()
 			// Get the plugin
 			oneOf(pluginManager).getPlugin(transportId);
 			will(returnValue(plugin));
 			// The plugin supports polling
 			oneOf(plugin).shouldPoll();
 			will(returnValue(true));
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Schedule the next poll
+			oneOf(plugin).getPollingInterval();
+			will(returnValue(pollingInterval));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with((long) pollingInterval), with(MILLISECONDS));
+			// connectToContact()
 			// Check whether the contact is already connected
-			oneOf(plugin).getId();
-			will(returnValue(transportId));
 			oneOf(connectionRegistry).isConnected(contactId, transportId);
 			will(returnValue(false));
 			// Connect to the contact
@@ -159,7 +181,7 @@ public class PollerTest extends BriarTestCase {
 		}});
 
 		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, random);
+				connectionRegistry, pluginManager, random, clock);
 
 		p.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
 				false));
@@ -167,8 +189,9 @@ public class PollerTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
+
 	@Test
-	public void testPollWhenTransportIsEnabled() throws Exception {
+	public void testRescheduleOnConnectionOpened() throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		final Executor ioExecutor = new ImmediateExecutor();
@@ -180,10 +203,115 @@ public class PollerTest extends BriarTestCase {
 				context.mock(ConnectionRegistry.class);
 		final PluginManager pluginManager = context.mock(PluginManager.class);
 		final SecureRandom random = context.mock(SecureRandom.class);
+		final Clock clock = context.mock(Clock.class);
+
+		final DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+		final TransportId transportId = new TransportId("id");
+
+		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Schedule the next poll
+			oneOf(plugin).getPollingInterval();
+			will(returnValue(pollingInterval));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with((long) pollingInterval), with(MILLISECONDS));
+		}});
+
+		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
+				connectionRegistry, pluginManager, random, clock);
+
+		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+				false));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testRescheduleDoesNotReplaceEarlierTask() throws Exception {
+		Mockery context = new Mockery();
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		final Executor ioExecutor = new ImmediateExecutor();
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
+		final ConnectionManager connectionManager =
+				context.mock(ConnectionManager.class);
+		final ConnectionRegistry connectionRegistry =
+				context.mock(ConnectionRegistry.class);
+		final PluginManager pluginManager = context.mock(PluginManager.class);
+		final SecureRandom random = context.mock(SecureRandom.class);
+		final Clock clock = context.mock(Clock.class);
+
+		final DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+		final TransportId transportId = new TransportId("id");
+
+		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+			// First event
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Schedule the next poll
+			oneOf(plugin).getPollingInterval();
+			will(returnValue(pollingInterval));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with((long) pollingInterval), with(MILLISECONDS));
+			// Second event
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Don't replace the previously scheduled task, due earlier
+			oneOf(plugin).getPollingInterval();
+			will(returnValue(pollingInterval));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now + 1));
+		}});
+
+		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
+				connectionRegistry, pluginManager, random, clock);
+
+		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+				false));
+		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+				false));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testPollOnTransportEnabled() throws Exception {
+		Mockery context = new Mockery();
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		final Executor ioExecutor = new ImmediateExecutor();
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
+		final ConnectionManager connectionManager =
+				context.mock(ConnectionManager.class);
+		final ConnectionRegistry connectionRegistry =
+				context.mock(ConnectionRegistry.class);
+		final PluginManager pluginManager = context.mock(PluginManager.class);
+		final SecureRandom random = context.mock(SecureRandom.class);
+		final Clock clock = context.mock(Clock.class);
 
 		final Plugin plugin = context.mock(Plugin.class);
 		final TransportId transportId = new TransportId("id");
-		final int pollingInterval = 60 * 1000;
 		final List<ContactId> connected = Collections.singletonList(contactId);
 
 		context.checking(new Expectations() {{
@@ -196,14 +324,18 @@ public class PollerTest extends BriarTestCase {
 			oneOf(plugin).shouldPoll();
 			will(returnValue(true));
 			// Schedule a polling task immediately
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)), with(0L),
 					with(MILLISECONDS));
 			will(new RunAction());
-			// Run the polling task
+			// Running the polling task schedules the next polling task
 			oneOf(plugin).getPollingInterval();
 			will(returnValue(pollingInterval));
 			oneOf(random).nextDouble();
 			will(returnValue(0.5));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with((long) (pollingInterval * 0.5)), with(MILLISECONDS));
 			// Poll the plugin
@@ -213,7 +345,7 @@ public class PollerTest extends BriarTestCase {
 		}});
 
 		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, random);
+				connectionRegistry, pluginManager, random, clock);
 
 		p.eventOccurred(new TransportEnabledEvent(transportId));
 

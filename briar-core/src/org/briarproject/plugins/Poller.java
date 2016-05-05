@@ -3,6 +3,7 @@ package org.briarproject.plugins;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.event.ConnectionClosedEvent;
+import org.briarproject.api.event.ConnectionOpenedEvent;
 import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
@@ -16,12 +17,15 @@ import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
+import org.briarproject.api.system.Clock;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -39,20 +43,24 @@ class Poller implements EventListener {
 	private final ConnectionRegistry connectionRegistry;
 	private final PluginManager pluginManager;
 	private final SecureRandom random;
-	private final Map<TransportId, PollTask> tasks;
+	private final Clock clock;
+	private final Lock lock;
+	private final Map<TransportId, PollTask> tasks; // Locking: lock
 
 	@Inject
 	Poller(@IoExecutor Executor ioExecutor, ScheduledExecutorService scheduler,
 			ConnectionManager connectionManager,
 			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
-			SecureRandom random) {
+			SecureRandom random, Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.connectionManager = connectionManager;
 		this.connectionRegistry = connectionRegistry;
 		this.pluginManager = pluginManager;
 		this.random = random;
 		this.scheduler = scheduler;
-		tasks = new ConcurrentHashMap<TransportId, PollTask>();
+		this.clock = clock;
+		lock = new ReentrantLock();
+		tasks = new HashMap<TransportId, PollTask>();
 	}
 
 	@Override
@@ -65,12 +73,19 @@ class Poller implements EventListener {
 			}
 		} else if (e instanceof ConnectionClosedEvent) {
 			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
+			// Reschedule polling, the polling interval may have decreased
+			reschedule(c.getTransportId());
 			if (!c.isIncoming()) {
 				// Connect to the disconnected contact
 				connectToContact(c.getContactId(), c.getTransportId());
 			}
+		} else if (e instanceof ConnectionOpenedEvent) {
+			ConnectionOpenedEvent c = (ConnectionOpenedEvent) e;
+			// Reschedule polling, the polling interval may have decreased
+			reschedule(c.getTransportId());
 		} else if (e instanceof TransportEnabledEvent) {
 			TransportEnabledEvent t = (TransportEnabledEvent) e;
+			// Poll the newly enabled transport
 			pollNow(t.getTransportId());
 		}
 	}
@@ -118,18 +133,32 @@ class Poller implements EventListener {
 		});
 	}
 
+	private void reschedule(TransportId t) {
+		Plugin p = pluginManager.getPlugin(t);
+		if (p.shouldPoll()) schedule(p, p.getPollingInterval(), false);
+	}
+
 	private void pollNow(TransportId t) {
 		Plugin p = pluginManager.getPlugin(t);
 		// Randomise next polling interval
 		if (p.shouldPoll()) schedule(p, 0, true);
 	}
 
-	private void schedule(Plugin p, int interval, boolean randomiseNext) {
-		// Replace any previously scheduled task for this plugin
-		PollTask task = new PollTask(p, randomiseNext);
-		PollTask replaced = tasks.put(p.getId(), task);
-		if (replaced != null) replaced.cancel();
-		scheduler.schedule(task, interval, MILLISECONDS);
+	private void schedule(Plugin p, int delay, boolean randomiseNext) {
+		// Replace any later scheduled task for this plugin
+		long due = clock.currentTimeMillis() + delay;
+		lock.lock();
+		try {
+			TransportId t = p.getId();
+			PollTask scheduled = tasks.get(t);
+			if (scheduled == null || due < scheduled.due) {
+				PollTask task = new PollTask(p, due, randomiseNext);
+				tasks.put(t, task);
+				scheduler.schedule(task, delay, MILLISECONDS);
+			}
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	private void poll(final Plugin p) {
@@ -146,27 +175,28 @@ class Poller implements EventListener {
 	private class PollTask implements Runnable {
 
 		private final Plugin plugin;
+		private final long due;
 		private final boolean randomiseNext;
 
-		private volatile boolean cancelled = false;
-
-		private PollTask(Plugin plugin, boolean randomiseNext) {
+		private PollTask(Plugin plugin, long due, boolean randomiseNext) {
 			this.plugin = plugin;
+			this.due = due;
 			this.randomiseNext = randomiseNext;
-		}
-
-		private void cancel() {
-			cancelled = true;
 		}
 
 		@Override
 		public void run() {
-			if (cancelled) return;
-			tasks.remove(plugin.getId());
-			int interval = plugin.getPollingInterval();
-			if (randomiseNext)
-				interval = (int) (interval * random.nextDouble());
-			schedule(plugin, interval, false);
+			lock.lock();
+			try {
+				TransportId t = plugin.getId();
+				if (tasks.get(t) != this) return; // Replaced by another task
+				tasks.remove(t);
+			} finally {
+				lock.unlock();
+			}
+			int delay = plugin.getPollingInterval();
+			if (randomiseNext) delay = (int) (delay * random.nextDouble());
+			schedule(plugin, delay, false);
 			poll(plugin);
 		}
 	}
