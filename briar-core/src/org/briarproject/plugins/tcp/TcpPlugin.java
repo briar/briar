@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -42,6 +43,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected final Backoff backoff;
 	protected final DuplexPluginCallback callback;
 	protected final int maxLatency, maxIdleTime, socketTimeout;
+	protected final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected volatile boolean running = false;
 	protected volatile ServerSocket socket = null;
@@ -67,15 +69,19 @@ abstract class TcpPlugin implements DuplexPlugin {
 		else socketTimeout = maxIdleTime * 2;
 	}
 
+	@Override
 	public int getMaxLatency() {
 		return maxLatency;
 	}
 
+	@Override
 	public int getMaxIdleTime() {
 		return maxIdleTime;
 	}
 
+	@Override
 	public boolean start() {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		running = true;
 		bind();
 		return true;
@@ -83,6 +89,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected void bind() {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				if (!running) return;
 				ServerSocket ss = null;
@@ -158,23 +165,28 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
+	@Override
 	public void stop() {
 		running = false;
 		tryToClose(socket);
 	}
 
+	@Override
 	public boolean isRunning() {
 		return running && socket != null && !socket.isClosed();
 	}
 
+	@Override
 	public boolean shouldPoll() {
 		return true;
 	}
 
+	@Override
 	public int getPollingInterval() {
 		return backoff.getPollingInterval();
 	}
 
+	@Override
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
 		backoff.increment();
@@ -185,6 +197,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	private void connectAndCallBack(final ContactId c) {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
 				if (d != null) {
@@ -195,6 +208,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		});
 	}
 
+	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning()) return null;
 		InetSocketAddress remote = getRemoteSocketAddress(c);
@@ -243,24 +257,28 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
+	@Override
 	public boolean supportsInvitations() {
 		return false;
 	}
 
+	@Override
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout, boolean alice) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean supportsKeyAgreement() {
 		return false;
 	}
 
-	public KeyAgreementListener createKeyAgreementListener(
-			byte[] commitment) {
+	@Override
+	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, TransportDescriptor d, long timeout) {
 		throw new UnsupportedOperationException();

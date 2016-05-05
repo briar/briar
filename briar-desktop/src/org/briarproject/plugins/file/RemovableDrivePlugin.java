@@ -34,29 +34,36 @@ implements RemovableDriveMonitor.Callback {
 		this.monitor = monitor;
 	}
 
+	@Override
 	public TransportId getId() {
 		return ID;
 	}
 
+	@Override
 	public boolean start() throws IOException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		running = true;
 		monitor.start(this);
 		return true;
 	}
 
+	@Override
 	public void stop() throws IOException {
 		running = false;
 		monitor.stop();
 	}
 
+	@Override
 	public boolean shouldPoll() {
 		return false;
 	}
 
+	@Override
 	public int getPollingInterval() {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void poll(Collection<ContactId> connected) {
 		throw new UnsupportedOperationException();
 	}
@@ -64,8 +71,7 @@ implements RemovableDriveMonitor.Callback {
 	@Override
 	protected File chooseOutputDirectory() {
 		try {
-			List<File> drives =
-					new ArrayList<File>(finder.findRemovableDrives());
+			List<File> drives = new ArrayList<>(finder.findRemovableDrives());
 			if (drives.isEmpty()) return null;
 			String[] paths = new String[drives.size()];
 			for (int i = 0; i < paths.length; i++) {
@@ -92,7 +98,7 @@ implements RemovableDriveMonitor.Callback {
 
 	@Override
 	protected Collection<File> findFilesByName(String filename) {
-		List<File> matches = new ArrayList<File>();
+		List<File> matches = new ArrayList<>();
 		try {
 			for (File drive : finder.findRemovableDrives()) {
 				File[] files = drive.listFiles();
@@ -109,6 +115,7 @@ implements RemovableDriveMonitor.Callback {
 		return Collections.unmodifiableList(matches);
 	}
 
+	@Override
 	public void driveInserted(File root) {
 		File[] files = root.listFiles();
 		if (files != null) {
@@ -116,6 +123,7 @@ implements RemovableDriveMonitor.Callback {
 		}
 	}
 
+	@Override
 	public void exceptionThrown(IOException e) {
 		if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 	}

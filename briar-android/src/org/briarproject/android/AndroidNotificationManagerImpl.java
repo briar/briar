@@ -282,8 +282,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	public void showForumPostNotification(final GroupId g) {
 		androidExecutor.execute(new Runnable() {
 			@Override
-			public void
-			run() {
+			public void run() {
 				Integer count = forumCounts.get(g);
 				if (count == null) forumCounts.put(g, 1);
 				else forumCounts.put(g, count + 1);
