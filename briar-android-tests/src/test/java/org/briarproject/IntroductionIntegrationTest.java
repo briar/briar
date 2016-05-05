@@ -2,11 +2,17 @@ package org.briarproject;
 
 import net.jodah.concurrentunit.Waiter;
 
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.data.BdfEntry;
+import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.Metadata;
+import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.IntroductionAbortedEvent;
@@ -18,17 +24,21 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.introduction.IntroductionManager;
+import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
+import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.system.Clock;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
+import org.briarproject.introduction.IntroductionGroupFactory;
 import org.briarproject.introduction.IntroductionModule;
+import org.briarproject.introduction.MessageSender;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
@@ -41,7 +51,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -50,6 +63,12 @@ import javax.inject.Inject;
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.TestPluginsModule.TRANSPORT_ID;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.NAME;
+import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -624,6 +643,189 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 					contactId01).size());
 			assertEquals(2, introductionManager1.getIntroductionMessages(
 					contactId02).size());
+		} finally {
+			stopLifecycles();
+		}
+	}
+
+	@Test
+	public void testSessionIdReuse() throws Exception {
+		startLifecycles();
+		try {
+			// Add Identities
+			addDefaultIdentities();
+
+			// Add Transport Properties
+			addTransportProperties();
+
+			// Add introducees as contacts
+			contactId1 = contactManager0.addContact(author1,
+					author0.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			contactId2 = contactManager0.addContact(author2,
+					author0.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			// Add introducer back
+			contactId0 = contactManager1.addContact(author0,
+					author1.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			ContactId contactId02 = contactManager2.addContact(author0,
+					author2.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			assertTrue(contactId0.equals(contactId02));
+
+			// listen to events
+			IntroducerListener listener0 = new IntroducerListener();
+			t0.getEventBus().addListener(listener0);
+			IntroduceeListener listener1 = new IntroduceeListener(1, true);
+			t1.getEventBus().addListener(listener1);
+			IntroduceeListener listener2 = new IntroduceeListener(2, true);
+			t2.getEventBus().addListener(listener2);
+
+			// make introduction
+			long time = clock.currentTimeMillis();
+			Contact introducee1 = contactManager0.getContact(contactId1);
+			Contact introducee2 = contactManager0.getContact(contactId2);
+			introductionManager0
+					.makeIntroduction(introducee1, introducee2, "Hi!", time);
+
+			// sync first request message
+			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener1.requestReceived);
+
+			// get SessionId
+			List<IntroductionMessage> list = new ArrayList<>(
+					introductionManager1.getIntroductionMessages(contactId0));
+			assertEquals(2, list.size());
+			assertTrue(list.get(0) instanceof IntroductionRequest);
+			IntroductionRequest msg = (IntroductionRequest) list.get(0);
+			SessionId sessionId = msg.getSessionId();
+
+			// get contact group
+			IntroductionGroupFactory groupFactory =
+					t0.getIntroductionGroupFactory();
+			Group group = groupFactory.createIntroductionGroup(introducee1);
+
+			// create new message with same SessionId
+			BdfDictionary d = BdfDictionary.of(
+					new BdfEntry(TYPE, TYPE_REQUEST),
+					new BdfEntry(SESSION_ID, sessionId),
+					new BdfEntry(GROUP_ID, group.getId()),
+					new BdfEntry(NAME, TestUtils.getRandomString(42)),
+					new BdfEntry(PUBLIC_KEY,
+							TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH))
+			);
+
+			// reset request received state
+			listener1.requestReceived = false;
+
+			// add the message to the queue
+			DatabaseComponent db0 = t0.getDatabaseComponent();
+			MessageSender sender0 = t0.getMessageSender();
+			Transaction txn = db0.startTransaction(false);
+			try {
+				sender0.sendMessage(txn, d);
+				txn.setComplete();
+			} finally {
+				db0.endTransaction(txn);
+			}
+
+			// actually send message
+			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
+
+			// make sure it does not arrive
+			assertFalse(listener1.requestReceived);
+		} finally {
+			stopLifecycles();
+		}
+	}
+
+	@Test
+	public void testIntroducerRemovedCleanup() throws Exception {
+		startLifecycles();
+		try {
+			// Add Identities
+			addDefaultIdentities();
+
+			// Add Transport Properties
+			addTransportProperties();
+
+			// Add introducees as contacts
+			contactId1 = contactManager0.addContact(author1,
+					author0.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			contactId2 = contactManager0.addContact(author2,
+					author0.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			// Add introducer back
+			contactId0 = contactManager1.addContact(author0,
+					author1.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			ContactId contactId02 = contactManager2.addContact(author0,
+					author2.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			assertTrue(contactId0.equals(contactId02));
+
+			// listen to events
+			IntroducerListener listener0 = new IntroducerListener();
+			t0.getEventBus().addListener(listener0);
+			IntroduceeListener listener1 = new IntroduceeListener(1, true);
+			t1.getEventBus().addListener(listener1);
+			IntroduceeListener listener2 = new IntroduceeListener(2, true);
+			t2.getEventBus().addListener(listener2);
+
+			// make introduction
+			long time = clock.currentTimeMillis();
+			Contact introducee1 = contactManager0.getContact(contactId1);
+			Contact introducee2 = contactManager0.getContact(contactId2);
+			introductionManager0
+					.makeIntroduction(introducee1, introducee2, "Hi!", time);
+
+			// sync first request message
+			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener1.requestReceived);
+
+			// get database and local group for introducee
+			DatabaseComponent db1 = t1.getDatabaseComponent();
+			IntroductionGroupFactory groupFactory1 =
+					t1.getIntroductionGroupFactory();
+			Group group1 = groupFactory1.createLocalGroup();
+
+			// get local session state messages
+			Map<MessageId, Metadata> map;
+			Transaction txn = db1.startTransaction(false);
+			try {
+				map = db1.getMessageMetadata(txn, group1.getId());
+				txn.setComplete();
+			} finally {
+				db1.endTransaction(txn);
+			}
+			// check that we have one session state
+			assertEquals(1, map.size());
+
+			// introducee1 removes introducer
+			contactManager1.removeContact(contactId0);
+
+			// get local session state messages again
+			txn = db1.startTransaction(false);
+			try {
+				map = db1.getMessageMetadata(txn, group1.getId());
+				txn.setComplete();
+			} finally {
+				db1.endTransaction(txn);
+			}
+			// make sure local state got deleted
+			assertEquals(0, map.size());
 		} finally {
 			stopLifecycles();
 		}

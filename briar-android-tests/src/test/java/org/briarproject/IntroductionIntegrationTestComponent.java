@@ -1,6 +1,7 @@
 package org.briarproject;
 
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.introduction.IntroductionManager;
@@ -14,7 +15,9 @@ import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.identity.IdentityModule;
+import org.briarproject.introduction.IntroductionGroupFactory;
 import org.briarproject.introduction.IntroductionModule;
+import org.briarproject.introduction.MessageSender;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
@@ -73,5 +76,13 @@ public interface IntroductionIntegrationTestComponent {
 	TransportPropertyManager getTransportPropertyManager();
 
 	SyncSessionFactory getSyncSessionFactory();
+
+	/* the following methods are only needed to manually construct messages */
+
+	DatabaseComponent getDatabaseComponent();
+
+	MessageSender getMessageSender();
+
+	IntroductionGroupFactory getIntroductionGroupFactory();
 
 }

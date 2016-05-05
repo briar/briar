@@ -6,7 +6,7 @@ import org.briarproject.api.sync.Group;
 
 import javax.inject.Inject;
 
-class IntroductionGroupFactory {
+public class IntroductionGroupFactory {
 
 	final private PrivateGroupFactory privateGroupFactory;
 	final private Group localGroup;

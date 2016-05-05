@@ -32,7 +32,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 
-class MessageSender {
+public class MessageSender {
 
 	final private DatabaseComponent db;
 	final private ClientHelper clientHelper;

@@ -16,6 +16,7 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENG
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
@@ -63,6 +64,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		d.put(TYPE, type);
 		d.put(SESSION_ID, id);
+		d.put(GROUP_ID, m.getGroupId());
 		d.put(MESSAGE_ID, m.getId());
 		d.put(MESSAGE_TIME, m.getTimestamp());
 		return d;

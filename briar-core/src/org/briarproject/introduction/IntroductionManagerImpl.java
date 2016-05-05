@@ -147,8 +147,13 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
 				BdfDictionary d = entry.getValue();
 				long role = d.getLong(ROLE, -1L);
-				if (role != ROLE_INTRODUCER) continue;
-				if (d.getLong(CONTACT_ID_1).equals(id) ||
+				if (role != ROLE_INTRODUCER) {
+					if (d.getLong(CONTACT_ID_1).equals(id)) {
+						// delete states if introducee removes introducer
+						deleteMessage(txn, entry.getKey());
+					}
+				}
+				else if (d.getLong(CONTACT_ID_1).equals(id) ||
 						d.getLong(CONTACT_ID_2).equals(id)) {
 
 					IntroducerProtocolState state = IntroducerProtocolState
@@ -178,13 +183,19 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 		// Get message data and type
 		GroupId groupId = m.getGroupId();
-		message.put(GROUP_ID, groupId);
 		long type = message.getLong(TYPE, -1L);
 
 		// we are an introducee, need to initialize new state
 		if (type == TYPE_REQUEST) {
+			boolean stateExists = true;
+			try {
+				getSessionState(txn, groupId, message.getRaw(SESSION_ID), false);
+			} catch (FormatException e) {
+				stateExists = false;
+			}
 			BdfDictionary state;
 			try {
+				if (stateExists) throw new FormatException();
 				state = introduceeManager.initialize(txn, groupId, message);
 			} catch (FormatException e) {
 				if (LOG.isLoggable(WARNING)) {
@@ -450,7 +461,8 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private BdfDictionary getSessionState(Transaction txn, GroupId groupId,
-			byte[] sessionId) throws DbException, FormatException {
+			byte[] sessionId, boolean warn)
+			throws DbException, FormatException {
 
 		try {
 			// See if we can find the state directly for the introducer
@@ -476,13 +488,19 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					if (g.equals(groupId)) return state;
 				}
 			}
-			if (LOG.isLoggable(WARNING)) {
+			if (warn && LOG.isLoggable(WARNING)) {
 				LOG.warning(
 						"No session state found for message with session ID " +
 								Arrays.hashCode(sessionId));
 			}
 			throw new FormatException();
 		}
+	}
+
+	private BdfDictionary getSessionState(Transaction txn, GroupId groupId,
+			byte[] sessionId) throws DbException, FormatException {
+
+		return getSessionState(txn, groupId, sessionId, true);
 	}
 
 	private void deleteMessage(Transaction txn, MessageId messageId)
