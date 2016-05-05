@@ -113,8 +113,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			// stop()
 			// Stop listening for events
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
-			// Stop the poller
-			oneOf(poller).stop();
 			// Stop the plugins
 			oneOf(simplexPlugin).stop();
 			oneOf(duplexPlugin).stop();
@@ -248,8 +246,6 @@ public class PluginManagerImplTest extends BriarTestCase {
 			// stop()
 			// Stop listening for events
 			oneOf(eventBus).removeListener(with(any(EventListener.class)));
-			// Stop the poller
-			oneOf(poller).stop();
 			// Stop the plugins
 			oneOf(simplexPlugin).stop();
 			oneOf(simplexPlugin1).stop();

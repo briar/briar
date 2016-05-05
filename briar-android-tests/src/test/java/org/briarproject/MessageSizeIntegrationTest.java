@@ -13,6 +13,7 @@ import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.system.SystemModule;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		MessageSizeIntegrationTestComponent component =
 				DaggerMessageSizeIntegrationTestComponent.builder().build();
 		component.inject(this);
+		component.inject(new SystemModule.EagerSingletons());
 	}
 
 	@Test

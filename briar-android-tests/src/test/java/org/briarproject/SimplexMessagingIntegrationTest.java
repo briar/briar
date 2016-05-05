@@ -21,6 +21,7 @@ import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.system.SystemModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,8 +58,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		assertTrue(testDir.mkdirs());
 		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(aliceDir)).build();
+		alice.inject(new SystemModule.EagerSingletons());
 		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(bobDir)).build();
+		bob.inject(new SystemModule.EagerSingletons());
 	}
 
 	@Test
@@ -183,6 +186,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 		private volatile boolean messageAdded = false;
 
+		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageAddedEvent) messageAdded = true;
 		}

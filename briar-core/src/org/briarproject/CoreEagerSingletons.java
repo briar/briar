@@ -10,6 +10,7 @@ import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
+import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
 
 public interface CoreEagerSingletons {
@@ -33,6 +34,8 @@ public interface CoreEagerSingletons {
 	void inject(PropertiesModule.EagerSingletons init);
 
 	void inject(SyncModule.EagerSingletons init);
+
+	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
 }

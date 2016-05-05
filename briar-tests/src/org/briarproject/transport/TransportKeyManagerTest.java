@@ -9,7 +9,6 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.StreamContext;
@@ -28,8 +27,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TimerTask;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
@@ -56,11 +57,12 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
-		final Map<ContactId, TransportKeys> loaded =
-				new LinkedHashMap<ContactId, TransportKeys>();
+		final Map<ContactId, TransportKeys> loaded = new LinkedHashMap<>();
 		final TransportKeys shouldRotate = createTransportKeys(900, 0);
 		final TransportKeys shouldNotRotate = createTransportKeys(1000, 0);
 		loaded.put(contactId, shouldRotate);
@@ -90,12 +92,12 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(db).updateTransportKeys(txn,
 					Collections.singletonMap(contactId, rotated));
 			// Schedule key rotation at the start of the next rotation period
-			oneOf(timer).schedule(with(any(TimerTask.class)),
-					with(rotationPeriodLength - 1));
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with(rotationPeriodLength - 1), with(MILLISECONDS));
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		transportKeyManager.start(txn);
 
 		context.assertIsSatisfied();
@@ -106,7 +108,9 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
 		final boolean alice = true;
@@ -135,7 +139,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is 1 ms before the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000 - 1;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
@@ -150,13 +154,15 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
 		final Transaction txn = new Transaction(null, false);
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
 
 		context.assertIsSatisfied();
@@ -168,7 +174,9 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
 		final boolean alice = true;
@@ -198,7 +206,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
@@ -213,7 +221,9 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
 		final boolean alice = true;
@@ -245,7 +255,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
@@ -271,7 +281,9 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
 		final boolean alice = true;
@@ -299,7 +311,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
@@ -315,13 +327,15 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
 		final boolean alice = true;
 		final TransportKeys transportKeys = createTransportKeys(1000, 0);
 		// Keep a copy of the tags
-		final List<byte[]> tags = new ArrayList<byte[]>();
+		final List<byte[]> tags = new ArrayList<>();
 		final Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -352,7 +366,7 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
@@ -381,7 +395,9 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Timer timer = context.mock(Timer.class);
+		final Executor dbExecutor = context.mock(Executor.class);
+		final ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
 		final TransportKeys transportKeys = createTransportKeys(1000, 0);
@@ -408,9 +424,11 @@ public class TransportKeyManagerTest extends BriarTestCase {
 				will(new EncodeTagAction());
 			}
 			// Schedule key rotation at the start of the next rotation period
-			oneOf(timer).schedule(with(any(TimerTask.class)),
-					with(rotationPeriodLength));
-			will(new RunTimerTaskAction());
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with(rotationPeriodLength), with(MILLISECONDS));
+			will(new RunAction());
+			oneOf(dbExecutor).execute(with(any(Runnable.class)));
+			will(new RunAction());
 			// Start a transaction for key rotation
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn1));
@@ -431,14 +449,14 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(db).updateTransportKeys(txn1,
 					Collections.singletonMap(contactId, rotated));
 			// Schedule key rotation at the start of the next rotation period
-			oneOf(timer).schedule(with(any(TimerTask.class)),
-					with(rotationPeriodLength));
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with(rotationPeriodLength), with(MILLISECONDS));
 			// Commit the key rotation transaction
 			oneOf(db).endTransaction(txn1);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
-				crypto, timer, clock, transportId, maxLatency);
+				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		transportKeyManager.start(txn);
 		assertTrue(txn1.isComplete());
 
@@ -484,18 +502,18 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		}
 	}
 
-	private static class RunTimerTaskAction implements Action {
+	private static class RunAction implements Action {
 
 		@Override
 		public Object invoke(Invocation invocation) throws Throwable {
-			TimerTask task = (TimerTask) invocation.getParameter(0);
+			Runnable task = (Runnable) invocation.getParameter(0);
 			task.run();
 			return null;
 		}
 
 		@Override
 		public void describeTo(Description description) {
-			description.appendText("schedules a timer task");
+			description.appendText("runs a runnable");
 		}
 	}
 }

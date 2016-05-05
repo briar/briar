@@ -18,7 +18,8 @@ import dagger.Provides;
 public class TransportModule {
 
 	public static class EagerSingletons {
-		@Inject KeyManager keyManager;
+		@Inject
+		KeyManager keyManager;
 	}
 
 	@Provides
@@ -35,7 +36,7 @@ public class TransportModule {
 
 	@Provides
 	@Singleton
-	KeyManager getKeyManager(LifecycleManager lifecycleManager,
+	KeyManager provideKeyManager(LifecycleManager lifecycleManager,
 			EventBus eventBus, KeyManagerImpl keyManager) {
 		lifecycleManager.registerService(keyManager);
 		eventBus.addListener(keyManager);

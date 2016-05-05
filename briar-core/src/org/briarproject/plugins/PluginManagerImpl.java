@@ -122,9 +122,6 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 	public void stopService() throws ServiceException {
 		// Stop listening for events
 		eventBus.removeListener(this);
-		// Stop the poller
-		LOG.info("Stopping poller");
-		poller.stop();
 		final CountDownLatch latch = new CountDownLatch(plugins.size());
 		// Stop the simplex plugins
 		LOG.info("Stopping simplex plugins");
@@ -432,7 +429,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 		public void transportEnabled() {
 			eventBus.broadcast(new TransportEnabledEvent(id));
 			Plugin p = plugins.get(id);
-			if (p != null) poller.pollNow(p);
+			if (p != null && p.shouldPoll()) poller.pollNow(p);
 		}
 
 		@Override

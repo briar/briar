@@ -6,7 +6,4 @@ interface Poller {
 
 	/** Tells the poller to poll the given plugin immediately. */
 	void pollNow(Plugin p);
-
-	/** Stops the poller. */
-	void stop();
 }

@@ -4,17 +4,17 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.Plugin;
-import org.briarproject.api.system.Timer;
 
 import java.security.SecureRandom;
 import java.util.Map;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 
 class PollerImpl implements Poller {
@@ -23,31 +23,26 @@ class PollerImpl implements Poller {
 			Logger.getLogger(PollerImpl.class.getName());
 
 	private final Executor ioExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final ConnectionRegistry connectionRegistry;
 	private final SecureRandom random;
-	private final Timer timer;
 	private final Map<TransportId, PollTask> tasks;
 
 	@Inject
 	PollerImpl(@IoExecutor Executor ioExecutor,
-			ConnectionRegistry connectionRegistry, SecureRandom random,
-			Timer timer) {
+			ScheduledExecutorService scheduler,
+			ConnectionRegistry connectionRegistry, SecureRandom random) {
 		this.ioExecutor = ioExecutor;
 		this.connectionRegistry = connectionRegistry;
 		this.random = random;
-		this.timer = timer;
+		this.scheduler = scheduler;
 		tasks = new ConcurrentHashMap<TransportId, PollTask>();
-	}
-
-	@Override
-	public void stop() {
-		timer.cancel();
 	}
 
 	@Override
 	public void pollNow(Plugin p) {
 		// Randomise next polling interval
-		if (p.shouldPoll()) schedule(p, 0, true);
+		schedule(p, 0, true);
 	}
 
 	private void schedule(Plugin p, int interval, boolean randomiseNext) {
@@ -55,7 +50,7 @@ class PollerImpl implements Poller {
 		PollTask task = new PollTask(p, randomiseNext);
 		PollTask replaced = tasks.put(p.getId(), task);
 		if (replaced != null) replaced.cancel();
-		timer.schedule(task, interval);
+		scheduler.schedule(task, interval, MILLISECONDS);
 	}
 
 	private void poll(final Plugin p) {
@@ -69,18 +64,25 @@ class PollerImpl implements Poller {
 		});
 	}
 
-	private class PollTask extends TimerTask {
+	private class PollTask implements Runnable {
 
 		private final Plugin plugin;
 		private final boolean randomiseNext;
+
+		private volatile boolean cancelled = false;
 
 		private PollTask(Plugin plugin, boolean randomiseNext) {
 			this.plugin = plugin;
 			this.randomiseNext = randomiseNext;
 		}
 
+		private void cancel() {
+			cancelled = true;
+		}
+
 		@Override
 		public void run() {
+			if (cancelled) return;
 			tasks.remove(plugin.getId());
 			int interval = plugin.getPollingInterval();
 			if (randomiseNext)

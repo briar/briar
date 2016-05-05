@@ -15,6 +15,7 @@ import dagger.Provides;
 public class AndroidSystemModule {
 
 	@Provides
+	@Singleton
 	public SeedProvider provideSeedProvider(Application app) {
 		return new AndroidSeedProvider(app);
 	}

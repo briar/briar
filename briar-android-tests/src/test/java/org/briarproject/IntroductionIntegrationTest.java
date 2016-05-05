@@ -42,6 +42,7 @@ import org.briarproject.introduction.MessageSender;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
+import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
 import org.junit.After;
 import org.junit.Before;
@@ -944,6 +945,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			this.accept = accept;
 		}
 
+		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageValidatedEvent) {
 				MessageValidatedEvent event = (MessageValidatedEvent) e;
@@ -1010,6 +1012,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 		public volatile boolean response2Received = false;
 		public volatile boolean aborted = false;
 
+		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageValidatedEvent) {
 				MessageValidatedEvent event = (MessageValidatedEvent) e;
@@ -1050,7 +1053,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 		component.inject(new ContactModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
 		component.inject(new SyncModule.EagerSingletons());
+		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new PropertiesModule.EagerSingletons());
 	}
-
 }

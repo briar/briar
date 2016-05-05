@@ -21,6 +21,7 @@ import org.briarproject.introduction.MessageSender;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
+import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
 
 import javax.inject.Singleton;
@@ -29,9 +30,9 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		TestSystemModule.class,
 		TestDatabaseModule.class,
 		TestPluginsModule.class,
+		TestSeedProviderModule.class,
 		LifecycleModule.class,
 		IntroductionModule.class,
 		DatabaseModule.class,
@@ -42,6 +43,7 @@ import dagger.Component;
 		TransportModule.class,
 		ClientsModule.class,
 		SyncModule.class,
+		SystemModule.class,
 		DataModule.class,
 		PropertiesModule.class
 })
@@ -60,6 +62,8 @@ public interface IntroductionIntegrationTestComponent {
 	void inject(PropertiesModule.EagerSingletons init);
 
 	void inject(SyncModule.EagerSingletons init);
+
+	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
 
@@ -84,5 +88,4 @@ public interface IntroductionIntegrationTestComponent {
 	MessageSender getMessageSender();
 
 	IntroductionGroupFactory getIntroductionGroupFactory();
-
 }

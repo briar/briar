@@ -8,12 +8,10 @@ import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
 
-import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
@@ -36,10 +34,9 @@ public class PluginsModule {
 	}
 
 	@Provides
-	Poller providePoller(@IoExecutor Executor ioExecutor,
-			ConnectionRegistry connectionRegistry, SecureRandom random,
-			Timer timer) {
-		return new PollerImpl(ioExecutor, connectionRegistry, random, timer);
+	@Singleton
+	Poller providePoller(PollerImpl poller) {
+		return poller;
 	}
 
 	@Provides
