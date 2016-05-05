@@ -30,7 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class PollerImplTest extends BriarTestCase {
+public class PollerTest extends BriarTestCase {
 
 	private final ContactId contactId = new ContactId(234);
 
@@ -111,7 +111,7 @@ public class PollerImplTest extends BriarTestCase {
 			will(returnValue(false));
 		}});
 
-		PollerImpl p = new PollerImpl(ioExecutor, scheduler, connectionManager,
+		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
 				connectionRegistry, pluginManager, random);
 
 		p.eventOccurred(new ContactStatusChangedEvent(contactId, true));
@@ -158,7 +158,7 @@ public class PollerImplTest extends BriarTestCase {
 					transportId, duplexConnection);
 		}});
 
-		PollerImpl p = new PollerImpl(ioExecutor, scheduler, connectionManager,
+		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
 				connectionRegistry, pluginManager, random);
 
 		p.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
@@ -212,7 +212,7 @@ public class PollerImplTest extends BriarTestCase {
 			oneOf(plugin).poll(connected);
 		}});
 
-		PollerImpl p = new PollerImpl(ioExecutor, scheduler, connectionManager,
+		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
 				connectionRegistry, pluginManager, random);
 
 		p.eventOccurred(new TransportEnabledEvent(transportId));
