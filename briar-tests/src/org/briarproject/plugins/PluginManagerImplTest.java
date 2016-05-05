@@ -62,6 +62,12 @@ public class PluginManagerImplTest extends BriarTestCase {
 		final TransportId duplexFailId = new TransportId("duplex1");
 
 		context.checking(new Expectations() {{
+			allowing(simplexPlugin).getId();
+			will(returnValue(simplexId));
+			allowing(simplexFailPlugin).getId();
+			will(returnValue(simplexFailId));
+			allowing(duplexPlugin).getId();
+			will(returnValue(duplexId));
 			// start()
 			// First simplex plugin
 			oneOf(pluginConfig).getSimplexFactories();

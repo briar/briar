@@ -92,8 +92,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		LOG.info("Starting simplex plugins");
 		for (SimplexPluginFactory f : simplexFactories) {
 			TransportId t = f.getId();
-			SimplexPluginCallback c = new SimplexCallback(t);
-			SimplexPlugin s = f.createPlugin(c);
+			SimplexPlugin s = f.createPlugin(new SimplexCallback(t));
 			if (s == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
@@ -108,8 +107,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		LOG.info("Starting duplex plugins");
 		for (DuplexPluginFactory f : duplexFactories) {
 			TransportId t = f.getId();
-			DuplexPluginCallback c = new DuplexCallback(t);
-			DuplexPlugin d = f.createPlugin(c);
+			DuplexPlugin d = f.createPlugin(new DuplexCallback(t));
 			if (d == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
@@ -154,14 +152,12 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	@Override
 	public Collection<SimplexPlugin> getSimplexPlugins() {
-		List<SimplexPlugin> copy = new ArrayList<SimplexPlugin>(simplexPlugins);
-		return Collections.unmodifiableList(copy);
+		return Collections.unmodifiableList(simplexPlugins);
 	}
 
 	@Override
 	public Collection<DuplexPlugin> getDuplexPlugins() {
-		List<DuplexPlugin> copy = new ArrayList<DuplexPlugin>(duplexPlugins);
-		return Collections.unmodifiableList(copy);
+		return Collections.unmodifiableList(duplexPlugins);
 	}
 
 	@Override
@@ -199,14 +195,13 @@ class PluginManagerImpl implements PluginManager, Service {
 					long duration = System.currentTimeMillis() - start;
 					if (started) {
 						if (LOG.isLoggable(INFO)) {
-							String name = plugin.getClass().getSimpleName();
-							LOG.info("Starting " + name + " took " +
-									duration + " ms");
+							LOG.info("Starting plugin " + plugin.getId()
+									+ " took " + duration + " ms");
 						}
 					} else {
 						if (LOG.isLoggable(WARNING)) {
-							String name = plugin.getClass().getSimpleName();
-							LOG.warning(name + " did not start");
+							LOG.warning("Plugin" + plugin.getId()
+									+ " did not start");
 						}
 					}
 				} catch (IOException e) {
@@ -236,8 +231,8 @@ class PluginManagerImpl implements PluginManager, Service {
 				plugin.stop();
 				long duration = System.currentTimeMillis() - start;
 				if (LOG.isLoggable(INFO)) {
-					String name = plugin.getClass().getSimpleName();
-					LOG.info("Stopping " + name + " took " + duration + " ms");
+					LOG.info("Stopping plugin " + plugin.getId()
+							+ " took " + duration + " ms");
 				}
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

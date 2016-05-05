@@ -53,11 +53,11 @@ class Poller implements EventListener {
 			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
 			SecureRandom random, Clock clock) {
 		this.ioExecutor = ioExecutor;
+		this.scheduler = scheduler;
 		this.connectionManager = connectionManager;
 		this.connectionRegistry = connectionRegistry;
 		this.pluginManager = pluginManager;
 		this.random = random;
-		this.scheduler = scheduler;
 		this.clock = clock;
 		lock = new ReentrantLock();
 		tasks = new HashMap<TransportId, PollTask>();
@@ -147,9 +147,9 @@ class Poller implements EventListener {
 	private void schedule(Plugin p, int delay, boolean randomiseNext) {
 		// Replace any later scheduled task for this plugin
 		long due = clock.currentTimeMillis() + delay;
+		TransportId t = p.getId();
 		lock.lock();
 		try {
-			TransportId t = p.getId();
 			PollTask scheduled = tasks.get(t);
 			if (scheduled == null || due < scheduled.due) {
 				PollTask task = new PollTask(p, due, randomiseNext);
@@ -165,9 +165,9 @@ class Poller implements EventListener {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (LOG.isLoggable(INFO))
-					LOG.info("Polling " + p.getClass().getSimpleName());
-				p.poll(connectionRegistry.getConnectedContacts(p.getId()));
+				TransportId t = p.getId();
+				if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
+				p.poll(connectionRegistry.getConnectedContacts(t));
 			}
 		});
 	}
