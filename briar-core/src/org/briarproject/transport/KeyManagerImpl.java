@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -47,6 +48,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final Clock clock;
 	private final Map<ContactId, Boolean> activeContacts;
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
+	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
 	KeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
@@ -66,6 +68,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	@Override
 	public void startService() throws ServiceException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		Map<TransportId, Integer> transports =
 				new HashMap<TransportId, Integer>();
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories())

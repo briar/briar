@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -44,6 +45,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final Executor cryptoExecutor;
 	private final Map<ClientId, MessageValidator> validators;
 	private final Map<ClientId, IncomingMessageHook> hooks;
+	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
 	ValidationManagerImpl(DatabaseComponent db,
@@ -58,6 +60,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	@Override
 	public void startService() {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		for (ClientId c : validators.keySet()) getMessagesToValidate(c);
 	}
 
@@ -78,6 +81,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private void getMessagesToValidate(final ClientId c) {
 		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Queue<MessageId> unvalidated = new LinkedList<MessageId>();
@@ -100,6 +104,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private void validateNextMessage(final Queue<MessageId> unvalidated) {
 		if (unvalidated.isEmpty()) return;
 		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Message m = null;
@@ -141,6 +146,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private void validateMessage(final Message m, final Group g) {
 		cryptoExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				MessageValidator v = validators.get(g.getClientId());
 				if (v == null) {
@@ -156,6 +162,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private void storeValidationResult(final Message m, final ClientId c,
 			final Metadata meta) {
 		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Transaction txn = db.startTransaction(false);
@@ -193,6 +200,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private void loadGroupAndValidate(final Message m) {
 		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Group g;

@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -61,6 +62,7 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
 	private final List<DuplexPlugin> duplexPlugins;
+	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
 	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
@@ -82,6 +84,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	@Override
 	public void startService() throws ServiceException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		Collection<SimplexPluginFactory> simplexFactories =
 				pluginConfig.getSimplexFactories();
 		Collection<DuplexPluginFactory> duplexFactories =
