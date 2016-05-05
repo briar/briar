@@ -1,6 +1,7 @@
 package org.briarproject.transport;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.RunAction;
 import org.briarproject.TestUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
@@ -499,21 +500,6 @@ public class TransportKeyManagerTest extends BriarTestCase {
 		@Override
 		public void describeTo(Description description) {
 			description.appendText("encodes a tag");
-		}
-	}
-
-	private static class RunAction implements Action {
-
-		@Override
-		public Object invoke(Invocation invocation) throws Throwable {
-			Runnable task = (Runnable) invocation.getParameter(0);
-			task.run();
-			return null;
-		}
-
-		@Override
-		public void describeTo(Description description) {
-			description.appendText("runs a runnable");
 		}
 	}
 }

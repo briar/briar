@@ -26,6 +26,8 @@ public class PluginsModule {
 	public static class EagerSingletons {
 		@Inject
 		PluginManager pluginManager;
+		@Inject
+		Poller poller;
 	}
 
 	@Provides
@@ -35,7 +37,8 @@ public class PluginsModule {
 
 	@Provides
 	@Singleton
-	Poller providePoller(PollerImpl poller) {
+	Poller providePoller(EventBus eventBus, PollerImpl poller) {
+		eventBus.addListener(poller);
 		return poller;
 	}
 

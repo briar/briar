@@ -3,18 +3,13 @@ package org.briarproject.plugins;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.ConnectionClosedEvent;
-import org.briarproject.api.event.ContactStatusChangedEvent;
-import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ServiceException;
 import org.briarproject.api.plugins.ConnectionManager;
-import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
 import org.briarproject.api.plugins.PluginConfig;
@@ -51,7 +46,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-class PluginManagerImpl implements PluginManager, Service, EventListener {
+class PluginManagerImpl implements PluginManager, Service {
 
 	private static final Logger LOG =
 			Logger.getLogger(PluginManagerImpl.class.getName());
@@ -59,9 +54,7 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 	private final Executor ioExecutor;
 	private final EventBus eventBus;
 	private final PluginConfig pluginConfig;
-	private final Poller poller;
 	private final ConnectionManager connectionManager;
-	private final ConnectionRegistry connectionRegistry;
 	private final SettingsManager settingsManager;
 	private final TransportPropertyManager transportPropertyManager;
 	private final UiCallback uiCallback;
@@ -71,18 +64,14 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 
 	@Inject
 	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
-			PluginConfig pluginConfig, Poller poller,
-			ConnectionManager connectionManager,
-			ConnectionRegistry connectionRegistry,
+			PluginConfig pluginConfig, ConnectionManager connectionManager,
 			SettingsManager settingsManager,
 			TransportPropertyManager transportPropertyManager,
 			UiCallback uiCallback) {
 		this.ioExecutor = ioExecutor;
 		this.eventBus = eventBus;
 		this.pluginConfig = pluginConfig;
-		this.poller = poller;
 		this.connectionManager = connectionManager;
-		this.connectionRegistry = connectionRegistry;
 		this.settingsManager = settingsManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.uiCallback = uiCallback;
@@ -93,36 +82,55 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 
 	@Override
 	public void startService() throws ServiceException {
+		Collection<SimplexPluginFactory> simplexFactories =
+				pluginConfig.getSimplexFactories();
+		Collection<DuplexPluginFactory> duplexFactories =
+				pluginConfig.getDuplexFactories();
+		int numPlugins = simplexFactories.size() + duplexFactories.size();
+		CountDownLatch latch = new CountDownLatch(numPlugins);
 		// Instantiate and start the simplex plugins
 		LOG.info("Starting simplex plugins");
-		Collection<SimplexPluginFactory> sFactories =
-				pluginConfig.getSimplexFactories();
-		final CountDownLatch sLatch = new CountDownLatch(sFactories.size());
-		for (SimplexPluginFactory factory : sFactories)
-			ioExecutor.execute(new SimplexPluginStarter(factory, sLatch));
+		for (SimplexPluginFactory f : simplexFactories) {
+			TransportId t = f.getId();
+			SimplexPluginCallback c = new SimplexCallback(t);
+			SimplexPlugin s = f.createPlugin(c);
+			if (s == null) {
+				if (LOG.isLoggable(WARNING))
+					LOG.warning("Could not create plugin for " + t);
+				latch.countDown();
+			} else {
+				plugins.put(t, s);
+				simplexPlugins.add(s);
+				ioExecutor.execute(new PluginStarter(s, latch));
+			}
+		}
 		// Instantiate and start the duplex plugins
 		LOG.info("Starting duplex plugins");
-		Collection<DuplexPluginFactory> dFactories =
-				pluginConfig.getDuplexFactories();
-		final CountDownLatch dLatch = new CountDownLatch(dFactories.size());
-		for (DuplexPluginFactory factory : dFactories)
-			ioExecutor.execute(new DuplexPluginStarter(factory, dLatch));
-		// Wait for the plugins to start
+		for (DuplexPluginFactory f : duplexFactories) {
+			TransportId t = f.getId();
+			DuplexPluginCallback c = new DuplexCallback(t);
+			DuplexPlugin d = f.createPlugin(c);
+			if (d == null) {
+				if (LOG.isLoggable(WARNING))
+					LOG.warning("Could not create plugin for " + t);
+				latch.countDown();
+			} else {
+				plugins.put(t, d);
+				duplexPlugins.add(d);
+				ioExecutor.execute(new PluginStarter(d, latch));
+			}
+		}
+		// Wait for all the plugins to start
 		try {
-			sLatch.await();
-			dLatch.await();
+			latch.await();
 		} catch (InterruptedException e) {
 			throw new ServiceException(e);
 		}
-		// Listen for events
-		eventBus.addListener(this);
 	}
 
 	@Override
 	public void stopService() throws ServiceException {
-		// Stop listening for events
-		eventBus.removeListener(this);
-		final CountDownLatch latch = new CountDownLatch(plugins.size());
+		CountDownLatch latch = new CountDownLatch(plugins.size());
 		// Stop the simplex plugins
 		LOG.info("Stopping simplex plugins");
 		for (SimplexPlugin plugin : simplexPlugins)
@@ -145,6 +153,18 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 	}
 
 	@Override
+	public Collection<SimplexPlugin> getSimplexPlugins() {
+		List<SimplexPlugin> copy = new ArrayList<SimplexPlugin>(simplexPlugins);
+		return Collections.unmodifiableList(copy);
+	}
+
+	@Override
+	public Collection<DuplexPlugin> getDuplexPlugins() {
+		List<DuplexPlugin> copy = new ArrayList<DuplexPlugin>(duplexPlugins);
+		return Collections.unmodifiableList(copy);
+	}
+
+	@Override
 	public Collection<DuplexPlugin> getInvitationPlugins() {
 		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		for (DuplexPlugin d : duplexPlugins)
@@ -160,149 +180,24 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 		return Collections.unmodifiableList(supported);
 	}
 
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof ContactStatusChangedEvent) {
-			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
-			if (c.isActive()) {
-				// Connect to the newly activated contact
-				connectToContact(c.getContactId());
-			}
-		} else if (e instanceof ConnectionClosedEvent) {
-			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
-			if (!c.isIncoming()) {
-				// Connect to the disconnected contact
-				connectToContact(c.getContactId(), c.getTransportId());
-			}
-		}
-	}
+	private class PluginStarter implements Runnable {
 
-	private void connectToContact(ContactId c) {
-		for (SimplexPlugin s : simplexPlugins)
-			if (s.shouldPoll()) connectToContact(c, s);
-		for (DuplexPlugin d : duplexPlugins)
-			if (d.shouldPoll()) connectToContact(c, d);
-	}
-
-	private void connectToContact(ContactId c, TransportId t) {
-		Plugin p = plugins.get(t);
-		if (p instanceof SimplexPlugin && p.shouldPoll())
-			connectToContact(c, (SimplexPlugin) p);
-		else if (p instanceof DuplexPlugin && p.shouldPoll())
-			connectToContact(c, (DuplexPlugin) p);
-	}
-
-	private void connectToContact(final ContactId c, final SimplexPlugin p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				TransportId t = p.getId();
-				if (!connectionRegistry.isConnected(c, t)) {
-					TransportConnectionWriter w = p.createWriter(c);
-					if (w != null)
-						connectionManager.manageOutgoingConnection(c, t, w);
-				}
-			}
-		});
-	}
-
-	private void connectToContact(final ContactId c, final DuplexPlugin p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				TransportId t = p.getId();
-				if (!connectionRegistry.isConnected(c, t)) {
-					DuplexTransportConnection d = p.createConnection(c);
-					if (d != null)
-						connectionManager.manageOutgoingConnection(c, t, d);
-				}
-			}
-		});
-	}
-
-	private class SimplexPluginStarter implements Runnable {
-
-		private final SimplexPluginFactory factory;
+		private final Plugin plugin;
 		private final CountDownLatch latch;
 
-		private SimplexPluginStarter(SimplexPluginFactory factory,
-				CountDownLatch latch) {
-			this.factory = factory;
+		private PluginStarter(Plugin plugin, CountDownLatch latch) {
+			this.plugin = plugin;
 			this.latch = latch;
 		}
 
 		@Override
 		public void run() {
 			try {
-				TransportId id = factory.getId();
-				SimplexCallback callback = new SimplexCallback(id);
-				SimplexPlugin plugin = factory.createPlugin(callback);
-				if (plugin == null) {
-					if (LOG.isLoggable(INFO)) {
-						String name = factory.getClass().getSimpleName();
-						LOG.info(name + " did not create a plugin");
-					}
-					return;
-				}
 				try {
 					long start = System.currentTimeMillis();
 					boolean started = plugin.start();
 					long duration = System.currentTimeMillis() - start;
 					if (started) {
-						plugins.put(id, plugin);
-						simplexPlugins.add(plugin);
-						if (LOG.isLoggable(INFO)) {
-							String name = plugin.getClass().getSimpleName();
-							LOG.info("Starting " + name + " took " +
-									duration + " ms");
-						}
-					} else {
-						if (LOG.isLoggable(WARNING)) {
-							String name = plugin.getClass().getSimpleName();
-							LOG.warning(name + " did not start");
-						}
-					}
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			} finally {
-				latch.countDown();
-			}
-		}
-	}
-
-	private class DuplexPluginStarter implements Runnable {
-
-		private final DuplexPluginFactory factory;
-		private final CountDownLatch latch;
-
-		private DuplexPluginStarter(DuplexPluginFactory factory,
-				CountDownLatch latch) {
-			this.factory = factory;
-			this.latch = latch;
-		}
-
-		@Override
-		public void run() {
-			try {
-				TransportId id = factory.getId();
-				DuplexCallback callback = new DuplexCallback(id);
-				DuplexPlugin plugin = factory.createPlugin(callback);
-				if (plugin == null) {
-					if (LOG.isLoggable(INFO)) {
-						String name = factory.getClass().getSimpleName();
-						LOG.info(name + " did not create a plugin");
-					}
-					return;
-				}
-				try {
-					long start = System.currentTimeMillis();
-					boolean started = plugin.start();
-					long duration = System.currentTimeMillis() - start;
-					if (started) {
-						plugins.put(id, plugin);
-						duplexPlugins.add(plugin);
 						if (LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
 							LOG.info("Starting " + name + " took " +
@@ -428,8 +323,6 @@ class PluginManagerImpl implements PluginManager, Service, EventListener {
 		@Override
 		public void transportEnabled() {
 			eventBus.broadcast(new TransportEnabledEvent(id));
-			Plugin p = plugins.get(id);
-			if (p != null && p.shouldPoll()) poller.pollNow(p);
 		}
 
 		@Override

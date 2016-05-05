@@ -2,24 +2,39 @@ package org.briarproject.api.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
+import org.briarproject.api.plugins.simplex.SimplexPlugin;
 
 import java.util.Collection;
 
 /**
- * Responsible for starting transport plugins at startup, stopping them at
- * shutdown, and providing access to plugins for exchanging invitations.
+ * Responsible for starting transport plugins at startup and stopping them at
+ * shutdown.
  */
 public interface PluginManager {
 
 	/**
 	 * Returns the plugin for the given transport, or null if no such plugin
-	 * is running.
+	 * has been created.
 	 */
 	Plugin getPlugin(TransportId t);
 
-	/** Returns any running duplex plugins that support invitations. */
+	/**
+	 * Returns any simplex plugins that have been created.
+	 */
+	Collection<SimplexPlugin> getSimplexPlugins();
+
+	/**
+	 * Returns any duplex plugins that have been created.
+	 */
+	Collection<DuplexPlugin> getDuplexPlugins();
+
+	/**
+	 * Returns any duplex plugins that support invitations.
+	 */
 	Collection<DuplexPlugin> getInvitationPlugins();
 
-	/** Returns any running duplex plugins that support key agreement. */
+	/**
+	 * Returns any duplex plugins that support key agreement.
+	 */
 	Collection<DuplexPlugin> getKeyAgreementPlugins();
 }
