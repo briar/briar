@@ -217,13 +217,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Now we should be able to connect to the new process
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 		}
-		running = true;
 		// Open a control connection and authenticate using the cookie file
 		controlConnection = new TorControlConnection(controlSocket);
 		controlConnection.authenticate(read(cookieFile));
 		// Tell Tor to exit when the control connection is closed
 		controlConnection.takeOwnership();
 		controlConnection.resetConf(Collections.singletonList(OWNER));
+		running = true;
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList(EVENTS));
