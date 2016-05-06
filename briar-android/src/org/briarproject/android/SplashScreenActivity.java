@@ -9,6 +9,7 @@ import android.os.StrictMode.VmPolicy;
 import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.R;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.util.AndroidUtils;
 
@@ -29,6 +30,8 @@ public class SplashScreenActivity extends BaseActivity {
 
 	@Inject
 	ConfigController configController;
+	@Inject
+	protected AndroidExecutor androidExecutor;
 
 	public SplashScreenActivity() {
 		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);

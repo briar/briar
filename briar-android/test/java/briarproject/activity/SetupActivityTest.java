@@ -47,7 +47,8 @@ import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
+@Config(constants = BuildConfig.class, sdk = 21,
+		application = TestBriarApplicationImp.class)
 public class SetupActivityTest {
 
 	TestSetupActivity setupActivity;

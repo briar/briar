@@ -89,6 +89,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		((BriarApplication) getApplication()).getApplicationComponent()
 				.inject(this);
 
+
 		sharedPreferencesFactory =
 				new SharedPreferencesFactory(getApplicationContext(),
 						getConfig());

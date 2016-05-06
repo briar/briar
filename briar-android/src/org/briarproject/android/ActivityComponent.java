@@ -53,8 +53,6 @@ public interface ActivityComponent {
 
 	void inject(CreateIdentityActivity activity);
 
-	void inject(TestingActivity activity);
-
 	void inject(AvailableForumsActivity activity);
 
 	void inject(WriteForumPostActivity activity);

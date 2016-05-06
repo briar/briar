@@ -9,6 +9,7 @@ import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.util.AndroidUtils;
 import org.iilab.IilabEngineeringRSA2048Pin;
@@ -22,6 +23,7 @@ import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
+import static android.content.Intent.ACTION_DELETE;
 import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_PURGE;
 import static org.briarproject.android.panic.PanicPreferencesFragment.KEY_UNINSTALL;
@@ -31,6 +33,8 @@ public class PanicResponderActivity extends BriarActivity {
 	private static final Logger LOG =
 			Logger.getLogger(PanicResponderActivity.class.getName());
 	@Inject protected ConfigController configController;
+	@Inject
+	protected AndroidExecutor androidExecutor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

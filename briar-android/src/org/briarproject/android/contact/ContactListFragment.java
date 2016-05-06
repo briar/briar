@@ -12,16 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
-import org.briarproject.android.AndroidComponent;
-import org.briarproject.android.BriarApplication;
-import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;

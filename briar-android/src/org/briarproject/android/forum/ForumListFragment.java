@@ -51,16 +51,6 @@ public class ForumListFragment extends BaseEventFragment implements
 	private static final Logger LOG =
 			Logger.getLogger(ForumListFragment.class.getName());
 
-	/*
-	public static ForumListFragment newInstance() {
-
-		Bundle args = new Bundle();
-
-		ForumListFragment fragment = new ForumListFragment();
-		fragment.setArguments(args);
-		return fragment;
-	}
-	*/
 
 	private BriarRecyclerView list;
 	private ForumListAdapter adapter;
@@ -106,11 +96,6 @@ public class ForumListFragment extends BaseEventFragment implements
 	public String getUniqueTag() {
 		return TAG;
 	}
-
-//	@Override
-//	public void injectActivity(ActivityComponent component) {
-//		component.inject(this);
-//	}
 
 	@Override
 	public void onResume() {

@@ -4,9 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-import org.briarproject.android.AndroidComponent;
-import org.briarproject.android.BriarApplication;
-
 public abstract class BaseFragment extends Fragment {
 
 	public abstract String getUniqueTag();

@@ -2,8 +2,10 @@ package org.briarproject.android;
 
 import org.briarproject.CoreEagerSingletons;
 import org.briarproject.CoreModule;
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.android.util.BriarReportSender;
 import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -22,6 +24,7 @@ import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.keyagreement.KeyAgreementTaskFactory;
 import org.briarproject.api.keyagreement.PayloadEncoder;
 import org.briarproject.api.keyagreement.PayloadParser;
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
@@ -103,11 +106,20 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	IntroductionManager introductionManager();
 
+	AndroidExecutor androidExecutor();
+
 	void inject(BriarService activity);
+
+	@IoExecutor
+	Executor ioExecutor();
 
 	void inject(ContactChooserFragment fragment);
 
 	void inject(IntroductionMessageFragment fragment);
+
+	void inject(DevReportActivity devReportActivity);
+
+	void inject(BriarService activity);
 
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);
