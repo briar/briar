@@ -53,20 +53,20 @@ class LifecycleManagerImpl implements LifecycleManager {
 	@Override
 	public void registerService(Service s) {
 		if (LOG.isLoggable(INFO))
-			LOG.info("Registering service " + s.getClass().getName());
+			LOG.info("Registering service " + s.getClass().getSimpleName());
 		services.add(s);
 	}
 
 	@Override
 	public void registerClient(Client c) {
 		if (LOG.isLoggable(INFO))
-			LOG.info("Registering client " + c.getClass().getName());
+			LOG.info("Registering client " + c.getClass().getSimpleName());
 		clients.add(c);
 	}
 
 	@Override
 	public void registerForShutdown(ExecutorService e) {
-		LOG.info("Registering executor");
+		LOG.info("Registering executor " + e.getClass().getSimpleName());
 		executors.add(e);
 	}
 
@@ -94,7 +94,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 					c.createLocalState(txn);
 					duration = System.currentTimeMillis() - start;
 					if (LOG.isLoggable(INFO)) {
-						LOG.info("Starting client " + c.getClass().getName()
+						LOG.info("Starting client "
+								+ c.getClass().getSimpleName()
 								+ " took " + duration + " ms");
 					}
 				}
@@ -107,7 +108,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 				s.startService();
 				duration = System.currentTimeMillis() - start;
 				if (LOG.isLoggable(INFO)) {
-					LOG.info("Starting service " + s.getClass().getName()
+					LOG.info("Starting service " + s.getClass().getSimpleName()
 							+ " took " + duration + " ms");
 				}
 			}
@@ -140,13 +141,17 @@ class LifecycleManagerImpl implements LifecycleManager {
 				s.stopService();
 				long duration = System.currentTimeMillis() - start;
 				if (LOG.isLoggable(INFO)) {
-					LOG.info("Stopping service " + s.getClass().getName()
+					LOG.info("Stopping service " + s.getClass().getSimpleName()
 							+ " took " + duration + " ms");
 				}
 			}
-			for (ExecutorService e : executors) e.shutdownNow();
-			if (LOG.isLoggable(INFO))
-				LOG.info(executors.size() + " executors shut down");
+			for (ExecutorService e : executors) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Stopping executor "
+							+ e.getClass().getSimpleName());
+				}
+				e.shutdownNow();
+			}
 			long start = System.currentTimeMillis();
 			db.close();
 			long duration = System.currentTimeMillis() - start;
