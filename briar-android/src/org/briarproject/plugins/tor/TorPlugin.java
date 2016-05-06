@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -63,20 +64,21 @@ import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
+import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 
 class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	static final TransportId ID = new TransportId("tor");
 
+	private static final String PROP_ONION = "onion";
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
-	private static final int HOSTNAME_TIMEOUT = 30 * 1000; // Milliseconds
-	private static final Pattern ONION =
-			Pattern.compile("[a-z2-7]{16}\\.onion");
+	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
 	private static final int MIN_DESCRIPTORS_PUBLISHED = 3;
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
@@ -90,8 +92,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final String architecture;
 	private final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
 	private final ConnectionStatus connectionStatus;
-	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
-	private final File cookieFile, hostnameFile;
+	private final File torDirectory, torFile, geoIpFile, configFile;
+	private final File doneFile, cookieFile;
 	private final PowerManager.WakeLock wakeLock;
 
 	private volatile boolean running = false;
@@ -124,7 +126,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		hostnameFile = new File(torDirectory, "hs/hostname");
 		Object o = appContext.getSystemService(POWER_SERVICE);
 		PowerManager pm = (PowerManager) o;
 		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "TorPlugin");
@@ -421,47 +422,39 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void publishHiddenService(String port) {
 		if (!running) return;
-		if (!hostnameFile.exists()) {
-			LOG.info("Creating hidden service");
-			try {
-				// Watch for the hostname file being created/updated
-				File serviceDirectory = hostnameFile.getParentFile();
-				serviceDirectory.mkdirs();
-				hostnameFile.createNewFile();
-				CountDownLatch latch = new CountDownLatch(1);
-				FileObserver obs = new WriteObserver(hostnameFile, latch);
-				obs.startWatching();
-				// Use the control connection to update the Tor config
-				List<String> config = Arrays.asList(
-						"HiddenServiceDir " +
-								serviceDirectory.getAbsolutePath(),
-						"HiddenServicePort 80 127.0.0.1:" + port);
-				controlConnection.setConf(config);
-				controlConnection.saveConf();
-				// Wait for the hostname file to be created/updated
-				if (!latch.await(HOSTNAME_TIMEOUT, MILLISECONDS)) {
-					LOG.warning("Hidden service not created");
-					if (LOG.isLoggable(INFO)) listFiles(torDirectory);
-					return;
-				}
-				if (!running) return;
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			} catch (InterruptedException e) {
-				LOG.warning("Interrupted while creating hidden service");
-				Thread.currentThread().interrupt();
-				return;
-			}
-		}
-		// Publish the hidden service's onion hostname in transport properties
+		LOG.info("Creating hidden service");
+		String privKey = callback.getSettings().get(HS_PRIVKEY);
+		Map<Integer, String> portLines =
+				Collections.singletonMap(80, "127.0.0.1:" + port);
+		Map<String, String> response;
 		try {
-			String hostname = new String(read(hostnameFile), "UTF-8").trim();
-			if (LOG.isLoggable(INFO)) LOG.info("Hidden service " + hostname);
-			TransportProperties p = new TransportProperties();
-			p.put("onion", hostname);
-			callback.mergeLocalProperties(p);
+			// Use the control connection to set up the hidden service
+			if (privKey == null)
+				response = controlConnection.addOnion(portLines);
+			else response = controlConnection.addOnion(privKey, portLines);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return;
+		}
+		if (!response.containsKey(HS_ADDRESS)) {
+			LOG.warning("Tor did not return a hidden service address");
+			return;
+		}
+		if (privKey == null && !response.containsKey(HS_PRIVKEY)) {
+			LOG.warning("Tor did not return a private key");
+			return;
+		}
+		// Publish the hidden service's onion hostname in transport properties
+		String hostname = response.get(HS_ADDRESS);
+		if (LOG.isLoggable(INFO)) LOG.info("Hidden service " + hostname);
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_ONION, hostname);
+		callback.mergeLocalProperties(p);
+		if (privKey == null) {
+			// Save the hidden service's private key for next time
+			Settings s = new Settings();
+			s.put(HS_PRIVKEY, response.get(HS_PRIVKEY));
+			callback.mergeSettings(s);
 		}
 	}
 
@@ -551,7 +544,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!isRunning()) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if (p == null) return null;
-		String onion = p.get("onion");
+		String onion = p.get(PROP_ONION);
 		if (StringUtils.isNullOrEmpty(onion)) return null;
 		if (!ONION.matcher(onion).matches()) {
 			if (LOG.isLoggable(INFO)) LOG.info("Invalid hostname: " + onion);
@@ -559,10 +552,10 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		try {
 			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + onion);
-			controlConnection.forgetHiddenService(onion.substring(0, 16));
+			controlConnection.forgetHiddenService(onion);
 			Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", SOCKS_PORT);
 			proxy.resolveAddrLocally(false);
-			Socket s = new SocksSocket(proxy, onion, 80);
+			Socket s = new SocksSocket(proxy, onion + ".onion", 80);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + onion);
 			return new TorTransportConnection(this, s);
