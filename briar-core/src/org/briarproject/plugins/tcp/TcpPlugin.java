@@ -8,7 +8,6 @@ import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
@@ -52,7 +51,22 @@ abstract class TcpPlugin implements DuplexPlugin {
 	 */
 	protected abstract List<SocketAddress> getLocalSocketAddresses();
 
-	/** Returns true if connections to the given address can be attempted. */
+	/**
+	 * Adds the address on which the plugin is listening to the transport
+	 * properties.
+	 */
+	protected abstract void setLocalSocketAddress(InetSocketAddress a);
+
+	/**
+	 * Returns zero or more socket addresses for connecting to the given
+	 * contact.
+	 */
+	protected abstract List<InetSocketAddress> getRemoteSocketAddresses(
+			ContactId c);
+
+	/**
+	 * Returns true if connections to the given address can be attempted.
+	 */
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
 	protected TcpPlugin(Executor ioExecutor, Backoff backoff,
@@ -126,17 +140,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
-	protected String getHostAddress(InetAddress a) {
-		String addr = a.getHostAddress();
+	protected String getIpPortString(InetSocketAddress a) {
+		String addr = a.getAddress().getHostAddress();
 		int percent = addr.indexOf('%');
-		return percent == -1 ? addr : addr.substring(0, percent);
-	}
-
-	protected void setLocalSocketAddress(InetSocketAddress a) {
-		TransportProperties p = new TransportProperties();
-		p.put("address", getHostAddress(a.getAddress()));
-		p.put("port", String.valueOf(a.getPort()));
-		callback.mergeLocalProperties(p);
+		if (percent != -1) addr = addr.substring(0, percent);
+		return addr + ":" + a.getPort();
 	}
 
 	private void acceptContactConnections() {
@@ -197,37 +205,34 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning()) return null;
-		InetSocketAddress remote = getRemoteSocketAddress(c);
-		if (remote == null) return null;
-		if (!isConnectable(remote)) {
-			if (LOG.isLoggable(INFO)) {
-				SocketAddress local = socket.getLocalSocketAddress();
-				LOG.info(remote + " is not connectable from " + local);
+		for (InetSocketAddress remote : getRemoteSocketAddresses(c)) {
+			if (!isConnectable(remote)) {
+				if (LOG.isLoggable(INFO)) {
+					SocketAddress local = socket.getLocalSocketAddress();
+					LOG.info(remote + " is not connectable from " + local);
+				}
+				continue;
 			}
-			return null;
+			Socket s = new Socket();
+			try {
+				if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
+				s.connect(remote);
+				s.setSoTimeout(socketTimeout);
+				if (LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
+				return new TcpTransportConnection(this, s);
+			} catch (IOException e) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Could not connect to " + remote);
+			}
 		}
-		Socket s = new Socket();
-		try {
-			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
-			s.connect(remote);
-			s.setSoTimeout(socketTimeout);
-			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
-			return new TcpTransportConnection(this, s);
-		} catch (IOException e) {
-			if (LOG.isLoggable(INFO)) LOG.info("Could not connect to " + remote);
-			return null;
-		}
+		return null;
 	}
 
-	private InetSocketAddress getRemoteSocketAddress(ContactId c) {
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		if (p == null) return null;
-		return parseSocketAddress(p.get("address"), p.get("port"));
-	}
-
-	protected InetSocketAddress parseSocketAddress(String addr, String port) {
-		if (StringUtils.isNullOrEmpty(addr)) return null;
-		if (StringUtils.isNullOrEmpty(port)) return null;
+	protected InetSocketAddress parseSocketAddress(String ipPort) {
+		if (StringUtils.isNullOrEmpty(ipPort)) return null;
+		String[] split = ipPort.split(":");
+		if (split.length != 2) return null;
+		String addr = split[0], port = split[1];
 		// Ensure getByName() won't perform a DNS lookup
 		if (!DOTTED_QUAD.matcher(addr).matches()) return null;
 		try {
@@ -235,10 +240,12 @@ abstract class TcpPlugin implements DuplexPlugin {
 			int p = Integer.parseInt(port);
 			return new InetSocketAddress(a, p);
 		} catch (UnknownHostException e) {
-			if (LOG.isLoggable(WARNING)) LOG.warning("Invalid address: " + addr);
+			if (LOG.isLoggable(WARNING))
+				LOG.warning("Invalid address: " + addr);
 			return null;
 		} catch (NumberFormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.warning("Invalid port: " + port);
+			if (LOG.isLoggable(WARNING))
+				LOG.warning("Invalid port: " + port);
 			return null;
 		}
 	}
