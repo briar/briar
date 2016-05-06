@@ -233,7 +233,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (phase != null && phase.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
 				connectionStatus.setBootstrapped();
-				sendDevReports();
 			}
 		}
 		// Register to receive network status events
@@ -615,7 +614,10 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				connectionStatus.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
+			if (isRunning()) {
+				sendDevReports();
+				callback.transportEnabled();
+			}
 		}
 	}
 
@@ -641,9 +643,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			connectionStatus.setBootstrapped();
-			sendDevReports();
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
+			if (isRunning()) {
+				sendDevReports();
+				callback.transportEnabled();
+			}
 		}
 	}
 
@@ -688,7 +692,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
 				ConnectivityManager cm = (ConnectivityManager) o;
 				NetworkInfo net = cm.getActiveNetworkInfo();
-				boolean online = net != null  && net.isConnected();
+				boolean online = net != null && net.isConnected();
 				boolean wifi = online && net.getType() == TYPE_WIFI;
 				String country = locationUtils.getCurrentCountry();
 				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
