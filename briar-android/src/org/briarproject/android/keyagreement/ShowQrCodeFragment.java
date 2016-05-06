@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
+import com.google.zxing.ResultPointCallback;
 
 import org.briarproject.R;
 import org.briarproject.android.AndroidComponent;
@@ -27,6 +29,7 @@ import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.util.CameraView;
 import org.briarproject.android.util.QrCodeDecoder;
 import org.briarproject.android.util.QrCodeUtils;
+import org.briarproject.android.util.ViewfinderView;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.KeyAgreementAbortedEvent;
 import org.briarproject.api.event.KeyAgreementFailedEvent;
@@ -55,7 +58,7 @@ import static java.util.logging.Level.WARNING;
 
 @SuppressWarnings("deprecation")
 public class ShowQrCodeFragment extends BaseEventFragment
-		implements QrCodeDecoder.ResultCallback {
+		implements QrCodeDecoder.ResultCallback, ResultPointCallback {
 
 	public static final String TAG = "ShowQrCodeFragment";
 
@@ -75,6 +78,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	protected Executor ioExecutor;
 
 	private CameraView cameraView;
+	private ViewfinderView viewfinderView;
 	private View statusView;
 	private TextView status;
 	private ImageView qrCode;
@@ -109,9 +113,13 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		super.onViewCreated(view, savedInstanceState);
 
 		cameraView = (CameraView) view.findViewById(R.id.camera_view);
+		viewfinderView =
+				(ViewfinderView) view.findViewById(R.id.viewfinder_view);
 		statusView = view.findViewById(R.id.status_container);
 		status = (TextView) view.findViewById(R.id.connect_status);
 		qrCode = (ImageView) view.findViewById(R.id.qr_code);
+
+		viewfinderView.setFrameProvider(cameraView);
 	}
 
 	@Override
@@ -120,7 +128,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 		getActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
 
-		decoder = new QrCodeDecoder(this);
+		decoder = new QrCodeDecoder(this, this);
 	}
 
 	@Override
@@ -219,6 +227,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 							getActivity().finish();
 						} else {
 							cameraView.start(camera, decoder, 0);
+							viewfinderView.drawViewfinder();
 						}
 					}
 				};
@@ -353,6 +362,11 @@ public class ShowQrCodeFragment extends BaseEventFragment
 				}
 			}
 		});
+	}
+
+	@Override
+	public void foundPossibleResultPoint(ResultPoint point) {
+		viewfinderView.addPossibleResultPoint(point);
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {

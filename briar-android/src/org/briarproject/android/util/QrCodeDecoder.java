@@ -6,14 +6,18 @@ import android.hardware.Camera.Size;
 import android.os.AsyncTask;
 
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Reader;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
+import com.google.zxing.ResultPointCallback;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
@@ -26,11 +30,14 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	private final Reader reader = new QRCodeReader();
 	private final ResultCallback callback;
+	private final ResultPointCallback pointCallback;
 
 	private boolean stopped = false;
 
-	public QrCodeDecoder(ResultCallback callback) {
+	public QrCodeDecoder(ResultCallback callback,
+			ResultPointCallback pointCallback) {
 		this.callback = callback;
+		this.pointCallback = pointCallback;
 	}
 
 	public void start(Camera camera) {
@@ -72,9 +79,11 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 			LuminanceSource src = new PlanarYUVLuminanceSource(data, width,
 					height, 0, 0, width, height, false);
 			BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(src));
+			Map<DecodeHintType, Object> hints = new HashMap<>();
+			hints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, pointCallback);
 			Result result = null;
 			try {
-				result = reader.decode(bitmap);
+				result = reader.decode(bitmap, hints);
 			} catch (ReaderException e) {
 				return null; // No barcode found
 			} catch (RuntimeException e) {

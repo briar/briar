@@ -1,6 +1,8 @@
 package org.briarproject.android.util;
 
 import android.content.Context;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
@@ -13,6 +15,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -31,16 +34,24 @@ import static java.util.logging.Level.WARNING;
 
 @SuppressWarnings("deprecation")
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
-		AutoFocusCallback {
+		AutoFocusCallback, ViewfinderView.FrameProvider {
 
 	private static final int AUTO_FOCUS_RETRY_DELAY = 5000; // Milliseconds
+	private static final int MIN_FRAME_SIZE = 240;
+	private static final int MAX_FRAME_SIZE = 675; // = 5/8 * 1080
 	private static final Logger LOG =
 			Logger.getLogger(CameraView.class.getName());
 
 	private Camera camera = null;
+	private Rect framingRect;
+	private Rect framingRectInPreview;
+	private Rect framingRectInSensor;
 	private PreviewConsumer previewConsumer = null;
 	private int displayOrientation = 0, surfaceWidth = 0, surfaceHeight = 0;
 	private boolean autoFocus = false, surfaceExists = false;
+
+	private Point cameraResolution;
+	private final Object cameraResolutionLock = new Object();
 
 	public CameraView(Context context) {
 		super(context);
@@ -184,6 +195,24 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			LOG.info("No suitable focus mode");
 		}
 		params.setZoom(0);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			List<Camera.Area> areas = new ArrayList<>();
+			areas.add(new Camera.Area(getFramingRectInSensor(), 1000));
+			if (params.getMaxNumFocusAreas() > 0) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Focus areas supported: " +
+							params.getMaxNumFocusAreas());
+				}
+				params.setFocusAreas(areas);
+			}
+			if (params.getMaxNumMeteringAreas() > 0) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Metering areas supported: " +
+							params.getMaxNumMeteringAreas());
+				}
+				params.setMeteringAreas(areas);
+			}
+		}
 	}
 
 	private void setPreviewSize(Parameters params) {
@@ -222,6 +251,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			if (LOG.isLoggable(INFO))
 				LOG.info("Best size " + bestSize.width + "x" + bestSize.height);
 			params.setPreviewSize(bestSize.width, bestSize.height);
+			synchronized (cameraResolutionLock) {
+				cameraResolution = new Point(bestSize.width, bestSize.height);
+			}
+		} else {
+			synchronized (cameraResolutionLock) {
+				cameraResolution = null;
+			}
 		}
 	}
 
@@ -275,5 +311,153 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error retrying auto focus", e);
 		}
+	}
+
+	/**
+	 * Calculates the framing rect which the UI should draw to show the user where to place the
+	 * barcode. This target helps with alignment as well as forces the user to hold the device
+	 * far enough away to ensure the image will be in focus.
+	 *
+	 * @return The rectangle to draw on screen in window coordinates.
+	 */
+	@Override
+	public Rect getFramingRect() {
+		if (framingRect == null) {
+			framingRect = calculateFramingRect(true);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Calculated framing rect: " + framingRect);
+		}
+		return framingRect;
+	}
+
+	/**
+	 * Calculates the framing rect which the UI should draw to show the user where to place the
+	 * barcode. This target helps with alignment as well as forces the user to hold the device
+	 * far enough away to ensure the image will be in focus.
+	 * <p/>
+	 * Adapted from the Zxing Barcode Scanner.
+	 *
+	 * @return The rectangle to draw on screen in window coordinates.
+	 */
+	private Rect calculateFramingRect(boolean withOrientation) {
+		if (camera == null) {
+			return null;
+		}
+		if (surfaceWidth == 0 || surfaceHeight == 0) {
+			// Called early, before the surface is ready
+			return null;
+		}
+
+		boolean portrait =
+				withOrientation && displayOrientation % 180 == 90;
+		int size = findDesiredDimensionInRange(
+				portrait ? surfaceWidth : surfaceHeight,
+				portrait ? surfaceHeight / 2 : surfaceWidth / 2,
+				MIN_FRAME_SIZE, MAX_FRAME_SIZE);
+
+		int leftOffset = portrait ?
+				(surfaceWidth - size) / 2 :
+				((surfaceWidth / 2) - size) / 2;
+		int topOffset = portrait ?
+				((surfaceHeight / 2) - size) / 2 :
+				(surfaceHeight - size) / 2;
+		return new Rect(leftOffset, topOffset, leftOffset + size,
+				topOffset + size);
+	}
+
+	/**
+	 * Calculates the square that fits best inside the given region.
+	 */
+	private static int findDesiredDimensionInRange(int side1, int side2,
+			int hardMin, int hardMax) {
+		if (LOG.isLoggable(INFO))
+			LOG.info("Finding framing dimension, side1 = " + side1 +
+					", side2 = " + side2);
+		int minSide = Math.min(side1, side2);
+		int dim = 5 * minSide / 8; // Target 5/8 of smallest side
+		if (dim < hardMin) {
+			if (hardMin > minSide) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Returning minimum side length: " + minSide);
+				return minSide;
+			} else {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Returning hard minimum: " + hardMin);
+				return hardMin;
+			}
+		}
+		if (dim > hardMax) {
+			if (LOG.isLoggable(INFO))
+				LOG.info("Returning hard maximum: " + hardMax);
+			return hardMax;
+		}
+		if (LOG.isLoggable(INFO))
+			LOG.info("Returning desired dimension: " + dim);
+		return dim;
+	}
+
+	/**
+	 * Like {@link #getFramingRect} but coordinates are in terms of the preview
+	 * frame, not UI / screen.
+	 * <p/>
+	 * Adapted from the Zxing Barcode Scanner.
+	 *
+	 * @return {@link Rect} expressing QR code scan area in terms of the preview size
+	 */
+	@Override
+	public Rect getFramingRectInPreview() {
+		if (framingRectInPreview == null) {
+			Rect framingRect = getFramingRect();
+			if (framingRect == null) {
+				return null;
+			}
+			Rect rect = new Rect(framingRect);
+			Point cameraResolution = getCameraResolution();
+			if (cameraResolution == null || surfaceWidth == 0 ||
+					surfaceHeight == 0) {
+				// Called early, before the surface is ready
+				return null;
+			}
+			rect.left = rect.left * cameraResolution.x / surfaceWidth;
+			rect.right = rect.right * cameraResolution.x / surfaceWidth;
+			rect.top = rect.top * cameraResolution.y / surfaceHeight;
+			rect.bottom = rect.bottom * cameraResolution.y / surfaceHeight;
+			framingRectInPreview = rect;
+		}
+		return framingRectInPreview;
+	}
+
+	private Point getCameraResolution() {
+		Point ret;
+		synchronized (cameraResolutionLock) {
+			ret = new Point(cameraResolution);
+		}
+		return ret;
+	}
+
+	/**
+	 * Like {@link #getFramingRect} but coordinates are in terms of the sensor,
+	 * not UI / screen (ie. it is independent of orientation)
+	 *
+	 * @return {@link Rect} expressing QR code scan area in terms of the sensor
+	 */
+	private Rect getFramingRectInSensor() {
+		if (framingRectInSensor == null) {
+			Rect framingRect = calculateFramingRect(false);
+			if (framingRect == null) {
+				return null;
+			}
+			Rect rect = new Rect(framingRect);
+			if (surfaceWidth == 0 || surfaceHeight == 0) {
+				// Called early, before the surface is ready
+				return null;
+			}
+			rect.left = (rect.left * 2000 / surfaceWidth) - 1000;
+			rect.right = (rect.right * 2000 / surfaceWidth) - 1000;
+			rect.top = (rect.top * 2000 / surfaceHeight) - 1000;
+			rect.bottom = (rect.bottom * 2000 / surfaceHeight) - 1000;
+			framingRectInSensor = rect;
+		}
+		return framingRectInSensor;
 	}
 }

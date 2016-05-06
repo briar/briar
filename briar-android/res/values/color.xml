@@ -43,4 +43,10 @@
 
 	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
 	<color name="spinner_arrow">@color/briar_blue_dark</color>
+
+	<!-- ViewfinderView -->
+	<color name="possible_result_points">#c0ffbd21</color> <!-- Material Yellow 700 with alpha -->
+	<color name="result_view">#b0000000</color>
+	<color name="viewfinder_laser">#d50000</color> <!-- Red accent 700 -->
+	<color name="viewfinder_mask">#60000000</color>
 </resources>
