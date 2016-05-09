@@ -24,7 +24,7 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 	protected final MetadataParser metadataParser;
 
 	protected BdfIncomingMessageHook(ClientHelper clientHelper,
-			MetadataParser metadataParser, Clock clock) {
+			MetadataParser metadataParser) {
 		this.clientHelper = clientHelper;
 		this.metadataParser = metadataParser;
 	}

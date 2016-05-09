@@ -118,7 +118,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		clock = context.mock(Clock.class);
 
 		introductionManager = new IntroductionManagerImpl(
-				db, clientHelper, metadataParser, clock, introducerManager,
+				db, clientHelper, metadataParser, introducerManager,
 				introduceeManager, introductionGroupFactory
 		);
 	}

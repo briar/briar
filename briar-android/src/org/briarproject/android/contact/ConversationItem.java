@@ -69,7 +69,7 @@ public abstract class ConversationItem {
 						ir.getName());
 			}
 			return new ConversationNoticeOutItem(ir.getMessageId(), text,
-					ir.getTime(), ir.isSent(), ir.isSeen());
+					ir.getTimestamp(), ir.isSent(), ir.isSeen());
 		} else {
 			String text;
 			if (ir.wasAccepted()) {
@@ -88,7 +88,7 @@ public abstract class ConversationItem {
 				}
 			}
 			return new ConversationNoticeInItem(ir.getMessageId(), text,
-					ir.getTime(), ir.isRead());
+					ir.getTimestamp(), ir.isRead());
 		}
 	}
 
@@ -98,9 +98,9 @@ public abstract class ConversationItem {
 	public static ConversationItem from(IntroductionMessage im) {
 		if (im.isLocal())
 			return new ConversationNoticeOutItem(im.getMessageId(), "",
-					im.getTime(), false, false);
-		return new ConversationNoticeInItem(im.getMessageId(), "", im.getTime(),
-				im.isRead());
+					im.getTimestamp(), false, false);
+		return new ConversationNoticeInItem(im.getMessageId(), "",
+				im.getTimestamp(), im.isRead());
 	}
 
 	protected interface OutgoingItem {
