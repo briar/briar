@@ -17,6 +17,9 @@ import static java.util.logging.Level.WARNING;
 
 class LinuxSeedProvider implements SeedProvider {
 
+	private static final Logger LOG =
+			Logger.getLogger(LinuxSeedProvider.class.getName());
+
 	private final String outputFile, inputFile;
 
 	LinuxSeedProvider() {
