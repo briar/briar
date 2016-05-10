@@ -144,7 +144,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				return;
 			}
 			ContactId contactId = ctx.getContactId();
-			connectionRegistry.registerConnection(contactId, transportId);
+			connectionRegistry.registerConnection(contactId, transportId, true);
 			try {
 				// Create and run the incoming session
 				createIncomingSession(ctx, reader).run();
@@ -153,7 +153,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 			} finally {
-				connectionRegistry.unregisterConnection(contactId, transportId);
+				connectionRegistry.unregisterConnection(contactId, transportId,
+						true);
 			}
 		}
 
@@ -194,7 +195,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				disposeWriter(true);
 				return;
 			}
-			connectionRegistry.registerConnection(contactId, transportId);
+			connectionRegistry.registerConnection(contactId, transportId,
+					false);
 			try {
 				// Create and run the outgoing session
 				createSimplexOutgoingSession(ctx, writer).run();
@@ -203,7 +205,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeWriter(true);
 			} finally {
-				connectionRegistry.unregisterConnection(contactId, transportId);
+				connectionRegistry.unregisterConnection(contactId, transportId,
+						false);
 			}
 		}
 
@@ -254,7 +257,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				return;
 			}
 			contactId = ctx.getContactId();
-			connectionRegistry.registerConnection(contactId, transportId);
+			connectionRegistry.registerConnection(contactId, transportId, true);
 			// Start the outgoing session on another thread
 			ioExecutor.execute(new Runnable() {
 				public void run() {
@@ -270,7 +273,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 			} finally {
-				connectionRegistry.unregisterConnection(contactId, transportId);
+				connectionRegistry.unregisterConnection(contactId, transportId,
+						true);
 			}
 		}
 
@@ -398,7 +402,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				disposeReader(true, true);
 				return;
 			}
-			connectionRegistry.registerConnection(contactId, transportId);
+			connectionRegistry.registerConnection(contactId, transportId,
+					false);
 			try {
 				// Create and run the incoming session
 				incomingSession = createIncomingSession(ctx, reader);
@@ -408,7 +413,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, true);
 			} finally {
-				connectionRegistry.unregisterConnection(contactId, transportId);
+				connectionRegistry.unregisterConnection(contactId, transportId,
+						false);
 			}
 		}
 

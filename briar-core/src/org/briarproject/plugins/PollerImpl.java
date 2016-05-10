@@ -39,23 +39,15 @@ class PollerImpl implements Poller {
 		tasks = new ConcurrentHashMap<TransportId, PollTask>();
 	}
 
+	@Override
 	public void stop() {
 		timer.cancel();
 	}
 
-	public void addPlugin(Plugin p) {
-		// Randomise first polling interval
-		if (p.shouldPoll())
-			schedule(p, randomise(p.getPollingInterval()), false);
-	}
-
+	@Override
 	public void pollNow(Plugin p) {
 		// Randomise next polling interval
 		if (p.shouldPoll()) schedule(p, 0, true);
-	}
-
-	private int randomise(int interval) {
-		return (int) (interval * random.nextDouble());
 	}
 
 	private void schedule(Plugin p, int interval, boolean randomiseNext) {
@@ -68,6 +60,7 @@ class PollerImpl implements Poller {
 
 	private void poll(final Plugin p) {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Polling " + p.getClass().getSimpleName());
@@ -90,7 +83,8 @@ class PollerImpl implements Poller {
 		public void run() {
 			tasks.remove(plugin.getId());
 			int interval = plugin.getPollingInterval();
-			if (randomiseNext) interval = randomise(interval);
+			if (randomiseNext)
+				interval = (int) (interval * random.nextDouble());
 			schedule(plugin, interval, false);
 			poll(plugin);
 		}
