@@ -72,7 +72,7 @@
 	<string name="private_message_hint">Type message</string>
 	<string name="message_sent_toast">Message sent</string>
 	<string name="forums_title">Forums</string>
-	<string name="no_forums">No forums</string>
+	<string name="no_forums">You don\'t have any forums.\n\nWhy don\'t you create a new one yourself or ask your contacts to share one with you?</string>
 	<plurals name="forums_shared">
 		<item quantity="one">%d forum shared by contacts</item>
 		<item quantity="other">%d forums shared by contacts</item>
@@ -81,6 +81,11 @@
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>
 	<string name="no_forum_posts">No posts</string>
+	<string name="no_unread_posts">no unread posts</string>
+	<plurals name="unread_posts">
+		<item quantity="one">%d unread post</item>
+		<item quantity="other">%d unread posts</item>
+	</plurals>
 	<string name="create_forum_title">New Forum</string>
 	<string name="choose_forum_name">Choose a name for your forum:</string>
 	<string name="create_forum_button">Create Forum</string>
