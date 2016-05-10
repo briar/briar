@@ -63,8 +63,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 23;
-	private static final int MIN_SCHEMA_VERSION = 23;
+	private static final int SCHEMA_VERSION = 24;
+	private static final int MIN_SCHEMA_VERSION = 24;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
