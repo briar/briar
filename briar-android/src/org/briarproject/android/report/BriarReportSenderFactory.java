@@ -1,4 +1,4 @@
-package org.briarproject.android.util;
+package org.briarproject.android.report;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,12 +9,13 @@ import org.acra.sender.ReportSenderFactory;
 import org.briarproject.android.BriarApplication;
 
 public class BriarReportSenderFactory implements ReportSenderFactory {
+
 	@NonNull
 	@Override
-	public ReportSender create(@NonNull Context context,
+	public ReportSender create(@NonNull Context ctx,
 			@NonNull ACRAConfiguration config) {
 		// ACRA passes in the Application as context
-		return new BriarReportSender(
-				((BriarApplication) context).getApplicationComponent());
+		BriarApplication app = (BriarApplication) ctx;
+		return new BriarReportSender(app.getApplicationComponent());
 	}
 }

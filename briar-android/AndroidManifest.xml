@@ -45,7 +45,7 @@
 		</service>
 
 		<activity
-			android:name=".android.DevReportActivity"
+			android:name=".android.report.DevReportActivity"
 			android:excludeFromRecents="true"
 			android:exported="false"
 			android:finishOnTaskLaunch="true"

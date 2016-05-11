@@ -8,8 +8,9 @@ import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.briarproject.CoreModule;
 import org.briarproject.R;
-import org.briarproject.android.util.BriarReportPrimer;
-import org.briarproject.android.util.BriarReportSenderFactory;
+import org.briarproject.android.report.BriarReportPrimer;
+import org.briarproject.android.report.BriarReportSenderFactory;
+import org.briarproject.android.report.DevReportActivity;
 
 import java.util.logging.Logger;
 
