@@ -3,7 +3,6 @@ package org.briarproject.android;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -26,7 +25,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 	public abstract void injectActivity(ActivityComponent component);
 
 	public void addLifecycleController(ActivityLifecycleController alc) {
-		Log.d(getClass().getSimpleName(), "addLifecycleController: " + lifecycleControllers.size());
 		lifecycleControllers.add(alc);
 	}
 

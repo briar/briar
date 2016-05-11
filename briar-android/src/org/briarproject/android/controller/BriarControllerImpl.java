@@ -60,7 +60,6 @@ public class BriarControllerImpl implements BriarController {
 		activity.startService(new Intent(activity, BriarService.class));
 		bound = activity.bindService(new Intent(activity, BriarService.class),
 				serviceConnection, 0);
-		LOG.info("Briar service started " + bound);
 	}
 
 	@Override
@@ -92,7 +91,6 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	protected void unbindService() {
-		LOG.info("Briar service unbind " + bound);
 		if (bound) activity.unbindService(serviceConnection);
 	}
 
