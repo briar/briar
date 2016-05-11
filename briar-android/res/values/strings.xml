@@ -102,6 +102,7 @@
 	<string name="forum_post_hint">Type forum post</string>
 	<string name="available_forums_title">Available Forums</string>
 	<string name="forum_joined_toast">Joined Forum</string>
+	<string name="forum_declined_toast">Forum Invitation Declined</string>
 	<string name="shared_by_format">Shared by %s</string>
 	<string name="no_contacts_prompt">You don\'t have any contacts. Add a contact now?</string>
 	<string name="add_button">Add</string>
