@@ -91,7 +91,7 @@ public class ForumListAdapter extends
 	public void onBindViewHolder(ForumViewHolder ui, int position) {
 		final ForumListItem item = getItem(position);
 
-		// TODO add avatar. See #337
+		// Avatar
 		ui.avatar.setText(item.getForum().getName().substring(0, 1));
 		ui.avatar.setBackgroundBytes(item.getForum().getId().getBytes());
 

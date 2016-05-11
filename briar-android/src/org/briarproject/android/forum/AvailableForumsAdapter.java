@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.TextAvatarView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.util.StringUtils;
 
@@ -42,6 +43,9 @@ class AvailableForumsAdapter extends
 	@Override
 	public void onBindViewHolder(AvailableForumViewHolder ui, int position) {
 		final AvailableForumsItem item = getItem(position);
+
+		ui.avatar.setText(item.getForum().getName().substring(0, 1));
+		ui.avatar.setBackgroundBytes(item.getForum().getId().getBytes());
 
 		ui.name.setText(item.getForum().getName());
 
@@ -88,6 +92,7 @@ class AvailableForumsAdapter extends
 	protected static class AvailableForumViewHolder
 			extends RecyclerView.ViewHolder {
 
+		private final TextAvatarView avatar;
 		private final TextView name;
 		private final TextView sharedBy;
 		private final Button accept;
@@ -96,6 +101,7 @@ class AvailableForumsAdapter extends
 		public AvailableForumViewHolder(View v) {
 			super(v);
 
+			avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
 			name = (TextView) v.findViewById(R.id.forumNameView);
 			sharedBy = (TextView) v.findViewById(R.id.sharedByView);
 			accept = (Button) v.findViewById(R.id.acceptButton);
