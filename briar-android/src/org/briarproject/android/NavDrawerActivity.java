@@ -1,5 +1,6 @@
 package org.briarproject.android;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -13,28 +14,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.contact.ContactListFragment;
-import org.briarproject.android.forum.ForumListFragment;
+import org.briarproject.android.controller.NavDrawerController;
+import org.briarproject.android.controller.TransportStateListener;
+import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
-import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.TransportDisabledEvent;
-import org.briarproject.api.event.TransportEnabledEvent;
-import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.plugins.Plugin;
-import org.briarproject.api.plugins.PluginManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +33,10 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-
 public class NavDrawerActivity extends BriarFragmentActivity implements
-		BaseFragment.BaseFragmentListener, EventListener {
+		BaseFragment.BaseFragmentListener, TransportStateListener {
+
+	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
 
 	public static final String INTENT_CONTACTS = "intent_contacts";
 	public static final String INTENT_FORUMS = "intent_forums";
@@ -57,20 +47,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Inject
-	protected ReferenceManager referenceManager;
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	protected volatile IdentityManager identityManager;
-	@Inject
-	protected PluginManager pluginManager;
-	@Inject
-	protected volatile EventBus eventBus;
+	protected NavDrawerController controller;
 
 	private Toolbar toolbar;
 	private DrawerLayout drawerLayout;
-	private Button contactButton;
-	private Button forumsButton;
-	private Button settingsButton;
 	private GridView transportsView;
 	private TextView progressTitle;
 	private ViewGroup progressViewGroup;
@@ -85,14 +65,14 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			checkAuthorHandle(intent);
 			clearBackStack();
 			if (intent.getBooleanExtra(INTENT_FORUMS, false))
-				startFragment(ForumListFragment.newInstance());
+				startFragment(activityComponent.newForumListFragment());
 			else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
-				startFragment(ContactListFragment.newInstance());
+				startFragment(activityComponent.newContactListFragment());
 		}
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 
@@ -106,14 +86,11 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 		setContentView(R.layout.activity_nav_drawer);
 
-		toolbar = (Toolbar)findViewById(R.id.toolbar);
-		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-		contactButton = (Button)findViewById(R.id.nav_btn_contacts);
-		forumsButton = (Button)findViewById(R.id.nav_btn_forums);
-		settingsButton = (Button)findViewById(R.id.nav_btn_settings);
-		transportsView = (GridView)findViewById(R.id.transportsView);
-		progressTitle = (TextView)findViewById(R.id.title_progress_bar);
-		progressViewGroup = (ViewGroup)findViewById(R.id.container_progress);
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		transportsView = (GridView) findViewById(R.id.transportsView);
+		progressTitle = (TextView) findViewById(R.id.title_progress_bar);
+		progressViewGroup = (ViewGroup) findViewById(R.id.container_progress);
 
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -133,7 +110,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			}
 		};
 		drawerLayout.setDrawerListener(drawerToggle);
-		if (state == null) startFragment(ContactListFragment.newInstance());
+		if (state == null) startFragment(activityComponent.newContactListFragment());
 		checkAuthorHandle(getIntent());
 
 		initializeTransports(getLayoutInflater());
@@ -143,8 +120,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	private void welcomeMessageCheck() {
-		SharedPreferences prefs = getSharedPreferences(PREFS_NAME,
-				MODE_PRIVATE);
+		SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 		if (!prefs.getBoolean(PREF_SEEN_WELCOME_MESSAGE, false)) {
 			showMessageDialog(R.string.dialog_title_welcome,
 					R.string.dialog_welcome_message);
@@ -155,22 +131,14 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		eventBus.addListener(this);
 		updateTransports();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		eventBus.removeListener(this);
 	}
 
 	private void checkAuthorHandle(Intent intent) {
 		long handle = intent.getLongExtra(KEY_LOCAL_AUTHOR_HANDLE, -1);
 		if (handle != -1) {
+			LocalAuthor a = controller.removeAuthorHandle(handle);
 			// The activity was launched from the setup wizard
-			LocalAuthor a = referenceManager.removeReference(handle,
-					LocalAuthor.class);
 			if (a != null) {
 				showLoadingScreen(true, R.string.progress_title_please_wait);
 				storeLocalAuthor(a);
@@ -189,27 +157,13 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	private void storeLocalAuthor(final LocalAuthor a) {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					identityManager.addLocalAuthor(a);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Storing author took " + duration + " ms");
-
-					runOnUiThread(new Runnable() {
-						public void run() {
-							hideLoadingScreen();
-						}
-					});
-
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
+		controller.storeLocalAuthor(a,
+				new UiResultHandler<Void>(this) {
+					@Override
+					public void onResultUi(Void result) {
+						hideLoadingScreen();
+					}
+				});
 	}
 
 	public void onNavigationClick(View view) {
@@ -217,10 +171,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		clearBackStack();
 		switch (view.getId()) {
 			case R.id.nav_btn_contacts:
-				startFragment(ContactListFragment.newInstance());
+				startFragment(activityComponent.newContactListFragment());
 				break;
 			case R.id.nav_btn_forums:
-				startFragment(ForumListFragment.newInstance());
+				startFragment(activityComponent.newForumListFragment());
 				break;
 			case R.id.nav_btn_settings:
 				startActivity(new Intent(this, SettingsActivity.class));
@@ -243,7 +197,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
+	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		drawerToggle.syncState();
 	}
@@ -285,24 +239,21 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 		Transport tor = new Transport();
 		tor.id = new TransportId("tor");
-		Plugin torPlugin = pluginManager.getPlugin(tor.id);
-		tor.enabled = torPlugin != null && torPlugin.isRunning();
+		tor.enabled = controller.isTransportRunning(tor.id);
 		tor.iconId = R.drawable.transport_tor;
 		tor.textId = R.string.transport_tor;
 		transports.add(tor);
 
 		Transport bt = new Transport();
 		bt.id = new TransportId("bt");
-		Plugin btPlugin = pluginManager.getPlugin(bt.id);
-		bt.enabled = btPlugin != null && btPlugin.isRunning();
+		bt.enabled = controller.isTransportRunning(bt.id);
 		bt.iconId = R.drawable.transport_bt;
 		bt.textId = R.string.transport_bt;
 		transports.add(bt);
 
 		Transport lan = new Transport();
 		lan.id = new TransportId("lan");
-		Plugin lanPlugin = pluginManager.getPlugin(lan.id);
-		lan.enabled = lanPlugin != null && lanPlugin.isRunning();
+		lan.enabled = controller.isTransportRunning(lan.id);
 		lan.iconId = R.drawable.transport_lan;
 		lan.textId = R.string.transport_lan;
 		transports.add(lan);
@@ -369,27 +320,14 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	private void updateTransports() {
 		if (transports == null || transportsAdapter == null) return;
 		for (Transport t : transports) {
-			Plugin plugin = pluginManager.getPlugin(t.id);
-			t.enabled = plugin != null && plugin.isRunning();
+			t.enabled = controller.isTransportRunning(t.id);
 		}
 		transportsAdapter.notifyDataSetChanged();
 	}
 
 	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof TransportEnabledEvent) {
-			TransportId id = ((TransportEnabledEvent) e).getTransportId();
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("TransportEnabledEvent: " + id.getString());
-			}
-			setTransport(id, true);
-		} else if (e instanceof TransportDisabledEvent) {
-			TransportId id = ((TransportDisabledEvent) e).getTransportId();
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("TransportDisabledEvent: " + id.getString());
-			}
-			setTransport(id, false);
-		}
+	public void stateUpdate(TransportId id, boolean enabled) {
+		setTransport(id, enabled);
 	}
 
 	private static class Transport {

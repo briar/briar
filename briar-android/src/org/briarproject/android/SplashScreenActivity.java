@@ -10,8 +10,8 @@ import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.R;
 import org.briarproject.android.api.AndroidExecutor;
+import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.api.db.DatabaseConfig;
 
 import java.util.logging.Logger;
 
@@ -29,7 +29,7 @@ public class SplashScreenActivity extends BaseActivity {
 	private static final long EXPIRY_DATE = 1464735600 * 1000L;
 
 	@Inject
-	protected DatabaseConfig dbConfig;
+	ConfigController configController;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -56,7 +56,7 @@ public class SplashScreenActivity extends BaseActivity {
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 
@@ -65,11 +65,11 @@ public class SplashScreenActivity extends BaseActivity {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			String hex = getEncryptedDatabaseKey();
-			if (hex != null && dbConfig.databaseExists()) {
+			if (configController.initialized()) {
 				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
-				clearSharedPrefs();
+				configController.clearPrefs();
+				// TODO replace this static call with a controller method
 				AndroidUtils.deleteAppData(this);
 				startActivity(new Intent(this, SetupActivity.class));
 			}

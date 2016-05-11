@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -45,17 +44,16 @@ public class ShareForumMessageFragment extends BaseFragment {
 	private volatile GroupId groupId;
 	private volatile Collection<ContactId> contacts;
 
-	public static ShareForumMessageFragment newInstance(GroupId groupId,
-			Collection<ContactId> contacts) {
+	public void initBundle(GroupId groupId, Collection<ContactId> contacts) {
+		Bundle bundle = new Bundle();
+		bundle.putByteArray(GROUP_ID, groupId.getBytes());
+		bundle.putIntegerArrayList(CONTACTS, getContactsFromIds(contacts));
+		setArguments(bundle);
+	}
 
-		ShareForumMessageFragment f = new ShareForumMessageFragment();
+	@Inject
+	public ShareForumMessageFragment() {
 
-		Bundle args = new Bundle();
-		args.putByteArray(GROUP_ID, groupId.getBytes());
-		args.putIntegerArrayList(CONTACTS, getContactsFromIds(contacts));
-		f.setArguments(args);
-
-		return f;
 	}
 
 	@Override
@@ -67,11 +65,6 @@ public class ShareForumMessageFragment extends BaseFragment {
 			throw new InstantiationError(
 					"This fragment is only meant to be attached to the ShareForumActivity");
 		}
-	}
-
-	@Override
-	public void injectActivity(AndroidComponent component) {
-		component.inject(this);
 	}
 
 	@Override

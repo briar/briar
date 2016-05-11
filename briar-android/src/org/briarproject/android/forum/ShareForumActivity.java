@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import org.briarproject.R;
-import org.briarproject.android.AndroidComponent;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.contact.ContactId;
@@ -33,7 +33,8 @@ public class ShareForumActivity extends BriarActivity implements
 
 		if (savedInstanceState == null) {
 			ContactSelectorFragment contactSelectorFragment =
-					ContactSelectorFragment.newInstance(groupId);
+					activityComponent.newContactSelectorFragment();
+			contactSelectorFragment.initBundle(groupId);
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.shareForumContainer, contactSelectorFragment)
 					.commit();
@@ -41,7 +42,7 @@ public class ShareForumActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 
@@ -49,7 +50,8 @@ public class ShareForumActivity extends BriarActivity implements
 			Collection<ContactId> contacts) {
 
 		ShareForumMessageFragment messageFragment =
-				ShareForumMessageFragment.newInstance(groupId, contacts);
+				activityComponent.newShareForumMessageFragment();
+		messageFragment.initBundle(groupId, contacts);
 
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,

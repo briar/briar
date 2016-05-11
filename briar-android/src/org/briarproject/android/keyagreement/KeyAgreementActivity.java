@@ -7,6 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarFragmentActivity;
 import org.briarproject.android.fragment.BaseFragment;
@@ -63,7 +64,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	protected volatile IdentityManager identityManager;
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 
@@ -96,11 +97,11 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 						STEPS));
 		switch (step) {
 			case STEP_QR:
-				startFragment(ShowQrCodeFragment.newInstance());
+				startFragment(activityComponent.newShowQrCodeFragment());
 				break;
 			case STEP_ID:
 			default:
-				startFragment(ChooseIdentityFragment.newInstance());
+				startFragment(activityComponent.newChooseIdentityFragment());
 				break;
 		}
 	}

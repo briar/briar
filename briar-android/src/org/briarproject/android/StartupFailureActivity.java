@@ -20,7 +20,7 @@ public class StartupFailureActivity extends BaseActivity {
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 
 	}
 

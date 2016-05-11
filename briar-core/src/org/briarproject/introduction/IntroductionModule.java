@@ -26,7 +26,7 @@ public class IntroductionModule {
 
 	@Provides
 	@Singleton
-	MessageValidator getValidator(MessageQueueManager messageQueueManager,
+	MessageValidator provideValidator(MessageQueueManager messageQueueManager,
 			IntroductionManager introductionManager,
 			MetadataEncoder metadataEncoder, ClientHelper clientHelper,
 			Clock clock) {
@@ -43,7 +43,7 @@ public class IntroductionModule {
 
 	@Provides
 	@Singleton
-	IntroductionManager getIntroductionManager(
+	IntroductionManager provideIntroductionManager(
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			MessageQueueManager messageQueueManager,

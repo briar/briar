@@ -3,6 +3,7 @@
 -dontpreverify
 -dontobfuscate
 -verbose
+-useuniqueclassmembernames
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 # For comfortability in case we do obfuscate
 # -renamesourcefileattribute SourceFile

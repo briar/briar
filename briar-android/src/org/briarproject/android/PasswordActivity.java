@@ -3,6 +3,7 @@ package org.briarproject.android;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -16,14 +17,9 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
+import org.briarproject.android.controller.PasswordController;
+import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.util.StringUtils;
-
-import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
@@ -34,28 +30,22 @@ import static android.view.View.VISIBLE;
 
 public class PasswordActivity extends BaseActivity {
 
-	@Inject @CryptoExecutor protected Executor cryptoExecutor;
 	private Button signInButton;
 	private ProgressBar progress;
 	private TextInputLayout input;
 	private EditText password;
 
-	private byte[] encrypted;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile CryptoComponent crypto;
-	@Inject protected volatile DatabaseConfig databaseConfig;
+	@Inject
+	PasswordController passwordController;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		String hex = getEncryptedDatabaseKey();
-		if (hex == null || !databaseConfig.databaseExists()) {
+		if (!passwordController.initialized()) {
 			clearSharedPrefsAndDeleteEverything();
 			return;
 		}
-		encrypted = StringUtils.fromHexString(hex);
 
 		setContentView(R.layout.activity_password);
 		signInButton = (Button) findViewById(R.id.btn_sign_in);
@@ -66,8 +56,7 @@ public class PasswordActivity extends BaseActivity {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
-				hideSoftKeyboard(password);
-				validatePassword(encrypted, password.getText());
+				validatePassword();
 				return true;
 			}
 		});
@@ -90,7 +79,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 
@@ -103,7 +92,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void clearSharedPrefsAndDeleteEverything() {
-		clearSharedPrefs();
+		passwordController.clearPrefs();
 		AndroidUtils.deleteAppData(this);
 		setResult(RESULT_CANCELED);
 		startActivity(new Intent(this, SetupActivity.class));
@@ -111,7 +100,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	public void onSignInClick(View v) {
-		validatePassword(encrypted, password.getText());
+		validatePassword();
 	}
 
 	public void onForgottenPasswordClick(View v) {
@@ -132,47 +121,33 @@ public class PasswordActivity extends BaseActivity {
 		dialog.show();
 	}
 
-	private void validatePassword(final byte[] encrypted, Editable e) {
+	private void validatePassword() {
 		hideSoftKeyboard(password);
-		// Replace the button with a progress bar
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
-		// Decrypt the database key in a background thread
-		final String password = e.toString();
-		cryptoExecutor.execute(new Runnable() {
-			public void run() {
-				byte[] key = crypto.decryptWithPassword(encrypted, password);
-				if (key == null) {
-					tryAgain();
-				} else {
-					databaseConfig.setEncryptionKey(new SecretKey(key));
-					setResultAndFinish();
-				}
-			}
-		});
+		passwordController.validatePassword(password.getText().toString(),
+				new UiResultHandler<Boolean>(this) {
+					@Override
+					public void onResultUi(@NonNull Boolean result) {
+						if (result) {
+							setResult(RESULT_OK);
+							finish();
+						} else {
+							tryAgain();
+						}
+					}
+				});
 	}
 
 	private void tryAgain() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				AndroidUtils.setError(input, getString(R.string.try_again),
-						true);
-				signInButton.setVisibility(VISIBLE);
-				progress.setVisibility(INVISIBLE);
-				password.setText("");
+		AndroidUtils.setError(input, getString(R.string.try_again),
+				true);
+		signInButton.setVisibility(VISIBLE);
+		progress.setVisibility(INVISIBLE);
+		password.setText("");
 
-				// show the keyboard again
-				showSoftKeyboard(password);
-			}
-		});
+		// show the keyboard again
+		showSoftKeyboard(password);
 	}
 
-	private void setResultAndFinish() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				setResult(RESULT_OK);
-				finish();
-			}
-		});
-	}
 }

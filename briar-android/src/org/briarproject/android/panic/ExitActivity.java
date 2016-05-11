@@ -3,6 +3,7 @@ package org.briarproject.android.panic;
 import android.os.Build;
 import android.os.Bundle;
 
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BaseActivity;
 
@@ -23,7 +24,7 @@ public class ExitActivity extends BaseActivity {
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 
 	}
 }

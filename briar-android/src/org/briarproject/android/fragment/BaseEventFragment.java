@@ -5,9 +5,6 @@ import org.briarproject.api.event.EventListener;
 
 import javax.inject.Inject;
 
-/**
- * Created by Ernir Erlingsson (ernir@ymirmobile.com) on 8.1.2016.
- */
 public abstract class BaseEventFragment extends BaseFragment implements
 		EventListener {
 

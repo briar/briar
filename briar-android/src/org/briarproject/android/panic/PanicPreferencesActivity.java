@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 
@@ -24,7 +25,7 @@ public class PanicPreferencesActivity extends BriarActivity {
 	}
 
 	@Override
-	public void injectActivity(AndroidComponent component) {
+	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
 

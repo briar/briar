@@ -1,11 +1,15 @@
 package org.briarproject.android;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import org.briarproject.android.controller.ActivityLifecycleController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
@@ -13,9 +17,15 @@ import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-	public final static String PREFS_NAME = "db";
-	public final static String PREF_DB_KEY = "key";
-	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
+	protected ActivityComponent activityComponent;
+
+	private List<ActivityLifecycleController> lifecycleControllers =
+			new ArrayList<ActivityLifecycleController>();
+
+	public void addLifecycleController(
+			ActivityLifecycleController lifecycleController) {
+		this.lifecycleControllers.add(lifecycleController);
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -23,31 +33,51 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
-		BriarApplication application = (BriarApplication) getApplication();
-		injectActivity(application.getApplicationComponent());
+		AndroidComponent applicationComponent =
+				((BriarApplication) getApplication()).getApplicationComponent();
+
+		activityComponent = DaggerActivityComponent.builder()
+				.androidComponent(applicationComponent)
+				.activityModule(getActivityModule())
+				.build();
+
+		injectActivity(activityComponent);
+
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityCreate();
+		}
 	}
 
-	public abstract void injectActivity(AndroidComponent component);
-
-	private SharedPreferences getSharedPrefs() {
-		return getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+	// This exists to make test overrides easier
+	protected ActivityModule getActivityModule() {
+		return new ActivityModule(this);
 	}
 
-	protected String getEncryptedDatabaseKey() {
-		return getSharedPrefs().getString(PREF_DB_KEY, null);
+	@Override
+	protected void onResume() {
+		super.onResume();
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityResume();
+		}
 	}
 
-	protected void storeEncryptedDatabaseKey(final String hex) {
-		SharedPreferences.Editor editor = getSharedPrefs().edit();
-		editor.putString(PREF_DB_KEY, hex);
-		editor.apply();
+	@Override
+	protected void onPause() {
+		super.onPause();
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityPause();
+		}
 	}
 
-	protected void clearSharedPrefs() {
-		SharedPreferences.Editor editor = getSharedPrefs().edit();
-		editor.clear();
-		editor.apply();
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		for (ActivityLifecycleController alc : lifecycleControllers) {
+			alc.onActivityDestroy();
+		}
 	}
+
+	public abstract void injectActivity(ActivityComponent component);
 
 	protected void showSoftKeyboard(View view) {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
@@ -59,4 +89,5 @@ public abstract class BaseActivity extends AppCompatActivity {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
+
 }

@@ -4,9 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-import org.briarproject.android.AndroidComponent;
-import org.briarproject.android.BriarApplication;
-
 public abstract class BaseFragment extends Fragment {
 
 	public abstract String getUniqueTag();
@@ -27,16 +24,9 @@ public abstract class BaseFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		BriarApplication application =
-				(BriarApplication) getActivity().getApplication();
-		injectActivity(application.getApplicationComponent());
 	}
 
-	public abstract void injectActivity(AndroidComponent component);
-
 	public interface BaseFragmentListener {
-
 		void showLoadingScreen(boolean isBlocking, int stringId);
 
 		void hideLoadingScreen();
@@ -45,4 +35,5 @@ public abstract class BaseFragment extends Fragment {
 
 		void runOnDbThread(Runnable runnable);
 	}
+
 }

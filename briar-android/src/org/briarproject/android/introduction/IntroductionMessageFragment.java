@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
@@ -49,17 +48,18 @@ public class IntroductionMessageFragment extends BaseFragment {
 	@Inject
 	protected volatile IntroductionManager introductionManager;
 
-	public static IntroductionMessageFragment newInstance(int contactId1,
-			int contactId2) {
-		IntroductionMessageFragment f = new IntroductionMessageFragment();
-
+	public void initBundle(int contactId1, int contactId2) {
 		Bundle args = new Bundle();
 		args.putInt(CONTACT_ID_1, contactId1);
 		args.putInt(CONTACT_ID_2, contactId2);
-		f.setArguments(args);
-
-		return f;
+		setArguments(args);
 	}
+
+	@Inject
+	public IntroductionMessageFragment() {
+
+	}
+
 
 	@Override
 	public void onAttach(Context context) {
@@ -70,11 +70,6 @@ public class IntroductionMessageFragment extends BaseFragment {
 			throw new java.lang.InstantiationError(
 					"This fragment is only meant to be attached to the IntroductionActivity");
 		}
-	}
-
-	@Override
-	public void injectActivity(AndroidComponent component) {
-		component.inject(this);
 	}
 
 	@Override
@@ -183,7 +178,8 @@ public class IntroductionMessageFragment extends BaseFragment {
 				// actually make the introduction
 				try {
 					long timestamp = System.currentTimeMillis();
-					introductionManager.makeIntroduction(c1, c2, msg, timestamp);
+					introductionManager
+							.makeIntroduction(c1, c2, msg, timestamp);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
