@@ -2,7 +2,6 @@ package org.briarproject.api.reporting;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 /**
  * A task for reporting back to the developers.

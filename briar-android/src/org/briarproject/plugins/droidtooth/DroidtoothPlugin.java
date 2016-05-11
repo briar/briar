@@ -9,9 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
-import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
@@ -80,6 +81,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final int maxLatency;
+	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
 	private volatile boolean wasEnabledByUs = false;
@@ -101,24 +103,30 @@ class DroidtoothPlugin implements DuplexPlugin {
 		this.maxLatency = maxLatency;
 	}
 
+	@Override
 	public TransportId getId() {
 		return ID;
 	}
 
+	@Override
 	public int getMaxLatency() {
 		return maxLatency;
 	}
 
+	@Override
 	public int getMaxIdleTime() {
 		// Bluetooth detects dead connections so we don't need keepalives
 		return Integer.MAX_VALUE;
 	}
 
+	@Override
 	public boolean start() throws IOException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
 		try {
 			adapter = androidExecutor.submit(new Callable<BluetoothAdapter>() {
+				@Override
 				public BluetoothAdapter call() throws Exception {
 					return BluetoothAdapter.getDefaultAdapter();
 				}
@@ -158,6 +166,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private void bind() {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				if (!isRunning()) return;
 				String address = AndroidUtils.getBluetoothAddress(appContext,
@@ -238,6 +247,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return new DroidtoothTransportConnection(this, s);
 	}
 
+	@Override
 	public void stop() {
 		running = false;
 		if (receiver != null) appContext.unregisterReceiver(receiver);
@@ -249,18 +259,22 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
+	@Override
 	public boolean isRunning() {
 		return running && adapter.isEnabled();
 	}
 
+	@Override
 	public boolean shouldPoll() {
 		return true;
 	}
 
+	@Override
 	public int getPollingInterval() {
 		return backoff.getPollingInterval();
 	}
 
+	@Override
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
 		backoff.increment();
@@ -275,6 +289,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			final String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(new Runnable() {
+				@Override
 				public void run() {
 					if (!running) return;
 					BluetoothSocket s = connect(address, uuid);
@@ -327,6 +342,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
+	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning()) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
@@ -340,10 +356,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return new DroidtoothTransportConnection(this, s);
 	}
 
+	@Override
 	public boolean supportsInvitations() {
 		return true;
 	}
 
+	@Override
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout, boolean alice) {
 		if (!isRunning()) return null;
@@ -361,9 +379,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		// Create the background tasks
 		CompletionService<BluetoothSocket> complete =
-				new ExecutorCompletionService<BluetoothSocket>(ioExecutor);
-		List<Future<BluetoothSocket>> futures =
-				new ArrayList<Future<BluetoothSocket>>();
+				new ExecutorCompletionService<>(ioExecutor);
+		List<Future<BluetoothSocket>> futures = new ArrayList<>();
 		if (alice) {
 			// Return the first connected socket
 			futures.add(complete.submit(new ListeningTask(ss)));
@@ -398,6 +415,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private void closeSockets(final List<Future<BluetoothSocket>> futures,
 			final BluetoothSocket chosen) {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				for (Future<BluetoothSocket> f : futures) {
 					try {
@@ -413,9 +431,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 					} catch (InterruptedException e) {
 						LOG.info("Interrupted while closing sockets");
 						return;
-					} catch (ExecutionException e) {
-						if (LOG.isLoggable(INFO)) LOG.info(e.toString());
-					} catch (IOException e) {
+					} catch (ExecutionException | IOException e) {
 						if (LOG.isLoggable(INFO)) LOG.info(e.toString());
 					}
 				}
@@ -423,14 +439,15 @@ class DroidtoothPlugin implements DuplexPlugin {
 		});
 	}
 
+	@Override
 	public boolean supportsKeyAgreement() {
 		return true;
 	}
 
-	public KeyAgreementListener createKeyAgreementListener(
-			byte[] localCommitment) {
+	@Override
+	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		// No truncation necessary because COMMIT_LENGTH = 16
-		UUID uuid = UUID.nameUUIDFromBytes(localCommitment);
+		UUID uuid = UUID.nameUUIDFromBytes(commitment);
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
 		// Bind a server socket for receiving invitation connections
 		BluetoothServerSocket ss;
@@ -448,8 +465,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return new BluetoothKeyAgreementListener(d, ss);
 	}
 
+	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] remoteCommitment, TransportDescriptor d, long timeout) {
+			byte[] commitment, TransportDescriptor d, long timeout) {
 		if (!isRunning()) return null;
 		if (!ID.equals(d.getIdentifier())) return null;
 		TransportProperties p = d.getProperties();
@@ -457,7 +475,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		String address = p.get(PROP_ADDRESS);
 		if (StringUtils.isNullOrEmpty(address)) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
-		UUID uuid = UUID.nameUUIDFromBytes(remoteCommitment);
+		UUID uuid = UUID.nameUUIDFromBytes(commitment);
 		if (LOG.isLoggable(INFO))
 			LOG.info("Connecting to key agreement UUID " + uuid);
 		BluetoothSocket s = connect(address, uuid.toString());
@@ -533,7 +551,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private static class DiscoveryReceiver extends BroadcastReceiver {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
-		private final List<String> addresses = new ArrayList<String>();
+		private final List<String> addresses = new ArrayList<>();
 
 		@Override
 		public void onReceive(Context ctx, Intent intent) {

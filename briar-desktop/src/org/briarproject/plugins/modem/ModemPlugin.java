@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
@@ -32,6 +33,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
 	private final int maxLatency;
+	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
@@ -44,20 +46,25 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		this.maxLatency = maxLatency;
 	}
 
+	@Override
 	public TransportId getId() {
 		return ID;
 	}
 
+	@Override
 	public int getMaxLatency() {
 		return maxLatency;
 	}
 
+	@Override
 	public int getMaxIdleTime() {
 		// FIXME: Do we need keepalives for this transport?
 		return Integer.MAX_VALUE;
 	}
 
+	@Override
 	public boolean start() {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		for (String portName : serialPortList.getPortNames()) {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
@@ -75,6 +82,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return false;
 	}
 
+	@Override
 	public void stop() {
 		running = false;
 		if (modem != null) {
@@ -86,18 +94,22 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 	}
 
+	@Override
 	public boolean isRunning() {
 		return running;
 	}
 
+	@Override
 	public boolean shouldPoll() {
 		return false;
 	}
 
+	@Override
 	public int getPollingInterval() {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void poll(Collection<ContactId> connected) {
 		throw new UnsupportedOperationException();
 	}
@@ -121,6 +133,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return false;
 	}
 
+	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!running) return null;
 		// Get the ISO 3166 code for the caller's country
@@ -148,29 +161,34 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return new ModemTransportConnection();
 	}
 
+	@Override
 	public boolean supportsInvitations() {
 		return false;
 	}
 
+	@Override
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout, boolean alice) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean supportsKeyAgreement() {
 		return false;
 	}
 
-	public KeyAgreementListener createKeyAgreementListener(
-			byte[] commitment) {
+	@Override
+	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, TransportDescriptor d, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void incomingCallConnected() {
 		LOG.info("Incoming call connected");
 		callback.incomingConnectionCreated(new ModemTransportConnection());

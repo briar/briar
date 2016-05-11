@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -94,6 +95,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
 	private final PowerManager.WakeLock wakeLock;
+	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
 	private volatile ServerSocket socket = null;
@@ -130,19 +132,24 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		wakeLock.setReferenceCounted(false);
 	}
 
+	@Override
 	public TransportId getId() {
 		return ID;
 	}
 
+	@Override
 	public int getMaxLatency() {
 		return maxLatency;
 	}
 
+	@Override
 	public int getMaxIdleTime() {
 		return maxIdleTime;
 	}
 
+	@Override
 	public boolean start() throws IOException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		// Try to connect to an existing Tor process if there is one
 		boolean startProcess = false;
 		try {
@@ -210,13 +217,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Now we should be able to connect to the new process
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 		}
-		running = true;
 		// Open a control connection and authenticate using the cookie file
 		controlConnection = new TorControlConnection(controlSocket);
 		controlConnection.authenticate(read(cookieFile));
 		// Tell Tor to exit when the control connection is closed
 		controlConnection.takeOwnership();
 		controlConnection.resetConf(Collections.singletonList(OWNER));
+		running = true;
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList(EVENTS));
@@ -226,7 +233,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (phase != null && phase.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
 				connectionStatus.setBootstrapped();
-				sendDevReports();
 			}
 		}
 		// Register to receive network status events
@@ -369,6 +375,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void bind() {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				// If there's already a port number stored in config, reuse it
 				String portString = callback.getSettings().get("port");
@@ -398,6 +405,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				callback.mergeSettings(s);
 				// Create a hidden service if necessary
 				ioExecutor.execute(new Runnable() {
+					@Override
 					public void run() {
 						publishHiddenService(localPort);
 					}
@@ -486,6 +494,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	@Override
 	public void stop() throws IOException {
 		running = false;
 		tryToClose(socket);
@@ -508,18 +517,22 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		wakeLock.release();
 	}
 
+	@Override
 	public boolean isRunning() {
 		return running && connectionStatus.isConnected();
 	}
 
+	@Override
 	public boolean shouldPoll() {
 		return true;
 	}
 
+	@Override
 	public int getPollingInterval() {
 		return backoff.getPollingInterval();
 	}
 
+	@Override
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
 		backoff.increment();
@@ -530,6 +543,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void connectAndCallBack(final ContactId c) {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
 				if (d != null) {
@@ -540,6 +554,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		});
 	}
 
+	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning()) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
@@ -566,61 +581,77 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	@Override
 	public boolean supportsInvitations() {
 		return false;
 	}
 
+	@Override
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout, boolean alice) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean supportsKeyAgreement() {
 		return false;
 	}
 
-	public KeyAgreementListener createKeyAgreementListener(
-			byte[] commitment) {
+	@Override
+	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, TransportDescriptor d, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void circuitStatus(String status, String id, String path) {
 		if (status.equals("BUILT") &&
 				connectionStatus.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
+			if (isRunning()) {
+				sendDevReports();
+				callback.transportEnabled();
+			}
 		}
 	}
 
+	@Override
 	public void streamStatus(String status, String id, String target) {
 	}
 
+	@Override
 	public void orConnStatus(String status, String orName) {
 		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
 	}
 
+	@Override
 	public void bandwidthUsed(long read, long written) {
 	}
 
+	@Override
 	public void newDescriptors(List<String> orList) {
 	}
 
+	@Override
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			connectionStatus.setBootstrapped();
-			sendDevReports();
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
+			if (isRunning()) {
+				sendDevReports();
+				callback.transportEnabled();
+			}
 		}
 	}
 
+	@Override
 	public void unrecognized(String type, String msg) {
 		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED"))
 			LOG.info("Descriptor uploaded");
@@ -642,6 +673,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
 			if (((SettingsUpdatedEvent) e).getNamespace().equals("tor")) {
@@ -653,13 +685,14 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void updateConnectionStatus() {
 		ioExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				if (!running) return;
 
 				Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
 				ConnectivityManager cm = (ConnectivityManager) o;
 				NetworkInfo net = cm.getActiveNetworkInfo();
-				boolean online = net != null  && net.isConnected();
+				boolean online = net != null && net.isConnected();
 				boolean wifi = online && net.getType() == TYPE_WIFI;
 				String country = locationUtils.getCurrentCountry();
 				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(

@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -61,6 +62,8 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
 	private final List<DuplexPlugin> duplexPlugins;
+	private final Map<TransportId, CountDownLatch> startLatches;
+	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
 	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
@@ -78,68 +81,64 @@ class PluginManagerImpl implements PluginManager, Service {
 		plugins = new ConcurrentHashMap<TransportId, Plugin>();
 		simplexPlugins = new CopyOnWriteArrayList<SimplexPlugin>();
 		duplexPlugins = new CopyOnWriteArrayList<DuplexPlugin>();
+		startLatches = new ConcurrentHashMap<TransportId, CountDownLatch>();
 	}
 
 	@Override
 	public void startService() throws ServiceException {
-		Collection<SimplexPluginFactory> simplexFactories =
-				pluginConfig.getSimplexFactories();
-		Collection<DuplexPluginFactory> duplexFactories =
-				pluginConfig.getDuplexFactories();
-		int numPlugins = simplexFactories.size() + duplexFactories.size();
-		CountDownLatch latch = new CountDownLatch(numPlugins);
-		// Instantiate and start the simplex plugins
+		if (used.getAndSet(true)) throw new IllegalStateException();
+		// Instantiate the simplex plugins and start them asynchronously
 		LOG.info("Starting simplex plugins");
-		for (SimplexPluginFactory f : simplexFactories) {
+		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories()) {
 			TransportId t = f.getId();
 			SimplexPlugin s = f.createPlugin(new SimplexCallback(t));
 			if (s == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
-				latch.countDown();
 			} else {
 				plugins.put(t, s);
 				simplexPlugins.add(s);
-				ioExecutor.execute(new PluginStarter(s, latch));
+				CountDownLatch startLatch = new CountDownLatch(1);
+				startLatches.put(t, startLatch);
+				ioExecutor.execute(new PluginStarter(s, startLatch));
 			}
 		}
-		// Instantiate and start the duplex plugins
+		// Instantiate the duplex plugins and start them asynchronously
 		LOG.info("Starting duplex plugins");
-		for (DuplexPluginFactory f : duplexFactories) {
+		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories()) {
 			TransportId t = f.getId();
 			DuplexPlugin d = f.createPlugin(new DuplexCallback(t));
 			if (d == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
-				latch.countDown();
 			} else {
 				plugins.put(t, d);
 				duplexPlugins.add(d);
-				ioExecutor.execute(new PluginStarter(d, latch));
+				CountDownLatch startLatch = new CountDownLatch(1);
+				startLatches.put(t, startLatch);
+				ioExecutor.execute(new PluginStarter(d, startLatch));
 			}
-		}
-		// Wait for all the plugins to start
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			throw new ServiceException(e);
 		}
 	}
 
 	@Override
 	public void stopService() throws ServiceException {
-		CountDownLatch latch = new CountDownLatch(plugins.size());
+		CountDownLatch stopLatch = new CountDownLatch(plugins.size());
 		// Stop the simplex plugins
 		LOG.info("Stopping simplex plugins");
-		for (SimplexPlugin plugin : simplexPlugins)
-			ioExecutor.execute(new PluginStopper(plugin, latch));
+		for (SimplexPlugin s : simplexPlugins) {
+			CountDownLatch startLatch = startLatches.get(s.getId());
+			ioExecutor.execute(new PluginStopper(s, startLatch, stopLatch));
+		}
 		// Stop the duplex plugins
 		LOG.info("Stopping duplex plugins");
-		for (DuplexPlugin plugin : duplexPlugins)
-			ioExecutor.execute(new PluginStopper(plugin, latch));
+		for (DuplexPlugin d : duplexPlugins) {
+			CountDownLatch startLatch = startLatches.get(d.getId());
+			ioExecutor.execute(new PluginStopper(d, startLatch, stopLatch));
+		}
 		// Wait for all the plugins to stop
 		try {
-			latch.await();
+			stopLatch.await();
 		} catch (InterruptedException e) {
 			throw new ServiceException(e);
 		}
@@ -179,11 +178,11 @@ class PluginManagerImpl implements PluginManager, Service {
 	private class PluginStarter implements Runnable {
 
 		private final Plugin plugin;
-		private final CountDownLatch latch;
+		private final CountDownLatch startLatch;
 
-		private PluginStarter(Plugin plugin, CountDownLatch latch) {
+		private PluginStarter(Plugin plugin, CountDownLatch startLatch) {
 			this.plugin = plugin;
-			this.latch = latch;
+			this.startLatch = startLatch;
 		}
 
 		@Override
@@ -209,7 +208,7 @@ class PluginManagerImpl implements PluginManager, Service {
 						LOG.log(WARNING, e.toString(), e);
 				}
 			} finally {
-				latch.countDown();
+				startLatch.countDown();
 			}
 		}
 	}
@@ -217,16 +216,21 @@ class PluginManagerImpl implements PluginManager, Service {
 	private class PluginStopper implements Runnable {
 
 		private final Plugin plugin;
-		private final CountDownLatch latch;
+		private final CountDownLatch startLatch, stopLatch;
 
-		private PluginStopper(Plugin plugin, CountDownLatch latch) {
+		private PluginStopper(Plugin plugin, CountDownLatch startLatch,
+				CountDownLatch stopLatch) {
 			this.plugin = plugin;
-			this.latch = latch;
+			this.startLatch = startLatch;
+			this.stopLatch = stopLatch;
 		}
 
 		@Override
 		public void run() {
 			try {
+				// Wait for the plugin to finish starting
+				startLatch.await();
+				// Stop the plugin
 				long start = System.currentTimeMillis();
 				plugin.stop();
 				long duration = System.currentTimeMillis() - start;
@@ -234,10 +238,13 @@ class PluginManagerImpl implements PluginManager, Service {
 					LOG.info("Stopping plugin " + plugin.getId()
 							+ " took " + duration + " ms");
 				}
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting for plugin to start");
+				// This task runs on an executor, so don't reset the interrupt
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} finally {
-				latch.countDown();
+				stopLatch.countDown();
 			}
 		}
 	}

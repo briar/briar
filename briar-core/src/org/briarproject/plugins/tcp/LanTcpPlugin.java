@@ -31,6 +31,7 @@ class LanTcpPlugin extends TcpPlugin {
 		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
 	}
 
+	@Override
 	public TransportId getId() {
 		return ID;
 	}

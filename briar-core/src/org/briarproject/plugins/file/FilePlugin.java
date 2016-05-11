@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
@@ -27,6 +28,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected final Executor ioExecutor;
 	protected final SimplexPluginCallback callback;
 	protected final int maxLatency;
+	protected final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected volatile boolean running = false;
 
@@ -42,22 +44,27 @@ public abstract class FilePlugin implements SimplexPlugin {
 		this.maxLatency = maxLatency;
 	}
 
+	@Override
 	public int getMaxLatency() {
 		return maxLatency;
 	}
 
+	@Override
 	public int getMaxIdleTime() {
 		return Integer.MAX_VALUE; // We don't need keepalives
 	}
 
+	@Override
 	public boolean isRunning() {
 		return running;
 	}
 
+	@Override
 	public TransportConnectionReader createReader(ContactId c) {
 		return null;
 	}
 
+	@Override
 	public TransportConnectionWriter createWriter(ContactId c) {
 		if (!running) return null;
 		return createWriter(createConnectionFilename());
@@ -105,6 +112,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 			this.file = file;
 		}
 
+		@Override
 		public void run() {
 			if (isPossibleConnectionFilename(file.getName())) {
 				try {

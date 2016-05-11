@@ -42,6 +42,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -81,10 +82,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final Context appContext;
 
 	// The following must only be accessed on the main UI thread
-	private final Map<GroupId, Integer> contactCounts =
-			new HashMap<GroupId, Integer>();
-	private final Map<GroupId, Integer> forumCounts =
-			new HashMap<GroupId, Integer>();
+	private final Map<GroupId, Integer> contactCounts = new HashMap<>();
+	private final Map<GroupId, Integer> forumCounts = new HashMap<>();
+	private final AtomicBoolean used = new AtomicBoolean(false);
+
 	private int contactTotal = 0, forumTotal = 0;
 	private int nextRequestId = 0;
 	private GroupId visibleGroup = null;
@@ -106,6 +107,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void startService() throws ServiceException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		try {
 			settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 		} catch (DbException e) {
@@ -116,6 +118,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void stopService() throws ServiceException {
 		Future<Void> f = androidExecutor.submit(new Callable<Void>() {
+			@Override
 			public Void call() {
 				clearPrivateMessageNotification();
 				clearForumPostNotification();
@@ -125,9 +128,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 		try {
 			f.get();
-		} catch (InterruptedException e) {
-			throw new ServiceException(e);
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			throw new ServiceException(e);
 		}
 	}
@@ -150,6 +151,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		nm.cancel(INTRODUCTION_SUCCESS_NOTIFICATION_ID);
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
@@ -180,6 +182,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private void loadSettings() {
 		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
@@ -191,8 +194,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@Override
 	public void showPrivateMessageNotification(final GroupId g) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				Integer count = contactCounts.get(g);
 				if (count == null) contactCounts.put(g, 1);
@@ -204,8 +209,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@Override
 	public void clearPrivateMessageNotification(final GroupId g) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				Integer count = contactCounts.remove(g);
 				if (count == null) return; // Already cleared
@@ -275,8 +282,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		return defaults;
 	}
 
+	@Override
 	public void showForumPostNotification(final GroupId g) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				Integer count = forumCounts.get(g);
 				if (count == null) forumCounts.put(g, 1);
@@ -288,8 +297,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@Override
 	public void clearForumPostNotification(final GroupId g) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				Integer count = forumCounts.remove(g);
 				if (count == null) return; // Already cleared
@@ -347,16 +358,20 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
+	@Override
 	public void blockNotification(final GroupId g) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				visibleGroup = g;
 			}
 		});
 	}
 
+	@Override
 	public void unblockNotification(final GroupId g) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				if (g.equals(visibleGroup)) visibleGroup = null;
 			}
@@ -365,6 +380,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private void showNotificationForPrivateConversation(final ContactId c) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					GroupId group = messagingManager.getConversationId(c);
@@ -379,6 +395,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private void showIntroductionSucceededNotification(final Contact c) {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				NotificationCompat.Builder b =
 						new NotificationCompat.Builder(appContext);

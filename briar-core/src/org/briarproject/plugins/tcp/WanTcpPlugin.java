@@ -31,6 +31,7 @@ class WanTcpPlugin extends TcpPlugin {
 		this.portMapper = portMapper;
 	}
 
+	@Override
 	public TransportId getId() {
 		return ID;
 	}
