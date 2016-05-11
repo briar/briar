@@ -61,6 +61,7 @@ public class CoreModule {
 		c.inject(new PluginsModule.EagerSingletons());
 		c.inject(new PropertiesModule.EagerSingletons());
 		c.inject(new SyncModule.EagerSingletons());
+		c.inject(new SystemModule.EagerSingletons());
 		c.inject(new TransportModule.EagerSingletons());
 		c.inject(new IntroductionModule.EagerSingletons());
 	}

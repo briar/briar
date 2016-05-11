@@ -9,7 +9,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.transport.ReorderingWindow.Change;
@@ -18,10 +17,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimerTask;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
@@ -34,7 +35,8 @@ class TransportKeyManager {
 
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
-	private final Timer timer;
+	private final Executor dbExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final Clock clock;
 	private final TransportId transportId;
 	private final long rotationPeriodLength;
@@ -46,11 +48,12 @@ class TransportKeyManager {
 	private final Map<ContactId, MutableTransportKeys> keys;
 
 	TransportKeyManager(DatabaseComponent db, CryptoComponent crypto,
-			Timer timer, Clock clock, TransportId transportId,
-			long maxLatency) {
+			Executor dbExecutor, ScheduledExecutorService scheduler,
+			Clock clock, TransportId transportId, long maxLatency) {
 		this.db = db;
 		this.crypto = crypto;
-		this.timer = timer;
+		this.dbExecutor = dbExecutor;
+		this.scheduler = scheduler;
 		this.clock = clock;
 		this.transportId = transportId;
 		rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
@@ -122,7 +125,19 @@ class TransportKeyManager {
 	}
 
 	private void scheduleKeyRotation(long now) {
-		TimerTask task = new TimerTask() {
+		Runnable task = new Runnable() {
+			@Override
+			public void run() {
+				rotateKeys();
+			}
+		};
+		long delay = rotationPeriodLength - now % rotationPeriodLength;
+		scheduler.schedule(task, delay, MILLISECONDS);
+	}
+
+	private void rotateKeys() {
+		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Transaction txn = db.startTransaction(false);
@@ -137,9 +152,7 @@ class TransportKeyManager {
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
-		};
-		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		timer.schedule(task, delay);
+		});
 	}
 
 	void addContact(Transaction txn, ContactId c, SecretKey master,

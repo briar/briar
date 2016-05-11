@@ -7,14 +7,11 @@ import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
-import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.api.system.Timer;
-import org.briarproject.api.transport.KeyManager;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.api.system.Clock;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +25,8 @@ public class PluginsModule {
 	public static class EagerSingletons {
 		@Inject
 		PluginManager pluginManager;
+		@Inject
+		Poller poller;
 	}
 
 	@Provides
@@ -36,33 +35,35 @@ public class PluginsModule {
 	}
 
 	@Provides
+	@Singleton
 	Poller providePoller(@IoExecutor Executor ioExecutor,
-			ConnectionRegistry connectionRegistry, SecureRandom random,
-			Timer timer) {
-		return new PollerImpl(ioExecutor, connectionRegistry, random, timer);
+			ScheduledExecutorService scheduler,
+			ConnectionManager connectionManager,
+			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
+			SecureRandom random, Clock clock, EventBus eventBus) {
+		Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
+				connectionRegistry, pluginManager, random, clock);
+		eventBus.addListener(poller);
+		return poller;
 	}
 
 	@Provides
+	@Singleton
 	ConnectionManager provideConnectionManager(
-			@IoExecutor Executor ioExecutor, KeyManager keyManager,
-			StreamReaderFactory streamReaderFactory,
-			StreamWriterFactory streamWriterFactory,
-			SyncSessionFactory syncSessionFactory,
-			ConnectionRegistry connectionRegistry) {
-		return new ConnectionManagerImpl(ioExecutor, keyManager,
-				streamReaderFactory, streamWriterFactory, syncSessionFactory,
-				connectionRegistry);
+			ConnectionManagerImpl connectionManager) {
+		return connectionManager;
 	}
 
 	@Provides
 	@Singleton
-	ConnectionRegistry provideConnectionRegistry(EventBus eventBus) {
-		return new ConnectionRegistryImpl(eventBus);
+	ConnectionRegistry provideConnectionRegistry(
+			ConnectionRegistryImpl connectionRegistry) {
+		return connectionRegistry;
 	}
 
 	@Provides
 	@Singleton
-	PluginManager getPluginManager(LifecycleManager lifecycleManager,
+	PluginManager providePluginManager(LifecycleManager lifecycleManager,
 			PluginManagerImpl pluginManager) {
 		lifecycleManager.registerService(pluginManager);
 		return pluginManager;

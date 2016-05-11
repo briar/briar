@@ -21,6 +21,7 @@ import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
 import org.briarproject.sync.SyncModule;
+import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
 
 import javax.inject.Singleton;
@@ -31,7 +32,7 @@ import dagger.Component;
 @Component(modules = {
 		TestDatabaseModule.class,
 		TestPluginsModule.class,
-		TestSystemModule.class,
+		TestSeedProviderModule.class,
 		ClientsModule.class,
 		ContactModule.class,
 		CryptoModule.class,
@@ -43,11 +44,12 @@ import dagger.Component;
 		MessagingModule.class,
 		PluginsModule.class,
 		SyncModule.class,
+		SystemModule.class,
 		TransportModule.class
 })
 public interface SimplexMessagingIntegrationTestComponent {
 
-	void inject(SimplexMessagingIntegrationTest testCase);
+	void inject(SystemModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 

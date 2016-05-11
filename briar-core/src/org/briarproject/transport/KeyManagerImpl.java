@@ -19,7 +19,6 @@ import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.Timer;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 
@@ -28,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -42,21 +42,22 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
 	private final Executor dbExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final PluginConfig pluginConfig;
-	private final Timer timer;
 	private final Clock clock;
 	private final Map<ContactId, Boolean> activeContacts;
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
 
 	@Inject
 	KeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			@DatabaseExecutor Executor dbExecutor, PluginConfig pluginConfig,
-			Timer timer, Clock clock) {
+			@DatabaseExecutor Executor dbExecutor,
+			ScheduledExecutorService scheduler, PluginConfig pluginConfig,
+			Clock clock) {
 		this.db = db;
 		this.crypto = crypto;
 		this.dbExecutor = dbExecutor;
+		this.scheduler = scheduler;
 		this.pluginConfig = pluginConfig;
-		this.timer = timer;
 		this.clock = clock;
 		// Use a ConcurrentHashMap as a thread-safe set
 		activeContacts = new ConcurrentHashMap<ContactId, Boolean>();
@@ -80,7 +81,8 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 					db.addTransport(txn, e.getKey(), e.getValue());
 				for (Entry<TransportId, Integer> e : transports.entrySet()) {
 					TransportKeyManager m = new TransportKeyManager(db, crypto,
-							timer, clock, e.getKey(), e.getValue());
+							dbExecutor, scheduler, clock, e.getKey(),
+							e.getValue());
 					managers.put(e.getKey(), m);
 					m.start(txn);
 				}
@@ -97,12 +99,14 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	public void stopService() {
 	}
 
+	@Override
 	public void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
 		for (TransportKeyManager m : managers.values())
 			m.addContact(txn, c, master, timestamp, alice);
 	}
 
+	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
 		// Don't allow outgoing streams to inactive contacts
@@ -123,6 +127,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		return ctx;
 	}
 
+	@Override
 	public StreamContext getStreamContext(TransportId t, byte[] tag)
 			throws DbException {
 		TransportKeyManager m = managers.get(t);
@@ -141,6 +146,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		return ctx;
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			removeContact(((ContactRemovedEvent) e).getContactId());
@@ -154,6 +160,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private void removeContact(final ContactId c) {
 		activeContacts.remove(c);
 		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				for (TransportKeyManager m : managers.values())
 					m.removeContact(c);

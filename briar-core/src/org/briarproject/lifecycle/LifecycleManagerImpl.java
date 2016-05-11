@@ -50,24 +50,27 @@ class LifecycleManagerImpl implements LifecycleManager {
 		executors = new CopyOnWriteArrayList<ExecutorService>();
 	}
 
+	@Override
 	public void registerService(Service s) {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Registering service " + s.getClass().getName());
 		services.add(s);
 	}
 
+	@Override
 	public void registerClient(Client c) {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Registering client " + c.getClass().getName());
 		clients.add(c);
 	}
 
+	@Override
 	public void registerForShutdown(ExecutorService e) {
-		if (LOG.isLoggable(INFO))
-			LOG.info("Registering executor " + e.getClass().getName());
+		LOG.info("Registering executor");
 		executors.add(e);
 	}
 
+	@Override
 	public StartResult startServices() {
 		if (!startStopSemaphore.tryAcquire()) {
 			LOG.info("Already starting or stopping");
@@ -91,7 +94,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 					c.createLocalState(txn);
 					duration = System.currentTimeMillis() - start;
 					if (LOG.isLoggable(INFO)) {
-						LOG.info("Starting " + c.getClass().getName()
+						LOG.info("Starting client " + c.getClass().getName()
 								+ " took " + duration + " ms");
 					}
 				}
@@ -104,7 +107,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 				s.startService();
 				duration = System.currentTimeMillis() - start;
 				if (LOG.isLoggable(INFO)) {
-					LOG.info("Starting " + s.getClass().getName()
+					LOG.info("Starting service " + s.getClass().getName()
 							+ " took " + duration + " ms");
 				}
 			}
@@ -121,6 +124,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 		}
 	}
 
+	@Override
 	public void stopServices() {
 		try {
 			startStopSemaphore.acquire();
@@ -132,15 +136,22 @@ class LifecycleManagerImpl implements LifecycleManager {
 			LOG.info("Stopping services");
 			eventBus.broadcast(new ShutdownEvent());
 			for (Service s : services) {
+				long start = System.currentTimeMillis();
 				s.stopService();
-				if (LOG.isLoggable(INFO))
-					LOG.info("Service stopped: " + s.getClass().getName());
+				long duration = System.currentTimeMillis() - start;
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Stopping service " + s.getClass().getName()
+							+ " took " + duration + " ms");
+				}
 			}
 			for (ExecutorService e : executors) e.shutdownNow();
 			if (LOG.isLoggable(INFO))
 				LOG.info(executors.size() + " executors shut down");
+			long start = System.currentTimeMillis();
 			db.close();
-			LOG.info("Database closed");
+			long duration = System.currentTimeMillis() - start;
+			if (LOG.isLoggable(INFO))
+				LOG.info("Closing database took " + duration + " ms");
 			shutdownLatch.countDown();
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -151,14 +162,17 @@ class LifecycleManagerImpl implements LifecycleManager {
 		}
 	}
 
+	@Override
 	public void waitForDatabase() throws InterruptedException {
 		dbLatch.await();
 	}
 
+	@Override
 	public void waitForStartup() throws InterruptedException {
 		startupLatch.await();
 	}
 
+	@Override
 	public void waitForShutdown() throws InterruptedException {
 		shutdownLatch.await();
 	}
