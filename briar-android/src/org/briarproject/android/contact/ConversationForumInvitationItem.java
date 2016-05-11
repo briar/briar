@@ -4,7 +4,7 @@ import org.briarproject.api.forum.ForumInvitationMessage;
 
 abstract class ConversationForumInvitationItem extends ConversationItem {
 
-	private ForumInvitationMessage fim;
+	private final ForumInvitationMessage fim;
 
 	public ConversationForumInvitationItem(ForumInvitationMessage fim) {
 		super(fim.getId(), fim.getTimestamp());
@@ -15,5 +15,4 @@ abstract class ConversationForumInvitationItem extends ConversationItem {
 	public ForumInvitationMessage getForumInvitationMessage() {
 		return fim;
 	}
-
 }

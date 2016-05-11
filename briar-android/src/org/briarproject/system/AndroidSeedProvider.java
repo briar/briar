@@ -8,16 +8,12 @@ import android.provider.Settings;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import static android.provider.Settings.Secure.ANDROID_ID;
 
 class AndroidSeedProvider extends LinuxSeedProvider {
-
-	private static final Logger LOG =
-			Logger.getLogger(LinuxSeedProvider.class.getName());
 
 	private final Context appContext;
 
@@ -34,10 +30,8 @@ class AndroidSeedProvider extends LinuxSeedProvider {
 		if (Build.FINGERPRINT != null) out.writeUTF(Build.FINGERPRINT);
 		if (Build.SERIAL != null) out.writeUTF(Build.SERIAL);
 		ContentResolver contentResolver = appContext.getContentResolver();
-		String str = Settings.Secure.getString(contentResolver, ANDROID_ID);
-		if (str != null) {
-			out.writeUTF(str);
-		}
+		String id = Settings.Secure.getString(contentResolver, ANDROID_ID);
+		if (id != null) out.writeUTF(id);
 		super.writeToEntropyPool(out);
 	}
 }

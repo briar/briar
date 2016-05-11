@@ -3,7 +3,6 @@ package org.briarproject.android.introduction;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
@@ -20,6 +19,7 @@ public class IntroductionActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
+
 	private int contactId;
 
 	@Override
@@ -34,7 +34,8 @@ public class IntroductionActivity extends BriarActivity implements
 		setContentView(R.layout.activity_introduction);
 
 		if (savedInstanceState == null) {
-			getSupportFragmentManager().beginTransaction()
+			getSupportFragmentManager()
+					.beginTransaction()
 					.add(R.id.introductionContainer,
 							activityComponent.newContactChooserFragment())
 					.commit();
@@ -82,21 +83,21 @@ public class IntroductionActivity extends BriarActivity implements
 		return contactId;
 	}
 
-	public void showMessageScreen(final View view, final Contact c1,
-			final Contact c2) {
+	public void showMessageScreen(View view, Contact c1, Contact c2) {
 
 		IntroductionMessageFragment messageFragment =
 				activityComponent.newIntroductionMessageFragment();
 		messageFragment.initBundle(c1.getId().getInt(), c2.getId().getInt());
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (Build.VERSION.SDK_INT >= 21) {
 			messageFragment.setSharedElementEnterTransition(new ChangeBounds());
 			messageFragment.setEnterTransition(new Fade());
-			messageFragment
-					.setSharedElementReturnTransition(new ChangeBounds());
+			messageFragment.setSharedElementReturnTransition(
+					new ChangeBounds());
 		}
 
-		getSupportFragmentManager().beginTransaction()
+		getSupportFragmentManager()
+				.beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,
 						android.R.anim.fade_out,
 						android.R.anim.slide_in_left,
@@ -107,5 +108,4 @@ public class IntroductionActivity extends BriarActivity implements
 				.addToBackStack(null)
 				.commit();
 	}
-
 }

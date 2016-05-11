@@ -48,23 +48,23 @@ import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21,
-		application = TestBriarApplicationImp.class)
+		application = TestBriarApplication.class)
 public class SetupActivityTest {
 
-	TestSetupActivity setupActivity;
-	TextInputLayout nicknameEntryWrapper;
-	TextInputLayout passwordEntryWrapper;
-	TextInputLayout passwordConfirmationWrapper;
-	EditText nicknameEntry;
-	EditText passwordEntry;
-	EditText passwordConfirmation;
-	StrengthMeter strengthMeter;
-	Button createAccountButton;
+	private TestSetupActivity setupActivity;
+	private TextInputLayout nicknameEntryWrapper;
+	private TextInputLayout passwordEntryWrapper;
+	private TextInputLayout passwordConfirmationWrapper;
+	private EditText nicknameEntry;
+	private EditText passwordEntry;
+	private EditText passwordConfirmation;
+	private StrengthMeter strengthMeter;
+	private Button createAccountButton;
 
 	@Mock
-	SetupController setupController;
+	private SetupController setupController;
 	@Captor
-	ArgumentCaptor<ResultHandler<Long>> resultCaptor;
+	private ArgumentCaptor<ResultHandler<Long>> resultCaptor;
 
 	@Before
 	public void setUp() {
@@ -225,5 +225,4 @@ public class SetupActivityTest {
 		Mockito.verify(mockedController, Mockito.times(1))
 				.estimatePasswordStrength(eq("empty"));
 	}
-
 }

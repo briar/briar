@@ -11,7 +11,6 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.controller.ConfigController;
-import org.briarproject.android.util.AndroidUtils;
 import org.iilab.IilabEngineeringRSA2048Pin;
 
 import java.util.logging.Logger;
@@ -32,7 +31,9 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(PanicResponderActivity.class.getName());
-	@Inject protected ConfigController configController;
+
+	@Inject
+	protected ConfigController configController;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -76,8 +77,6 @@ public class PanicResponderActivity extends BriarActivity {
 						LOG.info("Signing out...");
 						signOut(true);
 					}
-
-					// TODO send a pre-defined message to certain contacts (#212)
 				}
 				// Performing non-destructive default panic response
 				else if (sharedPref.getBoolean(KEY_LOCK, true)) {
@@ -109,11 +108,10 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private void deleteAllData() {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
-				configController.clearPrefs();
+				configController.deleteAccount(PanicResponderActivity.this);
 				// TODO somehow delete/shred the database more thoroughly
-				// TODO replace this static call with a controller method
-				AndroidUtils.deleteAppData(PanicResponderActivity.this);
 				PanicResponder.deleteAllAppData(PanicResponderActivity.this);
 
 				// nothing left to do after everything is deleted,

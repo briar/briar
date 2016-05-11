@@ -4,7 +4,7 @@ import org.briarproject.api.sync.MessageId;
 
 abstract class ConversationNoticeItem extends ConversationItem {
 
-	private String text;
+	private final String text;
 
 	public ConversationNoticeItem(MessageId id, String text, long time) {
 		super(id, time);
@@ -15,5 +15,4 @@ abstract class ConversationNoticeItem extends ConversationItem {
 	public String getText() {
 		return text;
 	}
-
 }

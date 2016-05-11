@@ -16,8 +16,6 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -34,15 +32,15 @@ public class NavDrawerControllerImpl extends BriarControllerImpl
 	@Inject
 	protected ReferenceManager referenceManager;
 	@Inject
-	protected volatile IdentityManager identityManager;
-	@Inject
 	protected PluginManager pluginManager;
 	@Inject
 	protected EventBus eventBus;
 	@Inject
 	protected Activity activity;
 
-	private List<Plugin> transports = new ArrayList<Plugin>();
+	// Fields that are accessed from background threads must be volatile
+	@Inject
+	protected volatile IdentityManager identityManager;
 
 	private TransportStateListener transportStateListener;
 
@@ -112,6 +110,7 @@ public class NavDrawerControllerImpl extends BriarControllerImpl
 	public void storeLocalAuthor(final LocalAuthor author,
 			final UiResultHandler<Void> resultHandler) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -130,7 +129,6 @@ public class NavDrawerControllerImpl extends BriarControllerImpl
 
 	@Override
 	public LocalAuthor removeAuthorHandle(long handle) {
-		return referenceManager.removeReference(handle,
-				LocalAuthor.class);
+		return referenceManager.removeReference(handle, LocalAuthor.class);
 	}
 }

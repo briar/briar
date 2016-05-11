@@ -28,19 +28,22 @@ import javax.inject.Inject;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 
 public class IntroductionMessageFragment extends BaseFragment {
 
-	private static final Logger LOG =
-			Logger.getLogger(IntroductionMessageFragment.class.getName());
-
 	public final static String TAG = "IntroductionMessageFragment";
-	private IntroductionActivity introductionActivity;
-	private ViewHolder ui;
 
 	private final static String CONTACT_ID_1 = "contact1";
 	private final static String CONTACT_ID_2 = "contact2";
+	private static final Logger LOG =
+			Logger.getLogger(IntroductionMessageFragment.class.getName());
+
+	private IntroductionActivity introductionActivity;
+	private ViewHolder ui;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -83,13 +86,12 @@ public class IntroductionMessageFragment extends BaseFragment {
 		}
 
 		// inflate view
-		View v =
-				inflater.inflate(R.layout.introduction_message, container,
-						false);
+		View v = inflater.inflate(R.layout.introduction_message, container,
+				false);
 
 		// show progress bar until contacts have been loaded
 		ui = new ViewHolder(v);
-		ui.text.setVisibility(View.GONE);
+		ui.text.setVisibility(GONE);
 		ui.button.setEnabled(false);
 
 		// get contact IDs from fragment arguments
@@ -114,12 +116,13 @@ public class IntroductionMessageFragment extends BaseFragment {
 	private void prepareToSetUpViews(final int contactId1,
 			final int contactId2) {
 		introductionActivity.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
-					Contact c1 = contactManager
-							.getContact(new ContactId(contactId1));
-					Contact c2 = contactManager
-							.getContact(new ContactId(contactId2));
+					Contact c1 = contactManager.getContact(
+							new ContactId(contactId1));
+					Contact c2 = contactManager.getContact(
+							new ContactId(contactId2));
 					setUpViews(c1, c2);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -131,6 +134,7 @@ public class IntroductionMessageFragment extends BaseFragment {
 
 	private void setUpViews(final Contact c1, final Contact c2) {
 		introductionActivity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				// set avatars
 				ui.avatar1.setImageDrawable(new IdenticonDrawable(
@@ -152,8 +156,8 @@ public class IntroductionMessageFragment extends BaseFragment {
 				});
 
 				// hide progress bar and show views
-				ui.progressBar.setVisibility(View.GONE);
-				ui.text.setVisibility(View.VISIBLE);
+				ui.progressBar.setVisibility(GONE);
+				ui.text.setVisibility(VISIBLE);
 				ui.button.setEnabled(true);
 			}
 		});
@@ -174,17 +178,14 @@ public class IntroductionMessageFragment extends BaseFragment {
 	private void makeIntroduction(final Contact c1, final Contact c2,
 			final String msg) {
 		introductionActivity.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				// actually make the introduction
 				try {
 					long timestamp = System.currentTimeMillis();
-					introductionManager
-							.makeIntroduction(c1, c2, msg, timestamp);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					introductionError();
-				} catch (FormatException e) {
+					introductionManager.makeIntroduction(c1, c2, msg,
+							timestamp);
+				} catch (DbException | FormatException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					introductionError();
@@ -195,26 +196,24 @@ public class IntroductionMessageFragment extends BaseFragment {
 
 	private void introductionError() {
 		introductionActivity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				Toast.makeText(introductionActivity,
-						R.string.introduction_error, Toast.LENGTH_SHORT)
-						.show();
+						R.string.introduction_error, LENGTH_SHORT).show();
 			}
 		});
 	}
 
 	private static class ViewHolder {
-		ProgressBar progressBar;
-		ViewGroup header;
-		CircleImageView avatar1;
-		CircleImageView avatar2;
-		TextView text;
-		EditText message;
-		Button button;
+
+		private final ProgressBar progressBar;
+		private final CircleImageView avatar1, avatar2;
+		private final TextView text;
+		private final EditText message;
+		private final Button button;
 
 		ViewHolder(View v) {
 			progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
-			header = (ViewGroup) v.findViewById(R.id.introductionHeader);
 			avatar1 = (CircleImageView) v.findViewById(R.id.avatarContact1);
 			avatar2 = (CircleImageView) v.findViewById(R.id.avatarContact2);
 			text = (TextView) v.findViewById(R.id.introductionText);

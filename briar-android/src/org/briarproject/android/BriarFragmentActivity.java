@@ -58,9 +58,8 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 
 	protected void startFragment(BaseFragment fragment) {
 		if (getSupportFragmentManager().getBackStackEntryCount() == 0)
-			this.startFragment(fragment, false);
-		else
-			this.startFragment(fragment, true);
+			startFragment(fragment, false);
+		else startFragment(fragment, true);
 	}
 
 	protected void showMessageDialog(int titleStringId, int msgStringId) {
@@ -76,7 +75,7 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 
 	protected void startFragment(BaseFragment fragment,
 			boolean isAddedToBackStack) {
-		this.startFragment(fragment, 0, 0, isAddedToBackStack);
+		startFragment(fragment, 0, 0, isAddedToBackStack);
 	}
 
 	protected void startFragment(BaseFragment fragment,
@@ -94,5 +93,4 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 		trans.commit();
 		updateToolbarTitle(fragment.getUniqueTag());
 	}
-
 }

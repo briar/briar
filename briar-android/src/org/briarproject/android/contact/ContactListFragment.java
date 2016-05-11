@@ -54,18 +54,16 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 
 public class ContactListFragment extends BaseFragment implements EventListener {
 
+	public final static String TAG = "ContactListFragment";
+
 	private static final Logger LOG =
 			Logger.getLogger(ContactListFragment.class.getName());
 
-	public final static String TAG = "ContactListFragment";
-
-	@Override
-	public String getUniqueTag() {
-		return TAG;
-	}
-
 	@Inject
 	protected ConnectionRegistry connectionRegistry;
+	@Inject
+	protected EventBus eventBus;
+
 	private ContactListAdapter adapter = null;
 	private BriarRecyclerView list = null;
 
@@ -80,13 +78,15 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	protected volatile IntroductionManager introductionManager;
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
-	@Inject
-	protected volatile EventBus eventBus;
-
 
 	@Inject
 	public ContactListFragment() {
 
+	}
+
+	@Override
+	public String getUniqueTag() {
+		return TAG;
 	}
 
 	@Nullable
@@ -160,11 +160,11 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private void loadContacts() {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					List<ContactListItem> contacts =
-							new ArrayList<ContactListItem>();
+					List<ContactListItem> contacts = new ArrayList<>();
 					for (Contact c : contactManager.getActiveContacts()) {
 						try {
 							ContactId id = c.getId();
@@ -196,6 +196,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private void displayContacts(final List<ContactListItem> contacts) {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				if (contacts.size() == 0) list.showData();
 				else adapter.addAll(contacts);
@@ -203,9 +204,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactAddedEvent) {
-			if(((ContactAddedEvent) e).isActive()) {
+			if (((ContactAddedEvent) e).isActive()) {
 				LOG.info("Contact added as active, reloading");
 				loadContacts();
 			}
@@ -233,6 +235,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private void reloadConversation(final GroupId g) {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					ContactId c = messagingManager.getContactId(g);
@@ -252,6 +255,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	private void updateItem(final ContactId c,
 			final Collection<ConversationItem> messages) {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);
@@ -265,6 +269,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private void removeItem(final ContactId c) {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);
@@ -275,6 +280,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private void setConnected(final ContactId c, final boolean connected) {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);
@@ -286,14 +292,13 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	/** This needs to be called from the DbThread */
+	// This needs to be called from the DB thread
 	private Collection<ConversationItem> getMessages(ContactId id)
 			throws DbException {
 
 		long now = System.currentTimeMillis();
 
-		Collection<ConversationItem> messages =
-				new ArrayList<ConversationItem>();
+		Collection<ConversationItem> messages = new ArrayList<>();
 
 		Collection<PrivateMessageHeader> headers =
 				messagingManager.getMessageHeaders(id);

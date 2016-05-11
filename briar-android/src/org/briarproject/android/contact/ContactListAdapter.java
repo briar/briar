@@ -20,17 +20,17 @@ public class ContactListAdapter
 
 	@Override
 	public ContactHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-		View v = LayoutInflater.from(viewGroup.getContext())
-				.inflate(R.layout.list_item_contact, viewGroup, false);
+		View v = LayoutInflater.from(viewGroup.getContext()).inflate(
+				R.layout.list_item_contact, viewGroup, false);
 
 		return new ContactHolder(v);
 	}
 
 	@Override
-	public void onBindViewHolder(final ContactHolder ui, final int position) {
+	public void onBindViewHolder(ContactHolder ui, int position) {
 		super.onBindViewHolder(ui, position);
 
-		final ContactListItem item = getItem(position);
+		ContactListItem item = getItem(position);
 
 		// name and unread count
 		String contactName = item.getContact().getAuthor().getName();
@@ -84,5 +84,4 @@ public class ContactListAdapter
 	public int compareContactListItems(ContactListItem c1, ContactListItem c2) {
 		return compareByTime(c1, c2);
 	}
-
 }

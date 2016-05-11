@@ -10,8 +10,10 @@ public abstract class UiResultHandler<R> implements ResultHandler<R> {
 		this.activity = activity;
 	}
 
+	@Override
 	public void onResult(final R result) {
 		activity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				onResultUi(result);
 			}

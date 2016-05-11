@@ -26,5 +26,4 @@ abstract class ConversationMessageItem extends ConversationItem {
 	void setBody(byte[] body) {
 		this.body = body;
 	}
-
 }

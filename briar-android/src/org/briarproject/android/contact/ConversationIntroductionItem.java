@@ -2,9 +2,10 @@ package org.briarproject.android.contact;
 
 import org.briarproject.api.introduction.IntroductionRequest;
 
+// This class is not thread-safe
 abstract class ConversationIntroductionItem extends ConversationItem {
 
-	private IntroductionRequest ir;
+	private final IntroductionRequest ir;
 	private boolean answered;
 
 	public ConversationIntroductionItem(IntroductionRequest ir) {
@@ -25,5 +26,4 @@ abstract class ConversationIntroductionItem extends ConversationItem {
 	public void setAnswered(boolean answered) {
 		this.answered = answered;
 	}
-
 }

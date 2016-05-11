@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -47,21 +46,27 @@ import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 public class CreateIdentityActivity extends BriarActivity
-implements OnEditorActionListener, OnClickListener {
+		implements OnEditorActionListener, OnClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(CreateIdentityActivity.class.getName());
 
-	@Inject @CryptoExecutor protected Executor cryptoExecutor;
-	private EditText nicknameEntry = null;
-	private Button createIdentityButton = null;
-	private ProgressBar progress = null;
-	private TextView feedback = null;
+	@Inject
+	@CryptoExecutor
+	protected Executor cryptoExecutor;
+
+	private EditText nicknameEntry;
+	private Button createIdentityButton;
+	private ProgressBar progress;
+	private TextView feedback;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile CryptoComponent crypto;
-	@Inject protected volatile AuthorFactory authorFactory;
-	@Inject protected volatile IdentityManager identityManager;
+	@Inject
+	protected volatile CryptoComponent crypto;
+	@Inject
+	protected volatile AuthorFactory authorFactory;
+	@Inject
+	protected volatile IdentityManager identityManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -124,6 +129,7 @@ implements OnEditorActionListener, OnClickListener {
 		createIdentityButton.setEnabled(validateNickname());
 	}
 
+	@Override
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
 		hideSoftKeyboard(textView);
 		return true;
@@ -140,6 +146,7 @@ implements OnEditorActionListener, OnClickListener {
 		return length > 0;
 	}
 
+	@Override
 	public void onClick(View view) {
 		hideSoftKeyboard(view);
 		if (!validateNickname()) return;
@@ -149,6 +156,7 @@ implements OnEditorActionListener, OnClickListener {
 		// Create the identity in a background thread
 		final String nickname = nicknameEntry.getText().toString();
 		cryptoExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				KeyPair keyPair = crypto.generateSignatureKeyPair();
 				final byte[] publicKey = keyPair.getPublic().getEncoded();
@@ -162,6 +170,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	private void storeLocalAuthor(final LocalAuthor a) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -180,6 +189,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	private void setResultAndFinish(final LocalAuthor a) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				Intent i = new Intent();
 				i.putExtra("briar.LOCAL_AUTHOR_ID", a.getId().getBytes());

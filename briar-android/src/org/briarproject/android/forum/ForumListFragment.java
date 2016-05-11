@@ -134,6 +134,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 	private void loadForumHeaders() {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					// load forums
@@ -162,6 +163,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 	private void displayForumHeaders(final Collection<ForumListItem> forums) {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				if (forums.size() > 0) adapter.addAll(forums);
 				else list.showData();
@@ -171,6 +173,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 	private void loadAvailableForums() {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -190,6 +193,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 	private void displayAvailableForums(final int availableCount) {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				if (availableCount == 0) {
 					snackbar.dismiss();
@@ -203,6 +207,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed, reloading available forums");
@@ -235,6 +240,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 	private void loadForumHeaders(final GroupId g) {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -272,9 +278,9 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
+	@Override
 	public void onClick(View view) {
 		// snackbar click
 		startActivity(new Intent(getContext(), AvailableForumsActivity.class));
 	}
-
 }

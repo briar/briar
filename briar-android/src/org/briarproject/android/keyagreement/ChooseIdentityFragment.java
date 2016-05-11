@@ -13,8 +13,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
 
 import org.briarproject.R;
-import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
@@ -42,10 +40,10 @@ public class ChooseIdentityFragment extends BaseFragment
 		void identitySelected(AuthorId localAuthorId);
 	}
 
+	public static final String TAG = "ChooseIdentityFragment";
+
 	private static final Logger LOG =
 			Logger.getLogger(ChooseIdentityFragment.class.getName());
-
-	public static final String TAG = "ChooseIdentityFragment";
 
 	private static final int REQUEST_CREATE_IDENTITY = 1;
 
@@ -53,7 +51,6 @@ public class ChooseIdentityFragment extends BaseFragment
 	private LocalAuthorSpinnerAdapter adapter;
 	private Spinner spinner;
 	private View button;
-
 	private AuthorId localAuthorId;
 
 	// Fields that are accessed from background threads must be volatile
@@ -112,6 +109,7 @@ public class ChooseIdentityFragment extends BaseFragment
 
 	private void loadLocalAuthors() {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -157,6 +155,7 @@ public class ChooseIdentityFragment extends BaseFragment
 		button.setEnabled(localAuthorId != null);
 	}
 
+	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		LocalAuthorItem item = adapter.getItem(position);
@@ -169,6 +168,7 @@ public class ChooseIdentityFragment extends BaseFragment
 		}
 	}
 
+	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
 		setLocalAuthorId(null);
 	}

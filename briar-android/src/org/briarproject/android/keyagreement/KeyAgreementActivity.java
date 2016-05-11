@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarFragmentActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.CustomAnimations;
@@ -24,7 +23,6 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.keyagreement.KeyAgreementResult;
-import org.briarproject.api.settings.SettingsManager;
 
 import java.util.logging.Logger;
 
@@ -49,8 +47,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	@Inject
 	protected EventBus eventBus;
-	@Inject
-	protected SettingsManager settingsManager;
 
 	private Toolbar toolbar;
 	private View progressContainer;
@@ -58,6 +54,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	private AuthorId localAuthorId;
 
+	// Fields that are accessed from background threads must be volatile
 	@Inject
 	protected volatile ContactExchangeTask contactExchangeTask;
 	@Inject
@@ -193,6 +190,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	@Override
 	public void contactExchangeSucceeded(final Author remoteAuthor) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				String contactName = remoteAuthor.getName();
 				String format = getString(R.string.contact_added_toast);
@@ -207,6 +205,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	@Override
 	public void duplicateContact(final Author remoteAuthor) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				String contactName = remoteAuthor.getName();
 				String format = getString(R.string.contact_already_exists);
@@ -221,6 +220,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	@Override
 	public void contactExchangeFailed() {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				Toast.makeText(KeyAgreementActivity.this,
 						R.string.contact_exchange_failed, LENGTH_LONG).show();

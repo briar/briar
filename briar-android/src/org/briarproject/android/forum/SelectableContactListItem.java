@@ -16,7 +16,8 @@ public class SelectableContactListItem extends ContactListItem {
 	public SelectableContactListItem(Contact contact, LocalAuthor localAuthor,
 			GroupId groupId, boolean selected, boolean disabled) {
 
-		super(contact, localAuthor, false, groupId, Collections.<ConversationItem>emptyList());
+		super(contact, localAuthor, false, groupId,
+				Collections.<ConversationItem>emptyList());
 
 		this.selected = selected;
 		this.disabled = disabled;
@@ -37,5 +38,4 @@ public class SelectableContactListItem extends ContactListItem {
 	public boolean isDisabled() {
 		return disabled;
 	}
-
 }

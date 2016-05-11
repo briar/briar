@@ -29,5 +29,4 @@ public class ConversationForumInvitationInItem
 	public void setRead(boolean read) {
 		this.read = read;
 	}
-
 }

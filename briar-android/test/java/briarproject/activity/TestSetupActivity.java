@@ -10,11 +10,10 @@ import org.briarproject.android.controller.SetupController;
 public class TestSetupActivity extends SetupActivity {
 
 	public SetupController getController() {
-		return this.setupController;
+		return setupController;
 	}
 
 	public void setController(SetupController setupController) {
 		this.setupController = setupController;
 	}
-
 }

@@ -11,16 +11,20 @@ public abstract class UiResultExceptionHandler<R, E extends Exception>
 		this.activity = activity;
 	}
 
+	@Override
 	public void onResult(final R result) {
 		activity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				onResultUi(result);
 			}
 		});
 	}
 
+	@Override
 	public void onException(final E exception) {
 		activity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				onExceptionUi(exception);
 			}

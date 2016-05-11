@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class ContactSelectorAdapter
-		extends
-		BaseContactListAdapter<ContactSelectorAdapter.SelectableContactHolder> {
+		extends BaseContactListAdapter<ContactSelectorAdapter.SelectableContactHolder> {
 
 	public ContactSelectorAdapter(Context context,
 			OnItemClickListener listener) {
@@ -32,19 +31,17 @@ public class ContactSelectorAdapter
 	@Override
 	public SelectableContactHolder onCreateViewHolder(ViewGroup viewGroup,
 			int i) {
-		View v = LayoutInflater.from(ctx)
-				.inflate(R.layout.list_item_selectable_contact, viewGroup,
-						false);
+		View v = LayoutInflater.from(ctx).inflate(
+				R.layout.list_item_selectable_contact, viewGroup, false);
 
 		return new SelectableContactHolder(v);
 	}
 
 	@Override
-	public void onBindViewHolder(final SelectableContactHolder ui,
-			final int position) {
+	public void onBindViewHolder(SelectableContactHolder ui, int position) {
 		super.onBindViewHolder(ui, position);
 
-		final SelectableContactListItem item =
+		SelectableContactListItem item =
 				(SelectableContactListItem) getItem(position);
 
 		if (item.isSelected()) {
@@ -90,7 +87,7 @@ public class ContactSelectorAdapter
 	}
 
 	private void grayOutItem(final SelectableContactHolder ui) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Build.VERSION.SDK_INT >= 11) {
 			float alpha = 0.25f;
 			ui.avatar.setAlpha(alpha);
 			ui.name.setAlpha(alpha);
@@ -103,5 +100,4 @@ public class ContactSelectorAdapter
 			ui.checkBox.setEnabled(false);
 		}
 	}
-
 }

@@ -25,9 +25,7 @@ class AvailableForumsAdapter extends
 			new SortedList<>(AvailableForumsItem.class,
 					new SortedListCallBacks());
 
-	AvailableForumsAdapter(Context ctx,
-			AvailableForumClickListener listener) {
-
+	AvailableForumsAdapter(Context ctx, AvailableForumClickListener listener) {
 		this.ctx = ctx;
 		this.listener = listener;
 	}
@@ -90,16 +88,14 @@ class AvailableForumsAdapter extends
 	protected static class AvailableForumViewHolder
 			extends RecyclerView.ViewHolder {
 
-		public final ViewGroup layout;
-		public final TextView name;
-		public final TextView sharedBy;
-		public final Button accept;
-		public final Button decline;
+		private final TextView name;
+		private final TextView sharedBy;
+		private final Button accept;
+		private final Button decline;
 
 		public AvailableForumViewHolder(View v) {
 			super(v);
 
-			layout = (ViewGroup) v;
 			name = (TextView) v.findViewById(R.id.forumNameView);
 			sharedBy = (TextView) v.findViewById(R.id.sharedByView);
 			accept = (Button) v.findViewById(R.id.acceptButton);
@@ -156,5 +152,4 @@ class AvailableForumsAdapter extends
 	interface AvailableForumClickListener {
 		void onItemClick(AvailableForumsItem item, boolean accept);
 	}
-
 }

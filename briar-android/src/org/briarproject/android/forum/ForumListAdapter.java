@@ -26,6 +26,7 @@ public class ForumListAdapter extends
 
 	private SortedList<ForumListItem> forums = new SortedList<>(
 			ForumListItem.class, new SortedList.Callback<ForumListItem>() {
+
 		@Override
 		public int compare(ForumListItem a, ForumListItem b) {
 			if (a == b) return 0;
@@ -71,6 +72,7 @@ public class ForumListAdapter extends
 			return a.getForum().equals(b.getForum());
 		}
 	});
+
 	private final Context ctx;
 
 	public ForumListAdapter(Context ctx) {
@@ -78,11 +80,9 @@ public class ForumListAdapter extends
 	}
 
 	@Override
-	public ForumViewHolder onCreateViewHolder(ViewGroup parent,
-			int viewType) {
-
-		View v = LayoutInflater.from(ctx)
-				.inflate(R.layout.list_item_forum, parent, false);
+	public ForumViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		View v = LayoutInflater.from(ctx).inflate(
+				R.layout.list_item_forum, parent, false);
 		return new ForumViewHolder(v);
 	}
 
@@ -175,10 +175,10 @@ public class ForumListAdapter extends
 
 	protected static class ForumViewHolder extends RecyclerView.ViewHolder {
 
-		public final ViewGroup layout;
-		public final TextView name;
-		public final TextView unread;
-		public final TextView date;
+		private final ViewGroup layout;
+		private final TextView name;
+		private final TextView unread;
+		private final TextView date;
 
 		public ForumViewHolder(View v) {
 			super(v);
@@ -189,5 +189,4 @@ public class ForumListAdapter extends
 			date = (TextView) v.findViewById(R.id.dateView);
 		}
 	}
-
 }

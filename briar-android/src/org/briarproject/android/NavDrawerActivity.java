@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -33,6 +32,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.support.v4.view.GravityCompat.START;
+import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
+import static android.support.v4.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
+import static android.view.View.INVISIBLE;
+
 public class NavDrawerActivity extends BriarFragmentActivity implements
 		BaseFragment.BaseFragmentListener, TransportStateListener {
 
@@ -51,7 +55,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private Toolbar toolbar;
 	private DrawerLayout drawerLayout;
-	private GridView transportsView;
 	private TextView progressTitle;
 	private ViewGroup progressViewGroup;
 
@@ -88,7 +91,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		transportsView = (GridView) findViewById(R.id.transportsView);
+		GridView transportsView = (GridView) findViewById(R.id.transportsView);
 		progressTitle = (TextView) findViewById(R.id.title_progress_bar);
 		progressViewGroup = (ViewGroup) findViewById(R.id.container_progress);
 
@@ -98,19 +101,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
 				R.string.nav_drawer_open_description,
-				R.string.nav_drawer_close_description
-		) {
-
-			public void onDrawerClosed(View view) {
-				super.onDrawerClosed(view);
-			}
-
-			public void onDrawerOpened(View drawerView) {
-				super.onDrawerOpened(drawerView);
-			}
-		};
+				R.string.nav_drawer_close_description);
 		drawerLayout.setDrawerListener(drawerToggle);
-		if (state == null) startFragment(activityComponent.newContactListFragment());
+		if (state == null)
+			startFragment(activityComponent.newContactListFragment());
 		checkAuthorHandle(getIntent());
 
 		initializeTransports(getLayoutInflater());
@@ -156,18 +150,17 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		return false;
 	}
 
-	private void storeLocalAuthor(final LocalAuthor a) {
-		controller.storeLocalAuthor(a,
-				new UiResultHandler<Void>(this) {
-					@Override
-					public void onResultUi(Void result) {
-						hideLoadingScreen();
-					}
-				});
+	private void storeLocalAuthor(LocalAuthor a) {
+		controller.storeLocalAuthor(a, new UiResultHandler<Void>(this) {
+			@Override
+			public void onResultUi(Void result) {
+				hideLoadingScreen();
+			}
+		});
 	}
 
 	public void onNavigationClick(View view) {
-		drawerLayout.closeDrawer(GravityCompat.START);
+		drawerLayout.closeDrawer(START);
 		clearBackStack();
 		switch (view.getId()) {
 			case R.id.nav_btn_contacts:
@@ -189,8 +182,8 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	@Override
 	public void onBackPressed() {
 		if (getSupportFragmentManager().getBackStackEntryCount() == 0
-				&& drawerLayout.isDrawerOpen(GravityCompat.START)) {
-			drawerLayout.closeDrawer(GravityCompat.START);
+				&& drawerLayout.isDrawerOpen(START)) {
+			drawerLayout.closeDrawer(START);
 			return;
 		}
 		super.onBackPressed();
@@ -218,8 +211,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	public void showLoadingScreen(boolean isBlocking, int stringId) {
 		if (isBlocking) {
 			// Disable navigation drawer slide to open
-			drawerLayout
-					.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+			drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED);
 			CustomAnimations.animateHeight(toolbar, false, 250);
 		}
 		progressTitle.setText(stringId);
@@ -228,14 +220,13 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	@Override
 	public void hideLoadingScreen() {
-		drawerLayout
-				.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+		drawerLayout.setDrawerLockMode(LOCK_MODE_UNLOCKED);
 		CustomAnimations.animateHeight(toolbar, true, 250);
-		progressViewGroup.setVisibility(View.INVISIBLE);
+		progressViewGroup.setVisibility(INVISIBLE);
 	}
 
 	private void initializeTransports(final LayoutInflater inflater) {
-		transports = new ArrayList<Transport>(3);
+		transports = new ArrayList<>(3);
 
 		Transport tor = new Transport();
 		tor.id = new TransportId("tor");
@@ -277,8 +268,8 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			@Override
 			public View getView(int position, View convertView,
 					ViewGroup parent) {
-				ViewGroup view = (ViewGroup) inflater
-						.inflate(R.layout.list_item_transport, parent, false);
+				ViewGroup view = (ViewGroup) inflater.inflate(
+						R.layout.list_item_transport, parent, false);
 
 				Transport t = getItem(position);
 				Resources r = getResources();
@@ -304,6 +295,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private void setTransport(final TransportId id, final boolean enabled) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				if (transports == null || transportsAdapter == null) return;
 				for (Transport t : transports) {
@@ -331,9 +323,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	private static class Transport {
-		TransportId id;
-		boolean enabled;
-		int iconId;
-		int textId;
+
+		private TransportId id;
+		private boolean enabled;
+		private int iconId;
+		private int textId;
 	}
 }

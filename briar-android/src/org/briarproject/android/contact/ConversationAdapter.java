@@ -41,6 +41,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	private final SortedList<ConversationItem> items =
 			new SortedList<>(ConversationItem.class, new ListCallbacks());
+
 	private Context ctx;
 	private IntroductionHandler intro;
 	private String contactName;
@@ -67,44 +68,38 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 		// outgoing message (local)
 		if (type == MSG_OUT) {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_msg_out, viewGroup, false);
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_msg_out, viewGroup, false);
 			return new MessageHolder(v, type);
-		}
-		else if (type == INTRODUCTION_IN) {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_introduction_in, viewGroup, false);
+		} else if (type == INTRODUCTION_IN) {
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_introduction_in, viewGroup, false);
 			return new IntroductionHolder(v, type);
-		}
-		else if (type == INTRODUCTION_OUT) {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_introduction_out, viewGroup, false);
+		} else if (type == INTRODUCTION_OUT) {
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_introduction_out, viewGroup, false);
 			return new IntroductionHolder(v, type);
-		}
-		else if (type == NOTICE_IN) {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_notice_in, viewGroup, false);
+		} else if (type == NOTICE_IN) {
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_notice_in, viewGroup, false);
 			return new NoticeHolder(v, type);
-		}
-		else if (type == NOTICE_OUT) {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_notice_out, viewGroup, false);
+		} else if (type == NOTICE_OUT) {
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_notice_out, viewGroup, false);
 			return new NoticeHolder(v, type);
-		}
-		else if (type == FORUM_INVITATION_IN) {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_forum_invitation_in, viewGroup, false);
+		} else if (type == FORUM_INVITATION_IN) {
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_forum_invitation_in, viewGroup, false);
 			return new InvitationHolder(v, type);
-		}
-		else if (type == FORUM_INVITATION_OUT) {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_forum_invitation_out, viewGroup, false);
+		} else if (type == FORUM_INVITATION_OUT) {
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_forum_invitation_out, viewGroup, false);
 			return new InvitationHolder(v, type);
 		}
 		// incoming message (non-local)
 		else {
-			v = LayoutInflater.from(viewGroup.getContext())
-					.inflate(R.layout.list_item_msg_in, viewGroup, false);
+			v = LayoutInflater.from(viewGroup.getContext()).inflate(
+					R.layout.list_item_msg_in, viewGroup, false);
 			return new MessageHolder(v, type);
 		}
 	}
@@ -126,10 +121,10 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			bindNotice((NoticeHolder) ui, (ConversationNoticeInItem) item);
 		} else if (item instanceof ConversationForumInvitationOutItem) {
 			bindInvitation((InvitationHolder) ui,
-					(ConversationForumInvitationOutItem) item, position);
+					(ConversationForumInvitationOutItem) item);
 		} else if (item instanceof ConversationForumInvitationInItem) {
 			bindInvitation((InvitationHolder) ui,
-					(ConversationForumInvitationInItem) item, position);
+					(ConversationForumInvitationInItem) item);
 		} else {
 			throw new IllegalArgumentException("Unhandled Conversation Item");
 		}
@@ -200,13 +195,16 @@ class ConversationAdapter extends RecyclerView.Adapter {
 					(ConversationIntroductionOutItem) item;
 			if (i.isSeen()) {
 				ui.status.setImageResource(R.drawable.message_delivered);
-				ui.message.status.setImageResource(R.drawable.message_delivered_white);
+				ui.message.status.setImageResource(
+						R.drawable.message_delivered_white);
 			} else if (i.isSent()) {
 				ui.status.setImageResource(R.drawable.message_sent);
-				ui.message.status.setImageResource(R.drawable.message_sent_white);
+				ui.message.status.setImageResource(
+						R.drawable.message_sent_white);
 			} else {
 				ui.status.setImageResource(R.drawable.message_stored);
-				ui.message.status.setImageResource(R.drawable.message_stored_white);
+				ui.message.status.setImageResource(
+						R.drawable.message_stored_white);
 			}
 		}
 		// Incoming Introduction Request (Answered)
@@ -279,7 +277,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	private void bindInvitation(InvitationHolder ui,
-			final ConversationForumInvitationItem item, final int position) {
+			final ConversationForumInvitationItem item) {
 
 		ForumInvitationMessage fim = item.getForumInvitationMessage();
 
@@ -301,13 +299,16 @@ class ConversationAdapter extends RecyclerView.Adapter {
 					(ConversationForumInvitationOutItem) item;
 			if (i.isSeen()) {
 				ui.status.setImageResource(R.drawable.message_delivered);
-				ui.message.status.setImageResource(R.drawable.message_delivered_white);
+				ui.message.status.setImageResource(
+						R.drawable.message_delivered_white);
 			} else if (i.isSent()) {
 				ui.status.setImageResource(R.drawable.message_sent);
-				ui.message.status.setImageResource(R.drawable.message_sent_white);
+				ui.message.status.setImageResource(
+						R.drawable.message_sent_white);
 			} else {
 				ui.status.setImageResource(R.drawable.message_stored);
-				ui.message.status.setImageResource(R.drawable.message_stored_white);
+				ui.message.status.setImageResource(
+						R.drawable.message_stored_white);
 			}
 		}
 		// Incoming Invitation
@@ -321,9 +322,8 @@ class ConversationAdapter extends RecyclerView.Adapter {
 						.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								Intent intent =
-										new Intent(ctx,
-												AvailableForumsActivity.class);
+								Intent intent = new Intent(ctx,
+										AvailableForumsActivity.class);
 								ctx.startActivity(intent);
 							}
 						});
@@ -380,7 +380,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	public SparseArray<ConversationMessageItem> getPrivateMessages() {
-		SparseArray<ConversationMessageItem> messages =	new SparseArray<>();
+		SparseArray<ConversationMessageItem> messages = new SparseArray<>();
 
 		for (int i = 0; i < items.size(); i++) {
 			ConversationItem item = items.get(i);
@@ -426,19 +426,17 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	private static class IntroductionHolder extends RecyclerView.ViewHolder {
 
-		final private ViewGroup layout;
-		final private View messageLayout;
-		final private MessageHolder message;
-		final private TextView text;
-		final private Button acceptButton;
-		final private Button declineButton;
-		final private TextView date;
-		final private ImageView status;
+		private final View messageLayout;
+		private final MessageHolder message;
+		private final TextView text;
+		private final Button acceptButton;
+		private final Button declineButton;
+		private final TextView date;
+		private final ImageView status;
 
 		public IntroductionHolder(View v, int type) {
 			super(v);
 
-			layout = (ViewGroup) v.findViewById(R.id.introductionLayout);
 			messageLayout = v.findViewById(R.id.messageLayout);
 			message = new MessageHolder(messageLayout,
 					type == INTRODUCTION_IN ? MSG_IN : MSG_OUT);
@@ -457,15 +455,13 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	private static class NoticeHolder extends RecyclerView.ViewHolder {
 
-		final private ViewGroup layout;
-		final private TextView text;
-		final private TextView date;
-		final private ImageView status;
+		private final TextView text;
+		private final TextView date;
+		private final ImageView status;
 
 		public NoticeHolder(View v, int type) {
 			super(v);
 
-			layout = (ViewGroup) v.findViewById(R.id.noticeLayout);
 			text = (TextView) v.findViewById(R.id.noticeText);
 			date = (TextView) v.findViewById(R.id.noticeTime);
 
@@ -479,18 +475,16 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	private static class InvitationHolder extends RecyclerView.ViewHolder {
 
-		final private ViewGroup layout;
-		final private View messageLayout;
-		final private MessageHolder message;
-		final private TextView text;
-		final private Button showForumsButton;
-		final private TextView date;
-		final private ImageView status;
+		private final View messageLayout;
+		private final MessageHolder message;
+		private final TextView text;
+		private final Button showForumsButton;
+		private final TextView date;
+		private final ImageView status;
 
 		public InvitationHolder(View v, int type) {
 			super(v);
 
-			layout = (ViewGroup) v.findViewById(R.id.introductionLayout);
 			messageLayout = v.findViewById(R.id.messageLayout);
 			message = new MessageHolder(messageLayout,
 					type == FORUM_INVITATION_IN ? MSG_IN : MSG_OUT);
@@ -507,6 +501,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	private class ListCallbacks extends SortedList.Callback<ConversationItem> {
+
 		@Override
 		public void onInserted(int position, int count) {
 			notifyItemRangeInserted(position, count);
@@ -551,8 +546,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	public interface IntroductionHandler {
-		void respondToIntroduction(final SessionId sessionId,
-				final boolean accept);
+		void respondToIntroduction(SessionId sessionId, boolean accept);
 	}
-
 }

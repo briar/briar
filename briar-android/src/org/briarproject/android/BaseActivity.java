@@ -19,12 +19,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 	protected ActivityComponent activityComponent;
 
-	private List<ActivityLifecycleController> lifecycleControllers =
-			new ArrayList<ActivityLifecycleController>();
+	private final List<ActivityLifecycleController> lifecycleControllers =
+			new ArrayList<>();
 
-	public void addLifecycleController(
-			ActivityLifecycleController lifecycleController) {
-		this.lifecycleControllers.add(lifecycleController);
+	public abstract void injectActivity(ActivityComponent component);
+
+	public void addLifecycleController(ActivityLifecycleController alc) {
+		lifecycleControllers.add(alc);
 	}
 
 	@Override
@@ -77,9 +78,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 		}
 	}
 
-	public abstract void injectActivity(ActivityComponent component);
-
-	protected void showSoftKeyboard(View view) {
+	public void showSoftKeyboard(View view) {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).showSoftInput(view, SHOW_IMPLICIT);
 	}
@@ -89,5 +88,4 @@ public abstract class BaseActivity extends AppCompatActivity {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
-
 }

@@ -34,6 +34,10 @@ public class SetupControllerImpl implements SetupController {
 	protected Executor cryptoExecutor;
 	@Inject
 	protected PasswordStrengthEstimator strengthEstimator;
+	@Inject
+	protected Activity activity;
+	@Inject
+	protected SharedPreferences briarPrefs;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -44,10 +48,6 @@ public class SetupControllerImpl implements SetupController {
 	protected volatile AuthorFactory authorFactory;
 	@Inject
 	protected volatile ReferenceManager referenceManager;
-	@Inject
-	protected Activity activity;
-	@Inject
-	protected SharedPreferences briarPrefs;
 
 	@Inject
 	public SetupControllerImpl() {
@@ -85,6 +85,7 @@ public class SetupControllerImpl implements SetupController {
 	public void createIdentity(final String nickname, final String password,
 			final ResultHandler<Long> resultHandler) {
 		cryptoExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				SecretKey key = crypto.generateSecretKey();
 				databaseConfig.setEncryptionKey(key);
@@ -98,10 +99,9 @@ public class SetupControllerImpl implements SetupController {
 		});
 	}
 
-	private void storeEncryptedDatabaseKey(final String hex) {
+	private void storeEncryptedDatabaseKey(String hex) {
 		SharedPreferences.Editor editor = briarPrefs.edit();
 		editor.putString(PREF_DB_KEY, hex);
 		editor.apply();
 	}
-
 }

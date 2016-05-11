@@ -39,5 +39,4 @@ public class ConversationMessageOutItem extends ConversationMessageItem
 	public void setSeen(boolean seen) {
 		this.seen = seen;
 	}
-
 }

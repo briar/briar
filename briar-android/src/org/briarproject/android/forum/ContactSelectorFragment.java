@@ -44,23 +44,25 @@ public class ContactSelectorFragment extends BaseFragment implements
 		BaseContactListAdapter.OnItemClickListener {
 
 	public final static String TAG = "ContactSelectorFragment";
+
+	private static final Logger LOG =
+			Logger.getLogger(ContactSelectorFragment.class.getName());
+
 	private ShareForumActivity shareForumActivity;
 	private Menu menu;
 	private BriarRecyclerView list;
 	private ContactSelectorAdapter adapter;
 	private Collection<ContactId> selectedContacts;
 
-	private static final Logger LOG =
-			Logger.getLogger(ContactSelectorFragment.class.getName());
-
 	// Fields that are accessed from background threads must be volatile
-	protected volatile GroupId groupId;
 	@Inject
 	protected volatile ContactManager contactManager;
 	@Inject
 	protected volatile IdentityManager identityManager;
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
+
+	protected volatile GroupId groupId;
 
 	public void initBundle(GroupId groupId) {
 		Bundle bundle = new Bundle();
@@ -97,11 +99,10 @@ public class ContactSelectorFragment extends BaseFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		View contentView =
-				inflater.inflate(R.layout.introduction_contact_chooser,
-						container, false);
+		View contentView = inflater.inflate(
+				R.layout.introduction_contact_chooser, container, false);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (Build.VERSION.SDK_INT >= 21) {
 			setExitTransition(new Fade());
 		}
 
@@ -116,7 +117,8 @@ public class ContactSelectorFragment extends BaseFragment implements
 		if (savedInstanceState != null) {
 			ArrayList<Integer> intContacts =
 					savedInstanceState.getIntegerArrayList(CONTACTS);
-			selectedContacts = ShareForumActivity.getContactsFromIntegers(intContacts);
+			selectedContacts = ShareForumActivity.getContactsFromIntegers(
+					intContacts);
 		}
 
 		return contentView;
@@ -126,11 +128,9 @@ public class ContactSelectorFragment extends BaseFragment implements
 	public void onResume() {
 		super.onResume();
 
-		if (selectedContacts != null) {
+		if (selectedContacts != null)
 			loadContacts(Collections.unmodifiableCollection(selectedContacts));
-		} else {
-			loadContacts(null);
-		}
+		else loadContacts(null);
 	}
 
 	@Override
@@ -182,11 +182,11 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 	private void loadContacts(final Collection<ContactId> selection) {
 		shareForumActivity.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					List<ContactListItem> contacts =
-							new ArrayList<>();
+					List<ContactListItem> contacts = new ArrayList<>();
 
 					for (Contact c : contactManager.getActiveContacts()) {
 						LocalAuthor localAuthor = identityManager
@@ -197,9 +197,8 @@ public class ContactSelectorFragment extends BaseFragment implements
 						// do we have already some sharing with that contact?
 						boolean disabled =
 								!forumSharingManager.canBeShared(groupId, c);
-						contacts.add(
-								new SelectableContactListItem(c, localAuthor,
-										groupId, selected, disabled));
+						contacts.add(new SelectableContactListItem(c,
+								localAuthor, groupId, selected, disabled));
 					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -216,12 +215,10 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 	private void displayContacts(final List<ContactListItem> contacts) {
 		shareForumActivity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
-				if (!contacts.isEmpty()) {
-					adapter.addAll(contacts);
-				} else {
-					list.showData();
-				}
+				if (!contacts.isEmpty()) adapter.addAll(contacts);
+				else list.showData();
 				updateMenuItem();
 			}
 		});
@@ -239,5 +236,4 @@ public class ContactSelectorFragment extends BaseFragment implements
 			item.setVisible(false);
 		}
 	}
-
 }

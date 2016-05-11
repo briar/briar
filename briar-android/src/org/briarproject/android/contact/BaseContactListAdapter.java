@@ -25,15 +25,15 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 	protected final OnItemClickListener listener;
 	protected Context ctx;
 
-	public BaseContactListAdapter(Context context, OnItemClickListener listener) {
-		this.ctx = context;
+	public BaseContactListAdapter(Context ctx, OnItemClickListener listener) {
+		this.ctx = ctx;
 		this.listener = listener;
 		this.contacts = new SortedList<>(ContactListItem.class,
 				new SortedListCallBacks());
 	}
 
 	@Override
-	public void onBindViewHolder(final VH ui, final int position) {
+	public void onBindViewHolder(final VH ui, int position) {
 		final ContactListItem item = getItem(position);
 
 		Author author = item.getContact().getAuthor();
@@ -96,6 +96,7 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 	}
 
 	public static class BaseContactHolder extends RecyclerView.ViewHolder {
+
 		public final ViewGroup layout;
 		public final ImageView avatar;
 		public final TextView name;
@@ -132,7 +133,8 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		return 0;
 	}
 
-	protected class SortedListCallBacks extends SortedList.Callback<ContactListItem> {
+	protected class SortedListCallBacks
+			extends SortedList.Callback<ContactListItem> {
 
 		@Override
 		public void onInserted(int position, int count) {
@@ -185,5 +187,4 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 	public interface OnItemClickListener {
 		void onItemClick(View view, ContactListItem item);
 	}
-
 }

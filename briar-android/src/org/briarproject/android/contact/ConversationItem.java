@@ -103,8 +103,9 @@ public abstract class ConversationItem {
 		}
 	}
 
-	/** This method should not be used to get user-facing objects,
-	 *  Its purpose is to provider data for the contact list.
+	/**
+	 * This method should not be used to get user-facing objects,
+	 * Its purpose is to provider data for the contact list.
 	 */
 	public static ConversationItem from(IntroductionMessage im) {
 		if (im.isLocal())
@@ -115,17 +116,24 @@ public abstract class ConversationItem {
 	}
 
 	protected interface OutgoingItem {
+
 		MessageId getId();
+
 		boolean isSent();
+
 		void setSent(boolean sent);
+
 		boolean isSeen();
+
 		void setSeen(boolean seen);
 	}
 
 	protected interface IncomingItem {
+
 		MessageId getId();
+
 		boolean isRead();
+
 		void setRead(boolean read);
 	}
-
 }

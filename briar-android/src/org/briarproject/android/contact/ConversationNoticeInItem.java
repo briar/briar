@@ -3,8 +3,8 @@ package org.briarproject.android.contact;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
-public class ConversationNoticeInItem extends ConversationNoticeItem implements
-		ConversationItem.IncomingItem {
+public class ConversationNoticeInItem extends ConversationNoticeItem
+		implements ConversationItem.IncomingItem {
 
 	private boolean read;
 
@@ -29,5 +29,4 @@ public class ConversationNoticeInItem extends ConversationNoticeItem implements
 	public void setRead(boolean read) {
 		this.read = read;
 	}
-
 }

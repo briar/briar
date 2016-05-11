@@ -26,14 +26,15 @@ public class BriarControllerImpl implements BriarController {
 	protected BriarServiceConnection serviceConnection;
 	@Inject
 	protected DatabaseConfig databaseConfig;
+	@Inject
+	protected Activity activity;
+
 	// Fields that are accessed from background threads must be volatile
 	@Inject
 	@DatabaseExecutor
 	protected volatile Executor dbExecutor;
 	@Inject
 	protected volatile LifecycleManager lifecycleManager;
-	@Inject
-	protected Activity activity;
 
 	private boolean bound = false;
 
@@ -64,6 +65,7 @@ public class BriarControllerImpl implements BriarController {
 		unbindService();
 	}
 
+	@Override
 	public void startAndBindService() {
 		activity.startService(new Intent(activity, BriarService.class));
 		bound = activity.bindService(new Intent(activity, BriarService.class),
@@ -83,7 +85,8 @@ public class BriarControllerImpl implements BriarController {
 				try {
 					// Wait for the service to finish starting up
 					IBinder binder = serviceConnection.waitForBinder();
-					BriarService service = ((BriarService.BriarBinder) binder).getService();
+					BriarService service =
+							((BriarService.BriarBinder) binder).getService();
 					service.waitForStartup();
 					// Shut down the service and wait for it to shut down
 					LOG.info("Shutting down service");
@@ -101,8 +104,10 @@ public class BriarControllerImpl implements BriarController {
 		if (bound) activity.unbindService(serviceConnection);
 	}
 
+	@Override
 	public void runOnDbThread(final Runnable task) {
 		dbExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
@@ -114,5 +119,4 @@ public class BriarControllerImpl implements BriarController {
 			}
 		});
 	}
-
 }

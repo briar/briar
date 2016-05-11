@@ -6,7 +6,6 @@ import android.view.MenuItem;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 
 public class PanicPreferencesActivity extends BriarActivity {
@@ -29,6 +28,7 @@ public class PanicPreferencesActivity extends BriarActivity {
 		component.inject(this);
 	}
 
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
 			onBackPressed();
@@ -36,5 +36,4 @@ public class PanicPreferencesActivity extends BriarActivity {
 		}
 		return false;
 	}
-
 }

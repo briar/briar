@@ -45,5 +45,4 @@ public class ConversationIntroductionOutItem
 	public void setSeen(boolean seen) {
 		this.seen = seen;
 	}
-
 }

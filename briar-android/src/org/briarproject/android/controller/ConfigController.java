@@ -1,9 +1,12 @@
 package org.briarproject.android.controller;
 
+import android.content.Context;
+
 public interface ConfigController {
+
 	String getEncryptedDatabaseKey();
 
-	void clearPrefs();
+	void deleteAccount(Context ctx);
 
-	boolean initialized();
+	boolean accountExists();
 }

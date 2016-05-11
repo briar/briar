@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 		resDialogOkToast = R.string.dev_report_saved,
 		deleteOldUnsentReportsOnApplicationStart = false
 )
-public class BriarApplicationImpl extends Application implements BriarApplication {
+public class BriarApplicationImpl extends Application
+		implements BriarApplication {
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarApplicationImpl.class.getName());
@@ -50,6 +51,7 @@ public class BriarApplicationImpl extends Application implements BriarApplicatio
 		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
 	}
 
+	@Override
 	public AndroidComponent getApplicationComponent() {
 		return applicationComponent;
 	}

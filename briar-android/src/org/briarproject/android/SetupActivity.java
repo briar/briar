@@ -27,8 +27,6 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
@@ -38,15 +36,15 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 	@Inject
 	protected SetupController setupController;
 
-	TextInputLayout nicknameEntryWrapper;
-	TextInputLayout passwordEntryWrapper;
-	TextInputLayout passwordConfirmationWrapper;
-	EditText nicknameEntry;
-	EditText passwordEntry;
-	EditText passwordConfirmation;
-	StrengthMeter strengthMeter;
-	Button createAccountButton;
-	ProgressBar progress;
+	private TextInputLayout nicknameEntryWrapper;
+	private TextInputLayout passwordEntryWrapper;
+	private TextInputLayout passwordConfirmationWrapper;
+	private EditText nicknameEntry;
+	private EditText passwordEntry;
+	private EditText passwordConfirmation;
+	private StrengthMeter strengthMeter;
+	private Button createAccountButton;
+	private ProgressBar progress;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -66,9 +64,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		createAccountButton = (Button) findViewById(R.id.create_account);
 		progress = (ProgressBar) findViewById(R.id.progress_wheel);
 
-		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
-
 		TextWatcher tw = new TextWatcher() {
+
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
@@ -107,7 +104,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		String firstPassword = passwordEntry.getText().toString();
 		String secondPassword = passwordConfirmation.getText().toString();
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
-		float strength = setupController.estimatePasswordStrength(firstPassword);
+		float strength =
+				setupController.estimatePasswordStrength(firstPassword);
 		strengthMeter.setStrength(strength);
 		AndroidUtils.setError(nicknameEntryWrapper,
 				getString(R.string.name_too_long),
@@ -123,18 +121,19 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 				&& passwordsMatch && strength >= WEAK);
 	}
 
+	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		hideSoftKeyboard(v);
-
 		return true;
 	}
 
+	@Override
 	public void onClick(View view) {
 		// Replace the button with a progress bar
 		createAccountButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
-		final String nickname = nicknameEntry.getText().toString();
-		final String password = passwordEntry.getText().toString();
+		String nickname = nicknameEntry.getText().toString();
+		String password = passwordEntry.getText().toString();
 		setupController.createIdentity(nickname, password,
 				new UiResultHandler<Long>(this) {
 					@Override
@@ -145,8 +144,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 	}
 
 	private void showMain(final long handle) {
-		Intent i = new Intent(SetupActivity.this,
-				NavDrawerActivity.class);
+		Intent i = new Intent(this, NavDrawerActivity.class);
 		i.putExtra(BriarActivity.KEY_LOCAL_AUTHOR_HANDLE, handle);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);

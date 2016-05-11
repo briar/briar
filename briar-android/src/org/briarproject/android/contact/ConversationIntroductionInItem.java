@@ -1,7 +1,6 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
 public class ConversationIntroductionInItem extends ConversationIntroductionItem
@@ -29,5 +28,4 @@ public class ConversationIntroductionInItem extends ConversationIntroductionItem
 	public void setRead(boolean read) {
 		this.read = read;
 	}
-
 }

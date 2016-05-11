@@ -16,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.acra.ACRA;
-import org.acra.ACRAConstants;
 import org.acra.ReportField;
 import org.acra.collector.CrashReportData;
 import org.acra.dialog.BaseCrashReportDialog;
@@ -24,7 +23,6 @@ import org.acra.file.CrashReportPersister;
 import org.acra.prefs.SharedPreferencesFactory;
 import org.briarproject.R;
 import org.briarproject.android.util.UserFeedback;
-import org.briarproject.api.reporting.DevReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,12 +32,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
+import static android.content.DialogInterface.BUTTON_POSITIVE;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
+import static org.acra.ACRAConstants.EXTRA_REPORT_FILE;
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APP_VERSION_CODE;
 import static org.acra.ReportField.APP_VERSION_NAME;
@@ -68,9 +66,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 		requiredFields.add(STACK_TRACE);
 	}
 
-	@Inject
-	protected DevReporter reporter;
-
 	private SharedPreferencesFactory sharedPreferencesFactory;
 	private Set<ReportField> excludedFields;
 	private EditText userCommentView = null;
@@ -86,17 +81,15 @@ public class DevReportActivity extends BaseCrashReportDialog
 		super.onCreate(state);
 		setContentView(R.layout.activity_dev_report);
 
-		((BriarApplication) getApplication()).getApplicationComponent()
-				.inject(this);
+		BriarApplication app = (BriarApplication) getApplication();
+		app.getApplicationComponent().inject(this);
 
-
-		sharedPreferencesFactory =
-				new SharedPreferencesFactory(getApplicationContext(),
-						getConfig());
+		sharedPreferencesFactory = new SharedPreferencesFactory(
+				getApplicationContext(), getConfig());
 
 		final SharedPreferences prefs = sharedPreferencesFactory.create();
 		excludedFields = new HashSet<>();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Build.VERSION.SDK_INT >= 11) {
 			for (String name : prefs.getStringSet(PREF_EXCLUDED_FIELDS,
 					new HashSet<String>())) {
 				excludedFields.add(ReportField.valueOf(name));
@@ -163,11 +156,8 @@ public class DevReportActivity extends BaseCrashReportDialog
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		if (which == DialogInterface.BUTTON_POSITIVE) {
-			dialog.dismiss();
-		} else {
-			dialog.cancel();
-		}
+		if (which == BUTTON_POSITIVE) dialog.dismiss();
+		else dialog.cancel();
 	}
 
 	@Override
@@ -179,10 +169,8 @@ public class DevReportActivity extends BaseCrashReportDialog
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		ReportField field = (ReportField) buttonView.getTag();
 		if (field != null) {
-			if (isChecked)
-				excludedFields.remove(field);
-			else
-				excludedFields.add(field);
+			if (isChecked) excludedFields.remove(field);
+			else excludedFields.add(field);
 		}
 	}
 
@@ -214,7 +202,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 			@Override
 			protected CrashReportData doInBackground(Void... args) {
 				File reportFile = (File) getIntent().getSerializableExtra(
-						ACRAConstants.EXTRA_REPORT_FILE);
+						EXTRA_REPORT_FILE);
 				final CrashReportPersister persister =
 						new CrashReportPersister();
 				try {
@@ -272,7 +260,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 			@Override
 			protected Boolean doInBackground(Void... args) {
 				File reportFile = (File) getIntent().getSerializableExtra(
-						ACRAConstants.EXTRA_REPORT_FILE);
+						EXTRA_REPORT_FILE);
 				CrashReportPersister persister = new CrashReportPersister();
 				try {
 					CrashReportData data = persister.load(reportFile);
@@ -303,7 +291,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 			protected void onPostExecute(Boolean success) {
 				final SharedPreferences prefs =
 						sharedPreferencesFactory.create();
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				if (Build.VERSION.SDK_INT >= 11) {
 					final SharedPreferences.Editor prefEditor =
 							prefs.edit();
 					Set<String> fields = new HashSet<>();

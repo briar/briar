@@ -28,6 +28,7 @@ import dagger.Component;
 @Component(modules = ActivityModule.class,
 		dependencies = AndroidComponent.class)
 public interface ActivityComponent {
+
 	Activity activity();
 
 	void inject(SplashScreenActivity activity);
@@ -64,22 +65,7 @@ public interface ActivityComponent {
 
 	void inject(SettingsActivity activity);
 
-	/*
-	void inject(ContactListFragment fragment);
-
-	void inject(ForumListFragment fragment);
-
-	void inject(ShowQrCodeFragment fragment);
-	*/
-
 	void inject(IntroductionActivity activity);
-
-	/*
-	void inject(ContactChooserFragment fragment);
-
-	void inject(introductionmessagefragment fragment);
-
-	*/
 
 	@Named("ContactListFragment")
 	BaseFragment newContactListFragment();

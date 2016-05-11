@@ -4,7 +4,6 @@ import android.os.Build;
 import android.os.Bundle;
 
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BaseActivity;
 
 import java.util.logging.Logger;

@@ -55,7 +55,7 @@ public class ContactChooserAdapter extends ContactListAdapter {
 	}
 
 	private void grayOutItem(final ContactHolder ui) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Build.VERSION.SDK_INT >= 11) {
 			float alpha = 0.25f;
 			ui.bulb.setAlpha(alpha);
 			ui.avatar.setAlpha(alpha);

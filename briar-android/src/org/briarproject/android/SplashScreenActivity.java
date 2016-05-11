@@ -11,7 +11,6 @@ import android.support.v7.preference.PreferenceManager;
 import org.briarproject.R;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.controller.ConfigController;
-import org.briarproject.android.util.AndroidUtils;
 
 import java.util.logging.Logger;
 
@@ -29,7 +28,7 @@ public class SplashScreenActivity extends BaseActivity {
 	private static final long EXPIRY_DATE = 1464735600 * 1000L;
 
 	@Inject
-	ConfigController configController;
+	protected ConfigController configController;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -65,12 +64,10 @@ public class SplashScreenActivity extends BaseActivity {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			if (configController.initialized()) {
+			if (configController.accountExists()) {
 				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
-				configController.clearPrefs();
-				// TODO replace this static call with a controller method
-				AndroidUtils.deleteAppData(this);
+				configController.deleteAccount(this);
 				startActivity(new Intent(this, SetupActivity.class));
 			}
 		}
@@ -91,6 +88,7 @@ public class SplashScreenActivity extends BaseActivity {
 
 	private void setPreferencesDefaults() {
 		androidExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				PreferenceManager.setDefaultValues(SplashScreenActivity.this,
 						R.xml.panic_preferences, false);

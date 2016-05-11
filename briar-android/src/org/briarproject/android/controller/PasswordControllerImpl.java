@@ -33,6 +33,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 			final ResultHandler<Boolean> resultHandler) {
 		final byte[] encrypted = getEncryptedKey();
 		cryptoExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				byte[] key = crypto.decryptWithPassword(encrypted, password);
 				if (key == null) {
@@ -48,7 +49,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 	private byte[] getEncryptedKey() {
 		String hex = getEncryptedDatabaseKey();
 		if (hex == null)
-			throw new IllegalStateException("Encrypted database key is null.");
+			throw new IllegalStateException("Encrypted database key is null");
 		return StringUtils.fromHexString(hex);
 	}
 }

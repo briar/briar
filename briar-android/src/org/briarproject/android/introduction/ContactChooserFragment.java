@@ -44,13 +44,14 @@ import static java.util.logging.Level.WARNING;
 public class ContactChooserFragment extends BaseFragment {
 
 	public final static String TAG = "ContactChooserFragment";
+
+	private static final Logger LOG =
+			Logger.getLogger(ContactChooserFragment.class.getName());
+
 	private IntroductionActivity introductionActivity;
 	private BriarRecyclerView list;
 	private ContactChooserAdapter adapter;
 	private int contactId;
-
-	private static final Logger LOG =
-			Logger.getLogger(ContactChooserFragment.class.getName());
 
 	// Fields that are accessed from background threads must be volatile
 	protected volatile Contact c1;
@@ -76,7 +77,7 @@ public class ContactChooserFragment extends BaseFragment {
 		try {
 			introductionActivity = (IntroductionActivity) context;
 		} catch (ClassCastException e) {
-			throw new java.lang.InstantiationError(
+			throw new InstantiationError(
 					"This fragment is only meant to be attached to the IntroductionActivity");
 		}
 	}
@@ -90,7 +91,7 @@ public class ContactChooserFragment extends BaseFragment {
 						container, false);
 
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (Build.VERSION.SDK_INT >= 21) {
 			setExitTransition(new Fade());
 		}
 
@@ -99,14 +100,15 @@ public class ContactChooserFragment extends BaseFragment {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
 						if (c1 == null) {
-							throw new RuntimeException("c1 not initialized");
+							throw new RuntimeException("c1 not accountExists");
 						}
 						Contact c2 = item.getContact();
 						if (!c1.getLocalAuthorId()
 								.equals(c2.getLocalAuthorId())) {
 							warnAboutDifferentIdentities(view, c1, c2);
 						} else {
-							introductionActivity.showMessageScreen(view, c1, c2);
+							introductionActivity.showMessageScreen(view, c1,
+									c2);
 						}
 					}
 				};
@@ -142,11 +144,11 @@ public class ContactChooserFragment extends BaseFragment {
 
 	private void loadContacts() {
 		introductionActivity.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
-					List<ContactListItem> contacts =
-							new ArrayList<ContactListItem>();
-					AuthorId localAuthorId= null;
+					List<ContactListItem> contacts = new ArrayList<>();
+					AuthorId localAuthorId = null;
 					for (Contact c : contactManager.getActiveContacts()) {
 						if (c.getId().getInt() == contactId) {
 							c1 = c;
@@ -177,6 +179,7 @@ public class ContactChooserFragment extends BaseFragment {
 	private void displayContacts(final AuthorId localAuthorId,
 			final List<ContactListItem> contacts) {
 		introductionActivity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				adapter.setLocalAuthor(localAuthorId);
 				if (contacts.size() == 0) list.showData();
@@ -206,14 +209,15 @@ public class ContactChooserFragment extends BaseFragment {
 		builder.show();
 	}
 
-	/** This needs to be called from the DbThread */
+	/**
+	 * This needs to be called from the DbThread
+	 */
 	private Collection<ConversationItem> getMessages(ContactId id)
 			throws DbException {
 
 		long now = System.currentTimeMillis();
 
-		Collection<ConversationItem> messages =
-				new ArrayList<ConversationItem>();
+		Collection<ConversationItem> messages = new ArrayList<>();
 
 		Collection<PrivateMessageHeader> headers =
 				messagingManager.getMessageHeaders(id);
@@ -237,5 +241,4 @@ public class ContactChooserFragment extends BaseFragment {
 
 		return messages;
 	}
-
 }

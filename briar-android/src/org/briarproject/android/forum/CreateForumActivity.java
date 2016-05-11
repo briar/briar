@@ -40,10 +40,10 @@ public class CreateForumActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(CreateForumActivity.class.getName());
 
-	private EditText nameEntry = null;
-	private Button createForumButton = null;
-	private ProgressBar progress = null;
-	private TextView feedback = null;
+	private EditText nameEntry;
+	private Button createForumButton;
+	private ProgressBar progress;
+	private TextView feedback;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -95,6 +95,7 @@ public class CreateForumActivity extends BriarActivity
 		createForumButton.setEnabled(validateName());
 	}
 
+	@Override
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
 		hideSoftKeyboard(textView);
 		return true;
@@ -111,6 +112,7 @@ public class CreateForumActivity extends BriarActivity
 		return length > 0;
 	}
 
+	@Override
 	public void onClick(View view) {
 		if (view == createForumButton) {
 			hideSoftKeyboard(view);
@@ -123,6 +125,7 @@ public class CreateForumActivity extends BriarActivity
 
 	private void storeForum(final String name) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -143,6 +146,7 @@ public class CreateForumActivity extends BriarActivity
 
 	private void displayForum(final Forum f) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				Intent i = new Intent(CreateForumActivity.this,
 						ForumActivity.class);

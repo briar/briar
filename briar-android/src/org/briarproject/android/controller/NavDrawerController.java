@@ -5,6 +5,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.identity.LocalAuthor;
 
 public interface NavDrawerController extends BriarController {
+
 	void setTransportListener(TransportStateListener transportListener);
 
 	boolean isTransportRunning(TransportId transportId);

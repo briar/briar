@@ -28,5 +28,4 @@ public class ConversationMessageInItem extends ConversationMessageItem
 	public void setRead(boolean read) {
 		this.read = read;
 	}
-
 }

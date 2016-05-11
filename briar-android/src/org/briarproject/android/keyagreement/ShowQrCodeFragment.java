@@ -57,10 +57,10 @@ import static java.util.logging.Level.WARNING;
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
 
+	public static final String TAG = "ShowQrCodeFragment";
+
 	private static final Logger LOG =
 			Logger.getLogger(ShowQrCodeFragment.class.getName());
-
-	public static final String TAG = "ShowQrCodeFragment";
 
 	@Inject
 	protected KeyAgreementTaskFactory keyAgreementTaskFactory;
@@ -138,6 +138,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
 			androidExecutor.execute(new Runnable() {
+				@Override
 				public void run() {
 					adapter.enable();
 				}
@@ -342,6 +343,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@Override
 	public void handleResult(final Result result) {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				LOG.info("Got result from decoder");
 				if (!gotRemotePayload) {

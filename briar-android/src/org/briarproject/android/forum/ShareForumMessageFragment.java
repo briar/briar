@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
@@ -25,6 +24,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ShareForumActivity.CONTACTS;
 import static org.briarproject.android.forum.ShareForumActivity.getContactsFromIds;
@@ -32,15 +32,17 @@ import static org.briarproject.api.forum.ForumConstants.GROUP_ID;
 
 public class ShareForumMessageFragment extends BaseFragment {
 
+	public final static String TAG = "IntroductionMessageFragment";
+
 	private static final Logger LOG =
 			Logger.getLogger(ShareForumMessageFragment.class.getName());
 
-	public final static String TAG = "IntroductionMessageFragment";
 	private ShareForumActivity shareForumActivity;
 	private ViewHolder ui;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile ForumSharingManager forumSharingManager;
 	private volatile GroupId groupId;
 	private volatile Collection<ContactId> contacts;
 
@@ -81,9 +83,8 @@ public class ShareForumMessageFragment extends BaseFragment {
 		setHasOptionsMenu(true);
 
 		// inflate view
-		View v =
-				inflater.inflate(R.layout.share_forum_message, container,
-						false);
+		View v = inflater.inflate(R.layout.share_forum_message, container,
+				false);
 		ui = new ViewHolder(v);
 		ui.button.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -131,11 +132,12 @@ public class ShareForumMessageFragment extends BaseFragment {
 
 	private void shareForum(final String msg) {
 		shareForumActivity.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					for (ContactId c : contacts) {
-						forumSharingManager
-								.sendForumInvitation(groupId, c, msg);
+						forumSharingManager.sendForumInvitation(groupId, c,
+								msg);
 					}
 				} catch (DbException e) {
 					sharingError();
@@ -148,21 +150,20 @@ public class ShareForumMessageFragment extends BaseFragment {
 
 	private void sharingError() {
 		shareForumActivity.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				Toast.makeText(shareForumActivity,
-						R.string.introduction_error, Toast.LENGTH_SHORT)
-						.show();
+						R.string.introduction_error, LENGTH_SHORT).show();
 			}
 		});
 	}
 
 	private static class ViewHolder {
-		final private TextView text;
-		final private EditText message;
-		final private Button button;
+
+		private final EditText message;
+		private final Button button;
 
 		ViewHolder(View v) {
-			text = (TextView) v.findViewById(R.id.introductionText);
 			message = (EditText) v.findViewById(R.id.invitationMessageView);
 			button = (Button) v.findViewById(R.id.shareForumButton);
 		}

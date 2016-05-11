@@ -12,13 +12,13 @@ import org.briarproject.android.DaggerAndroidComponent;
 import java.util.logging.Logger;
 
 /**
- * This Class only exists to get around ACRA
+ * This class only exists to avoid static initialisation of ACRA
  */
-public class TestBriarApplicationImp extends Application implements
-		BriarApplication{
+public class TestBriarApplication extends Application
+		implements BriarApplication {
 
 	private static final Logger LOG =
-			Logger.getLogger(TestBriarApplicationImp.class.getName());
+			Logger.getLogger(TestBriarApplication.class.getName());
 
 	private AndroidComponent applicationComponent;
 
@@ -37,6 +37,7 @@ public class TestBriarApplicationImp extends Application implements
 		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
 	}
 
+	@Override
 	public AndroidComponent getApplicationComponent() {
 		return applicationComponent;
 	}

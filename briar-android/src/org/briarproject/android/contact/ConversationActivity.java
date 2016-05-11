@@ -24,12 +24,12 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -55,7 +55,6 @@ import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
@@ -95,25 +94,37 @@ public class ConversationActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
-	@Inject protected AndroidNotificationManager notificationManager;
-	@Inject protected ConnectionRegistry connectionRegistry;
-	@Inject @CryptoExecutor protected Executor cryptoExecutor;
-	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
-	private ConversationAdapter adapter = null;
+	@Inject
+	protected AndroidNotificationManager notificationManager;
+	@Inject
+	protected ConnectionRegistry connectionRegistry;
+	@Inject
+	@CryptoExecutor
+	protected Executor cryptoExecutor;
+
+	private Map<MessageId, byte[]> bodyCache = new HashMap<>();
+	private ConversationAdapter adapter;
 	private CircleImageView toolbarAvatar;
 	private ImageView toolbarStatus;
 	private TextView toolbarTitle;
-	private BriarRecyclerView list = null;
-	private EditText content = null;
-	private ImageButton sendButton = null;
+	private BriarRecyclerView list;
+	private EditText content;
+	private ImageButton sendButton;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile ContactManager contactManager;
-	@Inject protected volatile MessagingManager messagingManager;
-	@Inject protected volatile EventBus eventBus;
-	@Inject protected volatile PrivateMessageFactory privateMessageFactory;
-	@Inject protected volatile IntroductionManager introductionManager;
-	@Inject protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile ContactManager contactManager;
+	@Inject
+	protected volatile MessagingManager messagingManager;
+	@Inject
+	protected volatile EventBus eventBus;
+	@Inject
+	protected volatile PrivateMessageFactory privateMessageFactory;
+	@Inject
+	protected volatile IntroductionManager introductionManager;
+	@Inject
+	protected volatile ForumSharingManager forumSharingManager;
+
 	private volatile GroupId groupId = null;
 	private volatile ContactId contactId = null;
 	private volatile String contactName = null;
@@ -218,6 +229,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void loadData() {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -248,6 +260,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void displayContactDetails() {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				toolbarAvatar.setImageDrawable(
 						new IdenticonDrawable(contactIdenticonKey));
@@ -273,6 +286,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void loadMessages() {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -304,6 +318,7 @@ public class ConversationActivity extends BriarActivity
 			final Collection<IntroductionMessage> introductions,
 			final Collection<ForumInvitationMessage> invitations) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				sendButton.setEnabled(true);
 				if (headers.isEmpty() && introductions.isEmpty() &&
@@ -312,8 +327,7 @@ public class ConversationActivity extends BriarActivity
 					// so let the list know to hide progress bar
 					list.showData();
 				} else {
-					List<ConversationItem> items =
-							new ArrayList<ConversationItem>();
+					List<ConversationItem> items = new ArrayList<>();
 					for (PrivateMessageHeader h : headers) {
 						ConversationMessageItem item =
 								(ConversationMessageItem) ConversationItem
@@ -350,6 +364,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void loadMessageBody(final PrivateMessageHeader h) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -370,6 +385,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void displayMessageBody(final MessageId m, final byte[] body) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				bodyCache.put(m, body);
 				SparseArray<ConversationMessageItem> messages =
@@ -399,9 +415,8 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void markMessagesRead() {
-		List<MessageId> unread = new ArrayList<MessageId>();
-		SparseArray<IncomingItem> list =
-				adapter.getIncomingMessages();
+		List<MessageId> unread = new ArrayList<>();
+		SparseArray<IncomingItem> list = adapter.getIncomingMessages();
 		for (int i = 0; i < list.size(); i++) {
 			IncomingItem item = list.valueAt(i);
 			if (!item.isRead()) unread.add(item.getId());
@@ -414,6 +429,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void markMessagesRead(final Collection<MessageId> unread) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -432,6 +448,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
@@ -501,6 +518,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void markMessageReadIfNew(final Message m) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				ConversationItem item = adapter.getLastItem();
 				if (item != null) {
@@ -519,6 +537,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void markNewMessageRead(final Message m) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					messagingManager.setReadFlag(m.getId(), true);
@@ -534,10 +553,10 @@ public class ConversationActivity extends BriarActivity
 	private void markMessages(final Collection<MessageId> messageIds,
 			final boolean sent, final boolean seen) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
-				Set<MessageId> messages = new HashSet<MessageId>(messageIds);
-				SparseArray<OutgoingItem> list =
-						adapter.getOutgoingMessages();
+				Set<MessageId> messages = new HashSet<>(messageIds);
+				SparseArray<OutgoingItem> list = adapter.getOutgoingMessages();
 				for (int i = 0; i < list.size(); i++) {
 					OutgoingItem item = list.valueAt(i);
 					if (messages.contains(item.getId())) {
@@ -550,6 +569,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void onClick(View view) {
 		markMessagesRead();
 		String message = content.getText().toString();
@@ -569,6 +589,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void createMessage(final byte[] body, final long timestamp) {
 		cryptoExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					storeMessage(privateMessageFactory.createPrivateMessage(
@@ -582,6 +603,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void storeMessage(final PrivateMessage m) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -617,6 +639,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void removeContact() {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					// make sure contactId is initialised
@@ -648,6 +671,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void hideIntroductionActionWhenOneContact(final MenuItem item) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					if (contactManager.getActiveContacts().size() < 2) {
@@ -689,11 +713,7 @@ public class ConversationActivity extends BriarActivity
 										timestamp);
 					}
 					loadMessages();
-				} catch (DbException e) {
-					introductionResponseError();
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch (FormatException e) {
+				} catch (DbException | FormatException e) {
 					introductionResponseError();
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

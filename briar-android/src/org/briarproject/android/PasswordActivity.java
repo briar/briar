@@ -30,20 +30,20 @@ import static android.view.View.VISIBLE;
 
 public class PasswordActivity extends BaseActivity {
 
+	@Inject
+	protected PasswordController passwordController;
+
 	private Button signInButton;
 	private ProgressBar progress;
 	private TextInputLayout input;
 	private EditText password;
 
-	@Inject
-	PasswordController passwordController;
-
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if (!passwordController.initialized()) {
-			clearSharedPrefsAndDeleteEverything();
+		if (!passwordController.accountExists()) {
+			deleteAccount();
 			return;
 		}
 
@@ -61,6 +61,7 @@ public class PasswordActivity extends BaseActivity {
 			}
 		});
 		password.addTextChangedListener(new TextWatcher() {
+
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
@@ -91,9 +92,8 @@ public class PasswordActivity extends BaseActivity {
 		startActivity(intent);
 	}
 
-	private void clearSharedPrefsAndDeleteEverything() {
-		passwordController.clearPrefs();
-		AndroidUtils.deleteAppData(this);
+	private void deleteAccount() {
+		passwordController.deleteAccount(this);
 		setResult(RESULT_CANCELED);
 		startActivity(new Intent(this, SetupActivity.class));
 		finish();
@@ -114,7 +114,7 @@ public class PasswordActivity extends BaseActivity {
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						clearSharedPrefsAndDeleteEverything();
+						deleteAccount();
 					}
 				});
 		AlertDialog dialog = builder.create();
@@ -140,8 +140,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void tryAgain() {
-		AndroidUtils.setError(input, getString(R.string.try_again),
-				true);
+		AndroidUtils.setError(input, getString(R.string.try_again), true);
 		signInButton.setVisibility(VISIBLE);
 		progress.setVisibility(INVISIBLE);
 		password.setText("");
@@ -149,5 +148,4 @@ public class PasswordActivity extends BaseActivity {
 		// show the keyboard again
 		showSoftKeyboard(password);
 	}
-
 }

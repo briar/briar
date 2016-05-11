@@ -3,14 +3,13 @@ package org.briarproject.android.contact;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
-public class ConversationNoticeOutItem extends ConversationNoticeItem implements
-		ConversationItem.OutgoingItem {
+public class ConversationNoticeOutItem extends ConversationNoticeItem
+		implements ConversationItem.OutgoingItem {
 
 	private boolean sent, seen;
 
 	public ConversationNoticeOutItem(MessageId id, String text, long time,
 			boolean sent, boolean seen) {
-
 		super(id, text, time);
 
 		this.sent = sent;
@@ -41,5 +40,4 @@ public class ConversationNoticeOutItem extends ConversationNoticeItem implements
 	public void setSeen(boolean seen) {
 		this.seen = seen;
 	}
-
 }

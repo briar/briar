@@ -1,14 +1,16 @@
 package org.briarproject.android.controller;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.db.DatabaseConfig;
 
 import javax.inject.Inject;
 
 public class ConfigControllerImpl implements ConfigController {
 
-	private final static String PREF_DB_KEY = "key";
+	private static final String PREF_DB_KEY = "key";
 
 	@Inject
 	protected SharedPreferences briarPrefs;
@@ -20,22 +22,22 @@ public class ConfigControllerImpl implements ConfigController {
 
 	}
 
+	@Override
 	public String getEncryptedDatabaseKey() {
 		return briarPrefs.getString(PREF_DB_KEY, null);
 	}
 
-	public void clearPrefs() {
+	@Override
+	public void deleteAccount(Context ctx) {
 		SharedPreferences.Editor editor = briarPrefs.edit();
 		editor.clear();
 		editor.apply();
+		AndroidUtils.deleteAppData(ctx);
 	}
 
 	@Override
-	public boolean initialized() {
+	public boolean accountExists() {
 		String hex = getEncryptedDatabaseKey();
-		if (hex != null && databaseConfig.databaseExists()) {
-			return true;
-		}
-		return false;
+		return hex != null && databaseConfig.databaseExists();
 	}
 }

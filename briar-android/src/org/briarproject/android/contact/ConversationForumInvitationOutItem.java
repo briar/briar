@@ -6,7 +6,7 @@ import org.briarproject.api.forum.ForumInvitationMessage;
  * This class is needed and can not be replaced by an ConversationNoticeOutItem,
  * because it carries the optional invitation message
  * to be displayed as a regular private message.
- *
+ * <p/>
  * This class is not thread-safe
  */
 public class ConversationForumInvitationOutItem
@@ -45,5 +45,4 @@ public class ConversationForumInvitationOutItem
 	public void setSeen(boolean seen) {
 		this.seen = seen;
 	}
-
 }

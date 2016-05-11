@@ -6,7 +6,6 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
@@ -44,9 +43,12 @@ public class AvailableForumsActivity extends BriarActivity
 	private AvailableForumsAdapter adapter;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile ForumManager forumManager;
-	@Inject protected volatile ForumSharingManager forumSharingManager;
-	@Inject protected volatile EventBus eventBus;
+	@Inject
+	protected volatile ForumManager forumManager;
+	@Inject
+	protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -75,6 +77,7 @@ public class AvailableForumsActivity extends BriarActivity
 
 	private void loadForums() {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Collection<ForumContacts> available = new ArrayList<>();
@@ -102,6 +105,7 @@ public class AvailableForumsActivity extends BriarActivity
 
 	private void displayForums(final Collection<ForumContacts> available) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				if (available.isEmpty()) {
 					LOG.info("No forums available, finishing");
@@ -124,6 +128,7 @@ public class AvailableForumsActivity extends BriarActivity
 		eventBus.removeListener(this);
 	}
 
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed, reloading");
@@ -146,6 +151,7 @@ public class AvailableForumsActivity extends BriarActivity
 		}
 	}
 
+	@Override
 	public void onItemClick(AvailableForumsItem item, boolean accept) {
 		respondToInvitation(item.getForum(), accept);
 
@@ -157,6 +163,7 @@ public class AvailableForumsActivity extends BriarActivity
 
 	private void respondToInvitation(final Forum f, final boolean accept) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					forumSharingManager.respondToInvitation(f, accept);
@@ -168,5 +175,4 @@ public class AvailableForumsActivity extends BriarActivity
 			}
 		});
 	}
-
 }

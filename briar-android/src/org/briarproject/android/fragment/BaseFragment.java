@@ -6,9 +6,9 @@ import android.support.v4.app.Fragment;
 
 public abstract class BaseFragment extends Fragment {
 
-	public abstract String getUniqueTag();
-
 	protected BaseFragmentListener listener;
+
+	public abstract String getUniqueTag();
 
 	@Override
 	public void onAttach(Context context) {
@@ -27,6 +27,7 @@ public abstract class BaseFragment extends Fragment {
 	}
 
 	public interface BaseFragmentListener {
+
 		void showLoadingScreen(boolean isBlocking, int stringId);
 
 		void hideLoadingScreen();
@@ -35,5 +36,4 @@ public abstract class BaseFragment extends Fragment {
 
 		void runOnDbThread(Runnable runnable);
 	}
-
 }
