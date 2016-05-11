@@ -3,7 +3,6 @@ package org.briarproject.android;
 import android.app.Application;
 import android.content.Context;
 
-import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.briarproject.CoreModule;
@@ -34,7 +33,7 @@ public class BriarApplicationImpl extends Application
 	@Override
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
-		ACRA.init(this);
+//		ACRA.init(this);
 	}
 
 	@Override

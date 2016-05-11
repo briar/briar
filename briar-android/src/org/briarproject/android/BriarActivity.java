@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 
 import org.briarproject.android.controller.BriarController;
+import org.briarproject.android.controller.DBController;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.panic.ExitActivity;
 
@@ -33,6 +34,9 @@ public abstract class BriarActivity extends BaseActivity {
 
 	@Inject
 	protected BriarController briarController;
+	// TODO remove this when the deprecated method runOnDbThread is removed
+	@Inject
+	protected DBController dbController;
 
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
@@ -87,7 +91,7 @@ public abstract class BriarActivity extends BaseActivity {
 
 	@Deprecated
 	public void runOnDbThread(Runnable task) {
-		briarController.runOnDbThread(task);
+		dbController.runOnDbThread(task);
 	}
 
 	@Deprecated

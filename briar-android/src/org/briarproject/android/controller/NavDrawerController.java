@@ -4,7 +4,7 @@ import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.identity.LocalAuthor;
 
-public interface NavDrawerController extends BriarController {
+public interface NavDrawerController extends ActivityLifecycleController {
 
 	void setTransportListener(TransportStateListener transportListener);
 

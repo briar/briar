@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public class NavDrawerControllerImpl extends BriarControllerImpl
+public class NavDrawerControllerImpl extends DBControllerImpl
 		implements NavDrawerController, EventListener {
 
 	private static final Logger LOG =
@@ -51,19 +51,22 @@ public class NavDrawerControllerImpl extends BriarControllerImpl
 
 	@Override
 	public void onActivityCreate() {
-		super.onActivityCreate();
+
 	}
 
 	@Override
 	public void onActivityResume() {
-		super.onActivityResume();
 		eventBus.addListener(this);
 	}
 
 	@Override
 	public void onActivityPause() {
-		super.onActivityPause();
 		eventBus.removeListener(this);
+	}
+
+	@Override
+	public void onActivityDestroy() {
+
 	}
 
 	@Override
@@ -131,4 +134,5 @@ public class NavDrawerControllerImpl extends BriarControllerImpl
 	public LocalAuthor removeAuthorHandle(long handle) {
 		return referenceManager.removeReference(handle, LocalAuthor.class);
 	}
+
 }
