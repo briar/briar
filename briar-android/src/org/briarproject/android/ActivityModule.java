@@ -44,13 +44,13 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	BaseActivity providesBaseActivity() {
+	BaseActivity provideBaseActivity() {
 		return activity;
 	}
 
 	@ActivityScope
 	@Provides
-	Activity providesActivity() {
+	Activity provideActivity() {
 		return activity;
 	}
 
@@ -77,8 +77,8 @@ public class ActivityModule {
 	@ActivityScope
 	@Provides
 	protected PasswordController providePasswordController(
-			PasswordControllerImpl passwordControllerImp) {
-		return passwordControllerImp;
+			PasswordControllerImpl passwordControllerImpl) {
+		return passwordControllerImpl;
 	}
 
 	@ActivityScope
@@ -92,13 +92,13 @@ public class ActivityModule {
 	@ActivityScope
 	@Provides
 	protected NavDrawerController provideNavDrawerController(
-			NavDrawerControllerImpl navDrawerControllerImp) {
-		activity.addLifecycleController(navDrawerControllerImp);
+			NavDrawerControllerImpl navDrawerControllerImpl) {
+		activity.addLifecycleController(navDrawerControllerImpl);
 		if (activity instanceof TransportStateListener) {
-			navDrawerControllerImp
-					.setTransportListener((TransportStateListener) activity);
+			navDrawerControllerImpl.setTransportListener(
+					(TransportStateListener) activity);
 		}
-		return navDrawerControllerImp;
+		return navDrawerControllerImpl;
 	}
 
 	@ActivityScope
@@ -109,67 +109,62 @@ public class ActivityModule {
 
 	@Provides
 	@Named("ForumListFragment")
-	BaseFragment provideForumListFragment(
-			ForumListFragment forumListFragment) {
-		forumListFragment.setArguments(new Bundle());
-		return forumListFragment;
+	BaseFragment provideForumListFragment(ForumListFragment fragment) {
+		fragment.setArguments(new Bundle());
+		return fragment;
 	}
 
 	@Provides
 	@Named("ContactListFragment")
-	BaseFragment provideContactListFragment(
-			ContactListFragment contactListFragment) {
-		contactListFragment.setArguments(new Bundle());
-		return contactListFragment;
+	BaseFragment provideContactListFragment(ContactListFragment fragment) {
+		fragment.setArguments(new Bundle());
+		return fragment;
 	}
 
 	@Provides
 	@Named("ChooseIdentityFragment")
-	BaseFragment provideChooseIdendityFragment() {
-		ChooseIdentityFragment fragment = new ChooseIdentityFragment();
+	BaseFragment provideChooseIdentityFragment(
+			ChooseIdentityFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
 
 	@Provides
 	@Named("ShowQrCodeFragment")
-	BaseFragment provideShowQrCodeFragment() {
-		ShowQrCodeFragment fragment = new ShowQrCodeFragment();
+	BaseFragment provideShowQrCodeFragment(ShowQrCodeFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
 
 	@Provides
 	@Named("ContactChooserFragment")
-	BaseFragment provideContactChooserFragment() {
-		ContactChooserFragment fragment = new ContactChooserFragment();
+	BaseFragment provideContactChooserFragment(
+			ContactChooserFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
 
 	@Provides
 	@Named("ContactSelectorFragment")
-	ContactSelectorFragment provideContactSelectorFragment() {
-		ContactSelectorFragment fragment = new ContactSelectorFragment();
+	ContactSelectorFragment provideContactSelectorFragment(
+			ContactSelectorFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
 
 	@Provides
 	@Named("ShareForumMessageFragment")
-	ShareForumMessageFragment provideShareForumMessageFragment() {
-		ShareForumMessageFragment fragment = new ShareForumMessageFragment();
+	ShareForumMessageFragment provideShareForumMessageFragment(
+			ShareForumMessageFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
 
 	@Provides
 	@Named("IntroductionMessageFragment")
-	IntroductionMessageFragment provideIntroductionMessageFragment() {
-		IntroductionMessageFragment fragment =
-				new IntroductionMessageFragment();
+	IntroductionMessageFragment provideIntroductionMessageFragment(
+			IntroductionMessageFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
-
 }
