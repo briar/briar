@@ -13,7 +13,7 @@
 		android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 		android:layout_marginStart="@dimen/listitem_horizontal_margin"
 		app:civ_border_width="@dimen/avatar_border_width"
-		app:civ_border_color="@color/briar_text_primary"/>
+		app:civ_border_color="@color/briar_primary"/>
 
 	<ImageView
 		android:id="@+id/statusView"

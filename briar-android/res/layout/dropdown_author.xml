@@ -12,7 +12,7 @@
 		android:layout_width="@dimen/dropdown_picture_size"
 		android:layout_height="@dimen/dropdown_picture_size"
 		android:layout_margin="@dimen/margin_small"
-		app:civ_border_color="@color/briar_text_primary"
+		app:civ_border_color="@color/briar_primary"
 		app:civ_border_width="@dimen/avatar_border_width"/>
 
 	<TextView

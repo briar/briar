@@ -31,7 +31,7 @@
 				android:layout_marginRight="@dimen/listitem_horizontal_margin"
 				android:layout_toLeftOf="@+id/introductionIcon"
 				android:layout_toStartOf="@+id/introductionIcon"
-				app:civ_border_color="@color/briar_text_primary"
+				app:civ_border_color="@color/briar_primary"
 				app:civ_border_width="@dimen/avatar_border_width"
 				tools:src="@drawable/ic_launcher"/>
 
@@ -53,7 +53,7 @@
 				android:layout_toEndOf="@+id/introductionIcon"
 				android:layout_toRightOf="@+id/introductionIcon"
 				android:transitionName="avatar"
-				app:civ_border_color="@color/briar_text_primary"
+				app:civ_border_color="@color/briar_primary"
 				app:civ_border_width="@dimen/avatar_border_width"
 				tools:src="@drawable/ic_launcher"/>
 
