@@ -4,7 +4,6 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.forum.ForumManager;
@@ -23,6 +22,7 @@ import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
+import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
 
 import javax.inject.Singleton;
@@ -31,21 +31,22 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		TestSystemModule.class,
 		TestDatabaseModule.class,
 		TestPluginsModule.class,
-		LifecycleModule.class,
-		DatabaseModule.class,
-		ForumModule.class,
-		CryptoModule.class,
-		EventModule.class,
-		ContactModule.class,
-		IdentityModule.class,
-		TransportModule.class,
+		TestSeedProviderModule.class,
 		ClientsModule.class,
-		SyncModule.class,
+		ContactModule.class,
+		CryptoModule.class,
 		DataModule.class,
-		PropertiesModule.class
+		DatabaseModule.class,
+		EventModule.class,
+		ForumModule.class,
+		IdentityModule.class,
+		LifecycleModule.class,
+		PropertiesModule.class,
+		SyncModule.class,
+		SystemModule.class,
+		TransportModule.class
 })
 public interface ForumSharingIntegrationTestComponent {
 
