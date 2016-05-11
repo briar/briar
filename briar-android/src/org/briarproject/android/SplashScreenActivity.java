@@ -69,6 +69,7 @@ public class SplashScreenActivity extends BaseActivity {
 				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
 				configController.clearPrefs();
+				// TODO replace this static call with a controller method
 				AndroidUtils.deleteAppData(this);
 				startActivity(new Intent(this, SetupActivity.class));
 			}

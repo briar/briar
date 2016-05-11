@@ -112,6 +112,7 @@ public class PanicResponderActivity extends BriarActivity {
 			public void run() {
 				configController.clearPrefs();
 				// TODO somehow delete/shred the database more thoroughly
+				// TODO replace this static call with a controller method
 				AndroidUtils.deleteAppData(PanicResponderActivity.this);
 				PanicResponder.deleteAllAppData(PanicResponderActivity.this);
 

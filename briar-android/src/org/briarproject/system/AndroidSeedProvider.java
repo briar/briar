@@ -37,7 +37,7 @@ class AndroidSeedProvider extends LinuxSeedProvider {
 		String str = Settings.Secure.getString(contentResolver, ANDROID_ID);
 		if (str != null) {
 			out.writeUTF(str);
-			super.writeToEntropyPool(out);
 		}
+		super.writeToEntropyPool(out);
 	}
 }

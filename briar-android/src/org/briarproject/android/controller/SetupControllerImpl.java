@@ -22,10 +22,10 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 
-public class SetupControllerImp implements SetupController {
+public class SetupControllerImpl implements SetupController {
 
 	private static final Logger LOG =
-			Logger.getLogger(SetupControllerImp.class.getName());
+			Logger.getLogger(SetupControllerImpl.class.getName());
 
 	private final static String PREF_DB_KEY = "key";
 
@@ -50,7 +50,7 @@ public class SetupControllerImp implements SetupController {
 	protected SharedPreferences briarPrefs;
 
 	@Inject
-	public SetupControllerImp() {
+	public SetupControllerImpl() {
 
 	}
 
@@ -90,7 +90,7 @@ public class SetupControllerImp implements SetupController {
 				databaseConfig.setEncryptionKey(key);
 				String hex = encryptDatabaseKey(key, password);
 				storeEncryptedDatabaseKey(hex);
-				final LocalAuthor localAuthor = createLocalAuthor(nickname);
+				LocalAuthor localAuthor = createLocalAuthor(nickname);
 				long handle = referenceManager.putReference(localAuthor,
 						LocalAuthor.class);
 				resultHandler.onResult(handle);

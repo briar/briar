@@ -3,7 +3,6 @@ package org.briarproject.android;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
 
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.handler.UiResultHandler;
@@ -36,11 +35,6 @@ public abstract class BriarActivity extends BaseActivity {
 	protected BriarController briarController;
 
 	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-	}
-
-	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD) {
@@ -52,7 +46,7 @@ public abstract class BriarActivity extends BaseActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (!briarController.encryptionKey() && !isFinishing()) {
+		if (!briarController.hasEncryptionKey() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION | FLAG_ACTIVITY_SINGLE_TOP);
 			startActivityForResult(i, REQUEST_PASSWORD);
@@ -93,7 +87,7 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	@Deprecated
-	public void runOnDbThread(final Runnable task) {
+	public void runOnDbThread(Runnable task) {
 		briarController.runOnDbThread(task);
 	}
 

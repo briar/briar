@@ -17,10 +17,10 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-public class BriarControllerImp implements BriarController {
+public class BriarControllerImpl implements BriarController {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarControllerImp.class.getName());
+			Logger.getLogger(BriarControllerImpl.class.getName());
 
 	@Inject
 	protected BriarServiceConnection serviceConnection;
@@ -38,7 +38,7 @@ public class BriarControllerImp implements BriarController {
 	private boolean bound = false;
 
 	@Inject
-	public BriarControllerImp() {
+	public BriarControllerImpl() {
 
 	}
 
@@ -71,7 +71,7 @@ public class BriarControllerImp implements BriarController {
 	}
 
 	@Override
-	public boolean encryptionKey() {
+	public boolean hasEncryptionKey() {
 		return databaseConfig.getEncryptionKey() != null;
 	}
 

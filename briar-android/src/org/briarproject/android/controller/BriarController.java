@@ -8,7 +8,7 @@ public interface BriarController extends ActivityLifecycleController {
 
 	void startAndBindService();
 
-	boolean encryptionKey();
+	boolean hasEncryptionKey();
 
 	void signOut(ResultHandler<Void> eventHandler);
 }

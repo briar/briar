@@ -7,7 +7,6 @@ import org.acra.config.ACRAConfiguration;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderFactory;
 import org.briarproject.android.BriarApplication;
-import org.briarproject.android.BriarApplicationImp;
 
 public class BriarReportSenderFactory implements ReportSenderFactory {
 	@NonNull

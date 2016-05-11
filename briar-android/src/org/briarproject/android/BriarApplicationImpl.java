@@ -22,10 +22,10 @@ import java.util.logging.Logger;
 		resDialogOkToast = R.string.dev_report_saved,
 		deleteOldUnsentReportsOnApplicationStart = false
 )
-public class BriarApplicationImp extends Application implements BriarApplication {
+public class BriarApplicationImpl extends Application implements BriarApplication {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarApplicationImp.class.getName());
+			Logger.getLogger(BriarApplicationImpl.class.getName());
 
 	private AndroidComponent applicationComponent;
 

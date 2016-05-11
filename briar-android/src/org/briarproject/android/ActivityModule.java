@@ -7,18 +7,18 @@ import android.os.Bundle;
 
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.controller.BriarController;
-import org.briarproject.android.controller.BriarControllerImp;
+import org.briarproject.android.controller.BriarControllerImpl;
 import org.briarproject.android.controller.NavDrawerController;
-import org.briarproject.android.controller.NavDrawerControllerImp;
+import org.briarproject.android.controller.NavDrawerControllerImpl;
+import org.briarproject.android.controller.PasswordControllerImpl;
+import org.briarproject.android.controller.SetupControllerImpl;
 import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.controller.PasswordController;
-import org.briarproject.android.controller.PasswordControllerImp;
 import org.briarproject.android.controller.SetupController;
-import org.briarproject.android.controller.SetupControllerImp;
 import org.briarproject.android.controller.ConfigController;
-import org.briarproject.android.controller.ConfigControllerImp;
+import org.briarproject.android.controller.ConfigControllerImpl;
 import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionMessageFragment;
 import org.briarproject.android.keyagreement.ChooseIdentityFragment;
@@ -55,15 +55,15 @@ public class ActivityModule {
 	@ActivityScope
 	@Provides
 	protected SetupController provideSetupController(
-			SetupControllerImp setupControllerImp) {
-		return setupControllerImp;
+			SetupControllerImpl setupControllerImpl) {
+		return setupControllerImpl;
 	}
 
 	@ActivityScope
 	@Provides
 	protected ConfigController provideConfigController(
-			ConfigControllerImp configControllerImp) {
-		return configControllerImp;
+			ConfigControllerImpl configControllerImpl) {
+		return configControllerImpl;
 	}
 
 	@ActivityScope
@@ -75,22 +75,22 @@ public class ActivityModule {
 	@ActivityScope
 	@Provides
 	protected PasswordController providePasswordController(
-			PasswordControllerImp passwordControllerImp) {
+			PasswordControllerImpl passwordControllerImp) {
 		return passwordControllerImp;
 	}
 
 	@ActivityScope
 	@Provides
 	protected BriarController provideBriarController(
-			BriarControllerImp briarControllerImp) {
-		activity.addLifecycleController(briarControllerImp);
-		return briarControllerImp;
+			BriarControllerImpl briarControllerImpl) {
+		activity.addLifecycleController(briarControllerImpl);
+		return briarControllerImpl;
 	}
 
 	@ActivityScope
 	@Provides
 	protected NavDrawerController provideNavDrawerController(
-			NavDrawerControllerImp navDrawerControllerImp) {
+			NavDrawerControllerImpl navDrawerControllerImp) {
 		activity.addLifecycleController(navDrawerControllerImp);
 		if (activity instanceof TransportStateListener) {
 			navDrawerControllerImp

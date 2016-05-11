@@ -144,13 +144,13 @@ public class SetupActivityTest {
 	}
 
 	@Test
-	public void testNickUI() {
+	public void testNicknameUI() {
 		Assert.assertNotNull(setupActivity);
 		String longNick =
 				Strings.padEnd("*", AuthorConstants.MAX_AUTHOR_NAME_LENGTH + 1,
 						'*');
 		nicknameEntry.setText(longNick);
-		// Password should be too long
+		// Nickname should be too long
 		assertEquals(nicknameEntryWrapper.getError(),
 				setupActivity.getString(R.string.name_too_long));
 	}

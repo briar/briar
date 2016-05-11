@@ -21,11 +21,10 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.TransportStateListener;
-import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.LocalAuthor;
 
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Inject
-	NavDrawerController controller;
+	protected NavDrawerController controller;
 
 	private Toolbar toolbar;
 	private DrawerLayout drawerLayout;
@@ -159,15 +158,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private void storeLocalAuthor(final LocalAuthor a) {
 		controller.storeLocalAuthor(a,
-				new UiResultExceptionHandler<Void, DbException>(this) {
+				new UiResultHandler<Void>(this) {
 					@Override
 					public void onResultUi(Void result) {
 						hideLoadingScreen();
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-
 					}
 				});
 	}
@@ -245,21 +239,21 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 		Transport tor = new Transport();
 		tor.id = new TransportId("tor");
-		tor.enabled = controller.transportRunning(tor.id);
+		tor.enabled = controller.isTransportRunning(tor.id);
 		tor.iconId = R.drawable.transport_tor;
 		tor.textId = R.string.transport_tor;
 		transports.add(tor);
 
 		Transport bt = new Transport();
 		bt.id = new TransportId("bt");
-		bt.enabled = controller.transportRunning(bt.id);
+		bt.enabled = controller.isTransportRunning(bt.id);
 		bt.iconId = R.drawable.transport_bt;
 		bt.textId = R.string.transport_bt;
 		transports.add(bt);
 
 		Transport lan = new Transport();
 		lan.id = new TransportId("lan");
-		lan.enabled = controller.transportRunning(lan.id);
+		lan.enabled = controller.isTransportRunning(lan.id);
 		lan.iconId = R.drawable.transport_lan;
 		lan.textId = R.string.transport_lan;
 		transports.add(lan);
@@ -326,7 +320,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	private void updateTransports() {
 		if (transports == null || transportsAdapter == null) return;
 		for (Transport t : transports) {
-			t.enabled = controller.transportRunning(t.id);
+			t.enabled = controller.isTransportRunning(t.id);
 		}
 		transportsAdapter.notifyDataSetChanged();
 	}

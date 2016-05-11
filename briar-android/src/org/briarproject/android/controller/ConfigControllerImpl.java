@@ -6,7 +6,7 @@ import org.briarproject.api.db.DatabaseConfig;
 
 import javax.inject.Inject;
 
-public class ConfigControllerImp implements ConfigController {
+public class ConfigControllerImpl implements ConfigController {
 
 	private final static String PREF_DB_KEY = "key";
 
@@ -16,7 +16,7 @@ public class ConfigControllerImp implements ConfigController {
 	protected volatile DatabaseConfig databaseConfig;
 
 	@Inject
-	public ConfigControllerImp() {
+	public ConfigControllerImpl() {
 
 	}
 

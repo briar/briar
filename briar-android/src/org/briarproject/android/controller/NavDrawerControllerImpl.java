@@ -3,7 +3,7 @@ package org.briarproject.android.controller;
 import android.app.Activity;
 
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -25,11 +25,11 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public class NavDrawerControllerImp extends BriarControllerImp
+public class NavDrawerControllerImpl extends BriarControllerImpl
 		implements NavDrawerController, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(NavDrawerControllerImp.class.getName());
+			Logger.getLogger(NavDrawerControllerImpl.class.getName());
 
 	@Inject
 	protected ReferenceManager referenceManager;
@@ -38,7 +38,7 @@ public class NavDrawerControllerImp extends BriarControllerImp
 	@Inject
 	protected PluginManager pluginManager;
 	@Inject
-	protected volatile EventBus eventBus;
+	protected EventBus eventBus;
 	@Inject
 	protected Activity activity;
 
@@ -47,7 +47,7 @@ public class NavDrawerControllerImp extends BriarControllerImp
 	private TransportStateListener transportStateListener;
 
 	@Inject
-	public NavDrawerControllerImp() {
+	public NavDrawerControllerImpl() {
 
 	}
 
@@ -103,15 +103,14 @@ public class NavDrawerControllerImp extends BriarControllerImp
 	}
 
 	@Override
-	public boolean transportRunning(TransportId transportId) {
+	public boolean isTransportRunning(TransportId transportId) {
 		Plugin plugin = pluginManager.getPlugin(transportId);
 		return plugin != null && plugin.isRunning();
 	}
 
 	@Override
 	public void storeLocalAuthor(final LocalAuthor author,
-			final ResultExceptionHandler<Void, DbException> resultHandler) {
-
+			final UiResultHandler<Void> resultHandler) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
@@ -124,7 +123,6 @@ public class NavDrawerControllerImp extends BriarControllerImp
 				} catch (final DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onException(e);
 				}
 			}
 		});

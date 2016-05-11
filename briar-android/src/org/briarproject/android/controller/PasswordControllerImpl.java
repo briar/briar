@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
-public class PasswordControllerImp extends ConfigControllerImp
+public class PasswordControllerImpl extends ConfigControllerImpl
 		implements PasswordController {
 
 	@Inject
@@ -24,7 +24,7 @@ public class PasswordControllerImp extends ConfigControllerImp
 	protected Activity activity;
 
 	@Inject
-	public PasswordControllerImp() {
+	public PasswordControllerImpl() {
 
 	}
 
@@ -47,6 +47,8 @@ public class PasswordControllerImp extends ConfigControllerImp
 
 	private byte[] getEncryptedKey() {
 		String hex = getEncryptedDatabaseKey();
-		return hex == null ? null : StringUtils.fromHexString(hex);
+		if (hex == null)
+			throw new IllegalStateException("Encrypted database key is null.");
+		return StringUtils.fromHexString(hex);
 	}
 }
