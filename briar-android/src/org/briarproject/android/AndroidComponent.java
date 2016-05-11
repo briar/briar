@@ -108,14 +108,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	AndroidExecutor androidExecutor();
 
-	void inject(BriarService activity);
-
 	@IoExecutor
 	Executor ioExecutor();
-
-	void inject(ContactChooserFragment fragment);
-
-	void inject(IntroductionMessageFragment fragment);
 
 	void inject(DevReportActivity devReportActivity);
 

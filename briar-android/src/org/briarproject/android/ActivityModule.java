@@ -8,17 +8,19 @@ import android.os.Bundle;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
-import org.briarproject.android.controller.NavDrawerController;
-import org.briarproject.android.controller.NavDrawerControllerImpl;
-import org.briarproject.android.controller.PasswordControllerImpl;
-import org.briarproject.android.controller.SetupControllerImpl;
-import org.briarproject.android.controller.TransportStateListener;
-import org.briarproject.android.forum.ForumListFragment;
-import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.controller.PasswordController;
-import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.controller.ConfigControllerImpl;
+import org.briarproject.android.controller.NavDrawerController;
+import org.briarproject.android.controller.NavDrawerControllerImpl;
+import org.briarproject.android.controller.PasswordController;
+import org.briarproject.android.controller.PasswordControllerImpl;
+import org.briarproject.android.controller.SetupController;
+import org.briarproject.android.controller.SetupControllerImpl;
+import org.briarproject.android.controller.TransportStateListener;
+import org.briarproject.android.forum.ContactSelectorFragment;
+import org.briarproject.android.forum.ForumListFragment;
+import org.briarproject.android.forum.ShareForumMessageFragment;
+import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionMessageFragment;
 import org.briarproject.android.keyagreement.ChooseIdentityFragment;
@@ -29,7 +31,7 @@ import javax.inject.Named;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.android.BriarService.*;
+import static org.briarproject.android.BriarService.BriarServiceConnection;
 
 @Module
 public class ActivityModule {
@@ -141,6 +143,22 @@ public class ActivityModule {
 	@Named("ContactChooserFragment")
 	BaseFragment provideContactChooserFragment() {
 		ContactChooserFragment fragment = new ContactChooserFragment();
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
+
+	@Provides
+	@Named("ContactSelectorFragment")
+	ContactSelectorFragment provideContactSelectorFragment() {
+		ContactSelectorFragment fragment = new ContactSelectorFragment();
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
+
+	@Provides
+	@Named("ShareForumMessageFragment")
+	ShareForumMessageFragment provideShareForumMessageFragment() {
+		ShareForumMessageFragment fragment = new ShareForumMessageFragment();
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}
