@@ -9,10 +9,7 @@ import org.briarproject.android.BriarService;
 import org.briarproject.android.BriarService.BriarServiceConnection;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.db.DatabaseConfig;
-import org.briarproject.api.db.DatabaseExecutor;
-import org.briarproject.api.lifecycle.LifecycleManager;
 
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -28,13 +25,6 @@ public class BriarControllerImpl implements BriarController {
 	protected DatabaseConfig databaseConfig;
 	@Inject
 	protected Activity activity;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	@DatabaseExecutor
-	protected volatile Executor dbExecutor;
-	@Inject
-	protected volatile LifecycleManager lifecycleManager;
 
 	private boolean bound = false;
 
@@ -100,23 +90,8 @@ public class BriarControllerImpl implements BriarController {
 		}.start();
 	}
 
-	private void unbindService() {
+	protected void unbindService() {
 		if (bound) activity.unbindService(serviceConnection);
 	}
 
-	@Override
-	public void runOnDbThread(final Runnable task) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					lifecycleManager.waitForDatabase();
-					task.run();
-				} catch (InterruptedException e) {
-					LOG.warning("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
 }

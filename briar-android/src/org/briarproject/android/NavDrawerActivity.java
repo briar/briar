@@ -45,6 +45,8 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	public static final String INTENT_CONTACTS = "intent_contacts";
 	public static final String INTENT_FORUMS = "intent_forums";
 
+	private static final String KEY_CURRENT_FRAGMENT_ID = "key_current_id";
+
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerActivity.class.getName());
 
@@ -60,18 +62,18 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
+	private int currentFragmentId = R.id.nav_btn_contacts;
 
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		if (!isStartupFailed(intent)) {
-			checkAuthorHandle(intent);
-			clearBackStack();
-			if (intent.getBooleanExtra(INTENT_FORUMS, false))
-				startFragment(activityComponent.newForumListFragment());
-			else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
-				startFragment(activityComponent.newContactListFragment());
-		}
+		exitIfStartupFailed(intent);
+		checkAuthorHandle(intent);
+		clearBackStack();
+		if (intent.getBooleanExtra(INTENT_FORUMS, false))
+			startFragment(activityComponent.newForumListFragment());
+		else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
+			startFragment(activityComponent.newContactListFragment());
 	}
 
 	@Override
@@ -83,10 +85,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-
-		if (isStartupFailed(getIntent()))
-			return;
-
+		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -103,14 +102,24 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 				R.string.nav_drawer_open_description,
 				R.string.nav_drawer_close_description);
 		drawerLayout.setDrawerListener(drawerToggle);
-		if (state == null)
+		if (state == null) {
 			startFragment(activityComponent.newContactListFragment());
+		} else {
+			currentFragmentId = state.getInt(KEY_CURRENT_FRAGMENT_ID);
+			loadCurrentFragment();
+		}
 		checkAuthorHandle(getIntent());
 
 		initializeTransports(getLayoutInflater());
 		transportsView.setAdapter(transportsAdapter);
 
 		welcomeMessageCheck();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(KEY_CURRENT_FRAGMENT_ID, currentFragmentId);
 	}
 
 	private void welcomeMessageCheck() {
@@ -140,14 +149,12 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		}
 	}
 
-	private boolean isStartupFailed(Intent intent) {
+	private void exitIfStartupFailed(Intent intent) {
 		if (intent.getBooleanExtra(KEY_STARTUP_FAILED, false)) {
 			finish();
 			LOG.info("Exiting");
 			System.exit(0);
-			return true;
 		}
-		return false;
 	}
 
 	private void storeLocalAuthor(LocalAuthor a) {
@@ -159,10 +166,8 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		});
 	}
 
-	public void onNavigationClick(View view) {
-		drawerLayout.closeDrawer(START);
-		clearBackStack();
-		switch (view.getId()) {
+	private void loadCurrentFragment() {
+		switch (currentFragmentId) {
 			case R.id.nav_btn_contacts:
 				startFragment(activityComponent.newContactListFragment());
 				break;
@@ -176,6 +181,13 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 				signOut();
 				break;
 		}
+	}
+
+	public void onNavigationClick(View view) {
+		drawerLayout.closeDrawer(START);
+		clearBackStack();
+		currentFragmentId = view.getId();
+		loadCurrentFragment();
 	}
 
 

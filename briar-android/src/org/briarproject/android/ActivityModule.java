@@ -10,6 +10,8 @@ import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
 import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.controller.ConfigControllerImpl;
+import org.briarproject.android.controller.DbController;
+import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.NavDrawerControllerImpl;
 import org.briarproject.android.controller.PasswordController;
@@ -87,6 +89,13 @@ public class ActivityModule {
 			BriarControllerImpl briarControllerImpl) {
 		activity.addLifecycleController(briarControllerImpl);
 		return briarControllerImpl;
+	}
+
+	@ActivityScope
+	@Provides
+	protected DbController provideDBController(
+			DbControllerImpl dbController) {
+		return dbController;
 	}
 
 	@ActivityScope
