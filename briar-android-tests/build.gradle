@@ -2,10 +2,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'witness'
 apply plugin: 'com.neenbedankt.android-apt'
 
-repositories {
-    maven { url 'http://repo1.maven.org/maven2' }
-}
-
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"

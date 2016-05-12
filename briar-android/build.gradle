@@ -6,11 +6,6 @@ apply plugin: 'witness'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'de.undercouch.download'
 
-repositories {
-	jcenter()
-	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-}
-
 dependencies {
 	def supportVersion = '23.2.1'
 	compile project(':briar-api')

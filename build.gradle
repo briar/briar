@@ -1,11 +1,18 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+allprojects {
+	repositories {
+		jcenter()
+		mavenCentral()
+		mavenLocal()
+	}
+}
+
 buildscript {
 	repositories {
-		mavenCentral()
-		maven {
-			url "https://plugins.gradle.org/m2/"
-		}
 		jcenter()
+		mavenCentral()
+		mavenLocal()
 	}
 
 	dependencies {
