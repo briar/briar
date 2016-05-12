@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -65,15 +66,15 @@ import static org.junit.Assert.assertTrue;
 
 public class ForumSharingIntegrationTest extends BriarTestCase {
 
-	LifecycleManager lifecycleManager0, lifecycleManager1;
-	SyncSessionFactory sync0, sync1;
-	ForumManager forumManager0, forumManager1;
-	ContactManager contactManager0, contactManager1;
-	ContactId contactId0, contactId1;
-	IdentityManager identityManager0, identityManager1;
-	LocalAuthor author0, author1;
+	LifecycleManager lifecycleManager0, lifecycleManager1, lifecycleManager2;
+	SyncSessionFactory sync0, sync1, sync2;
+	ForumManager forumManager0, forumManager1, forumManager2;
+	ContactManager contactManager0, contactManager1, contactManager2;
+	ContactId contactId0, contactId2, contactId1, contactId21;
+	IdentityManager identityManager0, identityManager1, identityManager2;
+	LocalAuthor author0, author1, author2;
 	Forum forum0;
-	SharerListener listener0;
+	SharerListener listener0, listener2;
 	InviteeListener listener1;
 
 	@Inject
@@ -84,6 +85,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	// objects accessed from background threads need to be volatile
 	private volatile ForumSharingManager forumSharingManager0;
 	private volatile ForumSharingManager forumSharingManager1;
+	private volatile ForumSharingManager forumSharingManager2;
 	private volatile Waiter eventWaiter;
 	private volatile Waiter msgWaiter;
 
@@ -92,11 +94,12 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	private final int TIMEOUT = 15000;
 	private final String SHARER = "Sharer";
 	private final String INVITEE = "Invitee";
+	private final String SHARER2 = "Sharer2";
 
 	private static final Logger LOG =
 			Logger.getLogger(ForumSharingIntegrationTest.class.getName());
 
-	private ForumSharingIntegrationTestComponent t0, t1;
+	private ForumSharingIntegrationTestComponent t0, t1, t2;
 
 	@Rule
 	public ExpectedException thrown=ExpectedException.none();
@@ -117,17 +120,26 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		t1 = DaggerForumSharingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
 		injectEagerSingletons(t1);
+		File t2Dir = new File(testDir, SHARER2);
+		t2 = DaggerForumSharingIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(t2);
 
 		identityManager0 = t0.getIdentityManager();
 		identityManager1 = t1.getIdentityManager();
+		identityManager2 = t2.getIdentityManager();
 		contactManager0 = t0.getContactManager();
 		contactManager1 = t1.getContactManager();
+		contactManager2 = t2.getContactManager();
 		forumManager0 = t0.getForumManager();
 		forumManager1 = t1.getForumManager();
+		forumManager2 = t2.getForumManager();
 		forumSharingManager0 = t0.getForumSharingManager();
 		forumSharingManager1 = t1.getForumSharingManager();
+		forumSharingManager2 = t2.getForumSharingManager();
 		sync0 = t0.getSyncSessionFactory();
 		sync1 = t1.getSyncSessionFactory();
+		sync2 = t2.getSyncSessionFactory();
 
 		// initialize waiters fresh for each test
 		eventWaiter = new Waiter();
@@ -474,7 +486,8 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertEquals(1, forumManager1.getForums().size());
 
 			// invitee now shares same forum back
-			forumSharingManager1.sendForumInvitation(forum0.getId(), contactId0,
+			forumSharingManager1.sendForumInvitation(forum0.getId(),
+					contactId0,
 					"I am re-sharing this forum with you.");
 
 			// sync re-share invitation
@@ -526,7 +539,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 			// contacts now remove each other
 			contactManager0.removeContact(contactId1);
+			contactManager2.removeContact(contactId21);
 			contactManager1.removeContact(contactId0);
+			contactManager1.removeContact(contactId2);
 
 			// make sure sharer does share the forum with nobody now
 			assertEquals(0,
@@ -572,6 +587,75 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		}
 	}
 
+	@Test
+	public void testTwoContactsShareSameForum() throws Exception {
+		startLifecycles();
+		try {
+			// initialize
+			addDefaultIdentities();
+			addDefaultContacts();
+			addForumForSharer();
+
+			// second sharer adds the same forum
+			DatabaseComponent db2 = t2.getDatabaseComponent();
+			Transaction txn = db2.startTransaction(false);
+			db2.addGroup(txn, forum0.getGroup());
+			txn.setComplete();
+			db2.endTransaction(txn);
+
+			// add listeners
+			listener0 = new SharerListener();
+			t0.getEventBus().addListener(listener0);
+			listener1 = new InviteeListener(true, false);
+			t1.getEventBus().addListener(listener1);
+			listener2 = new SharerListener();
+			t2.getEventBus().addListener(listener2);
+
+			// send invitation
+			forumSharingManager0
+					.sendForumInvitation(forum0.getId(), contactId1, "Hi!");
+			// sync first request message
+			syncToInvitee();
+
+			// second sharer sends invitation for same forum
+			forumSharingManager2
+					.sendForumInvitation(forum0.getId(), contactId1, null);
+			// sync second request message
+			deliverMessage(sync2, contactId2, sync1, contactId1,
+					"Sharer2 to Invitee");
+
+			// make sure we have only one forum available
+			Collection<Forum> forums =
+					forumSharingManager1.getAvailableForums();
+			assertEquals(1, forums.size());
+
+			// make sure both sharers actually share the forum
+			Collection<Contact> contacts =
+					forumSharingManager1.getSharedBy(forum0.getId());
+			assertEquals(2, contacts.size());
+
+			// answer second request
+			Contact c2 = contactManager1.getContact(contactId2);
+			forumSharingManager1.respondToInvitation(forum0, c2, true);
+			// sync response
+			deliverMessage(sync1, contactId21, sync2, contactId2,
+					"Invitee to Sharer2");
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener2.responseReceived);
+
+			// answer first request
+			Contact c0 =
+					contactManager1.getContact(contactId0);
+			forumSharingManager1.respondToInvitation(forum0, c0, true);
+			// sync response
+			syncToSharer();
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener0.responseReceived);
+		} finally {
+			stopLifecycles();
+		}
+	}
+
 
 	@After
 	public void tearDown() throws InterruptedException {
@@ -609,7 +693,8 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				requestReceived = true;
 				Forum f = event.getForum();
 				try {
-					forumSharingManager0.respondToInvitation(f, true);
+					Contact c = contactManager0.getContact(contactId1);
+					forumSharingManager0.respondToInvitation(f, c, true);
 				} catch (DbException ex) {
 					eventWaiter.rethrow(ex);
 				} finally {
@@ -624,10 +709,15 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		public volatile boolean requestReceived = false;
 		public volatile boolean responseReceived = false;
 
-		private final boolean accept;
+		private final boolean accept, answer;
+
+		InviteeListener(boolean accept, boolean answer) {
+			this.accept = accept;
+			this.answer = answer;
+		}
 
 		InviteeListener(boolean accept) {
-			this.accept = accept;
+			this(accept, true);
 		}
 
 		public void eventOccurred(Event e) {
@@ -644,11 +734,13 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			} else if (e instanceof ForumInvitationReceivedEvent) {
 				ForumInvitationReceivedEvent event =
 						(ForumInvitationReceivedEvent) e;
-				eventWaiter.assertEquals(contactId0, event.getContactId());
 				requestReceived = true;
+				if (!answer) return;
 				Forum f = event.getForum();
 				try {
-					forumSharingManager1.respondToInvitation(f, accept);
+					Contact c =
+							contactManager1.getContact(event.getContactId());
+					forumSharingManager1.respondToInvitation(f, c, accept);
 				} catch (DbException ex) {
 					eventWaiter.rethrow(ex);
 				} finally {
@@ -670,18 +762,23 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		// Start the lifecycle manager and wait for it to finish
 		lifecycleManager0 = t0.getLifecycleManager();
 		lifecycleManager1 = t1.getLifecycleManager();
+		lifecycleManager2 = t2.getLifecycleManager();
 		lifecycleManager0.startServices();
 		lifecycleManager1.startServices();
+		lifecycleManager2.startServices();
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
+		lifecycleManager2.waitForStartup();
 	}
 
 	private void stopLifecycles() throws InterruptedException {
 		// Clean up
 		lifecycleManager0.stopServices();
 		lifecycleManager1.stopServices();
+		lifecycleManager2.stopServices();
 		lifecycleManager0.waitForShutdown();
 		lifecycleManager1.waitForShutdown();
+		lifecycleManager2.waitForShutdown();
 	}
 
 	private void defaultInit(boolean accept) throws DbException {
@@ -700,6 +797,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
 				TestUtils.getRandomBytes(123));
 		identityManager1.addLocalAuthor(author1);
+		author2 = authorFactory.createLocalAuthor(SHARER2,
+				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				TestUtils.getRandomBytes(123));
+		identityManager2.addLocalAuthor(author2);
 	}
 
 	private void addDefaultContacts() throws DbException {
@@ -708,8 +809,17 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				author0.getId(), master, clock.currentTimeMillis(), true,
 				true
 		);
-		// invitee adds sharer back
+		// second sharer does the same
+		contactId21 = contactManager2.addContact(author1,
+				author2.getId(), master, clock.currentTimeMillis(), true,
+				true
+		);
+		// invitee adds sharers back
 		contactId0 = contactManager1.addContact(author0,
+				author1.getId(), master, clock.currentTimeMillis(), true,
+				true
+		);
+		contactId2 = contactManager1.addContact(author2,
 				author1.getId(), master, clock.currentTimeMillis(), true,
 				true
 		);
@@ -725,6 +835,8 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		t0.getEventBus().addListener(listener0);
 		listener1 = new InviteeListener(accept);
 		t1.getEventBus().addListener(listener1);
+		listener2 = new SharerListener();
+		t2.getEventBus().addListener(listener2);
 	}
 
 	private void syncToInvitee() throws IOException, TimeoutException {

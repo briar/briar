@@ -153,7 +153,7 @@ public class AvailableForumsActivity extends BriarActivity
 
 	@Override
 	public void onItemClick(AvailableForumsItem item, boolean accept) {
-		respondToInvitation(item.getForum(), accept);
+		respondToInvitation(item, accept);
 
 		// show toast
 		int res = R.string.forum_declined_toast;
@@ -161,12 +161,16 @@ public class AvailableForumsActivity extends BriarActivity
 		Toast.makeText(this, res, LENGTH_SHORT).show();
 	}
 
-	private void respondToInvitation(final Forum f, final boolean accept) {
-		runOnDbThread(new Runnable() {
+	private void respondToInvitation(final AvailableForumsItem item,
+			final boolean accept) {
+		briarController.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					forumSharingManager.respondToInvitation(f, accept);
+					Forum f = item.getForum();
+					for (Contact c : item.getContacts()) {
+						forumSharingManager.respondToInvitation(f, c, accept);
+					}
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

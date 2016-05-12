@@ -283,13 +283,14 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void respondToInvitation(Forum f, boolean accept)
+	public void respondToInvitation(Forum f, Contact c, boolean accept)
 			throws DbException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
 			// find session state based on forum
-			InviteeSessionState localState = getSessionStateForResponse(txn, f);
+			InviteeSessionState localState =
+					getSessionStateForResponse(txn, f, c);
 
 			// define action
 			InviteeSessionState.Action localAction;
@@ -562,17 +563,15 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 						"More than one session state found for message with session ID " +
 								Arrays.hashCode(sessionId.getBytes()));
 			}
-
-			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
-				return fromBdfDictionary(m.getValue());
+			if (map.isEmpty()) {
+				if (warn && LOG.isLoggable(WARNING)) {
+					LOG.warning(
+							"No session state found for message with session ID " +
+									Arrays.hashCode(sessionId.getBytes()));
+				}
+				throw new FormatException();
 			}
-
-			if (warn && LOG.isLoggable(WARNING)) {
-				LOG.warning(
-						"No session state found for message with session ID " +
-								Arrays.hashCode(sessionId.getBytes()));
-			}
-			throw new FormatException();
+			return fromBdfDictionary(map.values().iterator().next());
 		}
 	}
 
@@ -590,11 +589,12 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private InviteeSessionState getSessionStateForResponse(Transaction txn,
-			Forum f) throws DbException, FormatException {
+			Forum f, Contact c) throws DbException, FormatException {
 
 		// query for invitee states for that forum in state await response
 		BdfDictionary query = BdfDictionary.of(
 				new BdfEntry(IS_SHARER, false),
+				new BdfEntry(CONTACT_ID, c.getId().getInt()),
 				new BdfEntry(FORUM_ID, f.getId()),
 				new BdfEntry(STATE,
 						InviteeSessionState.State.AWAIT_LOCAL_RESPONSE
@@ -604,26 +604,24 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		Map<MessageId, BdfDictionary> map = clientHelper
 				.getMessageMetadataAsDictionary(txn, localGroup.getId(), query);
 
-		// TODO we might have been invited to the same forum from several people
-		// in different sessions, so we need to handle this (#391)
 		if (map.size() > 1 && LOG.isLoggable(WARNING)) {
 			LOG.warning(
 					"More than one session state found for forum with ID " +
 							Arrays.hashCode(f.getId().getBytes()) +
-							" in state AWAIT_LOCAL_RESPONSE");
+							" in state AWAIT_LOCAL_RESPONSE for contact " +
+							c.getAuthor().getName());
 		}
-
-		for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
-			return (InviteeSessionState) fromBdfDictionary(m.getValue());
+		if (map.isEmpty()) {
+			if (LOG.isLoggable(WARNING)) {
+				LOG.warning(
+						"No session state found for forum with ID " +
+								Arrays.hashCode(f.getId().getBytes()) +
+								" in state AWAIT_LOCAL_RESPONSE");
+			}
+			throw new DbException();
 		}
-
-		if (LOG.isLoggable(WARNING)) {
-			LOG.warning(
-					"No session state found for forum with ID " +
-							Arrays.hashCode(f.getId().getBytes()) +
-							" in state AWAIT_LOCAL_RESPONSE");
-		}
-		throw new DbException();
+		return (InviteeSessionState) fromBdfDictionary(
+				map.values().iterator().next());
 	}
 
 	private ForumSharingSessionState getSessionStateForLeaving(Transaction txn,
