@@ -3,33 +3,27 @@ package org.briarproject.forum;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ProtocolEngine;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
-import static org.briarproject.forum.SharerSessionState.Action;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
-import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
-import static org.briarproject.api.forum.ForumConstants.GROUP_ID;
-import static org.briarproject.api.forum.ForumConstants.INVITATION_MSG;
-import static org.briarproject.api.forum.ForumConstants.SESSION_ID;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ABORT;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ACCEPT;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_DECLINE;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_LEAVE;
 import static org.briarproject.api.forum.ForumConstants.TASK_ADD_FORUM_TO_LIST_TO_BE_SHARED_BY_US;
 import static org.briarproject.api.forum.ForumConstants.TASK_REMOVE_FORUM_FROM_LIST_TO_BE_SHARED_BY_US;
 import static org.briarproject.api.forum.ForumConstants.TASK_SHARE_FORUM;
 import static org.briarproject.api.forum.ForumConstants.TASK_UNSHARE_FORUM_SHARED_BY_US;
-import static org.briarproject.api.forum.ForumConstants.TYPE;
+import static org.briarproject.api.forum.ForumSharingMessage.BaseMessage;
+import static org.briarproject.api.forum.ForumSharingMessage.Invitation;
+import static org.briarproject.api.forum.ForumSharingMessage.SimpleMessage;
+import static org.briarproject.forum.SharerSessionState.Action;
 import static org.briarproject.forum.SharerSessionState.Action.LOCAL_ABORT;
 import static org.briarproject.forum.SharerSessionState.Action.LOCAL_INVITATION;
 import static org.briarproject.forum.SharerSessionState.Action.LOCAL_LEAVE;
@@ -42,13 +36,13 @@ import static org.briarproject.forum.SharerSessionState.State.FINISHED;
 import static org.briarproject.forum.SharerSessionState.State.LEFT;
 
 public class SharerEngine
-		implements ProtocolEngine<Action, SharerSessionState, BdfDictionary> {
+		implements ProtocolEngine<Action, SharerSessionState, BaseMessage> {
 
 	private static final Logger LOG =
 			Logger.getLogger(SharerEngine.class.getName());
 
 	@Override
-	public StateUpdate<SharerSessionState, BdfDictionary> onLocalAction(
+	public StateUpdate<SharerSessionState, BaseMessage> onLocalAction(
 			SharerSessionState localState, Action action) {
 
 		try {
@@ -67,19 +61,13 @@ public class SharerEngine
 				}
 				return noUpdate(localState, true);
 			}
-			List<BdfDictionary> messages;
+			List<BaseMessage> messages;
 			List<Event> events = Collections.emptyList();
 
 			if (action == LOCAL_INVITATION) {
-				BdfDictionary msg = new BdfDictionary();
-				msg.put(TYPE, SHARE_MSG_TYPE_INVITATION);
-				msg.put(SESSION_ID, localState.getSessionId());
-				msg.put(GROUP_ID, localState.getGroupId());
-				msg.put(FORUM_NAME, localState.getForumName());
-				msg.put(FORUM_SALT, localState.getForumSalt());
-				if (localState.getMessage() != null) {
-					msg.put(INVITATION_MSG, localState.getMessage());
-				}
+				BaseMessage msg = new Invitation(localState.getGroupId(),
+						localState.getSessionId(), localState.getForumName(),
+						localState.getForumSalt(), localState.getMessage());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, nextState, msg);
 
@@ -87,17 +75,15 @@ public class SharerEngine
 				localState.setTask(TASK_ADD_FORUM_TO_LIST_TO_BE_SHARED_BY_US);
 			}
 			else if (action == LOCAL_LEAVE) {
-				BdfDictionary msg = new BdfDictionary();
-				msg.put(TYPE, SHARE_MSG_TYPE_LEAVE);
-				msg.put(SESSION_ID, localState.getSessionId());
-				msg.put(GROUP_ID, localState.getGroupId());
+				BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_LEAVE,
+						localState.getGroupId(), localState.getSessionId());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, nextState, msg);
 			}
 			else {
 				throw new IllegalArgumentException("Unknown Local Action");
 			}
-			return new StateUpdate<SharerSessionState, BdfDictionary>(false,
+			return new StateUpdate<SharerSessionState, BaseMessage>(false,
 					false, localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
@@ -105,17 +91,16 @@ public class SharerEngine
 	}
 
 	@Override
-	public StateUpdate<SharerSessionState, BdfDictionary> onMessageReceived(
-			SharerSessionState localState, BdfDictionary msg) {
+	public StateUpdate<SharerSessionState, BaseMessage> onMessageReceived(
+			SharerSessionState localState, BaseMessage msg) {
 
 		try {
 			State currentState = localState.getState();
-			long type = msg.getLong(TYPE);
-			Action action = Action.getRemote(type);
+			Action action = Action.getRemote(msg.getType());
 			State nextState = currentState.next(action);
 			localState.setState(nextState);
 
-			logMessageReceived(currentState, nextState, type, msg);
+			logMessageReceived(currentState, nextState, msg.getType(), msg);
 
 			if (nextState == ERROR) {
 				if (currentState != ERROR) {
@@ -124,7 +109,7 @@ public class SharerEngine
 					return noUpdate(localState, true);
 				}
 			}
-			List<BdfDictionary> messages = Collections.emptyList();
+			List<BaseMessage> messages = Collections.emptyList();
 			List<Event> events = Collections.emptyList();
 			boolean deleteMsg = false;
 
@@ -157,7 +142,7 @@ public class SharerEngine
 			else {
 				throw new IllegalArgumentException("Bad state");
 			}
-			return new StateUpdate<SharerSessionState, BdfDictionary>(deleteMsg,
+			return new StateUpdate<SharerSessionState, BaseMessage>(deleteMsg,
 					false, localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
@@ -165,51 +150,43 @@ public class SharerEngine
 	}
 
 	private void logLocalAction(State currentState, State nextState,
-			BdfDictionary msg) {
+			BaseMessage msg) {
 
 		if (!LOG.isLoggable(INFO)) return;
 
 		String a = "invitation";
-		if (msg.getLong(TYPE, -1L) == SHARE_MSG_TYPE_LEAVE) a = "leave";
+		if (msg.getType() == SHARE_MSG_TYPE_LEAVE) a = "leave";
 
-		try {
-			LOG.info("Sending " + a + " in state " + currentState.name() +
-					" with session ID " +
-					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
-					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
-					"Moving on to state " + nextState.name()
-			);
-		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
+		LOG.info("Sending " + a + " in state " + currentState.name() +
+				" with session ID " +
+				msg.getSessionId().hashCode() + " in group " +
+				msg.getGroupId().hashCode() + ". " +
+				"Moving on to state " + nextState.name()
+		);
 	}
 
 	private void logMessageReceived(State currentState, State nextState,
-			long type, BdfDictionary msg) {
+			long type, BaseMessage msg) {
 
 		if (!LOG.isLoggable(INFO)) return;
 
-		try {
-			String t = "unknown";
-			if (type == SHARE_MSG_TYPE_ACCEPT) t = "ACCEPT";
-			else if (type == SHARE_MSG_TYPE_DECLINE) t = "DECLINE";
-			else if (type == SHARE_MSG_TYPE_LEAVE) t = "LEAVE";
-			else if (type == SHARE_MSG_TYPE_ABORT) t = "ABORT";
+		String t = "unknown";
+		if (type == SHARE_MSG_TYPE_ACCEPT) t = "ACCEPT";
+		else if (type == SHARE_MSG_TYPE_DECLINE) t = "DECLINE";
+		else if (type == SHARE_MSG_TYPE_LEAVE) t = "LEAVE";
+		else if (type == SHARE_MSG_TYPE_ABORT) t = "ABORT";
 
-			LOG.info("Received " + t + " in state " + currentState.name() +
-					" with session ID " +
-					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
-					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
-					"Moving on to state " + nextState.name()
-			);
-		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
+		LOG.info("Received " + t + " in state " + currentState.name() +
+				" with session ID " +
+				msg.getSessionId().hashCode() + " in group " +
+				msg.getGroupId().hashCode() + ". " +
+				"Moving on to state " + nextState.name()
+		);
 	}
 
 	@Override
-	public StateUpdate<SharerSessionState, BdfDictionary> onMessageDelivered(
-			SharerSessionState localState, BdfDictionary delivered) {
+	public StateUpdate<SharerSessionState, BaseMessage> onMessageDelivered(
+			SharerSessionState localState, BaseMessage delivered) {
 		try {
 			return noUpdate(localState, false);
 		} catch (FormatException e) {
@@ -218,7 +195,7 @@ public class SharerEngine
 		}
 	}
 
-	private StateUpdate<SharerSessionState, BdfDictionary> abortSession(
+	private StateUpdate<SharerSessionState, BaseMessage> abortSession(
 			State currentState, SharerSessionState localState)
 			throws FormatException {
 
@@ -229,24 +206,22 @@ public class SharerEngine
 		}
 
 		localState.setState(ERROR);
-		BdfDictionary msg = new BdfDictionary();
-		msg.put(TYPE, SHARE_MSG_TYPE_ABORT);
-		msg.put(SESSION_ID, localState.getSessionId());
-		msg.put(GROUP_ID, localState.getGroupId());
-		List<BdfDictionary> messages = Collections.singletonList(msg);
+		BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_ABORT,
+				localState.getGroupId(), localState.getSessionId());
+		List<BaseMessage> messages = Collections.singletonList(msg);
 
 		List<Event> events = Collections.emptyList();
 
-		return new StateUpdate<SharerSessionState, BdfDictionary>(false, false,
+		return new StateUpdate<SharerSessionState, BaseMessage>(false, false,
 				localState, messages, events);
 	}
 
-	private StateUpdate<SharerSessionState, BdfDictionary> noUpdate(
+	private StateUpdate<SharerSessionState, BaseMessage> noUpdate(
 			SharerSessionState localState, boolean delete)
 			throws FormatException {
 
-		return new StateUpdate<SharerSessionState, BdfDictionary>(delete, false,
-				localState, Collections.<BdfDictionary>emptyList(),
+		return new StateUpdate<SharerSessionState, BaseMessage>(delete, false,
+				localState, Collections.<BaseMessage>emptyList(),
 				Collections.<Event>emptyList());
 	}
 
