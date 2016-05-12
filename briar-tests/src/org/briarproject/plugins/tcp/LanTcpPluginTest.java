@@ -2,6 +2,9 @@ package org.briarproject.plugins.tcp;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.keyagreement.KeyAgreementConnection;
+import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -20,9 +23,12 @@ import java.net.Socket;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -159,6 +165,102 @@ public class LanTcpPluginTest extends BriarTestCase {
 		callback.remote.put(contactId, p);
 		// Connect to the port
 		DuplexTransportConnection d = plugin.createConnection(contactId);
+		assertNotNull(d);
+		// Check that the connection was accepted
+		assertTrue(latch.await(5, SECONDS));
+		assertFalse(error.get());
+		// Clean up
+		d.getReader().dispose(false, true);
+		d.getWriter().dispose(false);
+		ss.close();
+		plugin.stop();
+	}
+
+	@Test
+	public void testIncomingKeyAgreementConnection() throws Exception {
+		if (!systemHasLocalIpv4Address()) {
+			System.err.println("WARNING: Skipping test, no local IPv4 address");
+			return;
+		}
+		Callback callback = new Callback();
+		Executor executor = Executors.newCachedThreadPool();
+		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+				0, 0);
+		plugin.start();
+		assertTrue(callback.propertiesLatch.await(5, SECONDS));
+		KeyAgreementListener kal = plugin.createKeyAgreementListener(null);
+		Callable<KeyAgreementConnection> c = kal.listen();
+		FutureTask<KeyAgreementConnection> f = new FutureTask<>(c);
+		new Thread(f).start();
+		// The plugin should have bound a socket and stored the port number
+		TransportDescriptor d = kal.getDescriptor();
+		TransportProperties p = d.getProperties();
+		String ipPort = p.get("ipPort");
+		assertNotNull(ipPort);
+		String[] split = ipPort.split(":");
+		assertEquals(2, split.length);
+		String addrString = split[0], portString = split[1];
+		InetAddress addr = InetAddress.getByName(addrString);
+		assertTrue(addr instanceof Inet4Address);
+		assertFalse(addr.isLoopbackAddress());
+		assertTrue(addr.isLinkLocalAddress() || addr.isSiteLocalAddress());
+		int port = Integer.parseInt(portString);
+		assertTrue(port > 0 && port < 65536);
+		// The plugin should be listening on the port
+		InetSocketAddress socketAddr = new InetSocketAddress(addr, port);
+		Socket s = new Socket();
+		s.connect(socketAddr, 100);
+		assertNotNull(f.get(5, SECONDS));
+		s.close();
+		kal.close();
+		// Stop the plugin
+		plugin.stop();
+	}
+
+	@Test
+	public void testOutgoingKeyAgreementConnection() throws Exception {
+		if (!systemHasLocalIpv4Address()) {
+			System.err.println("WARNING: Skipping test, no local IPv4 address");
+			return;
+		}
+		Callback callback = new Callback();
+		Executor executor = Executors.newCachedThreadPool();
+		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+				0, 0);
+		plugin.start();
+		// The plugin should have bound a socket and stored the port number
+		assertTrue(callback.propertiesLatch.await(5, SECONDS));
+		String ipPorts = callback.local.get("ipPorts");
+		assertNotNull(ipPorts);
+		String[] split = ipPorts.split(",");
+		assertEquals(1, split.length);
+		split = split[0].split(":");
+		assertEquals(2, split.length);
+		String addrString = split[0];
+		// Listen on the same interface as the plugin
+		final ServerSocket ss = new ServerSocket();
+		ss.bind(new InetSocketAddress(addrString, 0), 10);
+		int port = ss.getLocalPort();
+		final CountDownLatch latch = new CountDownLatch(1);
+		final AtomicBoolean error = new AtomicBoolean(false);
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					ss.accept();
+					latch.countDown();
+				} catch (IOException e) {
+					error.set(true);
+				}
+			}
+		}.start();
+		// Tell the plugin about the port
+		TransportProperties p = new TransportProperties();
+		p.put("ipPort", addrString + ":" + port);
+		TransportDescriptor desc = new TransportDescriptor(plugin.getId(), p);
+		// Connect to the port
+		DuplexTransportConnection d =
+				plugin.createKeyAgreementConnection(null, desc, 5000);
 		assertNotNull(d);
 		// Check that the connection was accepted
 		assertTrue(latch.await(5, SECONDS));

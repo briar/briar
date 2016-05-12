@@ -2,28 +2,44 @@ package org.briarproject.plugins.tcp;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.keyagreement.KeyAgreementConnection;
+import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
+import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.util.StringUtils;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 class LanTcpPlugin extends TcpPlugin {
 
 	static final TransportId ID = new TransportId("lan");
 
+	private static final Logger LOG =
+			Logger.getLogger(LanTcpPlugin.class.getName());
+
 	private static final int MAX_ADDRESSES = 5;
 	private static final String PROP_IP_PORTS = "ipPorts";
+	private static final String PROP_IP_PORT = "ipPort";
 	private static final String SEPARATOR = ",";
 
 	LanTcpPlugin(Executor ioExecutor, Backoff backoff,
@@ -142,5 +158,101 @@ class LanTcpPlugin extends TcpPlugin {
 			return remoteIp[0] == (byte) 192 && remoteIp[1] == (byte) 168;
 		// Unrecognised prefix - may be compatible
 		return true;
+	}
+
+	@Override
+	public boolean supportsKeyAgreement() {
+		return true;
+	}
+
+	@Override
+	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
+		ServerSocket ss = null;
+		for (SocketAddress addr : getLocalSocketAddresses()) {
+			try {
+				ss = new ServerSocket();
+				ss.bind(addr);
+				break;
+			} catch (IOException e) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Failed to bind " + addr);
+				tryToClose(ss);
+			}
+		}
+		if (ss == null || !ss.isBound()) {
+			LOG.info("Could not bind server socket for key agreement");
+			return null;
+		}
+		TransportProperties p = new TransportProperties();
+		SocketAddress local = ss.getLocalSocketAddress();
+		p.put(PROP_IP_PORT, getIpPortString((InetSocketAddress) local));
+		TransportDescriptor d = new TransportDescriptor(ID, p);
+		return new LanKeyAgreementListener(d, ss);
+	}
+
+	@Override
+	public DuplexTransportConnection createKeyAgreementConnection(
+			byte[] commitment, TransportDescriptor d, long timeout) {
+		if (!isRunning()) return null;
+		if (!ID.equals(d.getIdentifier())) return null;
+		TransportProperties p = d.getProperties();
+		if (p == null) return null;
+		String ipPort = p.get(PROP_IP_PORT);
+		InetSocketAddress remote = parseSocketAddress(ipPort);
+		if (remote == null) return null;
+		if (!isConnectable(remote)) {
+			if (LOG.isLoggable(INFO)) {
+				SocketAddress local = socket.getLocalSocketAddress();
+				LOG.info(remote + " is not connectable from " + local);
+			}
+			return null;
+		}
+		Socket s = new Socket();
+		try {
+			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
+			s.connect(remote);
+			s.setSoTimeout(socketTimeout);
+			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
+			return new TcpTransportConnection(this, s);
+		} catch (IOException e) {
+			if (LOG.isLoggable(INFO))
+				LOG.info("Could not connect to " + remote);
+			return null;
+		}
+	}
+
+	private class LanKeyAgreementListener extends KeyAgreementListener {
+
+		private final ServerSocket ss;
+
+		public LanKeyAgreementListener(TransportDescriptor descriptor,
+				ServerSocket ss) {
+			super(descriptor);
+			this.ss = ss;
+		}
+
+		@Override
+		public Callable<KeyAgreementConnection> listen() {
+			return new Callable<KeyAgreementConnection>() {
+				@Override
+				public KeyAgreementConnection call() throws IOException {
+					Socket s = ss.accept();
+					if (LOG.isLoggable(INFO))
+						LOG.info(ID.getString() + ": Incoming connection");
+					return new KeyAgreementConnection(
+							new TcpTransportConnection(LanTcpPlugin.this, s),
+							ID);
+				}
+			};
+		}
+
+		@Override
+		public void close() {
+			try {
+				ss.close();
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
 	}
 }
