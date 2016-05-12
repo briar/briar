@@ -250,6 +250,16 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Returns the metadata for any messages in the given group with metadata
+	 * that matches all entries in the given query. If the query is empty, the
+	 * metadata for all messages is returned.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, Metadata> getMessageMetadata(Transaction txn, GroupId g,
+			Metadata query) throws DbException;
+
+	/**
 	 * Returns the metadata for the given message.
 	 * <p/>
 	 * Read-only.

@@ -86,29 +86,6 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public BdfDictionary getMessageAsDictionary(MessageId m) throws DbException,
-			FormatException {
-		BdfDictionary dictionary;
-		Transaction txn = db.startTransaction(true);
-		try {
-			dictionary = getMessageAsDictionary(txn, m);
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
-		}
-		return dictionary;
-	}
-
-	@Override
-	public BdfDictionary getMessageAsDictionary(Transaction txn, MessageId m)
-			throws DbException, FormatException {
-		byte[] raw = db.getRawMessage(txn, m);
-		if (raw == null) return null;
-		return toDictionary(raw, MESSAGE_HEADER_LENGTH,
-				raw.length - MESSAGE_HEADER_LENGTH);
-	}
-
-	@Override
 	public BdfList getMessageAsList(MessageId m) throws DbException,
 			FormatException {
 		BdfList list;
@@ -174,7 +151,7 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public Map<MessageId, BdfDictionary> getMessageMetatataAsDictionary(
+	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
 			GroupId g) throws DbException, FormatException {
 		Map<MessageId, BdfDictionary> map;
 		Transaction txn = db.startTransaction(true);
@@ -191,6 +168,34 @@ class ClientHelperImpl implements ClientHelper {
 	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
 			Transaction txn, GroupId g) throws DbException, FormatException {
 		Map<MessageId, Metadata> raw = db.getMessageMetadata(txn, g);
+		Map<MessageId, BdfDictionary> parsed =
+				new HashMap<MessageId, BdfDictionary>(raw.size());
+		for (Entry<MessageId, Metadata> e : raw.entrySet())
+			parsed.put(e.getKey(), metadataParser.parse(e.getValue()));
+		return Collections.unmodifiableMap(parsed);
+	}
+
+	@Override
+	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
+			GroupId g, BdfDictionary query) throws DbException,
+			FormatException {
+		Map<MessageId, BdfDictionary> map;
+		Transaction txn = db.startTransaction(true);
+		try {
+			map = getMessageMetadataAsDictionary(txn, g, query);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return map;
+	}
+
+	@Override
+	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
+			Transaction txn, GroupId g, BdfDictionary query) throws DbException,
+			FormatException {
+		Metadata metadata = metadataEncoder.encode(query);
+		Map<MessageId, Metadata> raw = db.getMessageMetadata(txn, g, metadata);
 		Map<MessageId, BdfDictionary> parsed =
 				new HashMap<MessageId, BdfDictionary>(raw.size());
 		for (Entry<MessageId, Metadata> e : raw.entrySet())

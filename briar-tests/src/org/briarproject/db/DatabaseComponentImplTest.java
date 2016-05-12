@@ -115,8 +115,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
 			EventBus eventBus, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<Object>(database, Object.class,
-				eventBus, shutdown);
+		return new DatabaseComponentImpl<>(database, Object.class, eventBus,
+				shutdown);
 	}
 
 	@Test
@@ -559,11 +559,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the group is in the DB (which it's not)
-			exactly(7).of(database).startTransaction();
+			exactly(9).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(7).of(database).containsGroup(txn, groupId);
+			exactly(9).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			exactly(7).of(database).abortTransaction(txn);
+			exactly(9).of(database).abortTransaction(txn);
 			// This is needed for getMessageStatus(), isVisibleToContact(), and
 			// setVisibleToContact() to proceed
 			exactly(3).of(database).containsContact(txn, contactId);
@@ -585,6 +585,26 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		transaction = db.startTransaction(false);
 		try {
 			db.getGroupMetadata(transaction, groupId);
+			fail();
+		} catch (NoSuchGroupException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		transaction = db.startTransaction(false);
+		try {
+			db.getMessageMetadata(transaction, groupId);
+			fail();
+		} catch (NoSuchGroupException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		transaction = db.startTransaction(false);
+		try {
+			db.getMessageMetadata(transaction, groupId, new Metadata());
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
