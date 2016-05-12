@@ -427,6 +427,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageMetadata(txn, g);
 	}
 
+	public Map<MessageId, Metadata> getMessageMetadata(Transaction transaction,
+			GroupId g, Metadata query) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.getMessageMetadata(txn, g, query);
+	}
+
 	public Metadata getMessageMetadata(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);

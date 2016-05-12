@@ -274,12 +274,32 @@ interface Database<T> {
 	Collection<MessageId> getMessageIds(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns the IDs of any messages in the given group with metadata
+	 * matching all entries in the given query. If the query is empty, the IDs
+	 * of all messages are returned.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessageIds(T txn, GroupId g, Metadata query)
+			throws DbException;
+
+	/**
 	 * Returns the metadata for all messages in the given group.
 	 * <p/>
 	 * Read-only.
 	 */
 	Map<MessageId, Metadata> getMessageMetadata(T txn, GroupId g)
 			throws DbException;
+
+	/**
+	 * Returns the metadata for any messages in the given group with metadata
+	 * matching all entries in the given query. If the query is empty, the
+	 * metadata for all messages is returned.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, Metadata> getMessageMetadata(T txn, GroupId g,
+			Metadata query) throws DbException;
 
 	/**
 	 * Returns the metadata for the given message.

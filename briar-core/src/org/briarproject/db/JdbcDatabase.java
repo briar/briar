@@ -36,10 +36,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -1133,6 +1135,44 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<MessageId> getMessageIds(Connection txn, GroupId g,
+			Metadata query) throws DbException {
+		// If there are no query terms, return all messages
+		if (query.isEmpty()) return getMessageIds(txn, g);
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Retrieve the message IDs for each query term and intersect
+			Set<MessageId> intersection = null;
+			String sql = "SELECT m.messageId"
+					+ " FROM messages AS m"
+					+ " JOIN messageMetadata AS md"
+					+ " ON m.messageId = md.messageId"
+					+ " WHERE groupId = ? AND key = ? AND value = ?";
+			for (Entry<String, byte[]> e : query.entrySet()) {
+				ps = txn.prepareStatement(sql);
+				ps.setBytes(1, g.getBytes());
+				ps.setString(2, e.getKey());
+				ps.setBytes(3, e.getValue());
+				rs = ps.executeQuery();
+				Set<MessageId> ids = new HashSet<MessageId>();
+				while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+				rs.close();
+				ps.close();
+				if (intersection == null) intersection = ids;
+				else intersection.retainAll(ids);
+				// Return early if there are no matches
+				if (intersection.isEmpty()) return Collections.emptySet();
+			}
+			if (intersection == null) throw new IllegalStateException();
+			return Collections.unmodifiableSet(intersection);
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Map<MessageId, Metadata> getMessageMetadata(Connection txn,
 			GroupId g) throws DbException {
 		PreparedStatement ps = null;
@@ -1167,6 +1207,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(ps);
 			throw new DbException(e);
 		}
+	}
+
+	public Map<MessageId, Metadata> getMessageMetadata(Connection txn,
+			GroupId g, Metadata query) throws DbException {
+		// Retrieve the matching message IDs
+		Collection<MessageId> matches = getMessageIds(txn, g, query);
+		if (matches.isEmpty()) return Collections.emptyMap();
+		// Retrieve the metadata for each match
+		Map<MessageId, Metadata> all = new HashMap<MessageId, Metadata>(
+				matches.size());
+		for (MessageId m : matches) all.put(m, getMessageMetadata(txn, m));
+		return Collections.unmodifiableMap(all);
 	}
 
 	public Metadata getGroupMetadata(Connection txn, GroupId g)

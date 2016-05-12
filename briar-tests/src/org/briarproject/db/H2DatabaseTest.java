@@ -595,7 +595,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testMultipleGroupChanges() throws Exception {
 		// Create some groups
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 		for (int i = 0; i < 100; i++) {
 			GroupId id = new GroupId(TestUtils.getRandomId());
 			ClientId clientId = new ClientId(TestUtils.getRandomId());
@@ -803,7 +803,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(0, db.countOfferedMessages(txn, contactId));
 
 		// Add some offered messages and count them
-		List<MessageId> ids = new ArrayList<MessageId>();
+		List<MessageId> ids = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			MessageId m = new MessageId(TestUtils.getRandomId());
 			db.addOfferedMessage(txn, contactId, m);
@@ -924,6 +924,110 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Retrieve the metadata for the group again
 		all = db.getMessageMetadata(txn, groupId);
+		assertTrue(all.isEmpty());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testMetadataQueries() throws Exception {
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new Message(messageId1, groupId, timestamp, raw);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and two messages
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message1, VALID, true);
+
+		// Attach some metadata to the messages
+		Metadata metadata = new Metadata();
+		metadata.put("foo", new byte[]{'b', 'a', 'r'});
+		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		db.mergeMessageMetadata(txn, messageId, metadata);
+		Metadata metadata1 = new Metadata();
+		metadata1.put("foo", new byte[]{'q', 'u', 'x'});
+		db.mergeMessageMetadata(txn, messageId1, metadata1);
+
+		// Retrieve all the metadata for the group
+		Map<MessageId, Metadata> all = db.getMessageMetadata(txn, groupId);
+		assertEquals(2, all.size());
+		assertTrue(all.containsKey(messageId));
+		assertTrue(all.containsKey(messageId1));
+		Metadata retrieved = all.get(messageId);
+		assertEquals(2, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+		retrieved = all.get(messageId1);
+		assertEquals(1, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata1.get("foo"), retrieved.get("foo"));
+
+		// Query the metadata with an empty query
+		Metadata query = new Metadata();
+		all = db.getMessageMetadata(txn, groupId, query);
+		assertEquals(2, all.size());
+		assertTrue(all.containsKey(messageId));
+		assertTrue(all.containsKey(messageId1));
+		retrieved = all.get(messageId);
+		assertEquals(2, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+		retrieved = all.get(messageId1);
+		assertEquals(1, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata1.get("foo"), retrieved.get("foo"));
+
+		// Use a single-term query that matches the first message
+		query = new Metadata();
+		query.put("foo", metadata.get("foo"));
+		all = db.getMessageMetadata(txn, groupId, query);
+		assertEquals(1, all.size());
+		assertTrue(all.containsKey(messageId));
+		retrieved = all.get(messageId);
+		assertEquals(2, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+
+		// Use a single-term query that matches the second message
+		query = new Metadata();
+		query.put("foo", metadata1.get("foo"));
+		all = db.getMessageMetadata(txn, groupId, query);
+		assertEquals(1, all.size());
+		assertTrue(all.containsKey(messageId1));
+		retrieved = all.get(messageId1);
+		assertEquals(1, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata1.get("foo"), retrieved.get("foo"));
+
+		// Use a multi-term query that matches the first message
+		query = new Metadata();
+		query.put("foo", metadata.get("foo"));
+		query.put("baz", metadata.get("baz"));
+		all = db.getMessageMetadata(txn, groupId, query);
+		assertEquals(1, all.size());
+		assertTrue(all.containsKey(messageId));
+		retrieved = all.get(messageId);
+		assertEquals(2, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+
+		// Use a multi-term query that doesn't match any messages
+		query = new Metadata();
+		query.put("foo", metadata1.get("foo"));
+		query.put("baz", metadata.get("baz"));
+		all = db.getMessageMetadata(txn, groupId, query);
 		assertTrue(all.isEmpty());
 
 		db.commitTransaction(txn);
