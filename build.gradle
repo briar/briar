@@ -3,7 +3,6 @@
 allprojects {
 	repositories {
 		jcenter()
-		mavenCentral()
 		mavenLocal()
 	}
 }
@@ -11,7 +10,6 @@ allprojects {
 buildscript {
 	repositories {
 		jcenter()
-		mavenCentral()
 		mavenLocal()
 	}
 
