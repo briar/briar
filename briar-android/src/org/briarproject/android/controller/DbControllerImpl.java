@@ -8,10 +8,10 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-public class DBControllerImpl implements DBController {
+public class DbControllerImpl implements DbController {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarControllerImpl.class.getName());
+			Logger.getLogger(DbControllerImpl.class.getName());
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -21,7 +21,7 @@ public class DBControllerImpl implements DBController {
 	protected volatile LifecycleManager lifecycleManager;
 
 	@Inject
-	public DBControllerImpl() {
+	public DbControllerImpl() {
 
 	}
 

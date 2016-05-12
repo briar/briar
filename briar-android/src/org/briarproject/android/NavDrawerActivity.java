@@ -67,14 +67,13 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		if (!isStartupFailed(intent)) {
-			checkAuthorHandle(intent);
-			clearBackStack();
-			if (intent.getBooleanExtra(INTENT_FORUMS, false))
-				startFragment(activityComponent.newForumListFragment());
-			else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
-				startFragment(activityComponent.newContactListFragment());
-		}
+		exitIfStartupFailed(intent);
+		checkAuthorHandle(intent);
+		clearBackStack();
+		if (intent.getBooleanExtra(INTENT_FORUMS, false))
+			startFragment(activityComponent.newForumListFragment());
+		else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
+			startFragment(activityComponent.newContactListFragment());
 	}
 
 	@Override
@@ -86,10 +85,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-
-		if (isStartupFailed(getIntent()))
-			return;
-
+		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -106,7 +102,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 				R.string.nav_drawer_open_description,
 				R.string.nav_drawer_close_description);
 		drawerLayout.setDrawerListener(drawerToggle);
-		LOG.info("NavDrawerActivity created: " + (state == null));
 		if (state == null) {
 			startFragment(activityComponent.newContactListFragment());
 		} else {
@@ -154,14 +149,12 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		}
 	}
 
-	private boolean isStartupFailed(Intent intent) {
+	private void exitIfStartupFailed(Intent intent) {
 		if (intent.getBooleanExtra(KEY_STARTUP_FAILED, false)) {
 			finish();
 			LOG.info("Exiting");
 			System.exit(0);
-			return true;
 		}
-		return false;
 	}
 
 	private void storeLocalAuthor(LocalAuthor a) {

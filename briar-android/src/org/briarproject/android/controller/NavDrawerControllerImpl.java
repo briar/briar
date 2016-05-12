@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public class NavDrawerControllerImpl extends DBControllerImpl
+public class NavDrawerControllerImpl extends DbControllerImpl
 		implements NavDrawerController, EventListener {
 
 	private static final Logger LOG =
