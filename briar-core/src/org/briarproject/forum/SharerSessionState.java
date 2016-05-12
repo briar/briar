@@ -10,7 +10,6 @@ import static org.briarproject.api.forum.ForumConstants.IS_SHARER;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ABORT;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ACCEPT;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_DECLINE;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_LEAVE;
 import static org.briarproject.api.forum.ForumConstants.STATE;
 import static org.briarproject.forum.SharerSessionState.Action.LOCAL_INVITATION;
@@ -23,6 +22,7 @@ import static org.briarproject.forum.SharerSessionState.Action.REMOTE_LEAVE;
 public class SharerSessionState extends ForumSharingSessionState {
 
 	private State state;
+	private String msg = null;
 
 	public SharerSessionState(SessionId sessionId, MessageId storageId,
 			GroupId groupId, State state, ContactId contactId, GroupId forumId,
@@ -46,6 +46,14 @@ public class SharerSessionState extends ForumSharingSessionState {
 
 	public State getState() {
 		return state;
+	}
+
+	public void setMessage(String msg) {
+		this.msg = msg;
+	}
+
+	public String getMessage() {
+		return this.msg;
 	}
 
 	public enum State {
@@ -110,13 +118,6 @@ public class SharerSessionState extends ForumSharingSessionState {
 		REMOTE_DECLINE,
 		REMOTE_LEAVE,
 		REMOTE_ABORT;
-
-		public static Action getLocal(long type) {
-			if (type == SHARE_MSG_TYPE_INVITATION) return LOCAL_INVITATION;
-			if (type == SHARE_MSG_TYPE_LEAVE) return LOCAL_LEAVE;
-			if (type == SHARE_MSG_TYPE_ABORT) return LOCAL_ABORT;
-			return null;
-		}
 
 		public static Action getRemote(long type) {
 			if (type == SHARE_MSG_TYPE_ACCEPT) return REMOTE_ACCEPT;

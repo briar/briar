@@ -260,17 +260,15 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			SharerSessionState localState =
 					initializeSharerState(txn, f, contactId);
 
-			// define action
-			BdfDictionary localAction = new BdfDictionary();
-			localAction.put(TYPE, SHARE_MSG_TYPE_INVITATION);
+			// add invitation message to local state to be available for engine
 			if (!StringUtils.isNullOrEmpty(msg)) {
-				localAction.put(INVITATION_MSG, msg);
+				localState.setMessage(msg);
 			}
 
 			// start engine and process its state update
 			SharerEngine engine = new SharerEngine();
 			processSharerStateUpdate(txn, null,
-					engine.onLocalAction(localState, localAction));
+					engine.onLocalAction(localState, Action.LOCAL_INVITATION));
 
 			txn.setComplete();
 		} catch (FormatException e) {
@@ -290,11 +288,11 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			InviteeSessionState localState = getSessionStateForResponse(txn, f);
 
 			// define action
-			BdfDictionary localAction = new BdfDictionary();
+			InviteeSessionState.Action localAction;
 			if (accept) {
-				localAction.put(TYPE, SHARE_MSG_TYPE_ACCEPT);
+				localAction = InviteeSessionState.Action.LOCAL_ACCEPT;
 			} else {
-				localAction.put(TYPE, SHARE_MSG_TYPE_DECLINE);
+				localAction = InviteeSessionState.Action.LOCAL_DECLINE;
 			}
 
 			// start engine and process its state update
@@ -812,13 +810,14 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			throws DbException, FormatException {
 
 		ForumSharingSessionState state = getSessionStateForLeaving(txn, f, c);
-		BdfDictionary action = new BdfDictionary();
-		action.put(TYPE, SHARE_MSG_TYPE_LEAVE);
 		if (state instanceof SharerSessionState) {
+			Action action = Action.LOCAL_LEAVE;
 			SharerEngine engine = new SharerEngine();
 			processSharerStateUpdate(txn, null,
 					engine.onLocalAction((SharerSessionState) state, action));
 		} else {
+			InviteeSessionState.Action action =
+					InviteeSessionState.Action.LOCAL_LEAVE;
 			InviteeEngine engine = new InviteeEngine(forumFactory);
 			processInviteeStateUpdate(txn, null,
 					engine.onLocalAction((InviteeSessionState) state, action));

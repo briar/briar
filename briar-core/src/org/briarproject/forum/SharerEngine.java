@@ -42,19 +42,17 @@ import static org.briarproject.forum.SharerSessionState.State.FINISHED;
 import static org.briarproject.forum.SharerSessionState.State.LEFT;
 
 public class SharerEngine
-		implements ProtocolEngine<BdfDictionary, SharerSessionState, BdfDictionary> {
+		implements ProtocolEngine<Action, SharerSessionState, BdfDictionary> {
 
 	private static final Logger LOG =
 			Logger.getLogger(SharerEngine.class.getName());
 
 	@Override
 	public StateUpdate<SharerSessionState, BdfDictionary> onLocalAction(
-			SharerSessionState localState, BdfDictionary localAction) {
+			SharerSessionState localState, Action action) {
 
 		try {
 			State currentState = localState.getState();
-			long type = localAction.getLong(TYPE);
-			Action action = Action.getLocal(type);
 			State nextState = currentState.next(action);
 			localState.setState(nextState);
 
@@ -79,9 +77,8 @@ public class SharerEngine
 				msg.put(GROUP_ID, localState.getGroupId());
 				msg.put(FORUM_NAME, localState.getForumName());
 				msg.put(FORUM_SALT, localState.getForumSalt());
-				if (localAction.containsKey(INVITATION_MSG)) {
-					msg.put(INVITATION_MSG,
-							localAction.getString(INVITATION_MSG));
+				if (localState.getMessage() != null) {
+					msg.put(INVITATION_MSG, localState.getMessage());
 				}
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, nextState, msg);

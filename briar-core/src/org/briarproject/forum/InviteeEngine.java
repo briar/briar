@@ -42,7 +42,7 @@ import static org.briarproject.forum.InviteeSessionState.State.FINISHED;
 import static org.briarproject.forum.InviteeSessionState.State.LEFT;
 
 public class InviteeEngine
-		implements ProtocolEngine<BdfDictionary, InviteeSessionState, BdfDictionary> {
+		implements ProtocolEngine<Action, InviteeSessionState, BdfDictionary> {
 
 	private final ForumFactory forumFactory;
 	private static final Logger LOG =
@@ -54,12 +54,10 @@ public class InviteeEngine
 
 	@Override
 	public StateUpdate<InviteeSessionState, BdfDictionary> onLocalAction(
-			InviteeSessionState localState, BdfDictionary localAction) {
+			InviteeSessionState localState, Action action) {
 
 		try {
 			State currentState = localState.getState();
-			long type = localAction.getLong(TYPE);
-			Action action = Action.getLocal(type);
 			State nextState = currentState.next(action);
 			localState.setState(nextState);
 
