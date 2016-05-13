@@ -34,18 +34,13 @@ public class ContactListAdapter
 
 		ContactListItem item = getItem(position);
 
-		// name and unread count
-		String contactName = item.getContact().getAuthor().getName();
+		// unread count
 		int unread = item.getUnreadCount();
 		if (unread > 0) {
-			// TODO show these in a bubble on top of the avatar
-			ui.name.setText(contactName + " (" + unread + ")");
-
-			// different background for contacts with unread messages
-			ui.layout.setBackgroundColor(
-					ContextCompat.getColor(ctx, R.color.unread_background));
+			ui.unread.setText(String.valueOf(unread));
+			ui.unread.setVisibility(View.VISIBLE);
 		} else {
-			ui.name.setText(contactName);
+			ui.unread.setVisibility(View.INVISIBLE);
 		}
 
 		// date of last message
@@ -73,6 +68,7 @@ public class ContactListAdapter
 			extends BaseContactListAdapter.BaseContactHolder {
 
 		public final ImageView bulb;
+		public final TextView unread;
 		public final TextView date;
 		public final TextView identity;
 
@@ -80,6 +76,7 @@ public class ContactListAdapter
 			super(v);
 
 			bulb = (ImageView) v.findViewById(R.id.bulbView);
+			unread = (TextView) v.findViewById(R.id.unreadCountView);
 			date = (TextView) v.findViewById(R.id.dateView);
 			identity = (TextView) v.findViewById(R.id.identityView);
 		}
