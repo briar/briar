@@ -1,7 +1,6 @@
 package org.briarproject.android.contact;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -51,6 +50,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -122,10 +122,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 								Pair.create((View) holder.bulb, ViewCompat
 										.getTransitionName(holder.bulb));
 						ActivityOptionsCompat options =
-								ActivityOptionsCompat
-										.makeSceneTransitionAnimation(
-												getActivity(), avatar,
-												bulb);
+								makeSceneTransitionAnimation(getActivity(),
+										avatar, bulb);
 						ActivityCompat.startActivity(getActivity(), i,
 								options.toBundle());
 					}

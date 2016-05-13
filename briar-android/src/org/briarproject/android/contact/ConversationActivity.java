@@ -212,7 +212,7 @@ public class ConversationActivity extends BriarActivity
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				supportFinishAfterTransition();
+				onBackPressed();
 				return true;
 			case R.id.action_introduction:
 				if (contactId == null) return false;
@@ -230,6 +230,13 @@ public class ConversationActivity extends BriarActivity
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		// FIXME disabled exit transition, because it doesn't work for some reason
+		//supportFinishAfterTransition();
+		finish();
 	}
 
 	private void loadData() {
