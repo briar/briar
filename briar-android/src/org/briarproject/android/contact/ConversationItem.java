@@ -3,7 +3,6 @@ package org.briarproject.android.contact;
 import android.content.Context;
 
 import org.briarproject.R;
-import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
@@ -21,8 +20,6 @@ public abstract class ConversationItem {
 	final static int INTRODUCTION_OUT = 4;
 	final static int NOTICE_IN = 5;
 	final static int NOTICE_OUT = 6;
-	final static int FORUM_INVITATION_IN = 7;
-	final static int FORUM_INVITATION_OUT = 8;
 
 	private MessageId id;
 	private long time;
@@ -92,14 +89,6 @@ public abstract class ConversationItem {
 			}
 			return new ConversationNoticeInItem(ir.getMessageId(), text,
 					ir.getTimestamp(), ir.isRead());
-		}
-	}
-
-	public static ConversationItem from(ForumInvitationMessage fim) {
-		if (fim.isLocal()) {
-			return new ConversationForumInvitationOutItem(fim);
-		} else {
-			return new ConversationForumInvitationInItem(fim);
 		}
 	}
 

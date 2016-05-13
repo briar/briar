@@ -8,7 +8,6 @@ import android.support.v7.app.AlertDialog;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.ContactListFragment;
-import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
 
 /**
@@ -24,8 +23,6 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 
 		if (fragmentTag.equals(ContactListFragment.TAG)) {
 			actionBar.setTitle(R.string.contacts_toolbar_header);
-		} else if (fragmentTag.equals(ForumListFragment.TAG)) {
-			actionBar.setTitle(R.string.forums_toolbar_header);
 		}
 	}
 

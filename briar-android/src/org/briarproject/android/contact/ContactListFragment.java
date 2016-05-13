@@ -29,8 +29,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageValidatedEvent;
-import org.briarproject.api.forum.ForumInvitationMessage;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.introduction.IntroductionManager;
@@ -76,8 +74,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	protected volatile MessagingManager messagingManager;
 	@Inject
 	protected volatile IntroductionManager introductionManager;
-	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
 
 	@Inject
 	public ContactListFragment() {
@@ -225,8 +221,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			MessageValidatedEvent m = (MessageValidatedEvent) e;
 			ClientId c = m.getClientId();
 			if (m.isValid() && (c.equals(messagingManager.getClientId()) ||
-					c.equals(introductionManager.getClientId()) ||
-					c.equals(forumSharingManager.getClientId()))) {
+					c.equals(introductionManager.getClientId()))) {
 				LOG.info("Message added, reloading");
 				reloadConversation(m.getMessage().getGroupId());
 			}
@@ -319,16 +314,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loading introduction messages took " + duration + " ms");
-
-		now = System.currentTimeMillis();
-		Collection<ForumInvitationMessage> invitations =
-				forumSharingManager.getForumInvitationMessages(id);
-		for (ForumInvitationMessage i : invitations) {
-			messages.add(ConversationItem.from(i));
-		}
-		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading forum invitations took " + duration + " ms");
 
 		return messages;
 	}

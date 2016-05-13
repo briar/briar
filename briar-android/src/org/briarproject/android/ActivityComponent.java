@@ -3,14 +3,6 @@ package org.briarproject.android;
 import android.app.Activity;
 
 import org.briarproject.android.contact.ConversationActivity;
-import org.briarproject.android.forum.AvailableForumsActivity;
-import org.briarproject.android.forum.ContactSelectorFragment;
-import org.briarproject.android.forum.CreateForumActivity;
-import org.briarproject.android.forum.ForumActivity;
-import org.briarproject.android.forum.ReadForumPostActivity;
-import org.briarproject.android.forum.ShareForumActivity;
-import org.briarproject.android.forum.ShareForumMessageFragment;
-import org.briarproject.android.forum.WriteForumPostActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.introduction.IntroductionActivity;
@@ -51,27 +43,12 @@ public interface ActivityComponent {
 
 	void inject(CreateIdentityActivity activity);
 
-	void inject(AvailableForumsActivity activity);
-
-	void inject(WriteForumPostActivity activity);
-
-	void inject(CreateForumActivity activity);
-
-	void inject(ShareForumActivity activity);
-
-	void inject(ReadForumPostActivity activity);
-
-	void inject(ForumActivity activity);
-
 	void inject(SettingsActivity activity);
 
 	void inject(IntroductionActivity activity);
 
 	@Named("ContactListFragment")
 	BaseFragment newContactListFragment();
-
-	@Named("ForumListFragment")
-	BaseFragment newForumListFragment();
 
 	@Named("ChooseIdentityFragment")
 	BaseFragment newChooseIdentityFragment();
@@ -81,12 +58,6 @@ public interface ActivityComponent {
 
 	@Named("ContactChooserFragment")
 	BaseFragment newContactChooserFragment();
-
-	@Named("ContactSelectorFragment")
-	ContactSelectorFragment newContactSelectorFragment();
-
-	@Named("ShareForumMessageFragment")
-	ShareForumMessageFragment newShareForumMessageFragment();
 
 	@Named("IntroductionMessageFragment")
 	IntroductionMessageFragment newIntroductionMessageFragment();

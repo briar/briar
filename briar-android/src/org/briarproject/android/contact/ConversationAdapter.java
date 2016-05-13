@@ -1,7 +1,6 @@
 package org.briarproject.android.contact;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -14,9 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.forum.AvailableForumsActivity;
 import org.briarproject.api.clients.SessionId;
-import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
@@ -25,8 +22,6 @@ import java.util.List;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.support.v7.widget.RecyclerView.ViewHolder;
-import static org.briarproject.android.contact.ConversationItem.FORUM_INVITATION_IN;
-import static org.briarproject.android.contact.ConversationItem.FORUM_INVITATION_OUT;
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_IN;
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_OUT;
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
@@ -87,14 +82,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			v = LayoutInflater.from(viewGroup.getContext()).inflate(
 					R.layout.list_item_notice_out, viewGroup, false);
 			return new NoticeHolder(v, type);
-		} else if (type == FORUM_INVITATION_IN) {
-			v = LayoutInflater.from(viewGroup.getContext()).inflate(
-					R.layout.list_item_forum_invitation_in, viewGroup, false);
-			return new InvitationHolder(v, type);
-		} else if (type == FORUM_INVITATION_OUT) {
-			v = LayoutInflater.from(viewGroup.getContext()).inflate(
-					R.layout.list_item_forum_invitation_out, viewGroup, false);
-			return new InvitationHolder(v, type);
 		}
 		// incoming message (non-local)
 		else {
@@ -119,12 +106,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			bindNotice((NoticeHolder) ui, (ConversationNoticeOutItem) item);
 		} else if (item instanceof ConversationNoticeInItem) {
 			bindNotice((NoticeHolder) ui, (ConversationNoticeInItem) item);
-		} else if (item instanceof ConversationForumInvitationOutItem) {
-			bindInvitation((InvitationHolder) ui,
-					(ConversationForumInvitationOutItem) item);
-		} else if (item instanceof ConversationForumInvitationInItem) {
-			bindInvitation((InvitationHolder) ui,
-					(ConversationForumInvitationInItem) item);
 		} else {
 			throw new IllegalArgumentException("Unhandled Conversation Item");
 		}
@@ -276,65 +257,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 	}
 
-	private void bindInvitation(InvitationHolder ui,
-			final ConversationForumInvitationItem item) {
-
-		ForumInvitationMessage fim = item.getForumInvitationMessage();
-
-		String message = fim.getMessage();
-		if (StringUtils.isNullOrEmpty(message)) {
-			ui.messageLayout.setVisibility(View.GONE);
-		} else {
-			ui.messageLayout.setVisibility(View.VISIBLE);
-			ui.message.body.setText(message);
-			ui.message.date.setText(
-					DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
-		}
-
-		// Outgoing Invitation
-		if (item instanceof ConversationForumInvitationOutItem) {
-			ui.text.setText(ctx.getString(R.string.forum_invitation_sent,
-					fim.getForumName(), contactName));
-			ConversationForumInvitationOutItem i =
-					(ConversationForumInvitationOutItem) item;
-			if (i.isSeen()) {
-				ui.status.setImageResource(R.drawable.message_delivered);
-				ui.message.status.setImageResource(
-						R.drawable.message_delivered_white);
-			} else if (i.isSent()) {
-				ui.status.setImageResource(R.drawable.message_sent);
-				ui.message.status.setImageResource(
-						R.drawable.message_sent_white);
-			} else {
-				ui.status.setImageResource(R.drawable.message_stored);
-				ui.message.status.setImageResource(
-						R.drawable.message_stored_white);
-			}
-		}
-		// Incoming Invitation
-		else {
-			ui.text.setText(ctx.getString(R.string.forum_invitation_received,
-					contactName, fim.getForumName()));
-
-			if (fim.isAvailable()) {
-				ui.showForumsButton.setVisibility(View.VISIBLE);
-				ui.showForumsButton
-						.setOnClickListener(new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								Intent intent = new Intent(ctx,
-										AvailableForumsActivity.class);
-								ctx.startActivity(intent);
-							}
-						});
-			} else {
-				ui.showForumsButton.setVisibility(View.GONE);
-			}
-		}
-		ui.date.setText(
-				DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
-	}
-
 	@Override
 	public int getItemCount() {
 		return items.size();
@@ -467,33 +389,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 			if (type == NOTICE_OUT) {
 				status = (ImageView) v.findViewById(R.id.noticeStatus);
-			} else {
-				status = null;
-			}
-		}
-	}
-
-	private static class InvitationHolder extends RecyclerView.ViewHolder {
-
-		private final View messageLayout;
-		private final MessageHolder message;
-		private final TextView text;
-		private final Button showForumsButton;
-		private final TextView date;
-		private final ImageView status;
-
-		public InvitationHolder(View v, int type) {
-			super(v);
-
-			messageLayout = v.findViewById(R.id.messageLayout);
-			message = new MessageHolder(messageLayout,
-					type == FORUM_INVITATION_IN ? MSG_IN : MSG_OUT);
-			text = (TextView) v.findViewById(R.id.introductionText);
-			showForumsButton = (Button) v.findViewById(R.id.showForumsButton);
-			date = (TextView) v.findViewById(R.id.introductionTime);
-
-			if (type == FORUM_INVITATION_OUT) {
-				status = (ImageView) v.findViewById(R.id.introductionStatus);
 			} else {
 				status = null;
 			}

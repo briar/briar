@@ -19,9 +19,6 @@ import org.briarproject.android.controller.PasswordControllerImpl;
 import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.SetupControllerImpl;
 import org.briarproject.android.controller.TransportStateListener;
-import org.briarproject.android.forum.ContactSelectorFragment;
-import org.briarproject.android.forum.ForumListFragment;
-import org.briarproject.android.forum.ShareForumMessageFragment;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionMessageFragment;
@@ -117,13 +114,6 @@ public class ActivityModule {
 	}
 
 	@Provides
-	@Named("ForumListFragment")
-	BaseFragment provideForumListFragment(ForumListFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
 	@Named("ContactListFragment")
 	BaseFragment provideContactListFragment(ContactListFragment fragment) {
 		fragment.setArguments(new Bundle());
@@ -149,22 +139,6 @@ public class ActivityModule {
 	@Named("ContactChooserFragment")
 	BaseFragment provideContactChooserFragment(
 			ContactChooserFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ContactSelectorFragment")
-	ContactSelectorFragment provideContactSelectorFragment(
-			ContactSelectorFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ShareForumMessageFragment")
-	ShareForumMessageFragment provideShareForumMessageFragment(
-			ShareForumMessageFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}

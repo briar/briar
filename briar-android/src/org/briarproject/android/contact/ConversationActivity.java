@@ -43,14 +43,11 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
-import org.briarproject.api.forum.ForumInvitationMessage;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
@@ -122,8 +119,6 @@ public class ConversationActivity extends BriarActivity
 	protected volatile PrivateMessageFactory privateMessageFactory;
 	@Inject
 	protected volatile IntroductionManager introductionManager;
-	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
 
 	private volatile GroupId groupId = null;
 	private volatile ContactId contactId = null;
@@ -297,13 +292,10 @@ public class ConversationActivity extends BriarActivity
 					Collection<IntroductionMessage> introductions =
 							introductionManager
 									.getIntroductionMessages(contactId);
-					Collection<ForumInvitationMessage> invitations =
-							forumSharingManager
-									.getForumInvitationMessages(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");
-					displayMessages(headers, introductions, invitations);
+					displayMessages(headers, introductions);
 				} catch (NoSuchContactException e) {
 					finishOnUiThread();
 				} catch (DbException e) {
@@ -315,14 +307,12 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void displayMessages(final Collection<PrivateMessageHeader> headers,
-			final Collection<IntroductionMessage> introductions,
-			final Collection<ForumInvitationMessage> invitations) {
+			final Collection<IntroductionMessage> introductions) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				sendButton.setEnabled(true);
-				if (headers.isEmpty() && introductions.isEmpty() &&
-						invitations.isEmpty()) {
+				if (headers.isEmpty() && introductions.isEmpty()) {
 					// we have no messages,
 					// so let the list know to hide progress bar
 					list.showData();
@@ -348,10 +338,6 @@ public class ConversationActivity extends BriarActivity
 											contactName,
 											(IntroductionResponse) m);
 						}
-						items.add(item);
-					}
-					for (ForumInvitationMessage i : invitations) {
-						ConversationItem item = ConversationItem.from(i);
 						items.add(item);
 					}
 					adapter.addAll(items);
@@ -506,12 +492,6 @@ public class ConversationActivity extends BriarActivity
 				ConversationItem item =
 						ConversationItem.from(this, contactName, ir);
 				addIntroduction(item);
-			}
-		} else if (e instanceof ForumInvitationReceivedEvent) {
-			ForumInvitationReceivedEvent event =
-					(ForumInvitationReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				loadMessages();
 			}
 		}
 	}

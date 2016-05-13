@@ -99,68 +99,6 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.AvailableForumsActivity"
-			android:label="@string/available_forums_title"
-			android:parentActivityName=".android.NavDrawerActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
-				/>
-		</activity>
-
-		<activity
-			android:name=".android.forum.CreateForumActivity"
-			android:label="@string/create_forum_title"
-			android:parentActivityName=".android.NavDrawerActivity"
-			android:windowSoftInputMode="stateVisible">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
-				/>
-		</activity>
-
-		<activity
-			android:name=".android.forum.ForumActivity"
-			android:label="@string/app_name"
-			android:parentActivityName=".android.NavDrawerActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
-				/>
-		</activity>
-
-		<activity
-			android:name=".android.forum.ReadForumPostActivity"
-			android:label="@string/app_name"
-			android:parentActivityName=".android.NavDrawerActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
-				/>
-		</activity>
-
-		<activity
-			android:name=".android.forum.ShareForumActivity"
-			android:label="@string/forums_share_toolbar_header"
-			android:parentActivityName=".android.forum.ForumActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.forum.ForumActivity"
-				/>
-		</activity>
-
-		<activity
-			android:name=".android.forum.WriteForumPostActivity"
-			android:label="@string/app_name"
-			android:parentActivityName=".android.NavDrawerActivity"
-			android:windowSoftInputMode="stateVisible">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
-				/>
-		</activity>
-
-		<activity
 			android:name=".android.identity.CreateIdentityActivity"
 			android:label="@string/new_identity_title"
 			android:windowSoftInputMode="stateVisible">

@@ -51,12 +51,6 @@
 
 		<CheckBoxPreference
 			android:defaultValue="true"
-			android:key="pref_key_notify_forum_posts"
-			android:persistent="false"
-			android:title="@string/notify_forum_posts_setting"/>
-
-		<CheckBoxPreference
-			android:defaultValue="true"
 			android:key="pref_key_notify_vibration"
 			android:persistent="false"
 			android:title="@string/notify_vibration_setting"/>

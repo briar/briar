@@ -59,7 +59,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference enableBluetooth;
 	private ListPreference torOverMobile;
 	private CheckBoxPreference notifyPrivateMessages;
-	private CheckBoxPreference notifyForumPosts;
 	private CheckBoxPreference notifyVibration;
 	private Preference notifySound;
 
@@ -94,8 +93,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				(ListPreference) findPreference("pref_key_tor_mobile");
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
 				"pref_key_notify_private_messages");
-		notifyForumPosts = (CheckBoxPreference) findPreference(
-				"pref_key_notify_forum_posts");
 		notifyVibration = (CheckBoxPreference) findPreference(
 				"pref_key_notify_vibration");
 		notifySound = findPreference("pref_key_notify_sound");
@@ -103,7 +100,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torOverMobile.setOnPreferenceChangeListener(this);
 		notifyPrivateMessages.setOnPreferenceChangeListener(this);
-		notifyForumPosts.setOnPreferenceChangeListener(this);
 		notifyVibration.setOnPreferenceChangeListener(this);
 
 		notifySound.setOnPreferenceClickListener(
@@ -197,9 +193,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				notifyPrivateMessages.setChecked(settings.getBoolean(
 						"notifyPrivateMessages", true));
 
-				notifyForumPosts.setChecked(settings.getBoolean(
-						"notifyForumPosts", true));
-
 				notifyVibration.setChecked(settings.getBoolean(
 						"notifyVibration", true));
 
@@ -240,10 +233,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean("notifyPrivateMessages", (Boolean) o);
-			storeSettings(s);
-		} else if (preference == notifyForumPosts) {
-			Settings s = new Settings();
-			s.putBoolean("notifyForumPosts", (Boolean) o);
 			storeSettings(s);
 		} else if (preference == notifyVibration) {
 			Settings s = new Settings();

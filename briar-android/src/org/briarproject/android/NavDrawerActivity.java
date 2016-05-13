@@ -43,7 +43,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
 
 	public static final String INTENT_CONTACTS = "intent_contacts";
-	public static final String INTENT_FORUMS = "intent_forums";
 
 	private static final String KEY_CURRENT_FRAGMENT_ID = "key_current_id";
 
@@ -70,9 +69,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		exitIfStartupFailed(intent);
 		checkAuthorHandle(intent);
 		clearBackStack();
-		if (intent.getBooleanExtra(INTENT_FORUMS, false))
-			startFragment(activityComponent.newForumListFragment());
-		else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
+		if (intent.getBooleanExtra(INTENT_CONTACTS, false))
 			startFragment(activityComponent.newContactListFragment());
 	}
 
@@ -170,9 +167,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		switch (currentFragmentId) {
 			case R.id.nav_btn_contacts:
 				startFragment(activityComponent.newContactListFragment());
-				break;
-			case R.id.nav_btn_forums:
-				startFragment(activityComponent.newForumListFragment());
 				break;
 			case R.id.nav_btn_settings:
 				startActivity(new Intent(this, SettingsActivity.class));

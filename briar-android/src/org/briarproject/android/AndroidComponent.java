@@ -14,9 +14,6 @@ import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumPostFactory;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.introduction.IntroductionManager;
@@ -88,12 +85,6 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	PrivateMessageFactory privateMessageFactory();
 
 	TransportPropertyManager transportPropertyManager();
-
-	ForumManager forumManager();
-
-	ForumSharingManager forumSharingManager();
-
-	ForumPostFactory forumPostFactory();
 
 	SettingsManager settingsManager();
 

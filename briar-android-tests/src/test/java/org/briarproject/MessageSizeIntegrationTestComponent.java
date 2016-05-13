@@ -5,7 +5,6 @@ import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
-import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.sync.SyncModule;
@@ -25,7 +24,6 @@ import dagger.Component;
 		DataModule.class,
 		DatabaseModule.class,
 		EventModule.class,
-		ForumModule.class,
 		IdentityModule.class,
 		MessagingModule.class,
 		SyncModule.class,

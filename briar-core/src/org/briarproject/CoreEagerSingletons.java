@@ -3,7 +3,6 @@ package org.briarproject;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseExecutorModule;
-import org.briarproject.forum.ForumModule;
 import org.briarproject.introduction.IntroductionModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
@@ -20,8 +19,6 @@ public interface CoreEagerSingletons {
 	void inject(CryptoModule.EagerSingletons init);
 
 	void inject(DatabaseExecutorModule.EagerSingletons init);
-
-	void inject(ForumModule.EagerSingletons init);
 
 	void inject(IntroductionModule.EagerSingletons init);
 

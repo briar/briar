@@ -35,7 +35,6 @@
 	<string name="contact_list_button">Contacts</string>
 	<string name="delete_contact">Delete contact</string>
 	<string name="contact_deleted_toast">Contact deleted</string>
-	<string name="forums_button">Forums</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
 	<string name="contact_list_title">Contacts</string>
@@ -66,62 +65,25 @@
 	<string name="qr_code_invalid">The QR code is invalid</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
-	<string name="connection_aborted_local">Connection aborted by us! This could mean that someone is trying to interfere with your connection</string>
-	<string name="connection_aborted_remote">Connection aborted by your contact! This could mean that someone is trying to interfere with your connection</string>
+	<string name="connection_aborted_local">Connection failed</string>
+	<string name="connection_aborted_remote">Connection failed</string>
 	<string name="no_private_messages">No messages</string>
 	<string name="private_message_hint">Type message</string>
 	<string name="message_sent_toast">Message sent</string>
-	<string name="forums_title">Forums</string>
-	<string name="no_forums">You don\'t have any forums.\n\nWhy don\'t you create a new one yourself or ask your contacts to share one with you?</string>
-	<plurals name="forums_shared">
-		<item quantity="one">%d forum shared by contacts</item>
-		<item quantity="other">%d forums shared by contacts</item>
-	</plurals>
-	<string name="show_forums">Show</string>
-	<string name="forum_leave">Leave Forum</string>
-	<string name="forum_left_toast">Left Forum</string>
-	<string name="no_forum_posts">No posts</string>
-	<string name="no_unread_posts">no unread posts</string>
-	<plurals name="unread_posts">
-		<item quantity="one">%d unread post</item>
-		<item quantity="other">%d unread posts</item>
-	</plurals>
-	<string name="create_forum_title">New Forum</string>
-	<string name="choose_forum_name">Choose a name for your forum:</string>
-	<string name="create_forum_button">Create Forum</string>
-	<string name="forum_created_toast">Forum created</string>
-	<string name="forum_share_action">Share this forum with chosen contacts</string>
-	<string name="forum_share_button">Share Forum</string>
-	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
-	<string name="forum_share_message">You may compose an optional invitation message that will be sent to the selected contacts.</string>
-	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
-	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
-	<string name="forum_show_available">Show Available Forums</string>
-	<string name="forum_compose_post">New Forum Post</string>
-	<string name="from">From:</string>
 	<string name="anonymous">Anonymous</string>
 	<string name="new_identity_item">New identity\u2026</string>
 	<string name="new_identity_title">New Identity</string>
 	<string name="create_identity_button">Create Identity</string>
 	<string name="identity_created_toast">Identity created</string>
-	<string name="forum_post_hint">Type forum post</string>
-	<string name="available_forums_title">Available Forums</string>
-	<string name="forum_joined_toast">Joined Forum</string>
-	<string name="forum_declined_toast">Forum Invitation Declined</string>
 	<string name="shared_by_format">Shared by %s</string>
 	<string name="no_contacts_prompt">You don\'t have any contacts. Add a contact now?</string>
 	<string name="add_button">Add</string>
 	<string name="cancel_button">Cancel</string>
 	<string name="done_button">Done</string>
 	<string name="delete_button">Delete</string>
-	<string name="post_sent_toast">Forum post sent</string>
 	<plurals name="private_message_notification_text">
 		<item quantity="one">New private message.</item>
 		<item quantity="other">%d new private messages.</item>
-	</plurals>
-	<plurals name="forum_post_notification_text">
-		<item quantity="one">New forum post.</item>
-		<item quantity="other">%d new forum posts.</item>
 	</plurals>
 
 	<!-- Settings -->
@@ -138,7 +100,6 @@
 	<string name="panic_setting_hint">Configure how Briar will react when you use a panic button app</string>
 	<string name="notification_settings_title">Notifications</string>
 	<string name="notify_private_messages_setting">Show alerts for private messages</string>
-	<string name="notify_forum_posts_setting">Show alerts for forum posts</string>
 	<string name="notify_vibration_setting">Vibrate</string>
 	<string name="notify_sound_setting">Sound</string>
 	<string name="notify_sound_setting_default">Default ringtone</string>
@@ -205,8 +166,6 @@
 	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
 	<string name="dialog_title_share_crash_report">Briar has crashed</string>
 	<string name="dialog_message_share_crash_report">Would you like to review the crash report and send it to the developers? It will be stored encrypted on your device until the next time you log into Briar, and then sent securely to the developers.</string>
-	<string name="dialog_title_leave_forum">Confirm Leaving Forum</string>
-	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
 	<string name="dialog_button_ok">OK</string>
 	<string name="dialog_button_leave">Leave</string>
 	<string name="dialog_button_introduce">Introduce</string>
@@ -216,8 +175,6 @@
 	<string name="dashboard_toolbar_header">Briar</string>
 	<string name="settings_toolbar_header">Settings</string>
 	<string name="contacts_toolbar_header">Contacts</string>
-	<string name="forums_toolbar_header">Forums</string>
-	<string name="forums_share_toolbar_header">Choose Contacts</string>
 	<!-- Progress titles -->
 	<string name="progress_title_logout">Signing out of Briar..</string>
 	<string name="progress_title_please_wait">Please wait..</string>

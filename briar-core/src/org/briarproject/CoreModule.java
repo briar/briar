@@ -7,7 +7,6 @@ import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseExecutorModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
-import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.introduction.IntroductionModule;
 import org.briarproject.invitation.InvitationModule;
@@ -33,7 +32,6 @@ import dagger.Module;
 		DatabaseModule.class,
 		DatabaseExecutorModule.class,
 		EventModule.class,
-		ForumModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
 		InvitationModule.class,
@@ -55,7 +53,6 @@ public class CoreModule {
 		c.inject(new ContactModule.EagerSingletons());
 		c.inject(new CryptoModule.EagerSingletons());
 		c.inject(new DatabaseExecutorModule.EagerSingletons());
-		c.inject(new ForumModule.EagerSingletons());
 		c.inject(new LifecycleModule.EagerSingletons());
 		c.inject(new MessagingModule.EagerSingletons());
 		c.inject(new PluginsModule.EagerSingletons());

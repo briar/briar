@@ -16,9 +16,7 @@
 	<color name="private_message_date_inverse">#e0e0e0</color>
 	<color name="unread_background">#FFFFFF</color>
 	<color name="horizontal_border">#CCCCCC</color>
-	<color name="forums_available_background">@color/briar_gold</color>
 	<color name="no_private_messages">#AAAAAA</color>
-	<color name="forum_avatar_shadow">#b3b3b3</color>
 
 	<color name="briar_primary">@color/briar_blue</color>
 	<color name="briar_primary_dark">@color/briar_blue_dark</color>
