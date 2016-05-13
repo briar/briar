@@ -112,6 +112,14 @@
 		<item name="android:layout_height">1dp</item>
 	</style>
 
+	<style name="BriarAvatar">
+		<item name="civ_border_width">@dimen/avatar_border_width</item>
+		<item name="civ_border_color">@color/briar_primary</item>
+
+		<!-- Remove when we are using 'de.hdodenhof:circleimageview:2.1.0' -->
+		<item name="civ_border_overlay">true</item>
+	</style>
+
 	<style name="NavMenuButton" parent="Widget.AppCompat.Button.Borderless.Colored">
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:textColor">@android:color/tertiary_text_light</item>

@@ -24,6 +24,7 @@
 
 			<de.hdodenhof.circleimageview.CircleImageView
 				android:id="@+id/avatarContact1"
+				style="@style/BriarAvatar"
 				android:layout_width="@dimen/listitem_picture_size"
 				android:layout_height="@dimen/listitem_picture_size"
 				android:layout_centerHorizontal="true"
@@ -31,8 +32,6 @@
 				android:layout_marginRight="@dimen/listitem_horizontal_margin"
 				android:layout_toLeftOf="@+id/introductionIcon"
 				android:layout_toStartOf="@+id/introductionIcon"
-				app:civ_border_color="@color/briar_primary"
-				app:civ_border_width="@dimen/avatar_border_width"
 				tools:src="@drawable/ic_launcher"/>
 
 			<ImageView
@@ -45,6 +44,7 @@
 
 			<de.hdodenhof.circleimageview.CircleImageView
 				android:id="@+id/avatarContact2"
+				style="@style/BriarAvatar"
 				android:layout_width="@dimen/listitem_picture_size"
 				android:layout_height="@dimen/listitem_picture_size"
 				android:layout_centerHorizontal="true"
@@ -53,8 +53,6 @@
 				android:layout_toEndOf="@+id/introductionIcon"
 				android:layout_toRightOf="@+id/introductionIcon"
 				android:transitionName="avatar"
-				app:civ_border_color="@color/briar_primary"
-				app:civ_border_width="@dimen/avatar_border_width"
 				tools:src="@drawable/ic_launcher"/>
 
 		</RelativeLayout>
