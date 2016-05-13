@@ -578,7 +578,6 @@ public class ConversationActivity extends BriarActivity
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		createMessage(StringUtils.toUtf8(message), timestamp);
 		content.setText("");
-		hideSoftKeyboard(content);
 	}
 
 	private long getMinTimestampForNewMessage() {
