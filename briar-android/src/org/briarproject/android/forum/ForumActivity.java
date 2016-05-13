@@ -153,6 +153,9 @@ public class ForumActivity extends BriarActivity implements EventListener,
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
+		ActivityOptionsCompat options = ActivityOptionsCompat
+				.makeCustomAnimation(this, android.R.anim.slide_in_left,
+						android.R.anim.slide_out_right);
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_forum_compose_post:
@@ -166,12 +169,15 @@ public class ForumActivity extends BriarActivity implements EventListener,
 				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityOptionsCompat options = ActivityOptionsCompat
-						.makeCustomAnimation(this, android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
 				ActivityCompat
 						.startActivityForResult(this, i2, REQUEST_FORUM_SHARED,
 								options.toBundle());
+				return true;
+			case R.id.action_forum_sharing_status:
+				Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
+				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i3.putExtra(GROUP_ID, groupId.getBytes());
+				ActivityCompat.startActivity(this, i3, options.toBundle());
 				return true;
 			case R.id.action_forum_delete:
 				showUnsubscribeDialog();

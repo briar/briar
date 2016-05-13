@@ -442,15 +442,15 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public Collection<ContactId> getSharedWith(GroupId g) throws DbException {
+	public Collection<Contact> getSharedWith(GroupId g) throws DbException {
 		try {
-			List<ContactId> shared = new ArrayList<ContactId>();
+			List<Contact> shared = new ArrayList<Contact>();
 			Transaction txn = db.startTransaction(true);
 			try {
 				for (Contact c : db.getContacts(txn)) {
 					GroupId contactGroup = getContactGroup(c).getId();
 					if (listContains(txn, contactGroup, g, SHARED_BY_US))
-						shared.add(c.getId());
+						shared.add(c);
 				}
 				txn.setComplete();
 			} finally {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:paddingBottom="@dimen/margin_small"
+	android:paddingTop="@dimen/margin_small">
+
+	<de.hdodenhof.circleimageview.CircleImageView
+		android:id="@+id/avatarView"
+		style="@style/BriarAvatar"
+		android:layout_width="@dimen/listitem_picture_size_small"
+		android:layout_height="@dimen/listitem_picture_size_small"
+		android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+		android:layout_marginStart="@dimen/listitem_horizontal_margin"
+		tools:src="@drawable/ic_launcher"/>
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+		android:layout_marginStart="@dimen/listitem_horizontal_margin"
+		android:maxLines="2"
+		android:textColor="@color/briar_text_primary"
+		android:textSize="@dimen/text_size_medium"
+		tools:text="This is a name of a contact"/>
+
+</LinearLayout>

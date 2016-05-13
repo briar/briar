@@ -80,6 +80,7 @@
 	<string name="show_forums">Show</string>
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>
+	<string name="forum_sharing_status">Sharing Status</string>
 	<string name="no_forum_posts">No posts</string>
 	<string name="no_unread_posts">no unread posts</string>
 	<plurals name="unread_posts">
@@ -109,6 +110,9 @@
 	<string name="forum_joined_toast">Joined Forum</string>
 	<string name="forum_declined_toast">Forum Invitation Declined</string>
 	<string name="shared_by_format">Shared by %s</string>
+	<string name="forum_shared_by">Shared by</string>
+	<string name="forum_shared_with">Shared with</string>
+	<string name="nobody">Nobody</string>
 	<string name="no_contacts_prompt">You don\'t have any contacts. Add a contact now?</string>
 	<string name="add_button">Add</string>
 	<string name="cancel_button">Cancel</string>
