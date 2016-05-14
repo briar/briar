@@ -4,10 +4,6 @@ targetCompatibility = 1.7
 
 apply plugin: 'witness'
 
-repositories {
-	jcenter()
-}
-
 dependencies {
 	compile project(':briar-api')
 	compile fileTree(dir: '../briar-core/libs', include: '*.jar')
