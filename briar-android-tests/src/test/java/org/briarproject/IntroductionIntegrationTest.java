@@ -832,6 +832,106 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 		}
 	}
 
+	@Test
+	public void testIntroduceesRemovedCleanup() throws Exception {
+		startLifecycles();
+		try {
+			// Add Identities
+			addDefaultIdentities();
+
+			// Add Transport Properties
+			addTransportProperties();
+
+			// Add introducees as contacts
+			contactId1 = contactManager0.addContact(author1,
+					author0.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			contactId2 = contactManager0.addContact(author2,
+					author0.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			// Add introducer back
+			contactId0 = contactManager1.addContact(author0,
+					author1.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			ContactId contactId02 = contactManager2.addContact(author0,
+					author2.getId(), master, clock.currentTimeMillis(), true,
+					true
+			);
+			assertTrue(contactId0.equals(contactId02));
+
+			// listen to events
+			IntroducerListener listener0 = new IntroducerListener();
+			t0.getEventBus().addListener(listener0);
+			IntroduceeListener listener1 = new IntroduceeListener(1, true);
+			t1.getEventBus().addListener(listener1);
+			IntroduceeListener listener2 = new IntroduceeListener(2, true);
+			t2.getEventBus().addListener(listener2);
+
+			// make introduction
+			long time = clock.currentTimeMillis();
+			Contact introducee1 = contactManager0.getContact(contactId1);
+			Contact introducee2 = contactManager0.getContact(contactId2);
+			introductionManager0
+					.makeIntroduction(introducee1, introducee2, "Hi!", time);
+
+			// sync first request message
+			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener1.requestReceived);
+
+			// get database and local group for introducee
+			DatabaseComponent db0 = t0.getDatabaseComponent();
+			IntroductionGroupFactory groupFactory0 =
+					t0.getIntroductionGroupFactory();
+			Group group1 = groupFactory0.createLocalGroup();
+
+			// get local session state messages
+			Map<MessageId, Metadata> map;
+			Transaction txn = db0.startTransaction(false);
+			try {
+				map = db0.getMessageMetadata(txn, group1.getId());
+				txn.setComplete();
+			} finally {
+				db0.endTransaction(txn);
+			}
+			// check that we have one session state
+			assertEquals(1, map.size());
+
+			// introducer removes introducee1
+			contactManager0.removeContact(contactId1);
+
+			// get local session state messages again
+			txn = db0.startTransaction(false);
+			try {
+				map = db0.getMessageMetadata(txn, group1.getId());
+				txn.setComplete();
+			} finally {
+				db0.endTransaction(txn);
+			}
+			// make sure local state is still there
+			assertEquals(1, map.size());
+
+			// introducer removes other introducee
+			contactManager0.removeContact(contactId2);
+
+			// get local session state messages again
+			txn = db0.startTransaction(false);
+			try {
+				map = db0.getMessageMetadata(txn, group1.getId());
+				txn.setComplete();
+			} finally {
+				db0.endTransaction(txn);
+			}
+			// make sure local state is gone now
+			assertEquals(0, map.size());
+		} finally {
+			stopLifecycles();
+		}
+	}
+
 	// TODO add a test for faking responses when #256 is implemented
 
 	@After

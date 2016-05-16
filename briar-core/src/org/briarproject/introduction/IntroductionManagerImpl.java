@@ -9,10 +9,12 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.AuthorId;
@@ -136,28 +138,57 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		// check for open sessions with that contact and abort those
-		Long id = (long) c.getId().getInt();
+		GroupId gId = introductionGroupFactory.createLocalGroup().getId();
+
+		// search for session states where c introduced us
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(ROLE, ROLE_INTRODUCEE),
+				new BdfEntry(CONTACT_ID_1, c.getId().getInt())
+		);
 		try {
 			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn,
-							introductionGroupFactory.createLocalGroup().getId());
+					.getMessageMetadataAsDictionary(txn, gId, query);
+			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
+				// delete states if introducee removes introducer
+				deleteMessage(txn, entry.getKey());
+			}
+		} catch (FormatException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+
+		// check for open sessions with c and abort those,
+		// so the other introducee knows
+		query = BdfDictionary.of(
+				new BdfEntry(ROLE, ROLE_INTRODUCER)
+		);
+		try {
+			Map<MessageId, BdfDictionary> map = clientHelper
+					.getMessageMetadataAsDictionary(txn, gId, query);
 			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
 				BdfDictionary d = entry.getValue();
-				long role = d.getLong(ROLE, -1L);
-				if (role != ROLE_INTRODUCER) {
-					if (d.getLong(CONTACT_ID_1).equals(id)) {
-						// delete states if introducee removes introducer
-						deleteMessage(txn, entry.getKey());
-					}
-				}
-				else if (d.getLong(CONTACT_ID_1).equals(id) ||
-						d.getLong(CONTACT_ID_2).equals(id)) {
+				ContactId c1 = new ContactId(d.getLong(CONTACT_ID_1).intValue());
+				ContactId c2 = new ContactId(d.getLong(CONTACT_ID_2).intValue());
 
+				if (c1.equals(c.getId()) || c2.equals(c.getId())) {
 					IntroducerProtocolState state = IntroducerProtocolState
 							.fromValue(d.getLong(STATE).intValue());
+					// abort protocol if still ongoing
 					if (IntroducerProtocolState.isOngoing(state)) {
 						introducerManager.abort(txn, d);
+					}
+					// also delete state if both contacts have been deleted
+					if (c1.equals(c.getId())) {
+						try {
+							db.getContact(txn, c2);
+						} catch (NoSuchContactException e) {
+							deleteMessage(txn, entry.getKey());
+						}
+					} else if (c2.equals(c.getId())) {
+						try {
+							db.getContact(txn, c1);
+						} catch (NoSuchContactException e) {
+							deleteMessage(txn, entry.getKey());
+						}
 					}
 				}
 			}
