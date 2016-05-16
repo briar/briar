@@ -6,6 +6,7 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.DatabaseComponent;
+import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -38,15 +39,20 @@ public class ForumModule {
 	@Provides
 	@Singleton
 	ForumManager provideForumManager(DatabaseComponent db,
-			ClientHelper clientHelper,
-			GroupFactory groupFactory, SecureRandom random) {
-		return new ForumManagerImpl(db, clientHelper, groupFactory, random);
+			ClientHelper clientHelper, ForumFactory forumFactory) {
+		return new ForumManagerImpl(db, clientHelper, forumFactory);
 	}
 
 	@Provides
 	ForumPostFactory provideForumPostFactory(CryptoComponent crypto,
 			ClientHelper clientHelper) {
 		return new ForumPostFactoryImpl(crypto, clientHelper);
+	}
+
+	@Provides
+	ForumFactory provideForumFactory(GroupFactory groupFactory,
+			ClientHelper clientHelper, SecureRandom random) {
+		return new ForumFactoryImpl(groupFactory, clientHelper, random);
 	}
 
 	@Provides
@@ -82,7 +88,7 @@ public class ForumModule {
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			MessageQueueManager messageQueueManager,
-			ForumManager forumManager,
+			ForumManager forumManager, ForumFactory forumFactory,
 			ForumSharingManagerImpl forumSharingManager) {
 
 		lifecycleManager.registerClient(forumSharingManager);

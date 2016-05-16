@@ -23,6 +23,7 @@ import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -111,6 +112,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	private final MetadataEncoder metadataEncoder;
 	private final SecureRandom random;
 	private final PrivateGroupFactory privateGroupFactory;
+	private final ForumFactory forumFactory;
 	private final Clock clock;
 	private final Group localGroup;
 
@@ -119,7 +121,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
 			MetadataParser metadataParser, MetadataEncoder metadataEncoder,
 			SecureRandom random, PrivateGroupFactory privateGroupFactory,
-			Clock clock) {
+			ForumFactory forumFactory, Clock clock) {
 
 		super(clientHelper, metadataParser);
 		this.db = db;
@@ -128,6 +130,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		this.metadataEncoder = metadataEncoder;
 		this.random = random;
 		this.privateGroupFactory = privateGroupFactory;
+		this.forumFactory = forumFactory;
 		this.clock = clock;
 		localGroup = privateGroupFactory.createLocalGroup(getClientId());
 	}
@@ -203,7 +206,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 				if (stateExists) throw new FormatException();
 
 				// check if forum can be shared
-				Forum f = forumManager.createForum(msg.getString(FORUM_NAME),
+				Forum f = forumFactory.createForum(msg.getString(FORUM_NAME),
 						msg.getRaw(FORUM_SALT));
 				ContactId contactId = getContactId(txn, m.getGroupId());
 				Contact contact = db.getContact(txn, contactId);
@@ -213,7 +216,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 				// initialize state and process invitation
 				BdfDictionary state =
 						initializeInviteeState(txn, contactId, msg);
-				InviteeEngine engine = new InviteeEngine();
+				InviteeEngine engine = new InviteeEngine(forumFactory);
 				processStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 			} catch (FormatException e) {
@@ -238,7 +241,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 						engine.onMessageReceived(state, msg));
 			} else {
 				// we are an invitee and the sharer wants to leave or abort
-				InviteeEngine engine = new InviteeEngine();
+				InviteeEngine engine = new InviteeEngine(forumFactory);
 				processStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 			}
@@ -301,7 +304,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			}
 
 			// start engine and process its state update
-			InviteeEngine engine = new InviteeEngine();
+			InviteeEngine engine = new InviteeEngine(forumFactory);
 			processStateUpdate(txn, null,
 					engine.onLocalAction(localState, localAction));
 
@@ -526,7 +529,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		Group group = getContactGroup(c);
 		String name = msg.getString(FORUM_NAME);
 		byte[] salt = msg.getRaw(FORUM_SALT);
-		Forum f = forumManager.createForum(name, salt);
+		Forum f = forumFactory.createForum(name, salt);
 
 		// create local message to keep engine state
 		long now = clock.currentTimeMillis();
@@ -692,7 +695,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		// get forum for later
 		String name = localState.getString(FORUM_NAME);
 		byte[] salt = localState.getRaw(FORUM_SALT);
-		Forum f = forumManager.createForum(name, salt);
+		Forum f = forumFactory.createForum(name, salt);
 
 		// perform tasks
 		if (task == TASK_ADD_FORUM_TO_LIST_SHARED_WITH_US) {
@@ -791,7 +794,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			processStateUpdate(txn, null,
 					engine.onLocalAction(state, action));
 		} else {
-			InviteeEngine engine = new InviteeEngine();
+			InviteeEngine engine = new InviteeEngine(forumFactory);
 			processStateUpdate(txn, null,
 					engine.onLocalAction(state, action));
 		}
@@ -859,7 +862,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		List<Forum> forums = new ArrayList<Forum>(list.size());
 		for (int i = 0; i < list.size(); i++) {
 			BdfList forum = list.getList(i);
-			forums.add(forumManager
+			forums.add(forumFactory
 					.createForum(forum.getString(0), forum.getRaw(1)));
 		}
 		return forums;

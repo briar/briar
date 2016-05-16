@@ -8,6 +8,7 @@ import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.InviteeAction;
 import org.briarproject.api.forum.InviteeProtocolState;
 
@@ -48,8 +49,13 @@ import static org.briarproject.api.forum.InviteeProtocolState.LEFT;
 public class InviteeEngine
 		implements ProtocolEngine<BdfDictionary, BdfDictionary, BdfDictionary> {
 
+	private final ForumFactory forumFactory;
 	private static final Logger LOG =
 			Logger.getLogger(SharerEngine.class.getName());
+
+	InviteeEngine(ForumFactory forumFactory) {
+		this.forumFactory = forumFactory;
+	}
 
 	@Override
 	public StateUpdate<BdfDictionary, BdfDictionary> onLocalAction(
@@ -157,9 +163,9 @@ public class InviteeEngine
 			// we have just received our invitation
 			else if (action == REMOTE_INVITATION) {
 				localState.put(TASK, TASK_ADD_FORUM_TO_LIST_SHARED_WITH_US);
-				// TODO how to get the proper group here?
-				Forum forum = new Forum(null, localState.getString(FORUM_NAME),
-						localState.getRaw(FORUM_SALT));
+				Forum forum = forumFactory
+						.createForum(localState.getString(FORUM_NAME),
+								localState.getRaw(FORUM_SALT));
 				ContactId contactId = new ContactId(
 						localState.getLong(CONTACT_ID).intValue());
 				Event event = new ForumInvitationReceivedEvent(forum, contactId);
