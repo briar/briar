@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -156,6 +157,10 @@ public class ConversationActivity extends BriarActivity
 			ab.setDisplayShowTitleEnabled(false);
 		}
 
+		String hexGroupId = StringUtils.toHexString(b);
+		ViewCompat.setTransitionName(toolbarAvatar, "avatar" + hexGroupId);
+		ViewCompat.setTransitionName(toolbarStatus, "bulb" + hexGroupId);
+
 		adapter = new ConversationAdapter(this, this);
 		list = (BriarRecyclerView) findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
@@ -207,7 +212,7 @@ public class ConversationActivity extends BriarActivity
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				supportFinishAfterTransition();
+				onBackPressed();
 				return true;
 			case R.id.action_introduction:
 				if (contactId == null) return false;
@@ -225,6 +230,13 @@ public class ConversationActivity extends BriarActivity
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		// FIXME disabled exit transition, because it doesn't work for some reason
+		//supportFinishAfterTransition();
+		finish();
 	}
 
 	private void loadData() {

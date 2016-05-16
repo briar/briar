@@ -2,6 +2,7 @@ package org.briarproject.android.contact;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.util.StringUtils;
 
 public class ContactListAdapter
 		extends BaseContactListAdapter<ContactListAdapter.ContactHolder> {
@@ -62,6 +64,9 @@ public class ContactListAdapter
 		} else {
 			ui.bulb.setImageResource(R.drawable.contact_disconnected);
 		}
+
+		ViewCompat.setTransitionName(ui.bulb,
+				"bulb" + StringUtils.toHexString(item.getGroupId().getBytes()));
 	}
 
 	protected static class ContactHolder

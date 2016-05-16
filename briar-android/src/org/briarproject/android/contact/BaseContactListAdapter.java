@@ -1,6 +1,7 @@
 package org.briarproject.android.contact;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.identity.Author;
+import org.briarproject.util.StringUtils;
 
 import java.util.List;
 
@@ -48,6 +50,9 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 				if (listener != null) listener.onItemClick(ui.avatar, item);
 			}
 		});
+
+		ViewCompat.setTransitionName(ui.avatar, "avatar" +
+				StringUtils.toHexString(item.getGroupId().getBytes()));
 	}
 
 	@Override

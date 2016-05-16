@@ -11,7 +11,6 @@
 		android:id="@+id/contactAvatar"
 		android:layout_width="30dp"
 		android:layout_height="30dp"
-		android:transitionName="avatar"
 		app:civ_border_color="@color/action_bar_text"
 		app:civ_border_width="@dimen/avatar_border_width"
 		tools:src="@drawable/ic_launcher"/>
@@ -22,7 +21,7 @@
 		android:layout_height="15dp"
 		android:layout_gravity="bottom|right"
 		android:scaleType="fitCenter"
-		tools:src="@drawable/contact_online"
-		tools:ignore="ContentDescription"/>
+		tools:ignore="ContentDescription"
+		tools:src="@drawable/contact_online"/>
 
 </FrameLayout>
