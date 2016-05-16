@@ -2,12 +2,14 @@ package org.briarproject.android.identity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -16,7 +18,7 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
@@ -31,18 +33,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 public class CreateIdentityActivity extends BriarActivity
@@ -55,10 +50,10 @@ public class CreateIdentityActivity extends BriarActivity
 	@CryptoExecutor
 	protected Executor cryptoExecutor;
 
+	private TextInputLayout nicknameInput;
 	private EditText nicknameEntry;
 	private Button createIdentityButton;
 	private ProgressBar progress;
-	private TextView feedback;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -71,52 +66,32 @@ public class CreateIdentityActivity extends BriarActivity
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
-		int pad = LayoutUtils.getPadding(this);
-		layout.setPadding(pad, pad, pad, pad);
 
-		TextView chooseNickname = new TextView(this);
-		chooseNickname.setGravity(CENTER);
-		chooseNickname.setTextSize(18);
-		chooseNickname.setText(R.string.choose_nickname);
-		layout.addView(chooseNickname);
+		setContentView(R.layout.activity_create_identity);
 
-		nicknameEntry = new EditText(this) {
+		nicknameInput = (TextInputLayout) findViewById(R.id.nicknameInputLayout);
+		nicknameEntry = (EditText) findViewById(R.id.nicknameEntry);
+		nicknameEntry.addTextChangedListener(new TextWatcher() {
 			@Override
-			protected void onTextChanged(CharSequence text, int start,
-					int lengthBefore, int lengthAfter) {
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
 				enableOrDisableCreateButton();
 			}
-		};
-		nicknameEntry.setId(1);
-		nicknameEntry.setMaxLines(1);
-		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
-		nicknameEntry.setInputType(inputType);
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+		});
 		nicknameEntry.setOnEditorActionListener(this);
-		layout.addView(nicknameEntry);
 
-		feedback = new TextView(this);
-		feedback.setGravity(CENTER);
-		feedback.setPadding(0, pad, 0, pad);
-		layout.addView(feedback);
+		createIdentityButton = (Button) findViewById(R.id.createIdentityButton);
+		if (createIdentityButton != null)
+			createIdentityButton.setOnClickListener(this);
 
-		createIdentityButton = new Button(this);
-		createIdentityButton.setLayoutParams(WRAP_WRAP);
-		createIdentityButton.setText(R.string.create_identity_button);
-		createIdentityButton.setEnabled(false);
-		createIdentityButton.setOnClickListener(this);
-		layout.addView(createIdentityButton);
-
-		progress = new ProgressBar(this);
-		progress.setLayoutParams(WRAP_WRAP);
-		progress.setIndeterminate(true);
-		progress.setVisibility(GONE);
-		layout.addView(progress);
-
-		setContentView(layout);
+		progress = (ProgressBar) findViewById(R.id.progressBar);
 	}
 
 	@Override
@@ -139,10 +114,11 @@ public class CreateIdentityActivity extends BriarActivity
 		String nickname = nicknameEntry.getText().toString();
 		int length = StringUtils.toUtf8(nickname).length;
 		if (length > MAX_AUTHOR_NAME_LENGTH) {
-			feedback.setText(R.string.name_too_long);
+			String str = getString(R.string.name_too_long);
+			AndroidUtils.setError(nicknameInput, str, true);
 			return false;
 		}
-		feedback.setText("");
+		AndroidUtils.setError(nicknameInput, null, false);
 		return length > 0;
 	}
 
@@ -169,7 +145,7 @@ public class CreateIdentityActivity extends BriarActivity
 	}
 
 	private void storeLocalAuthor(final LocalAuthor a) {
-		runOnDbThread(new Runnable() {
+		dbController.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
