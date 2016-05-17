@@ -3,6 +3,7 @@ package org.briarproject.messaging;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -22,7 +23,7 @@ class PrivateMessageValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(Message m, Group g,
+	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
 		// Parent ID, content type, private message body
 		checkSize(body, 3);
@@ -42,6 +43,6 @@ class PrivateMessageValidator extends BdfMessageValidator {
 		meta.put("contentType", contentType);
 		meta.put("local", false);
 		meta.put("read", false);
-		return meta;
+		return new BdfMessageContext(meta);
 	}
 }

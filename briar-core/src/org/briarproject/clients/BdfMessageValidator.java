@@ -4,13 +4,16 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager.QueueMessageValidator;
 import org.briarproject.api.clients.QueueMessage;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.ValidationManager.MessageValidator;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
@@ -37,43 +40,41 @@ public abstract class BdfMessageValidator implements MessageValidator,
 		this.clock = clock;
 	}
 
-	protected abstract BdfDictionary validateMessage(Message m, Group g,
-			BdfList body) throws FormatException;
+	protected abstract BdfMessageContext validateMessage(Message m, Group g,
+			BdfList body) throws InvalidMessageException, FormatException;
 
 	@Override
-	public Metadata validateMessage(Message m, Group g) {
+	public MessageContext validateMessage(Message m, Group g)
+			throws InvalidMessageException {
 		return validateMessage(m, g, MESSAGE_HEADER_LENGTH);
 	}
 
 	@Override
-	public Metadata validateMessage(QueueMessage q, Group g) {
+	public MessageContext validateMessage(QueueMessage q, Group g)
+			throws InvalidMessageException {
 		return validateMessage(q, g, QUEUE_MESSAGE_HEADER_LENGTH);
 	}
 
-	private Metadata validateMessage(Message m, Group g, int headerLength) {
+	private MessageContext validateMessage(Message m, Group g, int headerLength)
+			throws InvalidMessageException {
 		// Reject the message if it's too far in the future
 		long now = clock.currentTimeMillis();
 		if (m.getTimestamp() - now > MAX_CLOCK_DIFFERENCE) {
-			LOG.info("Timestamp is too far in the future");
-			return null;
+			throw new InvalidMessageException(
+					"Timestamp is too far in the future");
 		}
 		byte[] raw = m.getRaw();
 		if (raw.length <= headerLength) {
-			LOG.info("Message is too short");
-			return null;
+			throw new InvalidMessageException("Message is too short");
 		}
 		try {
 			BdfList body = clientHelper.toList(raw, headerLength,
 					raw.length - headerLength);
-			BdfDictionary meta = validateMessage(m, g, body);
-			if (meta == null) {
-				LOG.info("Invalid message");
-				return null;
-			}
-			return metadataEncoder.encode(meta);
+			BdfMessageContext result = validateMessage(m, g, body);
+			Metadata meta = metadataEncoder.encode(result.getDictionary());
+			return new MessageContext(meta, result.getDependencies());
 		} catch (FormatException e) {
-			LOG.info("Invalid message");
-			return null;
+			throw new InvalidMessageException(e);
 		}
 	}
 

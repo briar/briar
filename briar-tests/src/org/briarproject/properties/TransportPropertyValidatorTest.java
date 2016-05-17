@@ -59,7 +59,8 @@ public class TransportPropertyValidatorTest extends BriarTestCase {
 
 		BdfList body = BdfList.of(transportId.getString(), 4, bdfDictionary);
 
-		BdfDictionary result = tpv.validateMessage(message, group, body);
+		BdfDictionary result = tpv.validateMessage(message, group, body)
+				.getDictionary();
 
 		assertEquals("test", result.getString("transportId"));
 		assertEquals(4, result.getLong("version").longValue());

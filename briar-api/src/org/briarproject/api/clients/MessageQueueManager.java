@@ -5,6 +5,8 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.InvalidMessageException;
+import org.briarproject.api.sync.MessageContext;
 
 public interface MessageQueueManager {
 
@@ -34,10 +36,11 @@ public interface MessageQueueManager {
 	interface QueueMessageValidator {
 
 		/**
-		 * Validates the given message and returns its metadata if the message
-		 * is valid, or null if the message is invalid.
+		 * Validates the given message and returns its metadata and
+		 * dependencies.
 		 */
-		Metadata validateMessage(QueueMessage q, Group g);
+		MessageContext validateMessage(QueueMessage q, Group g)
+				throws InvalidMessageException;
 	}
 
 	interface IncomingQueueMessageHook {

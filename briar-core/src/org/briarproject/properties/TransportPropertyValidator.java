@@ -2,6 +2,7 @@ package org.briarproject.properties;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -22,7 +23,7 @@ public class TransportPropertyValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(Message m, Group g,
+	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
 		// Transport ID, version, properties
 		checkSize(body, 3);
@@ -45,6 +46,6 @@ public class TransportPropertyValidator extends BdfMessageValidator {
 		meta.put("transportId", transportId);
 		meta.put("version", version);
 		meta.put("local", false);
-		return meta;
+		return new BdfMessageContext(meta);
 	}
 }

@@ -3,6 +3,7 @@ package org.briarproject.forum;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -36,7 +37,7 @@ class ForumSharingValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(Message m, Group g,
+	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
 
 		BdfDictionary d = new BdfDictionary();
@@ -75,6 +76,6 @@ class ForumSharingValidator extends BdfMessageValidator {
 		d.put(SESSION_ID, id);
 		d.put(LOCAL, false);
 		d.put(TIME, m.getTimestamp());
-		return d;
+		return new BdfMessageContext(d);
 	}
 }
