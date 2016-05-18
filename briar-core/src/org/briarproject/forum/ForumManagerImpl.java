@@ -9,6 +9,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
@@ -17,12 +18,10 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,8 +34,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
-import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
 import static org.briarproject.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
@@ -49,18 +46,16 @@ class ForumManagerImpl implements ForumManager {
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
-	private final GroupFactory groupFactory;
-	private final SecureRandom random;
+	private final ForumFactory forumFactory;
 	private final List<RemoveForumHook> removeHooks;
 
 	@Inject
 	ForumManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
-			GroupFactory groupFactory, SecureRandom random) {
+			ForumFactory forumFactory) {
 
 		this.db = db;
 		this.clientHelper = clientHelper;
-		this.groupFactory = groupFactory;
-		this.random = random;
+		this.forumFactory = forumFactory;
 		removeHooks = new CopyOnWriteArrayList<RemoveForumHook>();
 	}
 
@@ -70,30 +65,9 @@ class ForumManagerImpl implements ForumManager {
 	}
 
 	@Override
-	public Forum createForum(String name) {
-		int length = StringUtils.toUtf8(name).length;
-		if (length == 0) throw new IllegalArgumentException();
-		if (length > MAX_FORUM_NAME_LENGTH)
-			throw new IllegalArgumentException();
-		byte[] salt = new byte[FORUM_SALT_LENGTH];
-		random.nextBytes(salt);
-		return createForum(name, salt);
-	}
+	public Forum addForum(String name) throws DbException {
+		Forum f = forumFactory.createForum(name);
 
-	@Override
-	public Forum createForum(String name, byte[] salt) {
-		try {
-			BdfList forum = BdfList.of(name, salt);
-			byte[] descriptor = clientHelper.toByteArray(forum);
-			Group g = groupFactory.createGroup(getClientId(), descriptor);
-			return new Forum(g, name, salt);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public void addForum(Forum f) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
 			db.addGroup(txn, f.getGroup());
@@ -101,6 +75,7 @@ class ForumManagerImpl implements ForumManager {
 		} finally {
 			db.endTransaction(txn);
 		}
+		return f;
 	}
 
 	@Override

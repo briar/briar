@@ -647,8 +647,6 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				eventWaiter.assertEquals(contactId0, event.getContactId());
 				requestReceived = true;
 				Forum f = event.getForum();
-				// work-around because the forum does not contain the group
-				f = forumManager1.createForum(f.getName(), f.getSalt());
 				try {
 					forumSharingManager1.respondToInvitation(f, accept);
 				} catch (DbException ex) {
@@ -719,8 +717,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 	private void addForumForSharer() throws DbException {
 		// sharer creates forum
-		forum0 = forumManager0.createForum("Test Forum");
-		forumManager0.addForum(forum0);
+		forum0 = forumManager0.addForum("Test Forum");
 	}
 
 	private void listenToEvents(boolean accept) {

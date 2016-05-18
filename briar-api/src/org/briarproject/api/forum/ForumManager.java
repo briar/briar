@@ -13,14 +13,8 @@ public interface ForumManager {
 	/** Returns the unique ID of the forum client. */
 	ClientId getClientId();
 
-	/** Creates a forum with the given name. */
-	Forum createForum(String name);
-
-	/** Creates a forum with the given name and salt. */
-	Forum createForum(String name, byte[] salt);
-
 	/** Subscribes to a forum. */
-	void addForum(Forum f) throws DbException;
+	Forum addForum(String name) throws DbException;
 
 	/** Unsubscribes from a forum. */
 	void removeForum(Forum f) throws DbException;

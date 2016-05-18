@@ -129,8 +129,7 @@ public class CreateForumActivity extends BriarActivity
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Forum f = forumManager.createForum(name);
-					forumManager.addForum(f);
+					Forum f = forumManager.addForum(name);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing forum took " + duration + " ms");
