@@ -16,7 +16,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.api.sync.ValidationManager.Validity;
+import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -79,7 +79,7 @@ interface Database<T> {
 	/**
 	 * Stores a message.
 	 */
-	void addMessage(T txn, Message m, Validity validity, boolean shared)
+	void addMessage(T txn, Message m, State state, boolean shared)
 			throws DbException;
 
 	/**
@@ -327,6 +327,24 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns the dependencies of the given message.
+	 * This method makes sure that dependencies in different groups
+	 * are returned as {@link ValidationManager.State.INVALID}.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, State> getMessageDependencies(T txn, MessageId m)
+			throws DbException;
+
+	/**
+	 * Returns all IDs of messages that depend on the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, State> getMessageDependents(T txn, MessageId m)
+			throws DbException;
+
+	/**
 	 * Returns the IDs of some messages received from the given contact that
 	 * need to be acknowledged, up to the given number of messages.
 	 * <p/>
@@ -369,6 +387,24 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
+			throws DbException;
+
+	/**
+	 * Returns the IDs of any messages that need to be delivered to the given
+	 * client.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessagesToDeliver(T txn, ClientId c)
+			throws DbException;
+
+	/**
+	 * Returns the IDs of any messages that are still pending due to
+	 * dependencies to other messages for the given client.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getPendingMessages(T txn, ClientId c)
 			throws DbException;
 
 	/**
@@ -538,7 +574,14 @@ interface Database<T> {
 	/**
 	 * Marks the given message as valid or invalid.
 	 */
-	void setMessageValid(T txn, MessageId m, boolean valid) throws DbException;
+	void setMessageState(T txn, MessageId m, State state)
+			throws DbException;
+
+	/*
+	 * Adds a dependency between two MessageIds
+	 */
+	void addMessageDependency(T txn, MessageId dependentId,
+			MessageId dependencyId) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given contact and transport in the

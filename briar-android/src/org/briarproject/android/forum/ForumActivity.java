@@ -30,7 +30,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupRemovedEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostHeader;
@@ -62,6 +62,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ReadForumPostActivity.RESULT_PREV_NEXT;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 public class ForumActivity extends BriarActivity implements EventListener,
 		OnItemClickListener {
@@ -356,9 +357,10 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	}
 
 	public void eventOccurred(Event e) {
-		if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			if (m.isValid() && m.getMessage().getGroupId().equals(groupId)) {
+		if (e instanceof MessageStateChangedEvent) {
+			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
+			if (m.getState() == DELIVERED &&
+					m.getMessage().getGroupId().equals(groupId)) {
 				LOG.info("Message added, reloading");
 				loadHeaders();
 			}

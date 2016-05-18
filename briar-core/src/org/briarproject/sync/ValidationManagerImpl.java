@@ -36,6 +36,8 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.api.sync.ValidationManager.State.INVALID;
+import static org.briarproject.api.sync.ValidationManager.State.VALID;
 
 class ValidationManagerImpl implements ValidationManager, Service,
 		EventListener {
@@ -178,7 +180,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					try {
 						Metadata meta = result.getMetadata();
 						db.mergeMessageMetadata(txn, m.getId(), meta);
-						db.setMessageValid(txn, m, c, true);
+						db.setMessageState(txn, m.getId(), c, VALID);
 						db.setMessageShared(txn, m, true);
 						IncomingMessageHook hook = hooks.get(c);
 						if (hook != null)
@@ -202,7 +204,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				try {
 					Transaction txn = db.startTransaction(false);
 					try {
-						db.setMessageValid(txn, m, c, false);
+						db.setMessageState(txn, m.getId(), c, INVALID);
 						txn.setComplete();
 					} finally {
 						db.endTransaction(txn);

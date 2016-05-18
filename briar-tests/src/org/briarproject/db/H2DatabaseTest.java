@@ -19,6 +19,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
+import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
@@ -46,8 +47,11 @@ import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
-import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
-import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.api.sync.ValidationManager.State.INVALID;
+import static org.briarproject.api.sync.ValidationManager.State.PENDING;
+import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.api.sync.ValidationManager.State.VALID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -114,7 +118,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addGroup(txn, group);
 		assertTrue(db.containsGroup(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		assertTrue(db.containsMessage(txn, messageId));
 		db.commitTransaction(txn);
 		db.close();
@@ -152,7 +156,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 
 		// Removing the group should remove the message
 		assertTrue(db.containsMessage(txn, messageId));
@@ -174,7 +178,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 
 		// The message has no status yet, so it should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -202,7 +206,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeValid() throws Exception {
+	public void testSendableMessagesMustBeDelivered() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -222,15 +226,31 @@ public class H2DatabaseTest extends BriarTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertTrue(ids.isEmpty());
 
-		// Marking the message valid should make it sendable
-		db.setMessageValid(txn, messageId, true);
+		// Marking the message delivered should make it sendable
+		db.setMessageState(txn, messageId, DELIVERED);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertEquals(Collections.singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertEquals(Collections.singletonList(messageId), ids);
 
 		// Marking the message invalid should make it unsendable
-		db.setMessageValid(txn, messageId, false);
+		db.setMessageState(txn, messageId, INVALID);
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertTrue(ids.isEmpty());
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertTrue(ids.isEmpty());
+
+		// Marking the message valid should make it unsendable
+		// TODO do we maybe want to already send valid messages? If we do, we need also to call db.setMessageShared() earlier.
+		db.setMessageState(txn, messageId, VALID);
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertTrue(ids.isEmpty());
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertTrue(ids.isEmpty());
+
+		// Marking the message pending should make it unsendable
+		// TODO do we maybe want to already send pending messages? If we do, we need also to call db.setMessageShared() earlier.
+		db.setMessageState(txn, messageId, PENDING);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100);
@@ -251,7 +271,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addMessage(txn, message, VALID, false);
+		db.addMessage(txn, message, DELIVERED, false);
 		db.addStatus(txn, contactId, messageId, false, false);
 
 		// The message is not shared, so it should not be sendable
@@ -290,7 +310,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
 		// The message is sendable, but too large to send
@@ -321,10 +341,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add some messages to ack
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, true);
 		db.raiseAckFlag(txn, contactId, messageId);
-		db.addMessage(txn, message1, VALID, true);
+		db.addMessage(txn, message1, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId1, false, true);
 		db.raiseAckFlag(txn, contactId, messageId1);
 
@@ -354,7 +374,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
 		// Retrieve the message from the database and mark it as sent
@@ -396,7 +416,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Storing a message should reduce the free space
 		Connection txn = db.startTransaction();
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		db.commitTransaction(txn);
 		assertTrue(db.getFreeSpace() < free);
 
@@ -555,7 +575,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true));
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
 		// The group is not visible
@@ -866,7 +886,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 
 		// Attach some metadata to the message
 		Metadata metadata = new Metadata();
@@ -931,6 +951,67 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testMessageMetadataOnlyForDeliveredMessages() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and a message
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, DELIVERED, true);
+
+		// Attach some metadata to the message
+		Metadata metadata = new Metadata();
+		metadata.put("foo", new byte[]{'b', 'a', 'r'});
+		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		db.mergeMessageMetadata(txn, messageId, metadata);
+
+		// Retrieve the metadata for the message
+		Metadata retrieved = db.getMessageMetadata(txn, messageId);
+		assertEquals(2, retrieved.size());
+		assertTrue(retrieved.containsKey("foo"));
+		assertArrayEquals(metadata.get("foo"), retrieved.get("foo"));
+		assertTrue(retrieved.containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), retrieved.get("baz"));
+		Map<MessageId, Metadata> map = db.getMessageMetadata(txn, groupId);
+		assertEquals(1, map.size());
+		assertTrue(map.get(messageId).containsKey("foo"));
+		assertArrayEquals(metadata.get("foo"), map.get(messageId).get("foo"));
+		assertTrue(map.get(messageId).containsKey("baz"));
+		assertArrayEquals(metadata.get("baz"), map.get(messageId).get("baz"));
+
+		// No metadata for unknown messages
+		db.setMessageState(txn, messageId, UNKNOWN);
+		retrieved = db.getMessageMetadata(txn, messageId);
+		assertTrue(retrieved.isEmpty());
+		map = db.getMessageMetadata(txn, groupId);
+		assertTrue(map.isEmpty());
+
+		// No metadata for invalid messages
+		db.setMessageState(txn, messageId, INVALID);
+		retrieved = db.getMessageMetadata(txn, messageId);
+		assertTrue(retrieved.isEmpty());
+		map = db.getMessageMetadata(txn, groupId);
+		assertTrue(map.isEmpty());
+
+		// No metadata for valid messages
+		db.setMessageState(txn, messageId, VALID);
+		retrieved = db.getMessageMetadata(txn, messageId);
+		assertTrue(retrieved.isEmpty());
+		map = db.getMessageMetadata(txn, groupId);
+		assertTrue(map.isEmpty());
+
+		// No metadata for pending messages
+		db.setMessageState(txn, messageId, PENDING);
+		retrieved = db.getMessageMetadata(txn, messageId);
+		assertTrue(retrieved.isEmpty());
+		map = db.getMessageMetadata(txn, groupId);
+		assertTrue(map.isEmpty());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testMetadataQueries() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
@@ -940,8 +1021,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a group and two messages
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
-		db.addMessage(txn, message1, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
+		db.addMessage(txn, message1, DELIVERED, true);
 
 		// Attach some metadata to the messages
 		Metadata metadata = new Metadata();
@@ -1035,6 +1116,257 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testMetadataQueriesOnlyForDeliveredMessages() throws Exception {
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new Message(messageId1, groupId, timestamp, raw);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and two messages
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, DELIVERED, true);
+		db.addMessage(txn, message1, DELIVERED, true);
+
+		// Attach some metadata to the messages
+		Metadata metadata = new Metadata();
+		metadata.put("foo", new byte[]{'b', 'a', 'r'});
+		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		db.mergeMessageMetadata(txn, messageId, metadata);
+		Metadata metadata1 = new Metadata();
+		metadata1.put("foo", new byte[]{'b', 'a', 'r'});
+		db.mergeMessageMetadata(txn, messageId1, metadata1);
+
+		for (int i = 1; i <= 2; i++) {
+			Metadata query;
+			if (i == 1) {
+				// Query the metadata with an empty query
+				query = new Metadata();
+			} else {
+				// Query for foo
+				query = new Metadata();
+				query.put("foo", metadata.get("foo"));
+			}
+
+			db.setMessageState(txn, messageId, DELIVERED);
+			db.setMessageState(txn, messageId1, DELIVERED);
+			Map<MessageId, Metadata> all =
+					db.getMessageMetadata(txn, groupId, query);
+			assertEquals(2, all.size());
+			assertEquals(2, all.get(messageId).size());
+			assertEquals(1, all.get(messageId1).size());
+
+			// No metadata for unknown messages
+			db.setMessageState(txn, messageId, UNKNOWN);
+			db.setMessageState(txn, messageId1, UNKNOWN);
+			all = db.getMessageMetadata(txn, groupId, query);
+			assertTrue(all.isEmpty());
+
+			// No metadata for invalid messages
+			db.setMessageState(txn, messageId, INVALID);
+			db.setMessageState(txn, messageId1, INVALID);
+			all = db.getMessageMetadata(txn, groupId, query);
+			assertTrue(all.isEmpty());
+
+			// No metadata for valid messages
+			db.setMessageState(txn, messageId, VALID);
+			db.setMessageState(txn, messageId1, VALID);
+			all = db.getMessageMetadata(txn, groupId, query);
+			assertTrue(all.isEmpty());
+
+			// No metadata for pending messages
+			db.setMessageState(txn, messageId, PENDING);
+			db.setMessageState(txn, messageId1, PENDING);
+			all = db.getMessageMetadata(txn, groupId, query);
+			assertTrue(all.isEmpty());
+		}
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testMessageDependencies() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and a message
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, VALID, true);
+
+		// Create more messages
+		MessageId mId1 = new MessageId(TestUtils.getRandomId());
+		MessageId mId2 = new MessageId(TestUtils.getRandomId());
+		MessageId dId1 = new MessageId(TestUtils.getRandomId());
+		MessageId dId2 = new MessageId(TestUtils.getRandomId());
+		Message m1 = new Message(mId1, groupId, timestamp, raw);
+		Message m2 = new Message(mId2, groupId, timestamp, raw);
+
+		// Add new messages
+		db.addMessage(txn, m1, VALID, true);
+		db.addMessage(txn, m2, INVALID, true);
+
+		// Add dependencies
+		db.addMessageDependency(txn, messageId, mId1);
+		db.addMessageDependency(txn, messageId, mId2);
+		db.addMessageDependency(txn, mId1, dId1);
+		db.addMessageDependency(txn, mId2, dId2);
+
+		Map<MessageId, State> dependencies;
+
+		// Retrieve dependencies for root
+		dependencies = db.getMessageDependencies(txn, messageId);
+		assertEquals(2, dependencies.size());
+		assertEquals(VALID, dependencies.get(mId1));
+		assertEquals(INVALID, dependencies.get(mId2));
+
+		// Retrieve dependencies for m1
+		dependencies = db.getMessageDependencies(txn, mId1);
+		assertEquals(1, dependencies.size());
+		assertEquals(UNKNOWN, dependencies.get(dId1));
+
+		// Retrieve dependencies for m2
+		dependencies = db.getMessageDependencies(txn, mId2);
+		assertEquals(1, dependencies.size());
+		assertEquals(UNKNOWN, dependencies.get(dId2));
+
+		// Make sure d's have no dependencies
+		dependencies = db.getMessageDependencies(txn, dId1);
+		assertTrue(dependencies.isEmpty());
+		dependencies = db.getMessageDependencies(txn, dId2);
+		assertTrue(dependencies.isEmpty());
+
+		Map<MessageId, State> dependents;
+
+		// Root message does not have dependents
+		dependents = db.getMessageDependents(txn, messageId);
+		assertTrue(dependents.isEmpty());
+
+		// The root message depends on both m's
+		dependents = db.getMessageDependents(txn, mId1);
+		assertEquals(1, dependents.size());
+		assertEquals(VALID, dependents.get(messageId));
+		dependents = db.getMessageDependents(txn, mId2);
+		assertEquals(1, dependents.size());
+		assertEquals(VALID, dependents.get(messageId));
+
+		// Both m's depend on the d's
+		dependents = db.getMessageDependents(txn, dId1);
+		assertEquals(1, dependents.size());
+		assertEquals(VALID, dependents.get(mId1));
+		dependents = db.getMessageDependents(txn, dId2);
+		assertEquals(1, dependents.size());
+		assertEquals(INVALID, dependents.get(mId2));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testMessageDependenciesInSameGroup() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and a message
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, DELIVERED, true);
+
+		// Add a second group
+		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		Group group1 = new Group(groupId1, group.getClientId(),
+				TestUtils.getRandomBytes(MAX_GROUP_DESCRIPTOR_LENGTH));
+		db.addGroup(txn, group1);
+
+		// Add a message to the second group
+		MessageId mId1 = new MessageId(TestUtils.getRandomId());
+		Message m1 = new Message(mId1, groupId1, timestamp, raw);
+		db.addMessage(txn, m1, DELIVERED, true);
+
+		// Create a fake dependency as well
+		MessageId mId2 = new MessageId(TestUtils.getRandomId());
+
+		// Create and add a real and proper dependency
+		MessageId mId3 = new MessageId(TestUtils.getRandomId());
+		Message m3 = new Message(mId3, groupId, timestamp, raw);
+		db.addMessage(txn, m3, PENDING, true);
+
+		// Add dependencies
+		db.addMessageDependency(txn, messageId, mId1);
+		db.addMessageDependency(txn, messageId, mId2);
+		db.addMessageDependency(txn, messageId, mId3);
+
+		// Return invalid dependencies for delivered message m1
+		Map<MessageId, State> dependencies;
+		dependencies = db.getMessageDependencies(txn, messageId);
+		assertEquals(INVALID, dependencies.get(mId1));
+		assertEquals(UNKNOWN, dependencies.get(mId2));
+		assertEquals(PENDING, dependencies.get(mId3));
+
+		// Return invalid dependencies for valid message m1
+		db.setMessageState(txn, mId1, VALID);
+		dependencies = db.getMessageDependencies(txn, messageId);
+		assertEquals(INVALID, dependencies.get(mId1));
+		assertEquals(UNKNOWN, dependencies.get(mId2));
+		assertEquals(PENDING, dependencies.get(mId3));
+
+		// Return invalid dependencies for pending message m1
+		db.setMessageState(txn, mId1, PENDING);
+		dependencies = db.getMessageDependencies(txn, messageId);
+		assertEquals(INVALID, dependencies.get(mId1));
+		assertEquals(UNKNOWN, dependencies.get(mId2));
+		assertEquals(PENDING, dependencies.get(mId3));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessagesForValidationAndDelivery() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and a message
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, VALID, true);
+
+		// Create more messages
+		MessageId mId1 = new MessageId(TestUtils.getRandomId());
+		MessageId mId2 = new MessageId(TestUtils.getRandomId());
+		MessageId mId3 = new MessageId(TestUtils.getRandomId());
+		MessageId mId4 = new MessageId(TestUtils.getRandomId());
+		Message m1 = new Message(mId1, groupId, timestamp, raw);
+		Message m2 = new Message(mId2, groupId, timestamp, raw);
+		Message m3 = new Message(mId3, groupId, timestamp, raw);
+		Message m4 = new Message(mId4, groupId, timestamp, raw);
+
+		// Add new messages with different states
+		db.addMessage(txn, m1, UNKNOWN, true);
+		db.addMessage(txn, m2, INVALID, true);
+		db.addMessage(txn, m3, PENDING, true);
+		db.addMessage(txn, m4, DELIVERED, true);
+
+		Collection<MessageId> result;
+
+		// Retrieve messages to be validated
+		result = db.getMessagesToValidate(txn, group.getClientId());
+		assertEquals(1, result.size());
+		assertTrue(result.contains(mId1));
+
+		// Retrieve messages to be delivered
+		result = db.getMessagesToDeliver(txn, group.getClientId());
+		assertEquals(1, result.size());
+		assertTrue(result.contains(messageId));
+
+		// Retrieve pending messages
+		result = db.getPendingMessages(txn, group.getClientId());
+		assertEquals(1, result.size());
+		assertTrue(result.contains(mId3));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testGetMessageStatus() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -1049,7 +1381,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addVisibility(txn, contactId, groupId);
 
 		// Add a message to the group
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
 		// The message should not be sent or seen
@@ -1176,7 +1508,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				true));
 		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addMessage(txn, message, VALID, true);
+		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
 		// The message should be visible to the contact

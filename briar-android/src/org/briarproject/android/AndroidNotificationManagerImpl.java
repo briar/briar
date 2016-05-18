@@ -24,7 +24,7 @@ import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.lifecycle.Service;
@@ -59,6 +59,7 @@ import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Service, EventListener {
@@ -156,9 +157,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(SETTINGS_NAMESPACE)) loadSettings();
-		} else if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			if (m.isValid() && !m.isLocal()) {
+		} else if (e instanceof MessageStateChangedEvent) {
+			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
+			if (!m.isLocal() && m.getState() == DELIVERED) {
 				ClientId c = m.getClientId();
 				if (c.equals(messagingManager.getClientId()))
 					showPrivateMessageNotification(m.getMessage().getGroupId());

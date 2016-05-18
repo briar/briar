@@ -25,7 +25,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostHeader;
@@ -42,6 +42,7 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 public class ForumListFragment extends BaseEventFragment implements
 		View.OnClickListener {
@@ -224,14 +225,13 @@ public class ForumListFragment extends BaseEventFragment implements
 				LOG.info("Forum removed, removing from list");
 				removeForum(g.getGroup().getId());
 			}
-		} else if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			if (m.isValid()) {
-				ClientId c = m.getClientId();
-				if (c.equals(forumManager.getClientId())) {
-					LOG.info("Forum post added, reloading");
-					loadForumHeaders(m.getMessage().getGroupId());
-				}
+		} else if (e instanceof MessageStateChangedEvent) {
+			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
+			ClientId c = m.getClientId();
+			if (m.getState() == DELIVERED &&
+					c.equals(forumManager.getClientId())) {
+				LOG.info("Forum post added, reloading");
+				loadForumHeaders(m.getMessage().getGroupId());
 			}
 		} else if (e instanceof ForumInvitationReceivedEvent) {
 			loadAvailableForums();

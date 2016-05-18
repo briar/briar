@@ -28,6 +28,9 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
+import static org.briarproject.api.sync.ValidationManager.State.INVALID;
+import static org.briarproject.api.sync.ValidationManager.State.VALID;
+
 public class ValidationManagerImplTest extends BriarTestCase {
 
 	private final ClientId clientId = new ClientId(TestUtils.getRandomId());
@@ -88,7 +91,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn2));
 			oneOf(db).mergeMessageMetadata(txn2, messageId, metadata);
-			oneOf(db).setMessageValid(txn2, message, clientId, true);
+			oneOf(db).setMessageState(txn2, messageId, clientId, VALID);
 			oneOf(db).setMessageShared(txn2, message, true);
 			// Call the hook for the first message
 			oneOf(hook).incomingMessage(txn2, message, metadata);
@@ -107,7 +110,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Store the validation result for the second message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn4));
-			oneOf(db).setMessageValid(txn4, message1, clientId, false);
+			oneOf(db).setMessageState(txn4, messageId1, clientId, INVALID);
 			oneOf(db).endTransaction(txn4);
 		}});
 
@@ -161,7 +164,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Store the validation result for the second message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
-			oneOf(db).setMessageValid(txn3, message1, clientId, false);
+			oneOf(db).setMessageState(txn3, messageId1, clientId, INVALID);
 			oneOf(db).endTransaction(txn3);
 		}});
 
@@ -218,7 +221,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Store the validation result for the second message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
-			oneOf(db).setMessageValid(txn3, message1, clientId, false);
+			oneOf(db).setMessageState(txn3, messageId1, clientId, INVALID);
 			oneOf(db).endTransaction(txn3);
 		}});
 
@@ -256,7 +259,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn1));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
-			oneOf(db).setMessageValid(txn1, message, clientId, true);
+			oneOf(db).setMessageState(txn1, messageId, clientId, VALID);
 			oneOf(db).setMessageShared(txn1, message, true);
 			// Call the hook
 			oneOf(hook).incomingMessage(txn1, message, metadata);
