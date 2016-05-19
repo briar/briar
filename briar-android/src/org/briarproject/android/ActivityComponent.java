@@ -7,6 +7,7 @@ import org.briarproject.android.forum.AvailableForumsActivity;
 import org.briarproject.android.forum.ContactSelectorFragment;
 import org.briarproject.android.forum.CreateForumActivity;
 import org.briarproject.android.forum.ForumActivity;
+import org.briarproject.android.forum.ForumSharingStatusActivity;
 import org.briarproject.android.forum.ReadForumPostActivity;
 import org.briarproject.android.forum.ShareForumActivity;
 import org.briarproject.android.forum.ShareForumMessageFragment;
@@ -58,6 +59,8 @@ public interface ActivityComponent {
 	void inject(CreateForumActivity activity);
 
 	void inject(ShareForumActivity activity);
+
+	void inject(ForumSharingStatusActivity activity);
 
 	void inject(ReadForumPostActivity activity);
 

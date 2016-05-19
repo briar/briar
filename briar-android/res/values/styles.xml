@@ -93,7 +93,7 @@
 	</style>
 
 	<style name="Divider">
-		<item name="android:background">?android:attr/listDivider</item>
+		<item name="android:background">@color/divider</item>
 	</style>
 
 	<style name="Divider.Horizontal" parent="Divider">

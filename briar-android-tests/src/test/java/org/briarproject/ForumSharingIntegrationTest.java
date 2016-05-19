@@ -273,8 +273,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(forumManager1.getForums().contains(forum0));
 
 			// sharer shares forum with invitee
+			Contact c1 = contactManager0.getContact(contactId1);
 			assertTrue(forumSharingManager0.getSharedWith(forum0.getId())
-					.contains(contactId1));
+					.contains(c1));
 			// invitee gets forum shared by sharer
 			Contact contact0 = contactManager1.getContact(contactId1);
 			assertTrue(forumSharingManager1.getSharedBy(forum0.getId())
@@ -292,12 +293,11 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 			// sharer no longer shares forum with invitee
 			assertFalse(forumSharingManager0.getSharedWith(forum0.getId())
-					.contains(contactId1));
+					.contains(c1));
 			// invitee no longer gets forum shared by sharer
 			assertFalse(forumSharingManager1.getSharedBy(forum0.getId())
 					.contains(contact0));
 			// forum can be shared again
-			Contact c1 = contactManager0.getContact(contactId1);
 			assertTrue(forumSharingManager0.canBeShared(forum0.getId(), c1));
 			Contact c0 = contactManager1.getContact(contactId0);
 			assertTrue(forumSharingManager1.canBeShared(forum0.getId(), c0));
@@ -333,8 +333,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(forumManager1.getForums().contains(forum0));
 
 			// sharer shares forum with invitee
+			Contact c1 = contactManager0.getContact(contactId1);
 			assertTrue(forumSharingManager0.getSharedWith(forum0.getId())
-					.contains(contactId1));
+					.contains(c1));
 			// invitee gets forum shared by sharer
 			Contact contact0 = contactManager1.getContact(contactId1);
 			assertTrue(forumSharingManager1.getSharedBy(forum0.getId())
@@ -351,13 +352,13 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertEquals(1, forumManager1.getForums().size());
 
 			// invitee no longer shares forum with sharer
+			Contact c0 = contactManager1.getContact(contactId0);
 			assertFalse(forumSharingManager1.getSharedWith(forum0.getId())
-					.contains(contactId0));
+					.contains(c0));
 			// sharer no longer gets forum shared by invitee
 			assertFalse(forumSharingManager1.getSharedBy(forum0.getId())
 					.contains(contact0));
 			// forum can be shared again
-			Contact c0 = contactManager1.getContact(contactId0);
 			assertTrue(forumSharingManager1.canBeShared(forum0.getId(), c0));
 		} finally {
 			stopLifecycles();

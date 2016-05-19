@@ -120,10 +120,11 @@ public class BriarRecyclerView extends FrameLayout {
 				emptyView.setVisibility(VISIBLE);
 				recyclerView.setVisibility(INVISIBLE);
 			} else {
-				emptyView.setVisibility(INVISIBLE);
+				// use GONE here so empty view doesn't use space on small lists
+				emptyView.setVisibility(GONE);
 				recyclerView.setVisibility(VISIBLE);
 			}
-			progressBar.setVisibility(INVISIBLE);
+			progressBar.setVisibility(GONE);
 		}
 	}
 

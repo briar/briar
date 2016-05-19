@@ -30,7 +30,7 @@ public class ContactListItem {
 	}
 
 	void setMessages(Collection<ConversationItem> messages) {
-		empty = messages.isEmpty();
+		empty = messages == null || messages.isEmpty();
 		timestamp = 0;
 		unread = 0;
 		if (!empty) {

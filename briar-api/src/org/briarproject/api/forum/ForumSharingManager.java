@@ -41,7 +41,7 @@ public interface ForumSharingManager {
 	Collection<Contact> getSharedBy(GroupId g) throws DbException;
 
 	/** Returns the IDs of all contacts with whom the given forum is shared. */
-	Collection<ContactId> getSharedWith(GroupId g) throws DbException;
+	Collection<Contact> getSharedWith(GroupId g) throws DbException;
 
 	/** Returns true if the forum not already shared and no invitation is open */
 	boolean canBeShared(GroupId g, Contact c) throws DbException;
