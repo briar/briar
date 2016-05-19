@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -9,11 +8,11 @@
 
 	<de.hdodenhof.circleimageview.CircleImageView
 		android:id="@+id/avatarView"
+		style="@style/BriarAvatar"
 		android:layout_width="@dimen/dropdown_picture_size"
 		android:layout_height="@dimen/dropdown_picture_size"
 		android:layout_margin="@dimen/margin_small"
-		app:civ_border_color="@color/briar_primary"
-		app:civ_border_width="@dimen/avatar_border_width"/>
+		tools:src="@drawable/ic_launcher"/>
 
 	<TextView
 		android:id="@+id/nameView"

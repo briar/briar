@@ -14,6 +14,7 @@
 
 		<de.hdodenhof.circleimageview.CircleImageView
 			android:id="@+id/avatarView"
+			style="@style/BriarAvatar"
 			android:layout_width="@dimen/listitem_selectable_picture_size"
 			android:layout_height="@dimen/listitem_selectable_picture_size"
 			android:layout_alignParentLeft="true"
@@ -22,8 +23,6 @@
 			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 			android:layout_marginStart="@dimen/listitem_horizontal_margin"
 			android:transitionName="avatar"
-			app:civ_border_color="@color/briar_primary"
-			app:civ_border_width="@dimen/avatar_border_width"
 			tools:src="@drawable/ic_launcher"/>
 
 		<TextView

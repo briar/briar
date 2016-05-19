@@ -9,10 +9,10 @@
 
 	<de.hdodenhof.circleimageview.CircleImageView
 		android:id="@+id/contactAvatar"
+		style="@style/BriarAvatar"
 		android:layout_width="30dp"
 		android:layout_height="30dp"
 		app:civ_border_color="@color/action_bar_text"
-		app:civ_border_width="@dimen/avatar_border_width"
 		tools:src="@drawable/ic_launcher"/>
 
 	<ImageView

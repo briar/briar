@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
 	<de.hdodenhof.circleimageview.CircleImageView
 		android:id="@+id/avatarView"
+		style="@style/BriarAvatar"
 		android:layout_width="@dimen/listitem_picture_size"
 		android:layout_height="@dimen/listitem_picture_size"
 		android:layout_centerVertical="true"
 		android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 		android:layout_marginStart="@dimen/listitem_horizontal_margin"
-		app:civ_border_width="@dimen/avatar_border_width"
-		app:civ_border_color="@color/briar_primary"/>
+		tools:src="@drawable/ic_launcher"/>
 
 	<ImageView
 		android:id="@+id/statusView"
