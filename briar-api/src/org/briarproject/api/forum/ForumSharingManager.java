@@ -24,7 +24,8 @@ public interface ForumSharingManager {
 	/**
 	 * Responds to a pending forum invitation
 	 */
-	void respondToInvitation(Forum f, boolean accept) throws DbException;
+	void respondToInvitation(Forum f, Contact c, boolean accept)
+			throws DbException;
 
 	/**
 	 * Returns all forum sharing messages sent by the Contact
