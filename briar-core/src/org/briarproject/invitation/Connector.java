@@ -2,6 +2,7 @@ package org.briarproject.invitation;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -47,12 +48,7 @@ abstract class Connector extends Thread {
 	protected final CryptoComponent crypto;
 	protected final BdfReaderFactory bdfReaderFactory;
 	protected final BdfWriterFactory bdfWriterFactory;
-	protected final StreamReaderFactory streamReaderFactory;
-	protected final StreamWriterFactory streamWriterFactory;
-	protected final AuthorFactory authorFactory;
-	protected final ConnectionManager connectionManager;
-	protected final ContactManager contactManager;
-	protected final Clock clock;
+	protected final ContactExchangeTask contactExchangeTask;
 	protected final ConnectorGroup group;
 	protected final DuplexPlugin plugin;
 	protected final LocalAuthor localAuthor;
@@ -63,26 +59,15 @@ abstract class Connector extends Thread {
 	private final KeyParser keyParser;
 	private final MessageDigest messageDigest;
 
-	private volatile ContactId contactId = null;
-
-	Connector(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory,
+	Connector(CryptoComponent crypto, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory,
-			StreamReaderFactory streamReaderFactory,
-			StreamWriterFactory streamWriterFactory,
-			AuthorFactory authorFactory, ConnectionManager connectionManager,
-			ContactManager contactManager, Clock clock, ConnectorGroup group,
+			ContactExchangeTask contactExchangeTask, ConnectorGroup group,
 			DuplexPlugin plugin, LocalAuthor localAuthor, PseudoRandom random) {
 		super("Connector");
 		this.crypto = crypto;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.bdfWriterFactory = bdfWriterFactory;
-		this.streamReaderFactory = streamReaderFactory;
-		this.streamWriterFactory = streamWriterFactory;
-		this.authorFactory = authorFactory;
-		this.connectionManager = connectionManager;
-		this.contactManager = contactManager;
-		this.clock = clock;
+		this.contactExchangeTask = contactExchangeTask;
 		this.group = group;
 		this.plugin = plugin;
 		this.localAuthor = localAuthor;
@@ -159,65 +144,6 @@ abstract class Connector extends Thread {
 		return confirmed;
 	}
 
-	protected void sendPseudonym(BdfWriter w, byte[] nonce)
-			throws GeneralSecurityException, IOException {
-		// Sign the nonce
-		Signature signature = crypto.getSignature();
-		KeyParser keyParser = crypto.getSignatureKeyParser();
-		byte[] privateKey = localAuthor.getPrivateKey();
-		signature.initSign(keyParser.parsePrivateKey(privateKey));
-		signature.update(nonce);
-		byte[] sig = signature.sign();
-		// Write the name, public key and signature
-		w.writeString(localAuthor.getName());
-		w.writeRaw(localAuthor.getPublicKey());
-		w.writeRaw(sig);
-		w.flush();
-		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent pseudonym");
-	}
-
-	protected Author receivePseudonym(BdfReader r, byte[] nonce)
-			throws GeneralSecurityException, IOException {
-		// Read the name, public key and signature
-		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
-		byte[] sig = r.readRaw(MAX_SIGNATURE_LENGTH);
-		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received pseudonym");
-		// Verify the signature
-		Signature signature = crypto.getSignature();
-		KeyParser keyParser = crypto.getSignatureKeyParser();
-		signature.initVerify(keyParser.parsePublicKey(publicKey));
-		signature.update(nonce);
-		if (!signature.verify(sig)) {
-			if (LOG.isLoggable(INFO))
-				LOG.info(pluginName + " invalid signature");
-			throw new GeneralSecurityException();
-		}
-		return authorFactory.createAuthor(name, publicKey);
-	}
-
-	protected void sendTimestamp(BdfWriter w, long timestamp)
-			throws IOException {
-		w.writeLong(timestamp);
-		w.flush();
-		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent timestamp");
-	}
-
-	protected long receiveTimestamp(BdfReader r) throws IOException {
-		long timestamp = r.readLong();
-		if (timestamp < 0) throw new FormatException();
-		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received timestamp");
-		return timestamp;
-	}
-
-	protected ContactId addContact(Author remoteAuthor, SecretKey master,
-			long timestamp, boolean alice) throws DbException {
-		// Add the contact to the database
-		contactId = contactManager.addContact(remoteAuthor,
-				localAuthor.getId(), master, timestamp, alice, true);
-		return contactId;
-	}
-
 	protected void tryToClose(DuplexTransportConnection conn,
 			boolean exception) {
 		try {
@@ -227,11 +153,5 @@ abstract class Connector extends Thread {
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-	}
-
-	protected void reuseConnection(DuplexTransportConnection conn) {
-		if (contactId == null) throw new IllegalStateException();
-		TransportId t = plugin.getId();
-		connectionManager.manageOutgoingConnection(contactId, t, conn);
 	}
 }

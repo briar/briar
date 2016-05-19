@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.TransportId.MAX_TRANSPORT_ID_LENGTH;
@@ -73,6 +75,7 @@ public class ContactExchangeTaskImpl extends Thread
 	private volatile SecretKey masterSecret;
 	private volatile boolean alice;
 
+	@Inject
 	public ContactExchangeTaskImpl(DatabaseComponent db,
 			AuthorFactory authorFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, Clock clock,

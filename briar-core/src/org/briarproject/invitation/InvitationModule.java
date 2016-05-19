@@ -25,17 +25,8 @@ public class InvitationModule {
 
 	@Provides
 	@Singleton
-	InvitationTaskFactory provideInvitationTaskFactory(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory,
-			BdfWriterFactory bdfWriterFactory,
-			StreamReaderFactory streamReaderFactory,
-			StreamWriterFactory streamWriterFactory,
-			AuthorFactory authorFactory, ConnectionManager connectionManager,
-			IdentityManager identityManager, ContactManager contactManager,
-			Clock clock, PluginManager pluginManager) {
-		return new InvitationTaskFactoryImpl(crypto, bdfReaderFactory,
-				bdfWriterFactory, streamReaderFactory, streamWriterFactory,
-				authorFactory, connectionManager, identityManager,
-				contactManager, clock, pluginManager);
+	InvitationTaskFactory provideInvitationTaskFactory(
+			InvitationTaskFactoryImpl invitationTaskFactory) {
+		return invitationTaskFactory;
 	}
 }
