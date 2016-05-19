@@ -15,17 +15,38 @@
 		android:paddingTop="@dimen/listitem_horizontal_margin"
 		>
 
-		<de.hdodenhof.circleimageview.CircleImageView
-			android:id="@+id/avatarView"
-			style="@style/BriarAvatar"
-			android:layout_width="@dimen/listitem_picture_size"
-			android:layout_height="@dimen/listitem_picture_size"
+		<FrameLayout
+			android:id="@+id/avatarFrameView"
+			android:layout_width="@dimen/listitem_picture_frame_size"
+			android:layout_height="@dimen/listitem_picture_frame_size"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
 			android:layout_centerVertical="true"
 			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-			android:layout_marginStart="@dimen/listitem_horizontal_margin"
-			tools:src="@drawable/ic_launcher"/>
+			android:layout_marginStart="@dimen/listitem_horizontal_margin">
+
+			<de.hdodenhof.circleimageview.CircleImageView
+				android:id="@+id/avatarView"
+				style="@style/BriarAvatar"
+				android:layout_width="@dimen/listitem_picture_size"
+				android:layout_height="@dimen/listitem_picture_size"
+				android:layout_gravity="bottom|left"
+				tools:src="@drawable/ic_launcher"/>
+
+			<TextView
+				android:id="@+id/unreadCountView"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/unread_bubble_size"
+				android:layout_gravity="right|top"
+				android:background="@drawable/bubble"
+				android:gravity="center"
+				android:minWidth="@dimen/unread_bubble_size"
+				android:textColor="@color/briar_text_primary_inverse"
+				android:textSize="@dimen/unread_bubble_text_size"
+				android:textStyle="bold"
+				tools:text="123"/>
+
+		</FrameLayout>
 
 		<LinearLayout
 			android:id="@+id/textViews"
@@ -34,9 +55,9 @@
 			android:layout_centerVertical="true"
 			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 			android:layout_marginStart="@dimen/listitem_horizontal_margin"
-			android:layout_toEndOf="@+id/avatarView"
+			android:layout_toEndOf="@+id/avatarFrameView"
 			android:layout_toLeftOf="@+id/bulbView"
-			android:layout_toRightOf="@+id/avatarView"
+			android:layout_toRightOf="@+id/avatarFrameView"
 			android:orientation="vertical">
 
 			<TextView

@@ -26,10 +26,16 @@
 	<dimen name="listitem_height_one_line_avatar">56dp</dimen>
 	<dimen name="listitem_height_contact_selector">68dp</dimen>
 	<dimen name="listitem_picture_size">48dp</dimen>
+	<dimen name="listitem_picture_frame_size">50dp</dimen>
 	<dimen name="listitem_selectable_picture_size">40dp</dimen>
 	<dimen name="dropdown_picture_size">32dp</dimen>
 	<dimen name="avatar_forum_size">48dp</dimen>
 	<dimen name="avatar_border_width">2dp</dimen>
+
+	<dimen name="unread_bubble_text_size">12sp</dimen>
+	<dimen name="unread_bubble_border_width">2dp</dimen>
+	<dimen name="unread_bubble_padding_horizontal">6dp</dimen>
+	<dimen name="unread_bubble_size">19dp</dimen>
 
 	<dimen name="message_bubble_margin_tail">14dp</dimen>
 	<dimen name="message_bubble_margin_non_tail">51dp</dimen>
