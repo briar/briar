@@ -73,7 +73,6 @@ class ForumSharingValidator extends BdfMessageValidator {
 		// Return the metadata
 		d.put(TYPE, type);
 		d.put(SESSION_ID, id);
-		d.put(GROUP_ID, m.getGroupId());
 		d.put(LOCAL, false);
 		d.put(TIME, m.getTimestamp());
 		return d;
