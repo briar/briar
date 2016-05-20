@@ -163,7 +163,7 @@ public class AvailableForumsActivity extends BriarActivity
 
 	private void respondToInvitation(final AvailableForumsItem item,
 			final boolean accept) {
-		briarController.runOnDbThread(new Runnable() {
+		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
