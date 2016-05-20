@@ -31,7 +31,7 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
 
-			<android.support.v7.widget.AppCompatButton
+			<Button
 				android:id="@+id/nav_btn_contacts"
 				style="@style/NavMenuButton"
 				android:layout_width="match_parent"
@@ -46,7 +46,7 @@
 				android:layout_height="@dimen/nav_separator_height"
 				android:layout_marginLeft="@dimen/margin_large"/>
 
-			<android.support.v7.widget.AppCompatButton
+			<Button
 				android:id="@+id/nav_btn_forums"
 				style="@style/NavMenuButton"
 				android:layout_width="match_parent"
@@ -61,7 +61,7 @@
 				android:layout_height="@dimen/margin_separator"
 				android:layout_marginLeft="@dimen/margin_large"/>
 
-			<android.support.v7.widget.AppCompatButton
+			<Button
 				android:id="@+id/nav_btn_settings"
 				style="@style/NavMenuButton"
 				android:layout_width="match_parent"
@@ -76,7 +76,7 @@
 				android:layout_height="@dimen/margin_separator"
 				android:layout_marginLeft="@dimen/margin_large"/>
 
-			<android.support.v7.widget.AppCompatButton
+			<Button
 				android:id="@+id/nav_btn_signout"
 				style="@style/NavMenuButton"
 				android:layout_width="match_parent"
