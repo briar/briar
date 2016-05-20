@@ -14,10 +14,12 @@ import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.api.sync.ValidationManager.MessageValidator;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.util.ByteUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -41,6 +43,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 	private final Message message1 = new Message(messageId1, groupId, timestamp,
 			raw);
 	private final Metadata metadata = new Metadata();
+	final MessageContext validResult = new MessageContext(metadata);
 	private final ContactId contactId = new ContactId(234);
 
 	public ValidationManagerImplTest() {
@@ -80,7 +83,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).endTransaction(txn1);
 			// Validate the first message: valid
 			oneOf(validator).validateMessage(message, group);
-			will(returnValue(metadata));
+			will(returnValue(validResult));
 			// Store the validation result for the first message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn2));
@@ -100,7 +103,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).endTransaction(txn3);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
-			will(returnValue(null));
+			will(throwException(new InvalidMessageException()));
 			// Store the validation result for the second message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn4));
@@ -154,7 +157,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).endTransaction(txn2);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
-			will(returnValue(null));
+			will(throwException(new InvalidMessageException()));
 			// Store the validation result for the second message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
@@ -211,7 +214,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).endTransaction(txn2);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
-			will(returnValue(null));
+			will(throwException(new InvalidMessageException()));
 			// Store the validation result for the second message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
@@ -248,7 +251,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
-			will(returnValue(metadata));
+			will(returnValue(validResult));
 			// Store the validation result
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn1));

@@ -3,6 +3,7 @@ package org.briarproject.forum;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PublicKey;
@@ -13,6 +14,7 @@ import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
@@ -39,8 +41,8 @@ class ForumPostValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(Message m, Group g,
-			BdfList body) throws FormatException {
+	protected BdfMessageContext validateMessage(Message m, Group g,
+			BdfList body) throws InvalidMessageException, FormatException {
 		// Parent ID, author, content type, forum post body, signature
 		checkSize(body, 5);
 		// Parent ID is optional
@@ -69,12 +71,10 @@ class ForumPostValidator extends BdfMessageValidator {
 		checkLength(sig, 0, MAX_SIGNATURE_LENGTH);
 		// If there's an author there must be a signature and vice versa
 		if (author != null && sig == null) {
-			LOG.info("Author without signature");
-			return null;
+			throw new InvalidMessageException("Author without signature");
 		}
 		if (author == null && sig != null) {
-			LOG.info("Signature without author");
-			return null;
+			throw new InvalidMessageException("Signature without author");
 		}
 		// Verify the signature, if any
 		if (author != null) {
@@ -90,12 +90,10 @@ class ForumPostValidator extends BdfMessageValidator {
 				signature.initVerify(key);
 				signature.update(clientHelper.toByteArray(signed));
 				if (!signature.verify(sig)) {
-					LOG.info("Invalid signature");
-					return null;
+					throw new InvalidMessageException("Invalid signature");
 				}
 			} catch (GeneralSecurityException e) {
-				LOG.info("Invalid public key");
-				return null;
+				throw new InvalidMessageException("Invalid public key");
 			}
 		}
 		// Return the metadata
@@ -111,6 +109,6 @@ class ForumPostValidator extends BdfMessageValidator {
 		}
 		meta.put("contentType", contentType);
 		meta.put("read", false);
-		return meta;
+		return new BdfMessageContext(meta);
 	}
 }

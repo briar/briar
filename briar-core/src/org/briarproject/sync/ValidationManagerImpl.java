@@ -16,9 +16,11 @@ import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.util.ByteUtils;
 
 import java.util.LinkedList;
@@ -31,6 +33,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
@@ -152,31 +155,54 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				if (v == null) {
 					LOG.warning("No validator");
 				} else {
-					Metadata meta = v.validateMessage(m, g);
-					storeValidationResult(m, g.getClientId(), meta);
+					try {
+						MessageContext context = v.validateMessage(m, g);
+						storeMessageContext(m, g.getClientId(), context);
+					} catch (InvalidMessageException e) {
+						if (LOG.isLoggable(INFO))
+							LOG.log(INFO, e.toString(), e);
+						markMessageInvalid(m, g.getClientId());
+					}
 				}
 			}
 		});
 	}
 
-	private void storeValidationResult(final Message m, final ClientId c,
-			final Metadata meta) {
+	private void storeMessageContext(final Message m, final ClientId c,
+			final MessageContext result) {
 		dbExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					Transaction txn = db.startTransaction(false);
 					try {
-						if (meta == null) {
-							db.setMessageValid(txn, m, c, false);
-						} else {
-							db.mergeMessageMetadata(txn, m.getId(), meta);
-							db.setMessageValid(txn, m, c, true);
-							db.setMessageShared(txn, m, true);
-							IncomingMessageHook hook = hooks.get(c);
-							if (hook != null)
-								hook.incomingMessage(txn, m, meta);
-						}
+						Metadata meta = result.getMetadata();
+						db.mergeMessageMetadata(txn, m.getId(), meta);
+						db.setMessageValid(txn, m, c, true);
+						db.setMessageShared(txn, m, true);
+						IncomingMessageHook hook = hooks.get(c);
+						if (hook != null)
+							hook.incomingMessage(txn, m, meta);
+						txn.setComplete();
+					} finally {
+						db.endTransaction(txn);
+					}
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	private void markMessageInvalid(final Message m, final ClientId c) {
+		dbExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Transaction txn = db.startTransaction(false);
+					try {
+						db.setMessageValid(txn, m, c, false);
 						txn.setComplete();
 					} finally {
 						db.endTransaction(txn);

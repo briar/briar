@@ -20,6 +20,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.api.sync.ValidationManager.MessageValidator;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.util.ByteUtils;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -210,7 +211,9 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				new AtomicReference<MessageValidator>();
 		final QueueMessageValidator queueMessageValidator =
 				context.mock(QueueMessageValidator.class);
-		final Metadata messageMetadata = new Metadata();
+		final Metadata metadata = new Metadata();
+		final MessageContext messageContext =
+				new MessageContext(metadata);
 		// The message is valid, with a queue position of zero
 		final MessageId messageId = new MessageId(TestUtils.getRandomId());
 		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
@@ -224,7 +227,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 			// The message should be delegated
 			oneOf(queueMessageValidator).validateMessage(
 					with(any(QueueMessage.class)), with(group));
-			will(returnValue(messageMetadata));
+			will(returnValue(messageContext));
 		}});
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,
@@ -235,7 +238,8 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		MessageValidator delegate = captured.get();
 		assertNotNull(delegate);
 		// The message should be valid and the metadata should be returned
-		assertSame(messageMetadata, delegate.validateMessage(message, group));
+		assertSame(messageContext, delegate.validateMessage(message, group));
+		assertSame(metadata, messageContext.getMetadata());
 
 		context.assertIsSatisfied();
 	}

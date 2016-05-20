@@ -14,10 +14,12 @@ import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.util.ByteUtils;
 
 import java.util.ArrayList;
@@ -169,7 +171,8 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		}
 
 		@Override
-		public Metadata validateMessage(Message m, Group g) {
+		public MessageContext validateMessage(Message m, Group g)
+				throws InvalidMessageException {
 			byte[] raw = m.getRaw();
 			if (raw.length < QUEUE_MESSAGE_HEADER_LENGTH) return null;
 			long queuePosition = ByteUtils.readUint64(raw,

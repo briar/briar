@@ -44,10 +44,11 @@ public interface ValidationManager {
 	interface MessageValidator {
 
 		/**
-		 * Validates the given message and returns its metadata if the message
-		 * is valid, or null if the message is invalid.
+		 * Validates the given message and returns its metadata and
+		 * dependencies.
 		 */
-		Metadata validateMessage(Message m, Group g);
+		MessageContext validateMessage(Message m, Group g)
+				throws InvalidMessageException;
 	}
 
 	interface IncomingMessageHook {

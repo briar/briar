@@ -2,10 +2,11 @@ package org.briarproject.introduction;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
@@ -42,7 +43,7 @@ class IntroductionValidator extends BdfMessageValidator {
 	}
 
 	@Override
-	protected BdfDictionary validateMessage(Message m, Group g, BdfList body)
+	protected BdfMessageContext validateMessage(Message m, Group g, BdfList body)
 			throws FormatException {
 
 		BdfDictionary d;
@@ -67,7 +68,7 @@ class IntroductionValidator extends BdfMessageValidator {
 		d.put(GROUP_ID, m.getGroupId());
 		d.put(MESSAGE_ID, m.getId());
 		d.put(MESSAGE_TIME, m.getTimestamp());
-		return d;
+		return new BdfMessageContext(d);
 	}
 
 	private BdfDictionary validateRequest(BdfList message)

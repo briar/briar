@@ -85,7 +85,8 @@ public class IntroductionValidatorTest extends BriarTestCase {
 				name, publicKey, text);
 
 		final BdfDictionary result =
-				validator.validateMessage(message, group, body);
+				validator.validateMessage(message, group, body)
+						.getDictionary();
 
 		assertEquals(Long.valueOf(TYPE_REQUEST), result.getLong(TYPE));
 		assertEquals(sessionId, result.getRaw(SESSION_ID));
@@ -182,7 +183,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 				msg.getRaw(E_PUBLIC_KEY), msg.getDictionary(TRANSPORT));
 
 		final BdfDictionary result =
-				validator.validateMessage(message, group, body);
+				validator.validateMessage(message, group, body).getDictionary();
 
 		assertEquals(Long.valueOf(TYPE_RESPONSE), result.getLong(TYPE));
 		assertEquals(sessionId, result.getRaw(SESSION_ID));
@@ -199,7 +200,8 @@ public class IntroductionValidatorTest extends BriarTestCase {
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
 				msg.getBoolean(ACCEPT));
 
-		BdfDictionary result = validator.validateMessage(message, group, body);
+		BdfDictionary result = validator.validateMessage(message, group, body)
+				.getDictionary();
 
 		assertFalse(result.getBoolean(ACCEPT));
 		context.assertIsSatisfied();
@@ -288,7 +290,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID));
 
 		BdfDictionary result =
-				validator.validateMessage(message, group, body);
+				validator.validateMessage(message, group, body).getDictionary();
 
 		assertEquals(Long.valueOf(TYPE_ACK), result.getLong(TYPE));
 		assertEquals(sessionId, result.getRaw(SESSION_ID));
@@ -334,7 +336,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID));
 
 		BdfDictionary result =
-				validator.validateMessage(message, group, body);
+				validator.validateMessage(message, group, body).getDictionary();
 
 		assertEquals(Long.valueOf(TYPE_ABORT), result.getLong(TYPE));
 		assertEquals(sessionId, result.getRaw(SESSION_ID));
