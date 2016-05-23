@@ -27,9 +27,12 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
+import org.briarproject.api.sync.ValidationManager;
+import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.system.Clock;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
@@ -61,6 +64,7 @@ import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -672,8 +676,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
-				if (event.getState() == DELIVERED && event.getClientId()
-						.equals(forumSharingManager0.getClientId()) &&
+				State s = event.getState();
+				ClientId c = event.getClientId();
+				if ((s == DELIVERED || s == INVALID) &&
+						c.equals(forumSharingManager0.getClientId()) &&
 						!event.isLocal()) {
 					LOG.info("TEST: Sharer received message in group " +
 							event.getMessage().getGroupId().hashCode());
@@ -724,8 +730,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
-				if (event.getState() == DELIVERED && event.getClientId()
-						.equals(forumSharingManager1.getClientId()) &&
+				State s = event.getState();
+				ClientId c = event.getClientId();
+				if ((s == DELIVERED || s == INVALID) &&
+						c.equals(forumSharingManager0.getClientId()) &&
 						!event.isLocal()) {
 					LOG.info("TEST: Invitee received message in group " +
 							event.getMessage().getGroupId().hashCode());
