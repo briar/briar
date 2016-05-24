@@ -31,14 +31,27 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.forum.ForumConstants.KEY_AUTHOR;
+import static org.briarproject.api.forum.ForumConstants.KEY_CONTENT_TYPE;
+import static org.briarproject.api.forum.ForumConstants.KEY_ID;
+import static org.briarproject.api.forum.ForumConstants.KEY_LOCAL;
+import static org.briarproject.api.forum.ForumConstants.KEY_NAME;
+import static org.briarproject.api.forum.ForumConstants.KEY_PARENT;
+import static org.briarproject.api.forum.ForumConstants.KEY_PUBLIC_NAME;
+import static org.briarproject.api.forum.ForumConstants.KEY_READ;
+import static org.briarproject.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
 import static org.briarproject.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
 class ForumManagerImpl implements ForumManager {
+
+	private static final Logger LOG =
+			Logger.getLogger(ForumManagerImpl.class.getName());
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"859a7be50dca035b64bd6902fb797097"
@@ -95,19 +108,19 @@ class ForumManagerImpl implements ForumManager {
 	public void addLocalPost(ForumPost p) throws DbException {
 		try {
 			BdfDictionary meta = new BdfDictionary();
-			meta.put("timestamp", p.getMessage().getTimestamp());
-			if (p.getParent() != null) meta.put("parent", p.getParent());
+			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
+			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
 			if (p.getAuthor() != null) {
 				Author a = p.getAuthor();
 				BdfDictionary authorMeta = new BdfDictionary();
-				authorMeta.put("id", a.getId());
-				authorMeta.put("name", a.getName());
-				authorMeta.put("publicKey", a.getPublicKey());
-				meta.put("author", authorMeta);
+				authorMeta.put(KEY_ID, a.getId());
+				authorMeta.put(KEY_NAME, a.getName());
+				authorMeta.put(KEY_PUBLIC_NAME, a.getPublicKey());
+				meta.put(KEY_AUTHOR, authorMeta);
 			}
-			meta.put("contentType", p.getContentType());
-			meta.put("local", true);
-			meta.put("read", true);
+			meta.put(KEY_CONTENT_TYPE, p.getContentType());
+			meta.put(KEY_LOCAL, true);
+			meta.put(KEY_READ, true);
 			clientHelper.addLocalMessage(p.getMessage(), CLIENT_ID, meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
@@ -194,14 +207,17 @@ class ForumManagerImpl implements ForumManager {
 		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 			try {
 				BdfDictionary meta = entry.getValue();
-				long timestamp = meta.getLong("timestamp");
+				long timestamp = meta.getLong(KEY_TIMESTAMP);
 				Author author = null;
 				Author.Status authorStatus = ANONYMOUS;
-				BdfDictionary d1 = meta.getDictionary("author", null);
+				MessageId parentId = null;
+				if (meta.containsKey(KEY_PARENT))
+					parentId = new MessageId(meta.getRaw(KEY_PARENT));
+				BdfDictionary d1 = meta.getDictionary(KEY_AUTHOR, null);
 				if (d1 != null) {
-					AuthorId authorId = new AuthorId(d1.getRaw("id"));
-					String name = d1.getString("name");
-					byte[] publicKey = d1.getRaw("publicKey");
+					AuthorId authorId = new AuthorId(d1.getRaw(KEY_ID));
+					String name = d1.getString(KEY_NAME);
+					byte[] publicKey = d1.getRaw(KEY_PUBLIC_NAME);
 					author = new Author(authorId, name, publicKey);
 					if (localAuthorIds.contains(authorId))
 						authorStatus = VERIFIED;
@@ -209,10 +225,10 @@ class ForumManagerImpl implements ForumManager {
 						authorStatus = VERIFIED;
 					else authorStatus = UNKNOWN;
 				}
-				String contentType = meta.getString("contentType");
-				boolean read = meta.getBoolean("read");
-				headers.add(new ForumPostHeader(entry.getKey(), timestamp,
-						author, authorStatus, contentType, read));
+				String contentType = meta.getString(KEY_CONTENT_TYPE);
+				boolean read = meta.getBoolean(KEY_READ);
+				headers.add(new ForumPostHeader(entry.getKey(), parentId,
+						timestamp, author, authorStatus, contentType, read));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -224,7 +240,7 @@ class ForumManagerImpl implements ForumManager {
 	public void setReadFlag(MessageId m, boolean read) throws DbException {
 		try {
 			BdfDictionary meta = new BdfDictionary();
-			meta.put("read", read);
+			meta.put(KEY_READ, read);
 			clientHelper.mergeMessageMetadata(m, meta);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
