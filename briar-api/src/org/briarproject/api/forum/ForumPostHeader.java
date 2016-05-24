@@ -1,9 +1,10 @@
 package org.briarproject.api.forum;
 
+import org.briarproject.api.clients.MessageTree;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.MessageId;
 
-public class ForumPostHeader {
+public class ForumPostHeader implements MessageTree.MessageNode {
 
 	private final MessageId id;
 	private final MessageId parentId;
