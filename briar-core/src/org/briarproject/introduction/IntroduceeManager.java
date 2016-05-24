@@ -4,6 +4,7 @@ import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -46,9 +47,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
-import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.api.introduction.IntroductionConstants.ADDED_CONTACT_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
@@ -78,10 +76,14 @@ import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
+import static org.briarproject.api.introduction.IntroductionConstants.NAME;
+import static org.briarproject.api.introduction.IntroductionConstants.NO_TASK;
+import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ACTIVATE_CONTACT;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ADD_CONTACT;
-import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
@@ -125,8 +127,9 @@ class IntroduceeManager {
 		this.introductionGroupFactory = introductionGroupFactory;
 	}
 
-	public BdfDictionary initialize(Transaction txn, GroupId groupId,
-			BdfDictionary message) throws DbException, FormatException {
+	public IntroduceeSessionState initialize(Transaction txn,
+			SessionId sessionId, GroupId groupId, BdfDictionary message)
+			throws DbException, FormatException {
 
 		// create local message to keep engine state
 		long now = clock.currentTimeMillis();
@@ -145,16 +148,10 @@ class IntroduceeManager {
 				new ContactId(gd.getLong(CONTACT).intValue());
 		Contact introducer = db.getContact(txn, introducerId);
 
-		BdfDictionary d = new BdfDictionary();
-		d.put(STORAGE_ID, storageId);
-		d.put(STATE, AWAIT_REQUEST.getValue());
-		d.put(ROLE, ROLE_INTRODUCEE);
-		d.put(GROUP_ID, groupId);
-		d.put(INTRODUCER, introducer.getAuthor().getName());
-		d.put(CONTACT_ID_1, introducer.getId().getInt());
-		d.put(LOCAL_AUTHOR_ID, introducer.getLocalAuthorId().getBytes());
-		d.put(NOT_OUR_RESPONSE, storageId);
-		d.put(ANSWERED, false);
+		IntroduceeSessionState localState = new IntroduceeSessionState(storageId,
+				sessionId, groupId, introducer.getId(),
+				introducer.getAuthor().getId(), introducer.getAuthor().getName(),
+				introducer.getLocalAuthorId(), AWAIT_REQUEST);
 
 		// check if the contact we are introduced to does already exist
 		AuthorId remoteAuthorId = authorFactory
@@ -162,8 +159,10 @@ class IntroduceeManager {
 						message.getRaw(PUBLIC_KEY)).getId();
 		boolean exists = contactManager.contactExists(txn, remoteAuthorId,
 				introducer.getLocalAuthorId());
-		d.put(EXISTS, exists);
-		d.put(REMOTE_AUTHOR_ID, remoteAuthorId);
+		localState.setContactExists(exists);
+		localState.setRemoteAuthorId(remoteAuthorId);
+		localState.setLocalAuthorId((introducer.getLocalAuthorId()));
+		localState.setName(message.getString(NAME));
 
 		// check if someone is trying to introduce us to ourselves
 		if(remoteAuthorId.equals(introducer.getLocalAuthorId())) {
@@ -174,40 +173,39 @@ class IntroduceeManager {
 		// check if remote author is actually one of our other identities
 		boolean introducesOtherIdentity =
 				db.containsLocalAuthor(txn, remoteAuthorId);
-		d.put(REMOTE_AUTHOR_IS_US, introducesOtherIdentity);
+		localState.setRemoteAuthorIsUs(introducesOtherIdentity);
 
 		// save local state to database
-		clientHelper.addLocalMessage(txn, localMsg, d, false);
+		clientHelper.addLocalMessage(txn, localMsg,
+				localState.toBdfDictionary(), false);
 
-		return d;
+		return localState;
 	}
 
-	public void incomingMessage(Transaction txn, BdfDictionary state,
+	public void incomingMessage(Transaction txn, IntroduceeSessionState state,
 			BdfDictionary message) throws DbException, FormatException {
 
 		IntroduceeEngine engine = new IntroduceeEngine();
 		processStateUpdate(txn, message, engine.onMessageReceived(state, message));
 	}
 
-	public void acceptIntroduction(Transaction txn, BdfDictionary state,
-			final long timestamp)
+	void acceptIntroduction(Transaction txn,
+			IntroduceeSessionState state, final long timestamp)
 			throws DbException, FormatException {
 
 		// get data to connect and derive a shared secret later
 		long now = clock.currentTimeMillis();
 		KeyPair keyPair = cryptoComponent.generateAgreementKeyPair();
-		byte[] publicKey = keyPair.getPublic().getEncoded();
-		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		Map<TransportId, TransportProperties> transportProperties =
 				transportPropertyManager.getLocalProperties(txn);
 		BdfDictionary tp = encodeTransportProperties(transportProperties);
 
 		// update session state for later
-		state.put(ACCEPT, true);
-		state.put(OUR_TIME, now);
-		state.put(OUR_PUBLIC_KEY, publicKey);
-		state.put(OUR_PRIVATE_KEY, privateKey);
-		state.put(OUR_TRANSPORT, tp);
+		state.setAccept(true);
+		state.setOurTime(now);
+		state.setOurPrivateKey(keyPair.getPrivate().getEncoded());
+		state.setOurPublicKey(keyPair.getPublic().getEncoded());
+        state.setOurTransport(tp);
 
 		// define action
 		BdfDictionary localAction = new BdfDictionary();
@@ -220,12 +218,12 @@ class IntroduceeManager {
 		processStateUpdate(txn, null, engine.onLocalAction(state, localAction));
 	}
 
-	public void declineIntroduction(Transaction txn, BdfDictionary state,
-			final long timestamp)
+	void declineIntroduction(Transaction txn,
+			IntroduceeSessionState state, final long timestamp)
 			throws DbException, FormatException {
 
 		// update session state
-		state.put(ACCEPT, false);
+		state.setAccept(false);
 
 		// define action
 		BdfDictionary localAction = new BdfDictionary();
@@ -239,16 +237,16 @@ class IntroduceeManager {
 	}
 
 	private void processStateUpdate(Transaction txn, BdfDictionary msg,
-			IntroduceeEngine.StateUpdate<BdfDictionary, BdfDictionary>
+			IntroduceeEngine.StateUpdate<IntroduceeSessionState, BdfDictionary>
 					result) throws DbException, FormatException {
 
 		// perform actions based on new local state
 		performTasks(txn, result.localState);
 
 		// save new local state
-		MessageId storageId =
-				new MessageId(result.localState.getRaw(STORAGE_ID));
-		clientHelper.mergeMessageMetadata(txn, storageId, result.localState);
+		MessageId storageId = result.localState.getStorageId();
+		clientHelper.mergeMessageMetadata(txn, storageId, 
+				result.localState.toBdfDictionary());
 
 		// send messages
 		for (BdfDictionary d : result.toSend) {
@@ -271,18 +269,18 @@ class IntroduceeManager {
 		}
 	}
 
-	private void performTasks(Transaction txn, BdfDictionary localState)
+	private void performTasks(Transaction txn, 
+			IntroduceeSessionState localState)
 			throws FormatException, DbException {
 
-		if (!localState.containsKey(TASK) || localState.get(TASK) == NULL_VALUE)
-			return;
+		long task = localState.getTask();
+		if (task == NO_TASK) return;
 
 		// remember task and remove it from localState
-		long task = localState.getLong(TASK);
-		localState.put(TASK, NULL_VALUE);
+		localState.setTask(NO_TASK);
 
 		if (task == TASK_ADD_CONTACT) {
-			if (localState.getBoolean(EXISTS)) {
+			if (localState.getContactExists()) {
 				// we have this contact already, so do not perform actions
 				LOG.info("We have this contact already, do not add");
 				return;
@@ -296,11 +294,10 @@ class IntroduceeManager {
 			PublicKey publicKey;
 			PrivateKey privateKey;
 			try {
-				publicKeyBytes = localState.getRaw(OUR_PUBLIC_KEY);
-				publicKey = keyParser
-						.parsePublicKey(publicKeyBytes);
+				publicKeyBytes = localState.getOurPublicKey();
+				publicKey = keyParser.parsePublicKey(publicKeyBytes);
 				privateKey = keyParser.parsePrivateKey(
-						localState.getRaw(OUR_PRIVATE_KEY));
+						localState.getOurPrivateKey());
 			} catch (GeneralSecurityException e) {
 				if (LOG.isLoggable(WARNING)) {
 					LOG.log(WARNING, e.toString(), e);
@@ -308,11 +305,13 @@ class IntroduceeManager {
 				// we can not continue without the keys
 				throw new RuntimeException("Our own ephemeral key is invalid");
 			}
-			KeyPair keyPair = new KeyPair(publicKey, privateKey);
-			byte[] theirEphemeralKey = localState.getRaw(E_PUBLIC_KEY);
+
+			KeyPair ourEphemeralKeyPair;
+			ourEphemeralKeyPair = new KeyPair(publicKey, privateKey);
+			byte[] theirEphemeralKey = localState.getEPublicKey();
 
 			// figure out who takes which role by comparing public keys
-			int comp = Bytes.COMPARATOR.compare(new Bytes(publicKeyBytes),
+			int comp = new Bytes(publicKeyBytes).compareTo(
 					new Bytes(theirEphemeralKey));
 			boolean alice = comp < 0;
 
@@ -321,7 +320,8 @@ class IntroduceeManager {
 			SecretKey secretKey;
 			try {
 				secretKey = cryptoComponent
-						.deriveMasterSecret(theirEphemeralKey, keyPair, alice);
+						.deriveMasterSecret(theirEphemeralKey,
+								ourEphemeralKeyPair, alice);
 			} catch (GeneralSecurityException e) {
 				// we can not continue without the shared secret
 				throw new DbException(e);
@@ -337,12 +337,11 @@ class IntroduceeManager {
 					cryptoComponent.deriveMacKey(secretKey, !alice);
 
 			// Save the other nonce and MAC key for the verification
-			localState.put(NONCE, theirNonce);
-			localState.put(MAC_KEY, theirMacKey.getBytes());
+			localState.setNonce(theirNonce);
+			localState.setMacKey(theirMacKey.getBytes());
 
 			// Sign our nonce with our long-term identity public key
-			AuthorId localAuthorId =
-					new AuthorId(localState.getRaw(LOCAL_AUTHOR_ID));
+			AuthorId localAuthorId = localState.getLocalAuthorId();
 			LocalAuthor author =
 					identityManager.getLocalAuthor(txn, localAuthorId);
 			Signature signature = cryptoComponent.getSignature();
@@ -358,44 +357,45 @@ class IntroduceeManager {
 			signature.update(ourNonce);
 			byte[] sig = signature.sign();
 
+
 			// The agreed timestamp is the minimum of the peers' timestamps
-			long ourTime = localState.getLong(OUR_TIME);
-			long theirTime = localState.getLong(TIME);
+			long ourTime = localState.getOurTime();
+			long theirTime = localState.getTheirTime();
 			long timestamp = Math.min(ourTime, theirTime);
 
 			// Calculate a MAC over identity public key, ephemeral public key,
 			// transport properties and timestamp.
-			BdfDictionary tp = localState.getDictionary(OUR_TRANSPORT);
+			BdfDictionary tp = localState.getOurTransport();
 			BdfList toSignList = BdfList.of(author.getPublicKey(),
 					publicKeyBytes, tp, ourTime);
 			byte[] toSign = clientHelper.toByteArray(toSignList);
 			byte[] mac = cryptoComponent.mac(macKey, toSign);
 
 			// Add MAC and signature to localState, so it can be included in ACK
-			localState.put(OUR_MAC, mac);
-			localState.put(OUR_SIGNATURE, sig);
+			localState.setOurMac(mac);
+			localState.setOurSignature(sig);
 
 			// Add the contact to the database as inactive
 			Author remoteAuthor = authorFactory
-					.createAuthor(localState.getString(NAME),
-							localState.getRaw(PUBLIC_KEY));
+					.createAuthor(localState.getName(),
+							localState.getIntroducedPublicKey());
 			ContactId contactId = contactManager
 					.addContact(txn, remoteAuthor, localAuthorId, secretKey,
 							timestamp, alice, false, false);
 
 			// Update local state with ContactId, so we know what to activate
-			localState.put(ADDED_CONTACT_ID, contactId.getInt());
+			localState.setIntroducedId(contactId);
 
 			// let the transport manager know how to connect to the contact
 			Map<TransportId, TransportProperties> transportProperties =
-					parseTransportProperties(localState);
+					parseTransportProperties(localState.toBdfDictionary());
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					transportProperties);
 
 			// delete the ephemeral private key by overwriting with NULL value
 			// this ensures future ephemeral keys can not be recovered when
 			// this device should gets compromised
-			localState.put(OUR_PRIVATE_KEY, NULL_VALUE);
+			localState.clearOurKeyPair();
 
 			// define next action: Send ACK
 			BdfDictionary localAction = new BdfDictionary();
@@ -409,14 +409,13 @@ class IntroduceeManager {
 
 		// we sent and received an ACK, so activate contact
 		if (task == TASK_ACTIVATE_CONTACT) {
-			if (!localState.getBoolean(EXISTS) &&
-					localState.containsKey(ADDED_CONTACT_ID)) {
+			if (!localState.getContactExists() && localState.getIntroducedId() != null) {
 
 				LOG.info("Verifying Signature...");
 
-				byte[] nonce = localState.getRaw(NONCE);
-				byte[] sig = localState.getRaw(SIGNATURE);
-				byte[] keyBytes = localState.getRaw(PUBLIC_KEY);
+				byte[] nonce = localState.getNonce();
+				byte[] sig = localState.getSignature();
+				byte[] keyBytes = localState.getIntroducedPublicKey();
 				try {
 					// Parse the public key
 					KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
@@ -439,15 +438,15 @@ class IntroduceeManager {
 				LOG.info("Verifying MAC...");
 
 				// get MAC and MAC key from session state
-				byte[] mac = localState.getRaw(MAC);
-				byte[] macKeyBytes = localState.getRaw(MAC_KEY);
+				byte[] mac = localState.getMac();
+				byte[] macKeyBytes = localState.getMacKey();
 				SecretKey macKey = new SecretKey(macKeyBytes);
 
 				// get MAC data and calculate a new MAC with stored key
-				byte[] pubKey = localState.getRaw(PUBLIC_KEY);
-				byte[] ePubKey = localState.getRaw(E_PUBLIC_KEY);
-				BdfDictionary tp = localState.getDictionary(TRANSPORT);
-				long timestamp = localState.getLong(TIME);
+				byte[] pubKey = localState.getIntroducedPublicKey();
+				byte[] ePubKey = localState.getEPublicKey();
+				BdfDictionary tp = localState.getTransport();
+				long timestamp = localState.getTheirTime();
 				BdfList toSignList = BdfList.of(pubKey, ePubKey, tp, timestamp);
 				byte[] toSign = clientHelper.toByteArray(toSignList);
 				byte[] calculatedMac = cryptoComponent.mac(macKey, toSign);
@@ -458,8 +457,7 @@ class IntroduceeManager {
 
 				LOG.info("Activating Contact...");
 
-				ContactId contactId = new ContactId(
-						localState.getLong(ADDED_CONTACT_ID).intValue());
+				ContactId contactId = localState.getIntroducedId();
 
 				// activate and show contact in contact list
 				contactManager.setContactActive(txn, contactId, true);
@@ -476,17 +474,16 @@ class IntroduceeManager {
 
 		// we need to abort the protocol, clean up what has been done
 		if (task == TASK_ABORT) {
-			if (localState.containsKey(ADDED_CONTACT_ID)) {
+			if (localState.getIntroducedId() != null) {
 				LOG.info("Deleting added contact due to abort...");
-				ContactId contactId = new ContactId(
-						localState.getLong(ADDED_CONTACT_ID).intValue());
+				ContactId contactId = localState.getIntroducedId();
 				contactManager.removeContact(txn, contactId);
 			}
 		}
 
 	}
 
-	public void abort(Transaction txn, BdfDictionary state) {
+	public void abort(Transaction txn, IntroduceeSessionState state) {
 
 		IntroduceeEngine engine = new IntroduceeEngine();
 		BdfDictionary localAction = new BdfDictionary();

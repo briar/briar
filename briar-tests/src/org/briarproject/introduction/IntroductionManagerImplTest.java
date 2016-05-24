@@ -6,6 +6,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
@@ -18,7 +19,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.introduction.IntroducerProtocolState;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -37,39 +38,58 @@ import java.util.Map;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
+import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_1;
+import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_2;
+import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_1;
+import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_2;
+import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
+import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2;
+import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
+import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.api.introduction.IntroductionConstants.TIME;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
+import static org.briarproject.api.introduction.IntroductionConstants.NAME;
+import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
+import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
+import static org.briarproject.api.introduction.IntroductionConstants.NO_TASK;
+import static org.briarproject.api.introduction.IntroductionConstants.TASK;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.junit.Assert.assertFalse;
 
 public class IntroductionManagerImplTest extends BriarTestCase {
 
-	final Mockery context;
-	final IntroductionManagerImpl introductionManager;
-	final IntroducerManager introducerManager;
-	final IntroduceeManager introduceeManager;
-	final DatabaseComponent db;
-	final PrivateGroupFactory privateGroupFactory;
-	final ClientHelper clientHelper;
-	final MetadataEncoder metadataEncoder;
-	final MessageQueueManager messageQueueManager;
-	final IntroductionGroupFactory introductionGroupFactory;
-	final Clock clock;
-	final SessionId sessionId = new SessionId(TestUtils.getRandomId());
-	final long time = 42L;
-	final Contact introducee1;
-	final Contact introducee2;
-	final Group localGroup0;
-	final Group introductionGroup1;
-	final Group introductionGroup2;
-	final Message message1;
-	Transaction txn;
+	private final Mockery context;
+	private final IntroductionManagerImpl introductionManager;
+	private final IntroducerManager introducerManager;
+	private final IntroduceeManager introduceeManager;
+	private final DatabaseComponent db;
+	private final PrivateGroupFactory privateGroupFactory;
+	private final ClientHelper clientHelper;
+	private final MetadataEncoder metadataEncoder;
+	private final MessageQueueManager messageQueueManager;
+	private final IntroductionGroupFactory introductionGroupFactory;
+	private final Clock clock;
+	private final SessionId sessionId = new SessionId(TestUtils.getRandomId());
+	private final long time = 42L;
+	private final Contact introducee1;
+	private final Contact introducee2;
+	private final Group localGroup0;
+	private final Group introductionGroup1;
+	private final Group introductionGroup2;
+	private final Message message1;
+	private Transaction txn;
 
 	public IntroductionManagerImplTest() {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
@@ -145,13 +165,32 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		assertTrue(txn.isComplete());
 	}
 
-	@Test
+ 	@Test
 	public void testAcceptIntroduction() throws DbException, FormatException {
 		final BdfDictionary state = BdfDictionary.of(
+				new BdfEntry(ROLE, ROLE_INTRODUCEE),
 				new BdfEntry(GROUP_ID_1, introductionGroup1.getId()),
-				new BdfEntry(GROUP_ID_2, introductionGroup2.getId())
+				new BdfEntry(GROUP_ID_2, introductionGroup2.getId()),
+				new BdfEntry(SESSION_ID, sessionId),
+				new BdfEntry(STORAGE_ID, sessionId),
+				new BdfEntry(AUTHOR_ID_1,introducee1.getAuthor().getId()),
+				new BdfEntry(CONTACT_1, introducee1.getAuthor().getName()),
+				new BdfEntry(CONTACT_ID_1, introducee1.getId().getInt()),
+				new BdfEntry(AUTHOR_ID_2,introducee2.getAuthor().getId() ),
+				new BdfEntry(CONTACT_2, introducee2.getAuthor().getName()),
+				new BdfEntry(CONTACT_ID_2, introducee2.getId().getInt()),
+				new BdfEntry(STATE, AWAIT_REQUEST.getValue()),
+				new BdfEntry(TIME, time),
+	            new BdfEntry(OUR_TIME, time),
+	            new BdfEntry(NAME, introducee1.getAuthor().getName()),
+				new BdfEntry(LOCAL_AUTHOR_ID, introducee1.getLocalAuthorId()),
+	            new BdfEntry(INTRODUCER, introducee1.getAuthor().getName()),
+	            new BdfEntry(EXISTS, false),
+	            new BdfEntry(TASK, NO_TASK),
+	            new BdfEntry(REMOTE_AUTHOR_IS_US, false)
 		);
 		txn = new Transaction(null, false);
+
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -162,7 +201,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			will(returnValue(introductionGroup1));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn, sessionId);
 			will(returnValue(state));
-			oneOf(introduceeManager).acceptIntroduction(txn, state, time);
+			oneOf(introduceeManager).acceptIntroduction(with(equal(txn)),
+					with(any(IntroduceeSessionState.class)), with(equal(time)));
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -176,8 +216,26 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	@Test
 	public void testDeclineIntroduction() throws DbException, FormatException {
 		final BdfDictionary state = BdfDictionary.of(
+				new BdfEntry(ROLE, ROLE_INTRODUCEE),
 				new BdfEntry(GROUP_ID_1, introductionGroup1.getId()),
-				new BdfEntry(GROUP_ID_2, introductionGroup2.getId())
+				new BdfEntry(GROUP_ID_2, introductionGroup2.getId()),
+				new BdfEntry(SESSION_ID, sessionId),
+				new BdfEntry(STORAGE_ID, sessionId),
+				new BdfEntry(AUTHOR_ID_1,introducee1.getAuthor().getId()),
+				new BdfEntry(CONTACT_1, introducee1.getAuthor().getName()),
+				new BdfEntry(CONTACT_ID_1, introducee1.getId().getInt()),
+				new BdfEntry(AUTHOR_ID_2,introducee2.getAuthor().getId() ),
+				new BdfEntry(CONTACT_2, introducee2.getAuthor().getName()),
+				new BdfEntry(CONTACT_ID_2, introducee2.getId().getInt()),
+				new BdfEntry(STATE, AWAIT_REQUEST.getValue()),
+				new BdfEntry(TIME, time),
+	            new BdfEntry(OUR_TIME, time),
+	            new BdfEntry(NAME, introducee1.getAuthor().getName()),
+				new BdfEntry(LOCAL_AUTHOR_ID, introducee1.getLocalAuthorId()),
+				new BdfEntry(INTRODUCER, introducee1.getAuthor().getName()),
+				new BdfEntry(EXISTS, false),
+				new BdfEntry(TASK, NO_TASK),
+				new BdfEntry(REMOTE_AUTHOR_IS_US, false)
 		);
 		txn = new Transaction(null, false);
 
@@ -190,7 +248,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			will(returnValue(introductionGroup1));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn, sessionId);
 			will(returnValue(state));
-			oneOf(introduceeManager).declineIntroduction(txn, state, time);
+			oneOf(introduceeManager).declineIntroduction(with(equal(txn)),
+					with(any(IntroduceeSessionState.class)), with(equal(time)));
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -238,19 +297,23 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		final BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_REQUEST);
 
-		final BdfDictionary state = new BdfDictionary();
+		final IntroduceeSessionState state = initializeIntroduceeSS();
 		txn = new Transaction(null, false);
+		final SessionId sessionId = new SessionId(TestUtils.getRandomId());
+		msg.put(SESSION_ID, sessionId);
 
 		context.checking(new Expectations() {{
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					new MessageId(sessionId.getBytes()));
+			will(returnValue(state.toBdfDictionary()));
 			oneOf(introduceeManager)
-					.initialize(txn, introductionGroup1.getId(), msg);
+					.initialize(txn, sessionId, introductionGroup1.getId(),
+							msg);
 			will(returnValue(state));
-			oneOf(introduceeManager)
-					.incomingMessage(txn, state, msg);
+			oneOf(introduceeManager).incomingMessage(txn, state, msg);
 		}});
 
-		introductionManager
-				.incomingMessage(txn, message1, new BdfList(), msg);
+		introductionManager.incomingMessage(txn, message1, new BdfList(), msg);
 
 		context.assertIsSatisfied();
 		assertFalse(txn.isComplete());
@@ -265,7 +328,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				new BdfEntry(SESSION_ID, sessionId)
 		);
 
-		final BdfDictionary state = new BdfDictionary();
+		final IntroducerSessionState sessionState = initializeIntroducerSS();
+		final BdfDictionary state = sessionState.toBdfDictionary();
 		state.put(ROLE, ROLE_INTRODUCER);
 		state.put(GROUP_ID_1, introductionGroup1.getId());
 		state.put(GROUP_ID_2, introductionGroup2.getId());
@@ -275,7 +339,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn, sessionId);
 			will(returnValue(state));
-			oneOf(introducerManager).incomingMessage(txn, state, msg);
+			oneOf(introducerManager).incomingMessage(with(equal(txn)),
+					with(any(IntroducerSessionState.class)), with(equal(msg)));
 		}});
 
 		introductionManager
@@ -283,6 +348,45 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 
 		context.assertIsSatisfied();
 		assertFalse(txn.isComplete());
+	}
+
+	private IntroduceeSessionState initializeIntroduceeSS() {
+
+		final ContactId cid = new ContactId(0);
+		final AuthorId aid = new AuthorId(TestUtils.getRandomId());
+		Author author = new Author(aid, "Introducer",
+				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		final Contact introducer = new Contact(cid, author, aid, true, false);
+		final IntroduceeSessionState state = new IntroduceeSessionState(
+				new MessageId(TestUtils.getRandomId()),
+				new SessionId(TestUtils.getRandomId()), 
+				new GroupId(TestUtils.getRandomId()),
+				introducer.getId(), introducer.getAuthor().getId(),
+				introducer.getAuthor().getName(), introducer.getLocalAuthorId(),
+				AWAIT_REQUEST);
+
+		state.setContactExists(true);
+		state.setRemoteAuthorIsUs(false);
+		state.setRemoteAuthorId(introducee2.getAuthor().getId());
+		state.setName(introducee2.getAuthor().getName());
+		
+		return  state;
+	}
+
+	private IntroducerSessionState initializeIntroducerSS() {
+		final ContactId cid = new ContactId(0);
+		final AuthorId aid = new AuthorId(TestUtils.getRandomId());
+		Author author = new Author(aid, "Introducer",
+				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		final Contact introducer = new Contact(cid, author, aid, true, false);
+		return new IntroducerSessionState(
+				new MessageId(TestUtils.getRandomId()),
+				new SessionId(TestUtils.getRandomId()),
+				new GroupId(TestUtils.getRandomId()),
+				new GroupId(TestUtils.getRandomId()),
+				introducer.getId(), introducer.getAuthor().getId(), introducer.getAuthor().getName(),
+				introducer.getId(), introducer.getAuthor().getId(), introducer.getAuthor().getName(),
+				IntroducerProtocolState.AWAIT_RESPONSES);
 	}
 
 

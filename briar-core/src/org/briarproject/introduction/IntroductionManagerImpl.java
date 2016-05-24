@@ -44,32 +44,18 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.FINISHED;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
-import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_1;
-import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT;
-import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_1;
-import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_2;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
-import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_2;
-import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
-import static org.briarproject.api.introduction.IntroductionConstants.NAME;
-import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.READ;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
-import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_1;
-import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_2;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
@@ -166,16 +152,15 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					.getMessageMetadataAsDictionary(txn, gId, query);
 			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
 				BdfDictionary d = entry.getValue();
-				ContactId c1 = new ContactId(d.getLong(CONTACT_ID_1).intValue());
-				ContactId c2 = new ContactId(d.getLong(CONTACT_ID_2).intValue());
+				IntroducerSessionState stateobj =
+						IntroducerSessionState.fromBdfDictionary(d);
+				ContactId c1 = stateobj.getContact1Id();
+				ContactId c2 = stateobj.getContact2Id();
 
 				if (c1.equals(c.getId()) || c2.equals(c.getId())) {
-					IntroducerProtocolState state = IntroducerProtocolState
-							.fromValue(d.getLong(STATE).intValue());
 					// abort protocol if still ongoing
-					if (IntroducerProtocolState.isOngoing(state)) {
-						introducerManager.abort(txn, d);
-					}
+					if (IntroducerProtocolState.isOngoing(stateobj.getState()))
+						introducerManager.abort(txn, stateobj);
 					// also delete state if both contacts have been deleted
 					if (c1.equals(c.getId())) {
 						try {
@@ -208,7 +193,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	 */
 	@Override
 	protected void incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary message)	throws DbException {
+			BdfDictionary message) throws DbException {
 
 		// Get message data and type
 		GroupId groupId = m.getGroupId();
@@ -217,15 +202,24 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		// we are an introducee, need to initialize new state
 		if (type == TYPE_REQUEST) {
 			boolean stateExists = true;
+			SessionId sessionId;
+			IntroduceeSessionState state;
 			try {
-				getSessionState(txn, groupId, message.getRaw(SESSION_ID), false);
+				sessionId = new SessionId(message.getRaw(SESSION_ID));
+			} catch (FormatException e) {
+				LOG.warning("Introduction without SessionId received.");
+				deleteMessage(txn, m.getId());
+				return;
+			}
+			try {
+				getSessionState(txn, groupId, sessionId.getBytes(), false);
 			} catch (FormatException e) {
 				stateExists = false;
 			}
-			BdfDictionary state;
 			try {
 				if (stateExists) throw new FormatException();
-				state = introduceeManager.initialize(txn, groupId, message);
+				state = introduceeManager
+						.initialize(txn, sessionId, groupId, message);
 			} catch (FormatException e) {
 				if (LOG.isLoggable(WARNING)) {
 					LOG.warning(
@@ -247,37 +241,43 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		}
 		// our role can be anything
 		else if (type == TYPE_RESPONSE || type == TYPE_ACK || type == TYPE_ABORT) {
-			BdfDictionary state;
+			IntroductionState state;
 			try {
-				state = getSessionState(txn, groupId,
-						message.getRaw(SESSION_ID));
+				state = getSessionState(txn, groupId, message.getRaw(SESSION_ID));
 			} catch (FormatException e) {
 				LOG.warning("Could not find state for message, deleting...");
 				deleteMessage(txn, m.getId());
 				return;
 			}
 
-			long role = state.getLong(ROLE, -1L);
 			try {
-				if (role == ROLE_INTRODUCER) {
-					introducerManager.incomingMessage(txn, state, message);
-				} else if (role == ROLE_INTRODUCEE) {
-					introduceeManager.incomingMessage(txn, state, message);
+				if (state instanceof IntroducerSessionState) {
+					introducerManager.incomingMessage(txn, 
+							(IntroducerSessionState)state, message);
+				} else if (state instanceof IntroduceeSessionState) {
+					introduceeManager.incomingMessage(txn, 
+							(IntroduceeSessionState)state, message);
 				} else {
 					if(LOG.isLoggable(WARNING)) {
-						LOG.warning("Unknown role '" + role +
-								"'. Deleting message...");
+						LOG.warning("Unknown role '" 
+								+ state.getClass().getName()
+								+ "'. Deleting message...");
 						deleteMessage(txn, m.getId());
 					}
 				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
-				else introduceeManager.abort(txn, state);
+				if (state instanceof IntroducerSessionState)
+					introducerManager.abort(txn, 
+							(IntroducerSessionState)state);
+				else introduceeManager.abort(txn, 
+							(IntroduceeSessionState)state);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
-				else introduceeManager.abort(txn, state);
+				if (state instanceof IntroducerSessionState)
+					introducerManager.abort(txn, (IntroducerSessionState)state);
+				else introduceeManager.abort(txn, 
+						(IntroduceeSessionState)state);
 			}
 		} else {
 			// the message has been validated, so this should not happen
@@ -310,8 +310,9 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		try {
 			Contact c = db.getContact(txn, contactId);
 			Group g = introductionGroupFactory.createIntroductionGroup(c);
-			BdfDictionary state =
-					getSessionState(txn, g.getId(), sessionId.getBytes());
+			IntroduceeSessionState state =
+					(IntroduceeSessionState)getSessionState(txn, g.getId(), 
+							sessionId.getBytes());
 
 			introduceeManager.acceptIntroduction(txn, state, timestamp);
 			txn.setComplete();
@@ -329,10 +330,11 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		try {
 			Contact c = db.getContact(txn, contactId);
 			Group g = introductionGroupFactory.createIntroductionGroup(c);
-			BdfDictionary state =
+			IntroductionState state =
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
-			introduceeManager.declineIntroduction(txn, state, timestamp);
+			introduceeManager.declineIntroduction(txn, 
+					(IntroduceeSessionState)state, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -369,29 +371,39 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 					// get session state
 					SessionId sessionId = new SessionId(msg.getRaw(SESSION_ID));
-					BdfDictionary state =
+					IntroductionState state =
 							getSessionState(txn, g, sessionId.getBytes());
 
-					int role = state.getLong(ROLE).intValue();
 					boolean local;
 					long time = msg.getLong(MESSAGE_TIME);
 					boolean accepted = msg.getBoolean(ACCEPT, false);
 					boolean read = msg.getBoolean(READ, false);
 					AuthorId authorId;
 					String name;
+
+					int role;
+					if (state instanceof IntroducerSessionState) {
+						role = ROLE_INTRODUCER;
+					} else {
+						role = ROLE_INTRODUCEE;
+					}
 					if (type == TYPE_RESPONSE) {
 						if (role == ROLE_INTRODUCER) {
-							if (!concernsThisContact(contactId, messageId, state)) {
+							IntroducerSessionState iss =
+								(IntroducerSessionState)state;
+							if (!concernsThisContact(contactId, messageId,
+										iss)) {
 								// this response is not from contactId
 								continue;
 							}
 							local = false;
-							authorId =
-									getAuthorIdForIntroducer(contactId, state);
-							name = getNameForIntroducer(contactId, state);
+							authorId = getAuthorIdForIntroducer(contactId, iss);
+							name = getNameForIntroducer(contactId, iss);
 						} else {
-							if (Arrays.equals(state.getRaw(NOT_OUR_RESPONSE),
-									messageId.getBytes())) {
+							IntroduceeSessionState iss = 
+								(IntroduceeSessionState)state;
+							if (Arrays.equals(iss.getOtherResponseId(),
+											  messageId.getBytes())) {
 								// this response is not ours,
 								// check if it was a decline
 								if (!accepted) {
@@ -403,9 +415,9 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							} else {
 								local = true;
 							}
-							authorId = new AuthorId(
-									state.getRaw(REMOTE_AUTHOR_ID));
-							name = state.getString(NAME);
+
+							authorId = iss.getRemoteAuthorId();
+							name = iss.getName();
 						}
 						IntroductionResponse ir = new IntroductionResponse(
 								sessionId, messageId, role, time, local,
@@ -416,26 +428,26 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 						String message;
 						boolean answered, exists, introducesOtherIdentity;
 						if (role == ROLE_INTRODUCER) {
+							IntroducerSessionState iss =
+								(IntroducerSessionState)state;
 							local = true;
-							authorId =
-									getAuthorIdForIntroducer(contactId, state);
-							name = getNameForIntroducer(contactId, state);
+							authorId = getAuthorIdForIntroducer(contactId, iss);
+							name = getNameForIntroducer(contactId, iss);
 							message = msg.getOptionalString(MSG);
 							answered = false;
 							exists = false;
 							introducesOtherIdentity = false;
 						} else {
+							IntroduceeSessionState iss =
+								(IntroduceeSessionState)state;
 							local = false;
-							authorId = new AuthorId(
-									state.getRaw(REMOTE_AUTHOR_ID));
-							name = state.getString(NAME);
-							message = state.getOptionalString(MSG);
-							boolean finished = state.getLong(STATE) ==
-									FINISHED.getValue();
-							answered = finished || state.getBoolean(ANSWERED);
-							exists = state.getBoolean(EXISTS);
-							introducesOtherIdentity =
-									state.getBoolean(REMOTE_AUTHOR_IS_US);
+							authorId = iss.getRemoteAuthorId();
+							name = iss.getName();
+							message = iss.getMessage();
+							boolean finished = iss.getState() == FINISHED;
+							answered = finished || iss.getAnswered();
+							exists = iss.getContactExists();
+							introducesOtherIdentity = iss.getRemoteAuthorIsUs();
 						}
 						IntroductionRequest ir = new IntroductionRequest(
 								sessionId, messageId, role, time, local,
@@ -458,38 +470,36 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private String getNameForIntroducer(ContactId contactId,
-			BdfDictionary state) throws FormatException {
+			IntroducerSessionState state) throws FormatException {
 
-		if (contactId.getInt() == state.getLong(CONTACT_ID_1).intValue())
-			return state.getString(CONTACT_2);
-		if (contactId.getInt() == state.getLong(CONTACT_ID_2).intValue())
-			return state.getString(CONTACT_1);
+		if (contactId.equals(state.getContact2Id()))
+			return state.getContact1Name();
+		if (contactId.equals(state.getContact1Id()))
+			return state.getContact2Name();
 		throw new RuntimeException("Contact not part of this introduction session");
 	}
 
 	private AuthorId getAuthorIdForIntroducer(ContactId contactId,
-			BdfDictionary state) throws FormatException {
+			IntroducerSessionState state) throws FormatException {
 
-		if (contactId.getInt() == state.getLong(CONTACT_ID_1).intValue())
-			return new AuthorId(state.getRaw(AUTHOR_ID_2));
-		if (contactId.getInt() == state.getLong(CONTACT_ID_2).intValue())
-			return new AuthorId(state.getRaw(AUTHOR_ID_1));
+		if (contactId.equals(state.getContact1Id()))
+			return state.getContact2AuthorId();
+		if (contactId.equals(state.getContact2Id()))
+			return state.getContact1AuthorId();
 		throw new RuntimeException("Contact not part of this introduction session");
 	}
 
 	private boolean concernsThisContact(ContactId contactId, MessageId messageId,
-			BdfDictionary state) throws FormatException {
+			IntroducerSessionState state) throws FormatException {
 
-		if (contactId.getInt() == state.getLong(CONTACT_ID_1).intValue()) {
-			return Arrays.equals(state.getRaw(RESPONSE_1, new byte[0]),
-					messageId.getBytes());
+		if (contactId.equals(state.getContact1Id())) {
+			return state.getResponse1().equals(messageId);
 		} else {
-			return Arrays.equals(state.getRaw(RESPONSE_2, new byte[0]),
-					messageId.getBytes());
+			return state.getResponse2().equals(messageId);
 		}
 	}
 
-	private BdfDictionary getSessionState(Transaction txn, GroupId groupId,
+	private IntroductionState getSessionState(Transaction txn, GroupId groupId,
 			byte[] sessionId, boolean warn)
 			throws DbException, FormatException {
 
@@ -503,7 +513,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			if (!g1.equals(groupId) && !g2.equals(groupId)) {
 				throw new NoSuchMessageException();
 			}
-			return state;
+			return IntroductionState.fromBdfDictionary(state);
 		} catch (NoSuchMessageException e) {
 			// State not found directly, so iterate over all states
 			// to find state for introducee
@@ -514,7 +524,8 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 				if (Arrays.equals(m.getValue().getRaw(SESSION_ID), sessionId)) {
 					BdfDictionary state = m.getValue();
 					GroupId g = new GroupId(state.getRaw(GROUP_ID));
-					if (g.equals(groupId)) return state;
+					if (g.equals(groupId)) 
+						return IntroductionState.fromBdfDictionary(state);
 				}
 			}
 			if (warn && LOG.isLoggable(WARNING)) {
@@ -526,7 +537,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
-	private BdfDictionary getSessionState(Transaction txn, GroupId groupId,
+	private IntroductionState getSessionState(Transaction txn, GroupId groupId,
 			byte[] sessionId) throws DbException, FormatException {
 
 		return getSessionState(txn, groupId, sessionId, true);

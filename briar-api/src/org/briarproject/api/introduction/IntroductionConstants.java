@@ -71,6 +71,7 @@ public interface IntroductionConstants {
 	String OUR_SIGNATURE = "ourSignature";
 
 	String TASK = "task";
+	int NO_TASK = -1;
 	int TASK_ADD_CONTACT = 0;
 	int TASK_ACTIVATE_CONTACT = 1;
 	int TASK_ABORT = 2;

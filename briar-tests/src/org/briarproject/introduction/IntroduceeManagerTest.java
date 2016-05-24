@@ -36,34 +36,31 @@ import org.junit.Test;
 import java.security.SecureRandom;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_LOCAL_RESPONSE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
+import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_RESPONSES;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT;
-import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
-import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
-import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
-import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
-import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
-import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.introduction.IntroduceeSessionState.fromBdfDictionary;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class IntroduceeManagerTest extends BriarTestCase {
@@ -171,12 +168,18 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		msg.put(NAME, introducee2.getAuthor().getName());
 		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 
-		final BdfDictionary state =
-				initializeSessionState(txn, introductionGroup1.getId(), msg);
+		final IntroduceeSessionState state =
+				initializeSessionState(txn, sessionId,
+						introductionGroup1.getId(), msg);
+
+		final BdfDictionary statedict = state.toBdfDictionary();
+		statedict.put(STATE, AWAIT_RESPONSES.getValue());
+		statedict.put(SESSION_ID, sessionId);
+		statedict.put(PUBLIC_KEY, msg.getRaw(PUBLIC_KEY));
 
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).mergeMessageMetadata(txn,
-					localStateMessage.getId(), state);
+					localStateMessage.getId(), statedict);
 		}});
 
 		introduceeManager.incomingMessage(txn, state, msg);
@@ -199,19 +202,31 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		msg.put(NAME, introducee2.getAuthor().getName());
 		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 
-		final BdfDictionary state =
-				initializeSessionState(txn, introductionGroup1.getId(), msg);
-		state.put(STATE, IntroduceeProtocolState.AWAIT_RESPONSES.ordinal());
+
+		final IntroduceeSessionState state =
+				initializeSessionState(txn, sessionId,
+						introductionGroup1.getId(), msg);
+		state.setTheirTime(time);
+		state.setTransport(new BdfDictionary());
+		final BdfDictionary statedict = state.toBdfDictionary();
+		state.setState(AWAIT_RESPONSES);
+		statedict.put(STATE, AWAIT_LOCAL_RESPONSE.getValue());
+		statedict.put(ACCEPT, true);
+		statedict.put(E_PUBLIC_KEY,
+					  TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		statedict.put(NOT_OUR_RESPONSE, message1.getId().getBytes());
 
 		// turn request message into a response
 		msg.put(ACCEPT, true);
 		msg.put(TIME, time);
-		msg.put(E_PUBLIC_KEY, TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		msg.put(E_PUBLIC_KEY, statedict.getRaw(E_PUBLIC_KEY));
 		msg.put(TRANSPORT, new BdfDictionary());
+
+
 
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).mergeMessageMetadata(txn,
-					localStateMessage.getId(), state);
+					localStateMessage.getId(), statedict);
 		}});
 
 		introduceeManager.incomingMessage(txn, state, msg);
@@ -221,9 +236,69 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		assertFalse(txn.isComplete());
 	}
 
-	private BdfDictionary initializeSessionState(final Transaction txn,
-			final GroupId groupId, final BdfDictionary msg)
+	@Test
+	public void testInitialSerialization() throws DbException, FormatException {
+		IntroduceeSessionState state = initializeDefaultSessionState();
+
+		BdfDictionary statedict = state.toBdfDictionary();
+		assertEquals(statedict, fromBdfDictionary(statedict).toBdfDictionary());
+//		assertEquals(state, fromBdfDictionary(statedict));
+	}
+
+	@Test
+	public void testFullSerialization() throws DbException, FormatException {
+		IntroduceeSessionState state = initializeDefaultSessionState();
+
+		state.setOurMac(TestUtils.getRandomBytes(42));
+		// TODO use ALL setters here to make the test cover everything
+		state.setState(IntroduceeProtocolState.AWAIT_ACK);
+		state.setAccept(true);
+		state.setAnswered(true);
+		state.setOurTime(-1L);
+		state.setTheirTime(-2L);
+		state.setMessage("");
+		state.setEPublicKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		state.setTransport(new BdfDictionary());
+		state.setContactExists(false);
+		state.setRemoteAuthorId(new AuthorId(TestUtils.getRandomId()));
+		state.setRemoteAuthorIsUs(false);
+		state.setOtherResponseId(TestUtils.getRandomId());
+		state.setTask(-1);
+		state.setName(TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH));
+		state.setOurPublicKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		state.setOurPrivateKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		state.setIntroducedPublicKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		state.setIntroducedName(TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH));
+		state.setMac(TestUtils.getRandomBytes(MAC_LENGTH));
+		state.setSignature(TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH));
+		state.setOurSignature(TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH));
+		state.setOurTransport(new BdfDictionary());
+		state.setNonce(TestUtils.getRandomBytes(32));
+		state.setMacKey(TestUtils.getRandomBytes(32));
+
+		BdfDictionary statedict = state.toBdfDictionary();
+		assertEquals(statedict, fromBdfDictionary(statedict).toBdfDictionary());
+	}
+
+	private IntroduceeSessionState initializeDefaultSessionState()
 			throws DbException, FormatException {
+		final BdfDictionary msg = new BdfDictionary();
+		msg.put(TYPE, TYPE_REQUEST);
+		msg.put(GROUP_ID, introductionGroup1.getId());
+		msg.put(SESSION_ID, sessionId);
+		msg.put(MESSAGE_ID, message1.getId());
+		msg.put(MESSAGE_TIME, time);
+		msg.put(NAME, introducee2.getAuthor().getName());
+		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
+		msg.put(TRANSPORT, new BdfDictionary());
+
+		return initializeSessionState(txn, sessionId,
+				introductionGroup1.getId(), msg);
+	}
+
+	private IntroduceeSessionState initializeSessionState(final Transaction txn,
+			final SessionId sessionId, final GroupId groupId,
+			final BdfDictionary msg) throws DbException, FormatException {
 
 		final SecureRandom secureRandom = context.mock(SecureRandom.class);
 		final Bytes salt = new Bytes(new byte[64]);
@@ -231,19 +306,17 @@ public class IntroduceeManagerTest extends BriarTestCase {
 				new BdfEntry(CONTACT, introducee1.getId().getInt())
 		);
 		final boolean contactExists = true;
-		final BdfDictionary state = new BdfDictionary();
-		state.put(STORAGE_ID, localStateMessage.getId());
-		state.put(STATE, AWAIT_REQUEST.getValue());
-		state.put(ROLE, ROLE_INTRODUCEE);
-		state.put(GROUP_ID, groupId);
-		state.put(INTRODUCER, introducer.getAuthor().getName());
-		state.put(CONTACT_ID_1, introducer.getId().getInt());
-		state.put(LOCAL_AUTHOR_ID, introducer.getLocalAuthorId().getBytes());
-		state.put(NOT_OUR_RESPONSE, localStateMessage.getId());
-		state.put(ANSWERED, false);
-		state.put(EXISTS, true);
-		state.put(REMOTE_AUTHOR_ID, introducee2.getAuthor().getId());
-		state.put(REMOTE_AUTHOR_IS_US, false);
+		final IntroduceeSessionState state = new IntroduceeSessionState(
+				localStateMessage.getId(), 
+				sessionId, groupId, introducer.getId(),
+				introducer.getAuthor().getId(), introducer.getAuthor().getName(),
+				introducer.getLocalAuthorId(), AWAIT_REQUEST);
+
+		state.setName(msg.getString(NAME));
+		state.setContactExists(true);
+		state.setRemoteAuthorIsUs(false);
+		state.setRemoteAuthorId(introducee2.getAuthor().getId());
+		final BdfDictionary statedict = state.toBdfDictionary();
 
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
@@ -279,10 +352,12 @@ public class IntroduceeManagerTest extends BriarTestCase {
 
 			// store session state
 			oneOf(clientHelper)
-					.addLocalMessage(txn, localStateMessage, state, false);
+					.addLocalMessage(txn, localStateMessage, statedict,
+							false);
 		}});
 
-		BdfDictionary result = introduceeManager.initialize(txn, groupId, msg);
+		IntroduceeSessionState result = introduceeManager.initialize(txn,
+				sessionId, groupId, msg);
 
 		context.assertIsSatisfied();
 		return result;

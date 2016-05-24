@@ -19,6 +19,7 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.system.Clock;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -49,27 +50,30 @@ import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class IntroducerManagerTest extends BriarTestCase {
 
-	final Mockery context;
-	final IntroducerManager introducerManager;
-	final CryptoComponent cryptoComponent;
-	final ClientHelper clientHelper;
-	final IntroductionGroupFactory introductionGroupFactory;
-	final MessageSender messageSender;
-	final Clock clock;
-	final Contact introducee1;
-	final Contact introducee2;
-	final Group localGroup0;
-	final Group introductionGroup1;
-	final Group introductionGroup2;
+	private final Mockery context;
+	private final IntroducerManager introducerManager;
+	private final CryptoComponent cryptoComponent;
+	private final ClientHelper clientHelper;
+	private final IntroductionGroupFactory introductionGroupFactory;
+	private final MessageSender messageSender;
+	private final SecureRandom secureRandom;
+	private final Clock clock;
+	private final Contact introducee1;
+	private final Contact introducee2;
+	private final Group localGroup0;
+	private final Group introductionGroup1;
+	private final Group introductionGroup2;
 
 	public IntroducerManagerTest() {
 		context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		messageSender = context.mock(MessageSender.class);
+		secureRandom = context.mock(SecureRandom.class);
 		cryptoComponent = context.mock(CryptoComponent.class);
 		clientHelper = context.mock(ClientHelper.class);
 		clock = context.mock(Clock.class);
@@ -107,47 +111,108 @@ public class IntroducerManagerTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testMakeIntroduction() throws DbException, FormatException {
+	public void testInitializeSessionState()
+			throws DbException, FormatException {
+
 		final Transaction txn = new Transaction(null, false);
 		final long time = 42L;
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		final SecureRandom secureRandom = context.mock(SecureRandom.class);
 		final Bytes salt = new Bytes(new byte[64]);
 		final Message msg = new Message(new MessageId(TestUtils.getRandomId()),
 				localGroup0.getId(), time, TestUtils.getRandomBytes(64));
-		final BdfDictionary state = new BdfDictionary();
-		state.put(SESSION_ID, msg.getId());
-		state.put(STORAGE_ID, msg.getId());
-		state.put(STATE, PREPARE_REQUESTS.getValue());
-		state.put(ROLE, ROLE_INTRODUCER);
-		state.put(GROUP_ID_1, introductionGroup1.getId());
-		state.put(GROUP_ID_2, introductionGroup2.getId());
-		state.put(CONTACT_1, introducee1.getAuthor().getName());
-		state.put(CONTACT_2, introducee2.getAuthor().getName());
-		state.put(CONTACT_ID_1, introducee1.getId().getInt());
-		state.put(CONTACT_ID_2, introducee2.getId().getInt());
-		state.put(AUTHOR_ID_1, introducee1.getAuthor().getId());
-		state.put(AUTHOR_ID_2, introducee2.getAuthor().getId());
-		final BdfDictionary state2 = (BdfDictionary) state.clone();
-		state2.put(STATE, AWAIT_RESPONSES.getValue());
+
+		final IntroducerSessionState state =
+				getState(msg, introducee1, introducee2);
+
+		checkInitialisation(time, salt, msg, txn, state);
+
+		IntroducerSessionState result = introducerManager.initialize(txn,
+				introducee1, introducee2);
+		assertEquals(state.toBdfDictionary(), result.toBdfDictionary());
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testMakeIntroduction() throws DbException, FormatException {
+		final Transaction txn = new Transaction(null, false);
+
+		final long time = 42L;
+		final Bytes salt = new Bytes(new byte[64]);
+		final Message msg = new Message(new MessageId(TestUtils.getRandomId()),
+				localGroup0.getId(), time, TestUtils.getRandomBytes(64));
+
+		final IntroducerSessionState state =
+				getState(msg, introducee1, introducee2);
+
+		checkInitialisation(time, salt, msg, txn, state);
+
+		final IntroducerSessionState state2 = state;
+		state2.setState(AWAIT_RESPONSES);
 
 		final BdfDictionary msg1 = new BdfDictionary();
 		msg1.put(TYPE, TYPE_REQUEST);
-		msg1.put(SESSION_ID, state.getRaw(SESSION_ID));
-		msg1.put(GROUP_ID, state.getRaw(GROUP_ID_1));
-		msg1.put(NAME, state.getString(CONTACT_2));
+		msg1.put(SESSION_ID, state.getSessionId().getBytes());
+		msg1.put(GROUP_ID, state.getGroup1Id().getBytes());
+		msg1.put(NAME, state.getContact2Name());
 		msg1.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 		final BdfDictionary msg1send = (BdfDictionary) msg1.clone();
 		msg1send.put(MESSAGE_TIME, time);
 
 		final BdfDictionary msg2 = new BdfDictionary();
 		msg2.put(TYPE, TYPE_REQUEST);
-		msg2.put(SESSION_ID, state.getRaw(SESSION_ID));
-		msg2.put(GROUP_ID, state.getRaw(GROUP_ID_2));
-		msg2.put(NAME, state.getString(CONTACT_1));
+		msg2.put(SESSION_ID, state.getSessionId().getBytes());
+		msg2.put(GROUP_ID, state.getGroup2Id().getBytes());
+		msg2.put(NAME, state.getContact1Name());
 		msg2.put(PUBLIC_KEY, introducee1.getAuthor().getPublicKey());
 		final BdfDictionary msg2send = (BdfDictionary) msg2.clone();
 		msg2send.put(MESSAGE_TIME, time);
+
+		context.checking(new Expectations() {{
+			// send message
+			oneOf(clientHelper).mergeMessageMetadata(txn, msg.getId(),
+					state2.toBdfDictionary());
+			oneOf(messageSender).sendMessage(txn, msg1send);
+			oneOf(messageSender).sendMessage(txn, msg2send);
+		}});
+
+		introducerManager
+				.makeIntroduction(txn, introducee1, introducee2, null, time);
+
+		context.assertIsSatisfied();
+
+		assertFalse(txn.isComplete());
+	}
+
+	private IntroducerSessionState getState(Message msg, Contact c1, Contact c2)
+			throws FormatException {
+
+		final BdfDictionary d = new BdfDictionary();
+		d.put(SESSION_ID, new SessionId(msg.getId().getBytes()));
+		d.put(STORAGE_ID, msg.getId());
+		d.put(STATE, PREPARE_REQUESTS.getValue());
+		d.put(ROLE, ROLE_INTRODUCER);
+		d.put(GROUP_ID_1, introductionGroup1.getId());
+		d.put(GROUP_ID_2, introductionGroup2.getId());
+		d.put(CONTACT_1, introducee1.getAuthor().getName());
+		d.put(CONTACT_2, introducee2.getAuthor().getName());
+		d.put(CONTACT_ID_1, introducee1.getId().getInt());
+		d.put(CONTACT_ID_2, introducee2.getId().getInt());
+		d.put(AUTHOR_ID_1, introducee1.getAuthor().getId());
+		d.put(AUTHOR_ID_2, introducee2.getAuthor().getId());
+
+		IntroducerSessionState state =
+				IntroducerSessionState.fromBdfDictionary(d);
+
+		assertEquals(d, state.toBdfDictionary());
+
+		return state;
+	}
+
+	private void checkInitialisation(final long time, final Bytes salt,
+			final Message msg, final Transaction txn,
+			final IntroducerSessionState state)
+			throws FormatException, DbException {
 
 		context.checking(new Expectations() {{
 			// initialize and store session state
@@ -167,20 +232,14 @@ public class IntroducerManagerTest extends BriarTestCase {
 			oneOf(introductionGroupFactory)
 					.createIntroductionGroup(introducee2);
 			will(returnValue(introductionGroup2));
-			oneOf(clientHelper).addLocalMessage(txn, msg, state, false);
 
+			oneOf(clientHelper).addLocalMessage(txn, msg,
+					state.toBdfDictionary(), false);
 			// send message
-			oneOf(clientHelper).mergeMessageMetadata(txn, msg.getId(), state2);
-			oneOf(messageSender).sendMessage(txn, msg1send);
-			oneOf(messageSender).sendMessage(txn, msg2send);
+////		oneOf(clientHelper).mergeMessageMetadata(txn, msg.getId(), state2);
+////		oneOf(messageSender).sendMessage(txn, msg1send);
+////		oneOf(messageSender).sendMessage(txn, msg2send);
 		}});
-
-		introducerManager
-				.makeIntroduction(txn, introducee1, introducee2, null, time);
-
-		context.assertIsSatisfied();
-
-		assertFalse(txn.isComplete());
 	}
 
 	private ClientId getClientId() {

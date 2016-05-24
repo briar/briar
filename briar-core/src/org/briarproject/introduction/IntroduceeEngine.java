@@ -2,6 +2,7 @@ package org.briarproject.introduction;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ProtocolEngine;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.event.Event;
@@ -11,7 +12,6 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroduceeAction;
 import org.briarproject.api.introduction.IntroduceeProtocolState;
 import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
@@ -34,9 +34,6 @@ import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_RE
 import static org.briarproject.api.introduction.IntroduceeProtocolState.ERROR;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.FINISHED;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
-import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
-import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
@@ -51,8 +48,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
@@ -69,23 +64,23 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 
-public class IntroduceeEngine
-		implements ProtocolEngine<BdfDictionary, BdfDictionary, BdfDictionary> {
+class IntroduceeEngine
+		implements ProtocolEngine<BdfDictionary, IntroduceeSessionState, BdfDictionary> {
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroduceeEngine.class.getName());
 
 	@Override
-	public StateUpdate<BdfDictionary, BdfDictionary> onLocalAction(
-			BdfDictionary localState, BdfDictionary localAction) {
+	public StateUpdate<IntroduceeSessionState, BdfDictionary> onLocalAction(
+			IntroduceeSessionState localState, BdfDictionary localAction) {
 
 		try {
-			IntroduceeProtocolState currentState =
-					getState(localState.getLong(STATE));
+			IntroduceeProtocolState currentState = localState.getState();
 			int type = localAction.getLong(TYPE).intValue();
 			IntroduceeAction action;
-			if (localState.containsKey(ACCEPT)) action = IntroduceeAction
-					.getLocal(type, localState.getBoolean(ACCEPT));
+			// FIXME: discuss? used to be: if has key ACCEPT:
+			if (localState.wasAccepted()) action = IntroduceeAction
+					.getLocal(type, localState.getAccept());
 			else action = IntroduceeAction.getLocal(type);
 			IntroduceeProtocolState nextState = currentState.next(action);
 
@@ -104,17 +99,17 @@ public class IntroduceeEngine
 
 			List<BdfDictionary> messages = new ArrayList<BdfDictionary>(1);
 			if (action == LOCAL_ACCEPT || action == LOCAL_DECLINE) {
-				localState.put(STATE, nextState.getValue());
-				localState.put(ANSWERED, true);
+				localState.setState(nextState);
+				localState.setAnswered(true);
 				// create the introduction response message
 				BdfDictionary msg = new BdfDictionary();
 				msg.put(TYPE, TYPE_RESPONSE);
-				msg.put(GROUP_ID, localState.getRaw(GROUP_ID));
-				msg.put(SESSION_ID, localState.getRaw(SESSION_ID));
-				msg.put(ACCEPT, localState.getBoolean(ACCEPT));
-				if (localState.getBoolean(ACCEPT)) {
-					msg.put(TIME, localState.getLong(OUR_TIME));
-					msg.put(E_PUBLIC_KEY, localState.getRaw(OUR_PUBLIC_KEY));
+				msg.put(GROUP_ID, localState.getIntroductionGroupId());
+				msg.put(SESSION_ID, localState.getSessionId());
+				msg.put(ACCEPT, localState.getAccept());
+				if (localState.getAccept()) {
+					msg.put(TIME, localState.getOurTime());
+					msg.put(E_PUBLIC_KEY, localState.getOurPublicKey());
 					msg.put(TRANSPORT, localAction.getDictionary(TRANSPORT));
 				}
 				msg.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
@@ -122,7 +117,7 @@ public class IntroduceeEngine
 				logAction(currentState, localState, msg);
 
 				if (nextState == AWAIT_ACK) {
-					localState.put(TASK, TASK_ADD_CONTACT);
+					localState.setTask(TASK_ADD_CONTACT);
 				}
 			} else if (action == ACK) {
 				// just send ACK, don't update local state again
@@ -132,7 +127,7 @@ public class IntroduceeEngine
 				throw new IllegalArgumentException();
 			}
 			List<Event> events = Collections.emptyList();
-			return new StateUpdate<BdfDictionary, BdfDictionary>(false,
+			return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false,
 					false,
 					localState, messages, events);
 		} catch (FormatException e) {
@@ -141,12 +136,11 @@ public class IntroduceeEngine
 	}
 
 	@Override
-	public StateUpdate<BdfDictionary, BdfDictionary> onMessageReceived(
-			BdfDictionary localState, BdfDictionary msg) {
+	public StateUpdate<IntroduceeSessionState, BdfDictionary> onMessageReceived(
+			IntroduceeSessionState localState, BdfDictionary msg) {
 
 		try {
-			IntroduceeProtocolState currentState =
-					getState(localState.getLong(STATE));
+			IntroduceeProtocolState currentState = localState.getState();
 			int type = msg.getLong(TYPE).intValue();
 			IntroduceeAction action = IntroduceeAction.getRemote(type);
 			IntroduceeProtocolState nextState = currentState.next(action);
@@ -162,13 +156,12 @@ public class IntroduceeEngine
 			}
 
 			// update local session state with next protocol state
-			localState.put(STATE, nextState.getValue());
+			localState.setState(nextState);
 			List<BdfDictionary> messages;
 			List<Event> events;
 			// we received the introduction request
 			if (currentState == AWAIT_REQUEST) {
-				// remember the session ID used by the introducer
-				localState.put(SESSION_ID, msg.getRaw(SESSION_ID));
+				localState.setSessionId(new SessionId(msg.getRaw(SESSION_ID)));
 
 				addRequestData(localState, msg);
 				messages = Collections.emptyList();
@@ -178,29 +171,33 @@ public class IntroduceeEngine
 			// we had sent our response already and now received the other one
 			else if (currentState == AWAIT_RESPONSES ||
 					currentState == AWAIT_REMOTE_RESPONSE) {
+
 				// update next state based on message content
 				action = IntroduceeAction
 						.getRemote(type, msg.getBoolean(ACCEPT));
 				nextState = currentState.next(action);
-				localState.put(STATE, nextState.getValue());
+				localState.setState(nextState);
 
 				addResponseData(localState, msg);
 				if (nextState == AWAIT_ACK) {
-					localState.put(TASK, TASK_ADD_CONTACT);
+					localState.setTask(TASK_ADD_CONTACT);
+//						messages = Collections
+//								.singletonList(getAckMessage(localState));
 				}
 				messages = Collections.emptyList();
 				events = Collections.emptyList();
+
 			}
 			// we already sent our ACK and now received the other one
 			else if (currentState == AWAIT_ACK) {
-				localState.put(TASK, TASK_ACTIVATE_CONTACT);
+				localState.setTask(TASK_ACTIVATE_CONTACT);
 				addAckData(localState, msg);
 				messages = Collections.emptyList();
 				events = Collections.emptyList();
 			}
 			// we are done (probably declined response), ignore & delete message
 			else if (currentState == FINISHED) {
-				return new StateUpdate<BdfDictionary, BdfDictionary>(true,
+				return new StateUpdate<IntroduceeSessionState, BdfDictionary>(true,
 						false, localState,
 						Collections.<BdfDictionary>emptyList(),
 						Collections.<Event>emptyList());
@@ -209,62 +206,58 @@ public class IntroduceeEngine
 			else {
 				throw new IllegalArgumentException();
 			}
-			return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-					localState, messages, events);
+			return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false, 
+					false, localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 
-	private void addRequestData(BdfDictionary localState, BdfDictionary msg)
-			throws FormatException {
+	private void addRequestData(IntroduceeSessionState localState,
+			BdfDictionary msg) throws FormatException {
 
-		localState.put(NAME, msg.getString(NAME));
-		localState.put(PUBLIC_KEY, msg.getRaw(PUBLIC_KEY));
+		localState.setName(msg.getString(NAME));
+		localState.setIntroducedPublicKey(msg.getRaw(PUBLIC_KEY));
 		if (msg.containsKey(MSG)) {
-			localState.put(MSG, msg.getString(MSG));
+			localState.setMessage(msg.getString(MSG));
 		}
 	}
 
-	private void addResponseData(BdfDictionary localState, BdfDictionary msg)
-			throws FormatException {
+	private void addResponseData(IntroduceeSessionState localState,
+			BdfDictionary msg) throws FormatException {
 
-		if (localState.containsKey(ACCEPT)) {
-			localState.put(ACCEPT,
-					localState.getBoolean(ACCEPT) && msg.getBoolean(ACCEPT));
-		} else {
-			localState.put(ACCEPT, msg.getBoolean(ACCEPT));
-		}
-		localState.put(NOT_OUR_RESPONSE, msg.getRaw(MESSAGE_ID));
+		localState.setAccept(msg.getBoolean(ACCEPT));
+		localState.setOtherResponseId(msg.getRaw(MESSAGE_ID));
 
 		if (msg.getBoolean(ACCEPT)) {
-			localState.put(TIME, msg.getLong(TIME));
-			localState.put(E_PUBLIC_KEY, msg.getRaw(E_PUBLIC_KEY));
-			localState.put(TRANSPORT, msg.getDictionary(TRANSPORT));
+			localState.setTheirTime(msg.getLong(TIME));
+			localState.setEPublicKey(msg.getRaw(E_PUBLIC_KEY));
+			localState.setTransport(msg.getDictionary(TRANSPORT));
 		}
 	}
 
-	private void addAckData(BdfDictionary localState, BdfDictionary msg)
+	private void addAckData(IntroduceeSessionState localState, BdfDictionary msg)
 			throws FormatException {
 
-		localState.put(MAC, msg.getRaw(MAC));
-		localState.put(SIGNATURE, msg.getRaw(SIGNATURE));
+		localState.setMac(msg.getRaw(MAC));
+		localState.setSignature(msg.getRaw(SIGNATURE));
 	}
 
-	private BdfDictionary getAckMessage(BdfDictionary localState)
+	private BdfDictionary getAckMessage(IntroduceeSessionState localState)
 			throws FormatException {
 
 		BdfDictionary m = new BdfDictionary();
 		m.put(TYPE, TYPE_ACK);
-		m.put(GROUP_ID, localState.getRaw(GROUP_ID));
-		m.put(SESSION_ID, localState.getRaw(SESSION_ID));
-		m.put(MAC, localState.getRaw(OUR_MAC));
-		m.put(SIGNATURE, localState.getRaw(OUR_SIGNATURE));
+		m.put(MAC, localState.getOurMac());
+		m.put(SIGNATURE, localState.getOurSignature());
+		m.put(GROUP_ID, localState.getIntroductionGroupId());
+		m.put(SESSION_ID, localState.getSessionId());
 
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Sending ACK " + " to " +
-					localState.getString(INTRODUCER) + " for " +
-					localState.getString(NAME) + " with session ID " +
+					localState.getIntroducerName() + " for " +
+					localState.getName() +
+					" with session ID " +
 					Arrays.hashCode(m.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(m.getRaw(GROUP_ID)));
 		}
@@ -272,20 +265,21 @@ public class IntroduceeEngine
 	}
 
 	private void logAction(IntroduceeProtocolState state,
-			BdfDictionary localState, BdfDictionary msg) {
+			IntroduceeSessionState localState, BdfDictionary msg) {
 
 		if (!LOG.isLoggable(INFO)) return;
 
 		try {
 			LOG.info("Sending " +
-					(localState.getBoolean(ACCEPT) ? "accept " : "decline ") +
+					(localState.getAccept() ? "accept " : "decline ") +
 					"response in state " + state.name() +
-					" to " + localState.getString(INTRODUCER) +
-					" for " + localState.getString(NAME) + " with session ID " +
+					" to " + localState.getName() +
+					" for " + localState.getIntroducerName() +
+					" with session ID " +
 					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
 					"Moving on to state " +
-					getState(localState.getLong(STATE)).name()
+					localState.getState().name()
 			);
 		} catch (FormatException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -293,8 +287,8 @@ public class IntroduceeEngine
 	}
 
 	private void logMessageReceived(IntroduceeProtocolState currentState,
-			IntroduceeProtocolState nextState, BdfDictionary localState,
-			int type, BdfDictionary msg) {
+			IntroduceeProtocolState nextState, 
+			IntroduceeSessionState localState, int type, BdfDictionary msg) {
 
 		if (!LOG.isLoggable(INFO)) return;
 
@@ -306,9 +300,9 @@ public class IntroduceeEngine
 			else if (type == TYPE_ABORT) t = "Abort";
 
 			LOG.info("Received " + t + " in state " + currentState.name() +
-					" from " + localState.getString(INTRODUCER) +
-					(localState.containsKey(NAME) ?
-							" related to " + localState.getString(NAME) : "") +
+					" from " + localState.getIntroducerName() +
+					(localState.getName() != null ?
+							" related to " + localState.getName() : "") +
 					" with session ID " +
 					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
@@ -320,8 +314,8 @@ public class IntroduceeEngine
 	}
 
 	@Override
-	public StateUpdate<BdfDictionary, BdfDictionary> onMessageDelivered(
-			BdfDictionary localState, BdfDictionary delivered) {
+	public StateUpdate<IntroduceeSessionState, BdfDictionary> onMessageDelivered(
+			IntroduceeSessionState localState, BdfDictionary delivered) {
 		try {
 			return noUpdate(localState);
 		} catch (FormatException e) {
@@ -330,25 +324,18 @@ public class IntroduceeEngine
 		}
 	}
 
-	private IntroduceeProtocolState getState(Long state) {
-		return IntroduceeProtocolState.fromValue(state.intValue());
-	}
-
-	private Event getEvent(BdfDictionary localState, BdfDictionary msg)
+	private Event getEvent(IntroduceeSessionState localState, BdfDictionary msg)
 			throws FormatException {
 
-		ContactId contactId =
-				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
-		AuthorId authorId = new AuthorId(localState.getRaw(REMOTE_AUTHOR_ID));
-
-		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
+		ContactId contactId = localState.getIntroducerId();
+		AuthorId authorId = localState.getRemoteAuthorId();
+		SessionId sessionId = localState.getSessionId();
 		MessageId messageId = new MessageId(msg.getRaw(MESSAGE_ID));
 		long time = msg.getLong(MESSAGE_TIME);
 		String name = msg.getString(NAME);
 		String message = msg.getOptionalString(MSG);
-		boolean exists = localState.getBoolean(EXISTS);
-		boolean introducesOtherIdentity =
-				localState.getBoolean(REMOTE_AUTHOR_IS_US);
+		boolean exists = localState.getContactExists();
+		boolean introducesOtherIdentity = localState.getRemoteAuthorIsUs();
 
 		IntroductionRequest ir = new IntroductionRequest(sessionId, messageId,
 				ROLE_INTRODUCEE, time, false, false, false, false, authorId,
@@ -356,39 +343,39 @@ public class IntroduceeEngine
 		return new IntroductionRequestReceivedEvent(contactId, ir);
 	}
 
-	private StateUpdate<BdfDictionary, BdfDictionary> abortSession(
-			IntroduceeProtocolState currentState, BdfDictionary localState)
-			throws FormatException {
+	private StateUpdate<IntroduceeSessionState, BdfDictionary> abortSession(
+			IntroduceeProtocolState currentState, 
+			IntroduceeSessionState localState) throws FormatException {
 
 		if (LOG.isLoggable(WARNING)) {
 			LOG.warning("Aborting protocol session " +
-					Arrays.hashCode(localState.getRaw(SESSION_ID)) +
-					" in state " + currentState.name());
+					Arrays.hashCode(localState.getSessionId().getBytes()) +
+					" in state " + currentState.name()
+					);
 		}
 
-		localState.put(STATE, ERROR.getValue());
-		localState.put(TASK, TASK_ABORT);
+		localState.setState(ERROR);
+		localState.setTask(TASK_ABORT);
 		BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_ABORT);
-		msg.put(GROUP_ID, localState.getRaw(GROUP_ID));
-		msg.put(SESSION_ID, localState.getRaw(SESSION_ID));
+		msg.put(GROUP_ID, localState.getIntroductionGroupId());
+		msg.put(SESSION_ID, localState.getSessionId());
 		List<BdfDictionary> messages = Collections.singletonList(msg);
 
 		// send abort event
-		ContactId contactId =
-				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
-		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
+		ContactId contactId = localState.getIntroducerId();
+		SessionId sessionId = localState.getSessionId();
 		Event event = new IntroductionAbortedEvent(contactId, sessionId);
 		List<Event> events = Collections.singletonList(event);
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, messages, events);
+		return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false, 
+				false, localState, messages, events);
 	}
 
-	private StateUpdate<BdfDictionary, BdfDictionary> noUpdate(
-			BdfDictionary localState) throws FormatException {
+	private StateUpdate<IntroduceeSessionState, BdfDictionary> noUpdate(
+			IntroduceeSessionState localState) throws FormatException {
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
+		return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false, false,
 				localState, Collections.<BdfDictionary>emptyList(),
 				Collections.<Event>emptyList());
 	}

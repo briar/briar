@@ -300,7 +300,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.response2Received);
 
 			// sync first forwarded response
-			deliverMessage(sync0, contactId0, sync2, contactId2);
+			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
 
 			// note how the introducer does not forward the second response,
 			// because after the first decline the protocol finished
@@ -1141,7 +1141,8 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 											time);
 						}
 					}
-				} catch (DbException | IOException exception) {
+				} catch (DbException | IOException | NullPointerException exception) {
+					msgWaiter.rethrow(exception);
 					eventWaiter.rethrow(exception);
 				} finally {
 					eventWaiter.resume();

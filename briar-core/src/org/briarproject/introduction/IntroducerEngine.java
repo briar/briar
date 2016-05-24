@@ -13,6 +13,7 @@ import org.briarproject.api.introduction.IntroducerProtocolState;
 import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.introduction.IntroducerSessionState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,18 +66,18 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 
 public class IntroducerEngine
-		implements ProtocolEngine<BdfDictionary, BdfDictionary, BdfDictionary> {
+		implements ProtocolEngine<BdfDictionary, IntroducerSessionState, BdfDictionary> {
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroducerEngine.class.getName());
 
+
 	@Override
-	public StateUpdate<BdfDictionary, BdfDictionary> onLocalAction(
-			BdfDictionary localState, BdfDictionary localAction) {
+	public StateUpdate<IntroducerSessionState, BdfDictionary> onLocalAction(
+			IntroducerSessionState localState, BdfDictionary localAction) {
 
 		try {
-			IntroducerProtocolState currentState =
-					getState(localState.getLong(STATE));
+			IntroducerProtocolState currentState = localState.getState();
 			int type = localAction.getLong(TYPE).intValue();
 			IntroducerAction action = IntroducerAction.getLocal(type);
 			IntroducerProtocolState nextState = currentState.next(action);
@@ -93,15 +94,15 @@ public class IntroducerEngine
 				return noUpdate(localState);
 			}
 
-			localState.put(STATE, nextState.getValue());
+			localState.setState(nextState);
 			if (action == LOCAL_REQUEST) {
 				// create the introduction requests for both contacts
 				List<BdfDictionary> messages = new ArrayList<BdfDictionary>(2);
 				BdfDictionary msg1 = new BdfDictionary();
 				msg1.put(TYPE, TYPE_REQUEST);
-				msg1.put(SESSION_ID, localState.getRaw(SESSION_ID));
-				msg1.put(GROUP_ID, localState.getRaw(GROUP_ID_1));
-				msg1.put(NAME, localState.getString(CONTACT_2));
+				msg1.put(SESSION_ID, localState.getSessionId().getBytes());
+				msg1.put(GROUP_ID, localState.getGroup1Id().getBytes());
+				msg1.put(NAME, localState.getContact2Name());
 				msg1.put(PUBLIC_KEY, localAction.getRaw(PUBLIC_KEY2));
 				if (localAction.containsKey(MSG)) {
 					msg1.put(MSG, localAction.getString(MSG));
@@ -111,9 +112,9 @@ public class IntroducerEngine
 				logLocalAction(currentState, localState, msg1);
 				BdfDictionary msg2 = new BdfDictionary();
 				msg2.put(TYPE, TYPE_REQUEST);
-				msg2.put(SESSION_ID, localState.getRaw(SESSION_ID));
-				msg2.put(GROUP_ID, localState.getRaw(GROUP_ID_2));
-				msg2.put(NAME, localState.getString(CONTACT_1));
+				msg2.put(SESSION_ID, localState.getSessionId().getBytes());
+				msg2.put(GROUP_ID, localState.getGroup2Id().getBytes());
+				msg2.put(NAME, localState.getContact1Name());
 				msg2.put(PUBLIC_KEY, localAction.getRaw(PUBLIC_KEY1));
 				if (localAction.containsKey(MSG)) {
 					msg2.put(MSG, localAction.getString(MSG));
@@ -123,8 +124,8 @@ public class IntroducerEngine
 				logLocalAction(currentState, localState, msg2);
 
 				List<Event> events = Collections.emptyList();
-				return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-						localState, messages, events);
+				return new StateUpdate<IntroducerSessionState, BdfDictionary>(
+						false, false,localState, messages, events);
 			} else {
 				throw new IllegalArgumentException("Unknown Local Action");
 			}
@@ -134,12 +135,11 @@ public class IntroducerEngine
 	}
 
 	@Override
-	public StateUpdate<BdfDictionary, BdfDictionary> onMessageReceived(
-			BdfDictionary localState, BdfDictionary msg) {
+	public StateUpdate<IntroducerSessionState, BdfDictionary> onMessageReceived(
+			IntroducerSessionState localState, BdfDictionary msg) {
 
 		try {
-			IntroducerProtocolState currentState =
-					getState(localState.getLong(STATE));
+			IntroducerProtocolState currentState = localState.getState();
 			int type = msg.getLong(TYPE).intValue();
 			boolean one = isContact1(localState, msg);
 			IntroducerAction action = IntroducerAction.getRemote(type, one);
@@ -166,9 +166,11 @@ public class IntroducerEngine
 				action = IntroducerAction
 						.getRemote(type, one, msg.getBoolean(ACCEPT));
 				nextState = currentState.next(action);
-				localState.put(STATE, nextState.getValue());
-				if (one) localState.put(RESPONSE_1, msg.getRaw(MESSAGE_ID));
-				else localState.put(RESPONSE_2, msg.getRaw(MESSAGE_ID));
+				localState.setState(nextState);
+				if (one) localState.setResponse1(
+						new MessageId(msg.getRaw(MESSAGE_ID)));
+				else localState.setResponse2(
+						new MessageId(msg.getRaw(MESSAGE_ID)));
 
 				messages = forwardMessage(localState, msg);
 				events = Collections.singletonList(getEvent(localState, msg));
@@ -177,7 +179,7 @@ public class IntroducerEngine
 			else if (currentState == AWAIT_ACKS ||
 					currentState == AWAIT_ACK_1 ||
 					currentState == AWAIT_ACK_2) {
-				localState.put(STATE, nextState.getValue());
+				localState.setState(nextState);
 				messages = forwardMessage(localState, msg);
 				events = Collections.emptyList();
 			}
@@ -185,27 +187,27 @@ public class IntroducerEngine
 			else if (currentState == FINISHED) {
 				// if it was a response store it to be found later
 				if (action == REMOTE_ACCEPT_1 || action == REMOTE_DECLINE_1) {
-					localState.put(RESPONSE_1, msg.getRaw(MESSAGE_ID));
+					localState.setResponse1(new MessageId(msg.getRaw(MESSAGE_ID)));
 					messages = Collections.emptyList();
 					events = Collections.singletonList(getEvent(localState, msg));
 				} else if (action == REMOTE_ACCEPT_2 ||
 						action == REMOTE_DECLINE_2) {
-					localState.put(RESPONSE_2, msg.getRaw(MESSAGE_ID));
+					localState.setResponse2(new MessageId(msg.getRaw(MESSAGE_ID)));
 					messages = Collections.emptyList();
 					events = Collections.singletonList(getEvent(localState, msg));
 				} else return noUpdate(localState);
 			} else {
 				throw new IllegalArgumentException("Bad state");
 			}
-			return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-					localState, messages, events);
+			return new StateUpdate<IntroducerSessionState, BdfDictionary>(false, 
+					false, localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 
 	private void logLocalAction(IntroducerProtocolState state,
-			BdfDictionary localState, BdfDictionary msg) {
+			IntroducerSessionState localState, BdfDictionary msg) {
 
 		if (!LOG.isLoggable(INFO)) return;
 
@@ -216,7 +218,7 @@ public class IntroducerEngine
 					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
 					"Moving on to state " +
-					getState(localState.getLong(STATE)).name()
+					localState.getState().name()
 			);
 		} catch (FormatException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -225,7 +227,7 @@ public class IntroducerEngine
 
 	private void logMessageReceived(IntroducerProtocolState currentState,
 			IntroducerProtocolState nextState,
-			BdfDictionary localState, int type, BdfDictionary msg) {
+			IntroducerSessionState localState, int type, BdfDictionary msg) {
 		if (!LOG.isLoggable(INFO)) return;
 
 		try {
@@ -249,15 +251,15 @@ public class IntroducerEngine
 		}
 	}
 
-	private List<BdfDictionary> forwardMessage(BdfDictionary localState,
+	private List<BdfDictionary> forwardMessage(IntroducerSessionState localState,
 			BdfDictionary message) throws FormatException {
 
 		// clone the message here, because we still need the original
 		BdfDictionary msg = (BdfDictionary) message.clone();
 		if (isContact1(localState, msg)) {
-			msg.put(GROUP_ID, localState.getRaw(GROUP_ID_2));
+			msg.put(GROUP_ID, localState.getGroup2Id());
 		} else {
-			msg.put(GROUP_ID, localState.getRaw(GROUP_ID_1));
+			msg.put(GROUP_ID, localState.getGroup1Id());
 		}
 
 		if (LOG.isLoggable(INFO)) {
@@ -269,8 +271,8 @@ public class IntroducerEngine
 	}
 
 	@Override
-	public StateUpdate<BdfDictionary, BdfDictionary> onMessageDelivered(
-			BdfDictionary localState, BdfDictionary delivered) {
+	public StateUpdate<IntroducerSessionState, BdfDictionary> onMessageDelivered(
+			IntroducerSessionState localState, BdfDictionary delivered) {
 		try {
 			return noUpdate(localState);
 		}
@@ -280,23 +282,18 @@ public class IntroducerEngine
 		}
 	}
 
-	private IntroducerProtocolState getState(Long state) {
-		 return IntroducerProtocolState.fromValue(state.intValue());
-	}
+	private Event getEvent(IntroducerSessionState localState, 
+			BdfDictionary msg) throws FormatException {
 
-	private Event getEvent(BdfDictionary localState, BdfDictionary msg)
-			throws FormatException {
-
-		ContactId contactId =
-				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
-		AuthorId authorId = new AuthorId(localState.getRaw(AUTHOR_ID_1));
-		if (Arrays.equals(msg.getRaw(GROUP_ID), localState.getRaw(GROUP_ID_2))) {
-			contactId =
-					new ContactId(localState.getLong(CONTACT_ID_2).intValue());
-			authorId = new AuthorId(localState.getRaw(AUTHOR_ID_2));
+		ContactId contactId = localState.getContact1Id();
+		AuthorId authorId = localState.getContact1AuthorId();
+		if (Arrays.equals(msg.getRaw(GROUP_ID), 
+					localState.getGroup2Id().getBytes())) {
+			contactId = localState.getContact2Id();
+			authorId = localState.getContact2AuthorId();
 		}
 
-		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
+		SessionId sessionId = localState.getSessionId();
 		MessageId messageId = new MessageId(msg.getRaw(MESSAGE_ID));
 		long time = msg.getLong(MESSAGE_TIME);
 		String name = getOtherContact(localState, msg);
@@ -309,12 +306,12 @@ public class IntroducerEngine
 		return new IntroductionResponseReceivedEvent(contactId, ir);
 	}
 
-	private boolean isContact1(BdfDictionary localState, BdfDictionary msg)
-			throws FormatException {
+	private boolean isContact1(IntroducerSessionState localState, 
+			BdfDictionary msg) throws FormatException {
 
 		byte[] group = msg.getRaw(GROUP_ID);
-		byte[] group1 = localState.getRaw(GROUP_ID_1);
-		byte[] group2 = localState.getRaw(GROUP_ID_2);
+		byte[] group1 = localState.getGroup1Id().getBytes();
+		byte[] group2 = localState.getGroup2Id().getBytes();
 
 		if (Arrays.equals(group, group1)) {
 			return true;
@@ -325,69 +322,69 @@ public class IntroducerEngine
 		}
 	}
 
-	private String getMessagePartner(BdfDictionary localState,
+	private String getMessagePartner(IntroducerSessionState localState,
 			BdfDictionary msg) throws FormatException {
 
-		String from = localState.getString(CONTACT_1);
-		if (Arrays.equals(msg.getRaw(GROUP_ID), localState.getRaw(GROUP_ID_2))) {
-			from = localState.getString(CONTACT_2);
+		String from = localState.getContact1Name();
+		if (Arrays.equals(msg.getRaw(GROUP_ID), 
+					localState.getGroup2Id().getBytes())) {
+			from = localState.getContact2Name();
 		}
 		return from;
 	}
 
-	private String getOtherContact(BdfDictionary localState, BdfDictionary msg)
-			throws FormatException {
+	private String getOtherContact(IntroducerSessionState localState, 
+			BdfDictionary msg) throws FormatException {
 
-		String to = localState.getString(CONTACT_2);
-		if (Arrays.equals(msg.getRaw(GROUP_ID), localState.getRaw(GROUP_ID_2))) {
-			to = localState.getString(CONTACT_1);
+		String to = localState.getContact2Name();
+		if (Arrays.equals(msg.getRaw(GROUP_ID), 
+					localState.getGroup2Id().getBytes())) {
+			to = localState.getContact1Name();
 		}
 		return to;
 	}
 
-	private StateUpdate<BdfDictionary, BdfDictionary> abortSession(
-			IntroducerProtocolState currentState, BdfDictionary localState)
-			throws FormatException {
+	private StateUpdate<IntroducerSessionState, BdfDictionary> abortSession(
+			IntroducerProtocolState currentState, 
+			IntroducerSessionState localState) throws FormatException {
 
 		if (LOG.isLoggable(WARNING)) {
 			LOG.warning("Aborting protocol session " +
-					Arrays.hashCode(localState.getRaw(SESSION_ID)) +
+					Arrays.hashCode(localState.getSessionId().getBytes()) +
 					" in state " + currentState.name());
 		}
 
-		localState.put(STATE, ERROR.getValue());
+		localState.setState(ERROR);
 		List<BdfDictionary> messages = new ArrayList<BdfDictionary>(2);
 		BdfDictionary msg1 = new BdfDictionary();
 		msg1.put(TYPE, TYPE_ABORT);
-		msg1.put(SESSION_ID, localState.getRaw(SESSION_ID));
-		msg1.put(GROUP_ID, localState.getRaw(GROUP_ID_1));
+		msg1.put(SESSION_ID, localState.getSessionId());
+		msg1.put(GROUP_ID, localState.getGroup1Id());
 		messages.add(msg1);
 		BdfDictionary msg2 = new BdfDictionary();
 		msg2.put(TYPE, TYPE_ABORT);
-		msg2.put(SESSION_ID, localState.getRaw(SESSION_ID));
-		msg2.put(GROUP_ID, localState.getRaw(GROUP_ID_2));
+		msg2.put(SESSION_ID, localState.getSessionId());
+		msg2.put(GROUP_ID, localState.getGroup2Id());
 		messages.add(msg2);
 
 		// send one abort event per contact
 		List<Event> events = new ArrayList<Event>(2);
-		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
-		ContactId contactId1 =
-				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
-		ContactId contactId2 =
-				new ContactId(localState.getLong(CONTACT_ID_2).intValue());
+		SessionId sessionId = localState.getSessionId();
+		ContactId contactId1 = localState.getContact1Id();
+		ContactId contactId2 = localState.getContact2Id();
 		Event event1 = new IntroductionAbortedEvent(contactId1, sessionId);
 		events.add(event1);
 		Event event2 = new IntroductionAbortedEvent(contactId2, sessionId);
 		events.add(event2);
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, messages, events);
+		return new StateUpdate<IntroducerSessionState, BdfDictionary>(false, 
+				false, localState, messages, events);
 	}
 
-	private StateUpdate<BdfDictionary, BdfDictionary> noUpdate(
-			BdfDictionary localState) throws FormatException {
+	private StateUpdate<IntroducerSessionState, BdfDictionary> noUpdate(
+			IntroducerSessionState localState) throws FormatException {
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
+		return new StateUpdate<IntroducerSessionState, BdfDictionary>(false, false,
 				localState, Collections.<BdfDictionary>emptyList(),
 				Collections.<Event>emptyList());
 	}
