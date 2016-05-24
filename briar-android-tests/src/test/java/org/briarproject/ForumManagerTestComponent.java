@@ -1,5 +1,12 @@
 package org.briarproject;
 
+import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
@@ -54,5 +61,19 @@ public interface ForumManagerTestComponent {
 	void inject(SyncModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	LifecycleManager getLifecycleManager();
+
+	EventBus getEventBus();
+
+	IdentityManager getIdentityManager();
+
+	ContactManager getContactManager();
+
+	ForumSharingManager getForumSharingManager();
+
+	ForumManager getForumManager();
+
+	SyncSessionFactory getSyncSessionFactory();
 
 }
