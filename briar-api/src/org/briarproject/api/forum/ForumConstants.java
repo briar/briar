@@ -49,4 +49,15 @@ public interface ForumConstants {
 	int TASK_UNSHARE_FORUM_SHARED_BY_US = 6;
 	int TASK_UNSHARE_FORUM_SHARED_WITH_US = 7;
 
+	// Database keys
+	String KEY_TIMESTAMP = "timestamp";
+	String KEY_PARENT = "parent";
+	String KEY_ID = "id";
+	String KEY_NAME = "name";
+	String KEY_PUBLIC_NAME = "publicKey";
+	String KEY_AUTHOR = "author";
+	String KEY_CONTENT_TYPE = "contentType";
+	String KEY_LOCAL = "local";
+	String KEY_READ = "read";
+
 }

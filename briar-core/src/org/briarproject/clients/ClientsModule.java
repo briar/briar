@@ -50,4 +50,5 @@ public class ClientsModule {
 	QueueMessageFactory provideQueueMessageFactory(CryptoComponent crypto) {
 		return new QueueMessageFactoryImpl(crypto);
 	}
+
 }

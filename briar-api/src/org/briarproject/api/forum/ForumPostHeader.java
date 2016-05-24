@@ -6,15 +6,18 @@ import org.briarproject.api.sync.MessageId;
 public class ForumPostHeader {
 
 	private final MessageId id;
+	private final MessageId parentId;
 	private final long timestamp;
 	private final Author author;
 	private final Author.Status authorStatus;
 	private final String contentType;
 	private final boolean read;
 
-	public ForumPostHeader(MessageId id, long timestamp, Author author,
-			Author.Status authorStatus, String contentType, boolean read) {
+	public ForumPostHeader(MessageId id, MessageId parentId, long timestamp,
+			Author author, Author.Status authorStatus, String contentType,
+			boolean read) {
 		this.id = id;
+		this.parentId = parentId;
 		this.timestamp = timestamp;
 		this.author = author;
 		this.authorStatus = authorStatus;
@@ -44,5 +47,9 @@ public class ForumPostHeader {
 
 	public boolean isRead() {
 		return read;
+	}
+
+	public MessageId getParentId() {
+		return parentId;
 	}
 }
