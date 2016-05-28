@@ -329,7 +329,9 @@ interface Database<T> {
 	/**
 	 * Returns the dependencies of the given message.
 	 * This method makes sure that dependencies in different groups
-	 * are returned as {@link ValidationManager.State.INVALID}.
+	 * are returned as {@link ValidationManager.State.INVALID}. Note that this
+	 * is not set on the dependencies themselves; the returned states should
+	 * only be taken in the context of the given message.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -468,14 +470,14 @@ interface Database<T> {
 	void lowerRequestedFlag(T txn, ContactId c, Collection<MessageId> requested)
 			throws DbException;
 
-	/*
+	/**
 	 * Merges the given metadata with the existing metadata for the given
 	 * group.
 	 */
 	void mergeGroupMetadata(T txn, GroupId g, Metadata meta)
 			throws DbException;
 
-	/*
+	/**
 	 * Merges the given metadata with the existing metadata for the given
 	 * message.
 	 */
@@ -577,7 +579,7 @@ interface Database<T> {
 	void setMessageState(T txn, MessageId m, State state)
 			throws DbException;
 
-	/*
+	/**
 	 * Adds a dependency between two MessageIds
 	 */
 	void addMessageDependency(T txn, MessageId dependentId,
