@@ -83,6 +83,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Adds a dependency between two MessageIds
+	 */
+	void addMessageDependency(T txn, MessageId dependentId,
+			MessageId dependencyId) throws DbException;
+
+	/**
 	 * Records that a message has been offered by the given contact.
 	 */
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
@@ -267,6 +273,26 @@ interface Database<T> {
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
+	 * Returns the dependencies of the given message.
+	 * This method makes sure that dependencies in different groups
+	 * are returned as {@link ValidationManager.State.INVALID}. Note that this
+	 * is not set on the dependencies themselves; the returned states should
+	 * only be taken in the context of the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, State> getMessageDependencies(T txn, MessageId m)
+			throws DbException;
+
+	/**
+	 * Returns all IDs of messages that depend on the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, State> getMessageDependents(T txn, MessageId m)
+			throws DbException;
+
+	/**
 	 * Returns the IDs of all messages in the given group.
 	 * <p/>
 	 * Read-only.
@@ -327,32 +353,21 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the dependencies of the given message.
-	 * This method makes sure that dependencies in different groups
-	 * are returned as {@link ValidationManager.State.INVALID}. Note that this
-	 * is not set on the dependencies themselves; the returned states should
-	 * only be taken in the context of the given message.
-	 * <p/>
-	 * Read-only.
-	 */
-	Map<MessageId, State> getMessageDependencies(T txn, MessageId m)
-			throws DbException;
-
-	/**
-	 * Returns all IDs of messages that depend on the given message.
-	 * <p/>
-	 * Read-only.
-	 */
-	Map<MessageId, State> getMessageDependents(T txn, MessageId m)
-			throws DbException;
-
-	/**
 	 * Returns the IDs of some messages received from the given contact that
 	 * need to be acknowledged, up to the given number of messages.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
+			throws DbException;
+
+	/**
+	 * Returns the IDs of any messages that need to be delivered to the given
+	 * client.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessagesToDeliver(T txn, ClientId c)
 			throws DbException;
 
 	/**
@@ -365,15 +380,6 @@ interface Database<T> {
 			int maxMessages) throws DbException;
 
 	/**
-	 * Returns the IDs of some messages that are eligible to be sent to the
-	 * given contact, up to the given total length.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength)
-			throws DbException;
-
-	/**
 	 * Returns the IDs of some messages that are eligible to be requested from
 	 * the given contact, up to the given number of messages.
 	 * <p/>
@@ -383,21 +389,21 @@ interface Database<T> {
 			int maxMessages) throws DbException;
 
 	/**
+	 * Returns the IDs of some messages that are eligible to be sent to the
+	 * given contact, up to the given total length.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength)
+			throws DbException;
+
+	/**
 	 * Returns the IDs of any messages that need to be validated by the given
 	 * client.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
-			throws DbException;
-
-	/**
-	 * Returns the IDs of any messages that need to be delivered to the given
-	 * client.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<MessageId> getMessagesToDeliver(T txn, ClientId c)
 			throws DbException;
 
 	/**
@@ -578,12 +584,6 @@ interface Database<T> {
 	 */
 	void setMessageState(T txn, MessageId m, State state)
 			throws DbException;
-
-	/**
-	 * Adds a dependency between two MessageIds
-	 */
-	void addMessageDependency(T txn, MessageId dependentId,
-			MessageId dependencyId) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given contact and transport in the
