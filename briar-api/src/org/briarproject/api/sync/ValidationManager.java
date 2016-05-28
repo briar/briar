@@ -10,13 +10,13 @@ import org.briarproject.api.db.Transaction;
  */
 public interface ValidationManager {
 
-	enum Validity {
+	enum State {
 
-		UNKNOWN(0), INVALID(1), VALID(2);
+		UNKNOWN(0), INVALID(1), PENDING(2), VALID(3), DELIVERED(4);
 
 		private final int value;
 
-		Validity(int value) {
+		State(int value) {
 			this.value = value;
 		}
 
@@ -24,8 +24,8 @@ public interface ValidationManager {
 			return value;
 		}
 
-		public static Validity fromValue(int value) {
-			for (Validity s : values()) if (s.value == value) return s;
+		public static State fromValue(int value) {
+			for (State s : values()) if (s.value == value) return s;
 			throw new IllegalArgumentException();
 		}
 	}

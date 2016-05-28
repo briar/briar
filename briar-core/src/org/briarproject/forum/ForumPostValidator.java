@@ -2,8 +2,8 @@ package org.briarproject.forum;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.BdfMessageContext;
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PublicKey;
@@ -16,10 +16,13 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
 import java.security.GeneralSecurityException;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.briarproject.api.forum.ForumConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
@@ -96,10 +99,14 @@ class ForumPostValidator extends BdfMessageValidator {
 				throw new InvalidMessageException("Invalid public key");
 			}
 		}
-		// Return the metadata
+		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
+		Collection<MessageId> dependencies = null;
 		meta.put("timestamp", m.getTimestamp());
-		if (parent != null) meta.put("parent", parent);
+		if (parent != null) {
+			meta.put("parent", parent);
+			dependencies = Collections.singletonList(new MessageId(parent));
+		}
 		if (author != null) {
 			BdfDictionary authorMeta = new BdfDictionary();
 			authorMeta.put("id", author.getId());
@@ -109,6 +116,6 @@ class ForumPostValidator extends BdfMessageValidator {
 		}
 		meta.put("contentType", contentType);
 		meta.put("read", false);
-		return new BdfMessageContext(meta);
+		return new BdfMessageContext(meta, dependencies);
 	}
 }

@@ -47,7 +47,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.forum.ForumInvitationMessage;
@@ -87,6 +87,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 public class ConversationActivity extends BriarActivity
 		implements EventListener, OnClickListener,
@@ -468,9 +469,10 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact removed");
 				finishOnUiThread();
 			}
-		} else if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
-			if (m.isValid() && m.getMessage().getGroupId().equals(groupId)) {
+		} else if (e instanceof MessageStateChangedEvent) {
+			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
+			if (m.getState() == DELIVERED &&
+					m.getMessage().getGroupId().equals(groupId)) {
 				LOG.info("Message added, reloading");
 				// Mark new incoming messages as read directly
 				if (m.isLocal()) loadMessages();

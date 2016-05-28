@@ -29,8 +29,8 @@ import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.identity.Author;
@@ -47,7 +47,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
-import org.briarproject.api.sync.ValidationManager.Validity;
+import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.transport.TransportKeys;
 
 import java.util.ArrayList;
@@ -64,8 +64,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.sync.ValidationManager.Validity.UNKNOWN;
-import static org.briarproject.api.sync.ValidationManager.Validity.VALID;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 
 class DatabaseComponentImpl<T> implements DatabaseComponent {
@@ -193,17 +193,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsGroup(txn, m.getGroupId()))
 			throw new NoSuchGroupException();
 		if (!db.containsMessage(txn, m.getId())) {
-			addMessage(txn, m, VALID, shared);
+			addMessage(txn, m, DELIVERED, shared);
 			transaction.attach(new MessageAddedEvent(m, null));
-			transaction.attach(new MessageValidatedEvent(m, c, true, true));
+			transaction.attach(new MessageStateChangedEvent(m, c, true,
+					DELIVERED));
 			if (shared) transaction.attach(new MessageSharedEvent(m));
 		}
 		db.mergeMessageMetadata(txn, m.getId(), meta);
 	}
 
-	private void addMessage(T txn, Message m, Validity validity, boolean shared)
+	private void addMessage(T txn, Message m, State state, boolean shared)
 			throws DbException {
-		db.addMessage(txn, m, validity, shared);
+		db.addMessage(txn, m, state, shared);
 		for (ContactId c : db.getVisibility(txn, m.getGroupId())) {
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
 			db.addStatus(txn, c, m.getId(), offered, offered);
@@ -411,6 +412,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessagesToValidate(txn, c);
 	}
 
+	public Collection<MessageId> getMessagesToDeliver(Transaction transaction,
+			ClientId c) throws DbException {
+		T txn = unbox(transaction);
+		return db.getMessagesToDeliver(txn, c);
+	}
+
+	public Collection<MessageId> getPendingMessages(Transaction transaction,
+			ClientId c) throws DbException {
+		T txn = unbox(transaction);
+		return db.getPendingMessages(txn, c);
+	}
+
 	public byte[] getRawMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -461,6 +474,22 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
 		return db.getMessageStatus(txn, c, m);
+	}
+
+	public Map<MessageId, State> getMessageDependencies(Transaction transaction,
+			MessageId m) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessageDependencies(txn, m);
+	}
+
+	public Map<MessageId, State> getMessageDependents(Transaction transaction,
+			MessageId m) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessageDependents(txn, m);
 	}
 
 	public Settings getSettings(Transaction transaction, String namespace)
@@ -664,14 +693,26 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (shared) transaction.attach(new MessageSharedEvent(m));
 	}
 
-	public void setMessageValid(Transaction transaction, Message m, ClientId c,
-			boolean valid) throws DbException {
+	public void setMessageState(Transaction transaction, Message m, ClientId c,
+			State state) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m.getId()))
 			throw new NoSuchMessageException();
-		db.setMessageValid(txn, m.getId(), valid);
-		transaction.attach(new MessageValidatedEvent(m, c, false, valid));
+		db.setMessageState(txn, m.getId(), state);
+		transaction.attach(new MessageStateChangedEvent(m, c, false, state));
+	}
+
+	public void addMessageDependencies(Transaction transaction,
+			Message dependent, Collection<MessageId> dependencies)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, dependent.getId()))
+			throw new NoSuchMessageException();
+		for (MessageId dependencyId : dependencies) {
+			db.addMessageDependency(txn, dependent.getId(), dependencyId);
+		}
 	}
 
 	public void setReorderingWindow(Transaction transaction, ContactId c,

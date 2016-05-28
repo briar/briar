@@ -18,7 +18,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumManager;
@@ -27,9 +27,12 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
+import org.briarproject.api.sync.ValidationManager;
+import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.system.Clock;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
@@ -60,6 +63,8 @@ import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -669,14 +674,15 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		public volatile boolean responseReceived = false;
 
 		public void eventOccurred(Event e) {
-			if (e instanceof MessageValidatedEvent) {
-				MessageValidatedEvent event = (MessageValidatedEvent) e;
-				if (event.getClientId()
-						.equals(forumSharingManager0.getClientId()) &&
+			if (e instanceof MessageStateChangedEvent) {
+				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
+				State s = event.getState();
+				ClientId c = event.getClientId();
+				if ((s == DELIVERED || s == INVALID) &&
+						c.equals(forumSharingManager0.getClientId()) &&
 						!event.isLocal()) {
 					LOG.info("TEST: Sharer received message in group " +
-							((MessageValidatedEvent) e).getMessage()
-									.getGroupId().hashCode());
+							event.getMessage().getGroupId().hashCode());
 					msgWaiter.resume();
 				}
 			} else if (e instanceof ForumInvitationResponseReceivedEvent) {
@@ -722,14 +728,15 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		}
 
 		public void eventOccurred(Event e) {
-			if (e instanceof MessageValidatedEvent) {
-				MessageValidatedEvent event = (MessageValidatedEvent) e;
-				if (event.getClientId()
-						.equals(forumSharingManager1.getClientId()) &&
+			if (e instanceof MessageStateChangedEvent) {
+				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
+				State s = event.getState();
+				ClientId c = event.getClientId();
+				if ((s == DELIVERED || s == INVALID) &&
+						c.equals(forumSharingManager0.getClientId()) &&
 						!event.isLocal()) {
 					LOG.info("TEST: Invitee received message in group " +
-							((MessageValidatedEvent) e).getMessage()
-									.getGroupId().hashCode());
+							event.getMessage().getGroupId().hashCode());
 					msgWaiter.resume();
 				}
 			} else if (e instanceof ForumInvitationReceivedEvent) {

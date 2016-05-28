@@ -22,6 +22,8 @@ import org.briarproject.api.transport.TransportKeys;
 import java.util.Collection;
 import java.util.Map;
 
+import static org.briarproject.api.sync.ValidationManager.State;
+
 /**
  * Encapsulates the database implementation and exposes high-level operations
  * to other components.
@@ -234,6 +236,24 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Returns the IDs of any messages that need to be delivered to the given
+	 * client.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessagesToDeliver(Transaction txn, ClientId c)
+			throws DbException;
+
+	/**
+	 * Returns the IDs of any messages that are still pending due to
+	 * dependencies to other messages for the given client.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getPendingMessages(Transaction txn, ClientId c)
+			throws DbException;
+
+	/**
 	 * Returns the message with the given ID, in serialised form, or null if
 	 * the message has been deleted.
 	 * <p/>
@@ -275,6 +295,22 @@ public interface DatabaseComponent {
 	 */
 	Collection<MessageStatus> getMessageStatus(Transaction txn, ContactId c,
 			GroupId g) throws DbException;
+
+	/**
+	 * Returns the dependencies of the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, State> getMessageDependencies(Transaction txn, MessageId m)
+			throws DbException;
+
+	/**
+	 * Returns all IDs of messages that depend on the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	Map<MessageId, State> getMessageDependents(Transaction txn, MessageId m)
+			throws DbException;
 
 	/**
 	 * Returns the status of the given message with respect to the given
@@ -391,10 +427,16 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Marks the given message as valid or invalid.
+	 * Sets the state of the message with respect to validation and delivery.
 	 */
-	void setMessageValid(Transaction txn, Message m, ClientId c, boolean valid)
+	void setMessageState(Transaction txn, Message m, ClientId c, State valid)
 			throws DbException;
+
+	/**
+	 * Adds dependencies for a message
+	 */
+	void addMessageDependencies(Transaction txn, Message dependent,
+			Collection<MessageId> dependencies) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given contact and transport in the

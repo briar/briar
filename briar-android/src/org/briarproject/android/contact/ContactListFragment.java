@@ -30,7 +30,7 @@ import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageValidatedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
@@ -54,6 +54,7 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 public class ContactListFragment extends BaseFragment implements EventListener {
 
@@ -230,12 +231,13 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed");
 			removeItem(((ContactRemovedEvent) e).getContactId());
-		} else if (e instanceof MessageValidatedEvent) {
-			MessageValidatedEvent m = (MessageValidatedEvent) e;
+		} else if (e instanceof MessageStateChangedEvent) {
+			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
 			ClientId c = m.getClientId();
-			if (m.isValid() && (c.equals(messagingManager.getClientId()) ||
-					c.equals(introductionManager.getClientId()) ||
-					c.equals(forumSharingManager.getClientId()))) {
+			if (m.getState() == DELIVERED &&
+					(c.equals(messagingManager.getClientId()) ||
+							c.equals(introductionManager.getClientId()) ||
+							c.equals(forumSharingManager.getClientId()))) {
 				LOG.info("Message added, reloading");
 				reloadConversation(m.getMessage().getGroupId());
 			}

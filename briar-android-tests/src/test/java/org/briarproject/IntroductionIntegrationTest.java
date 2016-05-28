@@ -19,7 +19,7 @@ import org.briarproject.api.event.IntroductionAbortedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
-import org.briarproject.api.event.MessageValidatedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
@@ -29,10 +29,13 @@ import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
+import org.briarproject.api.sync.ValidationManager;
+import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.system.Clock;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
@@ -70,6 +73,8 @@ import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
+import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -1047,15 +1052,16 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 		@Override
 		public void eventOccurred(Event e) {
-			if (e instanceof MessageValidatedEvent) {
-				MessageValidatedEvent event = (MessageValidatedEvent) e;
-				if (event.getClientId()
-						.equals(introductionManager0.getClientId()) &&
+			if (e instanceof MessageStateChangedEvent) {
+				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
+				State s = event.getState();
+				ClientId c = event.getClientId();
+				if ((s == DELIVERED || s == INVALID) &&
+						c.equals(introductionManager0.getClientId()) &&
 						!event.isLocal()) {
 					LOG.info("TEST: Introducee" + introducee +
 							" received message in group " +
-							((MessageValidatedEvent) e).getMessage()
-									.getGroupId().hashCode());
+							event.getMessage().getGroupId().hashCode());
 					msgWaiter.resume();
 				}
 			} else if (e instanceof IntroductionRequestReceivedEvent) {
@@ -1114,14 +1120,13 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 		@Override
 		public void eventOccurred(Event e) {
-			if (e instanceof MessageValidatedEvent) {
-				MessageValidatedEvent event = (MessageValidatedEvent) e;
-				if (event.getClientId()
+			if (e instanceof MessageStateChangedEvent) {
+				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
+				if (event.getState() == DELIVERED && event.getClientId()
 						.equals(introductionManager0.getClientId()) &&
 						!event.isLocal()) {
 					LOG.info("TEST: Introducer received message in group " +
-							((MessageValidatedEvent) e).getMessage()
-									.getGroupId().hashCode());
+							event.getMessage().getGroupId().hashCode());
 					msgWaiter.resume();
 				}
 			} else if (e instanceof IntroductionResponseReceivedEvent) {
