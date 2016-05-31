@@ -3,18 +3,23 @@ package org.briarproject.android.forum;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,75 +27,60 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
-import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchGroupException;
-import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.GroupRemovedEvent;
-import org.briarproject.api.event.MessageStateChangedEvent;
-import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumPostHeader;
-import org.briarproject.api.identity.Author;
+import org.briarproject.android.controller.handler.ResultHandler;
+import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
+import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import im.delight.android.identicons.IdenticonDrawable;
+
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.support.design.widget.Snackbar.LENGTH_LONG;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.Toast.LENGTH_SHORT;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.forum.ReadForumPostActivity.RESULT_PREV_NEXT;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
-import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
-import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
-public class ForumActivity extends BriarActivity implements EventListener,
-		OnItemClickListener {
+public class ForumActivity extends BriarActivity implements
+		ForumController.ForumPostListener {
 
-	public static final String FORUM_NAME = "briar.FORUM_NAME";
-	public static final String MIN_TIMESTAMP = "briar.MIN_TIMESTAMP";
-
-	private static final int REQUEST_READ = 2;
-	private static final int REQUEST_FORUM_SHARED = 3;
 	private static final Logger LOG =
 			Logger.getLogger(ForumActivity.class.getName());
 
-	@Inject protected AndroidNotificationManager notificationManager;
-	private Map<MessageId, byte[]> bodyCache = new HashMap<>();
-	private TextView empty = null;
-	private ForumAdapter adapter = null;
-	private ListView list = null;
-	private ListLoadingProgressBar loading = null;
+	public static final String FORUM_NAME = "briar.FORUM_NAME";
+	public static final String MIN_TIMESTAMP = "briar.MIN_TIMESTAMP";
+	private static final int REQUEST_FORUM_SHARED = 3;
 
-	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile ForumManager forumManager;
-	@Inject protected volatile EventBus eventBus;
+	@Inject
+	protected AndroidNotificationManager notificationManager;
+
+	// uncomment the next line for a test component with dummy data
+//	@Named("ForumTestController")
+	@Inject
+	protected ForumController forumController;
+
+	private BriarRecyclerView recyclerView;
+	private EditText textInput;
+	private ViewGroup inputContainer;
+	private LinearLayoutManager linearLayoutManager;
+
 	private volatile GroupId groupId = null;
-	private volatile Forum forum = null;
+
+	protected ForumAdapter forumAdapter;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
+		setContentView(R.layout.activity_forum);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
@@ -99,32 +89,30 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		String forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName != null) setTitle(forumName);
 
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(MATCH_MATCH);
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
-
-		empty = new TextView(this);
-		empty.setLayoutParams(MATCH_WRAP_1);
-		empty.setGravity(CENTER);
-		empty.setTextSize(18);
-		empty.setText(R.string.no_forum_posts);
-		empty.setVisibility(GONE);
-		layout.addView(empty);
-
-		adapter = new ForumAdapter(this);
-		list = new ListView(this);
-		list.setLayoutParams(MATCH_WRAP_1);
-		list.setAdapter(adapter);
-		list.setOnItemClickListener(this);
-		list.setVisibility(GONE);
-		layout.addView(list);
-
-		// Show a progress bar while the list is loading
-		loading = new ListLoadingProgressBar(this);
-		layout.addView(loading);
-
-		setContentView(layout);
+		inputContainer = (ViewGroup) findViewById(R.id.text_input_container);
+		inputContainer.setVisibility(GONE);
+		textInput = (EditText) findViewById(R.id.input_text);
+		recyclerView =
+				(BriarRecyclerView) findViewById(R.id.forum_discussion_list);
+		linearLayoutManager = new LinearLayoutManager(this);
+		recyclerView.setLayoutManager(linearLayoutManager);
+		recyclerView.showProgressBar();
+		forumController
+				.loadForum(groupId, new UiResultHandler<Boolean>(this) {
+					@Override
+					public void onResultUi(Boolean result) {
+						if (result) {
+							setTitle(forumController.getForumName());
+							forumAdapter = new ForumAdapter(
+									forumController.getForumEntries());
+							recyclerView.setAdapter(forumAdapter);
+							recyclerView.showData();
+						} else {
+							// TODO Maybe an error dialog ?
+							finish();
+						}
+					}
+				});
 	}
 
 	@Override
@@ -132,14 +120,20 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		component.inject(this);
 	}
 
+	private void displaySnackbar(int stringId) {
+		Snackbar snackbar =
+				Snackbar.make(recyclerView, stringId, Snackbar.LENGTH_SHORT);
+		snackbar.getView().setBackgroundResource(R.color.briar_primary);
+		snackbar.show();
+	}
+
 	@Override
-	public void onResume() {
-		super.onResume();
-		eventBus.addListener(this);
-		notificationManager.blockNotification(groupId);
-		notificationManager.clearForumPostNotification(groupId);
-		loadForum();
-		loadHeaders();
+	protected void onActivityResult(int request, int result, Intent data) {
+		super.onActivityResult(request, result, data);
+
+		if (request == REQUEST_FORUM_SHARED && result == RESULT_OK) {
+			displaySnackbar(R.string.forum_shared_snackbar);
+		}
 	}
 
 	@Override
@@ -152,6 +146,27 @@ public class ForumActivity extends BriarActivity implements EventListener,
 	}
 
 	@Override
+	public void onBackPressed() {
+		if (inputContainer.getVisibility() == VISIBLE) {
+			inputContainer.setVisibility(GONE);
+			forumAdapter.setReplyEntry(null);
+		} else {
+			super.onBackPressed();
+		}
+	}
+
+	private void showTextInput(boolean isNewMessage) {
+		// An animation here would be an overkill because of the keyboard
+		// popping up.
+		inputContainer.setVisibility(View.VISIBLE);
+		textInput.setText("");
+		textInput.requestFocus();
+		textInput.setHint(isNewMessage ? R.string.forum_new_message_hint :
+				R.string.forum_message_reply_hint);
+		showSoftKeyboard(textInput);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		ActivityOptionsCompat options = ActivityOptionsCompat
 				.makeCustomAnimation(this, android.R.anim.slide_in_left,
@@ -159,11 +174,9 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_forum_compose_post:
-				Intent i = new Intent(this, WriteForumPostActivity.class);
-				i.putExtra(GROUP_ID, groupId.getBytes());
-				i.putExtra(FORUM_NAME, forum.getName());
-				i.putExtra(MIN_TIMESTAMP, getMinTimestampForNewPost());
-				startActivity(i);
+				if (inputContainer.getVisibility() != VISIBLE) {
+					showTextInput(true);
+				}
 				return true;
 			case R.id.action_forum_share:
 				Intent i2 = new Intent(this, ShareForumActivity.class);
@@ -187,225 +200,34 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		}
 	}
 
-	private void loadForum() {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					forum = forumManager.getForum(groupId);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading forum " + duration + " ms");
-					displayForumName();
-				} catch (NoSuchGroupException e) {
-					finishOnUiThread();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void displayForumName() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				setTitle(forum.getName());
-			}
-		});
-	}
-
-	private void loadHeaders() {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Collection<ForumPostHeader> headers =
-							forumManager.getPostHeaders(groupId);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Load took " + duration + " ms");
-					displayHeaders(headers);
-				} catch (NoSuchGroupException e) {
-					finishOnUiThread();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void displayHeaders(final Collection<ForumPostHeader> headers) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				loading.setVisibility(GONE);
-				adapter.clear();
-				if (headers.isEmpty()) {
-					empty.setVisibility(VISIBLE);
-					list.setVisibility(GONE);
-				} else {
-					empty.setVisibility(GONE);
-					list.setVisibility(VISIBLE);
-					for (ForumPostHeader h : headers) {
-						ForumItem item = new ForumItem(h);
-						byte[] body = bodyCache.get(h.getId());
-						if (body == null) loadPostBody(h);
-						else item.setBody(body);
-						adapter.add(item);
-					}
-					adapter.sort(ForumItemComparator.INSTANCE);
-					// Scroll to the bottom
-					list.setSelection(adapter.getCount() - 1);
-				}
-			}
-		});
-	}
-
-	private void loadPostBody(final ForumPostHeader h) {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					byte[] body = forumManager.getPostBody(h.getId());
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading message took " + duration + " ms");
-					displayPost(h.getId(), body);
-				} catch (NoSuchMessageException e) {
-					// The item will be removed when we get the event
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void displayPost(final MessageId m, final byte[] body) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				bodyCache.put(m, body);
-				int count = adapter.getCount();
-				for (int i = 0; i < count; i++) {
-					ForumItem item = adapter.getItem(i);
-					if (item.getHeader().getId().equals(m)) {
-						item.setBody(body);
-						adapter.notifyDataSetChanged();
-						// Scroll to the bottom
-						list.setSelection(count - 1);
-						return;
-					}
-				}
-			}
-		});
-	}
-
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
-		super.onActivityResult(request, result, data);
-		if (request == REQUEST_READ && result == RESULT_PREV_NEXT) {
-			int position = data.getIntExtra("briar.POSITION", -1);
-			if (position >= 0 && position < adapter.getCount())
-				displayPost(position);
-		}
-		else if (request == REQUEST_FORUM_SHARED && result == RESULT_OK) {
-			Snackbar s = Snackbar.make(list, R.string.forum_shared_snackbar,
-					LENGTH_LONG);
-			s.getView().setBackgroundResource(R.color.briar_primary);
-			s.show();
-		}
+	public void onResume() {
+		super.onResume();
+		notificationManager.blockNotification(groupId);
+		notificationManager.clearForumPostNotification(groupId);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		eventBus.removeListener(this);
 		notificationManager.unblockNotification(groupId);
-		if (isFinishing()) markPostsRead();
 	}
 
-	private void markPostsRead() {
-		List<MessageId> unread = new ArrayList<>();
-		int count = adapter.getCount();
-		for (int i = 0; i < count; i++) {
-			ForumPostHeader h = adapter.getItem(i).getHeader();
-			if (!h.isRead()) unread.add(h.getId());
+	public void sendMessage(View view) {
+		String text = textInput.getText().toString();
+		if (text.trim().length() == 0)
+			return;
+		ForumEntry replyEntry = forumAdapter.getReplyEntry();
+		if (replyEntry == null) {
+			// root post
+			forumController.createPost(StringUtils.toUtf8(text));
+		} else {
+			forumController.createPost(StringUtils.toUtf8(text),
+					replyEntry.getMessageId());
 		}
-		if (unread.isEmpty()) return;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Marking " + unread.size() + " posts read");
-		markPostsRead(Collections.unmodifiableList(unread));
-	}
-
-	private void markPostsRead(final Collection<MessageId> unread) {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					for (MessageId m : unread)
-						forumManager.setReadFlag(m, true);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Marking read took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	public void eventOccurred(Event e) {
-		if (e instanceof MessageStateChangedEvent) {
-			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
-			if (m.getState() == DELIVERED &&
-					m.getMessage().getGroupId().equals(groupId)) {
-				LOG.info("Message added, reloading");
-				loadHeaders();
-			}
-		} else if (e instanceof GroupRemovedEvent) {
-			GroupRemovedEvent s = (GroupRemovedEvent) e;
-			if (s.getGroup().getId().equals(groupId)) {
-				LOG.info("Forum removed");
-				finishOnUiThread();
-			}
-		}
-	}
-
-	private long getMinTimestampForNewPost() {
-		// Don't use an earlier timestamp than the newest post
-		long timestamp = 0;
-		int count = adapter.getCount();
-		for (int i = 0; i < count; i++) {
-			long t = adapter.getItem(i).getHeader().getTimestamp();
-			if (t > timestamp) timestamp = t;
-		}
-		return timestamp + 1;
-	}
-
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		displayPost(position);
-	}
-
-	private void displayPost(int position) {
-		ForumPostHeader header = adapter.getItem(position).getHeader();
-		Intent i = new Intent(this, ReadForumPostActivity.class);
-		i.putExtra(GROUP_ID, groupId.getBytes());
-		i.putExtra(FORUM_NAME, forum.getName());
-		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
-		Author author = header.getAuthor();
-		if (author != null) {
-			i.putExtra("briar.AUTHOR_NAME", author.getName());
-			i.putExtra("briar.AUTHOR_ID", author.getId().getBytes());
-		}
-		i.putExtra("briar.AUTHOR_STATUS", header.getAuthorStatus().name());
-		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
-		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
-		i.putExtra(MIN_TIMESTAMP, getMinTimestampForNewPost());
-		i.putExtra("briar.POSITION", position);
-		startActivityForResult(i, REQUEST_READ);
+		hideSoftKeyboard(textInput);
+		inputContainer.setVisibility(GONE);
+		forumAdapter.setReplyEntry(null);
 	}
 
 	private void showUnsubscribeDialog() {
@@ -413,10 +235,19 @@ public class ForumActivity extends BriarActivity implements EventListener,
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						unsubscribe(forum);
-						Toast.makeText(ForumActivity.this,
-								R.string.forum_left_toast, LENGTH_SHORT)
-								.show();
+						forumController.unsubscribe(
+								new UiResultHandler<Boolean>(
+										ForumActivity.this) {
+									@Override
+									public void onResultUi(Boolean result) {
+										if (result) {
+											Toast.makeText(ForumActivity.this,
+													R.string.forum_left_toast,
+													LENGTH_SHORT)
+													.show();
+										}
+									}
+								});
 					}
 				};
 		AlertDialog.Builder builder =
@@ -429,21 +260,346 @@ public class ForumActivity extends BriarActivity implements EventListener,
 		builder.show();
 	}
 
-	private void unsubscribe(final Forum f) {
-		runOnDbThread(new Runnable() {
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					forumManager.removeForum(f);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Removing forum took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+	@Override
+	public void addLocalEntry(int index, ForumEntry entry) {
+		forumAdapter.addEntry(index, entry, true);
+		displaySnackbar(R.string.forum_new_entry_posted);
+	}
+
+	@Override
+	public void addForeignEntry(int index, ForumEntry entry) {
+		forumAdapter.addEntry(index, entry, false);
+		displaySnackbar(R.string.forum_new_entry_received);
+	}
+
+	static class ForumViewHolder extends RecyclerView.ViewHolder {
+
+		public final TextView textView, lvlText, dateText, repliesText;
+		public final View[] lvls;
+		public final ImageView avatar;
+		public final View chevron, replyButton;
+		public final ViewGroup cell;
+		public final View bottomDivider;
+
+		public ForumViewHolder(View v) {
+			super(v);
+
+			textView = (TextView) v.findViewById(R.id.text);
+			lvlText = (TextView) v.findViewById(R.id.nested_line_text);
+			dateText = (TextView) v.findViewById(R.id.date);
+			repliesText = (TextView) v.findViewById(R.id.replies);
+			int[] nestedLineIds = {
+					R.id.nested_line_1, R.id.nested_line_2, R.id.nested_line_3,
+					R.id.nested_line_4, R.id.nested_line_5
+			};
+			lvls = new View[nestedLineIds.length];
+			for (int i = 0; i < lvls.length; i++) {
+				lvls[i] = v.findViewById(nestedLineIds[i]);
+			}
+			avatar = (ImageView) v.findViewById(R.id.avatar);
+			chevron = v.findViewById(R.id.chevron);
+			replyButton = v.findViewById(R.id.btn_reply);
+			cell = (ViewGroup) v.findViewById(R.id.forum_cell);
+			bottomDivider = v.findViewById(R.id.bottom_divider);
+		}
+	}
+
+	public class ForumAdapter extends RecyclerView.Adapter<ForumViewHolder> {
+
+		private final List<ForumEntry> forumEntries;
+		// highlight not depandant on time
+		private ForumEntry replyEntry;
+//		 temporary highlight
+		private ForumEntry addedEntry;
+
+		public ForumAdapter(@NonNull List<ForumEntry> forumEntries) {
+			this.forumEntries = forumEntries;
+		}
+
+		private ForumEntry getReplyEntry() {
+			return replyEntry;
+		}
+
+		public void addEntry(int index, ForumEntry entry,
+				boolean isScrolling) {
+			forumEntries.add(index, entry);
+			boolean isShowingDescendants = false;
+			if (entry.getLevel() > 0) {
+				// update parent and make sure descendants are visible
+				// Note that the parent's visibility is guaranteed (otherwise
+				// the reply button would not be visible)
+				for (int i = index - 1; i >= 0; i--) {
+					ForumEntry higherEntry = forumEntries.get(i);
+					if (higherEntry.getLevel() < entry.getLevel()) {
+						// parent found
+						if (!higherEntry.isShowingDescendants()) {
+							isShowingDescendants = true;
+							showDescendants(higherEntry);
+						}
+						break;
+					}
 				}
 			}
-		});
+			if (!isShowingDescendants) {
+				int visiblePos = getVisiblePos(entry);
+				notifyItemInserted(visiblePos);
+				if (isScrolling)
+					linearLayoutManager
+							.scrollToPositionWithOffset(visiblePos, 0);
+			}
+			addedEntry = entry;
+		}
+
+		private boolean hasDescendants(ForumEntry forumEntry) {
+			int i = forumEntries.indexOf(forumEntry);
+			if (i >= 0 && i < forumEntries.size() - 1) {
+				if (forumEntries.get(i + 1).getLevel() >
+						forumEntry.getLevel()) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private boolean hasVisibleDescendants(int visiblePos) {
+			int levelLimit = forumEntries.get(visiblePos).getLevel();
+			for (int i = visiblePos + 1; i < getItemCount(); i++) {
+				ForumEntry entry = getVisibleEntry(i);
+				if (entry.getLevel() <= levelLimit)
+					break;
+				return true;
+			}
+			return false;
+		}
+
+		private int getReplyCount(ForumEntry entry) {
+			int counter = 0;
+			int pos = forumEntries.indexOf(entry);
+			if (pos >= 0) {
+				int ancestorLvl = forumEntries.get(pos).getLevel();
+				for (int i = pos + 1; i < forumEntries.size(); i++) {
+					int descendantLvl = forumEntries.get(i).getLevel();
+					if (descendantLvl <= ancestorLvl)
+						break;
+					if (descendantLvl == ancestorLvl + 1)
+						counter++;
+				}
+			}
+			return counter;
+		}
+
+		public void setReplyEntry(ForumEntry entry) {
+			if (replyEntry != null) {
+				notifyItemChanged(getVisiblePos(replyEntry));
+			}
+			replyEntry = entry;
+			if (replyEntry != null) {
+				notifyItemChanged(getVisiblePos(replyEntry));
+			}
+		}
+
+		private List<Integer> getSubTreeIndexes(int pos, int levelLimit) {
+			List<Integer> indexList = new ArrayList<>();
+
+			for (int i = pos + 1; i < getItemCount(); i++) {
+				ForumEntry entry = getVisibleEntry(i);
+				if (entry.getLevel() > levelLimit) {
+					indexList.add(i);
+				} else {
+					break;
+				}
+			}
+			return indexList;
+		}
+
+		public void showDescendants(ForumEntry forumEntry) {
+			forumEntry.setShowingDescendants(true);
+			int visiblePos = getVisiblePos(forumEntry);
+			List<Integer> indexList =
+					getSubTreeIndexes(visiblePos, forumEntry.getLevel());
+			if (!indexList.isEmpty()) {
+				if (indexList.size() == 1) {
+					notifyItemInserted(indexList.get(0));
+				} else {
+					notifyItemRangeInserted(indexList.get(0),
+							indexList.size());
+				}
+			}
+		}
+
+		public void hideDescendants(ForumEntry forumEntry) {
+			int visiblePos = getVisiblePos(forumEntry);
+			List<Integer> indexList =
+					getSubTreeIndexes(visiblePos, forumEntry.getLevel());
+			if (!indexList.isEmpty()) {
+				if (indexList.size() == 1) {
+					notifyItemRemoved(indexList.get(0));
+				} else {
+					notifyItemRangeRemoved(indexList.get(0),
+							indexList.size());
+				}
+			}
+			forumEntry.setShowingDescendants(false);
+		}
+
+		public int getVisiblePos(ForumEntry entry) {
+			int visibleCounter = 0;
+			int levelLimit = -1;
+			for (int i = 0; i < forumEntries.size(); i++) {
+				ForumEntry forumEntry = forumEntries.get(i);
+				if (forumEntry.equals(entry)) {
+					return visibleCounter;
+				} else if (levelLimit >= 0 &&
+						levelLimit < forumEntry.getLevel()) {
+					// entry is in a hidden sub-tree
+					continue;
+				}
+				levelLimit = -1;
+				if (!forumEntry.isShowingDescendants()) {
+					levelLimit = forumEntry.getLevel();
+				}
+				visibleCounter++;
+			}
+			return -1;
+		}
+
+		@NonNull
+		public ForumEntry getVisibleEntry(int position) {
+			int levelLimit = -1;
+			for (ForumEntry forumEntry : forumEntries) {
+				if (levelLimit >= 0) {
+					if (forumEntry.getLevel() > levelLimit) {
+						continue;
+					}
+					levelLimit = -1;
+				}
+				if (!forumEntry.isShowingDescendants()) {
+					levelLimit = forumEntry.getLevel();
+				}
+				if (position-- == 0) {
+					return forumEntry;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public ForumViewHolder onCreateViewHolder(
+				ViewGroup parent, int viewType) {
+			View v = LayoutInflater.from(parent.getContext())
+					.inflate(R.layout.forum_discussion_cell, parent, false);
+			return new ForumViewHolder(v);
+		}
+
+		@Override
+		public void onBindViewHolder(
+				final ForumViewHolder ui, final int position) {
+			final ForumEntry data = getVisibleEntry(position);
+			if (!data.isRead()) {
+				data.setRead(true);
+				forumController.entryRead(data);
+			}
+			ui.textView.setText(data.getText());
+
+			for (int i = 0; i < ui.lvls.length; i++) {
+				ui.lvls[i].setVisibility(i < data.getLevel() ? VISIBLE : GONE);
+			}
+			if (data.getLevel() > 5) {
+				ui.lvlText.setVisibility(VISIBLE);
+				ui.lvlText.setText("" + data.getLevel());
+			} else {
+				ui.lvlText.setVisibility(GONE);
+			}
+			ui.dateText.setText(DateUtils
+					.getRelativeTimeSpanString(ForumActivity.this,
+							data.getTimestamp()) + " " + data.getAuthor());
+
+			int replies = getReplyCount(data);
+			if (replies == 0) {
+				ui.repliesText.setText("");
+			} else {
+				ui.repliesText.setText(getResources()
+						.getQuantityString(R.plurals.message_replies, replies,
+								replies));
+			}
+			ui.avatar.setImageDrawable(
+					new IdenticonDrawable(data.getAuthorId().getBytes()));
+
+			if (hasDescendants(data)) {
+				ui.chevron.setVisibility(VISIBLE);
+				if (hasVisibleDescendants(position)) {
+					ui.chevron.setSelected(false);
+				} else {
+					ui.chevron.setSelected(true);
+				}
+				ui.chevron.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						ui.chevron.setSelected(!ui.chevron.isSelected());
+						if (ui.chevron.isSelected()) {
+							hideDescendants(data);
+						} else {
+							showDescendants(data);
+						}
+					}
+				});
+			} else {
+				ui.chevron.setVisibility(INVISIBLE);
+			}
+			if (data.equals(replyEntry)) {
+				ui.cell.setBackgroundColor(ContextCompat
+						.getColor(ForumActivity.this,
+								R.color.forum_cell_highlight));
+			} else if (data.equals(addedEntry)) {
+				CustomAnimations.animateColorTransition(ui.cell, ContextCompat
+								.getColor(ForumActivity.this,
+										R.color.window_background), 3000,
+						new ResultHandler<Void>() {
+							@Override
+							public void onResult(Void result) {
+								ui.setIsRecyclable(true);
+							}
+						});
+				// don't allow cell recycling until the animation finishes
+				ui.setIsRecyclable(false);
+				addedEntry = null;
+			} else {
+				ui.cell.setBackgroundColor(ContextCompat
+						.getColor(ForumActivity.this,
+								R.color.window_background));
+			}
+			ui.replyButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (inputContainer.getVisibility() != VISIBLE) {
+						showTextInput(false);
+					}
+					setReplyEntry(data);
+					linearLayoutManager
+							.scrollToPositionWithOffset(position, 0);
+				}
+			});
+		}
+
+		@Override
+		public int getItemCount() {
+			int visibleCounter = 0;
+			int levelLimit = -1;
+			for (ForumEntry forumEntry : forumEntries) {
+				if (levelLimit >= 0) {
+					if (forumEntry.getLevel() > levelLimit) {
+						continue;
+					}
+					levelLimit = -1;
+				}
+				if (!forumEntry.isShowingDescendants()) {
+					levelLimit = forumEntry.getLevel();
+				}
+				visibleCounter++;
+			}
+			return visibleCounter;
+		}
 	}
+
 
 }

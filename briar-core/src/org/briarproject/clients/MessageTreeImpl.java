@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		implements MessageTree<T> {
 
@@ -25,11 +23,6 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 			return Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
 		}
 	};
-
-	@Inject
-	public MessageTreeImpl() {
-
-	}
 
 	@Override
 	public void clear() {

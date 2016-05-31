@@ -198,6 +198,17 @@
 	<string name="introduction_success_title">Introduced contact was added</string>
 	<string name="introduction_success_text">You have been introduced to %1$s.</string>
 
+	<!-- Forum -->
+	<string name="btn_reply">REPLY</string>
+	<plurals name="message_replies">
+		<item quantity="one">%1$d reply</item>
+		<item quantity="other">%1$d replies</item>
+	</plurals>
+	<string name="forum_new_entry_posted">Forum entry posted</string>
+	<string name="forum_new_entry_received">New forum entry</string>
+	<string name="forum_new_message_hint">New Entry</string>
+	<string name="forum_message_reply_hint">New Reply</string>
+
 	<!-- Dialogs -->
 	<string name="dialog_title_lost_password">Lost Password</string>
 	<string name="dialog_message_lost_password">Password recovery is not possible. Do you want to delete your account?\n\nCaution: This will permanently delete your identities, contacts and messages</string>
@@ -225,4 +236,6 @@
 	<!-- Progress titles -->
 	<string name="progress_title_logout">Signing out of Briar..</string>
 	<string name="progress_title_please_wait">Please wait..</string>
+
+
 </resources>

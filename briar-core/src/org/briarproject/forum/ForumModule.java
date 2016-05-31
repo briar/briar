@@ -2,7 +2,6 @@ package org.briarproject.forum;
 
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.MessageTree;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
@@ -10,14 +9,12 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
-import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
-import org.briarproject.clients.MessageTreeImpl;
 
 import java.security.SecureRandom;
 
@@ -104,10 +101,4 @@ public class ForumModule {
 		return forumSharingManager;
 	}
 
-	@Provides
-	@Singleton
-	MessageTree<ForumPostHeader> provideForumMessageTree(
-			MessageTreeImpl<ForumPostHeader> messageTree) {
-		return messageTree;
-	}
 }
