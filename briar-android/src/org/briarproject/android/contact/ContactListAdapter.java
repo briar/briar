@@ -68,11 +68,11 @@ public class ContactListAdapter
 			extends BaseContactListAdapter.BaseContactHolder {
 
 		public final ImageView bulb;
-		public final TextView unread;
+		final TextView unread;
 		public final TextView date;
 		public final TextView identity;
 
-		public ContactHolder(View v) {
+		ContactHolder(View v) {
 			super(v);
 
 			bulb = (ImageView) v.findViewById(R.id.bulbView);

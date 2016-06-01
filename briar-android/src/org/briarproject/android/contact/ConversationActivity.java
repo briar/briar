@@ -50,6 +50,7 @@ import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
+import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.introduction.IntroductionManager;
@@ -416,7 +417,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void addIntroduction(final ConversationItem item) {
+	private void addConversationItem(final ConversationItem item) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -469,14 +470,23 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact removed");
 				finishOnUiThread();
 			}
+		} else if (e instanceof PrivateMessageReceivedEvent) {
+			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
+			if (p.getGroupId().equals(groupId)) {
+				LOG.info("Message received, adding");
+				PrivateMessageHeader h = p.getMessageHeader();
+				addConversationItem(ConversationItem.from(h));
+				loadMessageBody(h);
+				markMessageReadIfNew(h);
+			}
 		} else if (e instanceof MessageStateChangedEvent) {
 			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
 			if (m.getState() == DELIVERED &&
 					m.getMessage().getGroupId().equals(groupId)) {
-				LOG.info("Message added, reloading");
-				// Mark new incoming messages as read directly
-				if (m.isLocal()) loadMessages();
-				else markMessageReadIfNew(m.getMessage());
+				if (m.isLocal()) {
+					LOG.info("Message added, reloading");
+					loadMessages();
+				}
 			}
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
@@ -510,7 +520,7 @@ public class ConversationActivity extends BriarActivity
 			if (event.getContactId().equals(contactId)) {
 				IntroductionRequest ir = event.getIntroductionRequest();
 				ConversationItem item = new ConversationIntroductionInItem(ir);
-				addIntroduction(item);
+				addConversationItem(item);
 			}
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
 			IntroductionResponseReceivedEvent event =
@@ -519,7 +529,7 @@ public class ConversationActivity extends BriarActivity
 				IntroductionResponse ir = event.getIntroductionResponse();
 				ConversationItem item =
 						ConversationItem.from(this, contactName, ir);
-				addIntroduction(item);
+				addConversationItem(item);
 			}
 		} else if (e instanceof ForumInvitationReceivedEvent) {
 			ForumInvitationReceivedEvent event =
@@ -530,7 +540,7 @@ public class ConversationActivity extends BriarActivity
 		}
 	}
 
-	private void markMessageReadIfNew(final Message m) {
+	private void markMessageReadIfNew(final PrivateMessageHeader h) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -538,23 +548,23 @@ public class ConversationActivity extends BriarActivity
 				if (item != null) {
 					// Mark the message read if it's the newest message
 					long lastMsgTime = item.getTime();
-					long newMsgTime = m.getTimestamp();
-					if (newMsgTime > lastMsgTime) markNewMessageRead(m);
+					long newMsgTime = h.getTimestamp();
+					if (newMsgTime > lastMsgTime) markNewMessageRead(h.getId());
 					else loadMessages();
 				} else {
 					// mark the message as read as well if it is the first one
-					markNewMessageRead(m);
+					markNewMessageRead(h.getId());
 				}
 			}
 		});
 	}
 
-	private void markNewMessageRead(final Message m) {
+	private void markNewMessageRead(final MessageId m) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					messagingManager.setReadFlag(m.getId(), true);
+					messagingManager.setReadFlag(m, true);
 					loadMessages();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

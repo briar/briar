@@ -35,10 +35,18 @@ public class ContactListItem {
 		unread = 0;
 		if (!empty) {
 			for (ConversationItem i : messages) {
-				if (i.getTime() > timestamp) timestamp = i.getTime();
-				if (i instanceof IncomingItem && !((IncomingItem) i).isRead())
-					unread++;
+				addMessage(i);
 			}
+		}
+	}
+
+	void addMessage(ConversationItem message) {
+		empty = empty && message == null;
+		if (message != null) {
+			if (message.getTime() > timestamp) timestamp = message.getTime();
+			if (message instanceof IncomingItem &&
+					!((IncomingItem) message).isRead())
+				unread++;
 		}
 	}
 

@@ -10,17 +10,21 @@ import org.briarproject.api.contact.ContactManager.AddContactHook;
 import org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
+import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
+import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -29,22 +33,23 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-class MessagingManagerImpl implements MessagingManager, Client, AddContactHook,
-		RemoveContactHook {
+class MessagingManagerImpl extends BdfIncomingMessageHook
+		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"6bcdc006c0910b0f44e40644c3b31f1a"
 					+ "8bf9a6d6021d40d219c86b731b903070"));
 
 	private final DatabaseComponent db;
-	private final ClientHelper clientHelper;
 	private final PrivateGroupFactory privateGroupFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			MetadataParser metadataParser,
 			PrivateGroupFactory privateGroupFactory) {
+		super(clientHelper, metadataParser);
+
 		this.db = db;
-		this.clientHelper = clientHelper;
 		this.privateGroupFactory = privateGroupFactory;
 	}
 
@@ -85,6 +90,22 @@ class MessagingManagerImpl implements MessagingManager, Client, AddContactHook,
 	@Override
 	public ClientId getClientId() {
 		return CLIENT_ID;
+	}
+
+	@Override
+	protected void incomingMessage(Transaction txn, Message m, BdfList body,
+			BdfDictionary meta) throws DbException, FormatException {
+
+		GroupId groupId = m.getGroupId();
+		long timestamp = meta.getLong("timestamp");
+		String contentType = meta.getString("contentType");
+		boolean local = meta.getBoolean("local");
+		boolean read = meta.getBoolean("read");
+		PrivateMessageHeader header = new PrivateMessageHeader(
+				m.getId(), timestamp, contentType, local, read, false, false);
+		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
+				header, groupId);
+		txn.attach(event);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import java.util.List;
@@ -67,7 +68,7 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		return contacts.get(position);
 	}
 
-	public void updateItem(int position, ContactListItem item) {
+	void updateItem(int position, ContactListItem item) {
 		contacts.updateItemAt(position, item);
 	}
 
@@ -75,11 +76,20 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		return contacts.indexOf(c);
 	}
 
-	public int findItemPosition(ContactId c) {
+	int findItemPosition(ContactId c) {
 		int count = getItemCount();
 		for (int i = 0; i < count; i++) {
 			ContactListItem item = getItem(i);
 			if (item.getContact().getId().equals(c)) return i;
+		}
+		return INVALID_POSITION; // Not found
+	}
+
+	int findItemPosition(GroupId g) {
+		int count = getItemCount();
+		for (int i = 0; i < count; i++) {
+			ContactListItem item = getItem(i);
+			if (item.getGroupId().equals(g)) return i;
 		}
 		return INVALID_POSITION; // Not found
 	}
@@ -130,7 +140,7 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		}
 	}
 
-	protected int compareByTime(ContactListItem c1, ContactListItem c2) {
+	int compareByTime(ContactListItem c1, ContactListItem c2) {
 		long time1 = c1.getTimestamp();
 		long time2 = c2.getTimestamp();
 		if (time1 < time2) return 1;
@@ -138,7 +148,7 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		return 0;
 	}
 
-	protected class SortedListCallBacks
+	private class SortedListCallBacks
 			extends SortedList.Callback<ContactListItem> {
 
 		@Override
