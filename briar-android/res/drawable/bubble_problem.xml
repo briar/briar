@@ -8,14 +8,13 @@
 
 	<padding
 		android:left="@dimen/unread_bubble_padding_horizontal"
-		android:right="@dimen/unread_bubble_padding_horizontal"
-		android:bottom="1px"/>
+		android:right="@dimen/unread_bubble_padding_horizontal"/>
 
 	<solid
-		android:color="@color/briar_primary"/>
+		android:color="@color/briar_gold"/>
 
 	<stroke
-		android:color="@color/briar_text_primary_inverse"
+		android:color="@color/briar_primary"
 	    android:width="@dimen/avatar_border_width"/>
 
 </shape>

@@ -81,11 +81,14 @@
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>
 	<string name="forum_sharing_status">Sharing Status</string>
-	<string name="no_forum_posts">No posts</string>
-	<string name="no_unread_posts">no unread posts</string>
+	<string name="forum_no_posts">No posts</string>
 	<plurals name="unread_posts">
 		<item quantity="one">%d unread post</item>
 		<item quantity="other">%d unread posts</item>
+	</plurals>
+	<plurals name="forum_posts">
+		<item quantity="one">%d post</item>
+		<item quantity="other">%d posts</item>
 	</plurals>
 	<string name="create_forum_title">New Forum</string>
 	<string name="choose_forum_name">Choose a name for your forum:</string>

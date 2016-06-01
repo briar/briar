@@ -19,10 +19,12 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
 
-public class ForumListAdapter extends
+class ForumListAdapter extends
 		RecyclerView.Adapter<ForumListAdapter.ForumViewHolder> {
 
 	private SortedList<ForumListItem> forums = new SortedList<>(
@@ -76,7 +78,7 @@ public class ForumListAdapter extends
 
 	private final Context ctx;
 
-	public ForumListAdapter(Context ctx) {
+	ForumListAdapter(Context ctx) {
 		this.ctx = ctx;
 	}
 
@@ -94,31 +96,36 @@ public class ForumListAdapter extends
 		// Avatar
 		ui.avatar.setText(item.getForum().getName().substring(0, 1));
 		ui.avatar.setBackgroundBytes(item.getForum().getId().getBytes());
+		ui.avatar.setUnreadCount(item.getUnreadCount());
 
 		// Forum Name
 		ui.name.setText(item.getForum().getName());
 
-		// Unread Count
-		int unread = item.getUnreadCount();
-		if (unread > 0) {
+		// Post Count
+		int postCount = item.getPostCount();
+		if (postCount > 0) {
 			ui.unread.setText(ctx.getResources()
-					.getQuantityString(R.plurals.unread_posts, unread, unread));
+					.getQuantityString(R.plurals.forum_posts, postCount,
+							postCount));
 			ui.unread.setTextColor(
-					ContextCompat.getColor(ctx, R.color.briar_button_positive));
+					ContextCompat
+							.getColor(ctx, R.color.briar_text_secondary));
 		} else {
-			ui.unread.setText(ctx.getString(R.string.no_unread_posts));
+			ui.avatar.setProblem(true);
+			ui.unread.setText(ctx.getString(R.string.forum_no_posts));
 			ui.unread.setTextColor(
-					ContextCompat.getColor(ctx, R.color.briar_text_secondary));
+					ContextCompat
+							.getColor(ctx, R.color.briar_text_tertiary));
 		}
 
-		// Date or "No Posts"
+		// Date
 		if (item.isEmpty()) {
-			ui.date.setVisibility(View.GONE);
+			ui.date.setVisibility(GONE);
 		} else {
 			long timestamp = item.getTimestamp();
 			ui.date.setText(
 					DateUtils.getRelativeTimeSpanString(ctx, timestamp));
-			ui.date.setVisibility(View.VISIBLE);
+			ui.date.setVisibility(VISIBLE);
 		}
 
 		// Open Forum on Click
@@ -158,7 +165,7 @@ public class ForumListAdapter extends
 		forums.addAll(items);
 	}
 
-	public void updateItem(ForumListItem item) {
+	void updateItem(ForumListItem item) {
 		ForumListItem oldItem = getItem(item.getForum().getGroup().getId());
 		int position = forums.indexOf(oldItem);
 		forums.updateItemAt(position, item);
@@ -176,7 +183,7 @@ public class ForumListAdapter extends
 		return forums.size() == 0;
 	}
 
-	protected static class ForumViewHolder extends RecyclerView.ViewHolder {
+	static class ForumViewHolder extends RecyclerView.ViewHolder {
 
 		private final ViewGroup layout;
 		private final TextAvatarView avatar;
@@ -184,7 +191,7 @@ public class ForumListAdapter extends
 		private final TextView unread;
 		private final TextView date;
 
-		public ForumViewHolder(View v) {
+		ForumViewHolder(View v) {
 			super(v);
 
 			layout = (ViewGroup) v;
