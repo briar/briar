@@ -47,7 +47,6 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
-import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
@@ -63,7 +62,6 @@ import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
@@ -88,7 +86,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
-import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 public class ConversationActivity extends BriarActivity
 		implements EventListener, OnClickListener,
@@ -98,14 +95,13 @@ public class ConversationActivity extends BriarActivity
 			Logger.getLogger(ConversationActivity.class.getName());
 
 	@Inject
-	protected AndroidNotificationManager notificationManager;
+	AndroidNotificationManager notificationManager;
 	@Inject
 	protected ConnectionRegistry connectionRegistry;
 	@Inject
 	@CryptoExecutor
 	protected Executor cryptoExecutor;
 
-	private Map<MessageId, byte[]> bodyCache = new HashMap<>();
 	private ConversationAdapter adapter;
 	private CircleImageView toolbarAvatar;
 	private ImageView toolbarStatus;
@@ -122,7 +118,7 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	protected volatile EventBus eventBus;
 	@Inject
-	protected volatile PrivateMessageFactory privateMessageFactory;
+	volatile PrivateMessageFactory privateMessageFactory;
 	@Inject
 	protected volatile IntroductionManager introductionManager;
 	@Inject
@@ -133,6 +129,7 @@ public class ConversationActivity extends BriarActivity
 	private volatile String contactName = null;
 	private volatile byte[] contactIdenticonKey = null;
 	private volatile boolean connected = false;
+	private volatile Map<MessageId, byte[]> bodyCache = new HashMap<>();
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -147,10 +144,13 @@ public class ConversationActivity extends BriarActivity
 
 		// Custom Toolbar
 		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
-		toolbarAvatar = (CircleImageView) tb.findViewById(R.id.contactAvatar);
-		toolbarStatus = (ImageView) tb.findViewById(R.id.contactStatus);
-		toolbarTitle = (TextView) tb.findViewById(R.id.contactName);
-		setSupportActionBar(tb);
+		if (tb != null) {
+			toolbarAvatar =
+					(CircleImageView) tb.findViewById(R.id.contactAvatar);
+			toolbarStatus = (ImageView) tb.findViewById(R.id.contactStatus);
+			toolbarTitle = (TextView) tb.findViewById(R.id.contactName);
+			setSupportActionBar(tb);
+		}
 		ActionBar ab = getSupportActionBar();
 		if (ab != null) {
 			ab.setDisplayShowHomeEnabled(true);
@@ -171,8 +171,11 @@ public class ConversationActivity extends BriarActivity
 
 		content = (EditText) findViewById(R.id.contentView);
 		sendButton = (ImageButton) findViewById(R.id.sendButton);
-		sendButton.setEnabled(false); // Enabled after loading the conversation
-		sendButton.setOnClickListener(this);
+		if (sendButton != null) {
+			// Enabled after loading the conversation
+			sendButton.setEnabled(false);
+			sendButton.setOnClickListener(this);
+		}
 	}
 
 	@Override
@@ -236,7 +239,7 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onBackPressed() {
-		// FIXME disabled exit transition, because it doesn't work for some reason
+		// FIXME disabled exit transition, because it doesn't work for some reason #318
 		//supportFinishAfterTransition();
 		finish();
 	}
@@ -479,15 +482,6 @@ public class ConversationActivity extends BriarActivity
 				loadMessageBody(h);
 				markMessageReadIfNew(h);
 			}
-		} else if (e instanceof MessageStateChangedEvent) {
-			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
-			if (m.getState() == DELIVERED &&
-					m.getMessage().getGroupId().equals(groupId)) {
-				if (m.isLocal()) {
-					LOG.info("Message added, reloading");
-					loadMessages();
-				}
-			}
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
 			if (m.getContactId().equals(contactId)) {
@@ -615,8 +609,9 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void run() {
 				try {
-					storeMessage(privateMessageFactory.createPrivateMessage(
-							groupId, timestamp, null, "text/plain", body));
+					storeMessage(privateMessageFactory
+							.createPrivateMessage(groupId, timestamp, null,
+									"text/plain", body), body);
 				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
@@ -624,7 +619,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void storeMessage(final PrivateMessage m) {
+	private void storeMessage(final PrivateMessage m, final byte[] body) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -634,6 +629,16 @@ public class ConversationActivity extends BriarActivity
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
+
+					PrivateMessageHeader h = new PrivateMessageHeader(
+							m.getMessage().getId(),
+							m.getMessage().getTimestamp(), m.getContentType(),
+							true, false, false, false);
+					ConversationMessageItem item =
+							(ConversationMessageItem) ConversationItem.from(h);
+					item.setBody(body);
+					bodyCache.put(m.getMessage().getId(), body);
+					addConversationItem(item);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
