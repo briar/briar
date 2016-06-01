@@ -27,10 +27,8 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
-import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.util.BriarRecyclerView;
-import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
@@ -309,7 +307,7 @@ public class ForumActivity extends BriarActivity implements
 		private final List<ForumEntry> forumEntries;
 		// highlight not depandant on time
 		private ForumEntry replyEntry;
-//		 temporary highlight
+		// temporary highlight
 		private ForumEntry addedEntry;
 
 		public ForumAdapter(@NonNull List<ForumEntry> forumEntries) {
@@ -336,6 +334,7 @@ public class ForumActivity extends BriarActivity implements
 							isShowingDescendants = true;
 							showDescendants(higherEntry);
 						}
+						notifyItemChanged(getVisiblePos(higherEntry));
 						break;
 					}
 				}
@@ -361,8 +360,9 @@ public class ForumActivity extends BriarActivity implements
 			return false;
 		}
 
-		private boolean hasVisibleDescendants(int visiblePos) {
-			int levelLimit = forumEntries.get(visiblePos).getLevel();
+		private boolean hasVisibleDescendants(ForumEntry forumEntry) {
+			int visiblePos = getVisiblePos(forumEntry);
+			int levelLimit = forumEntry.getLevel();
 			for (int i = visiblePos + 1; i < getItemCount(); i++) {
 				ForumEntry entry = getVisibleEntry(i);
 				if (entry.getLevel() <= levelLimit)
@@ -527,7 +527,7 @@ public class ForumActivity extends BriarActivity implements
 
 			if (hasDescendants(data)) {
 				ui.chevron.setVisibility(VISIBLE);
-				if (hasVisibleDescendants(position)) {
+				if (hasVisibleDescendants(data)) {
 					ui.chevron.setSelected(false);
 				} else {
 					ui.chevron.setSelected(true);
@@ -551,17 +551,9 @@ public class ForumActivity extends BriarActivity implements
 						.getColor(ForumActivity.this,
 								R.color.forum_cell_highlight));
 			} else if (data.equals(addedEntry)) {
-				CustomAnimations.animateColorTransition(ui.cell, ContextCompat
-								.getColor(ForumActivity.this,
-										R.color.window_background), 3000,
-						new ResultHandler<Void>() {
-							@Override
-							public void onResult(Void result) {
-								ui.setIsRecyclable(true);
-							}
-						});
-				// don't allow cell recycling until the animation finishes
-				ui.setIsRecyclable(false);
+				ui.cell.setBackgroundColor(ContextCompat
+						.getColor(ForumActivity.this,
+								R.color.forum_cell_highlight));
 				addedEntry = null;
 			} else {
 				ui.cell.setBackgroundColor(ContextCompat
@@ -576,7 +568,7 @@ public class ForumActivity extends BriarActivity implements
 					}
 					setReplyEntry(data);
 					linearLayoutManager
-							.scrollToPositionWithOffset(position, 0);
+							.scrollToPositionWithOffset(getVisiblePos(data), 0);
 				}
 			});
 		}
