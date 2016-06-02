@@ -3,6 +3,7 @@ package org.briarproject;
 import org.briarproject.blogs.BlogsModule;
 import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
+import org.briarproject.conversation.ConversationModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseExecutorModule;
@@ -31,6 +32,7 @@ import dagger.Module;
 		BlogsModule.class,
 		ClientsModule.class,
 		ContactModule.class,
+		ConversationModule.class,
 		CryptoModule.class,
 		DataModule.class,
 		DatabaseModule.class,
@@ -58,6 +60,7 @@ public class CoreModule {
 	public static void initEagerSingletons(CoreEagerSingletons c) {
 		c.inject(new BlogsModule.EagerSingletons());
 		c.inject(new ContactModule.EagerSingletons());
+		c.inject(new ConversationModule.EagerSingletons());
 		c.inject(new CryptoModule.EagerSingletons());
 		c.inject(new DatabaseExecutorModule.EagerSingletons());
 		c.inject(new ForumModule.EagerSingletons());

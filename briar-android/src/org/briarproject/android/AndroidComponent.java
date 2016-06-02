@@ -9,6 +9,7 @@ import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.android.report.BriarReportSender;
 import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.conversation.ConversationManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
@@ -83,6 +84,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	ConnectionRegistry connectionRegistry();
 
 	ContactManager contactManager();
+
+	ConversationManager conversationManager();
 
 	MessagingManager messagingManager();
 

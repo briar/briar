@@ -457,6 +457,17 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		return list;
 	}
 
+	@Override
+	public void setReadFlag(MessageId m, boolean read) throws DbException {
+		try {
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(READ, read);
+			clientHelper.mergeMessageMetadata(m, meta);
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private String getNameForIntroducer(ContactId contactId,
 			BdfDictionary state) throws FormatException {
 

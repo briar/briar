@@ -1,8 +1,8 @@
 package org.briarproject.android.forum;
 
 import org.briarproject.android.contact.ContactListItem;
-import org.briarproject.android.contact.ConversationItem;
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.conversation.ConversationItem;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 

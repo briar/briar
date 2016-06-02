@@ -492,6 +492,17 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 		}
 	}
 
+	@Override
+	public void setReadFlag(MessageId m, boolean read) throws DbException {
+		try {
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(READ, read);
+			clientHelper.mergeMessageMetadata(m, meta);
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	void removingShareable(Transaction txn, S f) throws DbException {
 		try {
 			for (Contact c : db.getContacts(txn)) {

@@ -1,12 +1,11 @@
 package org.briarproject.android.contact;
 
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.conversation.ConversationItem;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
-
-import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 
 // This class is not thread-safe
 public class ContactListItem {
@@ -44,8 +43,8 @@ public class ContactListItem {
 		empty = empty && message == null;
 		if (message != null) {
 			if (message.getTime() > timestamp) timestamp = message.getTime();
-			if (message instanceof IncomingItem &&
-					!((IncomingItem) message).isRead())
+			if (message instanceof ConversationItem.IncomingItem &&
+					!((ConversationItem.IncomingItem) message).isRead())
 				unread++;
 		}
 	}

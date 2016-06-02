@@ -1,28 +1,24 @@
-package org.briarproject.android.contact;
+package org.briarproject.conversation;
 
+import org.briarproject.api.conversation.ConversationItem.OutgoingItem;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
-public class ConversationNoticeOutItem extends ConversationNoticeItem
-		implements ConversationItem.OutgoingItem {
+class OutgoingConversationItem extends ConversationItemImpl
+		implements OutgoingItem {
 
 	private boolean sent, seen;
 
-	public ConversationNoticeOutItem(MessageId id, String text, long time,
-			boolean sent, boolean seen) {
-		super(id, text, time);
+	public OutgoingConversationItem(MessageId id, long time, boolean sent,
+			boolean seen) {
+		super(id, time);
 
 		this.sent = sent;
 		this.seen = seen;
 	}
 
 	@Override
-	int getType() {
-		return NOTICE_OUT;
-	}
-
-	@Override
-	public  boolean isSent() {
+	public boolean isSent() {
 		return sent;
 	}
 

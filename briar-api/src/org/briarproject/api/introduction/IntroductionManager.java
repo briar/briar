@@ -6,6 +6,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.ClientId;
+import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
@@ -40,5 +41,8 @@ public interface IntroductionManager {
 	 */
 	Collection<IntroductionMessage> getIntroductionMessages(ContactId contactId)
 			throws DbException;
+
+	/** Marks an introduction message as read or unread. */
+	void setReadFlag(MessageId m, boolean read) throws DbException;
 
 }

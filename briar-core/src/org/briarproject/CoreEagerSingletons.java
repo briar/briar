@@ -2,6 +2,7 @@ package org.briarproject;
 
 import org.briarproject.blogs.BlogsModule;
 import org.briarproject.contact.ContactModule;
+import org.briarproject.conversation.ConversationModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseExecutorModule;
 import org.briarproject.forum.ForumModule;
@@ -21,6 +22,8 @@ public interface CoreEagerSingletons {
 	void inject(BlogsModule.EagerSingletons init);
 
 	void inject(ContactModule.EagerSingletons init);
+
+	void inject(ConversationModule.EagerSingletons init);
 
 	void inject(CryptoModule.EagerSingletons init);
 

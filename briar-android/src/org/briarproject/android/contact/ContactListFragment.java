@@ -23,6 +23,11 @@ import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.conversation.ConversationForumInvitationItem;
+import org.briarproject.api.conversation.ConversationIntroductionRequestItem;
+import org.briarproject.api.conversation.ConversationIntroductionResponseItem;
+import org.briarproject.api.conversation.ConversationItem;
+import org.briarproject.api.conversation.ConversationMessageItem;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
@@ -41,6 +46,8 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
+import org.briarproject.api.introduction.IntroductionRequest;
+import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
@@ -257,7 +264,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			LOG.info("Message received, update contact");
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			PrivateMessageHeader h = p.getMessageHeader();
-			updateItem(p.getGroupId(), ConversationItem.from(h));
+			updateItem(p.getGroupId(), ConversationMessageItem.from(h));
 		} else if (e instanceof MessageStateChangedEvent) {
 			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
 			ClientId c = m.getClientId();
@@ -354,7 +361,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		Collection<PrivateMessageHeader> headers =
 				messagingManager.getMessageHeaders(id);
 		for (PrivateMessageHeader h : headers) {
-			messages.add(ConversationItem.from(h));
+			messages.add(ConversationMessageItem.from(h));
 		}
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
@@ -365,7 +372,12 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				introductionManager
 						.getIntroductionMessages(id);
 		for (IntroductionMessage m : introductions) {
-			messages.add(ConversationItem.from(m));
+			if (m instanceof IntroductionRequest)
+				messages.add(ConversationIntroductionRequestItem
+						.from((IntroductionRequest) m));
+			else
+				messages.add(ConversationIntroductionResponseItem
+						.from((IntroductionResponse) m));
 		}
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
@@ -375,7 +387,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		Collection<ForumInvitationMessage> invitations =
 				forumSharingManager.getInvitationMessages(id);
 		for (ForumInvitationMessage i : invitations) {
-			messages.add(ConversationItem.from(i));
+			messages.add(ConversationForumInvitationItem.from(i));
 		}
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))

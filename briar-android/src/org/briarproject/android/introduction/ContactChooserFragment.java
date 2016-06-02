@@ -15,20 +15,17 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
-import org.briarproject.android.contact.ConversationItem;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.conversation.ConversationManager;
+import org.briarproject.api.conversation.ConversationItem;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.introduction.IntroductionManager;
-import org.briarproject.api.introduction.IntroductionMessage;
-import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 
@@ -61,9 +58,7 @@ public class ContactChooserFragment extends BaseFragment {
 	@Inject
 	protected volatile IdentityManager identityManager;
 	@Inject
-	protected volatile MessagingManager messagingManager;
-	@Inject
-	protected volatile IntroductionManager introductionManager;
+	protected volatile ConversationManager conversationManager;
 	@Inject
 	protected volatile ConnectionRegistry connectionRegistry;
 
@@ -166,7 +161,7 @@ public class ContactChooserFragment extends BaseFragment {
 						} else {
 							ContactId id = c.getId();
 							GroupId groupId =
-									messagingManager.getConversationId(id);
+									conversationManager.getConversationId(id);
 							Collection<ConversationItem> messages =
 									getMessages(id);
 							boolean connected =
@@ -227,27 +222,11 @@ public class ContactChooserFragment extends BaseFragment {
 
 		long now = System.currentTimeMillis();
 
-		Collection<ConversationItem> messages = new ArrayList<>();
-
-		Collection<PrivateMessageHeader> headers =
-				messagingManager.getMessageHeaders(id);
-		for (PrivateMessageHeader h : headers) {
-			messages.add(ConversationItem.from(h));
-		}
+		Collection<ConversationItem> messages =
+				conversationManager.getMessages(id, false);
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loading message headers took " + duration + " ms");
-
-		now = System.currentTimeMillis();
-		Collection<IntroductionMessage> introductions =
-				introductionManager
-						.getIntroductionMessages(id);
-		for (IntroductionMessage m : introductions) {
-			messages.add(ConversationItem.from(m));
-		}
-		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading introduction messages took " + duration + " ms");
 
 		return messages;
 	}

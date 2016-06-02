@@ -5,6 +5,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
@@ -44,5 +45,8 @@ public interface SharingManager<S extends Shareable, IM extends InvitationMessag
 
 	/** Returns true if the group not already shared and no invitation is open */
 	boolean canBeShared(GroupId g, Contact c) throws DbException;
+
+	/** Marks a sharing message as read or unread. */
+	void setReadFlag(MessageId m, boolean read) throws DbException;
 
 }
