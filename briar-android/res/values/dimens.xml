@@ -18,8 +18,6 @@
 	<dimen name="text_size_medium">16sp</dimen>
 	<dimen name="text_size_large">20sp</dimen>
 	<dimen name="text_size_xlarge">34sp</dimen>
-	<dimen name="nav_drawer_width">300dp</dimen>
-	<dimen name="nav_separator_height">1dp</dimen>
 
 	<dimen name="listitem_horizontal_margin">16dp</dimen>
 	<dimen name="listitem_text_left_margin">72dp</dimen>

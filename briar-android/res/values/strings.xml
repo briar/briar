@@ -71,7 +71,6 @@
 	<string name="no_private_messages">No messages</string>
 	<string name="private_message_hint">Type message</string>
 	<string name="message_sent_toast">Message sent</string>
-	<string name="forums_title">Forums</string>
 	<string name="no_forums">You don\'t have any forums.\n\nWhy don\'t you create a new one yourself or ask your contacts to share one with you?</string>
 	<plurals name="forums_shared">
 		<item quantity="one">%d forum shared by contacts</item>
@@ -237,5 +236,12 @@
 	<string name="progress_title_logout">Signing out of Briar..</string>
 	<string name="progress_title_please_wait">Please wait..</string>
 
+	<!-- Blogs -->
+	<string name="blogs_button">Blogs</string>
+	<string name="blogs_feed">Feed</string>
+	<string name="blogs_my_blogs">My Blogs</string>
+	<string name="blogs_blog_list">Blog List</string>
+	<string name="blogs_available_blogs">Available Blogs</string>
+	<string name="blogs_drafts">Drafts</string>
 
 </resources>
