@@ -7,6 +7,7 @@ import org.briarproject.api.conversation.ConversationForumInvitationItem;
 import org.briarproject.api.conversation.ConversationIntroductionRequestItem;
 import org.briarproject.api.conversation.ConversationIntroductionResponseItem;
 import org.briarproject.api.conversation.ConversationItem;
+import org.briarproject.api.conversation.ConversationItem.OutgoingItem;
 import org.briarproject.api.conversation.ConversationItem.Partial;
 import org.briarproject.api.conversation.ConversationManager;
 import org.briarproject.api.conversation.ConversationMessageItem;
@@ -74,6 +75,12 @@ public class ConversationManagerImpl implements ConversationManager {
 	}
 
 	@Override
+	public boolean isWrappedClient(ClientId clientId) {
+		return clientId.equals(introductionManager.getClientId()) ||
+				clientId.equals(forumSharingManager.getClientId());
+	}
+
+	@Override
 	public ConversationItem addLocalMessage(PrivateMessage m, byte[] body)
 			throws DbException {
 		messagingManager.addLocalMessage(m);
@@ -101,12 +108,6 @@ public class ConversationManagerImpl implements ConversationManager {
 	@Override
 	public List<ConversationItem> getMessages(ContactId c)
 			throws DbException {
-		return getMessages(c, true);
-	}
-
-	@Override
-	public List<ConversationItem> getMessages(ContactId c, boolean content)
-			throws DbException {
 		Collection<PrivateMessageHeader> headers =
 				messagingManager.getMessageHeaders(c);
 		Collection<IntroductionMessage> introductions =
@@ -116,11 +117,9 @@ public class ConversationManagerImpl implements ConversationManager {
 		List<ConversationItem> items = new ArrayList<ConversationItem>();
 		for (PrivateMessageHeader h : headers) {
 			ConversationItem item = ConversationMessageItemImpl.from(h);
-			if (content) {
-				byte[] body = bodyCache.get(h.getId());
-				if (body == null) loadMessageContent((Partial) item);
-				else ((Partial) item).setContent(body);
-			}
+			byte[] body = bodyCache.get(h.getId());
+			if (body == null) loadMessageContent((Partial) item);
+			else ((Partial) item).setContent(body);
 			items.add(item);
 		}
 		for (IntroductionMessage m : introductions) {
@@ -139,6 +138,27 @@ public class ConversationManagerImpl implements ConversationManager {
 			items.add(item);
 		}
 		return items;
+	}
+
+	@Override
+	public long getTimestamp(ContactId c) throws DbException {
+		long timestamp = -1;
+		long t = messagingManager.getTimestamp(c);
+		if (t > timestamp) timestamp = t;
+		t = introductionManager.getTimestamp(c);
+		if (t > timestamp) timestamp = t;
+		t = forumSharingManager.getTimestamp(c);
+		if (t > timestamp) timestamp = t;
+		return timestamp;
+	}
+
+	@Override
+	public int getUnreadCount(ContactId c) throws DbException {
+		int unread = 0;
+		unread += messagingManager.getUnreadCount(c);
+		unread += introductionManager.getUnreadCount(c);
+		unread += forumSharingManager.getUnreadCount(c);
+		return unread;
 	}
 
 	@Override
@@ -185,16 +205,17 @@ public class ConversationManagerImpl implements ConversationManager {
 	}
 
 	@Override
-	public void setReadFlag(ConversationItem item, boolean read)
+	public void setReadFlag(ContactId c, ConversationItem item, boolean read)
 			throws DbException {
 		MessageId id = item.getId();
+		boolean local = item instanceof OutgoingItem;
 		if (item instanceof ConversationMessageItem) {
-			messagingManager.setReadFlag(id, read);
+			messagingManager.setReadFlag(c, id, local, read);
 		} else if (item instanceof ConversationIntroductionRequestItem ||
-				item instanceof  ConversationIntroductionResponseItem) {
-			introductionManager.setReadFlag(id, read);
+				item instanceof ConversationIntroductionResponseItem) {
+			introductionManager.setReadFlag(c, id, local, read);
 		} else if (item instanceof ConversationForumInvitationItem) {
-			forumSharingManager.setReadFlag(id, read);
+			forumSharingManager.setReadFlag(c, id, local, read);
 		}
 	}
 }

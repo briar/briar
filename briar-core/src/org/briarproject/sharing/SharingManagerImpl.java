@@ -35,7 +35,7 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.system.Clock;
-import org.briarproject.clients.BdfIncomingMessageHook;
+import org.briarproject.clients.ReadableMessageManagerImpl;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
@@ -53,10 +53,11 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.clients.ProtocolEngine.StateUpdate;
+import static org.briarproject.api.clients.ReadableMessageConstants.LOCAL;
+import static org.briarproject.api.clients.ReadableMessageConstants.READ;
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.sharing.SharingConstants.CONTACT_ID;
 import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
-import static org.briarproject.api.sharing.SharingConstants.LOCAL;
-import static org.briarproject.api.sharing.SharingConstants.READ;
 import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHAREABLE_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHARED_BY_US;
@@ -76,7 +77,6 @@ import static org.briarproject.api.sharing.SharingConstants.TASK_REMOVE_SHAREABL
 import static org.briarproject.api.sharing.SharingConstants.TASK_SHARE_SHAREABLE;
 import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREABLE_SHARED_BY_US;
 import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREABLE_SHARED_WITH_US;
-import static org.briarproject.api.sharing.SharingConstants.TIME;
 import static org.briarproject.api.sharing.SharingConstants.TO_BE_SHARED_BY_US;
 import static org.briarproject.api.sharing.SharingConstants.TYPE;
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
@@ -84,14 +84,13 @@ import static org.briarproject.api.sharing.SharingMessage.Invitation;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
 abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM extends InvitationMessage, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
-		extends BdfIncomingMessageHook
+		extends ReadableMessageManagerImpl
 		implements SharingManager<S, IM>, Client, AddContactHook,
 		RemoveContactHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(SharingManagerImpl.class.getName());
 
-	private final DatabaseComponent db;
 	private final MessageQueueManager messageQueueManager;
 	private final MetadataEncoder metadataEncoder;
 	private final SecureRandom random;
@@ -105,8 +104,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 			SecureRandom random, PrivateGroupFactory privateGroupFactory,
 			Clock clock) {
 
-		super(clientHelper, metadataParser);
-		this.db = db;
+		super(clientHelper, db, metadataParser);
 		this.messageQueueManager = messageQueueManager;
 		this.metadataEncoder = metadataEncoder;
 		this.random = random;
@@ -186,8 +184,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	}
 
 	@Override
-	protected void incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary d) throws DbException, FormatException {
+	protected boolean incomingReadableMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary d) throws DbException, FormatException {
 
 		BaseMessage msg = BaseMessage.from(getIFactory(), m.getGroupId(), d);
 		SessionId sessionId = msg.getSessionId();
@@ -223,6 +221,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 			} catch (FormatException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				deleteMessage(txn, m.getId());
+				return false;
 			}
 		} else if (msg.getType() == SHARE_MSG_TYPE_ACCEPT ||
 				msg.getType() == SHARE_MSG_TYPE_DECLINE) {
@@ -257,6 +256,9 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 			// message has passed validator, so that should never happen
 			throw new RuntimeException("Illegal Sharing Message");
 		}
+
+		// The message is valid
+		return true;
 	}
 
 	@Override
@@ -344,7 +346,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 					I msg = getIFactory().build(group.getId(), d);
 					MessageStatus status =
 							db.getMessageStatus(txn, contactId, m.getKey());
-					long time = d.getLong(TIME);
+					long time = d.getLong(TIMESTAMP);
 					boolean local = d.getBoolean(LOCAL);
 					boolean read = d.getBoolean(READ, false);
 					boolean available = false;
@@ -489,17 +491,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 					!listContains(txn, contactGroup, g, TO_BE_SHARED_BY_US);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void setReadFlag(MessageId m, boolean read) throws DbException {
-		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put(READ, read);
-			clientHelper.mergeMessageMetadata(m, meta);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
 		}
 	}
 
@@ -851,14 +842,14 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 		// add message itself as metadata
 		BdfDictionary d = m.toBdfDictionary();
 		d.put(LOCAL, true);
-		d.put(TIME, timestamp);
+		d.put(TIMESTAMP, timestamp);
 		Metadata meta = metadataEncoder.encode(d);
 
 		messageQueueManager
 				.sendMessage(txn, group, timestamp, body, meta);
 	}
 
-	private Group getContactGroup(Contact c) {
+	protected Group getContactGroup(Contact c) {
 		return privateGroupFactory.createPrivateGroup(getClientId(), c);
 	}
 
@@ -933,8 +924,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	}
 
 	private void storeShareableList(Transaction txn, GroupId groupId,
-			String key,
-			List<S> shareables) throws DbException, FormatException {
+			String key, List<S> shareables)
+			throws DbException, FormatException {
 
 		BdfList list = encodeShareableList(shareables);
 		BdfDictionary metadata = BdfDictionary.of(

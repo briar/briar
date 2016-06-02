@@ -248,7 +248,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		}});
 
 		introductionManager
-				.incomingMessage(txn, message1, new BdfList(), msg);
+				.incomingReadableMessage(txn, message1, new BdfList(), msg);
 
 		context.assertIsSatisfied();
 		assertFalse(txn.isComplete());
@@ -277,7 +277,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		}});
 
 		introductionManager
-				.incomingMessage(txn, message1, new BdfList(), msg);
+				.incomingReadableMessage(txn, message1, new BdfList(), msg);
 
 		context.assertIsSatisfied();
 		assertFalse(txn.isComplete());

@@ -16,10 +16,10 @@ import org.briarproject.api.system.Clock;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
@@ -61,7 +61,7 @@ public class MessageSender {
 		Group group = db.getGroup(txn, groupId);
 		long timestamp = clock.currentTimeMillis();
 
-		message.put(MESSAGE_TIME, timestamp);
+		message.put(TIMESTAMP, timestamp);
 		Metadata metadata = metadataEncoder.encode(message);
 
 		messageQueueManager

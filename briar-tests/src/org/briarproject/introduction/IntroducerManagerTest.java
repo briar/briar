@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import java.security.SecureRandom;
 
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.introduction.IntroducerProtocolState.AWAIT_RESPONSES;
 import static org.briarproject.api.introduction.IntroducerProtocolState.PREPARE_REQUESTS;
@@ -39,7 +40,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2;
-import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
@@ -136,7 +136,7 @@ public class IntroducerManagerTest extends BriarTestCase {
 		msg1.put(NAME, state.getString(CONTACT_2));
 		msg1.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 		final BdfDictionary msg1send = (BdfDictionary) msg1.clone();
-		msg1send.put(MESSAGE_TIME, time);
+		msg1send.put(TIMESTAMP, time);
 
 		final BdfDictionary msg2 = new BdfDictionary();
 		msg2.put(TYPE, TYPE_REQUEST);
@@ -145,7 +145,7 @@ public class IntroducerManagerTest extends BriarTestCase {
 		msg2.put(NAME, state.getString(CONTACT_1));
 		msg2.put(PUBLIC_KEY, introducee1.getAuthor().getPublicKey());
 		final BdfDictionary msg2send = (BdfDictionary) msg2.clone();
-		msg2send.put(MESSAGE_TIME, time);
+		msg2send.put(TIMESTAMP, time);
 
 		context.checking(new Expectations() {{
 			// initialize and store session state

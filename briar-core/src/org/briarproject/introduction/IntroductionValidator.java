@@ -1,9 +1,9 @@
 package org.briarproject.introduction;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.SessionId;
-import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -13,13 +13,15 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
 import static org.briarproject.api.TransportId.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.api.clients.ReadableMessageConstants.LOCAL;
+import static org.briarproject.api.clients.ReadableMessageConstants.READ;
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
@@ -67,7 +69,9 @@ class IntroductionValidator extends BdfMessageValidator {
 		d.put(SESSION_ID, id);
 		d.put(GROUP_ID, m.getGroupId());
 		d.put(MESSAGE_ID, m.getId());
-		d.put(MESSAGE_TIME, m.getTimestamp());
+		d.put(TIMESTAMP, m.getTimestamp());
+		d.put(LOCAL, false);
+		d.put(READ, false);
 		return new BdfMessageContext(d);
 	}
 

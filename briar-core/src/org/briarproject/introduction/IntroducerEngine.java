@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.introduction.IntroducerAction.LOCAL_ABORT;
 import static org.briarproject.api.introduction.IntroducerAction.LOCAL_REQUEST;
 import static org.briarproject.api.introduction.IntroducerAction.REMOTE_ACCEPT_1;
@@ -106,7 +107,7 @@ public class IntroducerEngine
 				if (localAction.containsKey(MSG)) {
 					msg1.put(MSG, localAction.getString(MSG));
 				}
-				msg1.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
+				msg1.put(TIMESTAMP, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg1);
 				logLocalAction(currentState, localState, msg1);
 				BdfDictionary msg2 = new BdfDictionary();
@@ -118,7 +119,7 @@ public class IntroducerEngine
 				if (localAction.containsKey(MSG)) {
 					msg2.put(MSG, localAction.getString(MSG));
 				}
-				msg2.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
+				msg2.put(TIMESTAMP, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg2);
 				logLocalAction(currentState, localState, msg2);
 
@@ -298,7 +299,7 @@ public class IntroducerEngine
 
 		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
 		MessageId messageId = new MessageId(msg.getRaw(MESSAGE_ID));
-		long time = msg.getLong(MESSAGE_TIME);
+		long time = msg.getLong(TIMESTAMP);
 		String name = getOtherContact(localState, msg);
 		boolean accept = msg.getBoolean(ACCEPT);
 

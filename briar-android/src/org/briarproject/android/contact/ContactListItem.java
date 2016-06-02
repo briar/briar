@@ -2,6 +2,8 @@ package org.briarproject.android.contact;
 
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.conversation.ConversationItem;
+import org.briarproject.api.conversation.ConversationManager;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 
@@ -13,40 +15,20 @@ public class ContactListItem {
 	private final Contact contact;
 	private final LocalAuthor localAuthor;
 	private final GroupId groupId;
-	private boolean connected, empty;
+	private boolean connected;
 	private long timestamp;
 	private int unread;
 
 	public ContactListItem(Contact contact, LocalAuthor localAuthor,
 			boolean connected,
 			GroupId groupId,
-			Collection<ConversationItem> messages) {
+			long timestamp, int unread) {
 		this.contact = contact;
 		this.localAuthor = localAuthor;
 		this.groupId = groupId;
 		this.connected = connected;
-		setMessages(messages);
-	}
-
-	void setMessages(Collection<ConversationItem> messages) {
-		empty = messages == null || messages.isEmpty();
-		timestamp = 0;
-		unread = 0;
-		if (!empty) {
-			for (ConversationItem i : messages) {
-				addMessage(i);
-			}
-		}
-	}
-
-	void addMessage(ConversationItem message) {
-		empty = empty && message == null;
-		if (message != null) {
-			if (message.getTime() > timestamp) timestamp = message.getTime();
-			if (message instanceof ConversationItem.IncomingItem &&
-					!((ConversationItem.IncomingItem) message).isRead())
-				unread++;
-		}
+		this.timestamp = timestamp;
+		this.unread = unread;
 	}
 
 	public Contact getContact() {
@@ -70,14 +52,22 @@ public class ContactListItem {
 	}
 
 	boolean isEmpty() {
-		return empty;
+		return timestamp < 0;
 	}
 
 	long getTimestamp() {
 		return timestamp;
 	}
 
+	void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
 	int getUnreadCount() {
 		return unread;
+	}
+
+	void setUnreadCount(int unread) {
+		this.unread = unread;
 	}
 }

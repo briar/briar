@@ -38,7 +38,6 @@ import org.briarproject.api.conversation.ConversationIntroductionResponseItem;
 import org.briarproject.api.conversation.ConversationItem;
 import org.briarproject.api.conversation.ConversationItem.IncomingItem;
 import org.briarproject.api.conversation.ConversationManager;
-import org.briarproject.api.conversation.ConversationMessageItem;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
@@ -58,7 +57,6 @@ import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
-import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -366,7 +364,7 @@ public class ConversationActivity extends BriarActivity
 		SparseArray<IncomingItem> list = adapter.getIncomingMessages();
 		for (int i = 0; i < list.size(); i++) {
 			IncomingItem item = list.valueAt(i);
-			if (!item.isRead()) unread.add((ConversationItem) item);
+			if (!item.isRead()) unread.add(item);
 		}
 		if (unread.isEmpty()) return;
 		if (LOG.isLoggable(INFO))
@@ -381,7 +379,7 @@ public class ConversationActivity extends BriarActivity
 				try {
 					long now = System.currentTimeMillis();
 					for (ConversationItem item : unread)
-						conversationManager.setReadFlag(item, true);
+						conversationManager.setReadFlag(contactId, item, true);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
@@ -488,7 +486,7 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void run() {
 				try {
-					conversationManager.setReadFlag(item, true);
+					conversationManager.setReadFlag(contactId, item, true);
 					loadMessages();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

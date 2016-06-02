@@ -18,6 +18,11 @@ public interface ConversationManager {
 	ClientId getClientId();
 
 	/**
+	 * Returns true if this is the id of a wrapped client.
+	 */
+	boolean isWrappedClient(ClientId clientId);
+
+	/**
 	 * Stores a local private message, and returns the corresponding item.
 	 */
 	ConversationItem addLocalMessage(PrivateMessage m, byte[] body) throws DbException;
@@ -38,10 +43,15 @@ public interface ConversationManager {
 	List<ConversationItem> getMessages(ContactId c) throws DbException;
 
 	/**
-	 * Returns all messages in the given private conversation.
+	 * Returns the timestamp of the latest message in the given private
+	 * conversation, or -1 if the conversation is empty.
 	 */
-	List<ConversationItem> getMessages(ContactId c, boolean content)
-			throws DbException;
+	long getTimestamp(ContactId c) throws DbException;
+
+	/**
+	 * Returns the number of unread messages in the given private conversation.
+	 */
+	int getUnreadCount(ContactId c) throws DbException;
 
 	/**
 	 * Starts a background task to load the content of the given message.
@@ -57,5 +67,5 @@ public interface ConversationManager {
 	/**
 	 * Marks a conversation item as read or unread.
 	 */
-	void setReadFlag(ConversationItem item, boolean read) throws DbException;
+	void setReadFlag(ContactId c, ConversationItem item, boolean read) throws DbException;
 }

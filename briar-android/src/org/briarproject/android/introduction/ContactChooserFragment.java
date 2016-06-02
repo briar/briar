@@ -162,14 +162,18 @@ public class ContactChooserFragment extends BaseFragment {
 							ContactId id = c.getId();
 							GroupId groupId =
 									conversationManager.getConversationId(id);
-							Collection<ConversationItem> messages =
-									getMessages(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
 							LocalAuthor localAuthor = identityManager
 									.getLocalAuthor(c.getLocalAuthorId());
+							long timestamp = conversationManager.getTimestamp(id);
+							long now1 = System.currentTimeMillis();
+							int unread = conversationManager.getUnreadCount(id);
+							long duration = System.currentTimeMillis() - now1;
+							if (LOG.isLoggable(INFO))
+								LOG.info("Loading unread messages took " + duration + " ms");
 							contacts.add(new ContactListItem(c, localAuthor,
-									connected, groupId, messages));
+									connected, groupId, timestamp, unread));
 						}
 					}
 					displayContacts(localAuthorId, contacts);
@@ -212,22 +216,5 @@ public class ContactChooserFragment extends BaseFragment {
 		builder.setPositiveButton(R.string.dialog_button_introduce, okListener);
 		builder.setNegativeButton(android.R.string.cancel, null);
 		builder.show();
-	}
-
-	/**
-	 * This needs to be called from the DbThread
-	 */
-	private Collection<ConversationItem> getMessages(ContactId id)
-			throws DbException {
-
-		long now = System.currentTimeMillis();
-
-		Collection<ConversationItem> messages =
-				conversationManager.getMessages(id, false);
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading message headers took " + duration + " ms");
-
-		return messages;
 	}
 }

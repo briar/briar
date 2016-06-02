@@ -1,5 +1,6 @@
 package org.briarproject.api.messaging;
 
+import org.briarproject.api.clients.ReadableMessageManager;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.ClientId;
@@ -8,7 +9,7 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface MessagingManager {
+public interface MessagingManager extends ReadableMessageManager {
 
 	/** Returns the unique ID of the messaging client. */
 	ClientId getClientId();
@@ -30,7 +31,4 @@ public interface MessagingManager {
 
 	/** Returns the body of the private message with the given ID. */
 	byte[] getMessageBody(MessageId m) throws DbException;
-
-	/** Marks a private message as read or unread. */
-	void setReadFlag(MessageId m, boolean read) throws DbException;
 }

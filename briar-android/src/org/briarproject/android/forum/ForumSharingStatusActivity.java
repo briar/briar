@@ -103,7 +103,7 @@ public class ForumSharingStatusActivity extends BriarActivity {
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =
 								new ContactListItem(c, localAuthor, false, null,
-										null);
+										-1, 0);
 						contactItems.add(item);
 					}
 				} catch (DbException e) {
@@ -141,7 +141,7 @@ public class ForumSharingStatusActivity extends BriarActivity {
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =
 								new ContactListItem(c, localAuthor, false, null,
-										null);
+										-1, 0);
 						contactItems.add(item);
 					}
 				} catch (DbException e) {

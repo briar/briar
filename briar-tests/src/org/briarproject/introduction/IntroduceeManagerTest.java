@@ -5,6 +5,7 @@ import org.briarproject.TestUtils;
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -19,7 +20,6 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroduceeProtocolState;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -34,6 +34,7 @@ import org.junit.Test;
 
 import java.security.SecureRandom;
 
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
@@ -46,7 +47,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
@@ -63,7 +63,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class IntroduceeManagerTest extends BriarTestCase {
@@ -164,7 +163,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		msg.put(GROUP_ID, introductionGroup1.getId());
 		msg.put(SESSION_ID, sessionId);
 		msg.put(MESSAGE_ID, message1.getId());
-		msg.put(MESSAGE_TIME, time);
+		msg.put(TIMESTAMP, time);
 		msg.put(NAME, introducee2.getAuthor().getName());
 		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 
@@ -192,7 +191,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		msg.put(GROUP_ID, introductionGroup1.getId());
 		msg.put(SESSION_ID, sessionId);
 		msg.put(MESSAGE_ID, message1.getId());
-		msg.put(MESSAGE_TIME, time);
+		msg.put(TIMESTAMP, time);
 		msg.put(NAME, introducee2.getAuthor().getName());
 		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 

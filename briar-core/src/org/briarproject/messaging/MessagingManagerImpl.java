@@ -24,7 +24,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.clients.BdfIncomingMessageHook;
+import org.briarproject.clients.ReadableMessageManagerImpl;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -33,23 +33,25 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-class MessagingManagerImpl extends BdfIncomingMessageHook
+import static org.briarproject.api.clients.ReadableMessageConstants.LOCAL;
+import static org.briarproject.api.clients.ReadableMessageConstants.READ;
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
+
+class MessagingManagerImpl extends ReadableMessageManagerImpl
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"6bcdc006c0910b0f44e40644c3b31f1a"
 					+ "8bf9a6d6021d40d219c86b731b903070"));
 
-	private final DatabaseComponent db;
 	private final PrivateGroupFactory privateGroupFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			MetadataParser metadataParser,
 			PrivateGroupFactory privateGroupFactory) {
-		super(clientHelper, metadataParser);
+		super(clientHelper, db, metadataParser);
 
-		this.db = db;
 		this.privateGroupFactory = privateGroupFactory;
 	}
 
@@ -78,7 +80,8 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
-	private Group getContactGroup(Contact c) {
+	@Override
+	protected Group getContactGroup(Contact c) {
 		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
 	}
 
@@ -93,30 +96,33 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	protected void incomingMessage(Transaction txn, Message m, BdfList body,
+	protected boolean incomingReadableMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 
+		// Broadcast event
 		GroupId groupId = m.getGroupId();
-		long timestamp = meta.getLong("timestamp");
+		long timestamp = meta.getLong(TIMESTAMP);
 		String contentType = meta.getString("contentType");
-		boolean local = meta.getBoolean("local");
-		boolean read = meta.getBoolean("read");
+		boolean local = meta.getBoolean(LOCAL);
+		boolean read = meta.getBoolean(READ);
 		PrivateMessageHeader header = new PrivateMessageHeader(
 				m.getId(), timestamp, contentType, local, read, false, false);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, groupId);
 		txn.attach(event);
+
+		return true;
 	}
 
 	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
 		try {
 			BdfDictionary meta = new BdfDictionary();
-			meta.put("timestamp", m.getMessage().getTimestamp());
+			meta.put(TIMESTAMP, m.getMessage().getTimestamp());
 			if (m.getParent() != null) meta.put("parent", m.getParent());
 			meta.put("contentType", m.getContentType());
-			meta.put("local", true);
-			meta.put("read", true);
+			meta.put(LOCAL, true);
+			meta.put(READ, true);
 			clientHelper.addLocalMessage(m.getMessage(), CLIENT_ID, meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
@@ -169,10 +175,10 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta = metadata.get(id);
 			if (meta == null) continue;
 			try {
-				long timestamp = meta.getLong("timestamp");
+				long timestamp = meta.getLong(TIMESTAMP);
 				String contentType = meta.getString("contentType");
-				boolean local = meta.getBoolean("local");
-				boolean read = meta.getBoolean("read");
+				boolean local = meta.getBoolean(LOCAL);
+				boolean read = meta.getBoolean(READ);
 				headers.add(new PrivateMessageHeader(id, timestamp, contentType,
 						local, read, s.isSent(), s.isSeen()));
 			} catch (FormatException e) {
@@ -190,17 +196,6 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 			return message.getRaw(2);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void setReadFlag(MessageId m, boolean read) throws DbException {
-		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put("read", read);
-			clientHelper.mergeMessageMetadata(m, meta);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
 		}
 	}
 }

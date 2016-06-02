@@ -12,6 +12,9 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
+import static org.briarproject.api.clients.ReadableMessageConstants.LOCAL;
+import static org.briarproject.api.clients.ReadableMessageConstants.READ;
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 
@@ -38,11 +41,11 @@ class PrivateMessageValidator extends BdfMessageValidator {
 		checkLength(privateMessageBody, 0, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
-		meta.put("timestamp", m.getTimestamp());
+		meta.put(TIMESTAMP, m.getTimestamp());
 		if (parentId != null) meta.put("parent", parentId);
 		meta.put("contentType", contentType);
-		meta.put("local", false);
-		meta.put("read", false);
+		meta.put(LOCAL, false);
+		meta.put(READ, false);
 		return new BdfMessageContext(meta);
 	}
 }

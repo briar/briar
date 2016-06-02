@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ABORT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ACCEPT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_DECLINE;
@@ -112,7 +113,7 @@ public class IntroduceeEngine
 					msg.put(E_PUBLIC_KEY, localState.getRaw(OUR_PUBLIC_KEY));
 					msg.put(TRANSPORT, localAction.getDictionary(TRANSPORT));
 				}
-				msg.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
+				msg.put(TIMESTAMP, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg);
 				logAction(currentState, localState, msg);
 
@@ -330,7 +331,7 @@ public class IntroduceeEngine
 
 		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
 		MessageId messageId = new MessageId(msg.getRaw(MESSAGE_ID));
-		long time = msg.getLong(MESSAGE_TIME);
+		long time = msg.getLong(TIMESTAMP);
 		String name = msg.getString(NAME);
 		String message = msg.getOptionalString(MSG);
 		boolean exists = localState.getBoolean(EXISTS);

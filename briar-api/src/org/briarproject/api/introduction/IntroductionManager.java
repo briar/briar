@@ -1,6 +1,7 @@
 package org.briarproject.api.introduction;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.ReadableMessageManager;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -10,7 +11,7 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface IntroductionManager {
+public interface IntroductionManager extends ReadableMessageManager {
 
 	/** Returns the unique ID of the introduction client. */
 	ClientId getClientId();
@@ -41,8 +42,5 @@ public interface IntroductionManager {
 	 */
 	Collection<IntroductionMessage> getIntroductionMessages(ContactId contactId)
 			throws DbException;
-
-	/** Marks an introduction message as read or unread. */
-	void setReadFlag(MessageId m, boolean read) throws DbException;
 
 }

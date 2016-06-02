@@ -46,7 +46,19 @@ public interface SharingManager<S extends Shareable, IM extends InvitationMessag
 	/** Returns true if the group not already shared and no invitation is open */
 	boolean canBeShared(GroupId g, Contact c) throws DbException;
 
+	/**
+	 * Returns the timestamp of the latest sharing message sent by the given
+	 * contact, or -1 if there are none.
+	 */
+	long getTimestamp(ContactId c) throws DbException;
+
+	/**
+	 * Returns the number of unread sharing messages sent by the given contact.
+	 */
+	int getUnreadCount(ContactId c) throws DbException;
+
 	/** Marks a sharing message as read or unread. */
-	void setReadFlag(MessageId m, boolean read) throws DbException;
+	void setReadFlag(ContactId c, MessageId m, boolean local, boolean read)
+			throws DbException;
 
 }

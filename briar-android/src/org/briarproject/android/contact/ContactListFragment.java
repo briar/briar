@@ -23,11 +23,7 @@ import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.conversation.ConversationForumInvitationItem;
-import org.briarproject.api.conversation.ConversationIntroductionRequestItem;
-import org.briarproject.api.conversation.ConversationIntroductionResponseItem;
-import org.briarproject.api.conversation.ConversationItem;
-import org.briarproject.api.conversation.ConversationMessageItem;
+import org.briarproject.api.conversation.ConversationManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactAddedEvent;
@@ -40,22 +36,14 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.forum.ForumInvitationMessage;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.introduction.IntroductionManager;
-import org.briarproject.api.introduction.IntroductionMessage;
-import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.introduction.IntroductionResponse;
-import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -88,11 +76,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Inject
 	protected volatile IdentityManager identityManager;
 	@Inject
-	protected volatile MessagingManager messagingManager;
-	@Inject
-	protected volatile IntroductionManager introductionManager;
-	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
+	protected volatile ConversationManager conversationManager;
 
 	public static ContactListFragment newInstance() {
 		
@@ -208,15 +192,19 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 						try {
 							ContactId id = c.getId();
 							GroupId groupId =
-									messagingManager.getConversationId(id);
-							Collection<ConversationItem> messages =
-									getMessages(id);
+									conversationManager.getConversationId(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
 							LocalAuthor localAuthor = identityManager
 									.getLocalAuthor(c.getLocalAuthorId());
+							long timestamp = conversationManager.getTimestamp(id);
+							long now1 = System.currentTimeMillis();
+							int unread = conversationManager.getUnreadCount(id);
+							long duration = System.currentTimeMillis() - now1;
+							if (LOG.isLoggable(INFO))
+								LOG.info("Loading unread messages took " + duration + " ms");
 							contacts.add(new ContactListItem(c, localAuthor,
-									connected, groupId, messages));
+									connected, groupId, timestamp, unread));
 						} catch (NoSuchContactException e) {
 							// Continue
 						}
@@ -264,13 +252,11 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			LOG.info("Message received, update contact");
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			PrivateMessageHeader h = p.getMessageHeader();
-			updateItem(p.getGroupId(), ConversationMessageItem.from(h));
+			updateItem(p.getGroupId(), h.getTimestamp(), h.isRead());
 		} else if (e instanceof MessageStateChangedEvent) {
 			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
 			ClientId c = m.getClientId();
-			if (m.getState() == DELIVERED &&
-					(c.equals(introductionManager.getClientId()) ||
-							c.equals(forumSharingManager.getClientId()))) {
+			if (m.getState() == DELIVERED && conversationManager.isWrappedClient(c)) {
 				LOG.info("Message added, reloading");
 				reloadConversation(m.getMessage().getGroupId());
 			}
@@ -282,10 +268,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Override
 			public void run() {
 				try {
-					ContactId c = messagingManager.getContactId(g);
-					Collection<ConversationItem> messages =
-							getMessages(c);
-					updateItem(c, messages);
+					ContactId c = conversationManager.getContactId(g);
+					long timestamp = conversationManager.getTimestamp(c);
+					int unread = conversationManager.getUnreadCount(c);
+					updateItem(c, timestamp, unread);
 				} catch (NoSuchContactException e) {
 					LOG.info("Contact removed");
 				} catch (DbException e) {
@@ -296,29 +282,31 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	private void updateItem(final ContactId c,
-			final Collection<ConversationItem> messages) {
+	private void updateItem(final ContactId c, final long timestamp, final int unread) {
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);
 				if (item != null) {
-					item.setMessages(messages);
+					item.setTimestamp(timestamp);
+					item.setUnreadCount(unread);
 					adapter.updateItem(position, item);
 				}
 			}
 		});
 	}
 
-	private void updateItem(final GroupId g, final ConversationItem m) {
+	private void updateItem(final GroupId g, final long timestamp, final boolean unread) {
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(g);
 				ContactListItem item = adapter.getItem(position);
 				if (item != null) {
-					item.addMessage(m);
+					item.setTimestamp(timestamp);
+					if (unread)
+						item.setUnreadCount(item.getUnreadCount() + 1);
 					adapter.updateItem(position, item);
 				}
 			}
@@ -348,51 +336,5 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				}
 			}
 		});
-	}
-
-	// This needs to be called from the DB thread
-	private Collection<ConversationItem> getMessages(ContactId id)
-			throws DbException {
-
-		long now = System.currentTimeMillis();
-
-		Collection<ConversationItem> messages = new ArrayList<>();
-
-		Collection<PrivateMessageHeader> headers =
-				messagingManager.getMessageHeaders(id);
-		for (PrivateMessageHeader h : headers) {
-			messages.add(ConversationMessageItem.from(h));
-		}
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading message headers took " + duration + " ms");
-
-		now = System.currentTimeMillis();
-		Collection<IntroductionMessage> introductions =
-				introductionManager
-						.getIntroductionMessages(id);
-		for (IntroductionMessage m : introductions) {
-			if (m instanceof IntroductionRequest)
-				messages.add(ConversationIntroductionRequestItem
-						.from((IntroductionRequest) m));
-			else
-				messages.add(ConversationIntroductionResponseItem
-						.from((IntroductionResponse) m));
-		}
-		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading introduction messages took " + duration + " ms");
-
-		now = System.currentTimeMillis();
-		Collection<ForumInvitationMessage> invitations =
-				forumSharingManager.getInvitationMessages(id);
-		for (ForumInvitationMessage i : invitations) {
-			messages.add(ConversationForumInvitationItem.from(i));
-		}
-		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading forum invitations took " + duration + " ms");
-
-		return messages;
 	}
 }

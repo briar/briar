@@ -16,21 +16,21 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.blogs.BlogConstants.BLOG_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_DESC;
-import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
+import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_DESC_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_TITLE_LENGTH;
+import static org.briarproject.api.clients.ReadableMessageConstants.LOCAL;
+import static org.briarproject.api.clients.ReadableMessageConstants.TIMESTAMP;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_MSG;
-import static org.briarproject.api.sharing.SharingConstants.LOCAL;
 import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEPT;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_DECLINE;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
-import static org.briarproject.api.sharing.SharingConstants.TIME;
 import static org.briarproject.api.sharing.SharingConstants.TYPE;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
@@ -92,7 +92,7 @@ class BlogSharingValidator extends BdfMessageValidator {
 		d.put(TYPE, type);
 		d.put(SESSION_ID, id);
 		d.put(LOCAL, false);
-		d.put(TIME, m.getTimestamp());
+		d.put(TIMESTAMP, m.getTimestamp());
 		return new BdfMessageContext(d);
 	}
 }
