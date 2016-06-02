@@ -307,7 +307,7 @@ public class ForumActivity extends BriarActivity implements
 		private final List<ForumEntry> forumEntries;
 		// highlight not depandant on time
 		private ForumEntry replyEntry;
-//		 temporary highlight
+		// temporary highlight
 		private ForumEntry addedEntry;
 
 		public ForumAdapter(@NonNull List<ForumEntry> forumEntries) {
@@ -334,6 +334,7 @@ public class ForumActivity extends BriarActivity implements
 							isShowingDescendants = true;
 							showDescendants(higherEntry);
 						}
+						notifyItemChanged(getVisiblePos(higherEntry));
 						break;
 					}
 				}
@@ -359,8 +360,9 @@ public class ForumActivity extends BriarActivity implements
 			return false;
 		}
 
-		private boolean hasVisibleDescendants(int visiblePos) {
-			int levelLimit = forumEntries.get(visiblePos).getLevel();
+		private boolean hasVisibleDescendants(ForumEntry forumEntry) {
+			int visiblePos = getVisiblePos(forumEntry);
+			int levelLimit = forumEntry.getLevel();
 			for (int i = visiblePos + 1; i < getItemCount(); i++) {
 				ForumEntry entry = getVisibleEntry(i);
 				if (entry.getLevel() <= levelLimit)
@@ -525,7 +527,7 @@ public class ForumActivity extends BriarActivity implements
 
 			if (hasDescendants(data)) {
 				ui.chevron.setVisibility(VISIBLE);
-				if (hasVisibleDescendants(position)) {
+				if (hasVisibleDescendants(data)) {
 					ui.chevron.setSelected(false);
 				} else {
 					ui.chevron.setSelected(true);
@@ -566,7 +568,7 @@ public class ForumActivity extends BriarActivity implements
 					}
 					setReplyEntry(data);
 					linearLayoutManager
-							.scrollToPositionWithOffset(position, 0);
+							.scrollToPositionWithOffset(getVisiblePos(data), 0);
 				}
 			});
 		}
