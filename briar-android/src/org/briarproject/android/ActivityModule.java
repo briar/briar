@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import org.briarproject.android.blogs.BlogsFragment;
+import org.briarproject.android.blogs.MyBlogsFragment;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
@@ -145,6 +147,20 @@ public class ActivityModule {
 	@Provides
 	@Named("ContactListFragment")
 	BaseFragment provideContactListFragment(ContactListFragment fragment) {
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
+
+	@Provides
+	@Named("BlogsFragment")
+	BaseFragment provideBlogsFragment(BlogsFragment fragment) {
+		fragment.setArguments(new Bundle());
+		return fragment;
+	}
+
+	@Provides
+	@Named("MyBlogsFragment")
+	BaseFragment provideMyBlogsFragment(MyBlogsFragment fragment) {
 		fragment.setArguments(new Bundle());
 		return fragment;
 	}

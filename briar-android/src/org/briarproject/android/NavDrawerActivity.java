@@ -6,10 +6,13 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -38,7 +41,8 @@ import static android.support.v4.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
 import static android.view.View.INVISIBLE;
 
 public class NavDrawerActivity extends BriarFragmentActivity implements
-		BaseFragment.BaseFragmentListener, TransportStateListener {
+		BaseFragment.BaseFragmentListener, TransportStateListener,
+		OnNavigationItemSelectedListener {
 
 	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
 
@@ -90,6 +94,8 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		NavigationView navigation =
+				(NavigationView) findViewById(R.id.navigation);
 		GridView transportsView = (GridView) findViewById(R.id.transportsView);
 		progressTitle = (TextView) findViewById(R.id.title_progress_bar);
 		progressViewGroup = (ViewGroup) findViewById(R.id.container_progress);
@@ -101,12 +107,11 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
 				R.string.nav_drawer_open_description,
 				R.string.nav_drawer_close_description);
-		drawerLayout.setDrawerListener(drawerToggle);
+		drawerLayout.addDrawerListener(drawerToggle);
+		navigation.setNavigationItemSelectedListener(this);
 		if (state == null) {
+			navigation.setCheckedItem(R.id.nav_btn_contacts);
 			startFragment(activityComponent.newContactListFragment());
-		} else {
-			currentFragmentId = state.getInt(KEY_CURRENT_FRAGMENT_ID);
-			loadCurrentFragment();
 		}
 		checkAuthorHandle(getIntent());
 
@@ -174,6 +179,9 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			case R.id.nav_btn_forums:
 				startFragment(activityComponent.newForumListFragment());
 				break;
+			case R.id.nav_btn_blogs:
+				startFragment(activityComponent.newBlogsFragment());
+				break;
 			case R.id.nav_btn_settings:
 				startActivity(new Intent(this, SettingsActivity.class));
 				break;
@@ -183,11 +191,13 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		}
 	}
 
-	public void onNavigationClick(View view) {
+	@Override
+	public boolean onNavigationItemSelected(MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
-		currentFragmentId = view.getId();
+		currentFragmentId = item.getItemId();
 		loadCurrentFragment();
+		return true;
 	}
 
 

@@ -145,4 +145,14 @@
 		<item name="android:background">?android:attr/listDivider</item>
 	</style>
 
+	<style name="BriarTabLayout" parent="Widget.Design.TabLayout">
+		<item name="android:background">@color/briar_primary</item>
+		<item name="tabMode">scrollable</item>
+		<item name="tabMaxWidth">100dp</item>
+		<item name="tabIndicatorColor">@color/briar_text_primary_inverse</item>
+		<item name="tabIndicatorHeight">3dp</item>
+		<item name="tabSelectedTextColor">@color/briar_text_primary_inverse</item>
+		<item name="tabTextColor">@color/briar_text_primary_inverse</item>
+	</style>
+
 </resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:showIn="@layout/navigation_menu">
+
+	<ImageView
+		android:id="@+id/imageView2"
+		android:layout_width="100dp"
+		android:layout_height="100dp"
+		android:layout_gravity="top|center_horizontal"
+		android:layout_margin="@dimen/margin_medium"
+		android:contentDescription="@string/app_name"
+		android:src="@drawable/briar_logo_large"/>
+
+	<View
+		style="@style/Divider.Horizontal"
+		android:layout_gravity="bottom"/>
+
+</FrameLayout>

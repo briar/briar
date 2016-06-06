@@ -70,6 +70,12 @@ public interface ActivityComponent {
 	@Named("ForumListFragment")
 	BaseFragment newForumListFragment();
 
+	@Named("BlogsFragment")
+	BaseFragment newBlogsFragment();
+
+	@Named("MyBlogsFragment")
+	BaseFragment newMyBlogsFragment();
+
 	@Named("ChooseIdentityFragment")
 	BaseFragment newChooseIdentityFragment();
 
