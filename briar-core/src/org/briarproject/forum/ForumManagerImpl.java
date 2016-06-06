@@ -2,7 +2,6 @@ package org.briarproject.forum;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.contact.Contact;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
@@ -14,8 +13,9 @@ import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -25,11 +25,9 @@ import org.briarproject.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
@@ -45,8 +43,6 @@ import static org.briarproject.api.forum.ForumConstants.KEY_PUBLIC_NAME;
 import static org.briarproject.api.forum.ForumConstants.KEY_READ;
 import static org.briarproject.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
-import static org.briarproject.api.identity.Author.Status.UNKNOWN;
-import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
 class ForumManagerImpl implements ForumManager {
 
@@ -58,15 +54,17 @@ class ForumManagerImpl implements ForumManager {
 					+ "795af837abbf8c16d750b3c2ccc186ea"));
 
 	private final DatabaseComponent db;
+	private final IdentityManager identityManager;
 	private final ClientHelper clientHelper;
 	private final ForumFactory forumFactory;
 	private final List<RemoveForumHook> removeHooks;
 
 	@Inject
-	ForumManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
-			ForumFactory forumFactory) {
+	ForumManagerImpl(DatabaseComponent db, IdentityManager identityManager,
+			ClientHelper clientHelper, ForumFactory forumFactory) {
 
 		this.db = db;
+		this.identityManager = identityManager;
 		this.clientHelper = clientHelper;
 		this.forumFactory = forumFactory;
 		removeHooks = new CopyOnWriteArrayList<RemoveForumHook>();
@@ -183,24 +181,12 @@ class ForumManagerImpl implements ForumManager {
 	@Override
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
-		Set<AuthorId> localAuthorIds = new HashSet<AuthorId>();
-		Set<AuthorId> contactAuthorIds = new HashSet<AuthorId>();
+
 		Map<MessageId, BdfDictionary> metadata;
-		Transaction txn = db.startTransaction(true);
 		try {
-			// Load the IDs of the user's identities
-			for (LocalAuthor a : db.getLocalAuthors(txn))
-				localAuthorIds.add(a.getId());
-			// Load the IDs of contacts' identities
-			for (Contact c : db.getContacts(txn))
-				contactAuthorIds.add(c.getAuthor().getId());
-			// Load the metadata
-			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
-			txn.setComplete();
+			metadata = clientHelper.getMessageMetadataAsDictionary(g);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 		// Parse the metadata
 		Collection<ForumPostHeader> headers = new ArrayList<ForumPostHeader>();
@@ -209,7 +195,7 @@ class ForumManagerImpl implements ForumManager {
 				BdfDictionary meta = entry.getValue();
 				long timestamp = meta.getLong(KEY_TIMESTAMP);
 				Author author = null;
-				Author.Status authorStatus = ANONYMOUS;
+				Status authorStatus = ANONYMOUS;
 				MessageId parentId = null;
 				if (meta.containsKey(KEY_PARENT))
 					parentId = new MessageId(meta.getRaw(KEY_PARENT));
@@ -219,11 +205,8 @@ class ForumManagerImpl implements ForumManager {
 					String name = d1.getString(KEY_NAME);
 					byte[] publicKey = d1.getRaw(KEY_PUBLIC_NAME);
 					author = new Author(authorId, name, publicKey);
-					if (localAuthorIds.contains(authorId))
-						authorStatus = VERIFIED;
-					else if (contactAuthorIds.contains(authorId))
-						authorStatus = VERIFIED;
-					else authorStatus = UNKNOWN;
+					authorStatus =
+							identityManager.getAuthorStatus(author.getId());
 				}
 				String contentType = meta.getString(KEY_CONTENT_TYPE);
 				boolean read = meta.getBoolean(KEY_READ);

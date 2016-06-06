@@ -11,6 +11,7 @@ import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.ValidationManager;
@@ -38,9 +39,8 @@ public class ForumModule {
 
 	@Provides
 	@Singleton
-	ForumManager provideForumManager(DatabaseComponent db,
-			ClientHelper clientHelper, ForumFactory forumFactory) {
-		return new ForumManagerImpl(db, clientHelper, forumFactory);
+	ForumManager provideForumManager(ForumManagerImpl forumManager) {
+		return forumManager;
 	}
 
 	@Provides
@@ -88,7 +88,7 @@ public class ForumModule {
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			MessageQueueManager messageQueueManager,
-			ForumManager forumManager, ForumFactory forumFactory,
+			ForumManager forumManager,
 			ForumSharingManagerImpl forumSharingManager) {
 
 		lifecycleManager.registerClient(forumSharingManager);
