@@ -78,7 +78,7 @@ public class BlogsFragment extends BaseFragment {
 	}
 
 
-	private static class TabAdapter extends FragmentStatePagerAdapter {
+	private class TabAdapter extends FragmentStatePagerAdapter {
 		private String[] titles;
 
 		TabAdapter(FragmentManager fm, String[] titles) {
@@ -94,9 +94,10 @@ public class BlogsFragment extends BaseFragment {
 		@Override
 		public Fragment getItem(int position) {
 			switch (position) {
-				// TODO add your fragments here
+				case 1:
+					return new MyBlogsFragment();
 				default:
-					return MyBlogsFragment.newInstance(position);
+					return BlogListFragment.newInstance(position);
 			}
 		}
 

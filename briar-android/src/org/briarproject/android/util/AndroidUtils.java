@@ -56,6 +56,11 @@ public class AndroidUtils {
 			til.setError(null);
 	}
 
+	public static void setError(TextInputLayout til, int res,
+			boolean condition) {
+		setError(til, til.getContext().getString(res), condition);
+	}
+
 	public static String getBluetoothAddress(Context ctx,
 			BluetoothAdapter adapter) {
 		// Return the adapter's address if it's valid and not fake

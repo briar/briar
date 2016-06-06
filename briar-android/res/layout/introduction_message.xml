@@ -88,10 +88,7 @@
 		<Button
 			android:id="@+id/makeIntroductionButton"
 			style="@style/BriarButton"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/introduction_button"
-			/>
+			android:text="@string/introduction_button"/>
 
 	</LinearLayout>
 

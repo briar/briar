@@ -7,6 +7,8 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.android.report.BriarReportSender;
+import org.briarproject.api.blogs.BlogManager;
+import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -95,6 +97,10 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	ForumSharingManager forumSharingManager();
 
 	ForumPostFactory forumPostFactory();
+
+	BlogManager blogManager();
+
+	BlogPostFactory blogPostFactory();
 
 	SettingsManager settingsManager();
 

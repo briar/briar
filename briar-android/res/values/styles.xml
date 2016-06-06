@@ -23,6 +23,8 @@
 	</style>
 
 	<style name="BriarButton" parent="Widget.AppCompat.Button.Colored">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:padding">@dimen/margin_large</item>
 	</style>
@@ -107,6 +109,11 @@
 		<item name="tabIndicatorHeight">3dp</item>
 		<item name="tabSelectedTextColor">@color/briar_text_primary_inverse</item>
 		<item name="tabTextColor">@color/briar_text_primary_inverse</item>
+	</style>
+
+	<!-- This fixes the missing TextAppearance.Design.Counter.Overflow style -->
+	<style name="BriarTextCounter.Overflow" parent="TextAppearance.Design.Counter">
+		<item name="android:textColor">@color/briar_button_negative</item>
 	</style>
 
 </resources>
