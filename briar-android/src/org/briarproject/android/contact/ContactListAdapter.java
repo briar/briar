@@ -1,7 +1,6 @@
 package org.briarproject.android.contact;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
