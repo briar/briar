@@ -57,6 +57,17 @@
 		<item name="android:textColor">@android:color/primary_text_light</item>
 	</style>
 
+	<style name="BriarTag">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_marginRight">@dimen/margin_medium</item>
+		<item name="android:paddingLeft">3dp</item>
+		<item name="android:paddingRight">3dp</item>
+		<item name="android:background">@color/briar_primary</item>
+		<item name="android:textSize">@dimen/text_size_tiny</item>
+		<item name="android:textColor">@color/briar_text_primary_inverse</item>
+	</style>
+
 	<style name="Divider">
 		<item name="android:background">@color/divider</item>
 	</style>

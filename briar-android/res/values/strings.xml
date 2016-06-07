@@ -257,8 +257,13 @@
 	<string name="blogs_my_blogs_create_hint_desc">A short description of your new blog</string>
 	<string name="blogs_my_blogs_create_hint_desc_explanation">Potential readers may or may not subscribe to your blog based on the content of the description.</string>
 	<string name="blogs_my_blogs_empty_state">You don\'t have any blogs.\n\nWhy don\'t you create one now by clicking the plus in the top right screen corner?</string>
+	<string name="blogs_my_blogs_blog_empty_state">This is the place for content of your blog.\n\nIt seems like you haven\'t written anything yet.\n\nPlease tap the pen icon to compose a new blog post.\n\nDon\'t forget to go public and share your blog.</string>
 	<string name="blogs_my_blogs_created">Blog created</string>
 	<string name="blogs_blog_is_empty">This blog is empty</string>
+	<string name="blogs_other_blog_empty_state">This blog is currently empty.\n\nEither the author hasn\'t written anything yet, or the person who shared this blog with you needs to come online, so posts can be synchronized.</string>
+	<string name="tag_new">NEW</string>
+	<string name="blogs_post_more">more</string>
+	<string name="blogs_write_blog_post">Write Blog Post</string>
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>

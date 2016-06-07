@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import android.app.Activity;
 
+import org.briarproject.android.blogs.BlogActivity;
 import org.briarproject.android.blogs.CreateBlogActivity;
 import org.briarproject.android.blogs.MyBlogsFragment;
 import org.briarproject.android.contact.ContactListFragment;
@@ -66,6 +67,8 @@ public interface ActivityComponent {
 	void inject(ForumActivity activity);
 
 	void inject(CreateBlogActivity activity);
+
+	void inject(BlogActivity activity);
 
 	void inject(SettingsActivity activity);
 

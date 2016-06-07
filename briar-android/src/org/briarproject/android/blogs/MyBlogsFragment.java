@@ -135,7 +135,7 @@ public class MyBlogsFragment extends BaseFragment {
 						try {
 							Collection<BlogPostHeader> headers =
 									blogManager.getPostHeaders(b.getId());
-							blogs.add(new BlogListItem(b, headers));
+							blogs.add(new BlogListItem(b, headers, true));
 						} catch (NoSuchGroupException e) {
 							// Continue
 						}
