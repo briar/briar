@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
@@ -25,17 +26,7 @@ class BlogPostAdapter extends
 
 		@Override
 		public int compare(BlogPostItem a, BlogPostItem b) {
-			if (a == b) return 0;
-			// The blog with the newest message comes first
-			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
-			if (aTime > bTime) return -1;
-			if (aTime < bTime) return 1;
-			// Break ties by post title
-			if (a.getTitle() != null && b.getTitle() != null) {
-				return String.CASE_INSENSITIVE_ORDER
-						.compare(a.getTitle(), b.getTitle());
-			}
-			return 0;
+			return a.compareTo(b);
 		}
 
 		@Override
@@ -70,10 +61,12 @@ class BlogPostAdapter extends
 	});
 
 	private final Context ctx;
+	private final GroupId blogGroupId;
 	private final String blogTitle;
 
-	BlogPostAdapter(Context ctx, String blogTitle) {
+	BlogPostAdapter(Context ctx, GroupId blogGroupId, String blogTitle) {
 		this.ctx = ctx;
+		this.blogGroupId = blogGroupId;
 		this.blogTitle = blogTitle;
 	}
 
@@ -99,6 +92,13 @@ class BlogPostAdapter extends
 		// post body
 		ui.body.setText(StringUtils.fromUtf8(item.getBody()));
 
+		ui.layout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO #428
+			}
+		});
+
 		// date
 		ui.date.setText(
 				DateUtils.getRelativeTimeSpanString(ctx, item.getTimestamp()));
@@ -115,6 +115,10 @@ class BlogPostAdapter extends
 
 	public BlogPostItem getItem(int position) {
 		return posts.get(position);
+	}
+
+	public void add(BlogPostItem item) {
+		posts.add(item);
 	}
 
 	public void addAll(Collection<BlogPostItem> items) {

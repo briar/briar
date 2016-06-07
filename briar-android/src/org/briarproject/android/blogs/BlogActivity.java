@@ -3,6 +3,8 @@ package org.briarproject.android.blogs;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +27,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
+import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -63,7 +66,7 @@ public class BlogActivity extends BriarActivity {
 		if (blogName != null) setTitle(blogName);
 		myBlog = i.getBooleanExtra(IS_MY_BLOG, false);
 
-		adapter = new BlogPostAdapter(this, blogName);
+		adapter = new BlogPostAdapter(this, groupId, blogName);
 		list = (BriarRecyclerView) this.findViewById(R.id.postList);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
@@ -103,11 +106,15 @@ public class BlogActivity extends BriarActivity {
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_write_blog_post:
-/*				Intent i = new Intent(this, WriteBlogPostActivity.class);
+				Intent i = new Intent(this, WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
 				i.putExtra(BLOG_NAME, blogName);
-				startActivityForResult(i, WRITE_POST);
-*/				return true;
+				ActivityOptionsCompat options =
+						makeCustomAnimation(this, android.R.anim.slide_in_left,
+								android.R.anim.slide_out_right);
+				ActivityCompat.startActivityForResult(this, i, WRITE_POST,
+						options.toBundle());
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}

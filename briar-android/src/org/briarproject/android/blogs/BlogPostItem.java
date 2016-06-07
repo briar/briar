@@ -1,12 +1,14 @@
 package org.briarproject.android.blogs;
 
+import android.support.annotation.NonNull;
+
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
-class BlogPostItem {
+class BlogPostItem implements Comparable<BlogPostItem> {
 
 	private final BlogPostHeader header;
 	private final byte[] body;
@@ -48,5 +50,20 @@ class BlogPostItem {
 
 	public boolean isRead() {
 		return read;
+	}
+
+	@Override
+	public int compareTo(@NonNull BlogPostItem other) {
+		if (this == other) return 0;
+		// The blog with the newest message comes first
+		long aTime = getTimestamp(), bTime = other.getTimestamp();
+		if (aTime > bTime) return -1;
+		if (aTime < bTime) return 1;
+		// Break ties by post title
+		if (getTitle() != null && other.getTitle() != null) {
+			return String.CASE_INSENSITIVE_ORDER
+					.compare(getTitle(), other.getTitle());
+		}
+		return 0;
 	}
 }
