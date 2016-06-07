@@ -81,12 +81,12 @@
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>
 	<string name="forum_sharing_status">Sharing Status</string>
-	<string name="forum_no_posts">No posts</string>
+	<string name="no_posts">No posts</string>
 	<plurals name="unread_posts">
 		<item quantity="one">%d unread post</item>
 		<item quantity="other">%d unread posts</item>
 	</plurals>
-	<plurals name="forum_posts">
+	<plurals name="posts">
 		<item quantity="one">%d post</item>
 		<item quantity="other">%d posts</item>
 	</plurals>
@@ -256,7 +256,9 @@
 	<string name="blogs_my_blogs_create_hint_title">Blog title (cannot be changed later)</string>
 	<string name="blogs_my_blogs_create_hint_desc">A short description of your new blog</string>
 	<string name="blogs_my_blogs_create_hint_desc_explanation">Potential readers may or may not subscribe to your blog based on the content of the description.</string>
+	<string name="blogs_my_blogs_empty_state">You don\'t have any blogs.\n\nWhy don\'t you create one now by clicking the plus in the top right screen corner?</string>
 	<string name="blogs_my_blogs_created">Blog created</string>
+	<string name="blogs_blog_is_empty">This blog is empty</string>
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>

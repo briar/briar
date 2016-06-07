@@ -14,11 +14,12 @@
 		android:layout_height="@dimen/listitem_picture_frame_size"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
-		android:layout_centerVertical="true"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"/>
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:layout_marginTop="@dimen/margin_medium"/>
 
 	<TextView
-		android:id="@+id/forumNameView"
+		android:id="@+id/nameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
@@ -28,17 +29,17 @@
 		android:maxLines="2"
 		android:textColor="@color/briar_text_primary"
 		android:textSize="@dimen/text_size_medium"
-		tools:text="This is a name of a forum"/>
+		tools:text="This is a name of a blog"/>
 
 	<TextView
 		android:id="@+id/postCountView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/forumNameView"
+		android:layout_below="@+id/nameView"
+		android:layout_marginBottom="@dimen/margin_small"
 		android:layout_toEndOf="@+id/avatarView"
 		android:layout_toRightOf="@+id/avatarView"
-		android:paddingBottom="@dimen/listitem_horizontal_margin"
-		android:paddingTop="@dimen/margin_medium"
+		android:paddingTop="@dimen/margin_small"
 		android:textColor="@color/briar_text_secondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="1337 posts"/>
@@ -49,20 +50,30 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
-		android:layout_below="@+id/forumNameView"
+		android:layout_below="@+id/nameView"
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
-		android:paddingBottom="@dimen/listitem_horizontal_margin"
-		android:paddingTop="@dimen/margin_medium"
+		android:paddingTop="@dimen/margin_small"
 		android:textColor="@color/briar_text_secondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="Dec 24"/>
+
+	<TextView
+		android:id="@+id/statusView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/postCountView"
+		android:layout_toEndOf="@+id/avatarView"
+		android:layout_toRightOf="@+id/avatarView"
+		android:textColor="@color/briar_text_tertiary"
+		tools:text="@string/blogs_blog_is_empty"/>
 
 	<View
 		style="@style/Divider.ForumList"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
-		android:layout_below="@+id/postCountView"/>
+		android:layout_below="@+id/statusView"
+		android:layout_marginTop="@dimen/listitem_horizontal_margin"/>
 
 </RelativeLayout>
 
