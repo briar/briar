@@ -14,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
-import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.AndroidComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.db.DbException;

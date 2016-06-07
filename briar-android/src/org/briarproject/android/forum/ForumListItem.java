@@ -9,6 +9,7 @@ class ForumListItem {
 
 	private final Forum forum;
 	private final boolean empty;
+	private final int postCount;
 	private final long timestamp;
 	private final int unread;
 
@@ -16,6 +17,7 @@ class ForumListItem {
 		this.forum = forum;
 		empty = headers.isEmpty();
 		if (empty) {
+			postCount = 0;
 			timestamp = 0;
 			unread = 0;
 		} else {
@@ -29,6 +31,7 @@ class ForumListItem {
 				}
 				if (!h.isRead()) unread++;
 			}
+			this.postCount = headers.size();
 			this.timestamp = newest.getTimestamp();
 			this.unread = unread;
 		}
@@ -40,6 +43,10 @@ class ForumListItem {
 
 	boolean isEmpty() {
 		return empty;
+	}
+
+	int getPostCount() {
+		return postCount;
 	}
 
 	long getTimestamp() {

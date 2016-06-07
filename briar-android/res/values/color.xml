@@ -30,7 +30,7 @@
 	<color name="briar_text_primary">@color/briar_primary</color>
 	<color name="briar_text_primary_inverse">#ffffff</color>
 	<color name="briar_text_secondary">#333333</color>
-	<color name="briar_text_tertiary">#333333</color>
+	<color name="briar_text_tertiary">#FF78909C</color>
 	<color name="briar_button_positive">#06b9ff</color>
 	<color name="briar_button_negative">#ff0000</color>
 
