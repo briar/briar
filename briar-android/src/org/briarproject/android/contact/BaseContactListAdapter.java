@@ -52,8 +52,10 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 			}
 		});
 
-		ViewCompat.setTransitionName(ui.avatar, "avatar" +
-				StringUtils.toHexString(item.getGroupId().getBytes()));
+		if (item.getGroupId() != null) {
+			ViewCompat.setTransitionName(ui.avatar, "avatar" +
+					StringUtils.toHexString(item.getGroupId().getBytes()));
+		}
 	}
 
 	@Override
