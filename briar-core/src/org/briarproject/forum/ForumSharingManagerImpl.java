@@ -27,6 +27,7 @@ import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -206,7 +207,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 				ContactId contactId = getContactId(txn, m.getGroupId());
 				Contact contact = db.getContact(txn, contactId);
 				if (!canBeShared(txn, f.getId(), contact))
-					throw new FormatException();
+					checkForRaceCondition(txn, f, contact);
 
 				// initialize state and process invitation
 				InviteeSessionState state =
@@ -486,6 +487,46 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private void checkForRaceCondition(Transaction txn, Forum f, Contact c)
+			throws FormatException, DbException {
+
+		GroupId contactGroup = getContactGroup(c).getId();
+		if (!listContains(txn, contactGroup, f.getId(), TO_BE_SHARED_BY_US))
+			// no race-condition, this invitation is invalid
+			throw new FormatException();
+
+		// we have an invitation race condition
+		LocalAuthor author = db.getLocalAuthor(txn, c.getLocalAuthorId());
+		Bytes ourKey = new Bytes(author.getPublicKey());
+		Bytes theirKey = new Bytes(c.getAuthor().getPublicKey());
+
+		// determine which invitation takes precedence
+		boolean alice = ourKey.compareTo(theirKey) < 0;
+
+		if (alice) {
+			// our own invitation takes precedence, so just delete Bob's
+			LOG.info("Invitation race-condition: We are Alice deleting Bob's invitation.");
+			throw new FormatException();
+		} else {
+			// we are Bob, so we need to "take back" our own invitation
+			LOG.info("Invitation race-condition: We are Bob taking back our invitation.");
+			ForumSharingSessionState state =
+					getSessionStateForLeaving(txn, f, c.getId());
+			if (state instanceof SharerSessionState) {
+				//SharerEngine engine = new SharerEngine();
+				//processSharerStateUpdate(txn, null,
+				//		engine.onLocalAction((SharerSessionState) state,
+				//				Action.LOCAL_LEAVE));
+
+				// simply remove from list instead of involving engine
+				removeFromList(txn, contactGroup, TO_BE_SHARED_BY_US, f);
+				// TODO here we could also remove the old session state
+				//      and invitation message
+			}
+		}
+
 	}
 
 	private SharerSessionState initializeSharerState(Transaction txn, Forum f,

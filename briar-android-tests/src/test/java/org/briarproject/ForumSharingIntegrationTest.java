@@ -2,6 +2,7 @@ package org.briarproject;
 
 import net.jodah.concurrentunit.Waiter;
 
+import org.briarproject.api.Bytes;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.clients.SessionId;
@@ -31,7 +32,6 @@ import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.system.Clock;
 import org.briarproject.contact.ContactModule;
@@ -71,16 +71,16 @@ import static org.junit.Assert.assertTrue;
 
 public class ForumSharingIntegrationTest extends BriarTestCase {
 
-	LifecycleManager lifecycleManager0, lifecycleManager1, lifecycleManager2;
-	SyncSessionFactory sync0, sync1, sync2;
-	ForumManager forumManager0, forumManager1, forumManager2;
-	ContactManager contactManager0, contactManager1, contactManager2;
-	ContactId contactId0, contactId2, contactId1, contactId21;
-	IdentityManager identityManager0, identityManager1, identityManager2;
-	LocalAuthor author0, author1, author2;
-	Forum forum0;
-	SharerListener listener0, listener2;
-	InviteeListener listener1;
+	private LifecycleManager lifecycleManager0, lifecycleManager1, lifecycleManager2;
+	private SyncSessionFactory sync0, sync1, sync2;
+	private ForumManager forumManager0, forumManager1;
+	private ContactManager contactManager0, contactManager1, contactManager2;
+	private ContactId contactId0, contactId2, contactId1, contactId21;
+	private IdentityManager identityManager0, identityManager1, identityManager2;
+	private LocalAuthor author0, author1, author2;
+	private Forum forum0;
+	private SharerListener listener0, listener2;
+	private InviteeListener listener1;
 
 	@Inject
 	Clock clock;
@@ -138,7 +138,6 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		contactManager2 = t2.getContactManager();
 		forumManager0 = t0.getForumManager();
 		forumManager1 = t1.getForumManager();
-		forumManager2 = t2.getForumManager();
 		forumSharingManager0 = t0.getForumSharingManager();
 		forumSharingManager1 = t1.getForumSharingManager();
 		forumSharingManager2 = t2.getForumSharingManager();
@@ -384,7 +383,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			// sharer un-subscribes from forum
 			forumManager0.removeForum(forum0);
 
-			// from her on expect the response to fail with a DbException
+			// from here on expect the response to fail with a DbException
 			thrown.expect(DbException.class);
 
 			// sync first request message and leave message
@@ -504,6 +503,75 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertEquals(1,
 					forumSharingManager0.getForumInvitationMessages(contactId1)
 							.size());
+		} finally {
+			stopLifecycles();
+		}
+	}
+
+	@Test
+	public void testSharingSameForumWithEachOtherAtSameTime() throws Exception {
+		startLifecycles();
+		try {
+			// initialize and let invitee accept all requests
+			defaultInit(true);
+
+			// invitee adds the same forum
+			DatabaseComponent db1 = t1.getDatabaseComponent();
+			Transaction txn = db1.startTransaction(false);
+			db1.addGroup(txn, forum0.getGroup());
+			txn.setComplete();
+			db1.endTransaction(txn);
+
+			// send invitation
+			forumSharingManager0
+					.sendForumInvitation(forum0.getId(), contactId1, "Hi!");
+
+			// invitee now shares same forum back
+			forumSharingManager1.sendForumInvitation(forum0.getId(),
+					contactId0, "I am re-sharing this forum with you.");
+
+			// find out who should be Alice, because of random keys
+			Bytes key0 = new Bytes(author0.getPublicKey());
+			Bytes key1 = new Bytes(author1.getPublicKey());
+
+			// only now sync first request message
+			boolean alice = key1.compareTo(key0) < 0;
+			syncToInvitee();
+			if (alice) {
+				assertFalse(listener1.requestReceived);
+			} else {
+				eventWaiter.await(TIMEOUT, 1);
+				assertTrue(listener1.requestReceived);
+			}
+
+			// sync second invitation
+			alice = key0.compareTo(key1) < 0;
+			syncToSharer();
+			if (alice) {
+				assertFalse(listener0.requestReceived);
+
+				// sharer did not receive request, but response to own request
+				eventWaiter.await(TIMEOUT, 1);
+				assertTrue(listener0.responseReceived);
+
+				assertEquals(1, forumSharingManager0
+						.getForumInvitationMessages(contactId1).size());
+				assertEquals(2, forumSharingManager1
+						.getForumInvitationMessages(contactId0).size());
+			} else {
+				eventWaiter.await(TIMEOUT, 1);
+				assertTrue(listener0.requestReceived);
+
+				// send response from sharer to invitee and make sure it arrived
+				syncToInvitee();
+				eventWaiter.await(TIMEOUT, 1);
+				assertTrue(listener1.responseReceived);
+
+				assertEquals(2, forumSharingManager0
+						.getForumInvitationMessages(contactId1).size());
+				assertEquals(1, forumSharingManager1
+						.getForumInvitationMessages(contactId0).size());
+			}
 		} finally {
 			stopLifecycles();
 		}
@@ -670,8 +738,8 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 	private class SharerListener implements EventListener {
 
-		public volatile boolean requestReceived = false;
-		public volatile boolean responseReceived = false;
+		volatile boolean requestReceived = false;
+		volatile boolean responseReceived = false;
 
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
@@ -713,8 +781,8 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 	private class InviteeListener implements EventListener {
 
-		public volatile boolean requestReceived = false;
-		public volatile boolean responseReceived = false;
+		volatile boolean requestReceived = false;
+		volatile boolean responseReceived = false;
 
 		private final boolean accept, answer;
 
