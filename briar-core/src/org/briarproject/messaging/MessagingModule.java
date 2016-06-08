@@ -45,11 +45,13 @@ public class MessagingModule {
 	@Provides
 	@Singleton
 	MessagingManager getMessagingManager(LifecycleManager lifecycleManager,
-			ContactManager contactManager,
+			ContactManager contactManager, ValidationManager validationManager,
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerClient(messagingManager);
 		contactManager.registerAddContactHook(messagingManager);
 		contactManager.registerRemoveContactHook(messagingManager);
+		validationManager
+				.registerIncomingMessageHook(CLIENT_ID, messagingManager);
 		return messagingManager;
 	}
 }

@@ -31,6 +31,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageStateChangedEvent;
+import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
@@ -231,12 +232,16 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed");
 			removeItem(((ContactRemovedEvent) e).getContactId());
+		} else if (e instanceof PrivateMessageReceivedEvent) {
+			LOG.info("Message received, update contact");
+			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
+			PrivateMessageHeader h = p.getMessageHeader();
+			updateItem(p.getGroupId(), ConversationItem.from(h));
 		} else if (e instanceof MessageStateChangedEvent) {
 			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
 			ClientId c = m.getClientId();
 			if (m.getState() == DELIVERED &&
-					(c.equals(messagingManager.getClientId()) ||
-							c.equals(introductionManager.getClientId()) ||
+					(c.equals(introductionManager.getClientId()) ||
 							c.equals(forumSharingManager.getClientId()))) {
 				LOG.info("Message added, reloading");
 				reloadConversation(m.getMessage().getGroupId());
@@ -272,6 +277,20 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				ContactListItem item = adapter.getItem(position);
 				if (item != null) {
 					item.setMessages(messages);
+					adapter.updateItem(position, item);
+				}
+			}
+		});
+	}
+
+	private void updateItem(final GroupId g, final ConversationItem m) {
+		listener.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				int position = adapter.findItemPosition(g);
+				ContactListItem item = adapter.getItem(position);
+				if (item != null) {
+					item.addMessage(m);
 					adapter.updateItem(position, item);
 				}
 			}
