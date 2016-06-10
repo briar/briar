@@ -87,15 +87,6 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		return INVALID_POSITION; // Not found
 	}
 
-	int findItemPosition(GroupId g) {
-		int count = getItemCount();
-		for (int i = 0; i < count; i++) {
-			ContactListItem item = getItem(i);
-			if (item.getGroupId().equals(g)) return i;
-		}
-		return INVALID_POSITION; // Not found
-	}
-
 	public void addAll(List<ContactListItem> contacts) {
 		this.contacts.addAll(contacts);
 	}

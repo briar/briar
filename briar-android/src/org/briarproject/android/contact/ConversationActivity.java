@@ -33,8 +33,6 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.conversation.ConversationIntroductionRequestItem;
-import org.briarproject.api.conversation.ConversationIntroductionResponseItem;
 import org.briarproject.api.conversation.ConversationItem;
 import org.briarproject.api.conversation.ConversationItem.IncomingItem;
 import org.briarproject.api.conversation.ConversationManager;
@@ -44,17 +42,12 @@ import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
+import org.briarproject.api.event.ConversationItemReceivedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.ForumInvitationReceivedEvent;
-import org.briarproject.api.event.IntroductionRequestReceivedEvent;
-import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
-import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.introduction.IntroductionRequest;
-import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.plugins.ConnectionRegistry;
@@ -399,15 +392,13 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact removed");
 				finishOnUiThread();
 			}
-		} else if (e instanceof PrivateMessageReceivedEvent) {
-			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
-			if (p.getGroupId().equals(groupId)) {
+		} else if (e instanceof ConversationItemReceivedEvent) {
+			ConversationItemReceivedEvent event =
+					(ConversationItemReceivedEvent) e;
+			if (event.getContactId().equals(contactId)) {
 				LOG.info("Message received, adding");
-				PrivateMessageHeader h = p.getMessageHeader();
-				ConversationMessageItem m = ConversationMessageItem.from(h);
-				conversationManager.loadMessageContent(m);
-				addConversationItem(m);
-				markMessageReadIfNew(m);
+				addConversationItem(event.getItem());
+				markMessageReadIfNew(event.getItem());
 			}
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
@@ -434,30 +425,6 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact disconnected");
 				connected = false;
 				displayContactDetails();
-			}
-		} else if (e instanceof IntroductionRequestReceivedEvent) {
-			IntroductionRequestReceivedEvent event =
-					(IntroductionRequestReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				IntroductionRequest ir = event.getIntroductionRequest();
-				ConversationItem item =
-						ConversationIntroductionRequestItem.from(ir);
-				addConversationItem(item);
-			}
-		} else if (e instanceof IntroductionResponseReceivedEvent) {
-			IntroductionResponseReceivedEvent event =
-					(IntroductionResponseReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				IntroductionResponse ir = event.getIntroductionResponse();
-				ConversationItem item =
-						ConversationIntroductionResponseItem.from(ir);
-				addConversationItem(item);
-			}
-		} else if (e instanceof ForumInvitationReceivedEvent) {
-			ForumInvitationReceivedEvent event =
-					(ForumInvitationReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				loadMessages();
 			}
 		}
 	}

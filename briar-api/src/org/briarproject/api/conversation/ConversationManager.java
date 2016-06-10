@@ -18,11 +18,6 @@ public interface ConversationManager {
 	ClientId getClientId();
 
 	/**
-	 * Returns true if this is the id of a wrapped client.
-	 */
-	boolean isWrappedClient(ClientId clientId);
-
-	/**
 	 * Stores a local private message, and returns the corresponding item.
 	 */
 	ConversationItem addLocalMessage(PrivateMessage m, byte[] body) throws DbException;

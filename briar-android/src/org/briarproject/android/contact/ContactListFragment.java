@@ -23,6 +23,8 @@ import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.conversation.ConversationItem;
+import org.briarproject.api.conversation.ConversationItem.IncomingItem;
 import org.briarproject.api.conversation.ConversationManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
@@ -31,16 +33,13 @@ import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.ContactStatusChangedEvent;
+import org.briarproject.api.event.ConversationItemReceivedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageStateChangedEvent;
-import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -53,7 +52,6 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 public class ContactListFragment extends BaseFragment implements EventListener {
 
@@ -197,12 +195,14 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 									connectionRegistry.isConnected(c.getId());
 							LocalAuthor localAuthor = identityManager
 									.getLocalAuthor(c.getLocalAuthorId());
-							long timestamp = conversationManager.getTimestamp(id);
+							long timestamp =
+									conversationManager.getTimestamp(id);
 							long now1 = System.currentTimeMillis();
 							int unread = conversationManager.getUnreadCount(id);
 							long duration = System.currentTimeMillis() - now1;
 							if (LOG.isLoggable(INFO))
-								LOG.info("Loading unread messages took " + duration + " ms");
+								LOG.info("Loading unread messages took " +
+										duration + " ms");
 							contacts.add(new ContactListItem(c, localAuthor,
 									connected, groupId, timestamp, unread));
 						} catch (NoSuchContactException e) {
@@ -248,64 +248,27 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed");
 			removeItem(((ContactRemovedEvent) e).getContactId());
-		} else if (e instanceof PrivateMessageReceivedEvent) {
+		} else if (e instanceof ConversationItemReceivedEvent) {
 			LOG.info("Message received, update contact");
-			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
-			PrivateMessageHeader h = p.getMessageHeader();
-			updateItem(p.getGroupId(), h.getTimestamp(), h.isRead());
-		} else if (e instanceof MessageStateChangedEvent) {
-			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
-			ClientId c = m.getClientId();
-			if (m.getState() == DELIVERED && conversationManager.isWrappedClient(c)) {
-				LOG.info("Message added, reloading");
-				reloadConversation(m.getMessage().getGroupId());
-			}
+			ConversationItemReceivedEvent event =
+					(ConversationItemReceivedEvent) e;
+			ConversationItem item = event.getItem();
+			updateItem(event.getContactId(), item.getTime(),
+					((IncomingItem) item).isRead());
 		}
 	}
 
-	private void reloadConversation(final GroupId g) {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					ContactId c = conversationManager.getContactId(g);
-					long timestamp = conversationManager.getTimestamp(c);
-					int unread = conversationManager.getUnreadCount(c);
-					updateItem(c, timestamp, unread);
-				} catch (NoSuchContactException e) {
-					LOG.info("Contact removed");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void updateItem(final ContactId c, final long timestamp, final int unread) {
+	private void updateItem(final ContactId c, final long timestamp,
+			final boolean read) {
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItem(position);
 				if (item != null) {
-					item.setTimestamp(timestamp);
-					item.setUnreadCount(unread);
-					adapter.updateItem(position, item);
-				}
-			}
-		});
-	}
-
-	private void updateItem(final GroupId g, final long timestamp, final boolean unread) {
-		listener.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				int position = adapter.findItemPosition(g);
-				ContactListItem item = adapter.getItem(position);
-				if (item != null) {
-					item.setTimestamp(timestamp);
-					if (unread)
+					if (timestamp > item.getTimestamp())
+						item.setTimestamp(timestamp);
+					if (!read)
 						item.setUnreadCount(item.getUnreadCount() + 1);
 					adapter.updateItem(position, item);
 				}

@@ -16,20 +16,18 @@ import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.conversation.ConversationManager;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.ConversationItemReceivedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.ForumInvitationReceivedEvent;
-import org.briarproject.api.event.IntroductionRequestReceivedEvent;
-import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
 import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ServiceException;
-import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.sync.ClientId;
@@ -75,9 +73,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private static final Logger LOG =
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
 
+	private final ConversationManager conversationManager;
 	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
-	private final MessagingManager messagingManager;
 	private final ForumManager forumManager;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
@@ -94,13 +92,15 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private volatile Settings settings = new Settings();
 
 	@Inject
-	public AndroidNotificationManagerImpl(@DatabaseExecutor Executor dbExecutor,
-			SettingsManager settingsManager, MessagingManager messagingManager,
+	public AndroidNotificationManagerImpl(
+			ConversationManager conversationManager,
+			@DatabaseExecutor Executor dbExecutor,
+			SettingsManager settingsManager,
 			ForumManager forumManager, AndroidExecutor androidExecutor,
 			Application app) {
+		this.conversationManager = conversationManager;
 		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
-		this.messagingManager = messagingManager;
 		this.forumManager = forumManager;
 		this.androidExecutor = androidExecutor;
 		appContext = app.getApplicationContext();
@@ -157,27 +157,19 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(SETTINGS_NAMESPACE)) loadSettings();
+		} else if (e instanceof ConversationItemReceivedEvent) {
+			ContactId c = ((ConversationItemReceivedEvent) e).getContactId();
+			showNotificationForPrivateConversation(c);
 		} else if (e instanceof MessageStateChangedEvent) {
 			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
 			if (!m.isLocal() && m.getState() == DELIVERED) {
 				ClientId c = m.getClientId();
-				if (c.equals(messagingManager.getClientId()))
-					showPrivateMessageNotification(m.getMessage().getGroupId());
-				else if (c.equals(forumManager.getClientId()))
+				if (c.equals(forumManager.getClientId()))
 					showForumPostNotification(m.getMessage().getGroupId());
 			}
-		} else if (e instanceof IntroductionRequestReceivedEvent) {
-			ContactId c = ((IntroductionRequestReceivedEvent) e).getContactId();
-			showNotificationForPrivateConversation(c);
-		} else if (e instanceof IntroductionResponseReceivedEvent) {
-			ContactId c = ((IntroductionResponseReceivedEvent) e).getContactId();
-			showNotificationForPrivateConversation(c);
 		} else if (e instanceof IntroductionSucceededEvent) {
 			Contact c = ((IntroductionSucceededEvent) e).getContact();
 			showIntroductionSucceededNotification(c);
-		} else if (e instanceof ForumInvitationReceivedEvent) {
-			ContactId c = ((ForumInvitationReceivedEvent) e).getContactId();
-			showNotificationForPrivateConversation(c);
 		}
 	}
 
@@ -384,7 +376,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			@Override
 			public void run() {
 				try {
-					GroupId group = messagingManager.getConversationId(c);
+					GroupId group = conversationManager.getConversationId(c);
 					showPrivateMessageNotification(group);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

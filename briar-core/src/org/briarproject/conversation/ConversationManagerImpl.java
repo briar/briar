@@ -14,6 +14,14 @@ import org.briarproject.api.conversation.ConversationMessageItem;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.event.ConversationItemReceivedEvent;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.ForumInvitationReceivedEvent;
+import org.briarproject.api.event.IntroductionRequestReceivedEvent;
+import org.briarproject.api.event.IntroductionResponseReceivedEvent;
+import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.introduction.IntroductionManager;
@@ -41,7 +49,8 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public class ConversationManagerImpl implements ConversationManager {
+public class ConversationManagerImpl implements ConversationManager,
+		EventListener {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"05313ec596871e5305181220488fc9c0"
@@ -51,6 +60,7 @@ public class ConversationManagerImpl implements ConversationManager {
 			Logger.getLogger(ConversationManagerImpl.class.getName());
 
 	private final Executor dbExecutor;
+	private final EventBus eventBus;
 	private final ForumSharingManager forumSharingManager;
 	private final IntroductionManager introductionManager;
 	private final MessagingManager messagingManager;
@@ -60,24 +70,21 @@ public class ConversationManagerImpl implements ConversationManager {
 
 	@Inject
 	ConversationManagerImpl(@DatabaseExecutor Executor dbExecutor,
-			ForumSharingManager forumSharingManager,
+			EventBus eventBus, ForumSharingManager forumSharingManager,
 			IntroductionManager introductionManager,
 			MessagingManager messagingManager) {
 		this.dbExecutor = dbExecutor;
+		this.eventBus = eventBus;
 		this.forumSharingManager = forumSharingManager;
 		this.introductionManager = introductionManager;
 		this.messagingManager = messagingManager;
+
+		eventBus.addListener(this);
 	}
 
 	@Override
 	public ClientId getClientId() {
 		return CLIENT_ID;
-	}
-
-	@Override
-	public boolean isWrappedClient(ClientId clientId) {
-		return clientId.equals(introductionManager.getClientId()) ||
-				clientId.equals(forumSharingManager.getClientId());
 	}
 
 	@Override
@@ -216,6 +223,59 @@ public class ConversationManagerImpl implements ConversationManager {
 			introductionManager.setReadFlag(c, id, local, read);
 		} else if (item instanceof ConversationForumInvitationItem) {
 			forumSharingManager.setReadFlag(c, id, local, read);
+		}
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof PrivateMessageReceivedEvent) {
+			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
+			PrivateMessageHeader h = p.getMessageHeader();
+			ConversationItem m = ConversationMessageItemImpl.from(h);
+			loadMessageContent((Partial) m);
+			try {
+				ContactId c = getContactId(p.getGroupId());
+				eventBus.broadcast(new ConversationItemReceivedEvent(m, c));
+			} catch (DbException dbe) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, dbe.toString(), dbe);
+			}
+		} else if (e instanceof IntroductionRequestReceivedEvent) {
+			IntroductionRequestReceivedEvent event =
+					(IntroductionRequestReceivedEvent) e;
+			IntroductionRequest ir = event.getIntroductionRequest();
+			ConversationItem item =
+					ConversationIntroductionRequestItemImpl.from(ir);
+			eventBus.broadcast(
+					new ConversationItemReceivedEvent(item,
+							event.getContactId()));
+		} else if (e instanceof IntroductionResponseReceivedEvent) {
+			IntroductionResponseReceivedEvent event =
+					(IntroductionResponseReceivedEvent) e;
+			IntroductionResponse ir = event.getIntroductionResponse();
+			ConversationItem item =
+					ConversationIntroductionResponseItemImpl.from(ir);
+			eventBus.broadcast(new ConversationItemReceivedEvent(item,
+					event.getContactId()));
+		} else if (e instanceof ForumInvitationReceivedEvent) {
+			ForumInvitationReceivedEvent event =
+					(ForumInvitationReceivedEvent) e;
+			try {
+				Collection<ForumInvitationMessage> msgs = forumSharingManager
+						.getInvitationMessages(event.getContactId());
+				for (ForumInvitationMessage i : msgs) {
+					if (i.getForumName().equals(event.getForum().getName())) {
+						ConversationItem item =
+								ConversationForumInvitationItemImpl.from(i);
+						eventBus.broadcast(
+								new ConversationItemReceivedEvent(item,
+										event.getContactId()));
+					}
+				}
+			} catch (DbException dbe) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, dbe.toString(), dbe);
+			}
 		}
 	}
 }
