@@ -6,4 +6,7 @@ public interface PasswordController extends ConfigController {
 
 	void validatePassword(String password,
 			ResultHandler<Boolean> resultHandler);
+
+	void changePassword(String password, String newPassword,
+			ResultHandler<Boolean> resultHandler);
 }
