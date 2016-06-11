@@ -62,6 +62,8 @@ public interface ActivityComponent {
 
 	void inject(SettingsActivity activity);
 
+	void inject(ChangePasswordActivity activity);
+
 	void inject(IntroductionActivity activity);
 
 	@Named("ContactListFragment")

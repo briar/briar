@@ -139,6 +139,8 @@
 	<string name="tor_mobile_setting">Connect via Tor</string>
 	<string name="tor_mobile_setting_enabled">When using Wi-Fi or mobile data</string>
 	<string name="tor_mobile_setting_disabled">Only when using Wi-Fi</string>
+	<string name="security_settings_title">Security</string>
+	<string name="change_password">Change password</string>
 	<string name="panic_setting">Panic button setup</string>
 	<string name="panic_setting_title">Panic button</string>
 	<string name="panic_setting_hint">Configure how Briar will react when you use a panic button app</string>
@@ -165,6 +167,10 @@
 	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
 	<string name="uninstall_setting_title">Uninstall Briar</string>
 	<string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
+	<string name="current_password">Enter your current password:</string>
+	<string name="choose_new_password">Choose your new password:</string>
+	<string name="confirm_new_password">Confirm your new password:</string>
+	<string name="password_changed">Password has been changed.</string>
 	<string name="feedback_settings_title">Feedback</string>
 	<string name="send_feedback">Send feedback</string>
 

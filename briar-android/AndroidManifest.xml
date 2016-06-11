@@ -206,6 +206,16 @@
 		</activity>
 
 		<activity
+			android:name=".android.ChangePasswordActivity"
+			android:label="@string/change_password"
+			android:parentActivityName=".android.SettingsActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.SettingsActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name=".android.panic.PanicPreferencesActivity"
 			android:label="@string/panic_setting">
 			<intent-filter>

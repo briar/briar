@@ -22,28 +22,16 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 
-public class SetupControllerImpl implements SetupController {
+public class SetupControllerImpl extends PasswordControllerImpl
+		implements SetupController {
 
 	private static final Logger LOG =
 			Logger.getLogger(SetupControllerImpl.class.getName());
 
-	private final static String PREF_DB_KEY = "key";
-
-	@Inject
-	@CryptoExecutor
-	protected Executor cryptoExecutor;
 	@Inject
 	protected PasswordStrengthEstimator strengthEstimator;
-	@Inject
-	protected Activity activity;
-	@Inject
-	protected SharedPreferences briarPrefs;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject
-	protected volatile CryptoComponent crypto;
-	@Inject
-	protected volatile DatabaseConfig databaseConfig;
 	@Inject
 	protected volatile AuthorFactory authorFactory;
 	@Inject
@@ -52,15 +40,6 @@ public class SetupControllerImpl implements SetupController {
 	@Inject
 	public SetupControllerImpl() {
 
-	}
-
-	private String encryptDatabaseKey(SecretKey key, String password) {
-		long now = System.currentTimeMillis();
-		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Key derivation took " + duration + " ms");
-		return StringUtils.toHexString(encrypted);
 	}
 
 	private LocalAuthor createLocalAuthor(String nickname) {
@@ -97,11 +76,5 @@ public class SetupControllerImpl implements SetupController {
 				resultHandler.onResult(handle);
 			}
 		});
-	}
-
-	private void storeEncryptedDatabaseKey(String hex) {
-		SharedPreferences.Editor editor = briarPrefs.edit();
-		editor.putString(PREF_DB_KEY, hex);
-		editor.apply();
 	}
 }

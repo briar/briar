@@ -26,6 +26,20 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory
+		android:title="@string/security_settings_title">
+
+		<Preference
+			android:key="pref_key_change_password"
+			android:title="@string/change_password">
+
+			<intent
+				android:targetClass="org.briarproject.android.ChangePasswordActivity"
+				android:targetPackage="org.briarproject"/>
+		</Preference>
+
+	</PreferenceCategory>
+
+	<PreferenceCategory
 		android:title="@string/panic_setting_title">
 
 		<Preference
