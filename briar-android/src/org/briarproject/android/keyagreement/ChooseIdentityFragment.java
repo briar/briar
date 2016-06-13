@@ -13,6 +13,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
@@ -57,9 +58,18 @@ public class ChooseIdentityFragment extends BaseFragment
 	@Inject
 	protected volatile IdentityManager identityManager;
 
-	@Inject
-	public ChooseIdentityFragment() {
+	public static ChooseIdentityFragment newInstance() {
+		
+		Bundle args = new Bundle();
+		
+		ChooseIdentityFragment fragment = new ChooseIdentityFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Override
@@ -104,6 +114,11 @@ public class ChooseIdentityFragment extends BaseFragment
 			}
 		});
 
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
 		loadLocalAuthors();
 	}
 

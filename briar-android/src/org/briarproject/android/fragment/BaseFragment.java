@@ -2,13 +2,18 @@ package org.briarproject.android.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+
+import org.briarproject.android.ActivityComponent;
 
 public abstract class BaseFragment extends Fragment {
 
 	protected BaseFragmentListener listener;
 
 	public abstract String getUniqueTag();
+
+	public abstract void injectFragment(ActivityComponent component);
 
 	@Override
 	public void onAttach(Context context) {
@@ -26,6 +31,14 @@ public abstract class BaseFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 	}
 
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		this.injectFragment(listener.getActivityComponent());
+		listener.onFragmentCreated(getUniqueTag());
+	}
+
 	public interface BaseFragmentListener {
 
 		void showLoadingScreen(boolean isBlocking, int stringId);
@@ -35,5 +48,9 @@ public abstract class BaseFragment extends Fragment {
 		void runOnUiThread(Runnable runnable);
 
 		void runOnDbThread(Runnable runnable);
+
+		ActivityComponent getActivityComponent();
+
+		void onFragmentCreated(String tag);
 	}
 }

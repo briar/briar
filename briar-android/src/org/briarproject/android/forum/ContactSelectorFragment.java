@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.contact.BaseContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.fragment.BaseFragment;
@@ -64,15 +65,18 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 	protected volatile GroupId groupId;
 
-	public void initBundle(GroupId groupId) {
-		Bundle bundle = new Bundle();
-		bundle.putByteArray(GROUP_ID, groupId.getBytes());
-		setArguments(bundle);
+	public static ContactSelectorFragment newInstance(GroupId groupId) {
+
+		Bundle args = new Bundle();
+		args.putByteArray(GROUP_ID, groupId.getBytes());
+		ContactSelectorFragment fragment = new ContactSelectorFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
-	@Inject
-	public ContactSelectorFragment() {
-
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Override

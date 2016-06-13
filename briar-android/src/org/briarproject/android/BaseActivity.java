@@ -49,6 +49,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 		}
 	}
 
+	public ActivityComponent getActivityComponent() {
+		return activityComponent;
+	}
+
 	// This exists to make test overrides easier
 	protected ActivityModule getActivityModule() {
 		return new ActivityModule(this);

@@ -12,25 +12,25 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
-
-import javax.inject.Inject;
 
 public class BlogsFragment extends BaseFragment {
 
 	public final static String TAG = BlogsFragment.class.getName();
 
-	// TODO add your first fragment here
-	//@Inject
-	//Lazy<MyBlogsFragment> myBlogsFragment;
-
 	private static final String SELECTED_TAB = "selectedTab";
 	private TabLayout tabLayout;
 
-	@Inject
-	public BlogsFragment() {
+	public static BlogsFragment newInstance() {
+		
+		Bundle args = new Bundle();
+		
+		BlogsFragment fragment = new BlogsFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
-
+	
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,6 +70,11 @@ public class BlogsFragment extends BaseFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 

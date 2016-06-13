@@ -2,24 +2,28 @@ package org.briarproject.android;
 
 import android.app.Activity;
 
+import org.briarproject.android.blogs.MyBlogsFragment;
+import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.AvailableForumsActivity;
 import org.briarproject.android.forum.ContactSelectorFragment;
 import org.briarproject.android.forum.CreateForumActivity;
 import org.briarproject.android.forum.ForumActivity;
+import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.forum.ForumSharingStatusActivity;
 import org.briarproject.android.forum.ShareForumActivity;
 import org.briarproject.android.forum.ShareForumMessageFragment;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
+import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.introduction.IntroductionMessageFragment;
 import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.keyagreement.ChooseIdentityFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
+import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
-
-import javax.inject.Named;
 
 import dagger.Component;
 
@@ -66,33 +70,16 @@ public interface ActivityComponent {
 
 	void inject(IntroductionActivity activity);
 
-	@Named("ContactListFragment")
-	BaseFragment newContactListFragment();
+	// Fragments
+	void inject(ContactListFragment fragment);
+	void inject(ForumListFragment fragment);
+	void inject(BaseFragment fragment);
+	void inject(MyBlogsFragment fragment);
+	void inject(ChooseIdentityFragment fragment);
+	void inject(ShowQrCodeFragment fragment);
+	void inject(ContactChooserFragment fragment);
+	void inject(ContactSelectorFragment fragment);
+	void inject(ShareForumMessageFragment fragment);
+	void inject(IntroductionMessageFragment fragment);
 
-	@Named("ForumListFragment")
-	BaseFragment newForumListFragment();
-
-	@Named("BlogsFragment")
-	BaseFragment newBlogsFragment();
-
-	@Named("MyBlogsFragment")
-	BaseFragment newMyBlogsFragment();
-
-	@Named("ChooseIdentityFragment")
-	BaseFragment newChooseIdentityFragment();
-
-	@Named("ShowQrCodeFragment")
-	BaseFragment newShowQrCodeFragment();
-
-	@Named("ContactChooserFragment")
-	BaseFragment newContactChooserFragment();
-
-	@Named("ContactSelectorFragment")
-	ContactSelectorFragment newContactSelectorFragment();
-
-	@Named("ShareForumMessageFragment")
-	ShareForumMessageFragment newShareForumMessageFragment();
-
-	@Named("IntroductionMessageFragment")
-	IntroductionMessageFragment newIntroductionMessageFragment();
 }

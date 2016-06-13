@@ -3,19 +3,13 @@ package org.briarproject.android;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 
-import org.briarproject.android.blogs.BlogsFragment;
-import org.briarproject.android.blogs.MyBlogsFragment;
-import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
 import org.briarproject.android.controller.ConfigController;
 import org.briarproject.android.controller.ConfigControllerImpl;
 import org.briarproject.android.controller.DbController;
 import org.briarproject.android.controller.DbControllerImpl;
-import org.briarproject.android.forum.ForumController;
-import org.briarproject.android.forum.ForumControllerImpl;
 import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.NavDrawerControllerImpl;
 import org.briarproject.android.controller.PasswordController;
@@ -23,15 +17,9 @@ import org.briarproject.android.controller.PasswordControllerImpl;
 import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.SetupControllerImpl;
 import org.briarproject.android.controller.TransportStateListener;
-import org.briarproject.android.forum.ContactSelectorFragment;
-import org.briarproject.android.forum.ForumListFragment;
+import org.briarproject.android.forum.ForumController;
+import org.briarproject.android.forum.ForumControllerImpl;
 import org.briarproject.android.forum.ForumTestControllerImpl;
-import org.briarproject.android.forum.ShareForumMessageFragment;
-import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.introduction.ContactChooserFragment;
-import org.briarproject.android.introduction.IntroductionMessageFragment;
-import org.briarproject.android.keyagreement.ChooseIdentityFragment;
-import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 
 import javax.inject.Named;
 
@@ -137,78 +125,4 @@ public class ActivityModule {
 		return new BriarServiceConnection();
 	}
 
-	@Provides
-	@Named("ForumListFragment")
-	BaseFragment provideForumListFragment(ForumListFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ContactListFragment")
-	BaseFragment provideContactListFragment(ContactListFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("BlogsFragment")
-	BaseFragment provideBlogsFragment(BlogsFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("MyBlogsFragment")
-	BaseFragment provideMyBlogsFragment(MyBlogsFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ChooseIdentityFragment")
-	BaseFragment provideChooseIdentityFragment(
-			ChooseIdentityFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ShowQrCodeFragment")
-	BaseFragment provideShowQrCodeFragment(ShowQrCodeFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ContactChooserFragment")
-	BaseFragment provideContactChooserFragment(
-			ContactChooserFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ContactSelectorFragment")
-	ContactSelectorFragment provideContactSelectorFragment(
-			ContactSelectorFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("ShareForumMessageFragment")
-	ShareForumMessageFragment provideShareForumMessageFragment(
-			ShareForumMessageFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
-
-	@Provides
-	@Named("IntroductionMessageFragment")
-	IntroductionMessageFragment provideIntroductionMessageFragment(
-			IntroductionMessageFragment fragment) {
-		fragment.setArguments(new Bundle());
-		return fragment;
-	}
 }
