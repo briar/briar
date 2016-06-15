@@ -29,6 +29,7 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.util.TrustIndicatorView;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
@@ -275,6 +276,7 @@ public class ForumActivity extends BriarActivity implements
 		public final TextView textView, lvlText, dateText, repliesText;
 		public final View[] lvls;
 		public final ImageView avatar;
+		final TrustIndicatorView trust;
 		public final View chevron, replyButton;
 		public final ViewGroup cell;
 		public final View bottomDivider;
@@ -295,6 +297,7 @@ public class ForumActivity extends BriarActivity implements
 				lvls[i] = v.findViewById(nestedLineIds[i]);
 			}
 			avatar = (ImageView) v.findViewById(R.id.avatar);
+			trust = (TrustIndicatorView) v.findViewById(R.id.trustIndicator);
 			chevron = v.findViewById(R.id.chevron);
 			replyButton = v.findViewById(R.id.btn_reply);
 			cell = (ViewGroup) v.findViewById(R.id.forum_cell);
@@ -513,6 +516,7 @@ public class ForumActivity extends BriarActivity implements
 			ui.dateText.setText(DateUtils
 					.getRelativeTimeSpanString(ForumActivity.this,
 							data.getTimestamp()) + " " + data.getAuthor());
+			ui.trust.setTrustLevel(data.getStatus());
 
 			int replies = getReplyCount(data);
 			if (replies == 0) {

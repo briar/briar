@@ -2,6 +2,7 @@ package org.briarproject.api.identity;
 
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.identity.Author.Status;
 
 import java.util.Collection;
 
@@ -24,6 +25,9 @@ public interface IdentityManager {
 
 	/** Removes a local pseudonym and all associated state. */
 	void removeLocalAuthor(AuthorId a) throws DbException;
+
+	/** Returns the trust-level status of the author */
+	Status getAuthorStatus(AuthorId a) throws DbException;
 
 	interface AddIdentityHook {
 		void addingIdentity(Transaction txn, LocalAuthor a) throws DbException;

@@ -1,5 +1,6 @@
 package org.briarproject;
 
+import org.briarproject.blogs.BlogsModule;
 import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
@@ -26,6 +27,7 @@ import org.briarproject.transport.TransportModule;
 import dagger.Module;
 
 @Module(includes = {
+		BlogsModule.class,
 		ClientsModule.class,
 		ContactModule.class,
 		CryptoModule.class,
@@ -52,6 +54,7 @@ import dagger.Module;
 public class CoreModule {
 
 	public static void initEagerSingletons(CoreEagerSingletons c) {
+		c.inject(new BlogsModule.EagerSingletons());
 		c.inject(new ContactModule.EagerSingletons());
 		c.inject(new CryptoModule.EagerSingletons());
 		c.inject(new DatabaseExecutorModule.EagerSingletons());

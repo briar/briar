@@ -1,5 +1,6 @@
 package org.briarproject;
 
+import org.briarproject.blogs.BlogsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseExecutorModule;
@@ -14,6 +15,8 @@ import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
 
 public interface CoreEagerSingletons {
+
+	void inject(BlogsModule.EagerSingletons init);
 
 	void inject(ContactModule.EagerSingletons init);
 
