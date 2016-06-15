@@ -140,7 +140,7 @@ public class AppModule {
 
 	@Provides
 	@Singleton
-	ForumPersistentData provideForumPersistence(ForumPersistentData fpd) {
-		return fpd;
+	ForumPersistentData provideForumPersistence() {
+		return new ForumPersistentData();
 	}
 }
