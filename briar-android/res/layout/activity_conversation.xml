@@ -46,33 +46,9 @@
 
 	<View style="@style/Divider.Horizontal"/>
 
-	<LinearLayout
+	<include
+		layout="@layout/text_input_field"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="@color/button_bar_background"
-		android:orientation="horizontal"
-		android:paddingLeft="@dimen/margin_medium"
-		android:paddingStart="@dimen/margin_medium">
-
-		<EditText
-			android:id="@+id/contentView"
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="1"
-			android:hint="@string/private_message_hint"
-			android:inputType="text|textMultiLine|textCapSentences"/>
-
-		<ImageButton
-			android:id="@+id/sendButton"
-			android:layout_width="38dp"
-			android:layout_height="38dp"
-			android:layout_margin="@dimen/margin_small"
-			android:background="@drawable/round_button"
-			android:src="@drawable/social_send_now_white"
-			android:contentDescription="@string/send"
-		    android:elevation="@dimen/margin_tiny"
-			/>
-
-	</LinearLayout>
+		android:layout_height="wrap_content"/>
 
 </LinearLayout>
