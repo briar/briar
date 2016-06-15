@@ -131,6 +131,9 @@
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@id/btn_reply"
 			android:layout_toLeftOf="@id/btn_reply"
+			android:layout_toRightOf="@+id/trustIndicator"
+			android:gravity="right|end"
+			android:maxLines="1"
 			android:padding="@dimen/margin_medium"
 			android:textSize="@dimen/text_size_tiny"
 			tools:text="2 replies"/>
@@ -140,12 +143,22 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@id/replies"
-			android:layout_toLeftOf="@id/replies"
 			android:layout_toRightOf="@id/avatar"
 			android:ellipsize="end"
 			android:maxLines="1"
 			android:textSize="@dimen/text_size_tiny"
 			tools:text="09:09 John Smith"/>
+
+		<org.briarproject.android.util.TrustIndicatorView
+			android:id="@+id/trustIndicator"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@+id/date"
+			android:layout_alignTop="@+id/date"
+			android:layout_marginLeft="@dimen/margin_small"
+			android:layout_marginStart="@dimen/margin_small"
+			android:layout_toRightOf="@+id/date"
+			tools:src="@drawable/trust_indicator_verified"/>
 
 		<View
 			android:id="@+id/bottom_divider"
