@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.identity.Author.Status.UNVERIFIED;
+
 public class ForumTestControllerImpl implements ForumController {
 
 	private static final Logger LOG =
@@ -115,7 +117,7 @@ public class ForumTestControllerImpl implements ForumController {
 			forumEntries[e] =
 					new ForumEntry(new MessageId(b), SAGA.substring(0, i[e]),
 							l[e], timestamp, AUTHORS[authorIndex],
-							AUTHOR_ID[authorIndex]);
+							AUTHOR_ID[authorIndex], UNVERIFIED);
 		}
 		LOG.info("forum entries: " + forumEntries.length);
 		resultHandler.onResult(true);
