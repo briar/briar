@@ -76,6 +76,7 @@
 		<item quantity="one">%d forum shared by contacts</item>
 		<item quantity="other">%d forums shared by contacts</item>
 	</plurals>
+	<string name="show">Show</string>
 	<string name="show_forums">Show</string>
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>

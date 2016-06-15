@@ -18,7 +18,7 @@
 			android:layout_width="@dimen/forum_nested_line_width"
 			android:layout_height="match_parent"
 			android:visibility="gone"
-			tools:visibility="showingDescendants"/>
+			tools:visibility="visible"/>
 
 		<View
 			android:id="@+id/nested_line_2"
@@ -161,12 +161,12 @@
 			tools:src="@drawable/trust_indicator_verified"/>
 
 		<View
-			android:id="@+id/bottom_divider"
+			android:id="@+id/top_divider"
 			style="@style/Divider.ForumList"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/margin_separator"
 			android:layout_alignLeft="@id/text"
-			android:layout_below="@id/btn_reply"/>
+			android:layout_alignParentTop="true"/>
 
 	</RelativeLayout>
 
