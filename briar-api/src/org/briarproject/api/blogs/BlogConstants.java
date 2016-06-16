@@ -22,6 +22,12 @@ public interface BlogConstants {
 	/** The maximum length of a blog post's body in bytes. */
 	int MAX_BLOG_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
+	/* Blog Sharing Constants */
+	String BLOG_TITLE = "blogTitle";
+	String BLOG_DESC = "blogDescription";
+	String BLOG_AUTHOR_NAME = "blogAuthorName";
+	String BLOG_PUBLIC_KEY = "blogPublicKey";
+
 	// Metadata keys
 	String KEY_DESCRIPTION = "description";
 	String KEY_TITLE = "title";

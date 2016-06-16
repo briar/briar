@@ -1,5 +1,6 @@
 package org.briarproject.sharing;
 
+import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.contact.ContactManager;
@@ -20,9 +21,43 @@ public class SharingModule {
 
 	public static class EagerSingletons {
 		@Inject
+		BlogSharingValidator blogSharingValidator;
+		@Inject
 		ForumSharingValidator forumSharingValidator;
 		@Inject
 		ForumSharingManager forumSharingManager;
+	}
+
+	@Provides
+	@Singleton
+	BlogSharingValidator provideBlogSharingValidator(
+			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
+			MetadataEncoder metadataEncoder, Clock clock) {
+
+		BlogSharingValidator
+				validator = new BlogSharingValidator(clientHelper,
+				metadataEncoder, clock);
+		messageQueueManager.registerMessageValidator(
+				BlogSharingManagerImpl.CLIENT_ID, validator);
+
+		return validator;
+	}
+
+	@Provides
+	@Singleton
+	BlogSharingManager provideBlogSharingManager(
+			LifecycleManager lifecycleManager,
+			ContactManager contactManager,
+			MessageQueueManager messageQueueManager,
+			BlogSharingManagerImpl blogSharingManager) {
+
+		lifecycleManager.registerClient(blogSharingManager);
+		contactManager.registerAddContactHook(blogSharingManager);
+		contactManager.registerRemoveContactHook(blogSharingManager);
+		messageQueueManager.registerIncomingMessageHook(
+				BlogSharingManagerImpl.CLIENT_ID, blogSharingManager);
+
+		return blogSharingManager;
 	}
 
 	@Provides
