@@ -82,7 +82,7 @@ public class AvailableForumsActivity extends BriarActivity
 				try {
 					Collection<ForumContacts> available = new ArrayList<>();
 					long now = System.currentTimeMillis();
-					for (Forum f : forumSharingManager.getAvailableForums()) {
+					for (Forum f : forumSharingManager.getAvailable()) {
 						try {
 							Collection<Contact> c =
 									forumSharingManager.getSharedBy(f.getId());

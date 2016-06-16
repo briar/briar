@@ -1,4 +1,4 @@
-package org.briarproject.forum;
+package org.briarproject.sharing;
 
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
@@ -6,28 +6,27 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-import static org.briarproject.api.forum.ForumConstants.IS_SHARER;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ABORT;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_INVITATION;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_LEAVE;
-import static org.briarproject.api.forum.ForumConstants.STATE;
-import static org.briarproject.forum.InviteeSessionState.Action.LOCAL_ACCEPT;
-import static org.briarproject.forum.InviteeSessionState.Action.LOCAL_DECLINE;
-import static org.briarproject.forum.InviteeSessionState.Action.LOCAL_LEAVE;
-import static org.briarproject.forum.InviteeSessionState.Action.REMOTE_INVITATION;
-import static org.briarproject.forum.InviteeSessionState.Action.REMOTE_LEAVE;
+import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
+import static org.briarproject.api.sharing.SharingConstants.STATE;
+import static org.briarproject.sharing.InviteeSessionState.Action.LOCAL_ACCEPT;
+import static org.briarproject.sharing.InviteeSessionState.Action.LOCAL_DECLINE;
+import static org.briarproject.sharing.InviteeSessionState.Action.LOCAL_LEAVE;
+import static org.briarproject.sharing.InviteeSessionState.Action.REMOTE_INVITATION;
+import static org.briarproject.sharing.InviteeSessionState.Action.REMOTE_LEAVE;
 
 // This class is not thread-safe
-public class InviteeSessionState extends ForumSharingSessionState {
+public abstract class InviteeSessionState extends SharingSessionState {
 
 	private State state;
 
 	public InviteeSessionState(SessionId sessionId, MessageId storageId,
-			GroupId groupId, State state, ContactId contactId, GroupId forumId,
-			String forumName, byte[] forumSalt) {
+			GroupId groupId, State state, ContactId contactId,
+			GroupId shareableId) {
 
-		super(sessionId, storageId, groupId, contactId, forumId, forumName,
-				forumSalt);
+		super(sessionId, storageId, groupId, contactId, shareableId);
 		this.state = state;
 	}
 

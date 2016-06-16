@@ -28,7 +28,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ShareForumActivity.CONTACTS;
 import static org.briarproject.android.forum.ShareForumActivity.getContactsFromIds;
-import static org.briarproject.api.forum.ForumConstants.GROUP_ID;
+import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
 public class ShareForumMessageFragment extends BaseFragment {
 
@@ -136,7 +136,7 @@ public class ShareForumMessageFragment extends BaseFragment {
 			public void run() {
 				try {
 					for (ContactId c : contacts) {
-						forumSharingManager.sendForumInvitation(groupId, c,
+						forumSharingManager.sendInvitation(groupId, c,
 								msg);
 					}
 				} catch (DbException e) {

@@ -177,7 +177,7 @@ public class ForumListFragment extends BaseEventFragment implements
 				try {
 					long now = System.currentTimeMillis();
 					int available =
-							forumSharingManager.getAvailableForums().size();
+							forumSharingManager.getAvailable().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");

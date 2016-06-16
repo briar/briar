@@ -1,4 +1,4 @@
-package org.briarproject.forum;
+package org.briarproject.sharing;
 
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
@@ -6,30 +6,29 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-import static org.briarproject.api.forum.ForumConstants.IS_SHARER;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ABORT;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ACCEPT;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_DECLINE;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_LEAVE;
-import static org.briarproject.api.forum.ForumConstants.STATE;
-import static org.briarproject.forum.SharerSessionState.Action.LOCAL_INVITATION;
-import static org.briarproject.forum.SharerSessionState.Action.LOCAL_LEAVE;
-import static org.briarproject.forum.SharerSessionState.Action.REMOTE_ACCEPT;
-import static org.briarproject.forum.SharerSessionState.Action.REMOTE_DECLINE;
-import static org.briarproject.forum.SharerSessionState.Action.REMOTE_LEAVE;
+import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEPT;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_DECLINE;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
+import static org.briarproject.api.sharing.SharingConstants.STATE;
+import static org.briarproject.sharing.SharerSessionState.Action.LOCAL_INVITATION;
+import static org.briarproject.sharing.SharerSessionState.Action.LOCAL_LEAVE;
+import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_ACCEPT;
+import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_DECLINE;
+import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_LEAVE;
 
 // This class is not thread-safe
-public class SharerSessionState extends ForumSharingSessionState {
+public abstract class SharerSessionState extends SharingSessionState {
 
 	private State state;
 	private String msg = null;
 
 	public SharerSessionState(SessionId sessionId, MessageId storageId,
-			GroupId groupId, State state, ContactId contactId, GroupId forumId,
-			String forumName, byte[] forumSalt) {
+			GroupId groupId, State state, ContactId contactId,
+			GroupId shareableId) {
 
-		super(sessionId, storageId, groupId, contactId, forumId, forumName,
-				forumSalt);
+		super(sessionId, storageId, groupId, contactId, shareableId);
 		this.state = state;
 	}
 

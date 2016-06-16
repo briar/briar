@@ -3,46 +3,25 @@ package org.briarproject.api.forum;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.messaging.BaseMessage;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.MessageId;
 
-public class ForumInvitationMessage extends BaseMessage {
+public class ForumInvitationMessage extends InvitationMessage {
 
-	private final SessionId sessionId;
-	private final ContactId contactId;
-	private final String forumName, message;
-	private final boolean available;
+	private final String forumName;
 
 	public ForumInvitationMessage(MessageId id, SessionId sessionId,
 			ContactId contactId, String forumName, String message,
 			boolean available, long time, boolean local, boolean sent,
 			boolean seen, boolean read) {
 
-		super(id, time, local, read, sent, seen);
-		this.sessionId = sessionId;
-		this.contactId = contactId;
+		super(id, sessionId, contactId, message, available, time, local, sent,
+				seen, read);
 		this.forumName = forumName;
-		this.message = message;
-		this.available = available;
-	}
-
-	public SessionId getSessionId() {
-		return sessionId;
-	}
-
-	public ContactId getContactId() {
-		return contactId;
 	}
 
 	public String getForumName() {
 		return forumName;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public boolean isAvailable() {
-		return available;
 	}
 
 }

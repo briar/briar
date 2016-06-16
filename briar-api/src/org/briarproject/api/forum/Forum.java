@@ -1,9 +1,10 @@
 package org.briarproject.api.forum;
 
+import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 
-public class Forum {
+public class Forum implements Shareable {
 
 	private final Group group;
 	private final String name;
