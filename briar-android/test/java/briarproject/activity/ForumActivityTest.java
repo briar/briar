@@ -10,6 +10,7 @@ import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.android.forum.ForumController;
 import org.briarproject.android.forum.ForumEntry;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -81,9 +82,10 @@ public class ForumActivityTest {
 			forumEntries[i] =
 					new ForumEntry(new MessageId(TestUtils.getRandomId()),
 							AUTHORS[i], LEVELS[i], System.currentTimeMillis(),
-							AUTHORS[i], new AuthorId(TestUtils.getRandomId()));
+							AUTHORS[i], new AuthorId(TestUtils.getRandomId()),
+							Author.Status.UNKNOWN);
 		}
-		return new ArrayList<ForumEntry>(Arrays.asList(forumEntries));
+		return new ArrayList<>(Arrays.asList(forumEntries));
 	}
 
 	@Test
