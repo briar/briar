@@ -1,5 +1,6 @@
 package org.briarproject.sharing;
 
+import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
@@ -49,6 +50,7 @@ public class SharingModule {
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			MessageQueueManager messageQueueManager,
+			BlogManager blogManager,
 			BlogSharingManagerImpl blogSharingManager) {
 
 		lifecycleManager.registerClient(blogSharingManager);
@@ -56,6 +58,7 @@ public class SharingModule {
 		contactManager.registerRemoveContactHook(blogSharingManager);
 		messageQueueManager.registerIncomingMessageHook(
 				BlogSharingManagerImpl.CLIENT_ID, blogSharingManager);
+		blogManager.registerRemoveBlogHook(blogSharingManager);
 
 		return blogSharingManager;
 	}

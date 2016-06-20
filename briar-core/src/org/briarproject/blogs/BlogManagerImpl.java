@@ -10,9 +10,11 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
+import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
@@ -21,7 +23,9 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,24 +35,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.KEY_CONTENT_TYPE;
 import static org.briarproject.api.blogs.BlogConstants.KEY_DESCRIPTION;
-import static org.briarproject.api.blogs.BlogConstants.KEY_HAS_BODY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
-import static org.briarproject.api.blogs.BlogConstants.KEY_TEASER;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TITLE;
 
-class BlogManagerImpl implements BlogManager {
+class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(BlogManagerImpl.class.getName());
@@ -59,22 +63,35 @@ class BlogManagerImpl implements BlogManager {
 
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
-	private final ClientHelper clientHelper;
 	private final BlogFactory blogFactory;
+	private final List<RemoveBlogHook> removeHooks;
 
 	@Inject
 	BlogManagerImpl(DatabaseComponent db, IdentityManager identityManager,
-			ClientHelper clientHelper, BlogFactory blogFactory) {
+			ClientHelper clientHelper, MetadataParser metadataParser,
+			BlogFactory blogFactory) {
+		super(clientHelper, metadataParser);
 
 		this.db = db;
 		this.identityManager = identityManager;
-		this.clientHelper = clientHelper;
 		this.blogFactory = blogFactory;
+		removeHooks = new CopyOnWriteArrayList<RemoveBlogHook>();
 	}
 
 	@Override
 	public ClientId getClientId() {
 		return CLIENT_ID;
+	}
+
+	@Override
+	protected void incomingMessage(Transaction txn, Message m, BdfList list,
+			BdfDictionary meta) throws DbException, FormatException {
+
+		GroupId groupId = m.getGroupId();
+		BlogPostHeader h = getPostHeaderFromMetadata(txn, m.getId(), meta);
+		BlogPostAddedEvent event =
+				new BlogPostAddedEvent(groupId, h, false);
+		txn.attach(event);
 	}
 
 	@Override
@@ -101,13 +118,25 @@ class BlogManagerImpl implements BlogManager {
 	}
 
 	@Override
-	public void addLocalPost(BlogPost p) throws DbException {
+	public void removeBlog(Blog b) throws DbException {
+		Transaction txn = db.startTransaction(false);
 		try {
-			BdfDictionary meta = new BdfDictionary();
+			for (RemoveBlogHook hook : removeHooks)
+				hook.removingBlog(txn, b);
+			db.removeGroup(txn, b.getGroup());
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void addLocalPost(BlogPost p) throws DbException {
+		BdfDictionary meta;
+		try {
+			meta = new BdfDictionary();
 			if (p.getTitle() != null) meta.put(KEY_TITLE, p.getTitle());
-			meta.put(KEY_TEASER, p.getTeaser());
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-			meta.put(KEY_HAS_BODY, p.hasBody());
 			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
 
 			Author a = p.getAuthor();
@@ -122,6 +151,22 @@ class BlogManagerImpl implements BlogManager {
 			clientHelper.addLocalMessage(p.getMessage(), CLIENT_ID, meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
+		}
+
+		// broadcast event about new post
+		Transaction txn = db.startTransaction(true);
+		try {
+			GroupId groupId = p.getMessage().getGroupId();
+			MessageId postId = p.getMessage().getId();
+			BlogPostHeader h = getPostHeaderFromMetadata(txn, postId, meta);
+			BlogPostAddedEvent event =
+					new BlogPostAddedEvent(groupId, h, true);
+			txn.attach(event);
+			txn.setComplete();
+		} catch (FormatException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		} finally {
+			db.endTransaction(txn);
 		}
 	}
 
@@ -189,14 +234,18 @@ class BlogManagerImpl implements BlogManager {
 	@Nullable
 	public byte[] getPostBody(MessageId m) throws DbException {
 		try {
-			// content, signature
-			// content: parent, contentType, title, teaser, body, attachments
 			BdfList message = clientHelper.getMessageAsList(m);
-			BdfList content = message.getList(0);
-			return content.getRaw(4);
+			return getPostBody(message);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private byte[] getPostBody(BdfList message) throws FormatException {
+		// content, signature
+		// content: parent, contentType, title, body, attachments
+		BdfList content = message.getList(0);
+		return content.getRaw(3);
 	}
 
 	@Override
@@ -213,26 +262,9 @@ class BlogManagerImpl implements BlogManager {
 		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 			try {
 				BdfDictionary meta = entry.getValue();
-				String title = meta.getOptionalString(KEY_TITLE);
-				String teaser = meta.getString(KEY_TEASER);
-				boolean hasBody = meta.getBoolean(KEY_HAS_BODY);
-				long timestamp = meta.getLong(KEY_TIMESTAMP);
-				MessageId parentId = null;
-				if (meta.containsKey(KEY_PARENT))
-					parentId = new MessageId(meta.getRaw(KEY_PARENT));
-
-				BdfDictionary d = meta.getDictionary(KEY_AUTHOR);
-				AuthorId authorId = new AuthorId(d.getRaw(KEY_AUTHOR_ID));
-				String name = d.getString(KEY_AUTHOR_NAME);
-				byte[] publicKey = d.getRaw(KEY_PUBLIC_KEY);
-				Author author = new Author(authorId, name, publicKey);
-				Status authorStatus = identityManager.getAuthorStatus(authorId);
-
-				String contentType = meta.getString(KEY_CONTENT_TYPE);
-				boolean read = meta.getBoolean(KEY_READ);
-				headers.add(new BlogPostHeader(title, teaser, hasBody,
-						entry.getKey(), parentId, timestamp, author,
-						authorStatus, contentType, read));
+				BlogPostHeader h =
+						getPostHeaderFromMetadata(null, entry.getKey(), meta);
+				headers.add(h);
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -251,10 +283,43 @@ class BlogManagerImpl implements BlogManager {
 		}
 	}
 
+	@Override
+	public void registerRemoveBlogHook(RemoveBlogHook hook) {
+		removeHooks.add(hook);
+	}
+
 	private String getBlogDescription(Transaction txn, GroupId g)
 			throws DbException, FormatException {
 		BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
 		return d.getString(KEY_DESCRIPTION);
+	}
+
+	private BlogPostHeader getPostHeaderFromMetadata(@Nullable Transaction txn,
+			MessageId id, BdfDictionary meta)
+			throws DbException, FormatException {
+
+		String title = meta.getOptionalString(KEY_TITLE);
+		long timestamp = meta.getLong(KEY_TIMESTAMP);
+		MessageId parentId = null;
+		if (meta.containsKey(KEY_PARENT))
+			parentId = new MessageId(meta.getRaw(KEY_PARENT));
+
+		BdfDictionary d = meta.getDictionary(KEY_AUTHOR);
+		AuthorId authorId = new AuthorId(d.getRaw(KEY_AUTHOR_ID));
+		String name = d.getString(KEY_AUTHOR_NAME);
+		byte[] publicKey = d.getRaw(KEY_PUBLIC_KEY);
+		Author author = new Author(authorId, name, publicKey);
+		Status authorStatus;
+		if (txn == null)
+			authorStatus = identityManager.getAuthorStatus(authorId);
+		else {
+			authorStatus = identityManager.getAuthorStatus(txn, authorId);
+		}
+
+		String contentType = meta.getString(KEY_CONTENT_TYPE);
+		boolean read = meta.getBoolean(KEY_READ);
+		return new BlogPostHeader(title, id, parentId, timestamp, author,
+				authorStatus, contentType, read);
 	}
 
 }

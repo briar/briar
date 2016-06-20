@@ -11,6 +11,7 @@ import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
@@ -25,15 +26,16 @@ import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
+import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
+import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.KEY_CONTENT_TYPE;
-import static org.briarproject.api.blogs.BlogConstants.KEY_HAS_BODY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT;
+import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
-import static org.briarproject.api.blogs.BlogConstants.KEY_TEASER;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TITLE;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
-import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_TEASER_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_TITLE_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -60,37 +62,36 @@ class BlogPostValidator extends BdfMessageValidator {
 		checkSize(body, 2);
 		BdfList content = body.getList(0);
 
-		// Content: Parent ID, content type, title (optional), teaser,
-		//          post body (optional), attachments (optional)
-		checkSize(body, 6);
+		// Content: Parent ID, content type, title (optional), post body,
+		//          attachments (optional)
+		checkSize(content, 5);
 		// Parent ID is optional
 		byte[] parent = content.getOptionalRaw(0);
 		checkLength(parent, UniqueId.LENGTH);
 		// Content type
 		String contentType = content.getString(1);
 		checkLength(contentType, 0, MAX_CONTENT_TYPE_LENGTH);
+		if (!contentType.equals("text/plain"))
+			throw new InvalidMessageException("Invalid content type");
 		// Blog post title is optional
 		String title = content.getOptionalString(2);
 		checkLength(contentType, 0, MAX_BLOG_POST_TITLE_LENGTH);
-		// Blog teaser
-		String teaser = content.getString(3);
-		// TODO make sure that there is only text in the teaser
-		checkLength(contentType, 0, MAX_BLOG_POST_TEASER_LENGTH);
-		// Blog post body is optional
-		byte[] postBody = content.getOptionalRaw(4);
+		// Blog post body
+		byte[] postBody = content.getRaw(3);
 		checkLength(postBody, 0, MAX_BLOG_POST_BODY_LENGTH);
 		// Attachments
-		BdfDictionary attachments = content.getOptionalDictionary(5);
+		BdfDictionary attachments = content.getOptionalDictionary(4);
 		// TODO handle attachments somehow
 
 		// Signature
 		byte[] sig = body.getRaw(1);
 		checkLength(sig, 0, MAX_SIGNATURE_LENGTH);
 		// Verify the signature
+		Author a;
 		try {
 			// Get the blog author
 			Blog b = blogFactory.parseBlog(g, ""); // description doesn't matter
-			Author a = b.getAuthor();
+			a = b.getAuthor();
 			// Parse the public key
 			KeyParser keyParser = crypto.getSignatureKeyParser();
 			PublicKey key = keyParser.parsePublicKey(a.getPublicKey());
@@ -111,8 +112,12 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfDictionary meta = new BdfDictionary();
 		Collection<MessageId> dependencies = null;
 		if (title != null) meta.put(KEY_TITLE, title);
-		meta.put(KEY_TEASER, teaser);
-		meta.put(KEY_HAS_BODY, postBody != null);
+		BdfDictionary author = BdfDictionary.of(
+				new BdfEntry(KEY_AUTHOR_ID, a.getId()),
+				new BdfEntry(KEY_AUTHOR_NAME, a.getName()),
+				new BdfEntry(KEY_PUBLIC_KEY, a.getPublicKey())
+		);
+		meta.put(KEY_AUTHOR, author);
 		meta.put(KEY_TIMESTAMP, m.getTimestamp());
 		if (parent != null) {
 			meta.put(KEY_PARENT, parent);

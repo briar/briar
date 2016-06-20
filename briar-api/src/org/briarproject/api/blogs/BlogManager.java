@@ -1,6 +1,5 @@
 package org.briarproject.api.blogs;
 
-import org.briarproject.api.FormatException;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.LocalAuthor;
@@ -19,6 +18,9 @@ public interface BlogManager {
 	/** Creates a new Blog. */
 	Blog addBlog(LocalAuthor localAuthor, String name, String description)
 			throws DbException;
+
+	/** Removes and deletes a blog. */
+	void removeBlog(Blog b) throws DbException;
 
 	/** Stores a local blog post. */
 	void addLocalPost(BlogPost p) throws DbException;
@@ -44,5 +46,12 @@ public interface BlogManager {
 
 	/** Marks a blog post as read or unread. */
 	void setReadFlag(MessageId m, boolean read) throws DbException;
+
+	/** Registers a hook to be called whenever a blog is removed. */
+	void registerRemoveBlogHook(RemoveBlogHook hook);
+
+	interface RemoveBlogHook {
+		void removingBlog(Transaction txn, Blog b) throws DbException;
+	}
 
 }
