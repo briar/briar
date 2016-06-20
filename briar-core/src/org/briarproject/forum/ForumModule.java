@@ -1,18 +1,12 @@
 package org.briarproject.forum;
 
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
@@ -31,10 +25,6 @@ public class ForumModule {
 	public static class EagerSingletons {
 		@Inject
 		ForumPostValidator forumPostValidator;
-		@Inject
-		ForumSharingValidator forumSharingValidator;
-		@Inject
-		ForumSharingManager forumSharingManager;
 	}
 
 	@Provides
@@ -66,39 +56,6 @@ public class ForumModule {
 		validationManager.registerMessageValidator(
 				ForumManagerImpl.CLIENT_ID, validator);
 		return validator;
-	}
-
-	@Provides
-	@Singleton
-	ForumSharingValidator provideSharingValidator(
-			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
-			MetadataEncoder metadataEncoder, Clock clock) {
-
-		ForumSharingValidator validator = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
-		messageQueueManager.registerMessageValidator(
-				ForumSharingManagerImpl.CLIENT_ID, validator);
-
-		return validator;
-	}
-
-	@Provides
-	@Singleton
-	ForumSharingManager provideForumSharingManager(
-			LifecycleManager lifecycleManager,
-			ContactManager contactManager,
-			MessageQueueManager messageQueueManager,
-			ForumManager forumManager,
-			ForumSharingManagerImpl forumSharingManager) {
-
-		lifecycleManager.registerClient(forumSharingManager);
-		contactManager.registerAddContactHook(forumSharingManager);
-		contactManager.registerRemoveContactHook(forumSharingManager);
-		messageQueueManager.registerIncomingMessageHook(
-				ForumSharingManagerImpl.CLIENT_ID, forumSharingManager);
-		forumManager.registerRemoveForumHook(forumSharingManager);
-
-		return forumSharingManager;
 	}
 
 }

@@ -31,6 +31,7 @@ import org.briarproject.crypto.CryptoModule;
 import org.briarproject.forum.ForumModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
+import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.transport.TransportModule;
 import org.briarproject.util.StringUtils;
@@ -188,7 +189,7 @@ public class ForumManagerTest {
 
 		// share forum
 		GroupId g = forum0.getId();
-		forumSharingManager0.sendForumInvitation(g, contactId1, null);
+		forumSharingManager0.sendInvitation(g, contactId1, null);
 		sync0To1();
 		deliveryWaiter.await(TIMEOUT, 1);
 		Contact c0 = contactManager1.getContact(contactId0);
@@ -218,7 +219,7 @@ public class ForumManagerTest {
 
 		// share forum
 		GroupId g = forum0.getId();
-		forumSharingManager0.sendForumInvitation(g, contactId1, null);
+		forumSharingManager0.sendInvitation(g, contactId1, null);
 		sync0To1();
 		deliveryWaiter.await(TIMEOUT, 1);
 		Contact c0 = contactManager1.getContact(contactId0);
@@ -259,7 +260,7 @@ public class ForumManagerTest {
 
 		// share forum
 		GroupId g = forum0.getId();
-		forumSharingManager0.sendForumInvitation(g, contactId1, null);
+		forumSharingManager0.sendInvitation(g, contactId1, null);
 		sync0To1();
 		deliveryWaiter.await(TIMEOUT, 1);
 		Contact c0 = contactManager1.getContact(contactId0);
@@ -270,7 +271,7 @@ public class ForumManagerTest {
 		// share a second forum
 		Forum forum1 = forumManager0.addForum("Test Forum1");
 		GroupId g1 = forum1.getId();
-		forumSharingManager0.sendForumInvitation(g1, contactId1, null);
+		forumSharingManager0.sendInvitation(g1, contactId1, null);
 		sync0To1();
 		deliveryWaiter.await(TIMEOUT, 1);
 		forumSharingManager1.respondToInvitation(forum1, c0, true);
@@ -426,6 +427,7 @@ public class ForumManagerTest {
 		component.inject(new CryptoModule.EagerSingletons());
 		component.inject(new ContactModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
+		component.inject(new SharingModule.EagerSingletons());
 		component.inject(new SyncModule.EagerSingletons());
 		component.inject(new PropertiesModule.EagerSingletons());
 	}

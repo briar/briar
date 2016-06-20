@@ -10,6 +10,7 @@ import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
 import org.briarproject.properties.PropertiesModule;
+import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
@@ -35,6 +36,8 @@ public interface CoreEagerSingletons {
 	void inject(PluginsModule.EagerSingletons init);
 
 	void inject(PropertiesModule.EagerSingletons init);
+
+	void inject(SharingModule.EagerSingletons init);
 
 	void inject(SyncModule.EagerSingletons init);
 

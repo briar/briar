@@ -316,7 +316,7 @@ public class ConversationActivity extends BriarActivity
 									.getIntroductionMessages(contactId);
 					Collection<ForumInvitationMessage> invitations =
 							forumSharingManager
-									.getForumInvitationMessages(contactId);
+									.getInvitationMessages(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");

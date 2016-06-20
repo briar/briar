@@ -21,6 +21,7 @@ import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
+import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
@@ -44,6 +45,7 @@ import dagger.Component;
 		IdentityModule.class,
 		LifecycleModule.class,
 		PropertiesModule.class,
+		SharingModule.class,
 		SyncModule.class,
 		SystemModule.class,
 		TransportModule.class
@@ -61,6 +63,8 @@ public interface ForumSharingIntegrationTestComponent {
 	void inject(LifecycleModule.EagerSingletons init);
 
 	void inject(PropertiesModule.EagerSingletons init);
+
+	void inject(SharingModule.EagerSingletons init);
 
 	void inject(SyncModule.EagerSingletons init);
 

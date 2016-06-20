@@ -352,7 +352,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 		now = System.currentTimeMillis();
 		Collection<ForumInvitationMessage> invitations =
-				forumSharingManager.getForumInvitationMessages(id);
+				forumSharingManager.getInvitationMessages(id);
 		for (ForumInvitationMessage i : invitations) {
 			messages.add(ConversationItem.from(i));
 		}

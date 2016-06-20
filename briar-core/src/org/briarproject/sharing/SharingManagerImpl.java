@@ -1,4 +1,4 @@
-package org.briarproject.forum;
+package org.briarproject.sharing;
 
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
@@ -22,12 +22,12 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumFactory;
-import org.briarproject.api.forum.ForumInvitationMessage;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.sharing.InvitationMessage;
+import org.briarproject.api.sharing.Shareable;
+import org.briarproject.api.sharing.SharingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -50,82 +50,89 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.clients.ProtocolEngine.StateUpdate;
-import static org.briarproject.api.forum.ForumConstants.CONTACT_ID;
-import static org.briarproject.api.forum.ForumConstants.FORUM_ID;
-import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
-import static org.briarproject.api.forum.ForumConstants.IS_SHARER;
-import static org.briarproject.api.forum.ForumConstants.LOCAL;
-import static org.briarproject.api.forum.ForumConstants.READ;
-import static org.briarproject.api.forum.ForumConstants.SESSION_ID;
-import static org.briarproject.api.forum.ForumConstants.SHARED_BY_US;
-import static org.briarproject.api.forum.ForumConstants.SHARED_WITH_US;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ABORT;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_ACCEPT;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_DECLINE;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_INVITATION;
-import static org.briarproject.api.forum.ForumConstants.SHARE_MSG_TYPE_LEAVE;
-import static org.briarproject.api.forum.ForumConstants.STATE;
-import static org.briarproject.api.forum.ForumConstants.TASK_ADD_FORUM_TO_LIST_SHARED_WITH_US;
-import static org.briarproject.api.forum.ForumConstants.TASK_ADD_FORUM_TO_LIST_TO_BE_SHARED_BY_US;
-import static org.briarproject.api.forum.ForumConstants.TASK_ADD_SHARED_FORUM;
-import static org.briarproject.api.forum.ForumConstants.TASK_REMOVE_FORUM_FROM_LIST_SHARED_WITH_US;
-import static org.briarproject.api.forum.ForumConstants.TASK_REMOVE_FORUM_FROM_LIST_TO_BE_SHARED_BY_US;
-import static org.briarproject.api.forum.ForumConstants.TASK_SHARE_FORUM;
-import static org.briarproject.api.forum.ForumConstants.TASK_UNSHARE_FORUM_SHARED_BY_US;
-import static org.briarproject.api.forum.ForumConstants.TASK_UNSHARE_FORUM_SHARED_WITH_US;
-import static org.briarproject.api.forum.ForumConstants.TIME;
-import static org.briarproject.api.forum.ForumConstants.TO_BE_SHARED_BY_US;
-import static org.briarproject.api.forum.ForumConstants.TYPE;
-import static org.briarproject.api.forum.ForumManager.RemoveForumHook;
-import static org.briarproject.api.forum.ForumSharingMessage.BaseMessage;
-import static org.briarproject.api.forum.ForumSharingMessage.Invitation;
-import static org.briarproject.forum.ForumSharingSessionState.fromBdfDictionary;
-import static org.briarproject.forum.SharerSessionState.Action;
+import static org.briarproject.api.sharing.SharingConstants.CONTACT_ID;
+import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
+import static org.briarproject.api.sharing.SharingConstants.LOCAL;
+import static org.briarproject.api.sharing.SharingConstants.READ;
+import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
+import static org.briarproject.api.sharing.SharingConstants.SHAREABLE_ID;
+import static org.briarproject.api.sharing.SharingConstants.SHARED_BY_US;
+import static org.briarproject.api.sharing.SharingConstants.SHARED_WITH_US;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEPT;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_DECLINE;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
+import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
+import static org.briarproject.api.sharing.SharingConstants.SHARING_SALT_LENGTH;
+import static org.briarproject.api.sharing.SharingConstants.STATE;
+import static org.briarproject.api.sharing.SharingConstants.TASK_ADD_SHAREABLE_TO_LIST_SHARED_WITH_US;
+import static org.briarproject.api.sharing.SharingConstants.TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US;
+import static org.briarproject.api.sharing.SharingConstants.TASK_ADD_SHARED_SHAREABLE;
+import static org.briarproject.api.sharing.SharingConstants.TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US;
+import static org.briarproject.api.sharing.SharingConstants.TASK_REMOVE_SHAREABLE_FROM_LIST_TO_BE_SHARED_BY_US;
+import static org.briarproject.api.sharing.SharingConstants.TASK_SHARE_SHAREABLE;
+import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREABLE_SHARED_BY_US;
+import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREABLE_SHARED_WITH_US;
+import static org.briarproject.api.sharing.SharingConstants.TIME;
+import static org.briarproject.api.sharing.SharingConstants.TO_BE_SHARED_BY_US;
+import static org.briarproject.api.sharing.SharingConstants.TYPE;
+import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
+import static org.briarproject.api.sharing.SharingMessage.Invitation;
 
-class ForumSharingManagerImpl extends BdfIncomingMessageHook
-		implements ForumSharingManager, Client, RemoveForumHook,
-		AddContactHook, RemoveContactHook {
-
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"cd11a5d04dccd9e2931d6fc3df456313"
-					+ "63bb3e9d9d0e9405fccdb051f41f5449"));
+abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM extends InvitationMessage, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
+		extends BdfIncomingMessageHook
+		implements SharingManager<S, IM>, Client, AddContactHook,
+		RemoveContactHook {
 
 	private static final Logger LOG =
-			Logger.getLogger(ForumSharingManagerImpl.class.getName());
+			Logger.getLogger(SharingManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final ForumManager forumManager;
 	private final MessageQueueManager messageQueueManager;
 	private final MetadataEncoder metadataEncoder;
 	private final SecureRandom random;
 	private final PrivateGroupFactory privateGroupFactory;
-	private final ForumFactory forumFactory;
 	private final Clock clock;
 	private final Group localGroup;
 
-	@Inject
-	ForumSharingManagerImpl(DatabaseComponent db, ForumManager forumManager,
+	SharingManagerImpl(DatabaseComponent db,
 			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
 			MetadataParser metadataParser, MetadataEncoder metadataEncoder,
 			SecureRandom random, PrivateGroupFactory privateGroupFactory,
-			ForumFactory forumFactory, Clock clock) {
+			Clock clock) {
 
 		super(clientHelper, metadataParser);
 		this.db = db;
-		this.forumManager = forumManager;
 		this.messageQueueManager = messageQueueManager;
 		this.metadataEncoder = metadataEncoder;
 		this.random = random;
 		this.privateGroupFactory = privateGroupFactory;
-		this.forumFactory = forumFactory;
 		this.clock = clock;
 		localGroup = privateGroupFactory.createLocalGroup(getClientId());
 	}
+
+	public abstract ClientId getClientId();
+
+	protected abstract ClientId getShareableClientId();
+
+	protected abstract IM createInvitationMessage(MessageId id, I msg,
+			ContactId contactId, boolean available, long time, boolean local,
+			boolean sent, boolean seen, boolean read);
+
+	protected abstract ShareableFactory<S, I, IS, SS> getSFactory();
+
+	protected abstract InvitationFactory<I, SS> getIFactory();
+
+	protected abstract InviteeSessionStateFactory<S, IS> getISFactory();
+
+	protected abstract SharerSessionStateFactory<S, SS> getSSFactory();
+
+	protected abstract InvitationReceivedEventFactory<IS, IR> getIRFactory();
+
+	protected abstract InvitationResponseReceivedEventFactory<SS, IRR> getIRRFactory();
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
@@ -183,7 +190,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	protected void incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary d) throws DbException, FormatException {
 
-		BaseMessage msg = BaseMessage.from(m.getGroupId(), d);
+		BaseMessage msg = BaseMessage.from(getIFactory(), m.getGroupId(), d);
 		SessionId sessionId = msg.getSessionId();
 
 		if (msg.getType() == SHARE_MSG_TYPE_INVITATION) {
@@ -200,19 +207,18 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 				// check if we already have a state with that sessionId
 				if (stateExists) throw new FormatException();
 
-				// check if forum can be shared
-				Invitation invitation = (Invitation) msg;
-				Forum f = forumFactory.createForum(invitation.getForumName(),
-						invitation.getForumSalt());
+				// check if shareable can be shared
+				I invitation = (I) msg;
+				S f = getSFactory().parse(invitation);
 				ContactId contactId = getContactId(txn, m.getGroupId());
 				Contact contact = db.getContact(txn, contactId);
 				if (!canBeShared(txn, f.getId(), contact))
 					checkForRaceCondition(txn, f, contact);
 
 				// initialize state and process invitation
-				InviteeSessionState state =
-						initializeInviteeState(txn, contactId, invitation);
-				InviteeEngine engine = new InviteeEngine(forumFactory);
+				IS state = initializeInviteeState(txn, contactId, invitation);
+				InviteeEngine<IS, IR> engine =
+						new InviteeEngine<IS, IR>(getIRFactory());
 				processInviteeStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 			} catch (FormatException e) {
@@ -222,48 +228,47 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		} else if (msg.getType() == SHARE_MSG_TYPE_ACCEPT ||
 				msg.getType() == SHARE_MSG_TYPE_DECLINE) {
 			// we are a sharer who just received a response
-			SharerSessionState state = getSessionStateForSharer(txn, sessionId);
-			SharerEngine engine = new SharerEngine();
+			SS state = getSessionStateForSharer(txn, sessionId);
+			SharerEngine<I, SS, IRR> engine =
+					new SharerEngine<I, SS, IRR>(getIFactory(),
+							getIRRFactory());
 			processSharerStateUpdate(txn, m.getId(),
 					engine.onMessageReceived(state, msg));
 		} else if (msg.getType() == SHARE_MSG_TYPE_LEAVE ||
 				msg.getType() == SHARE_MSG_TYPE_ABORT) {
 			// we don't know who we are, so figure it out
-			ForumSharingSessionState s = getSessionState(txn, sessionId, true);
+			SharingSessionState s = getSessionState(txn, sessionId, true);
 			if (s instanceof SharerSessionState) {
 				// we are a sharer and the invitee wants to leave or abort
-				SharerSessionState state = (SharerSessionState) s;
-				SharerEngine engine = new SharerEngine();
+				SS state = (SS) s;
+				SharerEngine<I, SS, IRR> engine =
+						new SharerEngine<I, SS, IRR>(getIFactory(),
+								getIRRFactory());
 				processSharerStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 			} else {
 				// we are an invitee and the sharer wants to leave or abort
-				InviteeSessionState state = (InviteeSessionState) s;
-				InviteeEngine engine = new InviteeEngine(forumFactory);
+				IS state = (IS) s;
+				InviteeEngine<IS, IR> engine =
+						new InviteeEngine<IS, IR>(getIRFactory());
 				processInviteeStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 			}
 		} else {
 			// message has passed validator, so that should never happen
-			throw new RuntimeException("Illegal Forum Sharing Message");
+			throw new RuntimeException("Illegal Sharing Message");
 		}
 	}
 
 	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
-	}
-
-	@Override
-	public void sendForumInvitation(GroupId groupId, ContactId contactId,
+	public void sendInvitation(GroupId groupId, ContactId contactId,
 			String msg) throws DbException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
 			// initialize local state for sharer
-			Forum f = forumManager.getForum(txn, groupId);
-			SharerSessionState localState =
-					initializeSharerState(txn, f, contactId);
+			S f = getSFactory().get(txn, groupId);
+			SS localState = initializeSharerState(txn, f, contactId);
 
 			// add invitation message to local state to be available for engine
 			if (!StringUtils.isNullOrEmpty(msg)) {
@@ -271,9 +276,12 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			}
 
 			// start engine and process its state update
-			SharerEngine engine = new SharerEngine();
+			SharerEngine<I, SS, IRR> engine =
+					new SharerEngine<I, SS, IRR>(getIFactory(),
+							getIRRFactory());
 			processSharerStateUpdate(txn, null,
-					engine.onLocalAction(localState, Action.LOCAL_INVITATION));
+					engine.onLocalAction(localState,
+							SharerSessionState.Action.LOCAL_INVITATION));
 
 			txn.setComplete();
 		} catch (FormatException e) {
@@ -284,14 +292,13 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void respondToInvitation(Forum f, Contact c, boolean accept)
+	public void respondToInvitation(S f, Contact c, boolean accept)
 			throws DbException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			// find session state based on forum
-			InviteeSessionState localState =
-					getSessionStateForResponse(txn, f, c);
+			// find session state based on shareable
+			IS localState = getSessionStateForResponse(txn, f, c);
 
 			// define action
 			InviteeSessionState.Action localAction;
@@ -302,7 +309,8 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			}
 
 			// start engine and process its state update
-			InviteeEngine engine = new InviteeEngine(forumFactory);
+			InviteeEngine<IS, IR> engine =
+					new InviteeEngine<IS, IR>(getIRFactory());
 			processInviteeStateUpdate(txn, null,
 					engine.onLocalAction(localState, localAction));
 
@@ -315,8 +323,8 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public Collection<ForumInvitationMessage> getForumInvitationMessages(
-			ContactId contactId) throws DbException {
+	public Collection<IM> getInvitationMessages(ContactId contactId)
+			throws DbException {
 
 		// query for all invitations
 		BdfDictionary query = BdfDictionary.of(
@@ -328,14 +336,13 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 			Contact contact = db.getContact(txn, contactId);
 			Group group = getContactGroup(contact);
 
-			Collection<ForumInvitationMessage> list =
-					new ArrayList<ForumInvitationMessage>();
+			Collection<IM> list = new ArrayList<IM>();
 			Map<MessageId, BdfDictionary> map = clientHelper
 					.getMessageMetadataAsDictionary(txn, group.getId(), query);
 			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
 				BdfDictionary d = m.getValue();
 				try {
-					Invitation msg = Invitation.from(group.getId(), d);
+					I msg = getIFactory().build(group.getId(), d);
 					MessageStatus status =
 							db.getMessageStatus(txn, contactId, m.getKey());
 					long time = d.getLong(TIME);
@@ -343,20 +350,17 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 					boolean read = d.getBoolean(READ, false);
 					boolean available = false;
 					if (!local) {
-						// figure out whether the forum is still available
-						ForumSharingSessionState s =
+						// figure out whether the shareable is still available
+						SharingSessionState s =
 								getSessionState(txn, msg.getSessionId(), true);
 						if (!(s instanceof InviteeSessionState))
 							continue;
 						available = ((InviteeSessionState) s).getState() ==
 								InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 					}
-					ForumInvitationMessage im =
-							new ForumInvitationMessage(m.getKey(),
-									msg.getSessionId(), contactId,
-									msg.getForumName(), msg.getMessage(),
-									available, time, local, status.isSent(),
-									status.isSeen(), read);
+					IM im = createInvitationMessage(m.getKey(), msg, contactId,
+							available, time, local, status.isSent(),
+							status.isSeen(), read);
 					list.add(im);
 				} catch (FormatException e) {
 					if (LOG.isLoggable(WARNING))
@@ -373,40 +377,20 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public void removingForum(Transaction txn, Forum f) throws DbException {
+	public Collection<S> getAvailable() throws DbException {
 		try {
-			for (Contact c : db.getContacts(txn)) {
-				GroupId g = getContactGroup(c).getId();
-				if (removeFromList(txn, g, TO_BE_SHARED_BY_US, f)) {
-					leaveForum(txn, c.getId(), f);
-				}
-				if (removeFromList(txn, g, SHARED_BY_US, f)) {
-					leaveForum(txn, c.getId(), f);
-				}
-				if (removeFromList(txn, g, SHARED_WITH_US, f)) {
-					leaveForum(txn, c.getId(), f);
-				}
-			}
-		} catch (IOException e) {
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public Collection<Forum> getAvailableForums() throws DbException {
-		try {
-			Set<Forum> available = new HashSet<Forum>();
+			Set<S> available = new HashSet<S>();
 			Transaction txn = db.startTransaction(true);
 			try {
-				// Get any forums we subscribe to
+				// Get any shareables we subscribe to
 				Set<Group> subscribed = new HashSet<Group>(db.getGroups(txn,
-						forumManager.getClientId()));
-				// Get all forums shared by contacts
+						getShareableClientId()));
+				// Get all shareables shared by contacts
 				for (Contact c : db.getContacts(txn)) {
 					Group g = getContactGroup(c);
-					List<Forum> forums =
-							getForumList(txn, g.getId(), SHARED_WITH_US);
-					for (Forum f : forums) {
+					List<S> shareables =
+							getShareableList(txn, g.getId(), SHARED_WITH_US);
+					for (S f : shareables) {
 						if (!subscribed.contains(f.getGroup()))
 							available.add(f);
 					}
@@ -489,7 +473,26 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
-	private void checkForRaceCondition(Transaction txn, Forum f, Contact c)
+	protected void removingShareable(Transaction txn, S f) throws DbException {
+		try {
+			for (Contact c : db.getContacts(txn)) {
+				GroupId g = getContactGroup(c).getId();
+				if (removeFromList(txn, g, TO_BE_SHARED_BY_US, f)) {
+					leaveShareable(txn, c.getId(), f);
+				}
+				if (removeFromList(txn, g, SHARED_BY_US, f)) {
+					leaveShareable(txn, c.getId(), f);
+				}
+				if (removeFromList(txn, g, SHARED_WITH_US, f)) {
+					leaveShareable(txn, c.getId(), f);
+				}
+			}
+		} catch (IOException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private void checkForRaceCondition(Transaction txn, S f, Contact c)
 			throws FormatException, DbException {
 
 		GroupId contactGroup = getContactGroup(c).getId();
@@ -507,12 +510,14 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 
 		if (alice) {
 			// our own invitation takes precedence, so just delete Bob's
-			LOG.info("Invitation race-condition: We are Alice deleting Bob's invitation.");
+			LOG.info(
+					"Invitation race-condition: We are Alice deleting Bob's invitation.");
 			throw new FormatException();
 		} else {
 			// we are Bob, so we need to "take back" our own invitation
-			LOG.info("Invitation race-condition: We are Bob taking back our invitation.");
-			ForumSharingSessionState state =
+			LOG.info(
+					"Invitation race-condition: We are Bob taking back our invitation.");
+			SharingSessionState state =
 					getSessionStateForLeaving(txn, f, c.getId());
 			if (state instanceof SharerSessionState) {
 				//SharerEngine engine = new SharerEngine();
@@ -529,7 +534,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 
 	}
 
-	private SharerSessionState initializeSharerState(Transaction txn, Forum f,
+	private SS initializeSharerState(Transaction txn, S f,
 			ContactId contactId) throws FormatException, DbException {
 
 		Contact c = db.getContact(txn, contactId);
@@ -537,15 +542,15 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 
 		// create local message to keep engine state
 		long now = clock.currentTimeMillis();
-		Bytes salt = new Bytes(new byte[FORUM_SALT_LENGTH]);
+		Bytes salt = new Bytes(new byte[SHARING_SALT_LENGTH]);
 		random.nextBytes(salt.getBytes());
 		Message m = clientHelper.createMessage(localGroup.getId(), now,
 				BdfList.of(salt));
 		SessionId sessionId = new SessionId(m.getId().getBytes());
 
-		SharerSessionState s = new SharerSessionState(sessionId, sessionId,
+		SS s = getSSFactory().build(sessionId, sessionId,
 				group.getId(), SharerSessionState.State.PREPARE_INVITATION,
-				contactId, f.getId(), f.getName(), f.getSalt());
+				contactId, f);
 
 		// save local state to database
 		BdfDictionary d = s.toBdfDictionary();
@@ -554,27 +559,24 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		return s;
 	}
 
-	private InviteeSessionState initializeInviteeState(Transaction txn,
-			ContactId contactId, Invitation msg)
+	private IS initializeInviteeState(Transaction txn,
+			ContactId contactId, I msg)
 			throws FormatException, DbException {
 
 		Contact c = db.getContact(txn, contactId);
 		Group group = getContactGroup(c);
-		String name = msg.getForumName();
-		byte[] salt = msg.getForumSalt();
-		Forum f = forumFactory.createForum(name, salt);
+		S f = getSFactory().parse(msg);
 
 		// create local message to keep engine state
 		long now = clock.currentTimeMillis();
-		Bytes mSalt = new Bytes(new byte[FORUM_SALT_LENGTH]);
+		Bytes mSalt = new Bytes(new byte[SHARING_SALT_LENGTH]);
 		random.nextBytes(mSalt.getBytes());
 		Message m = clientHelper.createMessage(localGroup.getId(), now,
 				BdfList.of(mSalt));
 
-		InviteeSessionState s = new InviteeSessionState(msg.getSessionId(),
+		IS s = getISFactory().build(msg.getSessionId(),
 				m.getId(), group.getId(),
-				InviteeSessionState.State.AWAIT_INVITATION, contactId,
-				f.getId(), f.getName(), f.getSalt());
+				InviteeSessionState.State.AWAIT_INVITATION, contactId, f);
 
 		// save local state to database
 		BdfDictionary d = s.toBdfDictionary();
@@ -583,7 +585,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		return s;
 	}
 
-	private ForumSharingSessionState getSessionState(Transaction txn,
+	private SharingSessionState getSessionState(Transaction txn,
 			SessionId sessionId, boolean warn)
 			throws DbException, FormatException {
 
@@ -612,11 +614,13 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 				}
 				throw new FormatException();
 			}
-			return fromBdfDictionary(map.values().iterator().next());
+			return SharingSessionState
+					.fromBdfDictionary(getISFactory(), getSSFactory(),
+							map.values().iterator().next());
 		}
 	}
 
-	private SharerSessionState getSessionStateForSharer(Transaction txn,
+	private SS getSessionStateForSharer(Transaction txn,
 			SessionId sessionId)
 			throws DbException, FormatException {
 
@@ -626,17 +630,18 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 
 		if (!d.getBoolean(IS_SHARER)) throw new FormatException();
 
-		return (SharerSessionState) fromBdfDictionary(d);
+		return (SS) SharingSessionState
+				.fromBdfDictionary(getISFactory(), getSSFactory(), d);
 	}
 
-	private InviteeSessionState getSessionStateForResponse(Transaction txn,
-			Forum f, Contact c) throws DbException, FormatException {
+	private IS getSessionStateForResponse(Transaction txn,
+			S f, Contact c) throws DbException, FormatException {
 
-		// query for invitee states for that forum in state await response
+		// query for invitee states for that shareable in state await response
 		BdfDictionary query = BdfDictionary.of(
 				new BdfEntry(IS_SHARER, false),
 				new BdfEntry(CONTACT_ID, c.getId().getInt()),
-				new BdfEntry(FORUM_ID, f.getId()),
+				new BdfEntry(SHAREABLE_ID, f.getId()),
 				new BdfEntry(STATE,
 						InviteeSessionState.State.AWAIT_LOCAL_RESPONSE
 								.getValue())
@@ -647,7 +652,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 
 		if (map.size() > 1 && LOG.isLoggable(WARNING)) {
 			LOG.warning(
-					"More than one session state found for forum with ID " +
+					"More than one session state found for shareable with ID " +
 							Arrays.hashCode(f.getId().getBytes()) +
 							" in state AWAIT_LOCAL_RESPONSE for contact " +
 							c.getAuthor().getName());
@@ -655,35 +660,38 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		if (map.isEmpty()) {
 			if (LOG.isLoggable(WARNING)) {
 				LOG.warning(
-						"No session state found for forum with ID " +
+						"No session state found for shareable with ID " +
 								Arrays.hashCode(f.getId().getBytes()) +
 								" in state AWAIT_LOCAL_RESPONSE");
 			}
 			throw new DbException();
 		}
-		return (InviteeSessionState) fromBdfDictionary(
-				map.values().iterator().next());
+		return (IS) SharingSessionState
+				.fromBdfDictionary(getISFactory(), getSSFactory(),
+						map.values().iterator().next());
 	}
 
-	private ForumSharingSessionState getSessionStateForLeaving(Transaction txn,
-			Forum f, ContactId c) throws DbException, FormatException {
+	private SharingSessionState getSessionStateForLeaving(Transaction txn,
+			S f, ContactId c) throws DbException, FormatException {
 
 		BdfDictionary query = BdfDictionary.of(
 				new BdfEntry(CONTACT_ID, c.getInt()),
-				new BdfEntry(FORUM_ID, f.getId())
+				new BdfEntry(SHAREABLE_ID, f.getId())
 		);
 		Map<MessageId, BdfDictionary> map = clientHelper
 				.getMessageMetadataAsDictionary(txn, localGroup.getId(), query);
 		for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
 			BdfDictionary d = m.getValue();
 			try {
-				ForumSharingSessionState s = fromBdfDictionary(d);
+				SharingSessionState s = SharingSessionState
+						.fromBdfDictionary(getISFactory(), getSSFactory(), d);
 
-				// check that a forum get be left in current session
+				// check that a shareable get be left in current session
 				if (s instanceof SharerSessionState) {
 					SharerSessionState state = (SharerSessionState) s;
 					SharerSessionState.State nextState =
-							state.getState().next(Action.LOCAL_LEAVE);
+							state.getState()
+									.next(SharerSessionState.Action.LOCAL_LEAVE);
 					if (nextState != SharerSessionState.State.ERROR) {
 						return state;
 					}
@@ -703,11 +711,11 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private void processStateUpdate(Transaction txn, MessageId messageId,
-			StateUpdate<ForumSharingSessionState, BaseMessage> result)
+			StateUpdate<SharingSessionState, BaseMessage> result, S f)
 			throws DbException, FormatException {
 
 		// perform actions based on new local state
-		performTasks(txn, result.localState);
+		performTasks(txn, result.localState, f);
 
 		// save new local state
 		MessageId storageId = result.localState.getStorageId();
@@ -735,31 +743,37 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private void processSharerStateUpdate(Transaction txn, MessageId messageId,
-			StateUpdate<SharerSessionState, BaseMessage> result)
+			StateUpdate<SS, BaseMessage> result)
 			throws DbException, FormatException {
 
-		StateUpdate<ForumSharingSessionState, BaseMessage> r =
-				new StateUpdate<ForumSharingSessionState, BaseMessage>(
+		StateUpdate<SharingSessionState, BaseMessage> r =
+				new StateUpdate<SharingSessionState, BaseMessage>(
 						result.deleteMessage, result.deleteState,
 						result.localState, result.toSend, result.toBroadcast);
 
-		processStateUpdate(txn, messageId, r);
+		// get shareable for later
+		S f = getSFactory().parse(result.localState);
+
+		processStateUpdate(txn, messageId, r, f);
 	}
 
 	private void processInviteeStateUpdate(Transaction txn, MessageId messageId,
-			StateUpdate<InviteeSessionState, BaseMessage> result)
+			StateUpdate<IS, BaseMessage> result)
 			throws DbException, FormatException {
 
-		StateUpdate<ForumSharingSessionState, BaseMessage> r =
-				new StateUpdate<ForumSharingSessionState, BaseMessage>(
+		StateUpdate<SharingSessionState, BaseMessage> r =
+				new StateUpdate<SharingSessionState, BaseMessage>(
 						result.deleteMessage, result.deleteState,
 						result.localState, result.toSend, result.toBroadcast);
 
-		processStateUpdate(txn, messageId, r);
+		// get shareable for later
+		S f = getSFactory().parse(result.localState);
+
+		processStateUpdate(txn, messageId, r, f);
 	}
 
-	private void performTasks(Transaction txn, ForumSharingSessionState localState)
-			throws FormatException, DbException {
+	private void performTasks(Transaction txn, SharingSessionState localState,
+			S f) throws FormatException, DbException {
 
 		if (localState.getTask() == -1) return;
 
@@ -772,37 +786,26 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		// get contact ID for later
 		ContactId contactId = localState.getContactId();
 
-		// get forum for later
-		String name = localState.getForumName();
-		byte[] salt = localState.getForumSalt();
-		Forum f = forumFactory.createForum(name, salt);
-
 		// perform tasks
-		if (task == TASK_ADD_FORUM_TO_LIST_SHARED_WITH_US) {
+		if (task == TASK_ADD_SHAREABLE_TO_LIST_SHARED_WITH_US) {
 			addToList(txn, groupId, SHARED_WITH_US, f);
-		}
-		else if (task == TASK_REMOVE_FORUM_FROM_LIST_SHARED_WITH_US) {
+		} else if (task == TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US) {
 			removeFromList(txn, groupId, SHARED_WITH_US, f);
-		}
-		else if (task == TASK_ADD_SHARED_FORUM) {
+		} else if (task == TASK_ADD_SHARED_SHAREABLE) {
 			db.addGroup(txn, f.getGroup());
 			db.setVisibleToContact(txn, contactId, f.getId(), true);
-		}
-		else if (task == TASK_ADD_FORUM_TO_LIST_TO_BE_SHARED_BY_US) {
+		} else if (task == TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US) {
 			addToList(txn, groupId, TO_BE_SHARED_BY_US, f);
-		}
-		else if (task == TASK_REMOVE_FORUM_FROM_LIST_TO_BE_SHARED_BY_US) {
+		} else if (task == TASK_REMOVE_SHAREABLE_FROM_LIST_TO_BE_SHARED_BY_US) {
 			removeFromList(txn, groupId, TO_BE_SHARED_BY_US, f);
-		}
-		else if (task == TASK_SHARE_FORUM) {
+		} else if (task == TASK_SHARE_SHAREABLE) {
 			db.setVisibleToContact(txn, contactId, f.getId(), true);
 			removeFromList(txn, groupId, TO_BE_SHARED_BY_US, f);
 			addToList(txn, groupId, SHARED_BY_US, f);
-		}
-		else if (task == TASK_UNSHARE_FORUM_SHARED_BY_US) {
+		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_BY_US) {
 			db.setVisibleToContact(txn, contactId, f.getId(), false);
 			removeFromList(txn, groupId, SHARED_BY_US, f);
-		} else if (task == TASK_UNSHARE_FORUM_SHARED_WITH_US) {
+		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_WITH_US) {
 			db.setVisibleToContact(txn, contactId, f.getId(), false);
 			removeFromList(txn, groupId, SHARED_WITH_US, f);
 		}
@@ -826,7 +829,7 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private Group getContactGroup(Contact c) {
-		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
+		return privateGroupFactory.createPrivateGroup(getClientId(), c);
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
@@ -836,90 +839,94 @@ class ForumSharingManagerImpl extends BdfIncomingMessageHook
 		return new ContactId(meta.getLong(CONTACT_ID).intValue());
 	}
 
-	private void leaveForum(Transaction txn, ContactId c, Forum f)
+	private void leaveShareable(Transaction txn, ContactId c, S f)
 			throws DbException, FormatException {
 
-		ForumSharingSessionState state = getSessionStateForLeaving(txn, f, c);
+		SharingSessionState state = getSessionStateForLeaving(txn, f, c);
 		if (state instanceof SharerSessionState) {
-			Action action = Action.LOCAL_LEAVE;
-			SharerEngine engine = new SharerEngine();
+			SharerSessionState.Action action =
+					SharerSessionState.Action.LOCAL_LEAVE;
+			SharerEngine<I, SS, IRR> engine =
+					new SharerEngine<I, SS, IRR>(getIFactory(),
+							getIRRFactory());
 			processSharerStateUpdate(txn, null,
-					engine.onLocalAction((SharerSessionState) state, action));
+					engine.onLocalAction((SS) state, action));
 		} else {
 			InviteeSessionState.Action action =
 					InviteeSessionState.Action.LOCAL_LEAVE;
-			InviteeEngine engine = new InviteeEngine(forumFactory);
+			InviteeEngine<IS, IR> engine =
+					new InviteeEngine<IS, IR>(getIRFactory());
 			processInviteeStateUpdate(txn, null,
-					engine.onLocalAction((InviteeSessionState) state, action));
+					engine.onLocalAction((IS) state, action));
 		}
 	}
 
 	private boolean listContains(Transaction txn, GroupId contactGroup,
-			GroupId forum, String key) throws DbException, FormatException {
+			GroupId shareable, String key) throws DbException, FormatException {
 
-		List<Forum> list = getForumList(txn, contactGroup, key);
-		for (Forum f : list) {
-			if (f.getId().equals(forum)) return true;
+		List<S> list = getShareableList(txn, contactGroup, key);
+		for (S f : list) {
+			if (f.getId().equals(shareable)) return true;
 		}
 		return false;
 	}
 
 	private boolean addToList(Transaction txn, GroupId groupId, String key,
-			Forum f) throws DbException, FormatException {
+			S f) throws DbException, FormatException {
 
-		List<Forum> forums = getForumList(txn, groupId, key);
-		if (forums.contains(f)) return false;
-		forums.add(f);
-		storeForumList(txn, groupId, key, forums);
+		List<S> shareables = getShareableList(txn, groupId, key);
+		if (shareables.contains(f)) return false;
+		shareables.add(f);
+		storeShareableList(txn, groupId, key, shareables);
 		return true;
 	}
 
 	private boolean removeFromList(Transaction txn, GroupId groupId, String key,
-			Forum f) throws DbException, FormatException {
+			S f) throws DbException, FormatException {
 
-		List<Forum> forums = getForumList(txn, groupId, key);
-		if (forums.remove(f)) {
-			storeForumList(txn, groupId, key, forums);
+		List<S> shareables = getShareableList(txn, groupId, key);
+		if (shareables.remove(f)) {
+			storeShareableList(txn, groupId, key, shareables);
 			return true;
 		}
 		return false;
 	}
 
-	private List<Forum> getForumList(Transaction txn, GroupId groupId,
+	private List<S> getShareableList(Transaction txn, GroupId groupId,
 			String key) throws DbException, FormatException {
 
 		BdfDictionary metadata =
 				clientHelper.getGroupMetadataAsDictionary(txn, groupId);
 		BdfList list = metadata.getList(key);
 
-		return parseForumList(list);
+		return parseShareableList(list);
 	}
 
-	private void storeForumList(Transaction txn, GroupId groupId, String key,
-			List<Forum> forums)	throws DbException, FormatException {
+	private void storeShareableList(Transaction txn, GroupId groupId,
+			String key,
+			List<S> shareables) throws DbException, FormatException {
 
-		BdfList list = encodeForumList(forums);
+		BdfList list = encodeShareableList(shareables);
 		BdfDictionary metadata = BdfDictionary.of(
 				new BdfEntry(key, list)
 		);
 		clientHelper.mergeGroupMetadata(txn, groupId, metadata);
 	}
 
-	private BdfList encodeForumList(List<Forum> forums) {
-		BdfList forumList = new BdfList();
-		for (Forum f : forums)
-			forumList.add(BdfList.of(f.getName(), f.getSalt()));
-		return forumList;
+	private BdfList encodeShareableList(List<S> shareables) {
+		BdfList shareableList = new BdfList();
+		for (S f : shareables)
+			shareableList.add(getSFactory().encode(f));
+		return shareableList;
 	}
 
-	private List<Forum> parseForumList(BdfList list) throws FormatException {
-		List<Forum> forums = new ArrayList<Forum>(list.size());
+	private List<S> parseShareableList(BdfList list) throws FormatException {
+		List<S> shareables = new ArrayList<S>(list.size());
 		for (int i = 0; i < list.size(); i++) {
-			BdfList forum = list.getList(i);
-			forums.add(forumFactory
-					.createForum(forum.getString(0), forum.getRaw(1)));
+			BdfList shareable = list.getList(i);
+			shareables.add(getSFactory().parse(shareable));
 		}
-		return forums;
+		return shareables;
 	}
 
 	private void deleteMessage(Transaction txn, MessageId messageId)

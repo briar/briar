@@ -20,6 +20,7 @@ import org.briarproject.properties.PropertiesModule;
 import org.briarproject.reliability.ReliabilityModule;
 import org.briarproject.reporting.ReportingModule;
 import org.briarproject.settings.SettingsModule;
+import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
@@ -47,6 +48,7 @@ import dagger.Module;
 		ReliabilityModule.class,
 		ReportingModule.class,
 		SettingsModule.class,
+		SharingModule.class,
 		SyncModule.class,
 		SystemModule.class,
 		TransportModule.class
@@ -63,6 +65,7 @@ public class CoreModule {
 		c.inject(new MessagingModule.EagerSingletons());
 		c.inject(new PluginsModule.EagerSingletons());
 		c.inject(new PropertiesModule.EagerSingletons());
+		c.inject(new SharingModule.EagerSingletons());
 		c.inject(new SyncModule.EagerSingletons());
 		c.inject(new SystemModule.EagerSingletons());
 		c.inject(new TransportModule.EagerSingletons());

@@ -38,7 +38,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.forum.ShareForumActivity.CONTACTS;
 import static org.briarproject.android.forum.ShareForumActivity.getContactsFromIds;
-import static org.briarproject.api.forum.ForumConstants.GROUP_ID;
+import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
 public class ContactSelectorFragment extends BaseFragment implements
 		BaseContactListAdapter.OnItemClickListener {

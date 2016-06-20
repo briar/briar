@@ -2,23 +2,17 @@ package org.briarproject.api.event;
 
 import org.briarproject.api.contact.ContactId;
 
-public class ForumInvitationResponseReceivedEvent extends Event {
+public class ForumInvitationResponseReceivedEvent extends InvitationResponseReceivedEvent {
 
 	private final String forumName;
-	private final ContactId contactId;
 
 	public ForumInvitationResponseReceivedEvent(String forumName,
 			ContactId contactId) {
-
+		super(contactId);
 		this.forumName = forumName;
-		this.contactId = contactId;
 	}
 
 	public String getForumName() {
 		return forumName;
-	}
-
-	public ContactId getContactId() {
-		return contactId;
 	}
 }
