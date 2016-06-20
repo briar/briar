@@ -22,6 +22,8 @@ public interface BlogController extends ActivityLifecycleController {
 	@Nullable
 	MessageId getBlogPostId(int position);
 
+	void deleteBlog(final UiResultHandler<Boolean> resultHandler);
+
 	interface BlogPostListener {
 		void onBlogPostAdded(final BlogPostItem post, final boolean local);
 	}

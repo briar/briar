@@ -1,11 +1,13 @@
 package org.briarproject.android.blogs;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -144,6 +146,9 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 				ActivityCompat.startActivityForResult(getActivity(), i,
 						REQUEST_WRITE_POST, options.toBundle());
 				return true;
+			case R.id.action_delete_blog:
+				showDeleteDialog();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -186,6 +191,36 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 
 	void reload() {
 		loadData(true);
+	}
+
+	private void showDeleteDialog() {
+		DialogInterface.OnClickListener okListener =
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						deleteBlog();
+					}
+				};
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.blogs_delete_blog));
+		builder.setMessage(getString(R.string.blogs_delete_blog_dialog_message));
+		builder.setPositiveButton(R.string.blogs_delete_blog_cancel, null);
+		builder.setNegativeButton(R.string.blogs_delete_blog_ok, okListener);
+		builder.show();
+	}
+
+	private void deleteBlog() {
+		blogController.deleteBlog(
+				new UiResultHandler<Boolean>(getActivity()) {
+					@Override
+					public void onResultUi(Boolean result) {
+						if (!result) return;
+						Toast.makeText(getActivity(), R.string.forum_left_toast,
+								LENGTH_SHORT).show();
+						getActivity().supportFinishAfterTransition();
+					}
+				});
 	}
 
 }
