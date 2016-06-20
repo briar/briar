@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
@@ -61,13 +60,11 @@ class BlogPostAdapter extends
 	});
 
 	private final Context ctx;
-	private final GroupId blogGroupId;
-	private final String blogTitle;
+	private final OnBlogPostClickListener listener;
 
-	BlogPostAdapter(Context ctx, GroupId blogGroupId, String blogTitle) {
+	BlogPostAdapter(Context ctx, OnBlogPostClickListener listener) {
 		this.ctx = ctx;
-		this.blogGroupId = blogGroupId;
-		this.blogTitle = blogTitle;
+		this.listener = listener;
 	}
 
 	@Override
@@ -78,7 +75,7 @@ class BlogPostAdapter extends
 	}
 
 	@Override
-	public void onBindViewHolder(BlogPostHolder ui, int position) {
+	public void onBindViewHolder(final BlogPostHolder ui, int position) {
 		final BlogPostItem item = getItem(position);
 
 		// title
@@ -95,7 +92,7 @@ class BlogPostAdapter extends
 		ui.layout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO #428
+				listener.onBlogPostClick(ui.getAdapterPosition());
 			}
 		});
 
@@ -154,4 +151,9 @@ class BlogPostAdapter extends
 			body = (TextView) v.findViewById(R.id.bodyView);
 		}
 	}
+
+	interface OnBlogPostClickListener {
+		void onBlogPostClick(int position);
+	}
+
 }

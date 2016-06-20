@@ -3,6 +3,8 @@ package org.briarproject.android;
 import android.app.Activity;
 
 import org.briarproject.android.blogs.BlogActivity;
+import org.briarproject.android.blogs.BlogFragment;
+import org.briarproject.android.blogs.BlogPostFragment;
 import org.briarproject.android.blogs.CreateBlogActivity;
 import org.briarproject.android.blogs.MyBlogsFragment;
 import org.briarproject.android.contact.ContactListFragment;
@@ -72,6 +74,10 @@ public interface ActivityComponent {
 	void inject(BlogActivity activity);
 
 	void inject(WriteBlogPostActivity activity);
+
+	void inject(BlogFragment fragment);
+
+	void inject(BlogPostFragment fragment);
 
 	void inject(SettingsActivity activity);
 

@@ -267,6 +267,8 @@
 	<string name="blogs_write_blog_post_title_hint">Add a title (optional)</string>
 	<string name="blogs_write_blog_post_body_hint">Type your blog post here</string>
 	<string name="blogs_publish_blog_post">Publish</string>
+	<string name="blogs_blog_failed_to_load">Blog failed to load</string>
+	<string name="blogs_blog_post_failed_to_load">Blog Post failed to load</string>
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>

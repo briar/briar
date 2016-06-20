@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.briarproject.android.blogs.BlogController;
+import org.briarproject.android.blogs.BlogControllerImpl;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
 import org.briarproject.android.controller.ConfigController;
@@ -105,6 +107,13 @@ public class ActivityModule {
 	protected ForumController provideForumTestController(
 			ForumTestControllerImpl forumController) {
 		return forumController;
+	}
+
+	@ActivityScope
+	@Provides
+	BlogController provideBlogController(BlogControllerImpl blogController) {
+		activity.addLifecycleController(blogController);
+		return blogController;
 	}
 
 	@ActivityScope
