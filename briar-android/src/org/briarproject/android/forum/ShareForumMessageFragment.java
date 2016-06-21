@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -46,16 +47,13 @@ public class ShareForumMessageFragment extends BaseFragment {
 	private volatile GroupId groupId;
 	private volatile Collection<ContactId> contacts;
 
-	public void initBundle(GroupId groupId, Collection<ContactId> contacts) {
-		Bundle bundle = new Bundle();
-		bundle.putByteArray(GROUP_ID, groupId.getBytes());
-		bundle.putIntegerArrayList(CONTACTS, getContactsFromIds(contacts));
-		setArguments(bundle);
-	}
-
-	@Inject
-	public ShareForumMessageFragment() {
-
+	public static ShareForumMessageFragment newInstance(GroupId groupId, Collection<ContactId> contacts) {
+		Bundle args = new Bundle();
+		args.putByteArray(GROUP_ID, groupId.getBytes());
+		args.putIntegerArrayList(CONTACTS, getContactsFromIds(contacts));
+		ShareForumMessageFragment fragment = new ShareForumMessageFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Override
@@ -117,6 +115,11 @@ public class ShareForumMessageFragment extends BaseFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	public void onButtonClick() {

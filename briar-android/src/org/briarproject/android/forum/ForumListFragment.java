@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
@@ -59,9 +60,13 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Inject protected volatile ForumManager forumManager;
 	@Inject protected volatile ForumSharingManager forumSharingManager;
 
-	@Inject
-	public ForumListFragment() {
+	public static ForumListFragment newInstance() {
 
+		Bundle args = new Bundle();
+
+		ForumListFragment fragment = new ForumListFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Nullable
@@ -94,6 +99,11 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Override

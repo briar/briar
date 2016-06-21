@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+// TODO extend the BriarFragmentActivity ?
 public class ShareForumActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener {
 
@@ -33,8 +34,7 @@ public class ShareForumActivity extends BriarActivity implements
 
 		if (savedInstanceState == null) {
 			ContactSelectorFragment contactSelectorFragment =
-					activityComponent.newContactSelectorFragment();
-			contactSelectorFragment.initBundle(groupId);
+					ContactSelectorFragment.newInstance(groupId);
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.shareForumContainer, contactSelectorFragment)
 					.commit();
@@ -50,8 +50,7 @@ public class ShareForumActivity extends BriarActivity implements
 			Collection<ContactId> contacts) {
 
 		ShareForumMessageFragment messageFragment =
-				activityComponent.newShareForumMessageFragment();
-		messageFragment.initBundle(groupId, contacts);
+				ShareForumMessageFragment.newInstance(groupId, contacts);
 
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,
@@ -86,7 +85,7 @@ public class ShareForumActivity extends BriarActivity implements
 
 		// turn contact integers from a bundle back to ContactIds
 		List<ContactId> contacts = new ArrayList<>(intContacts.size());
-		for(Integer c : intContacts) {
+		for (Integer c : intContacts) {
 			contacts.add(new ContactId(c));
 		}
 		return contacts;
@@ -100,6 +99,11 @@ public class ShareForumActivity extends BriarActivity implements
 	@Override
 	public void hideLoadingScreen() {
 		// this is handled by the recycler view in ContactSelectorFragment
+	}
+
+	@Override
+	public void onFragmentCreated(String tag) {
+
 	}
 
 }

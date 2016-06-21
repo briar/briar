@@ -8,9 +8,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
-
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -50,6 +49,11 @@ public class MyBlogsFragment extends BaseFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 }

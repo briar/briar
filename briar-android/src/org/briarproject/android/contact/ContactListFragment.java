@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.util.BriarRecyclerView;
@@ -84,14 +85,23 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
 
-	@Inject
-	public ContactListFragment() {
-
+	public static ContactListFragment newInstance() {
+		
+		Bundle args = new Bundle();
+		
+		ContactListFragment fragment = new ContactListFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Nullable
@@ -153,7 +163,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 		return contentView;
 	}
-
 
 	@Override
 	public void onResume() {

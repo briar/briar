@@ -15,6 +15,7 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.contact.Contact;
 
+// TODO extend the BriarFragmentActivity ?
 public class IntroductionActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener {
 
@@ -37,7 +38,7 @@ public class IntroductionActivity extends BriarActivity implements
 			getSupportFragmentManager()
 					.beginTransaction()
 					.add(R.id.introductionContainer,
-							activityComponent.newContactChooserFragment())
+							ContactChooserFragment.newInstance())
 					.commit();
 		}
 	}
@@ -55,6 +56,11 @@ public class IntroductionActivity extends BriarActivity implements
 	@Override
 	public void hideLoadingScreen() {
 		// this is handled by the recycler view in ContactChooserFragment
+	}
+
+	@Override
+	public void onFragmentCreated(String tag) {
+
 	}
 
 	@Override
@@ -86,8 +92,8 @@ public class IntroductionActivity extends BriarActivity implements
 	public void showMessageScreen(View view, Contact c1, Contact c2) {
 
 		IntroductionMessageFragment messageFragment =
-				activityComponent.newIntroductionMessageFragment();
-		messageFragment.initBundle(c1.getId().getInt(), c2.getId().getInt());
+				IntroductionMessageFragment
+						.newInstance(c1.getId().getInt(), c2.getId().getInt());
 
 		if (Build.VERSION.SDK_INT >= 21) {
 			messageFragment.setSharedElementEnterTransition(new ChangeBounds());

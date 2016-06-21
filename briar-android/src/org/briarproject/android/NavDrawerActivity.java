@@ -21,9 +21,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.blogs.BlogsFragment;
+import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
@@ -49,8 +52,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	public static final String INTENT_CONTACTS = "intent_contacts";
 	public static final String INTENT_FORUMS = "intent_forums";
 
-	private static final String KEY_CURRENT_FRAGMENT_ID = "key_current_id";
-
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerActivity.class.getName());
 
@@ -66,7 +67,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
-	private int currentFragmentId = R.id.nav_btn_contacts;
 
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -74,10 +74,12 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		exitIfStartupFailed(intent);
 		checkAuthorHandle(intent);
 		clearBackStack();
-		if (intent.getBooleanExtra(INTENT_FORUMS, false))
-			startFragment(activityComponent.newForumListFragment());
-		else if (intent.getBooleanExtra(INTENT_CONTACTS, false))
-			startFragment(activityComponent.newContactListFragment());
+		if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
+			startFragment(ForumListFragment.newInstance());
+		}
+		else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
+			startFragment(ContactListFragment.newInstance());
+		}
 	}
 
 	@Override
@@ -109,22 +111,17 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 				R.string.nav_drawer_close_description);
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
-		if (state == null) {
-			navigation.setCheckedItem(R.id.nav_btn_contacts);
-			startFragment(activityComponent.newContactListFragment());
-		}
 		checkAuthorHandle(getIntent());
 
 		initializeTransports(getLayoutInflater());
 		transportsView.setAdapter(transportsAdapter);
 
 		welcomeMessageCheck();
-	}
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_CURRENT_FRAGMENT_ID, currentFragmentId);
+		if (state == null) {
+			navigation.setCheckedItem(R.id.nav_btn_contacts);
+			startFragment(ContactListFragment.newInstance());
+		}
 	}
 
 	private void welcomeMessageCheck() {
@@ -171,16 +168,17 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		});
 	}
 
-	private void loadCurrentFragment() {
-		switch (currentFragmentId) {
+	private void loadFragment(int fragmentId) {
+		// TODO re-use fragments from the manager when possible
+		switch (fragmentId) {
 			case R.id.nav_btn_contacts:
-				startFragment(activityComponent.newContactListFragment());
+				startFragment(ContactListFragment.newInstance());
 				break;
 			case R.id.nav_btn_forums:
-				startFragment(activityComponent.newForumListFragment());
+				startFragment(ForumListFragment.newInstance());
 				break;
 			case R.id.nav_btn_blogs:
-				startFragment(activityComponent.newBlogsFragment());
+				startFragment(BlogsFragment.newInstance());
 				break;
 			case R.id.nav_btn_settings:
 				startActivity(new Intent(this, SettingsActivity.class));
@@ -195,8 +193,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	public boolean onNavigationItemSelected(MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
-		currentFragmentId = item.getItemId();
-		loadCurrentFragment();
+		loadFragment(item.getItemId());
 		return true;
 	}
 

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.contact.ConversationItem;
@@ -66,9 +67,13 @@ public class ContactChooserFragment extends BaseFragment {
 	@Inject
 	protected volatile ConnectionRegistry connectionRegistry;
 
-	@Inject
-	public ContactChooserFragment() {
-
+	public static ContactChooserFragment newInstance() {
+		
+		Bundle args = new Bundle();
+		
+		ContactChooserFragment fragment = new ContactChooserFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
 	@Override
@@ -140,6 +145,11 @@ public class ContactChooserFragment extends BaseFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	private void loadContacts() {

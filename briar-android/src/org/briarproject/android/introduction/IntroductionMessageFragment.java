@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
@@ -51,18 +52,20 @@ public class IntroductionMessageFragment extends BaseFragment {
 	@Inject
 	protected volatile IntroductionManager introductionManager;
 
-	public void initBundle(int contactId1, int contactId2) {
+	public static IntroductionMessageFragment newInstance(int contactId1, int contactId2) {
 		Bundle args = new Bundle();
 		args.putInt(CONTACT_ID_1, contactId1);
 		args.putInt(CONTACT_ID_2, contactId2);
-		setArguments(args);
+		IntroductionMessageFragment fragment =
+				new IntroductionMessageFragment();
+		fragment.setArguments(args);
+		return fragment;
 	}
 
-	@Inject
-	public IntroductionMessageFragment() {
-
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
-
 
 	@Override
 	public void onAttach(Context context) {
@@ -94,6 +97,13 @@ public class IntroductionMessageFragment extends BaseFragment {
 		ui.text.setVisibility(GONE);
 		ui.button.setEnabled(false);
 
+		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+
 		// get contact IDs from fragment arguments
 		int contactId1 = getArguments().getInt(CONTACT_ID_1, -1);
 		int contactId2 = getArguments().getInt(CONTACT_ID_2, -1);
@@ -101,11 +111,8 @@ public class IntroductionMessageFragment extends BaseFragment {
 			throw new java.lang.InstantiationError(
 					"You need to use newInstance() to instantiate");
 		}
-
 		// get contacts and then show view
 		prepareToSetUpViews(contactId1, contactId2);
-
-		return v;
 	}
 
 	@Override

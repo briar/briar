@@ -94,11 +94,11 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 						STEPS));
 		switch (step) {
 			case STEP_QR:
-				startFragment(activityComponent.newShowQrCodeFragment());
+				startFragment(ShowQrCodeFragment.newInstance());
 				break;
 			case STEP_ID:
 			default:
-				startFragment(activityComponent.newChooseIdentityFragment());
+				startFragment(ChooseIdentityFragment.newInstance());
 				break;
 		}
 	}

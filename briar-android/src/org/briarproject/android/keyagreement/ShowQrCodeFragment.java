@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.google.zxing.Result;
 
 import org.briarproject.R;
-import org.briarproject.android.AndroidComponent;
+import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.util.CameraView;
@@ -86,9 +86,18 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private volatile KeyAgreementTask task;
 	private volatile boolean waitingForBluetooth;
 
-	@Inject
-	public ShowQrCodeFragment() {
+	public static ShowQrCodeFragment newInstance() {
+		
+		Bundle args = new Bundle();
+		
+		ShowQrCodeFragment fragment = new ShowQrCodeFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Override
