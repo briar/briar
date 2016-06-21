@@ -5,6 +5,7 @@ import org.briarproject.CoreModule;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.android.contact.ConversationPersistentData;
 import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.android.report.BriarReportSender;
 import org.briarproject.api.contact.ContactExchangeTask;
@@ -112,6 +113,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	IntroductionManager introductionManager();
 
 	AndroidExecutor androidExecutor();
+
+	ConversationPersistentData conversationPersistentData();
 
 	ForumPersistentData forumPersistentData();
 

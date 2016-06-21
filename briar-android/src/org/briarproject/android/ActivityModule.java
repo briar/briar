@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.briarproject.android.contact.ConversationController;
+import org.briarproject.android.contact.ConversationControllerImpl;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
 import org.briarproject.android.controller.ConfigController;
@@ -89,6 +91,14 @@ public class ActivityModule {
 	protected DbController provideDBController(
 			DbControllerImpl dbController) {
 		return dbController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected ConversationController provideConversationController(
+			ConversationControllerImpl conversationController) {
+		activity.addLifecycleController(conversationController);
+		return conversationController;
 	}
 
 	@ActivityScope

@@ -4,6 +4,7 @@ import android.app.Application;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.android.contact.ConversationPersistentData;
 import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PublicKey;
@@ -136,6 +137,12 @@ public class AppModule {
 		lifecycleManager.registerService(notificationManager);
 		eventBus.addListener(notificationManager);
 		return notificationManager;
+	}
+
+	@Provides
+	@Singleton
+	ConversationPersistentData provideConversationPersistence() {
+		return new ConversationPersistentData();
 	}
 
 	@Provides
