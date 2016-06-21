@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -108,7 +107,7 @@ public class ConversationActivity extends BriarActivity
 	private TextView toolbarTitle;
 	private BriarRecyclerView list;
 	private EditText content;
-	private ImageButton sendButton;
+	private View sendButton;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -169,8 +168,8 @@ public class ConversationActivity extends BriarActivity
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
 
-		content = (EditText) findViewById(R.id.contentView);
-		sendButton = (ImageButton) findViewById(R.id.sendButton);
+		content = (EditText) findViewById(R.id.input_text);
+		sendButton = findViewById(R.id.btn_send);
 		if (sendButton != null) {
 			// Enabled after loading the conversation
 			sendButton.setEnabled(false);

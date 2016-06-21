@@ -6,6 +6,7 @@
 	android:layout_height="wrap_content"
 	android:background="@color/button_bar_background"
 	android:elevation="@dimen/margin_tiny"
+	android:gravity="bottom"
 	android:orientation="horizontal"
 	android:paddingLeft="@dimen/margin_large"
 	android:paddingStart="@dimen/margin_large">
@@ -21,8 +22,8 @@
 
 	<ImageView
 		android:id="@+id/btn_send"
-		android:layout_width="38dp"
-		android:layout_height="38dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/margin_medium"
 		android:background="?attr/selectableItemBackground"
 		android:clickable="true"
