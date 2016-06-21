@@ -2,6 +2,7 @@ package org.briarproject.api.blogs;
 
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
@@ -31,8 +32,11 @@ public interface BlogManager {
 	/** Returns the blog with the given ID. */
 	Blog getBlog(Transaction txn, GroupId g) throws DbException;
 
-	/** Returns all blogs to which the localAuthor created. */
+	/** Returns all blogs owned by the given localAuthor. */
 	Collection<Blog> getBlogs(LocalAuthor localAuthor) throws DbException;
+
+	/** Returns only the personal blog of the given author. */
+	Blog getPersonalBlog(Author author) throws DbException;
 
 	/** Returns all blogs to which the user subscribes. */
 	Collection<Blog> getBlogs() throws DbException;

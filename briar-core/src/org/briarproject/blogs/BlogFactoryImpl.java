@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
@@ -12,6 +13,8 @@ import org.briarproject.api.sync.GroupFactory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
+
+import static org.briarproject.api.blogs.BlogConstants.PERSONAL_BLOG_NAME;
 
 class BlogFactoryImpl implements BlogFactory {
 
@@ -31,6 +34,16 @@ class BlogFactoryImpl implements BlogFactory {
 	@Override
 	public Blog createBlog(@NotNull String name, @NotNull String description,
 			@NotNull Author author) {
+		return createBlog(name, description, author, false);
+	}
+
+	@Override
+	public Blog createPersonalBlog(@NotNull Author a) {
+		return createBlog(PERSONAL_BLOG_NAME, "", a, true);
+	}
+
+	private Blog createBlog(@NotNull String name, @NotNull String description,
+			@NotNull Author author, boolean permanent) {
 		try {
 			BdfList blog = BdfList.of(
 					name,
@@ -40,7 +53,7 @@ class BlogFactoryImpl implements BlogFactory {
 			byte[] descriptor = clientHelper.toByteArray(blog);
 			Group g = groupFactory
 					.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
-			return new Blog(g, name, description, author);
+			return new Blog(g, name, description, author, permanent);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -55,7 +68,9 @@ class BlogFactoryImpl implements BlogFactory {
 		BdfList blog = clientHelper.toList(descriptor, 0, descriptor.length);
 		Author a =
 				authorFactory.createAuthor(blog.getString(1), blog.getRaw(2));
-		return new Blog(g, blog.getString(0), description, a);
+		// TODO change permanent depending on how this will be used
+		boolean permanent = false;
+		return new Blog(g, blog.getString(0), description, a, permanent);
 	}
 
 }

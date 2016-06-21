@@ -6,7 +6,10 @@ import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPost;
 import org.briarproject.api.blogs.BlogPostHeader;
+import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -19,6 +22,8 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.IdentityManager.AddIdentityHook;
+import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -51,8 +56,12 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TITLE;
+import static org.briarproject.api.contact.ContactManager.AddContactHook;
+import static org.briarproject.api.contact.ContactManager.RemoveContactHook;
 
-class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager {
+class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
+		AddContactHook, RemoveContactHook, Client,
+		AddIdentityHook, RemoveIdentityHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(BlogManagerImpl.class.getName());
@@ -81,6 +90,68 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager {
 	@Override
 	public ClientId getClientId() {
 		return CLIENT_ID;
+	}
+
+	@Override
+	public void createLocalState(Transaction txn) throws DbException {
+		// Ensure every identity does have its own personal blog
+		// TODO this can probably be removed once #446 is resolved and all users migrated to a new version
+		for (LocalAuthor a : db.getLocalAuthors(txn)) {
+			Blog b = blogFactory.createPersonalBlog(a);
+			Group g = b.getGroup();
+			if (!db.containsGroup(txn, g.getId())) {
+				db.addGroup(txn, g);
+				for (ContactId c : db.getContacts(txn, a.getId())) {
+					db.setVisibleToContact(txn, c, g.getId(), true);
+				}
+			}
+		}
+		// Ensure that we have the personal blogs of all pre-existing contacts
+		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
+	}
+
+	@Override
+	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// get personal blog of the contact
+		Blog b = blogFactory.createPersonalBlog(c.getAuthor());
+		Group g = b.getGroup();
+		if (!db.containsGroup(txn, g.getId())) {
+			// add the personal blog of the contact
+			db.addGroup(txn, g);
+			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
+
+			// share our personal blog with the new contact
+			LocalAuthor a = db.getLocalAuthor(txn, c.getLocalAuthorId());
+			Blog b2 = blogFactory.createPersonalBlog(a);
+			db.setVisibleToContact(txn, c.getId(), b2.getId(), true);
+		}
+	}
+
+	@Override
+	public void removingContact(Transaction txn, Contact c) throws DbException {
+		if (c != null) {
+			Blog b = blogFactory.createPersonalBlog(c.getAuthor());
+			db.removeGroup(txn, b.getGroup());
+		}
+	}
+
+	@Override
+	public void addingIdentity(Transaction txn, LocalAuthor a)
+			throws DbException {
+
+		// add a personal blog for the new identity
+		LOG.info("New Personal Blog Added.");
+		Blog b = blogFactory.createPersonalBlog(a);
+		db.addGroup(txn, b.getGroup());
+	}
+
+	@Override
+	public void removingIdentity(Transaction txn, LocalAuthor a)
+			throws DbException {
+
+		// remove the personal blog of that identity
+		Blog b = blogFactory.createPersonalBlog(a);
+		db.removeGroup(txn, b.getGroup());
 	}
 
 	@Override
@@ -209,6 +280,11 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager {
 	}
 
 	@Override
+	public Blog getPersonalBlog(Author author) throws DbException {
+		return blogFactory.createPersonalBlog(author);
+	}
+
+	@Override
 	public Collection<Blog> getBlogs() throws DbException {
 		try {
 			List<Blog> blogs = new ArrayList<Blog>();
@@ -291,7 +367,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager {
 	private String getBlogDescription(Transaction txn, GroupId g)
 			throws DbException, FormatException {
 		BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
-		return d.getString(KEY_DESCRIPTION);
+		return d.getString(KEY_DESCRIPTION, "");
 	}
 
 	private BlogPostHeader getPostHeaderFromMetadata(@Nullable Transaction txn,
@@ -321,5 +397,4 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager {
 		return new BlogPostHeader(title, id, parentId, timestamp, author,
 				authorStatus, contentType, read);
 	}
-
 }

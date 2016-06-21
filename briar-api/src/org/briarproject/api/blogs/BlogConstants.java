@@ -19,6 +19,9 @@ public interface BlogConstants {
 	/** The maximum length of a blog post's body in bytes. */
 	int MAX_BLOG_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
+	/** The internal name of personal blogs that are created automatically */
+	String PERSONAL_BLOG_NAME = "briar.PERSONAL_BLOG_NAME";
+
 	/* Blog Sharing Constants */
 	String BLOG_TITLE = "blogTitle";
 	String BLOG_DESC = "blogDescription";
