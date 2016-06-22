@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import org.briarproject.R;
 import org.briarproject.api.identity.Author.Status;
 
+import static org.briarproject.api.identity.Author.Status.OURSELVES;
+
 public class TrustIndicatorView extends ImageView {
 
 	public TrustIndicatorView(Context context) {
@@ -24,6 +26,11 @@ public class TrustIndicatorView extends ImageView {
 	}
 
 	public void setTrustLevel(Status status) {
+		if (status == OURSELVES) {
+			setVisibility(GONE);
+			return;
+		}
+
 		int res;
 		switch (status) {
 			case ANONYMOUS:

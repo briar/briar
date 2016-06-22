@@ -36,6 +36,10 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 		return header.getTimestamp();
 	}
 
+	public long getTimeReceived() {
+		return header.getTimeReceived();
+	}
+
 	public Author getAuthor() {
 		return header.getAuthor();
 	}
@@ -56,7 +60,7 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 	public int compareTo(@NonNull BlogPostItem other) {
 		if (this == other) return 0;
 		// The blog with the newest message comes first
-		long aTime = getTimestamp(), bTime = other.getTimestamp();
+		long aTime = getTimeReceived(), bTime = other.getTimeReceived();
 		if (aTime > bTime) return -1;
 		if (aTime < bTime) return 1;
 		// Break ties by post title

@@ -7,15 +7,18 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.TrustIndicatorView;
+import org.briarproject.api.identity.Author;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
+import de.hdodenhof.circleimageview.CircleImageView;
+import im.delight.android.identicons.IdenticonDrawable;
 
 class BlogPostAdapter extends
 		RecyclerView.Adapter<BlogPostAdapter.BlogPostHolder> {
@@ -76,18 +79,20 @@ class BlogPostAdapter extends
 
 	@Override
 	public void onBindViewHolder(final BlogPostHolder ui, int position) {
-		final BlogPostItem item = getItem(position);
+		final BlogPostItem post = getItem(position);
 
-		// title
-		if (item.getTitle() != null) {
-			ui.title.setText(item.getTitle());
-			ui.title.setVisibility(VISIBLE);
-		} else {
-			ui.title.setVisibility(GONE);
-		}
+		Author author = post.getAuthor();
+		IdenticonDrawable d = new IdenticonDrawable(author.getId().getBytes());
+		ui.avatar.setImageDrawable(d);
+		ui.author.setText(author.getName());
+		ui.trust.setTrustLevel(post.getAuthorStatus());
+
+		// date
+		ui.date.setText(
+				DateUtils.getRelativeTimeSpanString(ctx, post.getTimestamp()));
 
 		// post body
-		ui.body.setText(StringUtils.fromUtf8(item.getBody()));
+		ui.body.setText(StringUtils.fromUtf8(post.getBody()));
 
 		ui.layout.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -95,14 +100,6 @@ class BlogPostAdapter extends
 				listener.onBlogPostClick(ui.getAdapterPosition());
 			}
 		});
-
-		// date
-		ui.date.setText(
-				DateUtils.getRelativeTimeSpanString(ctx, item.getTimestamp()));
-
-		// new tag
-		if (item.isRead()) ui.unread.setVisibility(GONE);
-		else ui.unread.setVisibility(VISIBLE);
 	}
 
 	@Override
@@ -136,18 +133,28 @@ class BlogPostAdapter extends
 
 	static class BlogPostHolder extends RecyclerView.ViewHolder {
 		private final ViewGroup layout;
-		private final TextView title;
-		private final TextView unread;
+		private final CircleImageView avatar;
+		private final TextView author;
+		private final TrustIndicatorView trust;
 		private final TextView date;
+		private final TextView unread;
+		private final ImageView chat;
+		private final ImageView comment;
+		private final TextView title;
 		private final TextView body;
 
 		BlogPostHolder(View v) {
 			super(v);
 
 			layout = (ViewGroup) v;
-			title = (TextView) v.findViewById(R.id.titleView);
-			unread = (TextView) v.findViewById(R.id.newView);
+			avatar = (CircleImageView) v.findViewById(R.id.avatar);
+			author = (TextView) v.findViewById(R.id.authorName);
+			trust = (TrustIndicatorView) v.findViewById(R.id.trustIndicator);
 			date = (TextView) v.findViewById(R.id.dateView);
+			unread = (TextView) v.findViewById(R.id.newView);
+			chat = (ImageView) v.findViewById(R.id.chatView);
+			comment = (ImageView) v.findViewById(R.id.commentView);
+			title = (TextView) v.findViewById(R.id.titleView);
 			body = (TextView) v.findViewById(R.id.bodyView);
 		}
 	}

@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
@@ -110,7 +111,7 @@ class IdentityManagerImpl implements IdentityManager {
 			throws DbException {
 		// Compare to the IDs of the user's identities
 		for (LocalAuthor a : db.getLocalAuthors(txn))
-			if (a.getId().equals(authorId)) return VERIFIED;
+			if (a.getId().equals(authorId)) return OURSELVES;
 		// Compare to the IDs of contacts' identities
 		for (Contact c : db.getContacts(txn))
 			if (c.getAuthor().getId().equals(authorId)) return VERIFIED;

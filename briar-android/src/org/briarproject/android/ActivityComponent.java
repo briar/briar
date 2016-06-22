@@ -4,11 +4,14 @@ import android.app.Activity;
 
 import org.briarproject.android.blogs.BlogActivity;
 import org.briarproject.android.blogs.BlogFragment;
+import org.briarproject.android.blogs.BlogListFragment;
 import org.briarproject.android.blogs.BlogPostFragment;
+import org.briarproject.android.blogs.BlogsFragment;
 import org.briarproject.android.blogs.CreateBlogActivity;
+import org.briarproject.android.blogs.FeedFragment;
 import org.briarproject.android.blogs.MyBlogsFragment;
-import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.blogs.WriteBlogPostActivity;
+import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.AvailableForumsActivity;
 import org.briarproject.android.forum.ContactSelectorFragment;
@@ -18,7 +21,6 @@ import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.forum.ForumSharingStatusActivity;
 import org.briarproject.android.forum.ShareForumActivity;
 import org.briarproject.android.forum.ShareForumMessageFragment;
-import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionActivity;
@@ -88,7 +90,9 @@ public interface ActivityComponent {
 	// Fragments
 	void inject(ContactListFragment fragment);
 	void inject(ForumListFragment fragment);
-	void inject(BaseFragment fragment);
+	void inject(BlogsFragment fragment);
+	void inject(BlogListFragment fragment);
+	void inject(FeedFragment fragment);
 	void inject(MyBlogsFragment fragment);
 	void inject(ChooseIdentityFragment fragment);
 	void inject(ShowQrCodeFragment fragment);
