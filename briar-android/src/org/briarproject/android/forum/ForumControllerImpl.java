@@ -203,6 +203,7 @@ public class ForumControllerImpl extends DbControllerImpl
 				try {
 					if (data.getGroupId() == null ||
 							!data.getGroupId().equals(groupId)) {
+						data.clearAll();
 						data.setGroupId(groupId);
 						long now = System.currentTimeMillis();
 						data.setForum(forumManager.getForum(groupId));
@@ -236,6 +237,9 @@ public class ForumControllerImpl extends DbControllerImpl
 
 	@Override
 	public List<ForumEntry> getForumEntries() {
+		if (data.getForumEntries() != null) {
+			return data.getForumEntries();
+		}
 		Collection<ForumPostHeader> headers = data.getHeaders();
 		List<ForumEntry> forumEntries = new ArrayList<>();
 		Stack<MessageId> idStack = new Stack<>();
@@ -255,6 +259,7 @@ public class ForumControllerImpl extends DbControllerImpl
 					StringUtils.fromUtf8(data.getBody(h.getId())),
 					idStack.size()));
 		}
+		data.setForumEntries(forumEntries);
 		return forumEntries;
 	}
 
@@ -312,8 +317,19 @@ public class ForumControllerImpl extends DbControllerImpl
 	public void createPost(final byte[] body, final MessageId parentId) {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
-				// Don't use an earlier timestamp than the newest post
 				long timestamp = System.currentTimeMillis();
+				long newestTimeStamp = 0;
+				Collection<ForumPostHeader> headers = data.getHeaders();
+				if (headers != null) {
+					for (ForumPostHeader h : headers) {
+						if (h.getTimestamp() > newestTimeStamp)
+							newestTimeStamp = h.getTimestamp();
+					}
+				}
+				// Don't use an earlier timestamp than the newest post
+				if (timestamp < newestTimeStamp) {
+					timestamp = newestTimeStamp;
+				}
 				ForumPost p;
 				try {
 					KeyParser keyParser = crypto.getSignatureKeyParser();

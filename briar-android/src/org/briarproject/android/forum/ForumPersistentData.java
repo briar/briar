@@ -10,9 +10,9 @@ import org.briarproject.clients.MessageTreeImpl;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
+import java.util.logging.Logger;
 
 /**
  * This class is a singleton that defines the data that should persist, i.e.
@@ -27,14 +27,14 @@ public class ForumPersistentData {
 	private volatile LocalAuthor localAuthor;
 	private volatile Forum forum;
 	private volatile GroupId groupId;
+	private List<ForumEntry> forumEntries;
 
-	@Inject
-	public ForumPersistentData() {
+	private static final Logger LOG =
+			Logger.getLogger(ForumControllerImpl.class.getName());
 
-	}
 
 	public void clearAll() {
-		tree.clear();
+		clearHeaders();
 		bodyCache.clear();
 		localAuthor = null;
 		forum = null;
@@ -43,6 +43,7 @@ public class ForumPersistentData {
 
 	public void clearHeaders() {
 		tree.clear();
+		forumEntries = null;
 	}
 
 	public void addHeaders(Collection<ForumPostHeader> headers) {
@@ -84,5 +85,13 @@ public class ForumPersistentData {
 
 	public void setGroupId(GroupId groupId) {
 		this.groupId = groupId;
+	}
+
+	public List<ForumEntry> getForumEntries() {
+		return forumEntries;
+	}
+
+	public void setForumEntries(List<ForumEntry> forumEntries) {
+		this.forumEntries = forumEntries;
 	}
 }

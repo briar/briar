@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
+import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
@@ -80,6 +81,11 @@ public abstract class BaseActivity extends AppCompatActivity {
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityDestroy();
 		}
+	}
+
+	public void showSoftKeyboardForced(View view) {
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).showSoftInput(view, SHOW_FORCED);
 	}
 
 	public void showSoftKeyboard(View view) {
