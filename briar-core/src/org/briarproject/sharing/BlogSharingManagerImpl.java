@@ -51,6 +51,7 @@ class BlogSharingManagerImpl extends
 
 	private final SFactory sFactory;
 	private final IFactory iFactory;
+	private final IMFactory imFactory;
 	private final ISFactory isFactory;
 	private final SSFactory ssFactory;
 	private final IRFactory irFactory;
@@ -69,6 +70,7 @@ class BlogSharingManagerImpl extends
 
 		sFactory = new SFactory(authorFactory, blogFactory, blogManager);
 		iFactory = new IFactory();
+		imFactory = new IMFactory();
 		isFactory = new ISFactory();
 		ssFactory = new SSFactory();
 		irFactory = new IRFactory(sFactory);
@@ -81,16 +83,6 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	protected BlogInvitationMessage createInvitationMessage(MessageId id,
-			BlogInvitation msg, ContactId contactId, boolean available,
-			long time, boolean local, boolean sent, boolean seen,
-			boolean read) {
-		return new BlogInvitationMessage(id, msg.getSessionId(), contactId,
-				msg.getBlogTitle(), msg.getMessage(), available, time, local,
-				sent, seen, read);
-	}
-
-	@Override
 	protected ShareableFactory<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState> getSFactory() {
 		return sFactory;
 	}
@@ -98,6 +90,11 @@ class BlogSharingManagerImpl extends
 	@Override
 	protected InvitationFactory<BlogInvitation, BlogSharerSessionState> getIFactory() {
 		return iFactory;
+	}
+
+	@Override
+	protected InvitationMessageFactory<BlogInvitation, BlogInvitationMessage> getIMFactory() {
+		return imFactory;
 	}
 
 	@Override
@@ -207,6 +204,20 @@ class BlogSharingManagerImpl extends
 		}
 	}
 
+	static class IMFactory implements
+			InvitationMessageFactory<BlogInvitation, BlogInvitationMessage> {
+		@Override
+		public BlogInvitationMessage build(MessageId id,
+				BlogInvitation msg, ContactId contactId,
+				boolean available, long time, boolean local, boolean sent,
+				boolean seen, boolean read) {
+			return new BlogInvitationMessage(id, msg.getSessionId(), contactId,
+					msg.getBlogTitle(), msg.getMessage(), available, time,
+					local,
+					sent, seen, read);
+		}
+	}
+
 	static class ISFactory implements
 			InviteeSessionStateFactory<Blog, BlogInviteeSessionState> {
 		@Override
@@ -275,9 +286,8 @@ class BlogSharingManagerImpl extends
 		@Override
 		public BlogInvitationReceivedEvent build(
 				BlogInviteeSessionState localState) {
-			Blog blog = sFactory.parse(localState);
-			ContactId contactId = localState.getContactId();
-			return new BlogInvitationReceivedEvent(blog, contactId);
+			return new BlogInvitationReceivedEvent(localState.getContactId(),
+					localState.getStorageId(), sFactory.parse(localState));
 		}
 	}
 

@@ -29,9 +29,11 @@ public class InviteeEngine<IS extends InviteeSessionState, IR extends Invitation
 	private static final Logger LOG =
 			Logger.getLogger(InviteeEngine.class.getName());
 
-	private final InvitationReceivedEventFactory<IS, IR> invitationReceivedEventFactory;
+	private final InvitationReceivedEventFactory<IS, IR>
+			invitationReceivedEventFactory;
 
-	InviteeEngine(InvitationReceivedEventFactory<IS, IR> invitationReceivedEventFactory) {
+	InviteeEngine(
+			InvitationReceivedEventFactory<IS, IR> invitationReceivedEventFactory) {
 		this.invitationReceivedEventFactory = invitationReceivedEventFactory;
 	}
 
@@ -44,7 +46,8 @@ public class InviteeEngine<IS extends InviteeSessionState, IR extends Invitation
 			InviteeSessionState.State nextState = currentState.next(action);
 			localState.setState(nextState);
 
-			if (action == InviteeSessionState.Action.LOCAL_ABORT && currentState != InviteeSessionState.State.ERROR) {
+			if (action == InviteeSessionState.Action.LOCAL_ABORT &&
+					currentState != InviteeSessionState.State.ERROR) {
 				return abortSession(currentState, localState);
 			}
 
@@ -58,7 +61,8 @@ public class InviteeEngine<IS extends InviteeSessionState, IR extends Invitation
 			List<BaseMessage> messages;
 			List<Event> events = Collections.emptyList();
 
-			if (action == InviteeSessionState.Action.LOCAL_ACCEPT || action == InviteeSessionState.Action.LOCAL_DECLINE) {
+			if (action == InviteeSessionState.Action.LOCAL_ACCEPT ||
+					action == InviteeSessionState.Action.LOCAL_DECLINE) {
 				BaseMessage msg;
 				if (action == InviteeSessionState.Action.LOCAL_ACCEPT) {
 					localState.setTask(TASK_ADD_SHARED_SHAREABLE);
@@ -72,14 +76,12 @@ public class InviteeEngine<IS extends InviteeSessionState, IR extends Invitation
 				}
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, localState, msg);
-			}
-			else if (action == InviteeSessionState.Action.LOCAL_LEAVE) {
+			} else if (action == InviteeSessionState.Action.LOCAL_LEAVE) {
 				BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_LEAVE,
 						localState.getGroupId(), localState.getSessionId());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, localState, msg);
-			}
-			else {
+			} else {
 				throw new IllegalArgumentException("Unknown Local Action");
 			}
 			return new StateUpdate<IS, BaseMessage>(false,
@@ -95,7 +97,8 @@ public class InviteeEngine<IS extends InviteeSessionState, IR extends Invitation
 
 		try {
 			InviteeSessionState.State currentState = localState.getState();
-			InviteeSessionState.Action action = InviteeSessionState.Action.getRemote(msg.getType());
+			InviteeSessionState.Action action =
+					InviteeSessionState.Action.getRemote(msg.getType());
 			InviteeSessionState.State nextState = currentState.next(action);
 			localState.setState(nextState);
 
@@ -118,25 +121,25 @@ public class InviteeEngine<IS extends InviteeSessionState, IR extends Invitation
 				deleteMsg = true;
 			}
 			// the sharer left the forum she had shared with us
-			else if (action == InviteeSessionState.Action.REMOTE_LEAVE && currentState == InviteeSessionState.State.FINISHED) {
+			else if (action == InviteeSessionState.Action.REMOTE_LEAVE &&
+					currentState == InviteeSessionState.State.FINISHED) {
 				localState.setTask(TASK_UNSHARE_SHAREABLE_SHARED_WITH_US);
-			}
-			else if (currentState == InviteeSessionState.State.FINISHED) {
+			} else if (currentState == InviteeSessionState.State.FINISHED) {
 				// ignore and delete messages coming in while in that state
 				// note that LEAVE is possible, but was handled above
 				deleteMsg = true;
 			}
 			// the sharer left the forum before we couldn't even respond
 			else if (action == InviteeSessionState.Action.REMOTE_LEAVE) {
-				localState.setTask(TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US);
+				localState.setTask(
+						TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US);
 			}
 			// we have just received our invitation
 			else if (action == InviteeSessionState.Action.REMOTE_INVITATION) {
 				localState.setTask(TASK_ADD_SHAREABLE_TO_LIST_SHARED_WITH_US);
 				Event event = invitationReceivedEventFactory.build(localState);
 				events = Collections.singletonList(event);
-			}
-			else {
+			} else {
 				throw new IllegalArgumentException("Bad state");
 			}
 			return new StateUpdate<IS, BaseMessage>(deleteMsg,
@@ -162,7 +165,8 @@ public class InviteeEngine<IS extends InviteeSessionState, IR extends Invitation
 		);
 	}
 
-	private void logMessageReceived(InviteeSessionState.State currentState, InviteeSessionState.State nextState,
+	private void logMessageReceived(InviteeSessionState.State currentState,
+			InviteeSessionState.State nextState,
 			long type, BaseMessage msg) {
 
 		if (!LOG.isLoggable(INFO)) return;

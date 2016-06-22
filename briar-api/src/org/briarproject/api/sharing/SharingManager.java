@@ -1,5 +1,6 @@
 package org.briarproject.api.sharing;
 
+import org.briarproject.api.clients.ReadableMessageManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -9,7 +10,8 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface SharingManager<S extends Shareable, IM extends InvitationMessage> {
+public interface SharingManager<S extends Shareable, IM extends InvitationMessage>
+		extends ReadableMessageManager {
 
 	/** Returns the unique ID of the group sharing client. */
 	ClientId getClientId();
@@ -34,6 +36,13 @@ public interface SharingManager<S extends Shareable, IM extends InvitationMessag
 	Collection<IM> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
+	/**
+	 * Returns a specific group sharing message sent by the Contact
+	 * identified by contactId.
+	 */
+	IM getInvitationMessage(ContactId contactId, MessageId messageId)
+			throws DbException;
+
 	/** Returns all shareables to which the user has been invited. */
 	Collection<S> getInvited() throws DbException;
 
@@ -45,20 +54,5 @@ public interface SharingManager<S extends Shareable, IM extends InvitationMessag
 
 	/** Returns true if the group not already shared and no invitation is open */
 	boolean canBeShared(GroupId g, Contact c) throws DbException;
-
-	/**
-	 * Returns the timestamp of the latest sharing message sent by the given
-	 * contact, or -1 if there are none.
-	 */
-	long getTimestamp(ContactId c) throws DbException;
-
-	/**
-	 * Returns the number of unread sharing messages sent by the given contact.
-	 */
-	int getUnreadCount(ContactId c) throws DbException;
-
-	/** Marks a sharing message as read or unread. */
-	void setReadFlag(ContactId c, MessageId m, boolean local, boolean read)
-			throws DbException;
 
 }

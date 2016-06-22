@@ -6,6 +6,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.sharing.SharingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
@@ -36,6 +37,13 @@ public interface BlogSharingManager
 	 */
 	Collection<BlogInvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
+
+	/**
+	 * Returns a specific blog sharing message sent by the Contact
+	 * identified by contactId.
+	 */
+	BlogInvitationMessage getInvitationMessage(ContactId contactId,
+			MessageId messageId) throws DbException;
 
 	/**
 	 * Returns all blogs to which the user has been invited.

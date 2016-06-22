@@ -46,6 +46,7 @@ class ForumSharingManagerImpl extends
 
 	private final SFactory sFactory;
 	private final IFactory iFactory;
+	private final IMFactory imFactory;
 	private final ISFactory isFactory;
 	private final SSFactory ssFactory;
 	private final IRFactory irFactory;
@@ -67,6 +68,7 @@ class ForumSharingManagerImpl extends
 
 		sFactory = new SFactory(forumFactory, forumManager);
 		iFactory = new IFactory();
+		imFactory = new IMFactory();
 		isFactory = new ISFactory();
 		ssFactory = new SSFactory();
 		irFactory = new IRFactory(sFactory);
@@ -79,16 +81,6 @@ class ForumSharingManagerImpl extends
 	}
 
 	@Override
-	protected ForumInvitationMessage createInvitationMessage(MessageId id,
-			ForumInvitation msg, ContactId contactId, boolean available,
-			long time, boolean local, boolean sent, boolean seen,
-			boolean read) {
-		return new ForumInvitationMessage(id, msg.getSessionId(), contactId,
-				msg.getForumName(), msg.getMessage(), available, time, local,
-				sent, seen, read);
-	}
-
-	@Override
 	protected ShareableFactory<Forum, ForumInvitation, ForumInviteeSessionState, ForumSharerSessionState> getSFactory() {
 		return sFactory;
 	}
@@ -96,6 +88,11 @@ class ForumSharingManagerImpl extends
 	@Override
 	protected InvitationFactory<ForumInvitation, ForumSharerSessionState> getIFactory() {
 		return iFactory;
+	}
+
+	@Override
+	protected InvitationMessageFactory<ForumInvitation, ForumInvitationMessage> getIMFactory() {
+		return imFactory;
 	}
 
 	@Override
@@ -185,6 +182,20 @@ class ForumSharingManagerImpl extends
 		}
 	}
 
+	static class IMFactory implements
+			InvitationMessageFactory<ForumInvitation, ForumInvitationMessage> {
+		@Override
+		public ForumInvitationMessage build(MessageId id,
+				ForumInvitation msg, ContactId contactId,
+				boolean available, long time, boolean local, boolean sent,
+				boolean seen, boolean read) {
+			return new ForumInvitationMessage(id, msg.getSessionId(), contactId,
+					msg.getForumName(), msg.getMessage(), available, time,
+					local,
+					sent, seen, read);
+		}
+	}
+
 	static class ISFactory implements
 			InviteeSessionStateFactory<Forum, ForumInviteeSessionState> {
 		@Override
@@ -245,9 +256,8 @@ class ForumSharingManagerImpl extends
 		@Override
 		public ForumInvitationReceivedEvent build(
 				ForumInviteeSessionState localState) {
-			Forum forum = sFactory.parse(localState);
-			ContactId contactId = localState.getContactId();
-			return new ForumInvitationReceivedEvent(forum, contactId);
+			return new ForumInvitationReceivedEvent(localState.getContactId(),
+					localState.getStorageId(), sFactory.parse(localState));
 		}
 	}
 

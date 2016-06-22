@@ -115,13 +115,11 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 
 	public abstract ClientId getClientId();
 
-	protected abstract IM createInvitationMessage(MessageId id, I msg,
-			ContactId contactId, boolean available, long time, boolean local,
-			boolean sent, boolean seen, boolean read);
-
 	protected abstract ShareableFactory<S, I, IS, SS> getSFactory();
 
 	protected abstract InvitationFactory<I, SS> getIFactory();
+
+	protected abstract InvitationMessageFactory<I, IM> getIMFactory();
 
 	protected abstract InviteeSessionStateFactory<S, IS> getISFactory();
 
@@ -343,26 +341,10 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
 				BdfDictionary d = m.getValue();
 				try {
-					I msg = getIFactory().build(group.getId(), d);
-					MessageStatus status =
-							db.getMessageStatus(txn, contactId, m.getKey());
-					long time = d.getLong(TIMESTAMP);
-					boolean local = d.getBoolean(LOCAL);
-					boolean read = d.getBoolean(READ, false);
-					boolean available = false;
-					if (!local) {
-						// figure out whether the shareable is still available
-						SharingSessionState s =
-								getSessionState(txn, msg.getSessionId(), true);
-						if (!(s instanceof InviteeSessionState))
-							continue;
-						available = ((InviteeSessionState) s).getState() ==
-								AWAIT_LOCAL_RESPONSE;
-					}
-					IM im = createInvitationMessage(m.getKey(), msg, contactId,
-							available, time, local, status.isSent(),
-							status.isSeen(), read);
-					list.add(im);
+					IM im = getInvitationMessage(txn, group.getId(), contactId,
+							m.getKey(), d);
+					if (im != null)
+						list.add(im);
 				} catch (FormatException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -375,6 +357,50 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 		} finally {
 			db.endTransaction(txn);
 		}
+	}
+
+	@Override
+	public IM getInvitationMessage(ContactId contactId, MessageId messageId)
+			throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			Contact contact = db.getContact(txn, contactId);
+			Group group = getContactGroup(contact);
+
+			BdfDictionary d =
+					clientHelper.getMessageMetadataAsDictionary(txn, messageId);
+			IM im = getInvitationMessage(txn, group.getId(), contactId,
+					messageId, d);
+			txn.setComplete();
+			return im;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	private IM getInvitationMessage(Transaction txn, GroupId groupId,
+			ContactId contactId, MessageId id, BdfDictionary d)
+			throws DbException, FormatException {
+		I msg = getIFactory().build(groupId, d);
+		MessageStatus status =
+				db.getMessageStatus(txn, contactId, id);
+		long time = d.getLong(TIMESTAMP);
+		boolean local = d.getBoolean(LOCAL);
+		boolean read = d.getBoolean(READ, false);
+		boolean available = false;
+		if (!local) {
+			// figure out whether the shareable is still available
+			SharingSessionState s =
+					getSessionState(txn, msg.getSessionId(), true);
+			if (!(s instanceof InviteeSessionState))
+				return null;
+			available = ((InviteeSessionState) s).getState() ==
+					AWAIT_LOCAL_RESPONSE;
+		}
+		return getIMFactory().build(id, msg, contactId, available, time, local,
+				status.isSent(), status.isSeen(), read);
 	}
 
 	@Override
@@ -849,6 +875,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 				.sendMessage(txn, group, timestamp, body, meta);
 	}
 
+	@Override
 	protected Group getContactGroup(Contact c) {
 		return privateGroupFactory.createPrivateGroup(getClientId(), c);
 	}

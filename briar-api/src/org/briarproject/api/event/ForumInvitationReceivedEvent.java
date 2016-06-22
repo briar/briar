@@ -2,14 +2,15 @@ package org.briarproject.api.event;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.introduction.IntroductionRequest;
+import org.briarproject.api.sync.MessageId;
 
 public class ForumInvitationReceivedEvent extends InvitationReceivedEvent {
 
 	private final Forum forum;
 
-	public ForumInvitationReceivedEvent(Forum forum, ContactId contactId) {
-		super(contactId);
+	public ForumInvitationReceivedEvent(ContactId contactId,
+			MessageId messageId, Forum forum) {
+		super(contactId, messageId);
 		this.forum = forum;
 	}
 

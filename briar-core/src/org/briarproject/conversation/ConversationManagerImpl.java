@@ -261,17 +261,13 @@ public class ConversationManagerImpl implements ConversationManager,
 			ForumInvitationReceivedEvent event =
 					(ForumInvitationReceivedEvent) e;
 			try {
-				Collection<ForumInvitationMessage> msgs = forumSharingManager
-						.getInvitationMessages(event.getContactId());
-				for (ForumInvitationMessage i : msgs) {
-					if (i.getForumName().equals(event.getForum().getName())) {
-						ConversationItem item =
-								ConversationForumInvitationItemImpl.from(i);
-						eventBus.broadcast(
-								new ConversationItemReceivedEvent(item,
-										event.getContactId()));
-					}
-				}
+				ForumInvitationMessage fim = forumSharingManager
+						.getInvitationMessage(event.getContactId(),
+								event.getMessageId());
+				ConversationItem item =
+						ConversationForumInvitationItemImpl.from(fim);
+				eventBus.broadcast(new ConversationItemReceivedEvent(item,
+						event.getContactId()));
 			} catch (DbException dbe) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, dbe.toString(), dbe);
