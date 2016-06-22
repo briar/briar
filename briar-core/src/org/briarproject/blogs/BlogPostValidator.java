@@ -34,6 +34,7 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
+import static org.briarproject.api.blogs.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TITLE;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_TITLE_LENGTH;
@@ -119,6 +120,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		);
 		meta.put(KEY_AUTHOR, author);
 		meta.put(KEY_TIMESTAMP, m.getTimestamp());
+		meta.put(KEY_TIME_RECEIVED, clock.currentTimeMillis());
 		if (parent != null) {
 			meta.put(KEY_PARENT, parent);
 			dependencies = Collections.singletonList(new MessageId(parent));

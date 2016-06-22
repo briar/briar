@@ -32,6 +32,7 @@ public interface BlogConstants {
 	String KEY_DESCRIPTION = "description";
 	String KEY_TITLE = "title";
 	String KEY_TIMESTAMP = "timestamp";
+	String KEY_TIME_RECEIVED = "timeReceived";
 	String KEY_PARENT = "parent";
 	String KEY_AUTHOR_ID = "id";
 	String KEY_AUTHOR_NAME = "name";

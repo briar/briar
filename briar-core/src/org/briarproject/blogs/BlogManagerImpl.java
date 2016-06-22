@@ -55,6 +55,7 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
+import static org.briarproject.api.blogs.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TITLE;
 import static org.briarproject.api.contact.ContactManager.AddContactHook;
 import static org.briarproject.api.contact.ContactManager.RemoveContactHook;
@@ -376,6 +377,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 		String title = meta.getOptionalString(KEY_TITLE);
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
+		long timeReceived = meta.getLong(KEY_TIME_RECEIVED, timestamp);
 		MessageId parentId = null;
 		if (meta.containsKey(KEY_PARENT))
 			parentId = new MessageId(meta.getRaw(KEY_PARENT));
@@ -394,7 +396,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 		String contentType = meta.getString(KEY_CONTENT_TYPE);
 		boolean read = meta.getBoolean(KEY_READ);
-		return new BlogPostHeader(title, id, parentId, timestamp, author,
-				authorStatus, contentType, read);
+		return new BlogPostHeader(title, id, parentId, timestamp, timeReceived,
+				author, authorStatus, contentType, read);
 	}
 }

@@ -11,18 +11,25 @@ public class BlogPostHeader extends PostHeader {
 
 	@Nullable
 	private final String title;
+	private final long timeReceived;
 
 	public BlogPostHeader(@Nullable String title, @NotNull MessageId id,
-			@Nullable MessageId parentId, long timestamp,
+			@Nullable MessageId parentId, long timestamp, long timeReceived,
 			@NotNull Author author,	@NotNull Status authorStatus,
 			@NotNull String contentType, boolean read) {
 		super(id, parentId, timestamp, author, authorStatus, contentType, read);
 
 		this.title = title;
+		this.timeReceived = timeReceived;
 	}
 
 	@Nullable
 	public String getTitle() {
 		return title;
 	}
+
+	public long getTimeReceived() {
+		return timeReceived;
+	}
+
 }
