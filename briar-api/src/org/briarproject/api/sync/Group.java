@@ -1,7 +1,5 @@
 package org.briarproject.api.sync;
 
-import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
-
 public class Group {
 
 	private final GroupId id;
@@ -9,8 +7,6 @@ public class Group {
 	private final byte[] descriptor;
 
 	public Group(GroupId id, ClientId clientId, byte[] descriptor) {
-		if (descriptor.length > MAX_GROUP_DESCRIPTOR_LENGTH)
-			throw new IllegalArgumentException();
 		this.id = id;
 		this.clientId = clientId;
 		this.descriptor = descriptor;

@@ -60,7 +60,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.api.sync.ValidationManager.State.VALID;
@@ -94,7 +93,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	public DatabaseComponentImplTest() {
 		clientId = new ClientId(TestUtils.getRandomId());
 		groupId = new GroupId(TestUtils.getRandomId());
-		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
+		byte[] descriptor = new byte[0];
 		group = new Group(groupId, clientId, descriptor);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
