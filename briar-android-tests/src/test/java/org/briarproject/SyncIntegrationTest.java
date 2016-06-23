@@ -31,7 +31,6 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -76,7 +75,7 @@ public class SyncIntegrationTest extends BriarTestCase {
 		streamNumber = 123;
 		// Create a group
 		ClientId clientId = new ClientId(TestUtils.getRandomId());
-		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
+		byte[] descriptor = new byte[0];
 		Group group = groupFactory.createGroup(clientId, descriptor);
 		// Add two messages to the group
 		long timestamp = System.currentTimeMillis();

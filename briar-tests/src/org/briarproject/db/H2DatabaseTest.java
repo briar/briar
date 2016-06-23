@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
@@ -83,7 +82,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	public H2DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
 		ClientId clientId = new ClientId(TestUtils.getRandomId());
-		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
+		byte[] descriptor = new byte[0];
 		group = new Group(groupId, clientId, descriptor);
 		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
@@ -619,7 +618,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		for (int i = 0; i < 100; i++) {
 			GroupId id = new GroupId(TestUtils.getRandomId());
 			ClientId clientId = new ClientId(TestUtils.getRandomId());
-			byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
+			byte[] descriptor = new byte[0];
 			groups.add(new Group(id, clientId, descriptor));
 		}
 
@@ -1274,7 +1273,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a second group
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = new Group(groupId1, group.getClientId(),
-				TestUtils.getRandomBytes(MAX_GROUP_DESCRIPTOR_LENGTH));
+				TestUtils.getRandomBytes(42));
 		db.addGroup(txn, group1);
 
 		// Add a message to the second group

@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.briarproject.api.clients.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.api.clients.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -44,7 +43,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 
 	private final GroupId groupId = new GroupId(TestUtils.getRandomId());
 	private final ClientId clientId = new ClientId(TestUtils.getRandomId());
-	private final byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
+	private final byte[] descriptor = new byte[0];
 	private final Group group = new Group(groupId, clientId, descriptor);
 	private final long timestamp = System.currentTimeMillis();
 
