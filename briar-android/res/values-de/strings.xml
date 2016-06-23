@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">Briar</string>
+  <string name="crash_report_title">Briar-Absturzberichte</string>
+  <string name="feedback_title">Feedback</string>
+  <string name="optional_contact_email">Optionale Kontaktemail</string>
+  <string name="include_debug_report">Absturzbericht anhängen?</string>
+  <string name="could_not_load_report_data">Konnte Daten des Berichts nicht laden</string>
+  <string name="ongoing_notification_title">In Briar angemeldet</string>
+  <string name="setup_title">Briar einrichten</string>
+  <string name="name_too_long">Name ist zu lang</string>
+  <string name="password_too_weak">Passwort ist zu schwach</string>
+  <string name="create_account_button">Konto anlegen</string>
+  <string name="password_hint">Passwort</string>
+  <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
+  <string name="sign_in_button">Anmelden</string>
+  <string name="startup_failed_notification_title">Briar konnte nicht gestartet werden</string>
+  <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
+  <string name="contact_list_button">Kontakte</string>
+  <string name="delete_contact">Kontakt löschen</string>
+  <string name="contact_deleted_toast">Kontakt gelöscht</string>
+  <string name="forums_button">Foren</string>
+  <string name="settings_button">Einstellungen</string>
+  <string name="sign_out_button">Abmelden</string>
+  <string name="contact_list_title">Kontakte</string>
+  <string name="no_contacts">Keine Kontakte</string>
+  <string name="add_contact_title">Kontakt hinzufügen</string>
+  <string name="add_contact_title_step">Kontakt hinzufügen - Schritt %1$d/%2$d</string>
+  <string name="continue_button">Weiter</string>
+  <string name="connection_failed">Verbindung fehlgeschlagen</string>
+  <string name="try_again_button">Noch einmal versuchen</string>
+  <string name="connected_to_contact">Mit Kontakt verbunden</string>
+  <string name="codes_do_not_match">Codes stimmen nicht überein</string>
+  <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
+  <string name="contact_already_exists">Kontakt %s existiert bereits</string>
+  <string name="scan_qr_code">QR-Code scannen</string>
+  <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
+  <string name="no_private_messages">Keine Nachrichten</string>
+  <string name="message_sent_toast">Nachricht wurde versendet</string>
+  <string name="show_forums">Anzeigen</string>
+  <string name="forum_leave">Forum verlassen</string>
+  <string name="forum_left_toast">Forum wurde verlassen</string>
+  <string name="create_forum_title">Neues Forum</string>
+  <string name="forum_created_toast">Forum wurde erstellt</string>
+  <string name="forum_share_button">Forum teilen</string>
+  <string name="forum_compose_post">Neuer Forenbeitrag</string>
+  <string name="from">Von:</string>
+  <string name="anonymous">Anonym</string>
+  <string name="new_identity_item">Neue Identität\u2026</string>
+  <string name="new_identity_title">Neue Identität</string>
+  <string name="create_identity_button">Identität erstellen</string>
+  <string name="identity_created_toast">Identität wurde erstellt</string>
+  <string name="forum_post_hint">Forenbeitrag eingeben</string>
+  <string name="available_forums_title">Verfügbare Foren</string>
+  <string name="forum_declined_toast">Foreneinladung abgelehnt</string>
+  <string name="shared_by_format">Geteilt durch %s</string>
+  <string name="forum_shared_by">Geteilt durch</string>
+  <string name="forum_shared_with">Geteilt mit</string>
+  <string name="nobody">Niemand</string>
+  <string name="add_button">Hinzufügen</string>
+  <string name="cancel_button">Abbrechen</string>
+  <string name="done_button">Fertig</string>
+  <string name="delete_button">Löschen</string>
+  <string name="post_sent_toast">Forenbeitrag wurde versendet</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Neue private Nachricht.</item>
+    <item quantity="other">%d neue private Nachrichten</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Neuer Forenbeitrag</item>
+    <item quantity="other">%d neue Forenbeiträge</item>
+  </plurals>
+  <!--Settings-->
+  <string name="settings_title">Einstellungen</string>
+  <string name="network_settings_title">Netzwerke</string>
+  <string name="bluetooth_setting">Mit Bluetooth verbinden</string>
+  <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
+  <string name="bluetooth_setting_disabled">Nur beim Hinzufügen von Kontakten</string>
+  <string name="tor_mobile_setting">Mit Tor verbinden</string>
+  <string name="tor_mobile_setting_enabled">Wenn Wi-Fi oder Mobildaten verwendet werden</string>
+  <string name="tor_mobile_setting_disabled">Nur wenn Wi-Fi verwendet wird</string>
+  <string name="panic_setting">Panik-Button einrichten</string>
+  <string name="panic_setting_title">Panik-Button</string>
+  <string name="notification_settings_title">Benachrichtigungen</string>
+  <string name="notify_private_messages_setting">Benachrichtigungen für private Nachrichten anzeigen</string>
+  <string name="notify_forum_posts_setting">Benachrichtigungen für Forenbeiträge anzeigen</string>
+  <string name="notify_vibration_setting">Vibrieren</string>
+  <string name="notify_sound_setting">Tonsignal</string>
+  <string name="notify_sound_setting_default">Standardklingelton</string>
+  <string name="notify_sound_setting_disabled">Kein</string>
+  <string name="choose_ringtone_title">Klingelton auswählen</string>
+  <string name="crash_report_settings_title">Absturzberichte</string>
+  <string name="enable_acra_setting">Absturzberichte aktivieren</string>
+  <string name="acra_syslog_setting">Systemlogdateien senden</string>
+  <string name="acra_user_email_setting">Optionale Kontaktemail</string>
+  <string name="acra_alwaysaccept_setting">Berichte immer versenden</string>
+  <string name="panic_app_setting_title">Panik-Button-App</string>
+  <string name="unknown_app">eine unbekannte App</string>
+  <string name="panic_app_setting_summary">Keine App wurde eingerichtet</string>
+  <string name="panic_app_setting_none">Keine</string>
+  <string name="lock_setting_title">Abmelden</string>
+  <string name="lock_setting_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
+  <string name="purge_setting_title">Konto löschen</string>
+  <string name="uninstall_setting_title">Briar deinstallieren</string>
+  <string name="feedback_settings_title">Feedback</string>
+  <string name="online">Online</string>
+  <string name="offline">Offline</string>
+  <string name="send">Senden</string>
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <string name="no_data">Keine Daten</string>
+  <!--Introduction Client-->
+  <string name="introduction_activity_title">Kontakt auswählen</string>
+  <!--Forum-->
+  <!--Dialogs-->
+  <string name="dialog_title_lost_password">Passwort vergessen</string>
+  <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
+  <string name="dialog_title_welcome">Willkommen bei Briar</string>
+  <string name="dialog_title_share_crash_report">Briar ist abgestürzt</string>
+  <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
+  <string name="dialog_button_ok">OK</string>
+  <string name="dialog_button_leave">Verlassen</string>
+  <string name="dialog_button_accept">Annehmen</string>
+  <string name="dialog_button_decline">Ablehnen</string>
+  <!--Toolbar headers-->
+  <string name="dashboard_toolbar_header">Briar</string>
+  <string name="settings_toolbar_header">Einstellungen</string>
+  <string name="contacts_toolbar_header">Kontakte</string>
+  <string name="forums_toolbar_header">Foren</string>
+  <string name="forums_share_toolbar_header">Kontakte auswählen</string>
+  <!--Progress titles-->
+  <string name="progress_title_please_wait">Bitte warten...</string>
+  <!--Blogs-->
+</resources>
