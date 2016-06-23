@@ -4,15 +4,12 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.data.ObjectReader;
 import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.system.Clock;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -21,6 +18,11 @@ import dagger.Provides;
 @Module
 public class IdentityModule {
 
+	public static class EagerSingletons {
+		@Inject
+		IdentityManager identityManager;
+	}
+
 	@Provides
 	AuthorFactory provideAuthorFactory(CryptoComponent crypto,
 			BdfWriterFactory bdfWriterFactory, Clock clock) {
@@ -28,6 +30,7 @@ public class IdentityModule {
 	}
 
 	@Provides
+	@Singleton
 	IdentityManager provideIdendityModule(DatabaseComponent db) {
 		return new IdentityManagerImpl(db);
 	}

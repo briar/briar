@@ -61,6 +61,7 @@ public class CoreModule {
 		c.inject(new CryptoModule.EagerSingletons());
 		c.inject(new DatabaseExecutorModule.EagerSingletons());
 		c.inject(new ForumModule.EagerSingletons());
+		c.inject(new IdentityModule.EagerSingletons());
 		c.inject(new LifecycleModule.EagerSingletons());
 		c.inject(new MessagingModule.EagerSingletons());
 		c.inject(new PluginsModule.EagerSingletons());
