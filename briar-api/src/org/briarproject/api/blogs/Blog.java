@@ -11,13 +11,16 @@ public class Blog extends Forum {
 	private final String description;
 	@NotNull
 	private final Author author;
+	private final boolean permanent;
 
 	public Blog(@NotNull Group group, @NotNull String name,
-			@NotNull String description, @NotNull Author author) {
+			@NotNull String description, @NotNull Author author,
+			boolean permanent) {
 		super(group, name, null);
 
 		this.description = description;
 		this.author = author;
+		this.permanent = permanent;
 	}
 
 	@NotNull
@@ -28,5 +31,9 @@ public class Blog extends Forum {
 	@NotNull
 	public Author getAuthor() {
 		return author;
+	}
+
+	public boolean isPermanent() {
+		return permanent;
 	}
 }

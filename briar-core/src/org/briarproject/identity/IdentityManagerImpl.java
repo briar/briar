@@ -99,17 +99,24 @@ class IdentityManagerImpl implements IdentityManager {
 	public Status getAuthorStatus(AuthorId authorId) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			// Compare to the IDs of the user's identities
-			for (LocalAuthor a : db.getLocalAuthors(txn))
-				if (a.getId().equals(authorId)) return VERIFIED;
-			// Compare to the IDs of contacts' identities
-			for (Contact c : db.getContacts(txn))
-				if (c.getAuthor().getId().equals(authorId)) return VERIFIED;
-
-			// TODO also handle UNVERIFIED when #261 is implemented
-			return UNKNOWN;
+			return getAuthorStatus(txn, authorId);
 		} finally {
 			db.endTransaction(txn);
 		}
 	}
+
+	@Override
+	public Status getAuthorStatus(Transaction txn, AuthorId authorId)
+			throws DbException {
+		// Compare to the IDs of the user's identities
+		for (LocalAuthor a : db.getLocalAuthors(txn))
+			if (a.getId().equals(authorId)) return VERIFIED;
+		// Compare to the IDs of contacts' identities
+		for (Contact c : db.getContacts(txn))
+			if (c.getAuthor().getId().equals(authorId)) return VERIFIED;
+
+		// TODO also handle UNVERIFIED when #261 is implemented
+		return UNKNOWN;
+	}
+
 }

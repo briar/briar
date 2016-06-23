@@ -11,20 +11,16 @@ public class BlogPostHeader extends PostHeader {
 
 	@Nullable
 	private final String title;
-	@NotNull
-	private final String teaser;
-	private final boolean hasBody;
+	private final long timeReceived;
 
-	public BlogPostHeader(@Nullable String title, @NotNull String teaser,
-			boolean hasBody, @NotNull MessageId id,
-			@Nullable MessageId parentId, long timestamp,
+	public BlogPostHeader(@Nullable String title, @NotNull MessageId id,
+			@Nullable MessageId parentId, long timestamp, long timeReceived,
 			@NotNull Author author,	@NotNull Status authorStatus,
 			@NotNull String contentType, boolean read) {
 		super(id, parentId, timestamp, author, authorStatus, contentType, read);
 
 		this.title = title;
-		this.teaser = teaser;
-		this.hasBody = hasBody;
+		this.timeReceived = timeReceived;
 	}
 
 	@Nullable
@@ -32,12 +28,8 @@ public class BlogPostHeader extends PostHeader {
 		return title;
 	}
 
-	@NotNull
-	public String getTeaser() {
-		return teaser;
+	public long getTimeReceived() {
+		return timeReceived;
 	}
 
-	public boolean hasBody() {
-		return hasBody;
-	}
 }

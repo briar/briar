@@ -16,11 +16,11 @@ public interface BlogConstants {
 	/** The length of a blog post's title in UTF-8 bytes. */
 	int MAX_BLOG_POST_TITLE_LENGTH = 100;
 
-	/** The length of a blog post's teaser in UTF-8 bytes. */
-	int MAX_BLOG_POST_TEASER_LENGTH = 240;
-
 	/** The maximum length of a blog post's body in bytes. */
 	int MAX_BLOG_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
+
+	/** The internal name of personal blogs that are created automatically */
+	String PERSONAL_BLOG_NAME = "briar.PERSONAL_BLOG_NAME";
 
 	/* Blog Sharing Constants */
 	String BLOG_TITLE = "blogTitle";
@@ -31,9 +31,8 @@ public interface BlogConstants {
 	// Metadata keys
 	String KEY_DESCRIPTION = "description";
 	String KEY_TITLE = "title";
-	String KEY_TEASER = "teaser";
-	String KEY_HAS_BODY = "hasBody";
 	String KEY_TIMESTAMP = "timestamp";
+	String KEY_TIME_RECEIVED = "timeReceived";
 	String KEY_PARENT = "parent";
 	String KEY_AUTHOR_ID = "id";
 	String KEY_AUTHOR_NAME = "name";

@@ -22,7 +22,6 @@ import java.security.GeneralSecurityException;
 import javax.inject.Inject;
 
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
-import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_TEASER_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_TITLE_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_CONTENT_TYPE_LENGTH;
 
@@ -39,25 +38,22 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 
 	@Override
 	public BlogPost createBlogPost(@NotNull GroupId groupId,
-			@Nullable String title, @NotNull String teaser,	long timestamp,
+			@Nullable String title, long timestamp,
 			@Nullable MessageId parent,	@NotNull LocalAuthor author,
-			@NotNull String contentType, @Nullable byte[] body)
+			@NotNull String contentType, @NotNull byte[] body)
 			throws FormatException, GeneralSecurityException {
 
 		// Validate the arguments
 		if (title != null &&
 				StringUtils.toUtf8(title).length > MAX_BLOG_POST_TITLE_LENGTH)
 			throw new IllegalArgumentException();
-		if (StringUtils.toUtf8(teaser).length > MAX_BLOG_POST_TEASER_LENGTH)
-			throw new IllegalArgumentException();
 		if (StringUtils.toUtf8(contentType).length > MAX_CONTENT_TYPE_LENGTH)
 			throw new IllegalArgumentException();
-		if (body != null && body.length > MAX_BLOG_POST_BODY_LENGTH)
+		if (body.length > MAX_BLOG_POST_BODY_LENGTH)
 			throw new IllegalArgumentException();
 
 		// Serialise the data to be signed
-		BdfList content =
-				BdfList.of(parent, contentType, title, teaser, body, null);
+		BdfList content = BdfList.of(parent, contentType, title, body, null);
 		BdfList signed = BdfList.of(groupId, timestamp, content);
 
 		// Generate the signature
@@ -72,7 +68,6 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		// Serialise the signed message
 		BdfList message = BdfList.of(content, sig);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);
-		return new BlogPost(title, teaser, body != null, m, parent, author,
-				contentType);
+		return new BlogPost(title, m, parent, author, contentType);
 	}
 }

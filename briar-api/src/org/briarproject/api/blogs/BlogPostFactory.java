@@ -12,8 +12,8 @@ import java.security.GeneralSecurityException;
 public interface BlogPostFactory {
 
 	BlogPost createBlogPost(@NotNull GroupId groupId, @Nullable String title,
-			@NotNull String teaser, long timestamp, @Nullable MessageId parent,
+			long timestamp, @Nullable MessageId parent,
 			@NotNull LocalAuthor author, @NotNull String contentType,
-			@Nullable byte[] body)
+			@NotNull byte[] body)
 			throws FormatException, GeneralSecurityException;
 }

@@ -5,6 +5,7 @@ import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.BlogInvitationMessage;
 import org.briarproject.api.blogs.BlogManager;
+import org.briarproject.api.blogs.BlogManager.RemoveBlogHook;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.blogs.BlogSharingMessage.BlogInvitation;
 import org.briarproject.api.clients.ClientHelper;
@@ -40,7 +41,7 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 
 class BlogSharingManagerImpl extends
 		SharingManagerImpl<Blog, BlogInvitation, BlogInvitationMessage, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
-		implements BlogSharingManager {
+		implements BlogSharingManager, RemoveBlogHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"bee438b5de0b3a685badc4e49d76e72d"
@@ -122,6 +123,11 @@ class BlogSharingManagerImpl extends
 	@Override
 	protected InvitationResponseReceivedEventFactory<BlogSharerSessionState, BlogInvitationResponseReceivedEvent> getIRRFactory() {
 		return irrFactory;
+	}
+
+	@Override
+	public void removingBlog(Transaction txn, Blog b) throws DbException {
+		removingShareable(txn, b);
 	}
 
 	static class SFactory implements

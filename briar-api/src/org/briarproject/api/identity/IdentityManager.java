@@ -29,6 +29,9 @@ public interface IdentityManager {
 	/** Returns the trust-level status of the author */
 	Status getAuthorStatus(AuthorId a) throws DbException;
 
+	/** Returns the trust-level status of the author */
+	Status getAuthorStatus(Transaction txn, AuthorId a) throws DbException;
+
 	interface AddIdentityHook {
 		void addingIdentity(Transaction txn, LocalAuthor a) throws DbException;
 	}

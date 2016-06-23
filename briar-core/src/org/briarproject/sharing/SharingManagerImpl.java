@@ -792,6 +792,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 		} else if (task == TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US) {
 			removeFromList(txn, groupId, SHARED_WITH_US, f);
 		} else if (task == TASK_ADD_SHARED_SHAREABLE) {
+			// TODO we might want to call the add() method of the respective
+			//      manager here, because blogs add a description for example
 			db.addGroup(txn, f.getGroup());
 			db.setVisibleToContact(txn, contactId, f.getId(), true);
 		} else if (task == TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US) {
