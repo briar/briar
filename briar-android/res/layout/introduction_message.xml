@@ -73,6 +73,7 @@
 			android:layout_weight="1"
 			android:gravity="top"
 			android:textSize="@dimen/text_size_medium"
+			android:textColor="@color/briar_text_primary"
 			tools:text="@string/introduction_message_text"/>
 
 		<EditText

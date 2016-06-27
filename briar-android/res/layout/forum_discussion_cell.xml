@@ -82,6 +82,7 @@
 			android:layout_marginTop="@dimen/margin_medium"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
+			android:textColor="@color/briar_text_primary"
 			tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
 		<de.hdodenhof.circleimageview.CircleImageView

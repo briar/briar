@@ -19,9 +19,11 @@
 		<TextView
 			android:id="@+id/title"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:layout_marginBottom="@dimen/margin_small"
+			android:gravity="bottom"
 			android:textSize="@dimen/text_size_large"
+			android:textColor="@color/briar_text_primary"
 			tools:text="Crash log entry title"/>
 	</LinearLayout>
 
@@ -30,6 +32,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="@dimen/margin_medium"
+		android:textColor="@color/briar_text_secondary"
 		tools:text="Crash log entry value"/>
 
 </LinearLayout>
