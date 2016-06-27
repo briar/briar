@@ -109,8 +109,8 @@ public class PasswordActivity extends BaseActivity {
 				R.style.BriarDialogTheme);
 		builder.setTitle(R.string.dialog_title_lost_password);
 		builder.setMessage(R.string.dialog_message_lost_password);
-		builder.setNegativeButton(R.string.cancel_button, null);
-		builder.setPositiveButton(R.string.delete_button,
+		builder.setPositiveButton(R.string.cancel_button, null);
+		builder.setNegativeButton(R.string.delete_button,
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {

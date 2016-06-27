@@ -14,9 +14,10 @@
 	<string name="ongoing_notification_title">Signed into Briar</string>
 	<string name="ongoing_notification_text">Touch to open Briar.</string>
 	<string name="setup_title">Briar Setup</string>
-	<string name="choose_nickname">Choose your nickname:</string>
-	<string name="choose_password">Choose your password:</string>
-	<string name="confirm_password">Confirm your password:</string>
+	<string name="setup_explanation">Your Briar account is stored encrypted on your device, not in the cloud. If you uninstall Briar or forget your password, there\'s no way to recover your account and your data.</string>
+	<string name="choose_nickname">Choose your nickname</string>
+	<string name="choose_password">Choose your password</string>
+	<string name="confirm_password">Confirm your password</string>
 	<string name="name_too_long">Name is too long</string>
 	<string name="password_too_weak">Password is too weak</string>
 	<string name="passwords_do_not_match">Passwords do not match</string>
@@ -222,7 +223,7 @@
 
 	<!-- Dialogs -->
 	<string name="dialog_title_lost_password">Lost Password</string>
-	<string name="dialog_message_lost_password">Password recovery is not possible. Do you want to delete your account?\n\nCaution: This will permanently delete your identities, contacts and messages</string>
+	<string name="dialog_message_lost_password">Your Briar account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
 	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
 	<string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
 	<string name="dialog_title_connect_panic_app">Confirm Panic App</string>
