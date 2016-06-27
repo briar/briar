@@ -1,5 +1,7 @@
 package org.briarproject.invitation;
 
+import org.briarproject.api.contact.ContactExchangeListener;
+import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PseudoRandom;
@@ -34,8 +36,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.invitation.InvitationConstants.CONFIRMATION_TIMEOUT;
 
-/** A task consisting of one or more parallel connection attempts. */
-class ConnectorGroup extends Thread implements InvitationTask {
+/**
+ * A task consisting of one or more parallel connection attempts.
+ */
+class ConnectorGroup extends Thread implements InvitationTask,
+		ContactExchangeListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConnectorGroup.class.getName());
@@ -43,13 +48,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final CryptoComponent crypto;
 	private final BdfReaderFactory bdfReaderFactory;
 	private final BdfWriterFactory bdfWriterFactory;
-	private final StreamReaderFactory streamReaderFactory;
-	private final StreamWriterFactory streamWriterFactory;
-	private final AuthorFactory authorFactory;
-	private final ConnectionManager connectionManager;
+	private final ContactExchangeTask contactExchangeTask;
 	private final IdentityManager identityManager;
-	private final ContactManager contactManager;
-	private final Clock clock;
 	private final PluginManager pluginManager;
 	private final AuthorId localAuthorId;
 	private final int localInvitationCode, remoteInvitationCode;
@@ -65,26 +65,18 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private boolean localMatched = false, remoteMatched = false;
 	private String remoteName = null;
 
-	ConnectorGroup(CryptoComponent crypto,
-			BdfReaderFactory bdfReaderFactory,
+	ConnectorGroup(CryptoComponent crypto, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory,
-			StreamReaderFactory streamReaderFactory,
-			StreamWriterFactory streamWriterFactory,
-			AuthorFactory authorFactory, ConnectionManager connectionManager,
-			IdentityManager identityManager, ContactManager contactManager,
-			Clock clock, PluginManager pluginManager, AuthorId localAuthorId,
-			int localInvitationCode, int remoteInvitationCode) {
+			ContactExchangeTask contactExchangeTask,
+			IdentityManager identityManager, PluginManager pluginManager,
+			AuthorId localAuthorId, int localInvitationCode,
+			int remoteInvitationCode) {
 		super("ConnectorGroup");
 		this.crypto = crypto;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.bdfWriterFactory = bdfWriterFactory;
-		this.streamReaderFactory = streamReaderFactory;
-		this.streamWriterFactory = streamWriterFactory;
-		this.authorFactory = authorFactory;
-		this.connectionManager = connectionManager;
+		this.contactExchangeTask = contactExchangeTask;
 		this.identityManager = identityManager;
-		this.contactManager = contactManager;
-		this.clock = clock;
 		this.pluginManager = pluginManager;
 		this.localAuthorId = localAuthorId;
 		this.localInvitationCode = localInvitationCode;
@@ -143,7 +135,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 				c.start();
 			}
 		} else {
-			for (DuplexPlugin plugin: pluginManager.getInvitationPlugins()) {
+			for (DuplexPlugin plugin : pluginManager.getInvitationPlugins()) {
 				Connector c = createBobConnector(plugin, localAuthor);
 				connectors.add(c);
 				c.start();
@@ -173,9 +165,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		PseudoRandom random = crypto.getPseudoRandom(localInvitationCode,
 				remoteInvitationCode);
 		return new AliceConnector(crypto, bdfReaderFactory, bdfWriterFactory,
-				streamReaderFactory, streamWriterFactory, authorFactory,
-				connectionManager, contactManager, clock, this, plugin,
-				localAuthor, random);
+				contactExchangeTask, this, plugin, localAuthor, random);
 	}
 
 	private Connector createBobConnector(DuplexPlugin plugin,
@@ -183,9 +173,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		PseudoRandom random = crypto.getPseudoRandom(remoteInvitationCode,
 				localInvitationCode);
 		return new BobConnector(crypto, bdfReaderFactory, bdfWriterFactory,
-				streamReaderFactory, streamWriterFactory, authorFactory,
-				connectionManager, contactManager, clock, this, plugin,
-				localAuthor, random);
+				contactExchangeTask, this, plugin, localAuthor, random);
 	}
 
 	public void localConfirmationSucceeded() {
@@ -265,7 +253,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		for (InvitationListener l : listeners) l.remoteConfirmationFailed();
 	}
 
-	void pseudonymExchangeSucceeded(Author remoteAuthor) {
+	@Override
+	public void contactExchangeSucceeded(Author remoteAuthor) {
 		String name = remoteAuthor.getName();
 		lock.lock();
 		try {
@@ -277,7 +266,14 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			l.pseudonymExchangeSucceeded(name);
 	}
 
-	void pseudonymExchangeFailed() {
+	@Override
+	public void duplicateContact(Author remoteAuthor) {
+		// TODO differentiate
+		for (InvitationListener l : listeners) l.pseudonymExchangeFailed();
+	}
+
+	@Override
+	public void contactExchangeFailed() {
 		for (InvitationListener l : listeners) l.pseudonymExchangeFailed();
 	}
 }

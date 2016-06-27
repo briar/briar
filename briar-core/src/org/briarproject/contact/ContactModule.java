@@ -24,7 +24,8 @@ import dagger.Provides;
 public class ContactModule {
 
 	public static class EagerSingletons {
-		@Inject ContactManager contactManager;
+		@Inject
+		ContactManager contactManager;
 	}
 
 	@Provides
@@ -36,16 +37,8 @@ public class ContactModule {
 	}
 
 	@Provides
-	ContactExchangeTask provideContactExchangeTask(DatabaseComponent db,
-			AuthorFactory authorFactory, BdfReaderFactory bdfReaderFactory,
-			BdfWriterFactory bdfWriterFactory, Clock clock,
-			ConnectionManager connectionManager, ContactManager contactManager,
-			TransportPropertyManager transportPropertyManager,
-			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
-			StreamWriterFactory streamWriterFactory) {
-		return new ContactExchangeTaskImpl(db, authorFactory, bdfReaderFactory,
-				bdfWriterFactory, clock, connectionManager, contactManager,
-				transportPropertyManager, crypto, streamReaderFactory,
-				streamWriterFactory);
+	ContactExchangeTask provideContactExchangeTask(
+			ContactExchangeTaskImpl contactExchangeTask) {
+		return contactExchangeTask;
 	}
 }
