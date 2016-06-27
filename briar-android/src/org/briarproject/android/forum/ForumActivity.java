@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -64,8 +65,8 @@ public class ForumActivity extends BriarActivity implements
 	private static final Logger LOG =
 			Logger.getLogger(ForumActivity.class.getName());
 
-	public static final String FORUM_NAME = "briar.FORUM_NAME";
 	public static final String MIN_TIMESTAMP = "briar.MIN_TIMESTAMP";
+	static final String FORUM_NAME = "briar.FORUM_NAME";
 	private static final int REQUEST_FORUM_SHARED = 3;
 
 	private final static int UNDEFINED = -1;
@@ -73,7 +74,7 @@ public class ForumActivity extends BriarActivity implements
 	private static final String KEY_REPLY_ID = "replyId";
 
 	@Inject
-	protected AndroidNotificationManager notificationManager;
+	AndroidNotificationManager notificationManager;
 
 	// uncomment the next line for a test component with dummy data
 //	@Named("ForumTestController")
@@ -331,20 +332,21 @@ public class ForumActivity extends BriarActivity implements
 
 	static class ForumViewHolder extends RecyclerView.ViewHolder {
 
-		public final TextView textView, lvlText, dateText, repliesText;
-		public final View[] lvls;
+		final TextView textView, lvlText, authorText, dateText, repliesText;
+		final View[] lvls;
 		public final ImageView avatar;
 		final TrustIndicatorView trust;
-		public final View chevron, replyButton;
-		public final ViewGroup cell;
-		public final View topDivider;
+		final View chevron, replyButton;
+		final ViewGroup cell;
+		final View topDivider;
 		public ValueAnimator highlightAnimator;
 
-		public ForumViewHolder(View v) {
+		ForumViewHolder(View v) {
 			super(v);
 
 			textView = (TextView) v.findViewById(R.id.text);
 			lvlText = (TextView) v.findViewById(R.id.nested_line_text);
+			authorText = (TextView) v.findViewById(R.id.author);
 			dateText = (TextView) v.findViewById(R.id.date);
 			repliesText = (TextView) v.findViewById(R.id.replies);
 			int[] nestedLineIds = {
@@ -367,13 +369,13 @@ public class ForumActivity extends BriarActivity implements
 	public class ForumAdapter extends RecyclerView.Adapter<ForumViewHolder> {
 
 		private final List<ForumEntry> forumEntries;
-		// highlight not depandant on time
+		// highlight not dependant on time
 		private ForumEntry replyEntry;
 		// temporary highlight
 		private ForumEntry addedEntry;
 		Map<ForumEntry, ValueAnimator> animatingEntries = new HashMap<>();
 
-		public ForumAdapter(@NonNull List<ForumEntry> forumEntries) {
+		ForumAdapter(@NonNull List<ForumEntry> forumEntries) {
 			this.forumEntries = forumEntries;
 		}
 
@@ -381,7 +383,7 @@ public class ForumActivity extends BriarActivity implements
 			return replyEntry;
 		}
 
-		public void addEntry(int index, ForumEntry entry,
+		void addEntry(int index, ForumEntry entry,
 				boolean isScrolling) {
 			forumEntries.add(index, entry);
 			boolean isShowingDescendants = false;
@@ -412,7 +414,7 @@ public class ForumActivity extends BriarActivity implements
 			addedEntry = entry;
 		}
 
-		public void scrollToEntry(ForumEntry entry) {
+		void scrollToEntry(ForumEntry entry) {
 			int visiblePos = getVisiblePos(entry);
 			linearLayoutManager.scrollToPositionWithOffset(visiblePos, 0);
 		}
@@ -431,6 +433,7 @@ public class ForumActivity extends BriarActivity implements
 		private boolean hasVisibleDescendants(ForumEntry forumEntry) {
 			int visiblePos = getVisiblePos(forumEntry);
 			int levelLimit = forumEntry.getLevel();
+			// TODO This loop doesn't really loop. @ernir please review!
 			for (int i = visiblePos + 1; i < getItemCount(); i++) {
 				ForumEntry entry = getVisibleEntry(i);
 				if (entry.getLevel() <= levelLimit)
@@ -456,7 +459,7 @@ public class ForumActivity extends BriarActivity implements
 			return counter;
 		}
 
-		public void setReplyEntryById(byte[] id) {
+		void setReplyEntryById(byte[] id) {
 			MessageId messageId = new MessageId(id);
 			for (ForumEntry entry : forumEntries) {
 				if (entry.getMessageId().equals(messageId)) {
@@ -466,7 +469,7 @@ public class ForumActivity extends BriarActivity implements
 			}
 		}
 
-		public void setReplyEntry(ForumEntry entry) {
+		void setReplyEntry(ForumEntry entry) {
 			if (replyEntry != null) {
 				notifyItemChanged(getVisiblePos(replyEntry));
 			}
@@ -531,7 +534,7 @@ public class ForumActivity extends BriarActivity implements
 		}
 
 
-		@NonNull
+		@Nullable
 		public ForumEntry getVisibleEntry(int position) {
 			int levelLimit = UNDEFINED;
 			for (ForumEntry forumEntry : forumEntries) {
@@ -629,9 +632,10 @@ public class ForumActivity extends BriarActivity implements
 			} else {
 				ui.lvlText.setVisibility(GONE);
 			}
+			ui.authorText.setText(data.getAuthor());
 			ui.dateText.setText(DateUtils
 					.getRelativeTimeSpanString(ForumActivity.this,
-							data.getTimestamp()) + " " + data.getAuthor());
+							data.getTimestamp()));
 			ui.trust.setTrustLevel(data.getStatus());
 
 			int replies = getReplyCount(data);
