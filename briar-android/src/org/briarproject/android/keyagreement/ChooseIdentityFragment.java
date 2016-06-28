@@ -17,7 +17,6 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
-import org.briarproject.android.identity.LocalAuthorItemComparator;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.AuthorId;
@@ -146,7 +145,9 @@ public class ChooseIdentityFragment extends BaseFragment
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				adapter.clear();
+				setLocalAuthorId(authors.iterator().next().getId());
+				// TODO remove comment below when supporting multiple identities
+/*				adapter.clear();
 				for (LocalAuthor a : authors)
 					adapter.add(new LocalAuthorItem(a));
 				adapter.sort(LocalAuthorItemComparator.INSTANCE);
@@ -161,13 +162,18 @@ public class ChooseIdentityFragment extends BaseFragment
 						return;
 					}
 				}
-			}
+*/			}
 		});
 	}
 
-	private void setLocalAuthorId(AuthorId authorId) {
-		localAuthorId = authorId;
-		button.setEnabled(localAuthorId != null);
+	private void setLocalAuthorId(final AuthorId authorId) {
+		listener.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				localAuthorId = authorId;
+				button.setEnabled(localAuthorId != null);
+			}
+		});
 	}
 
 	@Override

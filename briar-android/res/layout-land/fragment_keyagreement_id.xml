@@ -38,7 +38,8 @@
 				style="@style/BriarTextBody"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/your_nickname"/>
+				android:text="@string/your_nickname"
+				android:visibility="gone"/>
 
 			<Spinner
 				android:id="@+id/spinner"
@@ -46,7 +47,8 @@
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/margin_medium"
 				android:background="@drawable/spinner_border"
-				android:spinnerMode="dropdown"/>
+				android:spinnerMode="dropdown"
+				android:visibility="gone"/>
 
 			<TextView
 				android:id="@+id/faceToFaceView"
