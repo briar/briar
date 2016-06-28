@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.forum.AvailableForumsActivity;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
@@ -170,7 +170,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 
 		long timestamp = header.getTimestamp();
-		ui.date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+		ui.date.setText(AndroidUtils.formatDate(ctx, timestamp));
 	}
 
 	private void bindIntroduction(IntroductionHolder ui,
@@ -184,8 +184,8 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		} else {
 			ui.messageLayout.setVisibility(View.VISIBLE);
 			ui.message.body.setText(StringUtils.trim(message));
-			ui.message.date.setText(
-					DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
+			ui.message.date
+					.setText(AndroidUtils.formatDate(ctx, item.getTime()));
 		}
 
 		// Outgoing Introduction Request
@@ -255,15 +255,13 @@ class ConversationAdapter extends RecyclerView.Adapter {
 				}
 			});
 		}
-		ui.date.setText(
-				DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
+		ui.date.setText(AndroidUtils.formatDate(ctx, item.getTime()));
 	}
 
 	private void bindNotice(NoticeHolder ui, ConversationNoticeItem item) {
 
 		ui.text.setText(item.getText());
-		ui.date.setText(
-				DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
+		ui.date.setText(AndroidUtils.formatDate(ctx, item.getTime()));
 
 		if (item instanceof ConversationNoticeOutItem) {
 			ConversationNoticeOutItem n = (ConversationNoticeOutItem) item;
@@ -288,8 +286,8 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		} else {
 			ui.messageLayout.setVisibility(View.VISIBLE);
 			ui.message.body.setText(StringUtils.trim(message));
-			ui.message.date.setText(
-					DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
+			ui.message.date
+					.setText(AndroidUtils.formatDate(ctx, item.getTime()));
 		}
 
 		// Outgoing Invitation
@@ -332,8 +330,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 				ui.showForumsButton.setVisibility(View.GONE);
 			}
 		}
-		ui.date.setText(
-				DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
+		ui.date.setText(AndroidUtils.formatDate(ctx, item.getTime()));
 	}
 
 	@Override

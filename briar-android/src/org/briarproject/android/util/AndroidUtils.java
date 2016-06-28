@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.design.widget.TextInputLayout;
+import android.text.format.DateUtils;
 
 import org.briarproject.util.FileUtils;
 import org.briarproject.util.StringUtils;
@@ -18,6 +19,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.text.format.DateUtils.DAY_IN_MILLIS;
+import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
+import static android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE;
+import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
+import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
+import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
+import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 
 public class AndroidUtils {
 
@@ -81,4 +89,22 @@ public class AndroidUtils {
 	public static File getReportDir(Context ctx) {
 		return ctx.getDir(STORED_REPORTS, MODE_PRIVATE);
 	}
+
+	public static String formatDate(Context ctx, long time) {
+		long minResolution = MINUTE_IN_MILLIS;
+		int flags = FORMAT_ABBREV_RELATIVE |
+				FORMAT_SHOW_DATE | FORMAT_ABBREV_TIME | FORMAT_ABBREV_MONTH;
+
+		// also show time when older than a day, but newer than a week
+		long diff = System.currentTimeMillis() - time;
+		if (diff >= DAY_IN_MILLIS && diff < WEEK_IN_MILLIS) {
+			return DateUtils.getRelativeDateTimeString(ctx, time, minResolution,
+					WEEK_IN_MILLIS, flags).toString();
+		}
+		// otherwise just show "...ago" or date string
+		return DateUtils
+				.getRelativeTimeSpanString(time, System.currentTimeMillis(),
+						minResolution, flags).toString();
+	}
+
 }
