@@ -163,7 +163,8 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		if (item.getBody() == null) {
 			ui.body.setText("\u2026");
 		} else if (header.getContentType().equals("text/plain")) {
-			ui.body.setText(StringUtils.fromUtf8(item.getBody()));
+			ui.body.setText(
+					StringUtils.trim(StringUtils.fromUtf8(item.getBody())));
 		} else {
 			// TODO support other content types
 		}
@@ -182,7 +183,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ui.messageLayout.setVisibility(View.GONE);
 		} else {
 			ui.messageLayout.setVisibility(View.VISIBLE);
-			ui.message.body.setText(message);
+			ui.message.body.setText(StringUtils.trim(message));
 			ui.message.date.setText(
 					DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
 		}
@@ -286,7 +287,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ui.messageLayout.setVisibility(View.GONE);
 		} else {
 			ui.messageLayout.setVisibility(View.VISIBLE);
-			ui.message.body.setText(message);
+			ui.message.body.setText(StringUtils.trim(message));
 			ui.message.date.setText(
 					DateUtils.getRelativeTimeSpanString(ctx, item.getTime()));
 		}

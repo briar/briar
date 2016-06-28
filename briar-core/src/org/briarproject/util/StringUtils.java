@@ -82,4 +82,8 @@ public class StringUtils {
 		if (c >= 'a' && c <= 'f') return c - 'a' + 10;
 		throw new IllegalArgumentException("Not a hex digit: " + c);
 	}
+
+	public static String trim(String s) {
+		return s.trim();
+	}
 }
