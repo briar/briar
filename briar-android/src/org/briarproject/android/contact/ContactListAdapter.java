@@ -44,7 +44,7 @@ public class ContactListAdapter
 
 		// date of last message
 		if (item.isEmpty()) {
-			ui.date.setText(R.string.no_private_messages);
+			ui.date.setText(R.string.date_no_private_messages);
 		} else {
 			long timestamp = item.getTimestamp();
 			ui.date.setText(AndroidUtils.formatDate(ctx, timestamp));

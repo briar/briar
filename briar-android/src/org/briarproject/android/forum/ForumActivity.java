@@ -110,6 +110,7 @@ public class ForumActivity extends BriarActivity implements
 				(BriarRecyclerView) findViewById(R.id.forum_discussion_list);
 		linearLayoutManager = new LinearLayoutManager(this);
 		recyclerView.setLayoutManager(linearLayoutManager);
+		recyclerView.setEmptyText(getString(R.string.no_forum_posts));
 		recyclerView.showProgressBar();
 
 		forumController

@@ -39,7 +39,7 @@
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
 	<string name="contact_list_title">Contacts</string>
-	<string name="no_contacts">No contacts</string>
+	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
 	<string name="add_contact_title">Add a Contact</string>
 	<string name="add_contact_title_step">Add a Contact - Step %1$d/%2$d</string>
 	<string name="your_nickname">Choose the identity you want to use:</string>
@@ -68,10 +68,12 @@
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
 	<string name="connection_aborted_local">Connection aborted by us! This could mean that someone is trying to interfere with your connection</string>
 	<string name="connection_aborted_remote">Connection aborted by your contact! This could mean that someone is trying to interfere with your connection</string>
-	<string name="no_private_messages">No messages</string>
+	<string name="date_no_private_messages">No messages.</string>
+	<string name="no_private_messages">This is the conversation view.\n\nThere seems to be a lack of conversation.\n\nJust tap the input field at the bottom to start a conversation.</string>
 	<string name="private_message_hint">Type message</string>
 	<string name="message_sent_toast">Message sent</string>
-	<string name="no_forums">You don\'t have any forums.\n\nWhy don\'t you create a new one yourself or ask your contacts to share one with you?</string>
+	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
+	<string name="no_forum_posts">This forum is empty.\n\nUse the pen icon at the top to compose the first post.\n\nFeeling lonely here? Share this forum with more of your contacts!</string>
 	<plurals name="forums_shared">
 		<item quantity="one">%d forum shared by contacts</item>
 		<item quantity="other">%d forums shared by contacts</item>
@@ -116,7 +118,6 @@
 	<string name="forum_shared_by">Shared by</string>
 	<string name="forum_shared_with">Shared with</string>
 	<string name="nobody">Nobody</string>
-	<string name="no_contacts_prompt">You don\'t have any contacts. Add a contact now?</string>
 	<string name="add_button">Add</string>
 	<string name="cancel_button">Cancel</string>
 	<string name="done_button">Done</string>
