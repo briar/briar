@@ -615,7 +615,7 @@ public class ForumActivity extends BriarActivity implements
 				data.setRead(true);
 				forumController.entryRead(data);
 			}
-			ui.textView.setText(data.getText());
+			ui.textView.setText(StringUtils.trim(data.getText()));
 
 			if (position == 0) {
 				ui.topDivider.setVisibility(View.INVISIBLE);
