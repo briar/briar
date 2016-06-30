@@ -2,7 +2,6 @@ package org.briarproject.android.contact;
 
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.util.StringUtils;
 
 public class ContactListAdapter
@@ -46,10 +46,8 @@ public class ContactListAdapter
 		if (item.isEmpty()) {
 			ui.date.setText(R.string.no_private_messages);
 		} else {
-			// TODO show this as X units ago
 			long timestamp = item.getTimestamp();
-			ui.date.setText(
-					DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+			ui.date.setText(AndroidUtils.formatDate(ctx, timestamp));
 		}
 
 		// online/offline

@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +34,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.android.util.TrustIndicatorView;
 import org.briarproject.api.sync.GroupId;
@@ -633,9 +633,8 @@ public class ForumActivity extends BriarActivity implements
 				ui.lvlText.setVisibility(GONE);
 			}
 			ui.authorText.setText(data.getAuthor());
-			ui.dateText.setText(DateUtils
-					.getRelativeTimeSpanString(ForumActivity.this,
-							data.getTimestamp()));
+			ui.dateText.setText(AndroidUtils
+					.formatDate(ForumActivity.this, data.getTimestamp()));
 			ui.trust.setTrustLevel(data.getStatus());
 
 			int replies = getReplyCount(data);

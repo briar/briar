@@ -6,13 +6,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.TextAvatarView;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.sync.GroupId;
@@ -123,8 +123,7 @@ class ForumListAdapter extends
 			ui.date.setVisibility(GONE);
 		} else {
 			long timestamp = item.getTimestamp();
-			ui.date.setText(
-					DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+			ui.date.setText(AndroidUtils.formatDate(ctx, timestamp));
 			ui.date.setVisibility(VISIBLE);
 		}
 
