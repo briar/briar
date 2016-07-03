@@ -33,6 +33,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/margin_medium"
 			android:textSize="50sp"
+			android:textColor="@color/briar_text_secondary"
 			android:layout_below="@+id/yourCodeView"
 			android:layout_centerHorizontal="true"
 			tools:text="1337"/>

@@ -17,6 +17,7 @@
 		android:textIsSelectable="true"
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="italic"
+		android:textColor="@color/briar_text_secondary"
 		tools:text="@string/introduction_response_accepted_received"/>
 
 	<TextView

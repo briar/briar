@@ -16,6 +16,7 @@
 		android:text="@string/connection_failed"
 		android:layout_gravity="center_horizontal"
 		android:textSize="@dimen/text_size_large"
+		android:textColor="@color/briar_text_primary"
 		android:drawableStart="@drawable/alerts_and_states_error"
 		android:drawableLeft="@drawable/alerts_and_states_error"
 		android:gravity="center_vertical"
@@ -26,6 +27,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/interfering"
+		android:textColor="@color/briar_text_primary"
 		android:layout_gravity="center_horizontal"
 		android:padding="@dimen/margin_medium"/>
 

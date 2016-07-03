@@ -16,6 +16,7 @@
 		android:layout_height="wrap_content"
 		android:textIsSelectable="true"
 		android:textSize="@dimen/text_size_medium"
+		android:textColor="@color/briar_text_primary"
 		tools:text="Short message"/>
 
 	<TextView

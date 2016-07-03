@@ -65,7 +65,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:maxLines="2"
-				android:textColor="@android:color/primary_text_light"
+				android:textColor="@color/briar_text_primary"
 				android:textSize="@dimen/text_size_medium"
 				tools:text="This is a name of a contact"/>
 
@@ -73,7 +73,7 @@
 				android:id="@+id/dateView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textColor="@android:color/secondary_text_light"
+				android:textColor="@color/briar_text_secondary"
 				android:textSize="@dimen/text_size_small"
 				tools:text="Dec 24"/>
 

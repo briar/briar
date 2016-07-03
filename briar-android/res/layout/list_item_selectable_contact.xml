@@ -37,6 +37,7 @@
 			android:layout_toRightOf="@+id/avatarView"
 			android:maxLines="2"
 			android:textSize="@dimen/text_size_large"
+			android:textColor="@color/briar_text_primary"
 			tools:text="This is a name of a contact"/>
 
 		<CheckBox
