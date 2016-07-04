@@ -8,6 +8,7 @@ import android.provider.Settings;
 import android.support.design.widget.TextInputLayout;
 import android.text.format.DateUtils;
 
+import org.briarproject.R;
 import org.briarproject.util.FileUtils;
 import org.briarproject.util.StringUtils;
 
@@ -91,13 +92,15 @@ public class AndroidUtils {
 	}
 
 	public static String formatDate(Context ctx, long time) {
+		// update BriarRecyclerView#DEFAULT_REFRESH_INTERVAL along with this
 		long minResolution = MINUTE_IN_MILLIS;
 		int flags = FORMAT_ABBREV_RELATIVE |
 				FORMAT_SHOW_DATE | FORMAT_ABBREV_TIME | FORMAT_ABBREV_MONTH;
 
-		// also show time when older than a day, but newer than a week
 		long diff = System.currentTimeMillis() - time;
+		if (diff < minResolution) return ctx.getString(R.string.now);
 		if (diff >= DAY_IN_MILLIS && diff < WEEK_IN_MILLIS) {
+			// also show time when older than a day, but newer than a week
 			return DateUtils.getRelativeDateTimeString(ctx, time, minResolution,
 					WEEK_IN_MILLIS, flags).toString();
 		}

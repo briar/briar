@@ -121,6 +121,7 @@ public class ForumActivity extends BriarActivity implements
 							forumAdapter = new ForumAdapter(
 									forumController.getForumEntries());
 							recyclerView.setAdapter(forumAdapter);
+							recyclerView.periodicallyUpdateContent();
 							if (state != null) {
 								byte[] replyId =
 										state.getByteArray(KEY_REPLY_ID);

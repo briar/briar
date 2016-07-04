@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.Adapter;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,34 +14,51 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 
+import java.util.logging.Logger;
+
+import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
+
 public class BriarRecyclerView extends FrameLayout {
 
 	private RecyclerView recyclerView;
 	private TextView emptyView;
 	private ProgressBar progressBar;
 	private RecyclerView.AdapterDataObserver emptyObserver;
+	private Runnable refresher = null;
 	private boolean isScrollingToEnd = false;
 
+	private final Logger LOG = Logger.getLogger(getClass().getName());
+	private final long DEFAULT_REFRESH_INTERVAL = MINUTE_IN_MILLIS;
+
 	public BriarRecyclerView(Context context) {
-		super(context);
+		this(context, null, 0);
 	}
 
 	public BriarRecyclerView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-
-		TypedArray attributes = context.obtainStyledAttributes(attrs,
-				R.styleable.BriarRecyclerView);
-		isScrollingToEnd = attributes
-				.getBoolean(R.styleable.BriarRecyclerView_scrollToEnd, true);
+		this(context, attrs, 0);
 	}
 
 	public BriarRecyclerView(Context context, AttributeSet attrs,
 			int defStyle) {
 		super(context, attrs, defStyle);
+
+		TypedArray attributes = context.obtainStyledAttributes(attrs,
+				R.styleable.BriarRecyclerView);
+		isScrollingToEnd = attributes
+				.getBoolean(R.styleable.BriarRecyclerView_scrollToEnd, true);
+		attributes.recycle();
+	}
+
+	@Override
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		if (refresher != null) {
+			LOG.info("Removing Handler Callback");
+			removeCallbacks(refresher);
+		}
 	}
 
 	private void initViews() {
-
 		View v = LayoutInflater.from(getContext()).inflate(
 				R.layout.briar_recycler_view, this, true);
 
@@ -86,10 +104,10 @@ public class BriarRecyclerView extends FrameLayout {
 		recyclerView.setLayoutManager(layout);
 	}
 
-	public void setAdapter(RecyclerView.Adapter adapter) {
+	public void setAdapter(Adapter adapter) {
 		if (recyclerView == null) initViews();
 
-		RecyclerView.Adapter oldAdapter = recyclerView.getAdapter();
+		Adapter oldAdapter = recyclerView.getAdapter();
 		if (oldAdapter != null) {
 			oldAdapter.unregisterAdapterDataObserver(emptyObserver);
 		}
@@ -121,7 +139,7 @@ public class BriarRecyclerView extends FrameLayout {
 
 	public void showData() {
 		if (recyclerView == null) initViews();
-		RecyclerView.Adapter adapter = recyclerView.getAdapter();
+		Adapter adapter = recyclerView.getAdapter();
 		if (adapter != null) {
 			if (adapter.getItemCount() == 0) {
 				emptyView.setVisibility(VISIBLE);
@@ -142,6 +160,22 @@ public class BriarRecyclerView extends FrameLayout {
 
 	public RecyclerView getRecyclerView() {
 		return this.recyclerView;
+	}
+
+	public void periodicallyUpdateContent() {
+		if (recyclerView == null || recyclerView.getAdapter() == null) {
+			throw new IllegalStateException("Need to call setAdapter() first!");
+		}
+		refresher = new Runnable() {
+			@Override
+			public void run() {
+				LOG.info("Updating Content...");
+				recyclerView.getAdapter().notifyDataSetChanged();
+				postDelayed(refresher, DEFAULT_REFRESH_INTERVAL);
+			}
+		};
+		LOG.info("Adding Handler Callback");
+		postDelayed(refresher, DEFAULT_REFRESH_INTERVAL);
 	}
 
 }
