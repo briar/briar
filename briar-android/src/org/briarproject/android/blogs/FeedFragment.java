@@ -43,6 +43,7 @@ public class FeedFragment extends BaseFragment implements
 	FeedController feedController;
 
 	private BlogPostAdapter adapter;
+	private LinearLayoutManager layoutManager;
 	private BriarRecyclerView list;
 	private Blog personalBlog = null;
 
@@ -64,8 +65,10 @@ public class FeedFragment extends BaseFragment implements
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
 		adapter = new BlogPostAdapter(getActivity(), this);
+
+		layoutManager = new LinearLayoutManager(getActivity());
 		list = (BriarRecyclerView) v.findViewById(R.id.postList);
-		list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
 		list.setEmptyText(R.string.blogs_feed_empty_state);
 
@@ -84,20 +87,7 @@ public class FeedFragment extends BaseFragment implements
 
 		// The BlogPostAddedEvent arrives when the controller is not listening
 		if (requestCode == REQUEST_WRITE_POST && resultCode == RESULT_OK) {
-			// show snackbar informing about successful post creation
-			Snackbar s = Snackbar.make(list, R.string.blogs_blog_post_created,
-					LENGTH_LONG);
-			s.getView().setBackgroundResource(R.color.briar_primary);
-			OnClickListener onClick = new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					list.smoothScrollToPosition(0);
-				}
-			};
-			s.setActionTextColor(ContextCompat
-					.getColor(getContext(), R.color.briar_button_positive));
-			s.setAction(R.string.blogs_blog_post_scroll_to, onClick);
-			s.show();
+			showSnackBar(R.string.blogs_blog_post_created);
 		}
 	}
 
@@ -136,7 +126,7 @@ public class FeedFragment extends BaseFragment implements
 	public void onPause() {
 		super.onPause();
 		feedController.onPause();
-		// TODO save list position
+		// TODO save list position in database/preferences?
 	}
 
 	@Override
@@ -172,20 +162,7 @@ public class FeedFragment extends BaseFragment implements
 			@Override
 			public void run() {
 				adapter.add(post);
-				Snackbar s =
-						Snackbar.make(list, R.string.blogs_blog_post_received,
-								LENGTH_LONG);
-				s.getView().setBackgroundResource(R.color.briar_primary);
-				OnClickListener onClick = new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						list.smoothScrollToPosition(0);
-					}
-				};
-				s.setActionTextColor(ContextCompat
-						.getColor(getContext(), R.color.briar_button_positive));
-				s.setAction(R.string.blogs_blog_post_scroll_to, onClick);
-				s.show();
+				showSnackBar(R.string.blogs_blog_post_received);
 			}
 		});
 	}
@@ -198,5 +175,29 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	private void showSnackBar(int stringRes) {
+		int firstVisible =
+				layoutManager.findFirstCompletelyVisibleItemPosition();
+		int lastVisible = layoutManager.findLastCompletelyVisibleItemPosition();
+		int count = adapter.getItemCount();
+		boolean scroll = count > (lastVisible - firstVisible + 1);
+
+		Snackbar s = Snackbar.make(list, stringRes, LENGTH_LONG);
+		s.getView().setBackgroundResource(R.color.briar_primary);
+		if (scroll) {
+			OnClickListener onClick = new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					list.smoothScrollToPosition(0);
+				}
+			};
+			s.setActionTextColor(ContextCompat
+					.getColor(getContext(),
+							R.color.briar_button_positive));
+			s.setAction(R.string.blogs_blog_post_scroll_to, onClick);
+		}
+		s.show();
 	}
 }
