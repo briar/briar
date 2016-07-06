@@ -209,6 +209,18 @@ public class ForumManagerTest {
 		deliveryWaiter.await(TIMEOUT, 1);
 		assertEquals(1, forumManager1.getPostHeaders(g).size());
 
+		// add another forum post
+		time = clock.currentTimeMillis();
+		ForumPost post2 = createForumPost(g, null, "b", time);
+		forumManager1.addLocalPost(post2);
+		assertEquals(1, forumManager0.getPostHeaders(g).size());
+		assertEquals(2, forumManager1.getPostHeaders(g).size());
+
+		// send post to 0
+		sync1To0();
+		deliveryWaiter.await(TIMEOUT, 1);
+		assertEquals(2, forumManager1.getPostHeaders(g).size());
+
 		stopLifecycles();
 	}
 

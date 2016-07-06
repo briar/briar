@@ -9,6 +9,10 @@ import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.crypto.KeyParser;
+import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
@@ -23,6 +27,9 @@ import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumPost;
+import org.briarproject.api.forum.ForumPostFactory;
+import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
@@ -62,7 +69,6 @@ import javax.inject.Inject;
 
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
@@ -87,6 +93,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	Clock clock;
 	@Inject
 	AuthorFactory authorFactory;
+	@Inject
+	ForumPostFactory forumPostFactory;
+	@Inject
+	CryptoComponent cryptoComponent;
 
 	// objects accessed from background threads need to be volatile
 	private volatile ForumSharingManager forumSharingManager0;
@@ -731,6 +741,119 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		}
 	}
 
+	@Test
+	public void testSyncAfterReSharing() throws Exception {
+		startLifecycles();
+		try {
+			// initialize and let invitee accept all requests
+			defaultInit(true);
+
+			// send invitation
+			forumSharingManager0
+					.sendInvitation(forum0.getId(), contactId1, "Hi!");
+
+			// sync first request message
+			syncToInvitee();
+			eventWaiter.await(TIMEOUT, 1);
+
+			// sync response back
+			syncToSharer();
+			eventWaiter.await(TIMEOUT, 1);
+
+			// sharer posts into the forum
+			long time = clock.currentTimeMillis();
+			byte[] body = TestUtils.getRandomBytes(42);
+			KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
+			PrivateKey key = keyParser.parsePrivateKey(author0.getPrivateKey());
+			ForumPost p = forumPostFactory
+					.createPseudonymousPost(forum0.getId(), time, null, author0,
+							"text/plain", body, key);
+			forumManager0.addLocalPost(p);
+
+			// sync forum post
+			syncToInvitee();
+
+			// make sure forum post arrived
+			Collection<ForumPostHeader> headers =
+					forumManager1.getPostHeaders(forum0.getId());
+			assertEquals(1, headers.size());
+			ForumPostHeader header = headers.iterator().next();
+			assertEquals(p.getMessage().getId(), header.getId());
+			assertEquals(author0, header.getAuthor());
+
+			// now invitee creates a post
+			time = clock.currentTimeMillis();
+			body = TestUtils.getRandomBytes(42);
+			key = keyParser.parsePrivateKey(author1.getPrivateKey());
+			p = forumPostFactory
+					.createPseudonymousPost(forum0.getId(), time, null, author1,
+							"text/plain", body, key);
+			forumManager1.addLocalPost(p);
+
+			// sync forum post
+			syncToSharer();
+
+			// make sure forum post arrived
+			headers = forumManager1.getPostHeaders(forum0.getId());
+			assertEquals(2, headers.size());
+			boolean found = false;
+			for (ForumPostHeader h : headers) {
+				if (p.getMessage().getId().equals(h.getId())) {
+					found = true;
+					assertEquals(author1, h.getAuthor());
+				}
+			}
+			assertTrue(found);
+
+			// contacts remove each other
+			contactManager0.removeContact(contactId1);
+			contactManager1.removeContact(contactId0);
+			contactManager1.removeContact(contactId2);
+			contactManager2.removeContact(contactId21);
+
+			// contacts add each other back
+			addDefaultContacts();
+
+			// send invitation again
+			forumSharingManager0
+					.sendInvitation(forum0.getId(), contactId1, "Hi!");
+
+			// sync first request message
+			syncToInvitee();
+			eventWaiter.await(TIMEOUT, 1);
+
+			// sync response back
+			syncToSharer();
+			eventWaiter.await(TIMEOUT, 1);
+
+			// now invitee creates a post
+			time = clock.currentTimeMillis();
+			body = TestUtils.getRandomBytes(42);
+			key = keyParser.parsePrivateKey(author1.getPrivateKey());
+			p = forumPostFactory
+					.createPseudonymousPost(forum0.getId(), time, null, author1,
+							"text/plain", body, key);
+			forumManager1.addLocalPost(p);
+
+			// sync forum post
+			syncToSharer();
+
+			// make sure forum post arrived
+			headers = forumManager1.getPostHeaders(forum0.getId());
+			assertEquals(3, headers.size());
+			found = false;
+			for (ForumPostHeader h : headers) {
+				if (p.getMessage().getId().equals(h.getId())) {
+					found = true;
+					assertEquals(author1, h.getAuthor());
+				}
+			}
+			assertTrue(found);
+		} finally {
+			stopLifecycles();
+		}
+	}
+
 
 	@After
 	public void tearDown() throws InterruptedException {
@@ -752,6 +875,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 						!event.isLocal()) {
 					LOG.info("TEST: Sharer received message in group " +
 							event.getMessage().getGroupId().hashCode());
+					msgWaiter.resume();
+				} else if (s == DELIVERED && !event.isLocal() &&
+						c.equals(forumManager0.getClientId())) {
+					LOG.info("TEST: Sharer received forum post");
 					msgWaiter.resume();
 				}
 			} else if (e instanceof ForumInvitationResponseReceivedEvent) {
@@ -806,6 +933,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 						!event.isLocal()) {
 					LOG.info("TEST: Invitee received message in group " +
 							event.getMessage().getGroupId().hashCode());
+					msgWaiter.resume();
+				} else if (s == DELIVERED && !event.isLocal() &&
+						c.equals(forumManager0.getClientId())) {
+					LOG.info("TEST: Invitee received forum post");
 					msgWaiter.resume();
 				}
 			} else if (e instanceof ForumInvitationReceivedEvent) {
@@ -866,17 +997,22 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	}
 
 	private void addDefaultIdentities() throws DbException {
+		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
 		author0 = authorFactory.createLocalAuthor(SHARER,
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				TestUtils.getRandomBytes(123));
+				keyPair.getPublic().getEncoded(),
+				keyPair.getPrivate().getEncoded());
 		identityManager0.addLocalAuthor(author0);
+
+		keyPair = cryptoComponent.generateSignatureKeyPair();
 		author1 = authorFactory.createLocalAuthor(INVITEE,
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				TestUtils.getRandomBytes(123));
+				keyPair.getPublic().getEncoded(),
+				keyPair.getPrivate().getEncoded());
 		identityManager1.addLocalAuthor(author1);
+
+		keyPair = cryptoComponent.generateSignatureKeyPair();
 		author2 = authorFactory.createLocalAuthor(SHARER2,
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				TestUtils.getRandomBytes(123));
+				keyPair.getPublic().getEncoded(),
+				keyPair.getPrivate().getEncoded());
 		identityManager2.addLocalAuthor(author2);
 	}
 
