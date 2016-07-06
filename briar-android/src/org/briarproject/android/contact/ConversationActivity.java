@@ -3,6 +3,7 @@ package org.briarproject.android.contact;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -80,6 +81,7 @@ import javax.inject.Inject;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 
+import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -92,11 +94,12 @@ public class ConversationActivity extends BriarActivity
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
+	private static final int REQUEST_CODE_INTRODUCTION = 1;
 
 	@Inject
 	AndroidNotificationManager notificationManager;
 	@Inject
-	protected ConnectionRegistry connectionRegistry;
+	ConnectionRegistry connectionRegistry;
 	@Inject
 	@CryptoExecutor
 	protected Executor cryptoExecutor;
@@ -183,6 +186,18 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
+	protected void onActivityResult(int request, int result, Intent data) {
+		super.onActivityResult(request, result, data);
+
+		if (request == REQUEST_CODE_INTRODUCTION && result == RESULT_OK) {
+			Snackbar snackbar = Snackbar.make(list, R.string.introduction_sent,
+					Snackbar.LENGTH_SHORT);
+			snackbar.getView().setBackgroundResource(R.color.briar_primary);
+			snackbar.show();
+		}
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
@@ -223,10 +238,11 @@ public class ConversationActivity extends BriarActivity
 				Intent intent = new Intent(this, IntroductionActivity.class);
 				intent.putExtra(IntroductionActivity.CONTACT_ID,
 						contactId.getInt());
-				ActivityOptionsCompat options = ActivityOptionsCompat
-						.makeCustomAnimation(this, android.R.anim.slide_in_left,
+				ActivityOptionsCompat options =
+						makeCustomAnimation(this, android.R.anim.slide_in_left,
 								android.R.anim.slide_out_right);
-				ActivityCompat.startActivity(this, intent, options.toBundle());
+				ActivityCompat.startActivityForResult(this, intent,
+						REQUEST_CODE_INTRODUCTION, options.toBundle());
 				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();

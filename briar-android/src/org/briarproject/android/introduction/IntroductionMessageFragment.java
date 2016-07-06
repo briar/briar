@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 
+import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -170,7 +171,7 @@ public class IntroductionMessageFragment extends BaseFragment {
 		});
 	}
 
-	public void onButtonClick(final Contact c1, final Contact c2) {
+	private void onButtonClick(final Contact c1, final Contact c2) {
 		// disable button to prevent accidental double invitations
 		ui.button.setEnabled(false);
 
@@ -179,7 +180,8 @@ public class IntroductionMessageFragment extends BaseFragment {
 
 		// don't wait for the introduction to be made before finishing activity
 		introductionActivity.hideSoftKeyboard(ui.message);
-		introductionActivity.finish();
+		introductionActivity.setResult(RESULT_OK);
+		introductionActivity.supportFinishAfterTransition();
 	}
 
 	private void makeIntroduction(final Contact c1, final Contact c2,

@@ -85,11 +85,11 @@ public class IntroductionActivity extends BriarActivity implements
 		}
 	}
 
-	public int getContactId() {
+	int getContactId() {
 		return contactId;
 	}
 
-	public void showMessageScreen(View view, Contact c1, Contact c2) {
+	void showMessageScreen(View view, Contact c1, Contact c2) {
 
 		IntroductionMessageFragment messageFragment =
 				IntroductionMessageFragment
