@@ -146,6 +146,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));
+		list.periodicallyUpdateContent();
 
 		// Show a floating action button
 		FloatingActionButton fab =

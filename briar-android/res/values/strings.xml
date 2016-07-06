@@ -38,6 +38,7 @@
 	<string name="forums_button">Forums</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
+	<string name="now">now</string>
 	<string name="contact_list_title">Contacts</string>
 	<string name="no_contacts">No contacts</string>
 	<string name="add_contact_title">Add a Contact</string>

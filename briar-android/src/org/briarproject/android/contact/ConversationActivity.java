@@ -167,6 +167,7 @@ public class ConversationActivity extends BriarActivity
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
+		list.periodicallyUpdateContent();
 
 		content = (EditText) findViewById(R.id.input_text);
 		sendButton = findViewById(R.id.btn_send);
