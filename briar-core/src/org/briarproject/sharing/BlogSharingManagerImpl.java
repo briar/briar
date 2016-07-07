@@ -81,11 +81,6 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	protected ClientId getShareableClientId() {
-		return blogManager.getClientId();
-	}
-
-	@Override
 	protected BlogInvitationMessage createInvitationMessage(MessageId id,
 			BlogInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,

@@ -38,9 +38,9 @@ public interface BlogSharingManager
 			ContactId contactId) throws DbException;
 
 	/**
-	 * Returns all blogs to which the user could subscribe.
+	 * Returns all blogs to which the user has been invited.
 	 */
-	Collection<Blog> getAvailable() throws DbException;
+	Collection<Blog> getInvited() throws DbException;
 
 	/**
 	 * Returns all contacts who are sharing the given blog with us.

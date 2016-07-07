@@ -183,7 +183,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was added successfully
-			assertEquals(0, forumSharingManager0.getAvailable().size());
+			assertEquals(0, forumSharingManager0.getInvited().size());
 			assertEquals(1, forumManager1.getForums().size());
 
 			// invitee has one invitation message from sharer
@@ -233,10 +233,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was not added
-			assertEquals(0, forumSharingManager0.getAvailable().size());
+			assertEquals(0, forumSharingManager0.getInvited().size());
 			assertEquals(0, forumManager1.getForums().size());
 			// forum is no longer available to invitee who declined
-			assertEquals(0, forumSharingManager1.getAvailable().size());
+			assertEquals(0, forumSharingManager1.getInvited().size());
 
 			// invitee has one invitation message from sharer
 			List<ForumInvitationMessage> list =
@@ -283,7 +283,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was added successfully
-			assertEquals(0, forumSharingManager0.getAvailable().size());
+			assertEquals(0, forumSharingManager0.getInvited().size());
 			assertEquals(1, forumManager1.getForums().size());
 			assertTrue(forumManager1.getForums().contains(forum0));
 
@@ -303,7 +303,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			syncToSharer();
 
 			// forum is gone
-			assertEquals(0, forumSharingManager0.getAvailable().size());
+			assertEquals(0, forumSharingManager0.getInvited().size());
 			assertEquals(0, forumManager1.getForums().size());
 
 			// sharer no longer shares forum with invitee
@@ -343,7 +343,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was added successfully
-			assertEquals(0, forumSharingManager0.getAvailable().size());
+			assertEquals(0, forumSharingManager0.getInvited().size());
 			assertEquals(1, forumManager1.getForums().size());
 			assertTrue(forumManager1.getForums().contains(forum0));
 
@@ -394,8 +394,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			// sharer un-subscribes from forum
 			forumManager0.removeForum(forum0);
 
-			// from here on expect the response to fail with a DbException
-			thrown.expect(DbException.class);
+			// from here on expect the response to fail with an AssertionError,
+			// because there is in fact no invited forum available anymore
+			thrown.expect(AssertionError.class);
 
 			// sync first request message and leave message
 			syncToInvitee();
@@ -403,7 +404,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener1.requestReceived);
 
 			// invitee has no forums available
-			assertEquals(0, forumSharingManager1.getAvailable().size());
+			assertEquals(0, forumSharingManager1.getInvited().size());
 		} finally {
 			stopLifecycles();
 		}
@@ -709,10 +710,11 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			deliverMessage(sync2, contactId2, sync1, contactId1,
 					"Sharer2 to Invitee");
 
-			// make sure we have only one forum available
-			Collection<Forum> forums =
-					forumSharingManager1.getAvailable();
+			// make sure we now have two invitations to the same forum available
+			Collection<Forum> forums = forumSharingManager1.getInvited();
 			assertEquals(1, forums.size());
+			assertEquals(2,
+					forumSharingManager1.getSharedBy(forum0.getId()).size());
 
 			// make sure both sharers actually share the forum
 			Collection<Contact> contacts =
@@ -946,6 +948,8 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				if (!answer) return;
 				Forum f = event.getForum();
 				try {
+					eventWaiter.assertEquals(1,
+							forumSharingManager1.getInvited().size());
 					Contact c =
 							contactManager1.getContact(event.getContactId());
 					forumSharingManager1.respondToInvitation(f, c, accept);

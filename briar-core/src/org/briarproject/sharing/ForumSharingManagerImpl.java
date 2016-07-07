@@ -79,11 +79,6 @@ class ForumSharingManagerImpl extends
 	}
 
 	@Override
-	protected ClientId getShareableClientId() {
-		return forumManager.getClientId();
-	}
-
-	@Override
 	protected ForumInvitationMessage createInvitationMessage(MessageId id,
 			ForumInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
