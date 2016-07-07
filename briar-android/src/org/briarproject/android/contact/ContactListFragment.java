@@ -3,13 +3,15 @@ package org.briarproject.android.contact;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -108,6 +110,9 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+
+		setHasOptionsMenu(true);
+
 		View contentView =
 				inflater.inflate(R.layout.fragment_contact_list, container,
 						false);
@@ -148,21 +153,27 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		list.setEmptyText(getString(R.string.no_contacts));
 		list.periodicallyUpdateContent();
 
-		// Show a floating action button
-		FloatingActionButton fab =
-				(FloatingActionButton) contentView.findViewById(
-						R.id.addContactFAB);
-
-		// handle FAB click
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(getContext(),
-						KeyAgreementActivity.class));
-			}
-		});
-
 		return contentView;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.contact_list_actions, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case R.id.action_add_contact:
+				Intent intent =
+						new Intent(getContext(), KeyAgreementActivity.class);
+				startActivity(intent);
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
