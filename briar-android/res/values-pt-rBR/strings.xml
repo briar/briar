@@ -99,7 +99,7 @@
   <string name="forum_share_message">Você pode escrever um convite que será enviado aos contatos selecionados.</string>
   <string name="forum_invitation_received">%1$s compartilhou o fórum \"%2$s\" com você.</string>
   <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
-  <string name="forum_show_available">Mostrar fóruns disponíveis</string>
+  <string name="forum_show_invitations">Mostrar fóruns disponíveis</string>
   <string name="forum_compose_post">Nova postagem em fórum</string>
   <string name="from">De:</string>
   <string name="anonymous">Anônimo</string>

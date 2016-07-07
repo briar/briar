@@ -24,7 +24,6 @@ import org.briarproject.api.forum.ForumSharingManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -32,15 +31,15 @@ import javax.inject.Inject;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.forum.AvailableForumsAdapter.AvailableForumClickListener;
+import static org.briarproject.android.forum.ForumInvitationAdapter.AvailableForumClickListener;
 
-public class AvailableForumsActivity extends BriarActivity
+public class ForumInvitationsActivity extends BriarActivity
 		implements EventListener, AvailableForumClickListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(AvailableForumsActivity.class.getName());
+			Logger.getLogger(ForumInvitationsActivity.class.getName());
 
-	private AvailableForumsAdapter adapter;
+	private ForumInvitationAdapter adapter;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -56,7 +55,7 @@ public class AvailableForumsActivity extends BriarActivity
 
 		setContentView(R.layout.activity_available_forums);
 
-		adapter = new AvailableForumsAdapter(this, this);
+		adapter = new ForumInvitationAdapter(this, this);
 		BriarRecyclerView list =
 				(BriarRecyclerView) findViewById(R.id.availableForumsView);
 		list.setLayoutManager(new LinearLayoutManager(this));
@@ -80,21 +79,25 @@ public class AvailableForumsActivity extends BriarActivity
 			@Override
 			public void run() {
 				try {
-					Collection<ForumContacts> available = new ArrayList<>();
+					Collection<ForumInvitationItem> forums = new ArrayList<>();
 					long now = System.currentTimeMillis();
 					for (Forum f : forumSharingManager.getInvited()) {
+						boolean subscribed;
 						try {
-							Collection<Contact> c =
-									forumSharingManager.getSharedBy(f.getId());
-							available.add(new ForumContacts(f, c));
+							forumManager.getForum(f.getId());
+							subscribed = true;
 						} catch (NoSuchGroupException e) {
-							// Continue
+							subscribed = false;
 						}
+						Collection<Contact> c =
+								forumSharingManager.getSharedBy(f.getId());
+						forums.add(
+								new ForumInvitationItem(f, subscribed, c));
 					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayForums(available);
+					displayForums(forums);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -103,20 +106,16 @@ public class AvailableForumsActivity extends BriarActivity
 		});
 	}
 
-	private void displayForums(final Collection<ForumContacts> available) {
+	private void displayForums(final Collection<ForumInvitationItem> forums) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (available.isEmpty()) {
+				if (forums.isEmpty()) {
 					LOG.info("No forums available, finishing");
 					finish();
 				} else {
 					adapter.clear();
-					List<AvailableForumsItem> list =
-							new ArrayList<>(available.size());
-					for (ForumContacts f : available)
-						list.add(new AvailableForumsItem(f));
-					adapter.addAll(list);
+					adapter.addAll(forums);
 				}
 			}
 		});
@@ -152,7 +151,7 @@ public class AvailableForumsActivity extends BriarActivity
 	}
 
 	@Override
-	public void onItemClick(AvailableForumsItem item, boolean accept) {
+	public void onItemClick(ForumInvitationItem item, boolean accept) {
 		respondToInvitation(item, accept);
 
 		// show toast
@@ -161,7 +160,7 @@ public class AvailableForumsActivity extends BriarActivity
 		Toast.makeText(this, res, LENGTH_SHORT).show();
 	}
 
-	private void respondToInvitation(final AvailableForumsItem item,
+	private void respondToInvitation(final ForumInvitationItem item,
 			final boolean accept) {
 		runOnDbThread(new Runnable() {
 			@Override

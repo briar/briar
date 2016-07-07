@@ -5,7 +5,7 @@ import android.app.Activity;
 import org.briarproject.android.blogs.MyBlogsFragment;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
-import org.briarproject.android.forum.AvailableForumsActivity;
+import org.briarproject.android.forum.ForumInvitationsActivity;
 import org.briarproject.android.forum.ContactSelectorFragment;
 import org.briarproject.android.forum.CreateForumActivity;
 import org.briarproject.android.forum.ForumActivity;
@@ -54,7 +54,7 @@ public interface ActivityComponent {
 
 	void inject(CreateIdentityActivity activity);
 
-	void inject(AvailableForumsActivity activity);
+	void inject(ForumInvitationsActivity activity);
 
 	void inject(CreateForumActivity activity);
 

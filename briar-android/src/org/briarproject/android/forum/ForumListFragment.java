@@ -290,6 +290,6 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onClick(View view) {
 		// snackbar click
-		startActivity(new Intent(getContext(), AvailableForumsActivity.class));
+		startActivity(new Intent(getContext(), ForumInvitationsActivity.class));
 	}
 }

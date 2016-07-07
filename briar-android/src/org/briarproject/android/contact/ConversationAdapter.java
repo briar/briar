@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.forum.AvailableForumsActivity;
+import org.briarproject.android.forum.ForumInvitationsActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.forum.ForumInvitationMessage;
@@ -322,7 +322,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 							@Override
 							public void onClick(View v) {
 								Intent intent = new Intent(ctx,
-										AvailableForumsActivity.class);
+										ForumInvitationsActivity.class);
 								ctx.startActivity(intent);
 							}
 						});
