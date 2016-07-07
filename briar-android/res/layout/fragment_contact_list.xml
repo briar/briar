@@ -1,27 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:id="@+id/coordinatorLayout"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-
-	<org.briarproject.android.util.BriarRecyclerView
+<org.briarproject.android.util.BriarRecyclerView
+		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:id="@+id/contactList"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"/>
-
-	<android.support.design.widget.FloatingActionButton
-		android:id="@+id/addContactFAB"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="bottom|end"
-		android:layout_margin="@dimen/margin_activity_horizontal"
-		android:src="@drawable/ic_add_white"
-		app:fabSize="normal"
-		app:elevation="4dp"
-		app:layout_anchor="@id/contactList"
-		app:layout_anchorGravity="bottom|right|end"
-		app:layout_behavior="org.briarproject.android.util.HideFabOnScrollBehavior"/>
-
-</android.support.design.widget.CoordinatorLayout>
