@@ -24,8 +24,10 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_centerInParent="true"
+		android:gravity="center"
 		android:padding="@dimen/margin_activity_horizontal"
+		android:text="@string/no_data"
 		android:textSize="@dimen/text_size_large"
-		android:text="@string/no_data"/>
+		tools:text="@string/no_contacts"/>
 
 </RelativeLayout>
