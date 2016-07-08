@@ -159,7 +159,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		if (sceneModes.contains(SCENE_MODE_BARCODE)) {
 			LOG.info("Setting scene mode to barcode");
 			params.setSceneMode(SCENE_MODE_BARCODE);
-		} else if (Build.VERSION.SDK_INT >= 14 &&
+		}
+		if (Build.VERSION.SDK_INT >= 14 &&
 				focusModes.contains(FOCUS_MODE_CONTINUOUS_PICTURE)) {
 			LOG.info("Setting focus mode to continuous picture");
 			params.setFocusMode(FOCUS_MODE_CONTINUOUS_PICTURE);
