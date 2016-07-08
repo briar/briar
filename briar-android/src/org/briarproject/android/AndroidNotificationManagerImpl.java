@@ -21,18 +21,17 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
+import org.briarproject.api.event.ForumPostReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
-import org.briarproject.api.event.MessageStateChangedEvent;
+import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
-import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ServiceException;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
@@ -59,7 +58,6 @@ import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
-import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Service, EventListener {
@@ -78,7 +76,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
 	private final MessagingManager messagingManager;
-	private final ForumManager forumManager;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 
@@ -94,14 +91,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private volatile Settings settings = new Settings();
 
 	@Inject
-	public AndroidNotificationManagerImpl(@DatabaseExecutor Executor dbExecutor,
+	AndroidNotificationManagerImpl(@DatabaseExecutor Executor dbExecutor,
 			SettingsManager settingsManager, MessagingManager messagingManager,
-			ForumManager forumManager, AndroidExecutor androidExecutor,
-			Application app) {
+			AndroidExecutor androidExecutor, Application app) {
 		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
 		this.messagingManager = messagingManager;
-		this.forumManager = forumManager;
 		this.androidExecutor = androidExecutor;
 		appContext = app.getApplicationContext();
 	}
@@ -157,15 +152,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(SETTINGS_NAMESPACE)) loadSettings();
-		} else if (e instanceof MessageStateChangedEvent) {
-			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
-			if (!m.isLocal() && m.getState() == DELIVERED) {
-				ClientId c = m.getClientId();
-				if (c.equals(messagingManager.getClientId()))
-					showPrivateMessageNotification(m.getMessage().getGroupId());
-				else if (c.equals(forumManager.getClientId()))
-					showForumPostNotification(m.getMessage().getGroupId());
-			}
+		} else if (e instanceof PrivateMessageReceivedEvent) {
+			PrivateMessageReceivedEvent m = (PrivateMessageReceivedEvent) e;
+			showPrivateMessageNotification(m.getGroupId());
+		} else if (e instanceof ForumPostReceivedEvent) {
+			ForumPostReceivedEvent m = (ForumPostReceivedEvent) e;
+			showForumPostNotification(m.getGroupId());
 		} else if (e instanceof IntroductionRequestReceivedEvent) {
 			ContactId c = ((IntroductionRequestReceivedEvent) e).getContactId();
 			showNotificationForPrivateConversation(c);

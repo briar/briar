@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * This class is a singleton that defines the data that should persist, i.e.
@@ -21,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class ForumPersistentData {
 
-	protected volatile MessageTree<ForumPostHeader> tree =
+	private volatile MessageTree<ForumPostHeader> tree =
 			new MessageTreeImpl<>();
 	private volatile Map<MessageId, byte[]> bodyCache = new HashMap<>();
 	private volatile LocalAuthor localAuthor;
@@ -29,36 +28,36 @@ public class ForumPersistentData {
 	private volatile GroupId groupId;
 	private List<ForumEntry> forumEntries;
 
-	private static final Logger LOG =
-			Logger.getLogger(ForumControllerImpl.class.getName());
-
-
-	public void clearAll() {
-		clearHeaders();
+	void clearAll() {
+		clearForumEntries();
+		tree.clear();
 		bodyCache.clear();
 		localAuthor = null;
 		forum = null;
 		groupId = null;
 	}
 
-	public void clearHeaders() {
-		tree.clear();
+	void clearForumEntries() {
 		forumEntries = null;
 	}
 
-	public void addHeaders(Collection<ForumPostHeader> headers) {
+	void addHeaders(Collection<ForumPostHeader> headers) {
 		tree.add(headers);
+	}
+
+	void addHeader(ForumPostHeader header) {
+		tree.add(header);
 	}
 
 	public Collection<ForumPostHeader> getHeaders() {
 		return tree.depthFirstOrder();
 	}
 
-	public void addBody(MessageId messageId, byte[] body) {
+	void addBody(MessageId messageId, byte[] body) {
 		bodyCache.put(messageId, body);
 	}
 
-	public byte[] getBody(MessageId messageId) {
+	byte[] getBody(MessageId messageId) {
 		return bodyCache.get(messageId);
 	}
 
@@ -87,11 +86,11 @@ public class ForumPersistentData {
 		this.groupId = groupId;
 	}
 
-	public List<ForumEntry> getForumEntries() {
+	List<ForumEntry> getForumEntries() {
 		return forumEntries;
 	}
 
-	public void setForumEntries(List<ForumEntry> forumEntries) {
+	void setForumEntries(List<ForumEntry> forumEntries) {
 		this.forumEntries = forumEntries;
 	}
 }
