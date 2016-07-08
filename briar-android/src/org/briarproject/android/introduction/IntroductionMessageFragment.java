@@ -149,6 +149,10 @@ public class IntroductionMessageFragment extends BaseFragment {
 				ui.avatar2.setImageDrawable(new IdenticonDrawable(
 						c2.getAuthor().getId().getBytes()));
 
+				// set contact names
+				ui.contactName1.setText(c1.getAuthor().getName());
+				ui.contactName2.setText(c2.getAuthor().getName());
+
 				// set introduction text
 				ui.text.setText(String.format(
 						getString(R.string.introduction_message_text),
@@ -215,6 +219,7 @@ public class IntroductionMessageFragment extends BaseFragment {
 
 		private final ProgressBar progressBar;
 		private final CircleImageView avatar1, avatar2;
+		private final TextView contactName1, contactName2;
 		private final TextView text;
 		private final EditText message;
 		private final Button button;
@@ -223,6 +228,8 @@ public class IntroductionMessageFragment extends BaseFragment {
 			progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
 			avatar1 = (CircleImageView) v.findViewById(R.id.avatarContact1);
 			avatar2 = (CircleImageView) v.findViewById(R.id.avatarContact2);
+			contactName1 = (TextView) v.findViewById(R.id.nameContact1);
+			contactName2 = (TextView) v.findViewById(R.id.nameContact2);
 			text = (TextView) v.findViewById(R.id.introductionText);
 			message = (EditText) v.findViewById(R.id.introductionMessageView);
 			button = (Button) v.findViewById(R.id.makeIntroductionButton);

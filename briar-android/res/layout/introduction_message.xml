@@ -1,38 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.NestedScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:fillViewport="true">
 
 	<LinearLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		xmlns:app="http://schemas.android.com/apk/res-auto"
-		xmlns:tools="http://schemas.android.com/tools"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:padding="@dimen/margin_activity_horizontal"
-		android:orientation="vertical">
+		android:orientation="vertical"
+		android:padding="@dimen/margin_activity_horizontal">
 
 		<RelativeLayout
-			android:id="@+id/introductionHeader"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:padding="@dimen/margin_medium">
+			android:layout_height="wrap_content">
 
-			<de.hdodenhof.circleimageview.CircleImageView
-				android:id="@+id/avatarContact1"
-				style="@style/BriarAvatar"
-				android:layout_width="@dimen/listitem_picture_size"
-				android:layout_height="@dimen/listitem_picture_size"
-				android:layout_centerHorizontal="true"
-				android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-				android:layout_marginRight="@dimen/listitem_horizontal_margin"
+			<LinearLayout
+				android:id="@+id/layoutContact1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:layout_toLeftOf="@+id/introductionIcon"
-				android:layout_toStartOf="@+id/introductionIcon"
-				tools:src="@drawable/ic_launcher"/>
+				android:gravity="top|center_horizontal"
+				android:orientation="vertical">
+
+				<de.hdodenhof.circleimageview.CircleImageView
+					android:id="@+id/avatarContact1"
+					style="@style/BriarAvatar"
+					android:layout_width="@dimen/listitem_picture_size"
+					android:layout_height="@dimen/listitem_picture_size"
+					android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+					android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+					android:layout_marginRight="@dimen/listitem_horizontal_margin"
+					android:layout_marginStart="@dimen/listitem_horizontal_margin"
+					tools:src="@drawable/ic_launcher"/>
+
+				<TextView
+					android:id="@+id/nameContact1"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/margin_small"
+					android:gravity="center"
+					android:textColor="@color/briar_text_primary"
+					android:textSize="@dimen/text_size_tiny"
+					tools:text="Contact 1"/>
+
+			</LinearLayout>
 
 			<ImageView
 				android:id="@+id/introductionIcon"
@@ -42,18 +55,38 @@
 				android:src="@drawable/ic_contact_introduction"
 				tools:ignore="ContentDescription"/>
 
-			<de.hdodenhof.circleimageview.CircleImageView
-				android:id="@+id/avatarContact2"
-				style="@style/BriarAvatar"
-				android:layout_width="@dimen/listitem_picture_size"
-				android:layout_height="@dimen/listitem_picture_size"
-				android:layout_centerHorizontal="true"
-				android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-				android:layout_marginStart="@dimen/listitem_horizontal_margin"
+			<LinearLayout
+				android:id="@+id/layoutContact2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:layout_toEndOf="@+id/introductionIcon"
 				android:layout_toRightOf="@+id/introductionIcon"
-				android:transitionName="avatar"
-				tools:src="@drawable/ic_launcher"/>
+				android:gravity="top|center_horizontal"
+				android:orientation="vertical">
+
+				<de.hdodenhof.circleimageview.CircleImageView
+					android:id="@+id/avatarContact2"
+					style="@style/BriarAvatar"
+					android:layout_width="@dimen/listitem_picture_size"
+					android:layout_height="@dimen/listitem_picture_size"
+					android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+					android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+					android:layout_marginRight="@dimen/listitem_horizontal_margin"
+					android:layout_marginStart="@dimen/listitem_horizontal_margin"
+					android:transitionName="avatar"
+					tools:src="@drawable/ic_launcher"/>
+
+				<TextView
+					android:id="@+id/nameContact2"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/margin_small"
+					android:gravity="center"
+					android:textColor="@color/briar_text_primary"
+					android:textSize="@dimen/text_size_tiny"
+					tools:text="Contact 2"/>
+
+			</LinearLayout>
 
 		</RelativeLayout>
 
@@ -72,8 +105,8 @@
 			android:layout_marginTop="@dimen/margin_medium"
 			android:layout_weight="1"
 			android:gravity="top"
-			android:textSize="@dimen/text_size_medium"
 			android:textColor="@color/briar_text_primary"
+			android:textSize="@dimen/text_size_medium"
 			tools:text="@string/introduction_message_text"/>
 
 		<EditText
