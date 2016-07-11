@@ -67,7 +67,8 @@
 
 		<activity
 			android:name=".android.SetupActivity"
-			android:label="@string/setup_title">
+			android:label="@string/setup_title"
+			android:windowSoftInputMode="adjustResize">
 		</activity>
 
 		<activity

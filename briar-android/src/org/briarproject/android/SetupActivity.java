@@ -25,6 +25,7 @@ import org.briarproject.util.StringUtils;
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
@@ -98,7 +99,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		if (progress == null) return; // Not created yet
 		if (passwordEntry.getText().length() > 0 && passwordEntry.hasFocus())
 			strengthMeter.setVisibility(VISIBLE);
-		else strengthMeter.setVisibility(INVISIBLE);
+		else strengthMeter.setVisibility(GONE);
 		String nickname = nicknameEntry.getText().toString();
 		int nicknameLength = StringUtils.toUtf8(nickname).length;
 		String firstPassword = passwordEntry.getText().toString();
