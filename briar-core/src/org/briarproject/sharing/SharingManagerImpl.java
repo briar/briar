@@ -31,6 +31,7 @@ import org.briarproject.api.sharing.SharingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
@@ -182,8 +183,9 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	}
 
 	@Override
-	protected boolean incomingReadableMessage(Transaction txn, Message m,
-			BdfList body, BdfDictionary d) throws DbException, FormatException {
+	protected void incomingReadableMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary d)
+			throws DbException, FormatException, InvalidMessageException {
 
 		BaseMessage msg = BaseMessage.from(getIFactory(), m.getGroupId(), d);
 		SessionId sessionId = msg.getSessionId();
@@ -219,7 +221,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 			} catch (FormatException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				deleteMessage(txn, m.getId());
-				return false;
+				throw new InvalidMessageException();
 			}
 		} else if (msg.getType() == SHARE_MSG_TYPE_ACCEPT ||
 				msg.getType() == SHARE_MSG_TYPE_DECLINE) {
@@ -254,9 +256,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 			// message has passed validator, so that should never happen
 			throw new RuntimeException("Illegal Sharing Message");
 		}
-
-		// The message is valid
-		return true;
 	}
 
 	@Override
@@ -362,7 +361,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	@Override
 	public IM getInvitationMessage(ContactId contactId, MessageId messageId)
 			throws DbException {
-		Transaction txn = db.startTransaction(false);
+		Transaction txn = db.startTransaction(true);
 		try {
 			Contact contact = db.getContact(txn, contactId);
 			Group group = getContactGroup(contact);

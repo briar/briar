@@ -26,6 +26,7 @@ import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
@@ -213,8 +214,9 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 	 * in the introduction protocol and which engine we need to start.
 	 */
 	@Override
-	protected boolean incomingReadableMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary message) throws DbException, FormatException {
+	protected void incomingReadableMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary message)
+			throws DbException, FormatException, InvalidMessageException {
 
 		// Get message data and type
 		GroupId groupId = m.getGroupId();
@@ -240,7 +242,7 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 					LOG.log(WARNING, e.toString(), e);
 				}
 				deleteMessage(txn, m.getId());
-				return false;
+				throw new InvalidMessageException();
 			}
 			try {
 				introduceeManager.incomingMessage(txn, state, message);
@@ -262,7 +264,7 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 			} catch (FormatException e) {
 				LOG.warning("Could not find state for message, deleting...");
 				deleteMessage(txn, m.getId());
-				return false;
+				throw new InvalidMessageException();
 			}
 
 			long role = state.getLong(ROLE, -1L);
@@ -277,7 +279,7 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 								"'. Deleting message...");
 					}
 					deleteMessage(txn, m.getId());
-					return false;
+					throw new InvalidMessageException();
 				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -296,11 +298,8 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 				LOG.warning("Unknown message type '" + type + "', deleting...");
 			}
 			deleteMessage(txn, m.getId());
-			return false;
+			throw new InvalidMessageException();
 		}
-
-		// The message is valid
-		return true;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
@@ -96,8 +97,9 @@ class MessagingManagerImpl extends ReadableMessageManagerImpl
 	}
 
 	@Override
-	protected boolean incomingReadableMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary meta) throws DbException, FormatException {
+	protected void incomingReadableMessage(Transaction txn, Message m,
+			BdfList body, BdfDictionary meta)
+			throws DbException, FormatException, InvalidMessageException {
 
 		// Broadcast event
 		GroupId groupId = m.getGroupId();
@@ -110,8 +112,6 @@ class MessagingManagerImpl extends ReadableMessageManagerImpl
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, groupId);
 		txn.attach(event);
-
-		return true;
 	}
 
 	@Override

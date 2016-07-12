@@ -13,6 +13,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 
@@ -35,16 +36,17 @@ public abstract class ReadableMessageManagerImpl
 
 	protected abstract Group getContactGroup(Contact c);
 
-	protected abstract boolean incomingReadableMessage(Transaction txn,
+	protected abstract void incomingReadableMessage(Transaction txn,
 			Message m, BdfList body, BdfDictionary meta)
-			throws DbException, FormatException;
+			throws DbException, FormatException, InvalidMessageException;
 
 	@Override
 	protected void incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 
 		// Check if we accept this message
-		if (incomingReadableMessage(txn, m, body, meta)) {
+		try {
+			incomingReadableMessage(txn, m, body, meta);
 
 			// Update the group timestamp and unread count
 			GroupId groupId = m.getGroupId();
@@ -52,6 +54,7 @@ public abstract class ReadableMessageManagerImpl
 			boolean local = meta.getBoolean(LOCAL);
 			boolean read = meta.getBoolean(READ);
 			updateGroupMetadata(txn, groupId, timestamp, local, read, read);
+		} catch (InvalidMessageException ignored) {
 		}
 	}
 
