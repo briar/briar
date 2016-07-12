@@ -41,7 +41,6 @@
   <string name="contact_list_title">Contatos</string>
   <string name="no_contacts">Nenhum contato</string>
   <string name="add_contact_title">Adicionar um contato</string>
-  <string name="add_contact_title_step">Adicionar um contato - Passo %1$d/%2$d</string>
   <string name="your_nickname">Escolha a identidade que você quer usar:</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoal que deseja adicionar como contato. Isso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
   <string name="continue_button">Continuar</string>
