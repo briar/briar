@@ -101,8 +101,7 @@ public abstract class ReadableMessageManagerImpl
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(READ, read);
 			clientHelper.mergeMessageMetadata(txn, m, meta);
-			GroupId g = getContactGroup(db.getContact(txn, c)).getId();
-			updateGroupMetadata(txn, g, -1, local, wasRead, read);
+			updateContactMetadata(txn, c, -1, local, wasRead, read);
 			txn.setComplete();
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -111,7 +110,14 @@ public abstract class ReadableMessageManagerImpl
 		}
 	}
 
-	private void updateGroupMetadata(Transaction txn, GroupId groupId,
+	protected void updateContactMetadata(Transaction txn, ContactId contactId,
+			long timestamp, boolean local, boolean wasRead, boolean read)
+			throws DbException, FormatException {
+		GroupId g = getContactGroup(db.getContact(txn, contactId)).getId();
+		updateGroupMetadata(txn, g, timestamp, local, wasRead, read);
+	}
+
+	protected void updateGroupMetadata(Transaction txn, GroupId groupId,
 			long timestamp, boolean local, boolean wasRead, boolean read)
 			throws DbException, FormatException {
 		BdfDictionary groupMeta =

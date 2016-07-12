@@ -116,6 +116,7 @@ class MessagingManagerImpl extends ReadableMessageManagerImpl
 
 	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
+		Transaction txn = db.startTransaction(false);
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(TIMESTAMP, m.getMessage().getTimestamp());
@@ -123,9 +124,15 @@ class MessagingManagerImpl extends ReadableMessageManagerImpl
 			meta.put("contentType", m.getContentType());
 			meta.put(LOCAL, true);
 			meta.put(READ, true);
-			clientHelper.addLocalMessage(m.getMessage(), CLIENT_ID, meta, true);
+			clientHelper.addLocalMessage(txn, m.getMessage(), CLIENT_ID, meta,
+					true);
+			updateGroupMetadata(txn, m.getMessage().getGroupId(),
+					m.getMessage().getTimestamp(), true, true, true);
+			txn.setComplete();
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
+		} finally {
+			db.endTransaction(txn);
 		}
 	}
 

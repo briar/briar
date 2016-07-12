@@ -872,6 +872,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 
 		messageQueueManager
 				.sendMessage(txn, group, timestamp, body, meta);
+		updateGroupMetadata(txn, m.getGroupId(), timestamp, true, true, true);
 	}
 
 	@Override

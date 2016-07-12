@@ -310,6 +310,8 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 		Transaction txn = db.startTransaction(false);
 		try {
 			introducerManager.makeIntroduction(txn, c1, c2, msg, timestamp);
+			updateContactMetadata(txn, c1.getId(), timestamp, true, true, true);
+			updateContactMetadata(txn, c2.getId(), timestamp, true, true, true);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -329,6 +331,7 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
 			introduceeManager.acceptIntroduction(txn, state, timestamp);
+			updateContactMetadata(txn, contactId, timestamp, true, true, true);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -348,6 +351,7 @@ class IntroductionManagerImpl extends ReadableMessageManagerImpl
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
 			introduceeManager.declineIntroduction(txn, state, timestamp);
+			updateContactMetadata(txn, contactId, timestamp, true, true, true);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
