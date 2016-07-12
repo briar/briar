@@ -193,6 +193,7 @@
 	<string name="introduction_message_text">You can compose a message that will be sent to %1$s and %2$s along with your introduction:</string>
 	<string name="introduction_message_hint">Type message (optional)</string>
 	<string name="introduction_button">Make Introduction</string>
+	<string name="introduction_sent">Your introduction has been sent.</string>
 	<string name="introduction_error">There was an error making the introduction.</string>
 	<string name="introduction_response_error">Error when responding to introduction</string>
 	<string name="introduction_warn_different_identities_title">Warning: Different Identities</string>
