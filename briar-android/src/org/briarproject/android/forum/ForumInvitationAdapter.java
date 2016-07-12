@@ -17,16 +17,19 @@ import org.briarproject.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 
-class AvailableForumsAdapter extends
-		RecyclerView.Adapter<AvailableForumsAdapter.AvailableForumViewHolder> {
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+class ForumInvitationAdapter extends
+		RecyclerView.Adapter<ForumInvitationAdapter.AvailableForumViewHolder> {
 
 	private final Context ctx;
 	private final AvailableForumClickListener listener;
-	private final SortedList<AvailableForumsItem> forums =
-			new SortedList<>(AvailableForumsItem.class,
+	private final SortedList<ForumInvitationItem> forums =
+			new SortedList<>(ForumInvitationItem.class,
 					new SortedListCallBacks());
 
-	AvailableForumsAdapter(Context ctx, AvailableForumClickListener listener) {
+	ForumInvitationAdapter(Context ctx, AvailableForumClickListener listener) {
 		this.ctx = ctx;
 		this.listener = listener;
 	}
@@ -42,7 +45,7 @@ class AvailableForumsAdapter extends
 
 	@Override
 	public void onBindViewHolder(AvailableForumViewHolder ui, int position) {
-		final AvailableForumsItem item = getItem(position);
+		final ForumInvitationItem item = getItem(position);
 
 		ui.avatar.setText(item.getForum().getName().substring(0, 1));
 		ui.avatar.setBackgroundBytes(item.getForum().getId().getBytes());
@@ -53,6 +56,12 @@ class AvailableForumsAdapter extends
 		for (Contact c : item.getContacts()) names.add(c.getAuthor().getName());
 		ui.sharedBy.setText(ctx.getString(R.string.shared_by_format,
 				StringUtils.join(names, ", ")));
+
+		if (item.isSubscribed()) {
+			ui.subscribed.setVisibility(VISIBLE);
+		} else {
+			ui.subscribed.setVisibility(GONE);
+		}
 
 		ui.accept.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -73,15 +82,15 @@ class AvailableForumsAdapter extends
 		return forums.size();
 	}
 
-	public AvailableForumsItem getItem(int position) {
+	public ForumInvitationItem getItem(int position) {
 		return forums.get(position);
 	}
 
-	public void add(AvailableForumsItem item) {
+	public void add(ForumInvitationItem item) {
 		forums.add(item);
 	}
 
-	public void addAll(Collection<AvailableForumsItem> list) {
+	public void addAll(Collection<ForumInvitationItem> list) {
 		forums.addAll(list);
 	}
 
@@ -89,32 +98,34 @@ class AvailableForumsAdapter extends
 		forums.clear();
 	}
 
-	protected static class AvailableForumViewHolder
+	static class AvailableForumViewHolder
 			extends RecyclerView.ViewHolder {
 
 		private final TextAvatarView avatar;
 		private final TextView name;
 		private final TextView sharedBy;
+		private final TextView subscribed;
 		private final Button accept;
 		private final Button decline;
 
-		public AvailableForumViewHolder(View v) {
+		AvailableForumViewHolder(View v) {
 			super(v);
 
 			avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
 			name = (TextView) v.findViewById(R.id.forumNameView);
 			sharedBy = (TextView) v.findViewById(R.id.sharedByView);
+			subscribed = (TextView) v.findViewById(R.id.forumSubscribedView);
 			accept = (Button) v.findViewById(R.id.acceptButton);
 			decline = (Button) v.findViewById(R.id.declineButton);
 		}
 	}
 
 	private class SortedListCallBacks
-			extends SortedList.Callback<AvailableForumsItem> {
+			extends SortedList.Callback<ForumInvitationItem> {
 
 		@Override
-		public int compare(AvailableForumsItem o1,
-				AvailableForumsItem o2) {
+		public int compare(ForumInvitationItem o1,
+				ForumInvitationItem o2) {
 			return String.CASE_INSENSITIVE_ORDER
 					.compare(o1.getForum().getName(),
 							o2.getForum().getName());
@@ -141,21 +152,21 @@ class AvailableForumsAdapter extends
 		}
 
 		@Override
-		public boolean areContentsTheSame(AvailableForumsItem oldItem,
-				AvailableForumsItem newItem) {
+		public boolean areContentsTheSame(ForumInvitationItem oldItem,
+				ForumInvitationItem newItem) {
 			return oldItem.getForum().equals(newItem.getForum()) &&
 					oldItem.getContacts().equals(newItem.getContacts());
 		}
 
 		@Override
-		public boolean areItemsTheSame(AvailableForumsItem oldItem,
-				AvailableForumsItem newItem) {
+		public boolean areItemsTheSame(ForumInvitationItem oldItem,
+				ForumInvitationItem newItem) {
 			return oldItem.getForum().equals(newItem.getForum());
 		}
 	}
 
 
 	interface AvailableForumClickListener {
-		void onItemClick(AvailableForumsItem item, boolean accept);
+		void onItemClick(ForumInvitationItem item, boolean accept);
 	}
 }

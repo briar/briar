@@ -51,7 +51,7 @@
 			android:layout_alignEnd="@+id/introductionText"
 			android:layout_alignRight="@+id/introductionText"
 			android:layout_below="@+id/introductionText"
-			android:text="@string/forum_show_available"/>
+			android:text="@string/forum_show_invitations"/>
 
 	</RelativeLayout>
 

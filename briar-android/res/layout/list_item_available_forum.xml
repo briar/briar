@@ -6,8 +6,8 @@
 	android:layout_height="wrap_content"
 	android:layout_marginLeft="@dimen/listitem_horizontal_margin"
 	android:layout_marginStart="@dimen/listitem_horizontal_margin"
-	android:paddingTop="@dimen/listitem_horizontal_margin"
-	android:background="?attr/selectableItemBackground">
+	android:background="?attr/selectableItemBackground"
+	android:paddingTop="@dimen/listitem_horizontal_margin">
 
 	<org.briarproject.android.util.TextAvatarView
 		android:id="@+id/avatarView"
@@ -22,10 +22,12 @@
 		android:id="@+id/forumNameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:layout_toEndOf="@+id/avatarView"
 		android:layout_toRightOf="@+id/avatarView"
 		android:maxLines="2"
-		android:textColor="@android:color/primary_text_light"
+		android:textColor="@color/briar_primary"
 		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a name of a forum that is available"/>
 
@@ -34,38 +36,55 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/forumNameView"
-		android:layout_marginBottom="-8dp"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:layout_toEndOf="@+id/avatarView"
 		android:layout_toRightOf="@+id/avatarView"
 		android:paddingTop="@dimen/margin_medium"
-		android:textColor="@android:color/secondary_text_light"
+		android:textColor="@color/briar_text_secondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="Shared by Megalox"/>
+
+	<TextView
+		android:id="@+id/forumSubscribedView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/sharedByView"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:paddingTop="@dimen/margin_medium"
+		android:text="@string/forum_invitation_exists"
+		android:textColor="@color/briar_text_tertiary"
+		android:textSize="@dimen/text_size_small"
+		tools:visibility="visible"/>
 
 	<Button
 		android:id="@+id/acceptButton"
 		style="@style/BriarButtonFlat.Positive"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/dialog_button_accept"
-		android:layout_below="@+id/sharedByView"
+		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
-		android:layout_alignParentEnd="true"/>
+		android:layout_below="@+id/forumSubscribedView"
+		android:layout_marginTop="-8dp"
+		android:text="@string/dialog_button_accept"/>
 
 	<Button
 		android:id="@+id/declineButton"
 		style="@style/BriarButtonFlat.Negative"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/dialog_button_decline"
-		android:layout_below="@+id/sharedByView"
+		android:layout_below="@+id/forumSubscribedView"
+		android:layout_marginTop="-8dp"
 		android:layout_toLeftOf="@+id/acceptButton"
-		android:layout_toStartOf="@+id/acceptButton"/>
+		android:layout_toStartOf="@+id/acceptButton"
+		android:text="@string/dialog_button_decline"/>
 
-	<View style="@style/Divider.ForumList"
-	      android:layout_below="@+id/acceptButton"
-	      android:layout_alignParentLeft="true"
-	      android:layout_alignParentStart="true"/>
+	<View
+		style="@style/Divider.ForumList"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:layout_below="@+id/acceptButton"/>
 
 </RelativeLayout>
 

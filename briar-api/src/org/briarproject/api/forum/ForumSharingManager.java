@@ -34,8 +34,8 @@ public interface ForumSharingManager extends SharingManager<Forum, ForumInvitati
 	Collection<ForumInvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
-	/** Returns all forums to which the user could subscribe. */
-	Collection<Forum> getAvailable() throws DbException;
+	/** Returns all forums to which the user has been invited. */
+	Collection<Forum> getInvited() throws DbException;
 
 	/** Returns all contacts who are sharing the given forum with us. */
 	Collection<Contact> getSharedBy(GroupId g) throws DbException;

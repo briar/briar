@@ -81,6 +81,7 @@ import static org.briarproject.api.sharing.SharingConstants.TO_BE_SHARED_BY_US;
 import static org.briarproject.api.sharing.SharingConstants.TYPE;
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.Invitation;
+import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
 abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM extends InvitationMessage, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
 		extends BdfIncomingMessageHook
@@ -115,8 +116,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	}
 
 	public abstract ClientId getClientId();
-
-	protected abstract ClientId getShareableClientId();
 
 	protected abstract IM createInvitationMessage(MessageId id, I msg,
 			ContactId contactId, boolean available, long time, boolean local,
@@ -331,7 +330,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 				new BdfEntry(TYPE, SHARE_MSG_TYPE_INVITATION)
 		);
 
-		Transaction txn = db.startTransaction(false);
+		Transaction txn = db.startTransaction(true);
 		try {
 			Contact contact = db.getContact(txn, contactId);
 			Group group = getContactGroup(contact);
@@ -356,7 +355,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 						if (!(s instanceof InviteeSessionState))
 							continue;
 						available = ((InviteeSessionState) s).getState() ==
-								InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
+								AWAIT_LOCAL_RESPONSE;
 					}
 					IM im = createInvitationMessage(m.getKey(), msg, contactId,
 							available, time, local, status.isSent(),
@@ -377,32 +376,52 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	}
 
 	@Override
-	public Collection<S> getAvailable() throws DbException {
+	public Collection<S> getInvited() throws DbException {
+		Transaction txn = db.startTransaction(true);
 		try {
-			Set<S> available = new HashSet<S>();
-			Transaction txn = db.startTransaction(true);
-			try {
-				// Get any shareables we subscribe to
-				Set<Group> subscribed = new HashSet<Group>(db.getGroups(txn,
-						getShareableClientId()));
-				// Get all shareables shared by contacts
-				for (Contact c : db.getContacts(txn)) {
-					Group g = getContactGroup(c);
-					List<S> shareables =
-							getShareableList(txn, g.getId(), SHARED_WITH_US);
-					for (S f : shareables) {
-						if (!subscribed.contains(f.getGroup()))
-							available.add(f);
-					}
-				}
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
+			Set<S> invited = new HashSet<S>();
+			Collection<Contact> contacts = db.getContacts(txn);
+			for (Contact contact : contacts) {
+				invited.addAll(getInvited(txn, contact));
 			}
-			return Collections.unmodifiableSet(available);
-		} catch (IOException e) {
+			txn.setComplete();
+			return Collections.unmodifiableCollection(invited);
+		} catch (FormatException e) {
 			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
 		}
+	}
+
+	private Collection<S> getInvited(Transaction txn, Contact contact)
+			throws DbException, FormatException {
+
+		// query for all external invitations
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(TYPE, SHARE_MSG_TYPE_INVITATION),
+				new BdfEntry(LOCAL, false)
+		);
+		Group group = getContactGroup(contact);
+
+		Set<S> invited = new HashSet<S>();
+		Map<MessageId, BdfDictionary> map = clientHelper
+				.getMessageMetadataAsDictionary(txn, group.getId(), query);
+		for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
+			BdfDictionary d = m.getValue();
+			try {
+				I msg = getIFactory().build(group.getId(), d);
+				IS iss = (IS) getSessionState(txn, msg.getSessionId(), true);
+				// get and add the shareable if the invitation is unanswered
+				if (iss.getState().equals(AWAIT_LOCAL_RESPONSE)) {
+					S s = getSFactory().parse(iss);
+					invited.add(s);
+				}
+			} catch (FormatException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+			}
+		}
+		return invited;
 	}
 
 	@Override
@@ -473,7 +492,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 		}
 	}
 
-	protected void removingShareable(Transaction txn, S f) throws DbException {
+	void removingShareable(Transaction txn, S f) throws DbException {
 		try {
 			for (Contact c : db.getContacts(txn)) {
 				GroupId g = getContactGroup(c).getId();
@@ -642,9 +661,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 				new BdfEntry(IS_SHARER, false),
 				new BdfEntry(CONTACT_ID, c.getId().getInt()),
 				new BdfEntry(SHAREABLE_ID, f.getId()),
-				new BdfEntry(STATE,
-						InviteeSessionState.State.AWAIT_LOCAL_RESPONSE
-								.getValue())
+				new BdfEntry(STATE, AWAIT_LOCAL_RESPONSE.getValue())
 		);
 
 		Map<MessageId, BdfDictionary> map = clientHelper

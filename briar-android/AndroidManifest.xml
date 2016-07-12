@@ -100,8 +100,8 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.AvailableForumsActivity"
-			android:label="@string/available_forums_title"
+			android:name=".android.forum.ForumInvitationsActivity"
+			android:label="@string/forum_invitations_title"
 			android:parentActivityName=".android.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"

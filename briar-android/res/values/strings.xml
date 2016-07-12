@@ -103,7 +103,7 @@
 	<string name="forum_share_message">You may compose an optional invitation message that will be sent to the selected contacts.</string>
 	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
 	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
-	<string name="forum_show_available">Show Available Forums</string>
+	<string name="forum_show_invitations">Show Forum Invitations</string>
 	<string name="forum_compose_post">New Forum Post</string>
 	<string name="from">From:</string>
 	<string name="anonymous">Anonymous</string>
@@ -112,7 +112,8 @@
 	<string name="create_identity_button">Create Identity</string>
 	<string name="identity_created_toast">Identity created</string>
 	<string name="forum_post_hint">Type forum post</string>
-	<string name="available_forums_title">Available Forums</string>
+	<string name="forum_invitations_title">Forum Invitations</string>
+	<string name="forum_invitation_exists">You accepted an invitation to this forum already. Accepting more invitations will grow and strengthen the communication in the forum.</string>
 	<string name="forum_joined_toast">Joined Forum</string>
 	<string name="forum_declined_toast">Forum Invitation Declined</string>
 	<string name="shared_by_format">Shared by %s</string>
