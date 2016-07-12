@@ -83,15 +83,12 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 			if (b != null)
 				localAuthorId = new AuthorId(b);
 		}
-
+		getSupportActionBar().setTitle(R.string.add_contact_title);
 		showStep(localAuthorId == null ? STEP_ID : STEP_QR);
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	private void showStep(int step) {
-		getSupportActionBar().setTitle(
-				String.format(getString(R.string.add_contact_title_step), step,
-						STEPS));
 		switch (step) {
 			case STEP_QR:
 				startFragment(ShowQrCodeFragment.newInstance());

@@ -43,7 +43,6 @@
 	<string name="contact_list_title">Contacts</string>
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
 	<string name="add_contact_title">Add a Contact</string>
-	<string name="add_contact_title_step">Add a Contact - Step %1$d/%2$d</string>
 	<string name="your_nickname">Choose the identity you want to use:</string>
 	<string name="face_to_face">You must be face-to-face with the person you want to add as a contact. This will prevent anyone from impersonating you or reading your messages in future.</string>
 	<string name="continue_button">Continue</string>
