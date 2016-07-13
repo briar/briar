@@ -181,6 +181,7 @@ public class BlogControllerImpl extends DbControllerImpl
 				try {
 					Blog b = blogManager.getBlog(data.getGroupId());
 					blogManager.removeBlog(b);
+					resultHandler.onResult(true);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

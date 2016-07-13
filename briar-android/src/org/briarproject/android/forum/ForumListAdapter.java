@@ -104,6 +104,7 @@ class ForumListAdapter extends
 		// Post Count
 		int postCount = item.getPostCount();
 		if (postCount > 0) {
+			ui.avatar.setProblem(false);
 			ui.postCount.setText(ctx.getResources()
 					.getQuantityString(R.plurals.posts, postCount,
 							postCount));

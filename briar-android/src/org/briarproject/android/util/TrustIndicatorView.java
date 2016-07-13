@@ -46,6 +46,7 @@ public class TrustIndicatorView extends ImageView {
 				res = R.drawable.trust_indicator_unknown;
 		}
 		setImageDrawable(ContextCompat.getDrawable(getContext(), res));
+		setVisibility(VISIBLE);
 	}
 
 }

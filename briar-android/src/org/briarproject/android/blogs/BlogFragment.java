@@ -53,7 +53,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	private BriarRecyclerView list;
 
 	static BlogFragment newInstance(GroupId groupId, String name,
-			boolean myBlog,	boolean isNew) {
+			boolean myBlog, boolean isNew) {
 
 		BlogFragment f = new BlogFragment();
 
@@ -204,7 +204,8 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.blogs_delete_blog));
-		builder.setMessage(getString(R.string.blogs_delete_blog_dialog_message));
+		builder.setMessage(
+				getString(R.string.blogs_delete_blog_dialog_message));
 		builder.setPositiveButton(R.string.blogs_delete_blog_cancel, null);
 		builder.setNegativeButton(R.string.blogs_delete_blog_ok, okListener);
 		builder.show();
@@ -216,8 +217,9 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 					@Override
 					public void onResultUi(Boolean result) {
 						if (!result) return;
-						Toast.makeText(getActivity(), R.string.forum_left_toast,
-								LENGTH_SHORT).show();
+						Toast.makeText(getActivity(),
+								R.string.blogs_blog_deleted, LENGTH_SHORT)
+								.show();
 						getActivity().supportFinishAfterTransition();
 					}
 				});

@@ -124,6 +124,7 @@ class BlogListAdapter extends
 			ui.date.setText(
 					DateUtils.getRelativeTimeSpanString(ctx, timestamp));
 			ui.date.setVisibility(VISIBLE);
+			ui.avatar.setProblem(false);
 			ui.status.setVisibility(GONE);
 		}
 

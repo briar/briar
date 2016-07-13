@@ -100,7 +100,7 @@ public class WriteBlogPostActivity extends BriarActivity
 
 			@Override
 			public void afterTextChanged(Editable s) {
-				showOrHidePublishButton();
+				enableOrDisablePublishButton();
 			}
 		});
 
@@ -126,7 +126,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		return true;
 	}
 
-	private void showOrHidePublishButton() {
+	private void enableOrDisablePublishButton() {
 		int bodyLength =
 				StringUtils.toUtf8(bodyInput.getText().toString()).length;
 		if (bodyLength > 0 && bodyLength <= MAX_BLOG_POST_BODY_LENGTH &&
