@@ -167,9 +167,9 @@ public class WriteBlogPostActivity extends BriarActivity
 					blogManager.addLocalPost(p);
 					postPublished();
 				} catch (DbException | GeneralSecurityException | FormatException e) {
-					// TODO show error
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
+					postFailedToPublish();
 				}
 			}
 		});
@@ -181,6 +181,18 @@ public class WriteBlogPostActivity extends BriarActivity
 			public void run() {
 				setResult(RESULT_OK);
 				supportFinishAfterTransition();
+			}
+		});
+	}
+
+	private void postFailedToPublish() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				// hide progress bar, show publish button
+				progressBar.setVisibility(GONE);
+				publishButton.setVisibility(VISIBLE);
+				// TODO show error
 			}
 		});
 	}
