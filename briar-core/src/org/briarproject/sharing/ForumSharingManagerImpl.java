@@ -42,8 +42,6 @@ class ForumSharingManagerImpl extends
 			"cd11a5d04dccd9e2931d6fc3df456313"
 					+ "63bb3e9d9d0e9405fccdb051f41f5449"));
 
-	private final ForumManager forumManager;
-
 	private final SFactory sFactory;
 	private final IFactory iFactory;
 	private final IMFactory imFactory;
@@ -64,8 +62,6 @@ class ForumSharingManagerImpl extends
 			SecureRandom random) {
 		super(db, messageQueueManager, clientHelper, metadataParser,
 				metadataEncoder, random, privateGroupFactory, clock);
-		this.forumManager = forumManager;
-
 		sFactory = new SFactory(forumFactory, forumManager);
 		iFactory = new IFactory();
 		imFactory = new IMFactory();
