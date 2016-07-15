@@ -71,6 +71,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 	private EditText userCommentView = null;
 	private EditText userEmailView = null;
 	private CheckBox includeDebugReport = null;
+	private View chevron = null;
 	private LinearLayout report = null;
 	private View progress = null;
 	private View share = null;
@@ -97,7 +98,9 @@ public class DevReportActivity extends BaseCrashReportDialog
 		TextView title = (TextView) findViewById(R.id.title);
 		userCommentView = (EditText) findViewById(R.id.user_comment);
 		userEmailView = (EditText) findViewById(R.id.user_email);
+		TextView debugReport = (TextView) findViewById(R.id.debug_report);
 		includeDebugReport = (CheckBox) findViewById(R.id.include_debug_report);
+		chevron = findViewById(R.id.chevron);
 		report = (LinearLayout) findViewById(R.id.report_content);
 		progress = findViewById(R.id.progress_wheel);
 		share = findViewById(R.id.share_dev_report);
@@ -107,13 +110,14 @@ public class DevReportActivity extends BaseCrashReportDialog
 		userCommentView.setHint(isFeedback() ? R.string.enter_feedback :
 				R.string.describe_crash);
 
+		debugReport.setVisibility(isFeedback() ? GONE : VISIBLE);
 		includeDebugReport.setVisibility(isFeedback() ? VISIBLE : GONE);
-		report.setVisibility(isFeedback() ? GONE : VISIBLE);
 
-		includeDebugReport.setOnClickListener(new View.OnClickListener() {
+		chevron.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (includeDebugReport.isChecked())
+				chevron.setSelected(!chevron.isSelected());
+				if (chevron.isSelected())
 					refresh();
 				else
 					report.setVisibility(GONE);
@@ -137,7 +141,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 	public void onResume() {
 		super.onResume();
 		if (!isFeedback() && !reviewing) showCrashDialog();
-		if (!isFeedback() || includeDebugReport.isChecked()) refresh();
+		if (chevron.isSelected()) refresh();
 	}
 
 	@Override

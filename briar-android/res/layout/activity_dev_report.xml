@@ -53,8 +53,7 @@
 				android:inputType="textEmailAddress"
 				android:maxLines="1"/>
 
-			<CheckBox
-				android:id="@+id/include_debug_report"
+			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginEnd="@dimen/margin_large"
@@ -62,7 +61,37 @@
 				android:layout_marginRight="@dimen/margin_large"
 				android:layout_marginStart="@dimen/margin_large"
 				android:layout_marginTop="@dimen/margin_small"
-				android:text="@string/include_debug_report"/>
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
+
+				<TextView
+					android:id="@+id/debug_report"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/debug_report"
+					android:textColor="@color/briar_text_primary"/>
+
+				<CheckBox
+					android:id="@+id/include_debug_report"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:checked="false"
+					android:text="@string/include_debug_report"
+					android:visibility="gone"/>
+
+				<ImageView
+					android:id="@+id/chevron"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="@dimen/margin_large"
+					android:layout_marginStart="@dimen/margin_large"
+					android:clickable="true"
+					android:src="@drawable/selector_chevron"
+					android:tint="@color/briar_button_positive"/>
+
+			</LinearLayout>
 
 			<ScrollView
 				android:layout_width="match_parent"
@@ -80,7 +109,8 @@
 					android:paddingLeft="@dimen/margin_large"
 					android:paddingRight="@dimen/margin_large"
 					android:paddingStart="@dimen/margin_large"
-					android:paddingTop="@dimen/margin_small"/>
+					android:paddingTop="@dimen/margin_small"
+					android:visibility="gone"/>
 
 			</ScrollView>
 		</LinearLayout>
