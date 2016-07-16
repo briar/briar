@@ -1,12 +1,11 @@
 package org.briarproject.android.report;
 
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -14,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -37,7 +37,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static android.content.DialogInterface.BUTTON_POSITIVE;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -51,9 +50,7 @@ import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.STACK_TRACE;
 
 public class DevReportActivity extends BaseCrashReportDialog
-		implements DialogInterface.OnClickListener,
-		DialogInterface.OnCancelListener,
-		CompoundButton.OnCheckedChangeListener {
+		implements CompoundButton.OnCheckedChangeListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(DevReportActivity.class.getName());
@@ -113,6 +110,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
 		getDelegate().setSupportActionBar(tb);
 
+		final View requestReport = findViewById(R.id.request_report);
 		userCommentView = (EditText) findViewById(R.id.user_comment);
 		userEmailView = (EditText) findViewById(R.id.user_email);
 		TextView debugReport = (TextView) findViewById(R.id.debug_report);
@@ -131,6 +129,25 @@ public class DevReportActivity extends BaseCrashReportDialog
 		debugReport.setVisibility(isFeedback() ? GONE : VISIBLE);
 		includeDebugReport.setVisibility(isFeedback() ? VISIBLE : GONE);
 
+		findViewById(R.id.acceptButton).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						reviewing = true;
+						requestReport.setVisibility(GONE);
+						((InputMethodManager) getSystemService(
+								Context.INPUT_METHOD_SERVICE))
+								.showSoftInput(userCommentView,
+										InputMethodManager.SHOW_FORCED);
+					}
+				});
+		findViewById(R.id.declineButton).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						closeReport();
+					}
+				});
 		chevron.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -146,7 +163,10 @@ public class DevReportActivity extends BaseCrashReportDialog
 		userEmailView.setText(userEmail);
 
 		if (state != null)
-			reviewing = state.getBoolean(STATE_REVIEWING, false);
+			reviewing = state.getBoolean(STATE_REVIEWING, isFeedback());
+
+		if (!isFeedback() && !reviewing)
+			requestReport.setVisibility(VISIBLE);
 	}
 
 	@Override
@@ -158,7 +178,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (!isFeedback() && !reviewing) showCrashDialog();
 		if (chevron.isSelected()) refresh();
 	}
 
@@ -229,17 +248,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
-	public void onClick(DialogInterface dialog, int which) {
-		if (which == BUTTON_POSITIVE) dialog.dismiss();
-		else dialog.cancel();
-	}
-
-	@Override
-	public void onCancel(DialogInterface dialog) {
-		closeReport();
-	}
-
-	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		ReportField field = (ReportField) buttonView.getTag();
 		if (field != null) {
@@ -251,20 +259,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 	private boolean isFeedback() {
 		return getException() instanceof UserFeedback;
-	}
-
-	private void showCrashDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this,
-				R.style.BriarDialogTheme);
-		builder.setTitle(R.string.dialog_title_share_crash_report)
-				.setIcon(R.drawable.ic_warning_black_24dp)
-				.setMessage(R.string.dialog_message_share_crash_report)
-				.setPositiveButton(R.string.dialog_button_ok, this)
-				.setNegativeButton(R.string.cancel_button, this);
-		AlertDialog dialog = builder.create();
-		dialog.setCanceledOnTouchOutside(false);
-		dialog.setOnCancelListener(this);
-		dialog.show();
 	}
 
 	private void refresh() {
