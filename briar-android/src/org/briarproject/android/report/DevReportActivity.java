@@ -2,10 +2,13 @@ package org.briarproject.android.report;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -66,6 +69,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		requiredFields.add(STACK_TRACE);
 	}
 
+	private AppCompatDelegate delegate;
 	private SharedPreferencesFactory sharedPreferencesFactory;
 	private Set<ReportField> excludedFields;
 	private EditText userCommentView = null;
@@ -77,11 +81,20 @@ public class DevReportActivity extends BaseCrashReportDialog
 	private View share = null;
 	private boolean reviewing = false;
 
+	private AppCompatDelegate getDelegate() {
+		if (delegate == null) {
+			delegate = AppCompatDelegate.create(this, null);
+		}
+		return delegate;
+	}
+
 	@Override
 	public void onCreate(Bundle state) {
+		getDelegate().installViewFactory();
+		getDelegate().onCreate(state);
 		super.onCreate(state);
 
-		setContentView(R.layout.activity_dev_report);
+		getDelegate().setContentView(R.layout.activity_dev_report);
 
 		sharedPreferencesFactory = new SharedPreferencesFactory(
 				getApplicationContext(), getConfig());
@@ -95,7 +108,9 @@ public class DevReportActivity extends BaseCrashReportDialog
 			}
 		}
 
-		TextView title = (TextView) findViewById(R.id.title);
+		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
+		getDelegate().setSupportActionBar(tb);
+
 		userCommentView = (EditText) findViewById(R.id.user_comment);
 		userEmailView = (EditText) findViewById(R.id.user_email);
 		TextView debugReport = (TextView) findViewById(R.id.debug_report);
@@ -105,8 +120,10 @@ public class DevReportActivity extends BaseCrashReportDialog
 		progress = findViewById(R.id.progress_wheel);
 		share = findViewById(R.id.share_dev_report);
 
-		title.setText(isFeedback() ? R.string.feedback_title :
-				R.string.crash_report_title);
+		//noinspection ConstantConditions
+		getDelegate().getSupportActionBar().setTitle(
+				isFeedback() ? R.string.feedback_title :
+						R.string.crash_report_title);
 		userCommentView.setHint(isFeedback() ? R.string.enter_feedback :
 				R.string.describe_crash);
 
@@ -138,6 +155,12 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
+	public void onPostCreate(Bundle state) {
+		super.onPostCreate(state);
+		getDelegate().onPostCreate(state);
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 		if (!isFeedback() && !reviewing) showCrashDialog();
@@ -145,9 +168,39 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		getDelegate().onPostResume();
+	}
+
+	@Override
+	public void onTitleChanged(CharSequence title, int color) {
+		super.onTitleChanged(title, color);
+		getDelegate().setTitle(title);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		getDelegate().onConfigurationChanged(newConfig);
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
 		state.putBoolean(STATE_REVIEWING, reviewing);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		getDelegate().onStop();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		getDelegate().onDestroy();
 	}
 
 	@Override
