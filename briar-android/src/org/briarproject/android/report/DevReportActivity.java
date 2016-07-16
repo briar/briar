@@ -10,8 +10,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -78,7 +80,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 	private View chevron = null;
 	private LinearLayout report = null;
 	private View progress = null;
-	private View share = null;
+	private MenuItem sendReport = null;
 	private boolean reviewing = false;
 
 	private AppCompatDelegate getDelegate() {
@@ -118,7 +120,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 		chevron = findViewById(R.id.chevron);
 		report = (LinearLayout) findViewById(R.id.report_content);
 		progress = findViewById(R.id.progress_wheel);
-		share = findViewById(R.id.share_dev_report);
 
 		//noinspection ConstantConditions
 		getDelegate().getSupportActionBar().setTitle(
@@ -138,12 +139,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 					refresh();
 				else
 					report.setVisibility(GONE);
-			}
-		});
-		share.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				processReport();
 			}
 		});
 
@@ -171,6 +166,31 @@ public class DevReportActivity extends BaseCrashReportDialog
 	protected void onPostResume() {
 		super.onPostResume();
 		getDelegate().onPostResume();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getDelegate().getMenuInflater();
+		inflater.inflate(R.menu.dev_report_actions, menu);
+		sendReport = menu.findItem(R.id.action_send_report);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+			case R.id.action_send_report:
+				processReport();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -305,7 +325,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 	private void processReport() {
 		userCommentView.setEnabled(false);
 		userEmailView.setEnabled(false);
-		share.setEnabled(false);
+		sendReport.setEnabled(false);
 		progress.setVisibility(VISIBLE);
 		final boolean includeReport =
 				!isFeedback() || includeDebugReport.isChecked();

@@ -118,19 +118,5 @@
 			android:indeterminate="true"
 			android:visibility="gone"/>
 
-		<android.support.design.widget.FloatingActionButton
-			android:id="@+id/share_dev_report"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:layout_marginBottom="@dimen/margin_large"
-			android:layout_marginEnd="@dimen/margin_large"
-			android:layout_marginRight="@dimen/margin_large"
-			android:background="@color/briar_accent"
-			android:src="@drawable/social_share"
-			android:tint="@color/action_bar_text"/>
-
 	</RelativeLayout>
 </LinearLayout>
