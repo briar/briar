@@ -34,10 +34,7 @@
 		<Button
 			android:id="@+id/shareForumButton"
 			style="@style/BriarButton"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/forum_share_button"
-			/>
+			android:text="@string/forum_share_button"/>
 
 	</LinearLayout>
 

@@ -4,6 +4,7 @@ import android.app.Application;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
+import org.briarproject.android.blogs.BlogPersistentData;
 import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PublicKey;
@@ -142,5 +143,11 @@ public class AppModule {
 	@Singleton
 	ForumPersistentData provideForumPersistence() {
 		return new ForumPersistentData();
+	}
+
+	@Provides
+	@Singleton
+	BlogPersistentData provideBlogPersistence() {
+		return new BlogPersistentData();
 	}
 }

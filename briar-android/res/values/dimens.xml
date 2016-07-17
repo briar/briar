@@ -20,6 +20,7 @@
 	<dimen name="text_size_xlarge">34sp</dimen>
 
 	<dimen name="listitem_horizontal_margin">16dp</dimen>
+	<dimen name="listitem_vertical_margin">10dp</dimen>
 	<dimen name="listitem_text_left_margin">72dp</dimen>
 	<dimen name="listitem_height_one_line_avatar">56dp</dimen>
 	<dimen name="listitem_height_contact_selector">68dp</dimen>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/margin_activity_horizontal">
+
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:id="@+id/avatar"
+			style="@style/BriarAvatar"
+			android:layout_width="30dp"
+			android:layout_height="30dp"
+			android:layout_marginRight="@dimen/margin_medium"
+			tools:src="@drawable/ic_launcher"/>
+
+		<TextView
+			android:id="@+id/authorName"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignTop="@+id/avatar"
+			android:layout_toEndOf="@+id/avatar"
+			android:layout_toRightOf="@+id/avatar"
+			android:textSize="@dimen/text_size_tiny"
+			tools:text="Author Name"/>
+
+		<TextView
+			android:id="@+id/date"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@id/avatar"
+			android:layout_below="@+id/authorName"
+			android:layout_toEndOf="@+id/avatar"
+			android:layout_toRightOf="@+id/avatar"
+			android:gravity="bottom"
+			android:textSize="@dimen/text_size_tiny"
+			tools:text="yesterday"/>
+
+		<org.briarproject.android.util.TrustIndicatorView
+			android:id="@+id/trustIndicator"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="@dimen/margin_small"
+			android:layout_toRightOf="@+id/authorName"
+			tools:src="@drawable/trust_indicator_verified"/>
+
+		<TextView
+			android:id="@+id/title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_below="@+id/avatar"
+			android:layout_marginTop="@dimen/margin_medium"
+			android:textSize="@dimen/text_size_medium"
+			android:textStyle="bold"
+			tools:text="This Is A Blog Post Title"/>
+
+		<TextView
+			android:id="@+id/body"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/title"
+			android:layout_marginTop="@dimen/margin_medium"
+			tools:text="Body of Blog Post. This could be insanely large or just a short text as well."/>
+
+	</RelativeLayout>
+
+</ScrollView>

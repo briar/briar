@@ -38,7 +38,7 @@ public class TextAvatarView extends FrameLayout {
 	}
 
 	public void setText(String text) {
-		character.setText(text);
+		character.setText(text.toUpperCase());
 	}
 
 	public void setUnreadCount(int count) {

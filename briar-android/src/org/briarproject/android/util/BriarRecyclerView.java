@@ -130,6 +130,11 @@ public class BriarRecyclerView extends FrameLayout {
 		emptyView.setText(text);
 	}
 
+	public void setEmptyText(int res) {
+		if (recyclerView == null) initViews();
+		emptyView.setText(res);
+	}
+
 	public void showProgressBar() {
 		if (recyclerView == null) initViews();
 		recyclerView.setVisibility(INVISIBLE);
@@ -156,6 +161,11 @@ public class BriarRecyclerView extends FrameLayout {
 	public void scrollToPosition(int position) {
 		if (recyclerView == null) initViews();
 		recyclerView.scrollToPosition(position);
+	}
+
+	public void smoothScrollToPosition(int position) {
+		if (recyclerView == null) initViews();
+		recyclerView.smoothScrollToPosition(position);
 	}
 
 	public RecyclerView getRecyclerView() {

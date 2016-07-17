@@ -104,16 +104,17 @@ class ForumListAdapter extends
 		// Post Count
 		int postCount = item.getPostCount();
 		if (postCount > 0) {
-			ui.unread.setText(ctx.getResources()
-					.getQuantityString(R.plurals.forum_posts, postCount,
+			ui.avatar.setProblem(false);
+			ui.postCount.setText(ctx.getResources()
+					.getQuantityString(R.plurals.posts, postCount,
 							postCount));
-			ui.unread.setTextColor(
+			ui.postCount.setTextColor(
 					ContextCompat
 							.getColor(ctx, R.color.briar_text_secondary));
 		} else {
 			ui.avatar.setProblem(true);
-			ui.unread.setText(ctx.getString(R.string.forum_no_posts));
-			ui.unread.setTextColor(
+			ui.postCount.setText(ctx.getString(R.string.no_posts));
+			ui.postCount.setTextColor(
 					ContextCompat
 							.getColor(ctx, R.color.briar_text_tertiary));
 		}
@@ -187,7 +188,7 @@ class ForumListAdapter extends
 		private final ViewGroup layout;
 		private final TextAvatarView avatar;
 		private final TextView name;
-		private final TextView unread;
+		private final TextView postCount;
 		private final TextView date;
 
 		ForumViewHolder(View v) {
@@ -196,7 +197,7 @@ class ForumListAdapter extends
 			layout = (ViewGroup) v;
 			avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
 			name = (TextView) v.findViewById(R.id.forumNameView);
-			unread = (TextView) v.findViewById(R.id.unreadView);
+			postCount = (TextView) v.findViewById(R.id.postCountView);
 			date = (TextView) v.findViewById(R.id.dateView);
 		}
 	}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_horizontal"
+		android:orientation="vertical"
+		android:padding="@dimen/margin_activity_horizontal"
+		tools:context=".android.blogs.CreateBlogActivity">
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/titleLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:counterEnabled="true"
+			app:counterOverflowTextAppearance="@style/BriarTextCounter.Overflow">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/titleInput"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/blogs_my_blogs_create_hint_title"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/descLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:counterEnabled="true"
+			app:counterOverflowTextAppearance="@style/BriarTextCounter.Overflow">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/descInput"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/blogs_my_blogs_create_hint_desc"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/blogs_my_blogs_create_hint_desc_explanation"/>
+
+		<Button
+			android:id="@+id/createBlogButton"
+			style="@style/BriarButton"
+			android:layout_marginTop="@dimen/margin_activity_vertical"
+			android:enabled="false"
+			android:text="@string/blogs_my_blogs_create"/>
+
+		<ProgressBar
+			android:id="@+id/createBlogProgressBar"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_activity_vertical"
+			android:indeterminate="true"
+			android:visibility="gone"/>
+
+	</LinearLayout>
+
+</ScrollView>

@@ -15,6 +15,8 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 
+import static android.view.View.GONE;
+
 public class BlogsFragment extends BaseFragment {
 
 	public final static String TAG = BlogsFragment.class.getName();
@@ -54,6 +56,8 @@ public class BlogsFragment extends BaseFragment {
 		viewPager.setAdapter(tabAdapter);
 		tabLayout.setupWithViewPager(viewPager);
 
+		tabLayout.setVisibility(GONE);
+
 		if (savedInstanceState != null) {
 			int position = savedInstanceState.getInt(SELECTED_TAB, 0);
 			viewPager.setCurrentItem(position);
@@ -88,16 +92,21 @@ public class BlogsFragment extends BaseFragment {
 
 		@Override
 		public int getCount() {
-			return titles.length;
+			return 1;
+//			return titles.length;
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			switch (position) {
-				// TODO add your fragments here
-				default:
-					return MyBlogsFragment.newInstance(position);
-			}
+			return FeedFragment.newInstance();
+//			switch (position) {
+//				case 0:
+//					return FeedFragment.newInstance();
+//				case 1:
+//					return new MyBlogsFragment();
+//				default:
+//					return BlogListFragment.newInstance(position);
+//			}
 		}
 
 		@Override
