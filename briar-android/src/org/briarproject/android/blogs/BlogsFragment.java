@@ -82,7 +82,7 @@ public class BlogsFragment extends BaseFragment {
 	}
 
 
-	private class TabAdapter extends FragmentStatePagerAdapter {
+	private static class TabAdapter extends FragmentStatePagerAdapter {
 		private String[] titles;
 
 		TabAdapter(FragmentManager fm, String[] titles) {

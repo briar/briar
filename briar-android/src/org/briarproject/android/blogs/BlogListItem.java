@@ -61,7 +61,7 @@ class BlogListItem {
 		return unread;
 	}
 
-	public boolean isOurs() {
+	boolean isOurs() {
 		return ours;
 	}
 }
