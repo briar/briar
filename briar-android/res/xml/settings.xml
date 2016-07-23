@@ -34,7 +34,7 @@
 
 			<intent
 				android:targetClass="org.briarproject.android.ChangePasswordActivity"
-				android:targetPackage="org.briarproject"/>
+				android:targetPackage="@string/app_package"/>
 		</Preference>
 
 	</PreferenceCategory>
@@ -48,7 +48,7 @@
 
 			<intent
 				android:targetClass="org.briarproject.android.panic.PanicPreferencesActivity"
-				android:targetPackage="org.briarproject"/>
+				android:targetPackage="@string/app_package"/>
 
 		</Preference>
 
