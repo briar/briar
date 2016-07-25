@@ -1,5 +1,7 @@
 package org.briarproject.feed;
 
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
@@ -121,14 +123,17 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 
 	@Override
 	public void addFeed(String url, GroupId g) throws DbException, IOException {
+		LOG.info("Adding new RSS feed...");
 		Feed feed;
+		// TODO check for existing feed?
 		try {
 			SyndFeed f = getSyndFeed(getFeedInputStream(url));
-			String title = f.getTitle();
+			String title = StringUtils.isNullOrEmpty(f.getTitle()) ? null :
+					f.getTitle();
 			String description = f.getDescription();
 			String author = f.getAuthor();
 			long added = System.currentTimeMillis();
-			feed = new Feed(url, g, title, description, author, added, added);
+			feed = new Feed(url, g, title, description, author, added);
 		} catch (FeedException e) {
 			throw new IOException(e);
 		}
@@ -153,6 +158,7 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 				if (feed.getUrl().equals(url)) {
 					found = true;
 					feeds.remove(feed);
+					break;
 				}
 			}
 			if (!found) throw new DbException();
@@ -217,6 +223,8 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 	}
 
 	private void fetchFeeds() {
+		LOG.info("Updating RSS feeds...");
+
 		// Get current feeds
 		List<Feed> feeds;
 		try {
@@ -243,17 +251,50 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 	}
 
 	private Feed fetchFeed(Feed feed) {
-		LOG.info("Updating RSS feeds...");
 		String title, description, author;
 		long updated = System.currentTimeMillis();
+		long lastEntryTime = feed.getLastEntryTime();
 		try {
 			SyndFeed f = getSyndFeed(getFeedInputStream(feed.getUrl()));
 			title = f.getTitle();
 			description = f.getDescription();
 			author = f.getAuthor();
 
-			// TODO keep track of which entries have been seen (#485)
-			// TODO Pass any new entries down the pipeline to be posted (#486)
+			LOG.info("Title: " + f.getTitle());
+			LOG.info("Description: " + f.getDescription());
+			LOG.info("Author: " + f.getAuthor());
+			LOG.info("Number of Entries: " + f.getEntries().size());
+			LOG.info("------------------------------");
+
+			for (SyndEntry entry : f.getEntries()) {
+				LOG.info("Entry Title: " + entry.getTitle());
+				LOG.info("Entry Author: " + entry.getAuthor());
+				LOG.info("Entry Published Date: " + entry.getPublishedDate());
+				LOG.info("Entry Updated Date: " + entry.getUpdatedDate());
+				LOG.info("Entry Link: " + entry.getLink());
+				LOG.info("Entry URI: " + entry.getUri());
+				//LOG.info("Entry Description: " + entry.getDescription());
+				long entryTime;
+				if (entry.getPublishedDate() != null) {
+					entryTime = entry.getPublishedDate().getTime();
+				} else if (entry.getUpdatedDate() != null) {
+					entryTime = entry.getUpdatedDate().getTime();
+				} else {
+					// no time information available, ignore this entry
+					if (LOG.isLoggable(WARNING))
+						LOG.warning("Entry has no date: " + entry.getTitle());
+					continue;
+				}
+				if (entryTime > feed.getLastEntryTime()) {
+					LOG.info("Adding new entry...");
+					// TODO Pass any new entries down the pipeline to be posted (#486)
+					for (SyndContent content : entry.getContents()) {
+						LOG.info("Content: " + content.getValue());
+					}
+					if (entryTime > lastEntryTime) lastEntryTime = entryTime;
+				}
+				LOG.info("------------------------------");
+			}
 		} catch (FeedException e) {
 			if (LOG.isLoggable(WARNING))
 				LOG.log(WARNING, e.toString(), e);
@@ -264,7 +305,7 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 			return feed;
 		}
 		return new Feed(feed.getUrl(), feed.getBlogId(), title, description,
-				author, feed.getAdded(), updated);
+				author, feed.getAdded(), updated, lastEntryTime);
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {

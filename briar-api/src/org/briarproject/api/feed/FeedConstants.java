@@ -17,5 +17,6 @@ public interface FeedConstants {
 	String KEY_FEED_AUTHOR = "feedAuthor";
 	String KEY_FEED_ADDED = "feedAdded";
 	String KEY_FEED_UPDATED = "feedUpdated";
+	String KEY_FEED_LAST_ENTRY = "feedLastEntryTime";
 
 }
