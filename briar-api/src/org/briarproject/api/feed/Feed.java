@@ -43,6 +43,11 @@ public class Feed {
 		this(url, blogId, title, description, author, added, 0L, 0L);
 	}
 
+	public Feed(String url, GroupId blogId, long added) {
+
+		this(url, blogId, null, null, null, added, 0L, 0L);
+	}
+
 	public String getUrl() {
 		return url;
 	}
