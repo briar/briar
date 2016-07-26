@@ -140,19 +140,30 @@ public class FeedFragment extends BaseFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
+		if (personalBlog == null) return false;
+		ActivityOptionsCompat options =
+				makeCustomAnimation(getActivity(), android.R.anim.slide_in_left,
+						android.R.anim.slide_out_right);
 		switch (item.getItemId()) {
 			case R.id.action_write_blog_post:
-				if (personalBlog == null) return false;
-				Intent i =
+				Intent i1 =
 						new Intent(getActivity(), WriteBlogPostActivity.class);
-				i.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				i.putExtra(BLOG_NAME, personalBlog.getName());
-				ActivityOptionsCompat options =
-						makeCustomAnimation(getActivity(),
-								android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
-				startActivityForResult(i, REQUEST_WRITE_POST,
+				i1.putExtra(GROUP_ID, personalBlog.getId().getBytes());
+				i1.putExtra(BLOG_NAME, personalBlog.getName());
+				startActivityForResult(i1, REQUEST_WRITE_POST,
 						options.toBundle());
+				return true;
+			case R.id.action_rss_feeds_import:
+				Intent i2 =
+						new Intent(getActivity(), RssFeedImportActivity.class);
+				i2.putExtra(GROUP_ID, personalBlog.getId().getBytes());
+				startActivity(i2, options.toBundle());
+				return true;
+			case R.id.action_rss_feeds_manage:
+				Intent i3 =
+						new Intent(getActivity(), RssFeedManageActivity.class);
+				i3.putExtra(GROUP_ID, personalBlog.getId().getBytes());
+				startActivity(i3, options.toBundle());
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

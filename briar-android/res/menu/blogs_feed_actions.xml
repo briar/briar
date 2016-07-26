@@ -9,4 +9,14 @@
 		android:title="@string/blogs_write_blog_post"
 		app:showAsAction="always"/>
 
+	<item
+		android:id="@+id/action_rss_feeds_import"
+		android:title="@string/blogs_rss_feeds_import"
+		app:showAsAction="never"/>
+
+	<item
+		android:id="@+id/action_rss_feeds_manage"
+		android:title="@string/blogs_rss_feeds_manage"
+		app:showAsAction="never"/>
+
 </menu>

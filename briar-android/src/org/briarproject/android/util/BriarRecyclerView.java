@@ -47,6 +47,9 @@ public class BriarRecyclerView extends FrameLayout {
 				R.styleable.BriarRecyclerView);
 		isScrollingToEnd = attributes
 				.getBoolean(R.styleable.BriarRecyclerView_scrollToEnd, true);
+		String emtpyText =
+				attributes.getString(R.styleable.BriarRecyclerView_emptyText);
+		if (emtpyText != null) setEmptyText(emtpyText);
 		attributes.recycle();
 	}
 
@@ -92,6 +95,11 @@ public class BriarRecyclerView extends FrameLayout {
 			@Override
 			public void onItemRangeInserted(int positionStart, int itemCount) {
 				super.onItemRangeInserted(positionStart, itemCount);
+				if (itemCount > 0) showData();
+			}
+			@Override
+			public void onItemRangeRemoved(int positionStart, int itemCount) {
+				super.onItemRangeRemoved(positionStart, itemCount);
 				if (itemCount > 0) showData();
 			}
 		};

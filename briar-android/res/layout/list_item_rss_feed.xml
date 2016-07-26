@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+	android:layout_marginStart="@dimen/listitem_horizontal_margin"
+	android:layout_marginTop="@dimen/listitem_horizontal_margin"
+	android:background="?attr/selectableItemBackground">
+
+	<TextView
+		android:id="@+id/titleView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:maxLines="2"
+		android:textColor="@color/briar_text_primary"
+		android:textSize="@dimen/text_size_medium"
+		tools:text="This is a name of a RSS Feed"/>
+
+	<ImageView
+		android:id="@+id/deleteButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentTop="true"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:contentDescription="@string/delete_button"
+		android:src="@drawable/action_delete_black"/>
+
+	<TextView
+		android:id="@+id/author"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/titleView"
+		android:layout_marginRight="@dimen/margin_small"
+		android:paddingTop="@dimen/margin_tiny"
+		android:text="@string/blogs_rss_feeds_manage_author"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_small"/>
+
+	<TextView
+		android:id="@+id/authorView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/author"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:layout_toRightOf="@+id/author"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_small"
+		tools:text="Bruce Schneier"/>
+
+	<TextView
+		android:id="@+id/imported"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/author"
+		android:layout_marginRight="@dimen/margin_small"
+		android:paddingTop="@dimen/margin_tiny"
+		android:text="@string/blogs_rss_feeds_manage_imported"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_small"/>
+
+	<TextView
+		android:id="@+id/importedView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/imported"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:layout_toRightOf="@+id/imported"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_small"
+		tools:text="July 4"/>
+
+	<TextView
+		android:id="@+id/updated"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/imported"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/margin_small"
+		android:paddingTop="@dimen/margin_tiny"
+		android:text="@string/blogs_rss_feeds_manage_updated"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_small"/>
+
+	<TextView
+		android:id="@+id/updatedView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/updated"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:layout_toRightOf="@+id/updated"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_small"
+		tools:text="5 min. ago"/>
+
+	<TextView
+		android:id="@+id/descriptionView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/updated"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:paddingTop="@dimen/margin_medium"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_small"
+		tools:text="This is a description of the RSS feed. It can be several lines long, but it can also not exist at all if it is not present in the feed itself."/>
+
+	<View
+		style="@style/Divider.ForumList"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:layout_below="@+id/descriptionView"
+		android:layout_marginTop="@dimen/listitem_horizontal_margin"/>
+
+</RelativeLayout>
+

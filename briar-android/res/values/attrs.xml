@@ -2,6 +2,7 @@
 <resources>
 	<declare-styleable name="BriarRecyclerView">
 		<attr name="scrollToEnd" format="boolean" />
+		<attr name="emptyText" format="string" />
 	</declare-styleable>
 
 </resources>

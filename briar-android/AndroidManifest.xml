@@ -183,6 +183,27 @@
 		</activity>
 
 		<activity
+			android:name=".android.blogs.RssFeedImportActivity"
+			android:label="@string/blogs_rss_feeds_import"
+			android:parentActivityName=".android.NavDrawerActivity"
+			android:windowSoftInputMode="stateVisible|adjustResize">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.NavDrawerActivity"
+				/>
+		</activity>
+
+		<activity
+			android:name=".android.blogs.RssFeedManageActivity"
+			android:label="@string/blogs_rss_feeds_manage"
+			android:parentActivityName=".android.NavDrawerActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.NavDrawerActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name=".android.identity.CreateIdentityActivity"
 			android:label="@string/new_identity_title"
 			android:windowSoftInputMode="stateVisible">

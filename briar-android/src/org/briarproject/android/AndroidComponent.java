@@ -16,6 +16,7 @@ import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.feed.FeedManager;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -111,6 +112,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	IntroductionManager introductionManager();
 
 	AndroidExecutor androidExecutor();
+
+	FeedManager feedManager();
 
 	@IoExecutor
 	Executor ioExecutor();
