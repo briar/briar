@@ -4,7 +4,6 @@ import android.app.Application;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
@@ -136,11 +135,5 @@ public class AppModule {
 		lifecycleManager.registerService(notificationManager);
 		eventBus.addListener(notificationManager);
 		return notificationManager;
-	}
-
-	@Provides
-	@Singleton
-	ForumPersistentData provideForumPersistence() {
-		return new ForumPersistentData();
 	}
 }
