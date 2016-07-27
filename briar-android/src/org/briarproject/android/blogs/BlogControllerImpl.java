@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.support.annotation.Nullable;
 
 import org.briarproject.android.controller.DbControllerImpl;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostHeader;
@@ -39,10 +39,10 @@ public class BlogControllerImpl extends DbControllerImpl
 	protected volatile BlogManager blogManager;
 	@Inject
 	protected volatile EventBus eventBus;
-	@Inject
-	protected BlogPersistentData data;
 
 	private volatile BlogPostListener listener;
+	private volatile GroupId groupId = null;
+	private volatile TreeSet<BlogPostItem> posts = null;
 
 	@Inject
 	BlogControllerImpl() {
@@ -71,22 +71,23 @@ public class BlogControllerImpl extends DbControllerImpl
 
 	@Override
 	public void onActivityDestroy() {
-		if (activity.isFinishing()) {
-			data.clearAll();
-		}
 	}
 
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof BlogPostAddedEvent) {
 			final BlogPostAddedEvent m = (BlogPostAddedEvent) e;
-			if (m.getGroupId().equals(data.getGroupId())) {
+			if (m.getGroupId().equals(groupId)) {
 				LOG.info("New blog post added");
+				if (posts == null) {
+					LOG.info("Posts have not loaded, yet");
+					return;
+				}
 				final BlogPostHeader header = m.getHeader();
 				try {
 					final byte[] body = blogManager.getPostBody(header.getId());
 					final BlogPostItem post = new BlogPostItem(header, body);
-					data.addPost(post);
+					posts.add(post);
 					listener.onBlogPostAdded(post, m.isLocal());
 				} catch (DbException ex) {
 					if (LOG.isLoggable(WARNING))
@@ -95,7 +96,7 @@ public class BlogControllerImpl extends DbControllerImpl
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
-			if (s.getGroup().getId().equals(data.getGroupId())) {
+			if (s.getGroup().getId().equals(groupId)) {
 				LOG.info("Blog removed");
 				activity.runOnUiThread(new Runnable() {
 					@Override
@@ -108,27 +109,27 @@ public class BlogControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadBlog(final GroupId groupId, final boolean reload,
-			final UiResultHandler<Boolean> resultHandler) {
+	public void loadBlog(final GroupId g, final boolean reload,
+			final ResultHandler<Boolean> resultHandler) {
 
 		LOG.info("Loading blog...");
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					if (reload || data.getGroupId() == null ||
-							!data.getGroupId().equals(groupId)) {
-						data.setGroupId(groupId);
+					if (reload || posts == null) {
+						groupId = g;
+						posts = new TreeSet<>();
 						// load blog posts
 						long now = System.currentTimeMillis();
-						Collection<BlogPostItem> posts = new ArrayList<>();
+						Collection<BlogPostItem> newPosts = new ArrayList<>();
 						Collection<BlogPostHeader> header =
-								blogManager.getPostHeaders(groupId);
+								blogManager.getPostHeaders(g);
 						for (BlogPostHeader h : header) {
 							byte[] body = blogManager.getPostBody(h.getId());
-							posts.add(new BlogPostItem(h, body));
+							newPosts.add(new BlogPostItem(h, body));
 						}
-						data.setPosts(posts);
+						posts.addAll(newPosts);
 						long duration = System.currentTimeMillis() - now;
 						if (LOG.isLoggable(INFO))
 							LOG.info("Post header load took " + duration +
@@ -145,14 +146,16 @@ public class BlogControllerImpl extends DbControllerImpl
 	}
 
 	@Override
+	@Nullable
 	public TreeSet<BlogPostItem> getBlogPosts() {
-		return data.getBlogPosts();
+		return posts;
 	}
 
 	@Override
 	@Nullable
 	public BlogPostItem getBlogPost(MessageId id) {
-		for (BlogPostItem item : getBlogPosts()) {
+		if (posts == null) return null;
+		for (BlogPostItem item : posts) {
 			if (item.getId().equals(id)) return item;
 		}
 		return null;
@@ -161,8 +164,9 @@ public class BlogControllerImpl extends DbControllerImpl
 	@Override
 	@Nullable
 	public MessageId getBlogPostId(int position) {
+		if (posts == null) return null;
 		int i = 0;
-		for (BlogPostItem post : getBlogPosts()) {
+		for (BlogPostItem post : posts) {
 			if (i == position) return post.getId();
 			i++;
 		}
@@ -170,16 +174,16 @@ public class BlogControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void deleteBlog(final UiResultHandler<Boolean> resultHandler) {
+	public void deleteBlog(final ResultHandler<Boolean> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				if (data.getGroupId() == null) {
+				if (groupId == null) {
 					resultHandler.onResult(false);
 					return;
 				}
 				try {
-					Blog b = blogManager.getBlog(data.getGroupId());
+					Blog b = blogManager.getBlog(groupId);
 					blogManager.removeBlog(b);
 					resultHandler.onResult(true);
 				} catch (DbException e) {
