@@ -6,10 +6,12 @@ import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.BaseContactListAdapter;
@@ -19,10 +21,13 @@ import org.briarproject.api.contact.ContactId;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ContactSelectorAdapter
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+class ContactSelectorAdapter
 		extends BaseContactListAdapter<ContactSelectorAdapter.SelectableContactHolder> {
 
-	public ContactSelectorAdapter(Context context,
+	ContactSelectorAdapter(Context context,
 			OnItemClickListener listener) {
 
 		super(context, listener);
@@ -53,11 +58,15 @@ public class ContactSelectorAdapter
 		if (item.isDisabled()) {
 			// we share this forum already with that contact
 			ui.layout.setEnabled(false);
-			grayOutItem(ui);
+			ui.shared.setVisibility(VISIBLE);
+			grayOutItem(ui, true);
+		} else {
+			ui.shared.setVisibility(GONE);
+			grayOutItem(ui, false);
 		}
 	}
 
-	public Collection<ContactId> getSelectedContactIds() {
+	Collection<ContactId> getSelectedContactIds() {
 		Collection<ContactId> selected = new ArrayList<>();
 
 		for (int i = 0; i < contacts.size(); i++) {
@@ -69,15 +78,17 @@ public class ContactSelectorAdapter
 		return selected;
 	}
 
-	protected static class SelectableContactHolder
+	static class SelectableContactHolder
 			extends BaseContactListAdapter.BaseContactHolder {
 
 		private final CheckBox checkBox;
+		private final TextView shared;
 
-		public SelectableContactHolder(View v) {
+		SelectableContactHolder(View v) {
 			super(v);
 
 			checkBox = (CheckBox) v.findViewById(R.id.checkBox);
+			shared = (TextView) v.findViewById(R.id.infoView);
 		}
 	}
 
@@ -86,18 +97,27 @@ public class ContactSelectorAdapter
 		return compareByName(c1, c2);
 	}
 
-	private void grayOutItem(final SelectableContactHolder ui) {
+	private void grayOutItem(final SelectableContactHolder ui,
+			final boolean gray) {
 		if (Build.VERSION.SDK_INT >= 11) {
-			float alpha = 0.25f;
+			float alpha = 1f;
+			if (gray) alpha = 0.25f;
 			ui.avatar.setAlpha(alpha);
 			ui.name.setAlpha(alpha);
+			ui.shared.setAlpha(alpha);
 			ui.checkBox.setAlpha(alpha);
 		} else {
-			ColorFilter colorFilter = new PorterDuffColorFilter(Color.GRAY,
-					PorterDuff.Mode.MULTIPLY);
-			ui.avatar.setColorFilter(colorFilter);
-			ui.name.setEnabled(false);
-			ui.checkBox.setEnabled(false);
+			if (gray) {
+				ColorFilter colorFilter = new PorterDuffColorFilter(
+						ContextCompat.getColor(ctx, R.color.window_background),
+						PorterDuff.Mode.MULTIPLY);
+				ui.avatar.setColorFilter(colorFilter);
+			} else{
+				ui.avatar.clearColorFilter();
+			}
+			ui.name.setEnabled(!gray);
+			ui.shared.setEnabled(!gray);
+			ui.checkBox.setEnabled(!gray);
 		}
 	}
 }
