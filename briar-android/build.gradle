@@ -77,6 +77,10 @@ android {
 	compileSdkVersion 23
 	buildToolsVersion "23.0.3"
 
+	defaultConfig {
+		resValue "string", "app_package", "org.briarproject"
+	}
+
 	sourceSets {
 		main {
 			manifest.srcFile 'AndroidManifest.xml'
