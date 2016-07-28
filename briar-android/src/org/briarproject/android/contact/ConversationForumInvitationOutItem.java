@@ -1,6 +1,6 @@
 package org.briarproject.android.contact;
 
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
 
 /**
  * This class is needed and can not be replaced by an ConversationNoticeOutItem,
@@ -15,7 +15,7 @@ public class ConversationForumInvitationOutItem
 
 	private boolean sent, seen;
 
-	public ConversationForumInvitationOutItem(ForumInvitationMessage fim) {
+	public ConversationForumInvitationOutItem(ForumInvitationRequest fim) {
 		super(fim);
 		this.sent = fim.isSent();
 		this.seen = fim.isSeen();

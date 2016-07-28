@@ -16,7 +16,7 @@ import org.briarproject.R;
 import org.briarproject.android.forum.ForumInvitationsActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.clients.SessionId;
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.util.StringUtils;
@@ -278,7 +278,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	private void bindInvitation(InvitationHolder ui,
 			final ConversationForumInvitationItem item) {
 
-		ForumInvitationMessage fim = item.getForumInvitationMessage();
+		ForumInvitationRequest fim = item.getForumInvitationMessage();
 
 		String message = fim.getMessage();
 		if (StringUtils.isNullOrEmpty(message)) {

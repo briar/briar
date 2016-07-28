@@ -1,6 +1,6 @@
 package org.briarproject.android.contact;
 
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
 
 // This class is not thread-safe
 public class ConversationForumInvitationInItem
@@ -9,7 +9,7 @@ public class ConversationForumInvitationInItem
 
 	private boolean read;
 
-	public ConversationForumInvitationInItem(ForumInvitationMessage fim) {
+	public ConversationForumInvitationInItem(ForumInvitationRequest fim) {
 		super(fim);
 
 		this.read = fim.isRead();

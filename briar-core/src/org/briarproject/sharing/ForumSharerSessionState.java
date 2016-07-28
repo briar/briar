@@ -9,12 +9,12 @@ import org.briarproject.api.sync.MessageId;
 import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
 
-public class ForumSharerSessionState extends SharerSessionState {
+class ForumSharerSessionState extends SharerSessionState {
 
 	private final String forumName;
 	private final byte[] forumSalt;
 
-	public ForumSharerSessionState(SessionId sessionId, MessageId storageId,
+	ForumSharerSessionState(SessionId sessionId, MessageId storageId,
 			GroupId groupId, State state, ContactId contactId, GroupId forumId,
 			String forumName, byte[] forumSalt) {
 		super(sessionId, storageId, groupId, state, contactId, forumId);
@@ -30,11 +30,11 @@ public class ForumSharerSessionState extends SharerSessionState {
 		return d;
 	}
 
-	public String getForumName() {
+	String getForumName() {
 		return forumName;
 	}
 
-	public byte[] getForumSalt() {
+	byte[] getForumSalt() {
 		return forumSalt;
 	}
 }

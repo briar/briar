@@ -34,10 +34,12 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
+import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
+import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
@@ -48,6 +50,7 @@ import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -277,6 +280,11 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			LOG.info("Forum Invitation received, reloading conversation...");
 			ForumInvitationReceivedEvent m = (ForumInvitationReceivedEvent) e;
 			reloadConversation(m.getContactId());
+		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
+			LOG.info("Forum Invitation Response received, reloading ...");
+			ForumInvitationResponseReceivedEvent m =
+					(ForumInvitationResponseReceivedEvent) e;
+			reloadConversation(m.getContactId());
 		}
 	}
 
@@ -394,10 +402,16 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			LOG.info("Loading introduction messages took " + duration + " ms");
 
 		now = System.currentTimeMillis();
-		Collection<ForumInvitationMessage> invitations =
+		Collection<InvitationMessage> invitations =
 				forumSharingManager.getInvitationMessages(id);
-		for (ForumInvitationMessage i : invitations) {
-			messages.add(ConversationItem.from(i));
+		for (InvitationMessage i : invitations) {
+			if (i instanceof ForumInvitationRequest) {
+				ForumInvitationRequest r = (ForumInvitationRequest) i;
+				messages.add(ConversationItem.from(r));
+			} else if (i instanceof ForumInvitationResponse) {
+				ForumInvitationResponse r = (ForumInvitationResponse) i;
+				messages.add(ConversationItem.from(getActivity(), "", r));
+			}
 		}
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))

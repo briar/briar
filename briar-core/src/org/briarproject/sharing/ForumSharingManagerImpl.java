@@ -17,10 +17,12 @@ import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumFactory;
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
+import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.forum.ForumSharingMessage.ForumInvitation;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -35,14 +37,12 @@ import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
 
 class ForumSharingManagerImpl extends
-		SharingManagerImpl<Forum, ForumInvitation, ForumInvitationMessage, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
+		SharingManagerImpl<Forum, ForumInvitation, InvitationMessage, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
 		implements ForumSharingManager, ForumManager.RemoveForumHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"cd11a5d04dccd9e2931d6fc3df456313"
 					+ "63bb3e9d9d0e9405fccdb051f41f5449"));
-
-	private final ForumManager forumManager;
 
 	private final SFactory sFactory;
 	private final IFactory iFactory;
@@ -63,7 +63,6 @@ class ForumSharingManagerImpl extends
 			SecureRandom random) {
 		super(db, messageQueueManager, clientHelper, metadataParser,
 				metadataEncoder, random, privateGroupFactory, clock);
-		this.forumManager = forumManager;
 
 		sFactory = new SFactory(forumFactory, forumManager);
 		iFactory = new IFactory();
@@ -79,13 +78,21 @@ class ForumSharingManagerImpl extends
 	}
 
 	@Override
-	protected ForumInvitationMessage createInvitationMessage(MessageId id,
+	protected InvitationMessage createInvitationRequest(MessageId id,
 			ForumInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read) {
-		return new ForumInvitationMessage(id, msg.getSessionId(), contactId,
+		return new ForumInvitationRequest(id, msg.getSessionId(), contactId,
 				msg.getForumName(), msg.getMessage(), available, time, local,
 				sent, seen, read);
+	}
+
+	@Override
+	protected InvitationMessage createInvitationResponse(MessageId id,
+			SessionId sessionId, ContactId contactId, boolean accept,
+			long time, boolean local, boolean sent, boolean seen, boolean read) {
+		return new ForumInvitationResponse(id, sessionId, contactId, accept,
+				time, local, sent, seen, read);
 	}
 
 	@Override
@@ -123,7 +130,7 @@ class ForumSharingManagerImpl extends
 		removingShareable(txn, f);
 	}
 
-	static class SFactory implements
+	private static class SFactory implements
 			ShareableFactory<Forum, ForumInvitation, ForumInviteeSessionState, ForumSharerSessionState> {
 
 		private final ForumFactory forumFactory;
@@ -169,7 +176,7 @@ class ForumSharingManagerImpl extends
 		}
 	}
 
-	static class IFactory implements
+	private static class IFactory implements
 			InvitationFactory<ForumInvitation, ForumSharerSessionState> {
 		@Override
 		public ForumInvitation build(GroupId groupId, BdfDictionary d)
@@ -185,7 +192,7 @@ class ForumSharingManagerImpl extends
 		}
 	}
 
-	static class ISFactory implements
+	private static class ISFactory implements
 			InviteeSessionStateFactory<Forum, ForumInviteeSessionState> {
 		@Override
 		public ForumInviteeSessionState build(SessionId sessionId,
@@ -209,7 +216,7 @@ class ForumSharingManagerImpl extends
 		}
 	}
 
-	static class SSFactory implements
+	private static class SSFactory implements
 			SharerSessionStateFactory<Forum, ForumSharerSessionState> {
 		@Override
 		public ForumSharerSessionState build(SessionId sessionId,
@@ -233,7 +240,7 @@ class ForumSharingManagerImpl extends
 		}
 	}
 
-	static class IRFactory implements
+	private static class IRFactory implements
 			InvitationReceivedEventFactory<ForumInviteeSessionState, ForumInvitationReceivedEvent> {
 
 		private final SFactory sFactory;
@@ -251,7 +258,7 @@ class ForumSharingManagerImpl extends
 		}
 	}
 
-	static class IRRFactory implements
+	private static class IRRFactory implements
 			InvitationResponseReceivedEventFactory<ForumSharerSessionState, ForumInvitationResponseReceivedEvent> {
 		@Override
 		public ForumInvitationResponseReceivedEvent build(

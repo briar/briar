@@ -117,9 +117,13 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 
 	public abstract ClientId getClientId();
 
-	protected abstract IM createInvitationMessage(MessageId id, I msg,
+	protected abstract IM createInvitationRequest(MessageId id, I msg,
 			ContactId contactId, boolean available, long time, boolean local,
 			boolean sent, boolean seen, boolean read);
+
+	protected abstract IM createInvitationResponse(MessageId id,
+			SessionId sessionId, ContactId contactId, boolean accept, long time,
+			boolean local, boolean sent, boolean seen, boolean read);
 
 	protected abstract ShareableFactory<S, I, IS, SS> getSFactory();
 
@@ -325,11 +329,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	public Collection<IM> getInvitationMessages(ContactId contactId)
 			throws DbException {
 
-		// query for all invitations
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(TYPE, SHARE_MSG_TYPE_INVITATION)
-		);
-
 		Transaction txn = db.startTransaction(true);
 		try {
 			Contact contact = db.getContact(txn, contactId);
@@ -337,30 +336,51 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 
 			Collection<IM> list = new ArrayList<IM>();
 			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn, group.getId(), query);
+					.getMessageMetadataAsDictionary(txn, group.getId());
 			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
 				BdfDictionary d = m.getValue();
+				long type = d.getLong(TYPE);
+				if (type == SHARE_MSG_TYPE_LEAVE ||
+						type == SHARE_MSG_TYPE_ABORT) continue;
 				try {
-					I msg = getIFactory().build(group.getId(), d);
 					MessageStatus status =
 							db.getMessageStatus(txn, contactId, m.getKey());
 					long time = d.getLong(TIME);
 					boolean local = d.getBoolean(LOCAL);
 					boolean read = d.getBoolean(READ, false);
 					boolean available = false;
-					if (!local) {
-						// figure out whether the shareable is still available
-						SharingSessionState s =
-								getSessionState(txn, msg.getSessionId(), true);
-						if (!(s instanceof InviteeSessionState))
-							continue;
-						available = ((InviteeSessionState) s).getState() ==
-								AWAIT_LOCAL_RESPONSE;
+
+					if (type == SHARE_MSG_TYPE_INVITATION) {
+						I msg = getIFactory().build(group.getId(), d);
+						if (!local) {
+							// figure out whether the shareable is still available
+							SharingSessionState s =
+									getSessionState(txn, msg.getSessionId(),
+											true);
+							if (!(s instanceof InviteeSessionState))
+								continue;
+							available = ((InviteeSessionState) s).getState() ==
+									AWAIT_LOCAL_RESPONSE;
+						}
+						IM im = createInvitationRequest(m.getKey(), msg,
+								contactId, available, time, local,
+								status.isSent(), status.isSeen(), read);
+						list.add(im);
 					}
-					IM im = createInvitationMessage(m.getKey(), msg, contactId,
-							available, time, local, status.isSent(),
-							status.isSeen(), read);
-					list.add(im);
+					else if (type == SHARE_MSG_TYPE_ACCEPT ||
+							type == SHARE_MSG_TYPE_DECLINE) {
+						boolean accept = type == SHARE_MSG_TYPE_ACCEPT;
+						BaseMessage msg = BaseMessage
+								.from(getIFactory(), group.getId(), d);
+						SessionId sessionId = msg.getSessionId();
+						IM im = createInvitationResponse(m.getKey(), sessionId,
+								contactId, accept, time, local,
+								status.isSent(), status.isSeen(), read);
+						list.add(im);
+					}
+					else {
+						throw new RuntimeException("Unexpected Message Type");
+					}
 				} catch (FormatException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
