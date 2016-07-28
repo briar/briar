@@ -2,7 +2,6 @@ package org.briarproject.api.event;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.introduction.IntroductionRequest;
 
 public class ForumInvitationReceivedEvent extends InvitationReceivedEvent {
 

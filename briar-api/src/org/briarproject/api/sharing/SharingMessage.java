@@ -22,7 +22,7 @@ public interface SharingMessage {
 		private final GroupId groupId;
 		private final SessionId sessionId;
 
-		public BaseMessage(GroupId groupId, SessionId sessionId) {
+		BaseMessage(GroupId groupId, SessionId sessionId) {
 
 			this.groupId = groupId;
 			this.sessionId = sessionId;

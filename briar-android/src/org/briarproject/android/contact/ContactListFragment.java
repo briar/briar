@@ -33,7 +33,9 @@ import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageStateChangedEvent;
+import org.briarproject.api.event.ForumInvitationReceivedEvent;
+import org.briarproject.api.event.IntroductionRequestReceivedEvent;
+import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.forum.ForumInvitationMessage;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -41,10 +43,11 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
+import org.briarproject.api.introduction.IntroductionRequest;
+import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -58,7 +61,6 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 
 public class ContactListFragment extends BaseFragment implements EventListener {
 
@@ -68,7 +70,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			Logger.getLogger(ContactListFragment.class.getName());
 
 	@Inject
-	protected ConnectionRegistry connectionRegistry;
+	ConnectionRegistry connectionRegistry;
 	@Inject
 	protected EventBus eventBus;
 
@@ -245,6 +247,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			}
 		} else if (e instanceof ContactStatusChangedEvent) {
 			LOG.info("Contact Status changed, reloading");
+			// TODO We can update the contact state without needing to reload
 			loadContacts();
 		} else if (e instanceof ContactConnectedEvent) {
 			setConnected(((ContactConnectedEvent) e).getContactId(), true);
@@ -258,26 +261,31 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			PrivateMessageHeader h = p.getMessageHeader();
 			updateItem(p.getGroupId(), ConversationItem.from(h));
-		} else if (e instanceof MessageStateChangedEvent) {
-			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
-			ClientId c = m.getClientId();
-			if (m.getState() == DELIVERED &&
-					(c.equals(introductionManager.getClientId()) ||
-							c.equals(forumSharingManager.getClientId()))) {
-				LOG.info("Message added, reloading");
-				reloadConversation(m.getMessage().getGroupId());
-			}
+		} else if (e instanceof IntroductionRequestReceivedEvent) {
+			LOG.info("Introduction Request received, update contact");
+			IntroductionRequestReceivedEvent m =
+					(IntroductionRequestReceivedEvent) e;
+			IntroductionRequest ir = m.getIntroductionRequest();
+			updateItem(m.getContactId(), ConversationItem.from(ir));
+		} else if (e instanceof IntroductionResponseReceivedEvent) {
+			LOG.info("Introduction Response received, update contact");
+			IntroductionResponseReceivedEvent m =
+					(IntroductionResponseReceivedEvent) e;
+			IntroductionResponse ir = m.getIntroductionResponse();
+			updateItem(m.getContactId(), ConversationItem.from(ir));
+		} else if (e instanceof ForumInvitationReceivedEvent) {
+			LOG.info("Forum Invitation received, reloading conversation...");
+			ForumInvitationReceivedEvent m = (ForumInvitationReceivedEvent) e;
+			reloadConversation(m.getContactId());
 		}
 	}
 
-	private void reloadConversation(final GroupId g) {
+	private void reloadConversation(final ContactId c) {
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					ContactId c = messagingManager.getContactId(g);
-					Collection<ConversationItem> messages =
-							getMessages(c);
+					Collection<ConversationItem> messages = getMessages(c);
 					updateItem(c, messages);
 				} catch (NoSuchContactException e) {
 					LOG.info("Contact removed");
@@ -298,6 +306,20 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				ContactListItem item = adapter.getItem(position);
 				if (item != null) {
 					item.setMessages(messages);
+					adapter.updateItem(position, item);
+				}
+			}
+		});
+	}
+
+	private void updateItem(final ContactId c, final ConversationItem m) {
+		listener.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				int position = adapter.findItemPosition(c);
+				ContactListItem item = adapter.getItem(position);
+				if (item != null) {
+					item.addMessage(m);
 					adapter.updateItem(position, item);
 				}
 			}
