@@ -12,6 +12,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.util.TextAvatarView;
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.forum.ForumSharingMessage;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -94,6 +95,10 @@ class ForumInvitationAdapter extends
 		forums.addAll(list);
 	}
 
+	public void remove(ForumInvitationItem item) {
+		forums.remove(item);
+	}
+
 	public void clear() {
 		forums.clear();
 	}
@@ -154,7 +159,7 @@ class ForumInvitationAdapter extends
 		@Override
 		public boolean areContentsTheSame(ForumInvitationItem oldItem,
 				ForumInvitationItem newItem) {
-			return oldItem.getForum().equals(newItem.getForum()) &&
+			return oldItem.isSubscribed() == newItem.isSubscribed() &&
 					oldItem.getContacts().equals(newItem.getContacts());
 		}
 

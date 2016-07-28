@@ -114,7 +114,6 @@ public class ForumInvitationsActivity extends BriarActivity
 					LOG.info("No forums available, finishing");
 					finish();
 				} else {
-					adapter.clear();
 					adapter.addAll(forums);
 				}
 			}
@@ -158,6 +157,12 @@ public class ForumInvitationsActivity extends BriarActivity
 		int res = R.string.forum_declined_toast;
 		if (accept) res = R.string.forum_joined_toast;
 		Toast.makeText(this, res, LENGTH_SHORT).show();
+
+		// remove item and finish if it was the last
+		adapter.remove(item);
+		if (adapter.getItemCount() == 0) {
+			supportFinishAfterTransition();
+		}
 	}
 
 	private void respondToInvitation(final ForumInvitationItem item,
@@ -174,7 +179,6 @@ public class ForumInvitationsActivity extends BriarActivity
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
-				loadForums();
 			}
 		});
 	}
