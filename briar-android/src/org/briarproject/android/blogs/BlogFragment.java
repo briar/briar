@@ -146,9 +146,6 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 				ActivityCompat.startActivityForResult(getActivity(), i,
 						REQUEST_WRITE_POST, options.toBundle());
 				return true;
-			case R.id.action_delete_blog:
-				showDeleteDialog();
-				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}

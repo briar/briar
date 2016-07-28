@@ -97,7 +97,7 @@ class BlogPostAdapter extends
 		ui.layout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				listener.onBlogPostClick(ui.getAdapterPosition());
+				listener.onBlogPostClick(ui.getAdapterPosition(), post);
 			}
 		});
 	}
@@ -160,7 +160,7 @@ class BlogPostAdapter extends
 	}
 
 	interface OnBlogPostClickListener {
-		void onBlogPostClick(int position);
+		void onBlogPostClick(int position, BlogPostItem post);
 	}
 
 }

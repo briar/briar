@@ -5,16 +5,19 @@ import android.support.annotation.NonNull;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
 class BlogPostItem implements Comparable<BlogPostItem> {
 
+	private final GroupId groupId;
 	private final BlogPostHeader header;
 	private final byte[] body;
 	private boolean read;
 
-	BlogPostItem(BlogPostHeader header, byte[] body) {
+	BlogPostItem(GroupId groupId, BlogPostHeader header, byte[] body) {
+		this.groupId = groupId;
 		this.header = header;
 		this.body = body;
 		read = header.isRead();
@@ -22,6 +25,10 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 
 	public MessageId getId() {
 		return header.getId();
+	}
+
+	public GroupId getGroupId() {
+		return groupId;
 	}
 
 	public String getTitle() {
