@@ -148,9 +148,7 @@
 			android:layout_marginRight="@dimen/margin_medium"
 			android:layout_marginTop="@dimen/margin_small"
 			android:clickable="true"
-			android:src="@drawable/selector_chevron"
-			android:tint="@color/briar_button_positive"
-			/>
+			android:src="@drawable/selector_chevron"/>
 
 		<TextView
 			android:id="@+id/btn_reply"
