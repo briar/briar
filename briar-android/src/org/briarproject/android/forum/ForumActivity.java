@@ -119,7 +119,7 @@ public class ForumActivity extends BriarActivity implements
 							forumAdapter = new ForumAdapter(
 									forumController.getForumEntries());
 							recyclerView.setAdapter(forumAdapter);
-							recyclerView.periodicallyUpdateContent();
+							recyclerView.startPeriodicUpdate();
 							if (state != null) {
 								byte[] replyId =
 										state.getByteArray(KEY_REPLY_ID);
@@ -250,12 +250,18 @@ public class ForumActivity extends BriarActivity implements
 		super.onResume();
 		notificationManager.blockNotification(groupId);
 		notificationManager.clearForumPostNotification(groupId);
+		if (recyclerView.getRecyclerView().getAdapter() != null) {
+			recyclerView.startPeriodicUpdate();
+		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		notificationManager.unblockNotification(groupId);
+		if (recyclerView.getRecyclerView().getAdapter() != null) {
+			recyclerView.stopPeriodicUpdate();
+		}
 	}
 
 	public void sendMessage(View view) {

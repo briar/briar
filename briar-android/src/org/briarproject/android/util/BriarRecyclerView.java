@@ -17,6 +17,7 @@ import org.briarproject.R;
 import java.util.logging.Logger;
 
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
+import static org.briarproject.android.util.AndroidUtils.MIN_RESOLUTION;
 
 public class BriarRecyclerView extends FrameLayout {
 
@@ -28,7 +29,7 @@ public class BriarRecyclerView extends FrameLayout {
 	private boolean isScrollingToEnd = false;
 
 	private final Logger LOG = Logger.getLogger(getClass().getName());
-	private final long DEFAULT_REFRESH_INTERVAL = MINUTE_IN_MILLIS;
+	private final long DEFAULT_REFRESH_INTERVAL = MIN_RESOLUTION;
 
 	public BriarRecyclerView(Context context) {
 		this(context, null, 0);
@@ -52,10 +53,7 @@ public class BriarRecyclerView extends FrameLayout {
 	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
-		if (refresher != null) {
-			LOG.info("Removing Handler Callback");
-			removeCallbacks(refresher);
-		}
+		stopPeriodicUpdate();
 	}
 
 	private void initViews() {
@@ -172,7 +170,7 @@ public class BriarRecyclerView extends FrameLayout {
 		return this.recyclerView;
 	}
 
-	public void periodicallyUpdateContent() {
+	public void startPeriodicUpdate() {
 		if (recyclerView == null || recyclerView.getAdapter() == null) {
 			throw new IllegalStateException("Need to call setAdapter() first!");
 		}
@@ -186,6 +184,13 @@ public class BriarRecyclerView extends FrameLayout {
 		};
 		LOG.info("Adding Handler Callback");
 		postDelayed(refresher, DEFAULT_REFRESH_INTERVAL);
+	}
+
+	public void stopPeriodicUpdate() {
+		if (refresher != null) {
+			LOG.info("Removing Handler Callback");
+			removeCallbacks(refresher);
+		}
 	}
 
 }

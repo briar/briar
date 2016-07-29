@@ -84,7 +84,6 @@ public class ForumListFragment extends BaseEventFragment implements
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_forums));
-		list.periodicallyUpdateContent();
 
 		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
@@ -111,6 +110,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 		loadForumHeaders();
 		loadAvailableForums();
+		list.startPeriodicUpdate();
 	}
 
 	@Override
@@ -118,6 +118,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		super.onPause();
 
 		adapter.clear();
+		list.stopPeriodicUpdate();
 	}
 
 	@Override
