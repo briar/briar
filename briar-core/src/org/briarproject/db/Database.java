@@ -310,7 +310,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the metadata for all messages in the given group.
+	 * Returns the metadata for all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -326,6 +326,14 @@ interface Database<T> {
 	 */
 	Map<MessageId, Metadata> getMessageMetadata(T txn, GroupId g,
 			Metadata query) throws DbException;
+
+	/**
+	 * Returns the metadata for the given delivered message.
+	 * <p/>
+	 * Read-only.
+	 */
+	Metadata getMessageMetadataForValidator(T txn, MessageId m)
+			throws DbException;
 
 	/**
 	 * Returns the metadata for the given message.

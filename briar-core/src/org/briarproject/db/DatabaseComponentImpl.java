@@ -456,6 +456,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageMetadata(txn, m);
 	}
 
+	public Metadata getMessageMetadataForValidator(Transaction transaction,
+			MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessageMetadataForValidator(txn, m);
+	}
+
 	public Collection<MessageStatus> getMessageStatus(Transaction transaction,
 			ContactId c, GroupId g) throws DbException {
 		T txn = unbox(transaction);

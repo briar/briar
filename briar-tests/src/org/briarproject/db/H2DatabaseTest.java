@@ -1006,6 +1006,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		map = db.getMessageMetadata(txn, groupId);
 		assertTrue(map.isEmpty());
 
+		// validator gets also metadata for pending messages
+		retrieved = db.getMessageMetadataForValidator(txn, messageId);
+		assertFalse(retrieved.isEmpty());
+
 		db.commitTransaction(txn);
 		db.close();
 	}
