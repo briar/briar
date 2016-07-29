@@ -23,7 +23,6 @@
 	<dimen name="listitem_vertical_margin">10dp</dimen>
 	<dimen name="listitem_text_left_margin">72dp</dimen>
 	<dimen name="listitem_height_one_line_avatar">56dp</dimen>
-	<dimen name="listitem_height_contact_selector">68dp</dimen>
 	<dimen name="listitem_picture_size">48dp</dimen>
 	<dimen name="listitem_picture_size_small">23dp</dimen>
 	<dimen name="listitem_picture_frame_size">53dp</dimen>
