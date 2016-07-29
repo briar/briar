@@ -27,10 +27,25 @@ import static android.view.View.VISIBLE;
 class ContactSelectorAdapter
 		extends BaseContactListAdapter<ContactSelectorAdapter.SelectableContactHolder> {
 
+	private final ColorFilter grayColorFilter;
+
 	ContactSelectorAdapter(Context context,
 			OnItemClickListener listener) {
 
 		super(context, listener);
+		if (Build.VERSION.SDK_INT >= 11) {
+			grayColorFilter = null;
+		} else {
+			// Overlay the background colour at 75% opacity
+			int bg = ContextCompat.getColor(context, R.color.window_background);
+			int alpha = (int) (255 * 0.75f);
+			int red = Color.red(bg);
+			int green = Color.green(bg);
+			int blue = Color.blue(bg);
+			bg = Color.argb(alpha, red, green, blue);
+			grayColorFilter = new PorterDuffColorFilter(bg,
+					PorterDuff.Mode.SRC_OVER);
+		}
 	}
 
 	@Override
@@ -61,6 +76,7 @@ class ContactSelectorAdapter
 			ui.shared.setVisibility(VISIBLE);
 			grayOutItem(ui, true);
 		} else {
+			ui.layout.setEnabled(true);
 			ui.shared.setVisibility(GONE);
 			grayOutItem(ui, false);
 		}
@@ -97,27 +113,15 @@ class ContactSelectorAdapter
 		return compareByName(c1, c2);
 	}
 
-	private void grayOutItem(final SelectableContactHolder ui,
-			final boolean gray) {
+	private void grayOutItem(SelectableContactHolder ui, boolean gray) {
 		if (Build.VERSION.SDK_INT >= 11) {
-			float alpha = 1f;
-			if (gray) alpha = 0.25f;
+			float alpha = gray ? 0.25f : 1f;
 			ui.avatar.setAlpha(alpha);
 			ui.name.setAlpha(alpha);
-			ui.shared.setAlpha(alpha);
 			ui.checkBox.setAlpha(alpha);
 		} else {
-			if (gray) {
-				ColorFilter colorFilter = new PorterDuffColorFilter(
-						ContextCompat.getColor(ctx, R.color.window_background),
-						PorterDuff.Mode.MULTIPLY);
-				ui.avatar.setColorFilter(colorFilter);
-			} else{
-				ui.avatar.clearColorFilter();
-			}
-			ui.name.setEnabled(!gray);
-			ui.shared.setEnabled(!gray);
-			ui.checkBox.setEnabled(!gray);
+			if (gray) ui.avatar.setColorFilter(grayColorFilter);
+			else ui.avatar.clearColorFilter();
 		}
 	}
 }
