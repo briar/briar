@@ -32,7 +32,7 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 		}
 	}
 
-	protected void clearBackStack() {
+	void clearBackStack() {
 		getSupportFragmentManager()
 				.popBackStackImmediate(
 						null,
@@ -69,7 +69,7 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 		else startFragment(fragment, true);
 	}
 
-	protected void showMessageDialog(int titleStringId, int msgStringId) {
+	void showMessageDialog(int titleStringId, int msgStringId) {
 		// TODO replace with custom dialog fragment ?
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,
 				R.style.BriarDialogTheme);
@@ -80,12 +80,12 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 		dialog.show();
 	}
 
-	protected void startFragment(BaseFragment fragment,
+	private void startFragment(BaseFragment fragment,
 			boolean isAddedToBackStack) {
 		startFragment(fragment, 0, 0, isAddedToBackStack);
 	}
 
-	protected void startFragment(BaseFragment fragment,
+	private void startFragment(BaseFragment fragment,
 			@AnimRes int inAnimation, @AnimRes int outAnimation,
 			boolean isAddedToBackStack) {
 		FragmentTransaction trans =

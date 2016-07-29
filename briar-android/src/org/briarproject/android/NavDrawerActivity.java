@@ -47,13 +47,14 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		BaseFragment.BaseFragmentListener, TransportStateListener,
 		OnNavigationItemSelectedListener {
 
-	public final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
-
-	public static final String INTENT_CONTACTS = "intent_contacts";
-	public static final String INTENT_FORUMS = "intent_forums";
+	static final String INTENT_CONTACTS = "intent_contacts";
+	static final String INTENT_FORUMS = "intent_forums";
+	static final String INTENT_BLOGS = "intent_blogs";
 
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerActivity.class.getName());
+
+	private final static String PREF_SEEN_WELCOME_MESSAGE = "welcome_message";
 
 	private ActionBarDrawerToggle drawerToggle;
 
@@ -80,6 +81,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
 			startFragment(ContactListFragment.newInstance());
 		}
+		else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
+			startFragment(BlogsFragment.newInstance());
+		}
+		setIntent(null);
 	}
 
 	@Override
@@ -121,6 +126,9 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		if (state == null) {
 			navigation.setCheckedItem(R.id.nav_btn_contacts);
 			startFragment(ContactListFragment.newInstance());
+		}
+		if (getIntent() != null) {
+			onNewIntent(getIntent());
 		}
 	}
 
