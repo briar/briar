@@ -65,7 +65,6 @@ public class ForumActivity extends BriarActivity implements
 	private static final Logger LOG =
 			Logger.getLogger(ForumActivity.class.getName());
 
-	public static final String MIN_TIMESTAMP = "briar.MIN_TIMESTAMP";
 	static final String FORUM_NAME = "briar.FORUM_NAME";
 	private static final int REQUEST_FORUM_SHARED = 3;
 
@@ -341,7 +340,6 @@ public class ForumActivity extends BriarActivity implements
 		final View chevron, replyButton;
 		final ViewGroup cell;
 		final View topDivider;
-		public ValueAnimator highlightAnimator;
 
 		ForumViewHolder(View v) {
 			super(v);
@@ -438,7 +436,7 @@ public class ForumActivity extends BriarActivity implements
 			// TODO This loop doesn't really loop. @ernir please review!
 			for (int i = visiblePos + 1; i < getItemCount(); i++) {
 				ForumEntry entry = getVisibleEntry(i);
-				if (entry.getLevel() <= levelLimit)
+				if (entry != null && entry.getLevel() <= levelLimit)
 					break;
 				return true;
 			}
@@ -486,7 +484,7 @@ public class ForumActivity extends BriarActivity implements
 
 			for (int i = pos + 1; i < getItemCount(); i++) {
 				ForumEntry entry = getVisibleEntry(i);
-				if (entry.getLevel() > levelLimit) {
+				if (entry != null && entry.getLevel() > levelLimit) {
 					indexList.add(i);
 				} else {
 					break;
@@ -613,6 +611,8 @@ public class ForumActivity extends BriarActivity implements
 		public void onBindViewHolder(
 				final ForumViewHolder ui, final int position) {
 			final ForumEntry data = getVisibleEntry(position);
+			if (data == null) return;
+
 			if (!data.isRead()) {
 				data.setRead(true);
 				forumController.entryRead(data);

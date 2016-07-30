@@ -12,7 +12,6 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
-import org.briarproject.api.system.Clock;
 
 import static org.briarproject.api.clients.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;

@@ -29,7 +29,13 @@ public class ForumModule {
 
 	@Provides
 	@Singleton
-	ForumManager provideForumManager(ForumManagerImpl forumManager) {
+	ForumManager provideForumManager(ForumManagerImpl forumManager,
+			ValidationManager validationManager) {
+
+		validationManager
+				.registerIncomingMessageHook(forumManager.getClientId(),
+						forumManager);
+
 		return forumManager;
 	}
 

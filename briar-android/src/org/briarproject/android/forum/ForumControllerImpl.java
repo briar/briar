@@ -13,12 +13,13 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.ForumPostReceivedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
-import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumPostHeader;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
@@ -38,7 +39,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
 public class ForumControllerImpl extends DbControllerImpl
 		implements ForumController, EventListener {
@@ -52,7 +53,7 @@ public class ForumControllerImpl extends DbControllerImpl
 	@CryptoExecutor
 	protected Executor cryptoExecutor;
 	@Inject
-	protected volatile ForumPostFactory forumPostFactory;
+	volatile ForumPostFactory forumPostFactory;
 	@Inject
 	protected volatile CryptoComponent crypto;
 	@Inject
@@ -65,7 +66,6 @@ public class ForumControllerImpl extends DbControllerImpl
 	protected ForumPersistentData data;
 
 	private ForumPostListener listener;
-	private MessageId localAdd = null;
 
 	@Inject
 	ForumControllerImpl() {
@@ -100,51 +100,13 @@ public class ForumControllerImpl extends DbControllerImpl
 		}
 	}
 
-	private void findSingleNewEntry() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				List<ForumEntry> oldEntries = getForumEntries();
-				data.clearHeaders();
-				try {
-					loadPosts();
-					List<ForumEntry> allEntries = getForumEntries();
-					int i = 0;
-					for (ForumEntry entry : allEntries) {
-						boolean isNew = true;
-						for (ForumEntry oldEntry : oldEntries) {
-							if (entry.getMessageId()
-									.equals(oldEntry.getMessageId())) {
-								isNew = false;
-								break;
-							}
-						}
-						if (isNew) {
-							if (localAdd != null &&
-									entry.getMessageId().equals(localAdd)) {
-								addLocalEntry(i, entry);
-							} else {
-								addForeignEntry(i, entry);
-							}
-							break;
-						}
-						i++;
-					}
-				} catch (DbException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof MessageStateChangedEvent) {
-			MessageStateChangedEvent m = (MessageStateChangedEvent) e;
-			if (m.getState() == DELIVERED &&
-					m.getMessage().getGroupId().equals(data.getGroupId())) {
-				LOG.info("Message added, reloading");
-				findSingleNewEntry();
+		if (e instanceof ForumPostReceivedEvent) {
+			ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
+			if (pe.getGroupId().equals(data.getGroupId())) {
+				LOG.info("Forum Post received, adding...");
+				addNewPost(pe.getForumPostHeader());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
@@ -158,6 +120,40 @@ public class ForumControllerImpl extends DbControllerImpl
 				});
 			}
 		}
+	}
+
+	private void addNewPost(final ForumPostHeader h) {
+		if (data == null) return;
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				data.addHeader(h);
+				data.clearForumEntries();
+
+				try {
+					byte[] body = forumManager.getPostBody(h.getId());
+					data.addBody(h.getId(), body);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+
+				Author a = data.getLocalAuthor();
+				// FIXME we should not need to calculate the index here
+				//       the index is essentially stored in two different locations
+				int i = 0;
+				for (ForumEntry entry : getForumEntries()) {
+					if (entry.getMessageId().equals(h.getId())) {
+						if (a != null && a.equals(h.getAuthor())) {
+							addLocalEntry(i, entry);
+						} else {
+							addForeignEntry(i, entry);
+						}
+					}
+					i++;
+				}
+			}
+		});
 	}
 
 	private void loadAuthor() throws DbException {
@@ -343,6 +339,7 @@ public class ForumControllerImpl extends DbControllerImpl
 					throw new RuntimeException(e);
 				}
 				storePost(p);
+				addNewPost(p);
 			}
 		});
 	}
@@ -369,7 +366,6 @@ public class ForumControllerImpl extends DbControllerImpl
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					localAdd = p.getMessage().getId();
 					long now = System.currentTimeMillis();
 					forumManager.addLocalPost(p);
 					long duration = System.currentTimeMillis() - now;
@@ -382,6 +378,14 @@ public class ForumControllerImpl extends DbControllerImpl
 				}
 			}
 		});
+	}
+
+	private void addNewPost(final ForumPost p) {
+		ForumPostHeader h =
+				new ForumPostHeader(p.getMessage().getId(), p.getParent(),
+						p.getMessage().getTimestamp(), p.getAuthor(), VERIFIED,
+						p.getContentType(), false);
+		addNewPost(h);
 	}
 
 }

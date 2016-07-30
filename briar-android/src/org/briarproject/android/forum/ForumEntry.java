@@ -17,7 +17,7 @@ public class ForumEntry {
 	private boolean isShowingDescendants = true;
 	private boolean isRead = true;
 
-	public ForumEntry(ForumPostHeader h, String text, int level) {
+	ForumEntry(ForumPostHeader h, String text, int level) {
 		this(h.getId(), text, level, h.getTimestamp(), h.getAuthor().getName(),
 				h.getAuthor().getId(), h.getAuthorStatus());
 		this.isRead = h.isRead();
@@ -50,7 +50,7 @@ public class ForumEntry {
 		return author;
 	}
 
-	public AuthorId getAuthorId() {
+	AuthorId getAuthorId() {
 		return authorId;
 	}
 
@@ -58,15 +58,15 @@ public class ForumEntry {
 		return status;
 	}
 
-	public boolean isShowingDescendants() {
+	boolean isShowingDescendants() {
 		return isShowingDescendants;
 	}
 
-	public void setShowingDescendants(boolean showingDescendants) {
+	void setShowingDescendants(boolean showingDescendants) {
 		this.isShowingDescendants = showingDescendants;
 	}
 
-	public MessageId getMessageId() {
+	MessageId getMessageId() {
 		return messageId;
 	}
 
@@ -74,7 +74,7 @@ public class ForumEntry {
 		return isRead;
 	}
 
-	public void setRead(boolean read) {
+	void setRead(boolean read) {
 		isRead = read;
 	}
 }

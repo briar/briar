@@ -188,7 +188,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						byte[] raw = db.getRawMessage(txn, id);
 						m = parseMessage(id, raw);
 						g = db.getGroup(txn, m.getGroupId());
-						meta = db.getMessageMetadata(txn, id);
+						meta = db.getMessageMetadataForValidator(txn, id);
 						txn.setComplete();
 					} finally {
 						db.endTransaction(txn);

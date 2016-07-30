@@ -19,7 +19,7 @@ public interface ForumController extends ActivityLifecycleController {
 	void createPost(byte[] body);
 	void createPost(byte[] body, MessageId parentId);
 
-	public interface ForumPostListener {
+	interface ForumPostListener {
 		void addLocalEntry(int index, ForumEntry entry);
 		void addForeignEntry(int index, ForumEntry entry);
 	}

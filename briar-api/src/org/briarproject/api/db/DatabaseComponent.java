@@ -262,7 +262,7 @@ public interface DatabaseComponent {
 	byte[] getRawMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the metadata for all messages in the given group.
+	 * Returns the metadata for all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -280,11 +280,20 @@ public interface DatabaseComponent {
 			Metadata query) throws DbException;
 
 	/**
-	 * Returns the metadata for the given message.
+	 * Returns the metadata for the given delivered message.
 	 * <p/>
 	 * Read-only.
 	 */
 	Metadata getMessageMetadata(Transaction txn, MessageId m)
+			throws DbException;
+
+	/**
+	 * Returns the metadata for the given delivered and pending message.
+	 * This is meant to be only used by the ValidationManager
+	 * <p/>
+	 * Read-only.
+	 */
+	Metadata getMessageMetadataForValidator(Transaction txn, MessageId m)
 			throws DbException;
 
 	/**

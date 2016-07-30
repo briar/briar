@@ -1324,6 +1324,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Metadata getMessageMetadataForValidator(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT key, value FROM messageMetadata AS md"
+					+ " JOIN messages AS m"
+					+ " ON m.messageId = md.messageId"
+					+ " WHERE (m.state = ? OR m.state = ?)"
+					+ " AND md.messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, DELIVERED.getValue());
+			ps.setInt(2, PENDING.getValue());
+			ps.setBytes(3, m.getBytes());
+			rs = ps.executeQuery();
+			Metadata metadata = new Metadata();
+			while (rs.next()) metadata.put(rs.getString(1), rs.getBytes(2));
+			rs.close();
+			ps.close();
+			return metadata;
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<MessageStatus> getMessageStatus(Connection txn,
 			ContactId c, GroupId g) throws DbException {
 		PreparedStatement ps = null;

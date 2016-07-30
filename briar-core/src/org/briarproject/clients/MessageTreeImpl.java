@@ -14,8 +14,9 @@ import java.util.Map;
 public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		implements MessageTree<T> {
 
-	Map<MessageId, List<T>> nodeMap = new HashMap<MessageId, List<T>>();
-	List<T> roots = new ArrayList<T>();
+	private final Map<MessageId, List<T>> nodeMap = new HashMap<MessageId, List<T>>();
+	private final List<T> roots = new ArrayList<T>();
+	private final List<List<T>> unsortedLists = new ArrayList<List<T>>();
 
 	private Comparator<T> comparator = new Comparator<T>() {
 		@Override
@@ -38,30 +39,58 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		}
 		// parse the nodes for dependencies
 		for (T node : nodes) {
-			if (node.getParentId() == null) {
-				roots.add(node);
-			}
-			else {
-				// retrieve the parent's children
-				List<T> pChildren = nodeMap.get(node.getParentId());
-				pChildren.add(node);
-			}
+			parseNode(node);
 		}
-		sortAll();
+		sortUnsorted();
 	}
 
-	private void sortAll() {
-		Collections.sort(roots, comparator);
-		// Sort all the sub-lists
-		for (Map.Entry<MessageId, List<T>> entry: nodeMap.entrySet()) {
-			Collections.sort(entry.getValue(), comparator);
+	@Override
+	public void add(T node) {
+		add(Collections.singletonList(node));
+	}
+
+	private void markAsUnsorted(List<T> list) {
+		if (!unsortedLists.contains(list))
+			unsortedLists.add(list);
+	}
+
+	private void parseNode(T node) {
+		if (node.getParentId() == null) {
+			roots.add(node);
+			markAsUnsorted(roots);
+		} else {
+			// retrieve the parent's children
+			List<T> pChildren = nodeMap.get(node.getParentId());
+			pChildren.add(node);
+			markAsUnsorted(pChildren);
 		}
 	}
+
+	private void sortUnsorted() {
+		// leave unsorted if there is no comparator
+		if (comparator != null) {
+			for (List<T> list : unsortedLists) {
+				Collections.sort(list, comparator);
+			}
+			unsortedLists.clear();
+		}
+	}
+
 
 	private void traverse(List<T> list, T node) {
 		list.add(node);
 		for (T child : nodeMap.get(node.getId())) {
 			traverse(list, child);
+		}
+	}
+
+	@Override
+	public void setComparator(Comparator<T> comparator) {
+		this.comparator = comparator;
+		// Sort all lists with the new comparator
+		Collections.sort(roots, comparator);
+		for (Map.Entry<MessageId, List<T>> entry: nodeMap.entrySet()) {
+			Collections.sort(entry.getValue(), comparator);
 		}
 	}
 
@@ -72,11 +101,6 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 			traverse(orderedList, root);
 		}
 		return Collections.unmodifiableList(orderedList);
-	}
-
-	@Override
-	public void setComparator(Comparator<T> comparator) {
-		this.comparator = comparator;
 	}
 
 }
