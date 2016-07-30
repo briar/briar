@@ -7,14 +7,14 @@ import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-import java.util.TreeSet;
+import java.util.SortedSet;
 
 public interface BlogController extends ActivityLifecycleController {
 
-	void loadBlog(final GroupId groupId, final boolean reload,
-			final ResultHandler<Boolean> resultHandler);
+	void loadBlog(GroupId groupId, boolean reload,
+			ResultHandler<Boolean> resultHandler);
 
-	TreeSet<BlogPostItem> getBlogPosts();
+	SortedSet<BlogPostItem> getBlogPosts();
 
 	@Nullable
 	BlogPostItem getBlogPost(MessageId postId);
@@ -22,10 +22,10 @@ public interface BlogController extends ActivityLifecycleController {
 	@Nullable
 	MessageId getBlogPostId(int position);
 
-	void deleteBlog(final ResultHandler<Boolean> resultHandler);
+	void deleteBlog(ResultHandler<Boolean> resultHandler);
 
 	interface BlogPostListener {
-		void onBlogPostAdded(final BlogPostItem post, final boolean local);
+		void onBlogPostAdded(BlogPostItem post, boolean local);
 	}
 
 }

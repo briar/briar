@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultHandler;
-import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.MessageTree;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -34,10 +33,10 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -69,11 +68,12 @@ public class ForumControllerImpl extends DbControllerImpl
 	@Inject
 	protected volatile IdentityManager identityManager;
 
-	private volatile MessageTree<ForumPostHeader> tree =
-			new MessageTreeImpl<>();
-	private volatile Map<MessageId, byte[]> bodyCache = new HashMap<>();
+	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
+	private final MessageTree<ForumPostHeader> tree = new MessageTreeImpl<>();
+
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Forum forum = null;
+	// FIXME: This collection isn't thread-safe, isn't updated atomically
 	private volatile List<ForumEntry> forumEntries = null;
 
 	private ForumPostListener listener;
@@ -116,6 +116,7 @@ public class ForumControllerImpl extends DbControllerImpl
 			ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
 			if (pe.getGroupId().equals(forum.getId())) {
 				LOG.info("Forum Post received, adding...");
+				// FIXME: Don't make blocking calls in event handlers
 				addNewPost(pe.getForumPostHeader());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
@@ -272,9 +273,10 @@ public class ForumControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void unsubscribe(final UiResultHandler<Boolean> resultHandler) {
+	public void unsubscribe(final ResultHandler<Boolean> resultHandler) {
 		if (forum == null) return;
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -300,6 +302,7 @@ public class ForumControllerImpl extends DbControllerImpl
 	@Override
 	public void entriesRead(final Collection<ForumEntry> forumEntries) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -325,6 +328,7 @@ public class ForumControllerImpl extends DbControllerImpl
 	@Override
 	public void createPost(final byte[] body, final MessageId parentId) {
 		cryptoExecutor.execute(new Runnable() {
+			@Override
 			public void run() {
 				long timestamp = System.currentTimeMillis();
 				long newestTimeStamp = 0;
@@ -353,6 +357,7 @@ public class ForumControllerImpl extends DbControllerImpl
 				}
 				bodyCache.put(p.getMessage().getId(), body);
 				storePost(p);
+				// FIXME: Don't make DB calls on the crypto executor
 				addNewPost(p);
 			}
 		});
@@ -378,6 +383,7 @@ public class ForumControllerImpl extends DbControllerImpl
 
 	private void storePost(final ForumPost p) {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();

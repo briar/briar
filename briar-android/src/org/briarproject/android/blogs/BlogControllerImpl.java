@@ -19,6 +19,7 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
@@ -42,6 +43,7 @@ public class BlogControllerImpl extends DbControllerImpl
 
 	private volatile BlogPostListener listener;
 	private volatile GroupId groupId = null;
+	// FIXME: This collection isn't thread-safe, isn't updated atomically
 	private volatile TreeSet<BlogPostItem> posts = null;
 
 	@Inject
@@ -81,9 +83,11 @@ public class BlogControllerImpl extends DbControllerImpl
 				LOG.info("New blog post added");
 				if (posts == null) {
 					LOG.info("Posts have not loaded, yet");
+					// FIXME: Race condition, new post may not get loaded
 					return;
 				}
 				final BlogPostHeader header = m.getHeader();
+				// FIXME: Don't make blocking calls in event handlers
 				try {
 					final byte[] body = blogManager.getPostBody(header.getId());
 					final BlogPostItem post = new BlogPostItem(header, body);
@@ -112,7 +116,6 @@ public class BlogControllerImpl extends DbControllerImpl
 	public void loadBlog(final GroupId g, final boolean reload,
 			final ResultHandler<Boolean> resultHandler) {
 
-		LOG.info("Loading blog...");
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -132,8 +135,7 @@ public class BlogControllerImpl extends DbControllerImpl
 						posts.addAll(newPosts);
 						long duration = System.currentTimeMillis() - now;
 						if (LOG.isLoggable(INFO))
-							LOG.info("Post header load took " + duration +
-									" ms");
+							LOG.info("Loading blog took " + duration + " ms");
 					}
 					resultHandler.onResult(true);
 				} catch (DbException e) {
@@ -147,7 +149,7 @@ public class BlogControllerImpl extends DbControllerImpl
 
 	@Override
 	@Nullable
-	public TreeSet<BlogPostItem> getBlogPosts() {
+	public SortedSet<BlogPostItem> getBlogPosts() {
 		return posts;
 	}
 
