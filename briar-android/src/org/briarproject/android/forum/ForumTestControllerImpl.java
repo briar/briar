@@ -1,7 +1,9 @@
 package org.briarproject.android.forum;
 
+import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.api.UniqueId;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -63,7 +65,7 @@ public class ForumTestControllerImpl implements ForumController {
 	private ForumEntry[] forumEntries;
 
 	@Inject
-	public ForumTestControllerImpl() {
+	ForumTestControllerImpl() {
 
 	}
 
@@ -94,7 +96,7 @@ public class ForumTestControllerImpl implements ForumController {
 
 	@Override
 	public void loadForum(GroupId groupId,
-			UiResultHandler<Boolean> resultHandler) {
+			ResultHandler<Boolean> resultHandler) {
 		SecureRandom random = new SecureRandom();
 		forumEntries = new ForumEntry[100];
 		// string cut off index
@@ -124,14 +126,14 @@ public class ForumTestControllerImpl implements ForumController {
 	}
 
 	@Override
-	public String getForumName() {
-		return "SAGA";
+	public Forum getForum() {
+		return null;
 	}
 
 	@Override
 	public List<ForumEntry> getForumEntries() {
 		return forumEntries == null ? null :
-				new ArrayList<ForumEntry>(Arrays.asList(forumEntries));
+				new ArrayList<>(Arrays.asList(forumEntries));
 	}
 
 	@Override

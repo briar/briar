@@ -5,8 +5,6 @@ import org.briarproject.CoreModule;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.blogs.BlogPersistentData;
-import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.android.report.BriarReportSender;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostFactory;
@@ -34,7 +32,6 @@ import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
-import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.plugins.AndroidPluginsModule;
 import org.briarproject.system.AndroidSystemModule;
@@ -91,8 +88,6 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	PrivateMessageFactory privateMessageFactory();
 
-	TransportPropertyManager transportPropertyManager();
-
 	ForumManager forumManager();
 
 	ForumSharingManager forumSharingManager();
@@ -116,10 +111,6 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	IntroductionManager introductionManager();
 
 	AndroidExecutor androidExecutor();
-
-	ForumPersistentData forumPersistentData();
-
-	BlogPersistentData blogPersistentData();
 
 	@IoExecutor
 	Executor ioExecutor();

@@ -37,6 +37,7 @@ import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.android.util.TrustIndicatorView;
+import org.briarproject.api.forum.Forum;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
@@ -117,7 +118,8 @@ public class ForumActivity extends BriarActivity implements
 					@Override
 					public void onResultUi(Boolean result) {
 						if (result) {
-							setTitle(forumController.getForumName());
+							Forum forum = forumController.getForum();
+							if (forum != null) setTitle(forum.getName());
 							forumAdapter = new ForumAdapter(
 									forumController.getForumEntries());
 							recyclerView.setAdapter(forumAdapter);
@@ -264,6 +266,7 @@ public class ForumActivity extends BriarActivity implements
 		String text = textInput.getText().toString();
 		if (text.trim().length() == 0)
 			return;
+		if (forumController.getForum() == null) return;
 		ForumEntry replyEntry = forumAdapter.getReplyEntry();
 		if (replyEntry == null) {
 			// root post

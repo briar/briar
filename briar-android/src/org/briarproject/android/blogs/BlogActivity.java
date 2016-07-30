@@ -21,7 +21,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -38,8 +37,6 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 	static final String IS_NEW_BLOG = "briar.IS_NEW_BLOG";
 
 	private static final String BLOG_PAGER_ADAPTER = "briar.BLOG_PAGER_ADAPTER";
-	private static final Logger LOG =
-			Logger.getLogger(BlogActivity.class.getName());
 
 	private ProgressBar progressBar;
 	private ViewPager pager;

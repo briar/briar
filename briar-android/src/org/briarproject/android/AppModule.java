@@ -4,8 +4,6 @@ import android.app.Application;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.blogs.BlogPersistentData;
-import org.briarproject.android.forum.ForumPersistentData;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
@@ -65,13 +63,13 @@ public class AppModule {
 	}
 
 	@Provides
-	public UiCallback provideUICallback() {
+	UiCallback provideUICallback() {
 		return uiCallback;
 	}
 
 	@Provides
 	@Singleton
-	public DatabaseConfig provideDatabaseConfig(Application app) {
+	DatabaseConfig provideDatabaseConfig(Application app) {
 		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		return new DatabaseConfig() {
 
@@ -103,7 +101,7 @@ public class AppModule {
 
 	@Provides
 	@Singleton
-	public DevConfig provideDevConfig(final CryptoComponent crypto) {
+	DevConfig provideDevConfig(final CryptoComponent crypto) {
 		return new DevConfig() {
 
 			@Override
@@ -137,17 +135,5 @@ public class AppModule {
 		lifecycleManager.registerService(notificationManager);
 		eventBus.addListener(notificationManager);
 		return notificationManager;
-	}
-
-	@Provides
-	@Singleton
-	ForumPersistentData provideForumPersistence() {
-		return new ForumPersistentData();
-	}
-
-	@Provides
-	@Singleton
-	BlogPersistentData provideBlogPersistence() {
-		return new BlogPersistentData();
 	}
 }
