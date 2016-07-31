@@ -136,8 +136,8 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 
 	private void loadBlogPosts(final int position, final boolean setItem) {
 		showLoadingScreen();
-		blogController
-				.loadBlog(groupId, false, new UiResultHandler<Boolean>(this) {
+		blogController.loadBlog(groupId, false,
+				new UiResultHandler<Boolean>(this) {
 					@Override
 					public void onResultUi(Boolean result) {
 						if (result) {

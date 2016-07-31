@@ -94,8 +94,8 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		feedController
-				.loadPersonalBlog(new UiResultHandler<Blog>(getActivity()) {
+		feedController.loadPersonalBlog(
+				new UiResultHandler<Blog>(getActivity()) {
 					@Override
 					public void onResultUi(Blog b) {
 						personalBlog = b;

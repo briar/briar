@@ -3,7 +3,7 @@ package org.briarproject.android.controller;
 import android.app.Activity;
 
 import org.briarproject.android.api.ReferenceManager;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -111,7 +111,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	@Override
 	public void storeLocalAuthor(final LocalAuthor author,
-			final UiResultHandler<Void> resultHandler) {
+			final ResultHandler<Void> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {

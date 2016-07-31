@@ -1,7 +1,7 @@
 package org.briarproject.android.blogs;
 
 import org.briarproject.android.controller.DbControllerImpl;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostHeader;
@@ -41,10 +41,12 @@ public class FeedControllerImpl extends DbControllerImpl
 	FeedControllerImpl() {
 	}
 
+	@Override
 	public void onResume() {
 		eventBus.addListener(this);
 	}
 
+	@Override
 	public void onPause() {
 		eventBus.removeListener(this);
 	}
@@ -70,7 +72,7 @@ public class FeedControllerImpl extends DbControllerImpl
 
 	@Override
 	public void loadPosts(
-			final UiResultHandler<Collection<BlogPostItem>> resultHandler) {
+			final ResultHandler<Collection<BlogPostItem>> resultHandler) {
 
 		LOG.info("Loading blog posts...");
 		runOnDbThread(new Runnable() {
@@ -102,7 +104,7 @@ public class FeedControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadPersonalBlog(final UiResultHandler<Blog> resultHandler) {
+	public void loadPersonalBlog(final ResultHandler<Blog> resultHandler) {
 		LOG.info("Loading personal blog...");
 		runOnDbThread(new Runnable() {
 			@Override

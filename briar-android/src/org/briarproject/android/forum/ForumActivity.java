@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -62,9 +61,6 @@ import static android.widget.Toast.LENGTH_SHORT;
 
 public class ForumActivity extends BriarActivity implements
 		ForumController.ForumPostListener {
-
-	private static final Logger LOG =
-			Logger.getLogger(ForumActivity.class.getName());
 
 	static final String FORUM_NAME = "briar.FORUM_NAME";
 	private static final int REQUEST_FORUM_SHARED = 3;
@@ -113,8 +109,8 @@ public class ForumActivity extends BriarActivity implements
 		recyclerView.setEmptyText(getString(R.string.no_forum_posts));
 		recyclerView.showProgressBar();
 
-		forumController
-				.loadForum(groupId, new UiResultHandler<Boolean>(this) {
+		forumController.loadForum(groupId,
+				new UiResultHandler<Boolean>(this) {
 					@Override
 					public void onResultUi(Boolean result) {
 						if (result) {
@@ -436,7 +432,7 @@ public class ForumActivity extends BriarActivity implements
 		private boolean hasVisibleDescendants(ForumEntry forumEntry) {
 			int visiblePos = getVisiblePos(forumEntry);
 			int levelLimit = forumEntry.getLevel();
-			// TODO This loop doesn't really loop. @ernir please review!
+			// FIXME This loop doesn't really loop. @ernir please review!
 			for (int i = visiblePos + 1; i < getItemCount(); i++) {
 				ForumEntry entry = getVisibleEntry(i);
 				if (entry != null && entry.getLevel() <= levelLimit)
