@@ -1,7 +1,6 @@
 package org.briarproject.android.forum;
 
 import org.briarproject.android.controller.handler.ResultHandler;
-import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.identity.AuthorId;
@@ -137,7 +136,7 @@ public class ForumTestControllerImpl implements ForumController {
 	}
 
 	@Override
-	public void unsubscribe(UiResultHandler<Boolean> resultHandler) {
+	public void unsubscribe(ResultHandler<Boolean> resultHandler) {
 
 	}
 
