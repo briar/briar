@@ -203,7 +203,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(message.getRaw()));
 			oneOf(db).getGroup(txn2, message.getGroupId());
 			will(returnValue(group));
-			oneOf(db).getMessageMetadata(txn2, messageId);
+			oneOf(db).getMessageMetadataForValidator(txn2, messageId);
 			will(returnValue(metadata));
 			oneOf(db).endTransaction(txn2);
 			// Deliver message in a new transaction
@@ -227,7 +227,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(message1.getRaw()));
 			oneOf(db).getGroup(txn4, message.getGroupId());
 			will(returnValue(group));
-			oneOf(db).getMessageMetadata(txn4, messageId1);
+			oneOf(db).getMessageMetadataForValidator(txn4, messageId1);
 			will(returnValue(metadata));
 			oneOf(db).endTransaction(txn4);
 			// Deliver the dependent in a new transaction
@@ -294,7 +294,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(group));
 			oneOf(db).getMessageDependencies(txn2, messageId);
 			will(returnValue(Collections.singletonMap(messageId1, DELIVERED)));
-			oneOf(db).getMessageMetadata(txn2, messageId);
+			oneOf(db).getMessageMetadataForValidator(txn2, messageId);
 			oneOf(db).endTransaction(txn2);
 			// Deliver the pending message
 			oneOf(db).startTransaction(false);
@@ -778,7 +778,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(message1.getRaw()));
 			oneOf(db).getGroup(txn3, message1.getGroupId());
 			will(returnValue(group));
-			oneOf(db).getMessageMetadata(txn3, messageId1);
+			oneOf(db).getMessageMetadataForValidator(txn3, messageId1);
 			will(returnValue(metadata));
 			oneOf(db).endTransaction(txn3);
 			// Deliver the pending message
