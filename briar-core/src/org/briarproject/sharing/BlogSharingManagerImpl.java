@@ -12,6 +12,7 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
@@ -47,6 +48,8 @@ class BlogSharingManagerImpl extends
 			"bee438b5de0b3a685badc4e49d76e72d"
 					+ "21e01c4b569a775112756bdae267a028"));
 
+	private final BlogManager blogManager;
+
 	private final SFactory sFactory;
 	private final IFactory iFactory;
 	private final ISFactory isFactory;
@@ -64,6 +67,7 @@ class BlogSharingManagerImpl extends
 		super(db, messageQueueManager, clientHelper, metadataParser,
 				metadataEncoder, random, privateGroupFactory, clock);
 
+		this.blogManager = blogManager;
 		sFactory = new SFactory(authorFactory, blogFactory, blogManager);
 		iFactory = new IFactory();
 		isFactory = new ISFactory();
@@ -75,6 +79,13 @@ class BlogSharingManagerImpl extends
 	@Override
 	public ClientId getClientId() {
 		return CLIENT_ID;
+	}
+
+	@Override
+	public boolean canBeShared(GroupId g, Contact c) throws DbException {
+		Blog b = blogManager.getPersonalBlog(c.getAuthor());
+		if (b.getId().equals(g)) return false;
+		return super.canBeShared(g, c);
 	}
 
 	@Override

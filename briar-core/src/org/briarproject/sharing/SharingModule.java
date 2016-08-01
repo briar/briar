@@ -27,6 +27,8 @@ public class SharingModule {
 		ForumSharingValidator forumSharingValidator;
 		@Inject
 		ForumSharingManager forumSharingManager;
+		@Inject
+		BlogSharingManager blogSharingManager;
 	}
 
 	@Provides

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item
+		android:id="@+id/action_blog_share"
+		android:icon="@drawable/social_share_white"
+		android:title="@string/blogs_sharing_share"
+		app:showAsAction="ifRoom"/>
+
+	<item
+		android:id="@+id/action_blog_sharing_status"
+		android:title="@string/forum_sharing_status"
+		app:showAsAction="never"/>
+
+</menu>

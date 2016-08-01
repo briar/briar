@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.graphics.Color;

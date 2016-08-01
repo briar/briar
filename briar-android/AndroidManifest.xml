@@ -133,7 +133,7 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.ShareForumActivity"
+			android:name=".android.sharing.ShareActivity"
 			android:label="@string/forums_share_toolbar_header"
 			android:parentActivityName=".android.forum.ForumActivity">
 			<meta-data
@@ -143,7 +143,7 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.ForumSharingStatusActivity"
+			android:name=".android.sharing.SharingStatusActivity"
 			android:label="@string/forum_sharing_status"
 			android:parentActivityName=".android.forum.ForumActivity">
 			<meta-data

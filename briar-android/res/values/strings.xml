@@ -113,6 +113,7 @@
 	<string name="forum_share_button">Share Forum</string>
 	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
 	<string name="forum_share_message">You may compose an optional invitation message that will be sent to the selected contacts.</string>
+	<string name="forum_share_error">There was an error sharing this forum.</string>
 	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
 	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
 	<string name="forum_show_invitations">Show Forum Invitations</string>
@@ -304,6 +305,10 @@
 	<string name="blogs_delete_blog_cancel">Keep</string>
 	<string name="blogs_blog_deleted">Blog Deleted</string>
 	<string name="blogs_remove_blog">Remove Blog</string>
+	<string name="blogs_sharing_share">Share Blog</string>
+	<string name="blogs_sharing_error">There was an error sharing this blog.</string>
+	<string name="blogs_sharing_button">Share Blog</string>
+	<string name="blogs_sharing_snackbar">Blog shared with chosen contacts</string>
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>

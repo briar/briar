@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,11 +15,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-// TODO extend the BriarFragmentActivity ?
-public class ShareForumActivity extends BriarActivity implements
+public class ShareActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener {
 
-	public final static String CONTACTS = "contacts";
+	public final static String SHAREABLE = "shareable";
+	public final static int FORUM = 1;
+	public final static int BLOG = 2;
+
+	final static String CONTACTS = "contacts";
+
+	private int shareable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -32,11 +37,14 @@ public class ShareForumActivity extends BriarActivity implements
 		if (b == null) throw new IllegalStateException("No GroupId");
 		GroupId groupId = new GroupId(b);
 
+		shareable = i.getIntExtra(SHAREABLE, 0);
+		if (shareable == 0) throw new IllegalStateException("No Shareable");
+
 		if (savedInstanceState == null) {
 			ContactSelectorFragment contactSelectorFragment =
-					ContactSelectorFragment.newInstance(groupId);
+					ContactSelectorFragment.newInstance(shareable, groupId);
 			getSupportFragmentManager().beginTransaction()
-					.add(R.id.shareForumContainer, contactSelectorFragment)
+					.add(R.id.shareContainer, contactSelectorFragment)
 					.commit();
 		}
 	}
@@ -46,24 +54,24 @@ public class ShareForumActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	public void showMessageScreen(GroupId groupId,
+	void showMessageScreen(GroupId groupId,
 			Collection<ContactId> contacts) {
 
-		ShareForumMessageFragment messageFragment =
-				ShareForumMessageFragment.newInstance(groupId, contacts);
+		ShareMessageFragment messageFragment =
+				ShareMessageFragment.newInstance(shareable, groupId, contacts);
 
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,
 						android.R.anim.fade_out,
 						android.R.anim.slide_in_left,
 						android.R.anim.slide_out_right)
-				.replace(R.id.shareForumContainer, messageFragment,
+				.replace(R.id.shareContainer, messageFragment,
 						ContactSelectorFragment.TAG)
 				.addToBackStack(null)
 				.commit();
 	}
 
-	public static ArrayList<Integer> getContactsFromIds(
+	static ArrayList<Integer> getContactsFromIds(
 			Collection<ContactId> contacts) {
 
 		// transform ContactIds to Integers so they can be added to a bundle
@@ -74,13 +82,13 @@ public class ShareForumActivity extends BriarActivity implements
 		return intContacts;
 	}
 
-	public void sharingSuccessful(View v) {
+	void sharingSuccessful(View v) {
 		setResult(RESULT_OK);
 		hideSoftKeyboard(v);
 		supportFinishAfterTransition();
 	}
 
-	protected static Collection<ContactId> getContactsFromIntegers(
+	static Collection<ContactId> getContactsFromIntegers(
 			ArrayList<Integer> intContacts) {
 
 		// turn contact integers from a bundle back to ContactIds

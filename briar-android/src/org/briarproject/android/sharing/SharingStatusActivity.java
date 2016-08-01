@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,11 +26,11 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class ForumSharingStatusActivity extends BriarActivity {
+public class SharingStatusActivity extends BriarActivity {
 
 	private GroupId groupId;
 	private BriarRecyclerView sharedByList, sharedWithList;
-	private ForumSharingStatusAdapter sharedByAdapter, sharedWithAdapter;
+	private SharingStatusAdapter sharedByAdapter, sharedWithAdapter;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -53,13 +53,13 @@ public class ForumSharingStatusActivity extends BriarActivity {
 		groupId = new GroupId(b);
 
 		sharedByList = (BriarRecyclerView) findViewById(R.id.sharedByView);
-		sharedByAdapter = new ForumSharingStatusAdapter(this);
+		sharedByAdapter = new SharingStatusAdapter(this);
 		sharedByList.setLayoutManager(new LinearLayoutManager(this));
 		sharedByList.setAdapter(sharedByAdapter);
 		sharedByList.setEmptyText(getString(R.string.nobody));
 
 		sharedWithList = (BriarRecyclerView) findViewById(R.id.sharedWithView);
-		sharedWithAdapter = new ForumSharingStatusAdapter(this);
+		sharedWithAdapter = new SharingStatusAdapter(this);
 		sharedWithList.setLayoutManager(new LinearLayoutManager(this));
 		sharedWithList.setAdapter(sharedWithAdapter);
 		sharedWithList.setEmptyText(getString(R.string.nobody));

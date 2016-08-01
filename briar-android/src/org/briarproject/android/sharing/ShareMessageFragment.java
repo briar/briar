@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,6 +14,8 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.api.blogs.BlogManager;
+import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -27,31 +29,40 @@ import javax.inject.Inject;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.forum.ShareForumActivity.CONTACTS;
-import static org.briarproject.android.forum.ShareForumActivity.getContactsFromIds;
+import static org.briarproject.android.sharing.ShareActivity.BLOG;
+import static org.briarproject.android.sharing.ShareActivity.CONTACTS;
+import static org.briarproject.android.sharing.ShareActivity.FORUM;
+import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
+import static org.briarproject.android.sharing.ShareActivity.getContactsFromIds;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
-public class ShareForumMessageFragment extends BaseFragment {
+public class ShareMessageFragment extends BaseFragment {
 
 	public final static String TAG = "IntroductionMessageFragment";
 
 	private static final Logger LOG =
-			Logger.getLogger(ShareForumMessageFragment.class.getName());
+			Logger.getLogger(ShareMessageFragment.class.getName());
 
-	private ShareForumActivity shareForumActivity;
+	private ShareActivity shareActivity;
 	private ViewHolder ui;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile BlogSharingManager blogSharingManager;
 	private volatile GroupId groupId;
+	private volatile int shareable;
 	private volatile Collection<ContactId> contacts;
 
-	public static ShareForumMessageFragment newInstance(GroupId groupId, Collection<ContactId> contacts) {
+	public static ShareMessageFragment newInstance(int shareable,
+			GroupId groupId, Collection<ContactId> contacts) {
+
 		Bundle args = new Bundle();
 		args.putByteArray(GROUP_ID, groupId.getBytes());
+		args.putInt(SHAREABLE, shareable);
 		args.putIntegerArrayList(CONTACTS, getContactsFromIds(contacts));
-		ShareForumMessageFragment fragment = new ShareForumMessageFragment();
+		ShareMessageFragment fragment = new ShareMessageFragment();
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -60,7 +71,7 @@ public class ShareForumMessageFragment extends BaseFragment {
 	public void onAttach(Context context) {
 		super.onAttach(context);
 		try {
-			shareForumActivity = (ShareForumActivity) context;
+			shareActivity = (ShareActivity) context;
 		} catch (ClassCastException e) {
 			throw new InstantiationError(
 					"This fragment is only meant to be attached to the ShareForumActivity");
@@ -71,17 +82,31 @@ public class ShareForumMessageFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		// change toolbar text
-		ActionBar actionBar = shareForumActivity.getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setTitle(R.string.forum_share_button);
-		}
-
 		// allow for home button to act as back button
 		setHasOptionsMenu(true);
 
+		// get groupID, shareable type and contactIDs from fragment arguments
+		groupId = new GroupId(getArguments().getByteArray(GROUP_ID));
+		shareable = getArguments().getInt(SHAREABLE);
+		ArrayList<Integer> intContacts =
+				getArguments().getIntegerArrayList(CONTACTS);
+		if (intContacts == null) throw new IllegalArgumentException();
+		contacts = ShareActivity.getContactsFromIntegers(intContacts);
+
+		// change toolbar text
+		ActionBar actionBar = shareActivity.getSupportActionBar();
+		if (actionBar != null) {
+			if (shareable == FORUM) {
+				actionBar.setTitle(R.string.forum_share_button);
+			} else if (shareable == BLOG) {
+				actionBar.setTitle(R.string.blogs_sharing_button);
+			} else {
+				throw new IllegalArgumentException("Invalid Shareable Type!");
+			}
+		}
+
 		// inflate view
-		View v = inflater.inflate(R.layout.share_forum_message, container,
+		View v = inflater.inflate(R.layout.fragment_share_message, container,
 				false);
 		ui = new ViewHolder(v);
 		ui.button.setOnClickListener(new View.OnClickListener() {
@@ -90,13 +115,9 @@ public class ShareForumMessageFragment extends BaseFragment {
 				onButtonClick();
 			}
 		});
-
-		// get groupID and contactIDs from fragment arguments
-		groupId = new GroupId(getArguments().getByteArray(GROUP_ID));
-		ArrayList<Integer> intContacts =
-				getArguments().getIntegerArrayList(CONTACTS);
-		if (intContacts == null) throw new IllegalArgumentException();
-		contacts = ShareForumActivity.getContactsFromIntegers(intContacts);
+		if (shareable == BLOG) {
+			ui.button.setText(getString(R.string.blogs_sharing_button));
+		}
 
 		return v;
 	}
@@ -105,7 +126,7 @@ public class ShareForumMessageFragment extends BaseFragment {
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				shareForumActivity.onBackPressed();
+				shareActivity.onBackPressed();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -122,7 +143,7 @@ public class ShareForumMessageFragment extends BaseFragment {
 		component.inject(this);
 	}
 
-	public void onButtonClick() {
+	private void onButtonClick() {
 		// disable button to prevent accidental double invitations
 		ui.button.setEnabled(false);
 
@@ -130,17 +151,21 @@ public class ShareForumMessageFragment extends BaseFragment {
 		shareForum(msg);
 
 		// don't wait for the introduction to be made before finishing activity
-		shareForumActivity.sharingSuccessful(ui.message);
+		shareActivity.sharingSuccessful(ui.message);
 	}
 
 	private void shareForum(final String msg) {
-		shareForumActivity.runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					for (ContactId c : contacts) {
-						forumSharingManager.sendInvitation(groupId, c,
-								msg);
+						if (shareable == FORUM) {
+							forumSharingManager.sendInvitation(groupId, c,
+									msg);
+						} else if (shareable == BLOG) {
+							blogSharingManager.sendInvitation(groupId, c, msg);
+						}
 					}
 				} catch (DbException e) {
 					sharingError();
@@ -152,11 +177,12 @@ public class ShareForumMessageFragment extends BaseFragment {
 	}
 
 	private void sharingError() {
-		shareForumActivity.runOnUiThread(new Runnable() {
+		shareActivity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(shareForumActivity,
-						R.string.introduction_error, LENGTH_SHORT).show();
+				int res = R.string.forum_share_error;
+				if (shareable == BLOG) res = R.string.blogs_sharing_error;
+				Toast.makeText(shareActivity, res, LENGTH_SHORT).show();
 			}
 		});
 	}
