@@ -30,6 +30,8 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 
 public class AndroidUtils {
 
+	static final long MIN_RESOLUTION = MINUTE_IN_MILLIS;
+
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
 
@@ -97,22 +99,20 @@ public class AndroidUtils {
 	}
 
 	public static String formatDate(Context ctx, long time) {
-		// update BriarRecyclerView#DEFAULT_REFRESH_INTERVAL along with this
-		long minResolution = MINUTE_IN_MILLIS;
 		int flags = FORMAT_ABBREV_RELATIVE |
 				FORMAT_SHOW_DATE | FORMAT_ABBREV_TIME | FORMAT_ABBREV_MONTH;
 
 		long diff = System.currentTimeMillis() - time;
-		if (diff < minResolution) return ctx.getString(R.string.now);
+		if (diff < MIN_RESOLUTION) return ctx.getString(R.string.now);
 		if (diff >= DAY_IN_MILLIS && diff < WEEK_IN_MILLIS) {
 			// also show time when older than a day, but newer than a week
-			return DateUtils.getRelativeDateTimeString(ctx, time, minResolution,
-					WEEK_IN_MILLIS, flags).toString();
+			return DateUtils.getRelativeDateTimeString(ctx, time,
+					MIN_RESOLUTION, WEEK_IN_MILLIS, flags).toString();
 		}
 		// otherwise just show "...ago" or date string
 		return DateUtils
 				.getRelativeTimeSpanString(time, System.currentTimeMillis(),
-						minResolution, flags).toString();
+						MIN_RESOLUTION, flags).toString();
 	}
 
 }

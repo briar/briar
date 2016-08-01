@@ -9,7 +9,7 @@ import org.briarproject.android.forum.ForumControllerImpl;
 import org.mockito.Mockito;
 
 /**
- * This class exposes the SetupController and offers the possibility to
+ * This class exposes the ForumController and offers the possibility to
  * override it.
  */
 public class TestForumActivity extends ForumActivity {

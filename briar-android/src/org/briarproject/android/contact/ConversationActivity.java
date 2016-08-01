@@ -170,7 +170,6 @@ public class ConversationActivity extends BriarActivity
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
-		list.periodicallyUpdateContent();
 
 		content = (EditText) findViewById(R.id.input_text);
 		sendButton = findViewById(R.id.btn_send);
@@ -205,6 +204,7 @@ public class ConversationActivity extends BriarActivity
 		notificationManager.blockNotification(groupId);
 		notificationManager.clearPrivateMessageNotification(groupId);
 		loadData();
+		list.startPeriodicUpdate();
 	}
 
 	@Override
@@ -212,6 +212,7 @@ public class ConversationActivity extends BriarActivity
 		super.onPause();
 		eventBus.removeListener(this);
 		notificationManager.unblockNotification(groupId);
+		list.stopPeriodicUpdate();
 		if (isFinishing()) markMessagesRead();
 	}
 

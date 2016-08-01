@@ -153,7 +153,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));
-		list.periodicallyUpdateContent();
 
 		return contentView;
 	}
@@ -183,6 +182,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		super.onResume();
 		eventBus.addListener(this);
 		loadContacts();
+		list.startPeriodicUpdate();
 	}
 
 	@Override
@@ -190,6 +190,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		super.onPause();
 		adapter.clear();
 		eventBus.removeListener(this);
+		list.stopPeriodicUpdate();
 	}
 
 	private void loadContacts() {
