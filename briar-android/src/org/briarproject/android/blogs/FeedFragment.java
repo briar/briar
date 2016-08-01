@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
@@ -108,6 +107,7 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
+		list.startPeriodicUpdate();
 		feedController.onResume();
 		feedController.loadPosts(
 				new UiResultHandler<Collection<BlogPostItem>>(getActivity()) {
@@ -127,6 +127,7 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public void onPause() {
 		super.onPause();
+		list.stopPeriodicUpdate();
 		feedController.onPause();
 		// TODO save list position in database/preferences?
 	}
@@ -216,4 +217,5 @@ public class FeedFragment extends BaseFragment implements
 		}
 		s.show();
 	}
+
 }

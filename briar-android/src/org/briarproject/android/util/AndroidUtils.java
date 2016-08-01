@@ -30,7 +30,7 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 
 public class AndroidUtils {
 
-	static final long MIN_RESOLUTION = MINUTE_IN_MILLIS;
+	public static final long MIN_RESOLUTION = MINUTE_IN_MILLIS;
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";

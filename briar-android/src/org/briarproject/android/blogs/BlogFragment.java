@@ -121,6 +121,18 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		list.startPeriodicUpdate();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		list.stopPeriodicUpdate();
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		if (myBlog) {
 			inflater.inflate(R.menu.blogs_my_blog_actions, menu);
