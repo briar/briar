@@ -18,9 +18,9 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
-import org.briarproject.api.sync.MessageContext;
 import org.briarproject.util.ByteUtils;
 
 import java.util.Collection;
@@ -231,9 +231,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							}
 							if (d.getValue() != DELIVERED) allDelivered = false;
 						}
-						if(allDelivered) {
-							meta = db.getMessageMetadata(txn, id);
-						}
+						if (allDelivered)
+							meta = db.getMessageMetadataForValidator(txn, id);
 						txn.setComplete();
 					} finally {
 						if (!txn.isComplete()) txn.setComplete();
