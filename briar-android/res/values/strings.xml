@@ -3,21 +3,25 @@
 	<string name="nav_drawer_open_description">Open the navigation drawer</string>
 	<string name="nav_drawer_close_description">Close the navigation drawer</string>
 	<string name="app_name">Briar</string>
+
+	<!-- Crash Reporter -->
 	<string name="crash_report_title">Briar Crash Report</string>
-	<string name="sad_face" translatable="false">:-(</string>
 	<string name="briar_crashed">Sorry, Briar has crashed.</string>
 	<string name="not_your_fault">This is not your fault.</string>
 	<string name="please_send_report">Please help us build a better Briar by sending us a crash report.</string>
 	<string name="report_is_encrypted">We promise that the report is encrypted and sent securely.</string>
 	<string name="feedback_title">Feedback</string>
-	<string name="describe_crash">Describe what happened</string>
+	<string name="describe_crash">Describe what happened (optional)</string>
 	<string name="enter_feedback">Enter your feedback</string>
-	<string name="optional_contact_email">Optional contact email</string>
+	<string name="optional_contact_email">Your email address (optional)</string>
 	<string name="debug_report">Debug report:</string>
-	<string name="include_debug_report">Include debug report?</string>
+	<string name="include_debug_report_crash">Include anonymous data about the crash</string>
+	<string name="include_debug_report_feedback">Include anonymous data about this device</string>
 	<string name="could_not_load_report_data">Could not load report data.</string>
 	<string name="send_report">Send report</string>
+	<string name="close">Close</string>
 	<string name="dev_report_saved">Report saved. It will be sent the next time you log into Briar.</string>
+
 	<string name="ongoing_notification_title">Signed into Briar</string>
 	<string name="ongoing_notification_text">Touch to open Briar.</string>
 	<string name="setup_title">Briar Setup</string>
@@ -87,6 +91,7 @@
 		<item quantity="other">%d forums shared by contacts</item>
 	</plurals>
 	<string name="show">Show</string>
+	<string name="hide">Hide</string>
 	<string name="show_forums">Show</string>
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>
