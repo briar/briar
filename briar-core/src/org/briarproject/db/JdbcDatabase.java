@@ -1532,7 +1532,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND state = ? AND shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND expiry < ?"
-					+ " ORDER BY timestamp DESC LIMIT ?";
+					+ " ORDER BY timestamp LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
@@ -1588,7 +1588,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND state = ? AND shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE"
 					+ " AND expiry < ?"
-					+ " ORDER BY timestamp DESC";
+					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
@@ -1686,7 +1686,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND state = ? AND shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND expiry < ?"
-					+ " ORDER BY timestamp DESC";
+					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
