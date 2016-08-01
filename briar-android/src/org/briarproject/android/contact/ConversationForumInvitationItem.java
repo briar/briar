@@ -1,18 +1,18 @@
 package org.briarproject.android.contact;
 
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
 
 abstract class ConversationForumInvitationItem extends ConversationItem {
 
-	private final ForumInvitationMessage fim;
+	private final ForumInvitationRequest fim;
 
-	public ConversationForumInvitationItem(ForumInvitationMessage fim) {
+	public ConversationForumInvitationItem(ForumInvitationRequest fim) {
 		super(fim.getId(), fim.getTimestamp());
 
 		this.fim = fim;
 	}
 
-	public ForumInvitationMessage getForumInvitationMessage() {
+	public ForumInvitationRequest getForumInvitationMessage() {
 		return fim;
 	}
 }

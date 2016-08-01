@@ -3,13 +3,14 @@ package org.briarproject.api.forum;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.SharingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-public interface ForumSharingManager extends SharingManager<Forum, ForumInvitationMessage> {
+public interface ForumSharingManager extends SharingManager<Forum, InvitationMessage> {
 
 	/** Returns the unique ID of the forum sharing client. */
 	ClientId getClientId();
@@ -31,7 +32,7 @@ public interface ForumSharingManager extends SharingManager<Forum, ForumInvitati
 	 * Returns all forum sharing messages sent by the Contact
 	 * identified by contactId.
 	 */
-	Collection<ForumInvitationMessage> getInvitationMessages(
+	Collection<InvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
 	/** Returns all forums to which the user has been invited. */

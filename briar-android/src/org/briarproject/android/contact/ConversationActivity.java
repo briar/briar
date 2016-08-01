@@ -45,12 +45,14 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
+import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
+import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
@@ -61,6 +63,7 @@ import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
@@ -331,7 +334,7 @@ public class ConversationActivity extends BriarActivity
 					Collection<IntroductionMessage> introductions =
 							introductionManager
 									.getIntroductionMessages(contactId);
-					Collection<ForumInvitationMessage> invitations =
+					Collection<InvitationMessage> invitations =
 							forumSharingManager
 									.getInvitationMessages(contactId);
 					long duration = System.currentTimeMillis() - now;
@@ -350,7 +353,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void displayMessages(final Collection<PrivateMessageHeader> headers,
 			final Collection<IntroductionMessage> introductions,
-			final Collection<ForumInvitationMessage> invitations) {
+			final Collection<InvitationMessage> invitations) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -384,9 +387,18 @@ public class ConversationActivity extends BriarActivity
 						}
 						items.add(item);
 					}
-					for (ForumInvitationMessage i : invitations) {
-						ConversationItem item = ConversationItem.from(i);
-						items.add(item);
+					for (InvitationMessage i : invitations) {
+						if (i instanceof ForumInvitationRequest) {
+							ForumInvitationRequest r =
+									(ForumInvitationRequest) i;
+							items.add(ConversationItem.from(r));
+						} else if (i instanceof ForumInvitationResponse) {
+							ForumInvitationResponse r =
+									(ForumInvitationResponse) i;
+							items.add(ConversationItem
+									.from(ConversationActivity.this,
+											contactName, r));
+						}
 					}
 					adapter.addAll(items);
 					// Scroll to the bottom
@@ -545,6 +557,12 @@ public class ConversationActivity extends BriarActivity
 		} else if (e instanceof ForumInvitationReceivedEvent) {
 			ForumInvitationReceivedEvent event =
 					(ForumInvitationReceivedEvent) e;
+			if (event.getContactId().equals(contactId)) {
+				loadMessages();
+			}
+		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
+			ForumInvitationResponseReceivedEvent event =
+					(ForumInvitationResponseReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
 				loadMessages();
 			}

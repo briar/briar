@@ -10,7 +10,7 @@ import org.briarproject.api.sync.GroupId;
 import java.util.Collection;
 
 public interface BlogSharingManager
-		extends SharingManager<Blog, BlogInvitationMessage> {
+		extends SharingManager<Blog, BlogInvitationRequest> {
 
 	/**
 	 * Returns the unique ID of the blog sharing client.
@@ -34,7 +34,7 @@ public interface BlogSharingManager
 	 * Returns all blogs sharing messages sent by the Contact
 	 * identified by contactId.
 	 */
-	Collection<BlogInvitationMessage> getInvitationMessages(
+	Collection<BlogInvitationRequest> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
 	/**

@@ -3,7 +3,8 @@ package org.briarproject.android.contact;
 import android.content.Context;
 
 import org.briarproject.R;
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
+import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
@@ -95,11 +96,43 @@ public abstract class ConversationItem {
 		}
 	}
 
-	public static ConversationItem from(ForumInvitationMessage fim) {
+	public static ConversationItem from(ForumInvitationRequest fim) {
 		if (fim.isLocal()) {
 			return new ConversationForumInvitationOutItem(fim);
 		} else {
 			return new ConversationForumInvitationInItem(fim);
+		}
+	}
+
+	public static ConversationItem from(Context ctx, String contactName,
+			ForumInvitationResponse fir) {
+
+		if (fir.isLocal()) {
+			String text;
+			if (fir.wasAccepted()) {
+				text = ctx.getString(
+						R.string.forum_invitation_response_accepted_sent,
+						contactName);
+			} else {
+				text = ctx.getString(
+						R.string.forum_invitation_response_declined_sent,
+						contactName);
+			}
+			return new ConversationNoticeOutItem(fir.getId(), text,
+					fir.getTimestamp(), fir.isSent(), fir.isSeen());
+		} else {
+			String text;
+			if (fir.wasAccepted()) {
+				text = ctx.getString(
+						R.string.forum_invitation_response_accepted_received,
+						contactName);
+			} else {
+				text = ctx.getString(
+						R.string.forum_invitation_response_declined_received,
+						contactName);
+			}
+			return new ConversationNoticeInItem(fir.getId(), text,
+					fir.getTimestamp(), fir.isRead());
 		}
 	}
 
@@ -115,7 +148,7 @@ public abstract class ConversationItem {
 				im.getTimestamp(), im.isRead());
 	}
 
-	protected interface OutgoingItem {
+	interface OutgoingItem {
 
 		MessageId getId();
 
@@ -128,7 +161,7 @@ public abstract class ConversationItem {
 		void setSeen(boolean seen);
 	}
 
-	protected interface IncomingItem {
+	interface IncomingItem {
 
 		MessageId getId();
 

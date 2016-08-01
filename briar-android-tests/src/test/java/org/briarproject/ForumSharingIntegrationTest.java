@@ -25,7 +25,8 @@ import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumInvitationMessage;
+import org.briarproject.api.forum.ForumInvitationRequest;
+import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostFactory;
@@ -35,6 +36,7 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.SyncSession;
@@ -187,18 +189,29 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertEquals(1, forumManager1.getForums().size());
 
 			// invitee has one invitation message from sharer
-			List<ForumInvitationMessage> list =
+			List<InvitationMessage> list =
 					new ArrayList<>(forumSharingManager1
 							.getInvitationMessages(contactId0));
-			assertEquals(1, list.size());
+			assertEquals(2, list.size());
 			// check other things are alright with the forum message
-			ForumInvitationMessage invitation = list.get(0);
-			assertFalse(invitation.isAvailable());
-			assertEquals(forum0.getName(), invitation.getForumName());
-			assertEquals(contactId1, invitation.getContactId());
-			assertEquals("Hi!", invitation.getMessage());
-			// sharer has own invitation message
-			assertEquals(1,
+			for (InvitationMessage m : list) {
+				if (m instanceof ForumInvitationRequest) {
+					ForumInvitationRequest invitation =
+							(ForumInvitationRequest) m;
+					assertFalse(invitation.isAvailable());
+					assertEquals(forum0.getName(), invitation.getForumName());
+					assertEquals(contactId1, invitation.getContactId());
+					assertEquals("Hi!", invitation.getMessage());
+				} else {
+					ForumInvitationResponse response =
+							(ForumInvitationResponse) m;
+					assertEquals(contactId0, response.getContactId());
+					assertTrue(response.wasAccepted());
+					assertTrue(response.isLocal());
+				}
+			}
+			// sharer has own invitation message and response
+			assertEquals(2,
 					forumSharingManager0.getInvitationMessages(contactId1)
 							.size());
 			// forum can not be shared again
@@ -238,19 +251,30 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			// forum is no longer available to invitee who declined
 			assertEquals(0, forumSharingManager1.getInvited().size());
 
-			// invitee has one invitation message from sharer
-			List<ForumInvitationMessage> list =
+			// invitee has one invitation message from sharer and one response
+			List<InvitationMessage> list =
 					new ArrayList<>(forumSharingManager1
 							.getInvitationMessages(contactId0));
-			assertEquals(1, list.size());
-			// check other things are alright with the forum message
-			ForumInvitationMessage invitation = list.get(0);
-			assertFalse(invitation.isAvailable());
-			assertEquals(forum0.getName(), invitation.getForumName());
-			assertEquals(contactId1, invitation.getContactId());
-			assertEquals(null, invitation.getMessage());
-			// sharer has own invitation message
-			assertEquals(1,
+			assertEquals(2, list.size());
+			// check things are alright with the forum message
+			for (InvitationMessage m : list) {
+				if (m instanceof ForumInvitationRequest) {
+					ForumInvitationRequest invitation =
+							(ForumInvitationRequest) m;
+					assertFalse(invitation.isAvailable());
+					assertEquals(forum0.getName(), invitation.getForumName());
+					assertEquals(contactId1, invitation.getContactId());
+					assertEquals(null, invitation.getMessage());
+				} else {
+					ForumInvitationResponse response =
+							(ForumInvitationResponse) m;
+					assertEquals(contactId0, response.getContactId());
+					assertFalse(response.wasAccepted());
+					assertTrue(response.isLocal());
+				}
+			}
+			// sharer has own invitation message and response
+			assertEquals(2,
 					forumSharingManager0.getInvitationMessages(contactId1)
 							.size());
 			// forum can be shared again
@@ -438,12 +462,13 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			listener1.requestReceived = false;
 
 			// get SessionId from invitation
-			List<ForumInvitationMessage> list = new ArrayList<>(
+			List<InvitationMessage> list = new ArrayList<>(
 					forumSharingManager1
 							.getInvitationMessages(contactId0));
-			assertEquals(1, list.size());
-			ForumInvitationMessage msg = list.get(0);
+			assertEquals(2, list.size());
+			InvitationMessage msg = list.get(0);
 			SessionId sessionId = msg.getSessionId();
+			assertEquals(sessionId, list.get(1).getSessionId());
 
 			// get all sorts of stuff needed to send a message
 			DatabaseComponent db = t0.getDatabaseComponent();
@@ -501,6 +526,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 			// forum was added successfully
 			assertEquals(1, forumManager1.getForums().size());
+			assertEquals(2,
+					forumSharingManager0.getInvitationMessages(contactId1)
+							.size());
 
 			// invitee now shares same forum back
 			forumSharingManager1.sendInvitation(forum0.getId(),
@@ -512,7 +540,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 			// make sure that no new request was received
 			assertFalse(listener0.requestReceived);
-			assertEquals(1,
+			assertEquals(2,
 					forumSharingManager0.getInvitationMessages(contactId1)
 							.size());
 		} finally {
@@ -566,9 +594,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				eventWaiter.await(TIMEOUT, 1);
 				assertTrue(listener0.responseReceived);
 
-				assertEquals(1, forumSharingManager0
+				assertEquals(2, forumSharingManager0
 						.getInvitationMessages(contactId1).size());
-				assertEquals(2, forumSharingManager1
+				assertEquals(3, forumSharingManager1
 						.getInvitationMessages(contactId0).size());
 			} else {
 				eventWaiter.await(TIMEOUT, 1);
@@ -579,9 +607,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				eventWaiter.await(TIMEOUT, 1);
 				assertTrue(listener1.responseReceived);
 
-				assertEquals(2, forumSharingManager0
+				assertEquals(3, forumSharingManager0
 						.getInvitationMessages(contactId1).size());
-				assertEquals(1, forumSharingManager1
+				assertEquals(2, forumSharingManager1
 						.getInvitationMessages(contactId0).size());
 			}
 		} finally {
@@ -616,12 +644,13 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 					forumSharingManager0.getSharedWith(forum0.getId()).size());
 
 			// remember SessionId from invitation
-			List<ForumInvitationMessage> list = new ArrayList<>(
+			List<InvitationMessage> list = new ArrayList<>(
 					forumSharingManager1
 							.getInvitationMessages(contactId0));
-			assertEquals(1, list.size());
-			ForumInvitationMessage msg = list.get(0);
+			assertEquals(2, list.size());
+			InvitationMessage msg = list.get(0);
 			SessionId sessionId = msg.getSessionId();
+			assertEquals(sessionId, list.get(1).getSessionId());
 
 			// contacts now remove each other
 			contactManager0.removeContact(contactId1);

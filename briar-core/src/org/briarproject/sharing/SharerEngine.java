@@ -23,7 +23,7 @@ import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.Invitation;
 import static org.briarproject.api.sharing.SharingMessage.SimpleMessage;
 
-public class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR extends InvitationResponseReceivedEvent>
+class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR extends InvitationResponseReceivedEvent>
 		implements ProtocolEngine<SharerSessionState.Action, SS, BaseMessage> {
 
 	private static final Logger LOG =

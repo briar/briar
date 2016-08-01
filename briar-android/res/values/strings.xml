@@ -227,6 +227,10 @@
 	<string name="forum_new_message_hint">New Entry</string>
 	<string name="forum_message_reply_hint">New Reply</string>
 	<string name="forum_invitation_already_sharing">Already sharing</string>
+	<string name="forum_invitation_response_accepted_sent">You accepted the forum invitation from %s.</string>
+	<string name="forum_invitation_response_declined_sent">You declined the forum invitation from %s.</string>
+	<string name="forum_invitation_response_accepted_received">%s accepted the forum invitation.</string>
+	<string name="forum_invitation_response_declined_received">%s declined the forum invitation.</string>
 
 	<!-- Dialogs -->
 	<string name="dialog_title_lost_password">Lost Password</string>

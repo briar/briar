@@ -3,7 +3,7 @@ package org.briarproject.sharing;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogFactory;
-import org.briarproject.api.blogs.BlogInvitationMessage;
+import org.briarproject.api.blogs.BlogInvitationRequest;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogManager.RemoveBlogHook;
 import org.briarproject.api.blogs.BlogSharingManager;
@@ -40,14 +40,12 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 
 class BlogSharingManagerImpl extends
-		SharingManagerImpl<Blog, BlogInvitation, BlogInvitationMessage, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
+		SharingManagerImpl<Blog, BlogInvitation, BlogInvitationRequest, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
 		implements BlogSharingManager, RemoveBlogHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"bee438b5de0b3a685badc4e49d76e72d"
 					+ "21e01c4b569a775112756bdae267a028"));
-
-	private final BlogManager blogManager;
 
 	private final SFactory sFactory;
 	private final IFactory iFactory;
@@ -65,7 +63,6 @@ class BlogSharingManagerImpl extends
 
 		super(db, messageQueueManager, clientHelper, metadataParser,
 				metadataEncoder, random, privateGroupFactory, clock);
-		this.blogManager = blogManager;
 
 		sFactory = new SFactory(authorFactory, blogFactory, blogManager);
 		iFactory = new IFactory();
@@ -81,13 +78,21 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	protected BlogInvitationMessage createInvitationMessage(MessageId id,
+	protected BlogInvitationRequest createInvitationRequest(MessageId id,
 			BlogInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read) {
-		return new BlogInvitationMessage(id, msg.getSessionId(), contactId,
+		return new BlogInvitationRequest(id, msg.getSessionId(), contactId,
 				msg.getBlogTitle(), msg.getMessage(), available, time, local,
 				sent, seen, read);
+	}
+
+	@Override
+	protected BlogInvitationRequest createInvitationResponse(MessageId id,
+			SessionId sessionId, ContactId contactId, boolean accept, long time,
+			boolean local, boolean sent, boolean seen, boolean read) {
+		// TODO implement when doing blog sharing
+		return null;
 	}
 
 	@Override
@@ -125,7 +130,7 @@ class BlogSharingManagerImpl extends
 		removingShareable(txn, b);
 	}
 
-	static class SFactory implements
+	private static class SFactory implements
 			ShareableFactory<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState> {
 
 		private final AuthorFactory authorFactory;
@@ -190,7 +195,7 @@ class BlogSharingManagerImpl extends
 		}
 	}
 
-	static class IFactory implements
+	private static class IFactory implements
 			InvitationFactory<BlogInvitation, BlogSharerSessionState> {
 		@Override
 		public BlogInvitation build(GroupId groupId, BdfDictionary d)
@@ -207,7 +212,7 @@ class BlogSharingManagerImpl extends
 		}
 	}
 
-	static class ISFactory implements
+	private static class ISFactory implements
 			InviteeSessionStateFactory<Blog, BlogInviteeSessionState> {
 		@Override
 		public BlogInviteeSessionState build(SessionId sessionId,
@@ -235,7 +240,7 @@ class BlogSharingManagerImpl extends
 		}
 	}
 
-	static class SSFactory implements
+	private static class SSFactory implements
 			SharerSessionStateFactory<Blog, BlogSharerSessionState> {
 		@Override
 		public BlogSharerSessionState build(SessionId sessionId,
@@ -263,7 +268,7 @@ class BlogSharingManagerImpl extends
 		}
 	}
 
-	static class IRFactory implements
+	private static class IRFactory implements
 			InvitationReceivedEventFactory<BlogInviteeSessionState, BlogInvitationReceivedEvent> {
 
 		private final SFactory sFactory;
@@ -281,7 +286,7 @@ class BlogSharingManagerImpl extends
 		}
 	}
 
-	static class IRRFactory implements
+	private static class IRRFactory implements
 			InvitationResponseReceivedEventFactory<BlogSharerSessionState, BlogInvitationResponseReceivedEvent> {
 		@Override
 		public BlogInvitationResponseReceivedEvent build(
