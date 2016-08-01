@@ -3,7 +3,6 @@ package org.briarproject.android.blogs;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,11 +15,14 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.TrustIndicatorView;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
+
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -29,16 +31,20 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
+import static org.briarproject.android.util.AndroidUtils.MIN_RESOLUTION;
 
 public class BlogPostFragment extends BaseFragment {
 
 	public final static String TAG = BlogPostFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	private final static String BLOG_POST_ID = "briar.BLOG_NAME";
 
 	private GroupId groupId;
 	private MessageId postId;
 	private BlogPostViewHolder ui;
+	private BlogPostItem post = null;
+	private Runnable refresher = null;
 
 	@Inject
 	BlogController blogController;
@@ -88,10 +94,9 @@ public class BlogPostFragment extends BaseFragment {
 					public void onResultUi(Boolean result) {
 						listener.hideLoadingScreen();
 						if (result) {
-							BlogPostItem post =
-									blogController.getBlogPost(postId);
+							post = blogController.getBlogPost(postId);
 							if (post != null) {
-								bind(post);
+								bind();
 							}
 						} else {
 							Toast.makeText(getActivity(),
@@ -100,6 +105,18 @@ public class BlogPostFragment extends BaseFragment {
 						}
 					}
 				});
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		startPeriodicUpdate();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		stopPeriodicUpdate();
 	}
 
 	@Override
@@ -118,14 +135,14 @@ public class BlogPostFragment extends BaseFragment {
 		return TAG;
 	}
 
-	private void bind(BlogPostItem post) {
+	private void bind() {
 		Author author = post.getAuthor();
 		IdenticonDrawable d = new IdenticonDrawable(author.getId().getBytes());
 		ui.avatar.setImageDrawable(d);
 		ui.authorName.setText(author.getName());
 		ui.trust.setTrustLevel(post.getAuthorStatus());
 		ui.date.setText(
-				DateUtils.getRelativeTimeSpanString(post.getTimestamp()));
+				AndroidUtils.formatDate(getActivity(), post.getTimestamp()));
 
 		if (post.getTitle() != null) {
 			ui.title.setText(post.getTitle());
@@ -151,6 +168,29 @@ public class BlogPostFragment extends BaseFragment {
 			date = (TextView) v.findViewById(R.id.date);
 			title = (TextView) v.findViewById(R.id.title);
 			body = (TextView) v.findViewById(R.id.body);
+		}
+	}
+
+	private void startPeriodicUpdate() {
+		refresher = new Runnable() {
+			@Override
+			public void run() {
+				if (ui == null || post == null) return;
+				LOG.info("Updating Content...");
+
+				ui.date.setText(AndroidUtils
+						.formatDate(getActivity(), post.getTimestamp()));
+				ui.date.postDelayed(refresher, MIN_RESOLUTION);
+			}
+		};
+		LOG.info("Adding Handler Callback");
+		ui.date.postDelayed(refresher, MIN_RESOLUTION);
+	}
+
+	private void stopPeriodicUpdate() {
+		if (refresher != null && ui != null) {
+			LOG.info("Removing Handler Callback");
+			ui.date.removeCallbacks(refresher);
 		}
 	}
 

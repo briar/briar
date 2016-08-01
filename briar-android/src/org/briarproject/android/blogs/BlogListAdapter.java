@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.TextAvatarView;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.sync.GroupId;
@@ -121,8 +122,7 @@ class BlogListAdapter extends
 			ui.status.setVisibility(VISIBLE);
 		} else {
 			long timestamp = item.getTimestamp();
-			ui.date.setText(
-					DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+			ui.date.setText(AndroidUtils.formatDate(ctx, timestamp));
 			ui.date.setVisibility(VISIBLE);
 			ui.avatar.setProblem(false);
 			ui.status.setVisibility(GONE);

@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.TrustIndicatorView;
 import org.briarproject.api.identity.Author;
 import org.briarproject.util.StringUtils;
@@ -88,8 +89,7 @@ class BlogPostAdapter extends
 		ui.trust.setTrustLevel(post.getAuthorStatus());
 
 		// date
-		ui.date.setText(
-				DateUtils.getRelativeTimeSpanString(ctx, post.getTimestamp()));
+		ui.date.setText(AndroidUtils.formatDate(ctx, post.getTimestamp()));
 
 		// post body
 		ui.body.setText(StringUtils.fromUtf8(post.getBody()));
