@@ -133,6 +133,10 @@
 		<item quantity="one">New forum post.</item>
 		<item quantity="other">%d new forum posts.</item>
 	</plurals>
+	<plurals name="blog_post_notification_text">
+		<item quantity="one">New blog post.</item>
+		<item quantity="other">%d new blog posts.</item>
+	</plurals>
 
 	<!-- Settings -->
 	<string name="settings_title">Settings</string>
@@ -151,6 +155,7 @@
 	<string name="notification_settings_title">Notifications</string>
 	<string name="notify_private_messages_setting">Show alerts for private messages</string>
 	<string name="notify_forum_posts_setting">Show alerts for forum posts</string>
+	<string name="notify_blog_posts_setting">Show alerts for blog posts</string>
 	<string name="notify_vibration_setting">Vibrate</string>
 	<string name="notify_sound_setting">Sound</string>
 	<string name="notify_sound_setting_default">Default ringtone</string>

@@ -13,7 +13,15 @@ public interface AndroidNotificationManager {
 
 	void clearForumPostNotification(GroupId g);
 
+	void showBlogPostNotification(GroupId g);
+
+	void clearBlogPostNotification();
+
 	void blockNotification(GroupId g);
 
 	void unblockNotification(GroupId g);
+
+	void blockBlogNotification();
+
+	void unblockBlogNotification();
 }

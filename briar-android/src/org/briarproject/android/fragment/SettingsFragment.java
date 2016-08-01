@@ -48,8 +48,9 @@ import static java.util.logging.Level.WARNING;
 public class SettingsFragment extends PreferenceFragmentCompat
 		implements EventListener, Preference.OnPreferenceChangeListener {
 
-	public static final int REQUEST_RINGTONE = 2;
+	private static final int REQUEST_RINGTONE = 2;
 	public static final String SETTINGS_NAMESPACE = "android-ui";
+	public static final String PREF_NOTIFY_BLOG = "notifyBlogPosts";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
@@ -60,6 +61,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference torOverMobile;
 	private CheckBoxPreference notifyPrivateMessages;
 	private CheckBoxPreference notifyForumPosts;
+	private CheckBoxPreference notifyBlogPosts;
 	private CheckBoxPreference notifyVibration;
 	private Preference notifySound;
 
@@ -96,6 +98,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				"pref_key_notify_private_messages");
 		notifyForumPosts = (CheckBoxPreference) findPreference(
 				"pref_key_notify_forum_posts");
+		notifyBlogPosts = (CheckBoxPreference) findPreference(
+				"pref_key_notify_blog_posts");
 		notifyVibration = (CheckBoxPreference) findPreference(
 				"pref_key_notify_vibration");
 		notifySound = findPreference("pref_key_notify_sound");
@@ -104,6 +108,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		torOverMobile.setOnPreferenceChangeListener(this);
 		notifyPrivateMessages.setOnPreferenceChangeListener(this);
 		notifyForumPosts.setOnPreferenceChangeListener(this);
+		notifyBlogPosts.setOnPreferenceChangeListener(this);
 		notifyVibration.setOnPreferenceChangeListener(this);
 
 		notifySound.setOnPreferenceClickListener(
@@ -200,6 +205,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				notifyForumPosts.setChecked(settings.getBoolean(
 						"notifyForumPosts", true));
 
+				notifyBlogPosts.setChecked(settings.getBoolean(
+						PREF_NOTIFY_BLOG, true));
+
 				notifyVibration.setChecked(settings.getBoolean(
 						"notifyVibration", true));
 
@@ -244,6 +252,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == notifyForumPosts) {
 			Settings s = new Settings();
 			s.putBoolean("notifyForumPosts", (Boolean) o);
+			storeSettings(s);
+		} else if (preference == notifyBlogPosts) {
+			Settings s = new Settings();
+			s.putBoolean(PREF_NOTIFY_BLOG, (Boolean) o);
 			storeSettings(s);
 		} else if (preference == notifyVibration) {
 			Settings s = new Settings();

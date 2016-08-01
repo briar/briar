@@ -1,5 +1,6 @@
 package org.briarproject.android.blogs;
 
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
@@ -29,6 +30,9 @@ public class FeedControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(FeedControllerImpl.class.getName());
 
+	@SuppressWarnings("WeakerAccess")
+	@Inject
+	AndroidNotificationManager notificationManager;
 	@Inject
 	protected volatile BlogManager blogManager;
 	@Inject
@@ -44,11 +48,14 @@ public class FeedControllerImpl extends DbControllerImpl
 
 	@Override
 	public void onResume() {
+		notificationManager.blockBlogNotification();
+		notificationManager.clearBlogPostNotification();
 		eventBus.addListener(this);
 	}
 
 	@Override
 	public void onPause() {
+		notificationManager.unblockBlogNotification();
 		eventBus.removeListener(this);
 	}
 
