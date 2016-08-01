@@ -9,6 +9,7 @@ import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
@@ -138,13 +139,25 @@ public abstract class ConversationItem {
 
 	/**
 	 * This method should not be used to get user-facing objects,
-	 * Its purpose is to provider data for the contact list.
+	 * Its purpose is only to provide data for the contact list.
 	 */
 	public static ConversationItem from(IntroductionMessage im) {
 		if (im.isLocal())
 			return new ConversationNoticeOutItem(im.getMessageId(), "",
 					im.getTimestamp(), false, false);
 		return new ConversationNoticeInItem(im.getMessageId(), "",
+				im.getTimestamp(), im.isRead());
+	}
+
+	/**
+	 * This method should not be used to get user-facing objects,
+	 * Its purpose is only to provide data for the contact list.
+	 */
+	public static ConversationItem from(InvitationMessage im) {
+		if (im.isLocal())
+			return new ConversationNoticeOutItem(im.getId(), "",
+					im.getTimestamp(), false, false);
+		return new ConversationNoticeInItem(im.getId(), "",
 				im.getTimestamp(), im.isRead());
 	}
 
