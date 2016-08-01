@@ -26,13 +26,13 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	};
 
 	@Override
-	public void clear() {
+	public synchronized void clear() {
 		roots.clear();
 		nodeMap.clear();
 	}
 
 	@Override
-	public void add(Collection<T> nodes) {
+	public synchronized void add(Collection<T> nodes) {
 		// add all nodes to the node map
 		for (T node : nodes) {
 			nodeMap.put(node.getId(), new ArrayList<T>());
@@ -45,7 +45,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	}
 
 	@Override
-	public void add(T node) {
+	public synchronized void add(T node) {
 		add(Collections.singletonList(node));
 	}
 
@@ -85,7 +85,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	}
 
 	@Override
-	public void setComparator(Comparator<T> comparator) {
+	public synchronized void setComparator(Comparator<T> comparator) {
 		this.comparator = comparator;
 		// Sort all lists with the new comparator
 		Collections.sort(roots, comparator);
@@ -95,7 +95,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	}
 
 	@Override
-	public Collection<T> depthFirstOrder() {
+	public synchronized Collection<T> depthFirstOrder() {
 		List<T> orderedList = new ArrayList<T>();
 		for (T root : roots) {
 			traverse(orderedList, root);

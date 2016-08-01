@@ -50,6 +50,22 @@ public class ForumActivityTest {
 			AUTHOR_1, AUTHOR_2, AUTHOR_3, AUTHOR_4, AUTHOR_5, AUTHOR_6
 	};
 
+	private final static MessageId[] AUTHOR_IDS = new MessageId[AUTHORS.length];
+
+	static {
+		for (int i = 0; i < AUTHOR_IDS.length; i++)
+			AUTHOR_IDS[i] = new MessageId(TestUtils.getRandomId());
+	}
+
+	private final static MessageId[] PARENT_AUTHOR_IDS = {
+			null,
+			AUTHOR_IDS[0],
+			AUTHOR_IDS[1],
+			AUTHOR_IDS[2],
+			AUTHOR_IDS[0],
+			null
+	};
+
 	/*
 		1
 		-> 2
@@ -64,7 +80,7 @@ public class ForumActivityTest {
 
 	private TestForumActivity forumActivity;
 	@Captor
-	private ArgumentCaptor<UiResultHandler<Boolean>> rc;
+	private ArgumentCaptor<UiResultHandler<List<ForumEntry>>> rc;
 
 	@Before
 	public void setUp() {
@@ -82,9 +98,11 @@ public class ForumActivityTest {
 			AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 			byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 			Author author = new Author(authorId, AUTHORS[i], publicKey);
-			forumEntries[i] = new ForumEntry(
-					new MessageId(TestUtils.getRandomId()), AUTHORS[i],
-					LEVELS[i], System.currentTimeMillis(), author, UNKNOWN);
+			forumEntries[i] =
+					new ForumEntry(AUTHOR_IDS[i], PARENT_AUTHOR_IDS[i],
+							AUTHORS[i], System.currentTimeMillis(), author,
+							UNKNOWN);
+			forumEntries[i].setLevel(LEVELS[i]);
 		}
 		return new ArrayList<>(Arrays.asList(forumEntries));
 	}
@@ -93,13 +111,10 @@ public class ForumActivityTest {
 	public void testNestedEntries() {
 		ForumController mc = forumActivity.getController();
 		List<ForumEntry> dummyData = getDummyData();
-		Mockito.when(mc.getForumEntries()).thenReturn(dummyData);
-		// Verify that the forum load is called once
 		verify(mc, times(1))
 				.loadForum(Mockito.any(GroupId.class), rc.capture());
-		rc.getValue().onResult(true);
-		verify(mc, times(1)).getForumEntries();
-		ForumActivity.ForumAdapter adapter = forumActivity.getAdapter();
+		rc.getValue().onResult(dummyData);
+		NestedForumAdapter adapter = forumActivity.getAdapter();
 		Assert.assertNotNull(adapter);
 		// Cascade close
 		assertEquals(6, adapter.getItemCount());

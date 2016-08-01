@@ -15,7 +15,7 @@ public class TestForumActivity extends ForumActivity {
 		return forumController;
 	}
 
-	public ForumAdapter getAdapter() {
+	public NestedForumAdapter getAdapter() {
 		return forumAdapter;
 	}
 

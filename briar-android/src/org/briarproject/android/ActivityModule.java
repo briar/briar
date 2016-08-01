@@ -23,9 +23,6 @@ import org.briarproject.android.controller.SetupControllerImpl;
 import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.forum.ForumController;
 import org.briarproject.android.forum.ForumControllerImpl;
-import org.briarproject.android.forum.ForumTestControllerImpl;
-
-import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
@@ -100,14 +97,6 @@ public class ActivityModule {
 	protected ForumController provideForumController(
 			ForumControllerImpl forumController) {
 		activity.addLifecycleController(forumController);
-		return forumController;
-	}
-
-	@Named("ForumTestController")
-	@ActivityScope
-	@Provides
-	protected ForumController provideForumTestController(
-			ForumTestControllerImpl forumController) {
 		return forumController;
 	}
 
