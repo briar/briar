@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -63,9 +62,9 @@ public class ForumActivity extends BriarActivity implements
 		ForumController.ForumPostListener {
 
 	static final String FORUM_NAME = "briar.FORUM_NAME";
-	private static final int REQUEST_FORUM_SHARED = 3;
 
-	private final static int UNDEFINED = -1;
+	private static final int REQUEST_FORUM_SHARED = 3;
+	private static final int UNDEFINED = -1;
 	private static final String KEY_INPUT_VISIBILITY = "inputVisibility";
 	private static final String KEY_REPLY_ID = "replyId";
 
@@ -77,14 +76,15 @@ public class ForumActivity extends BriarActivity implements
 	@Inject
 	protected ForumController forumController;
 
+	// Protected access for testing
+	protected ForumAdapter forumAdapter;
+
 	private BriarRecyclerView recyclerView;
 	private EditText textInput;
 	private ViewGroup inputContainer;
 	private LinearLayoutManager linearLayoutManager;
 
 	private volatile GroupId groupId = null;
-
-	protected ForumAdapter forumAdapter;
 
 	@Override
 	public void onCreate(final Bundle state) {
@@ -99,50 +99,46 @@ public class ForumActivity extends BriarActivity implements
 		String forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName != null) setTitle(forumName);
 
+		forumAdapter = new ForumAdapter();
+
 		inputContainer = (ViewGroup) findViewById(R.id.text_input_container);
 		inputContainer.setVisibility(GONE);
 		textInput = (EditText) findViewById(R.id.input_text);
 		recyclerView =
 				(BriarRecyclerView) findViewById(R.id.forum_discussion_list);
+		recyclerView.setAdapter(forumAdapter);
 		linearLayoutManager = new LinearLayoutManager(this);
 		recyclerView.setLayoutManager(linearLayoutManager);
 		recyclerView.setEmptyText(getString(R.string.no_forum_posts));
 		recyclerView.showProgressBar();
 
-		forumController.loadForum(groupId,
-				new UiResultHandler<Boolean>(this) {
-					@Override
-					public void onResultUi(Boolean result) {
-						if (result) {
-							Forum forum = forumController.getForum();
-							if (forum != null) setTitle(forum.getName());
-							forumAdapter = new ForumAdapter(
-									forumController.getForumEntries());
-							recyclerView.setAdapter(forumAdapter);
-							recyclerView.startPeriodicUpdate();
-							if (state != null) {
-								byte[] replyId =
-										state.getByteArray(KEY_REPLY_ID);
-								if (replyId != null) {
-									forumAdapter.setReplyEntryById(replyId);
-								}
-							}
-							recyclerView.showData();
-						} else {
-							// TODO Maybe an error dialog ?
-							finish();
-						}
+		forumController.loadForum(groupId, new UiResultHandler<Boolean>(this) {
+			@Override
+			public void onResultUi(Boolean result) {
+				if (result) {
+					Forum forum = forumController.getForum();
+					if (forum != null) setTitle(forum.getName());
+					forumAdapter.setEntries(forumController.getForumEntries());
+					if (state != null) {
+						byte[] replyId = state.getByteArray(KEY_REPLY_ID);
+						if (replyId != null)
+							forumAdapter.setReplyEntryById(replyId);
 					}
-				});
+					recyclerView.showData();
+				} else {
+					// TODO Maybe an error dialog ?
+					finish();
+				}
+			}
+		});
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		inputContainer
-				.setVisibility(
-						savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY) ?
-								VISIBLE : GONE);
+		inputContainer.setVisibility(
+				savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY) ?
+						VISIBLE : GONE);
 	}
 
 
@@ -250,18 +246,14 @@ public class ForumActivity extends BriarActivity implements
 		super.onResume();
 		notificationManager.blockNotification(groupId);
 		notificationManager.clearForumPostNotification(groupId);
-		if (recyclerView.getRecyclerView().getAdapter() != null) {
-			recyclerView.startPeriodicUpdate();
-		}
+		recyclerView.startPeriodicUpdate();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		notificationManager.unblockNotification(groupId);
-		if (recyclerView.getRecyclerView().getAdapter() != null) {
-			recyclerView.stopPeriodicUpdate();
-		}
+		recyclerView.stopPeriodicUpdate();
 	}
 
 	public void sendMessage(View view) {
@@ -373,23 +365,25 @@ public class ForumActivity extends BriarActivity implements
 
 	public class ForumAdapter extends RecyclerView.Adapter<ForumViewHolder> {
 
-		private final List<ForumEntry> forumEntries;
+		private final List<ForumEntry> forumEntries = new ArrayList<>();
+		private final Map<ForumEntry, ValueAnimator> animatingEntries =
+				new HashMap<>();
+
 		// highlight not dependant on time
 		private ForumEntry replyEntry;
 		// temporary highlight
 		private ForumEntry addedEntry;
-		Map<ForumEntry, ValueAnimator> animatingEntries = new HashMap<>();
-
-		ForumAdapter(@NonNull List<ForumEntry> forumEntries) {
-			this.forumEntries = forumEntries;
-		}
 
 		private ForumEntry getReplyEntry() {
 			return replyEntry;
 		}
 
-		void addEntry(int index, ForumEntry entry,
-				boolean isScrolling) {
+		void setEntries(List<ForumEntry> entries) {
+			forumEntries.clear();
+			forumEntries.addAll(entries);
+		}
+
+		void addEntry(int index, ForumEntry entry, boolean isScrolling) {
 			forumEntries.add(index, entry);
 			boolean isShowingDescendants = false;
 			if (entry.getLevel() > 0) {
@@ -559,7 +553,7 @@ public class ForumActivity extends BriarActivity implements
 			return null;
 		}
 
-		@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+		@TargetApi(11)
 		private void animateFadeOut(final ForumViewHolder ui,
 				final ForumEntry addedEntry) {
 			ui.setIsRecyclable(false);
@@ -605,8 +599,8 @@ public class ForumActivity extends BriarActivity implements
 		}
 
 		@Override
-		public ForumViewHolder onCreateViewHolder(
-				ViewGroup parent, int viewType) {
+		public ForumViewHolder onCreateViewHolder(ViewGroup parent,
+				int viewType) {
 			View v = LayoutInflater.from(parent.getContext())
 					.inflate(R.layout.forum_discussion_cell, parent, false);
 			return new ForumViewHolder(v);
@@ -729,6 +723,5 @@ public class ForumActivity extends BriarActivity implements
 			return getVisiblePos(null);
 		}
 	}
-
 
 }
