@@ -23,7 +23,7 @@ import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREAB
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.SimpleMessage;
 
-public class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationReceivedEvent>
+class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationReceivedEvent>
 		implements ProtocolEngine<InviteeSessionState.Action, IS, BaseMessage> {
 
 	private static final Logger LOG =
