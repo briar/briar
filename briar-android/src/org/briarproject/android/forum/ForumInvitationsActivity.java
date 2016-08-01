@@ -71,10 +71,17 @@ public class ForumInvitationsActivity extends BriarActivity
 	public void onResume() {
 		super.onResume();
 		eventBus.addListener(this);
-		loadForums();
+		loadForums(false);
 	}
 
-	private void loadForums() {
+	@Override
+	public void onPause() {
+		super.onPause();
+		eventBus.removeListener(this);
+		adapter.clear();
+	}
+
+	private void loadForums(final boolean clear) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -97,7 +104,7 @@ public class ForumInvitationsActivity extends BriarActivity
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayForums(forums);
+					displayForums(forums, clear);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -106,7 +113,8 @@ public class ForumInvitationsActivity extends BriarActivity
 		});
 	}
 
-	private void displayForums(final Collection<ForumInvitationItem> forums) {
+	private void displayForums(final Collection<ForumInvitationItem> forums,
+			final boolean clear) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -114,7 +122,7 @@ public class ForumInvitationsActivity extends BriarActivity
 					LOG.info("No forums available, finishing");
 					finish();
 				} else {
-					adapter.clear();
+					if (clear) adapter.clear();
 					adapter.addAll(forums);
 				}
 			}
@@ -122,31 +130,25 @@ public class ForumInvitationsActivity extends BriarActivity
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		eventBus.removeListener(this);
-	}
-
-	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed, reloading");
-			loadForums();
+			loadForums(true);
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
 				LOG.info("Forum added, reloading");
-				loadForums();
+				loadForums(false);
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
 				LOG.info("Forum removed, reloading");
-				loadForums();
+				loadForums(true);
 			}
 		} else if (e instanceof ForumInvitationReceivedEvent) {
 			LOG.info("Available forums updated, reloading");
-			loadForums();
+			loadForums(false);
 		}
 	}
 
@@ -158,6 +160,12 @@ public class ForumInvitationsActivity extends BriarActivity
 		int res = R.string.forum_declined_toast;
 		if (accept) res = R.string.forum_joined_toast;
 		Toast.makeText(this, res, LENGTH_SHORT).show();
+
+		// remove item and finish if it was the last
+		adapter.remove(item);
+		if (adapter.getItemCount() == 0) {
+			supportFinishAfterTransition();
+		}
 	}
 
 	private void respondToInvitation(final ForumInvitationItem item,
@@ -174,7 +182,6 @@ public class ForumInvitationsActivity extends BriarActivity
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
-				loadForums();
 			}
 		});
 	}
