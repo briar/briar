@@ -9,10 +9,4 @@
 		android:title="@string/blogs_write_blog_post"
 		app:showAsAction="ifRoom"/>
 
-	<item
-		android:id="@+id/action_delete_blog"
-		android:icon="@drawable/action_delete_white"
-		android:title="@string/blogs_delete_blog"
-		app:showAsAction="never"/>
-
 </menu>

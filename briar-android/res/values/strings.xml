@@ -278,6 +278,7 @@
 	<string name="blogs_blog_failed_to_load">Blog failed to load</string>
 	<string name="blogs_blog_post_failed_to_load">Blog Post failed to load</string>
 	<string name="blogs_feed_empty_state">This is the global blog feed.\n\nIt looks like nobody blogged anything, yet.\n\nBe the first and tap the pen icon to write a new blog post.</string>
+	<string name="blogs_personal_blog">%s\'s Personal Blog</string>
 	<string name="blogs_delete_blog">Delete Blog</string>
 	<string name="blogs_delete_blog_dialog_message">Are you sure that you want to delete this Blog and all posts?\nNote that this will not delete the blog from other people\'s devices.</string>
 	<string name="blogs_delete_blog_ok">Delete Blog</string>

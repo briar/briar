@@ -12,6 +12,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,16 +58,9 @@ public class FeedControllerImpl extends DbControllerImpl
 
 		LOG.info("New blog post added");
 		if (listener != null) {
-			final BlogPostAddedEvent m = (BlogPostAddedEvent) e;
-			final BlogPostHeader header = m.getHeader();
-			try {
-				final byte[] body = blogManager.getPostBody(header.getId());
-				final BlogPostItem post = new BlogPostItem(header, body);
-				listener.onBlogPostAdded(post);
-			} catch (DbException ex) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, ex.toString(), ex);
-			}
+			BlogPostAddedEvent m = (BlogPostAddedEvent) e;
+			BlogPostHeader header = m.getHeader();
+			addPost(m.getGroupId(), header);
 		}
 	}
 
@@ -87,7 +81,7 @@ public class FeedControllerImpl extends DbControllerImpl
 								blogManager.getPostHeaders(b.getId());
 						for (BlogPostHeader h : header) {
 							byte[] body = blogManager.getPostBody(h.getId());
-							posts.add(new BlogPostItem(h, body));
+							posts.add(new BlogPostItem(b.getId(), h, body));
 						}
 					}
 					long duration = System.currentTimeMillis() - now;
@@ -132,4 +126,21 @@ public class FeedControllerImpl extends DbControllerImpl
 	public void setOnBlogPostAddedListener(OnBlogPostAddedListener listener) {
 		this.listener = listener;
 	}
+
+	private void addPost(final GroupId groupId, final BlogPostHeader header) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					byte[] body = blogManager.getPostBody(header.getId());
+					BlogPostItem post = new BlogPostItem(groupId, header, body);
+					listener.onBlogPostAdded(post);
+				} catch (DbException ex) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, ex.toString(), ex);
+				}
+			}
+		});
+	}
+
 }

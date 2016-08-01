@@ -78,7 +78,7 @@ public class BlogControllerImpl extends DbControllerImpl
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof BlogPostAddedEvent) {
-			final BlogPostAddedEvent m = (BlogPostAddedEvent) e;
+			BlogPostAddedEvent m = (BlogPostAddedEvent) e;
 			if (m.getGroupId().equals(groupId)) {
 				LOG.info("New blog post added");
 				if (posts == null) {
@@ -89,8 +89,8 @@ public class BlogControllerImpl extends DbControllerImpl
 				final BlogPostHeader header = m.getHeader();
 				// FIXME: Don't make blocking calls in event handlers
 				try {
-					final byte[] body = blogManager.getPostBody(header.getId());
-					final BlogPostItem post = new BlogPostItem(header, body);
+					byte[] body = blogManager.getPostBody(header.getId());
+					BlogPostItem post = new BlogPostItem(groupId, header, body);
 					posts.add(post);
 					listener.onBlogPostAdded(post, m.isLocal());
 				} catch (DbException ex) {
@@ -130,7 +130,7 @@ public class BlogControllerImpl extends DbControllerImpl
 								blogManager.getPostHeaders(g);
 						for (BlogPostHeader h : header) {
 							byte[] body = blogManager.getPostBody(h.getId());
-							newPosts.add(new BlogPostItem(h, body));
+							newPosts.add(new BlogPostItem(g, h, body));
 						}
 						posts.addAll(newPosts);
 						long duration = System.currentTimeMillis() - now;

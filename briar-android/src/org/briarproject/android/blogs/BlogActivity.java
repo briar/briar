@@ -126,7 +126,7 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 	}
 
 	@Override
-	public void onBlogPostClick(final int position) {
+	public void onBlogPostClick(int position, BlogPostItem post) {
 		loadBlogPosts(position, true);
 	}
 

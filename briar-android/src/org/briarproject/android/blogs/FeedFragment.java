@@ -32,6 +32,7 @@ import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
+import static org.briarproject.android.blogs.BlogActivity.IS_MY_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
 public class FeedFragment extends BaseFragment implements
@@ -168,8 +169,22 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onBlogPostClick(int position) {
-		// noop
+	public void onBlogPostClick(int position, BlogPostItem post) {
+		byte[] groupId = post.getGroupId().getBytes();
+		String name = getString(R.string.blogs_personal_blog,
+				post.getAuthor().getName());
+		boolean myBlog = personalBlog != null &&
+				personalBlog.getId().equals(post.getGroupId());
+
+		Intent i = new Intent(getActivity(), BlogActivity.class);
+		i.putExtra(GROUP_ID, groupId);
+		i.putExtra(BLOG_NAME, name);
+		i.putExtra(IS_MY_BLOG, myBlog);
+		ActivityOptionsCompat options =
+				makeCustomAnimation(getActivity(),
+						android.R.anim.slide_in_left,
+						android.R.anim.slide_out_right);
+		startActivity(i, options.toBundle());
 	}
 
 	@Override
