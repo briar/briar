@@ -7,6 +7,7 @@ import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.SyncSessionFactory;
+import org.briarproject.blogs.BlogsModule;
 import org.briarproject.clients.ClientsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
@@ -38,6 +39,7 @@ import dagger.Component;
 		DatabaseModule.class,
 		EventModule.class,
 		ForumModule.class,
+		BlogsModule.class,
 		IdentityModule.class,
 		LifecycleModule.class,
 		PropertiesModule.class,
@@ -46,7 +48,7 @@ import dagger.Component;
 		SystemModule.class,
 		TransportModule.class
 })
-public interface ForumManagerTestComponent {
+interface ForumManagerTestComponent {
 
 	void inject(ForumManagerTest testCase);
 

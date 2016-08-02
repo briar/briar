@@ -500,7 +500,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		return canBeShared;
 	}
 
-	private boolean canBeShared(Transaction txn, GroupId g, Contact c)
+	protected boolean canBeShared(Transaction txn, GroupId g, Contact c)
 			throws DbException {
 
 		try {

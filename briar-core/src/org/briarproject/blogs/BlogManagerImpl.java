@@ -282,7 +282,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public Blog getPersonalBlog(Author author) throws DbException {
+	public Blog getPersonalBlog(Author author) {
 		return blogFactory.createPersonalBlog(author);
 	}
 

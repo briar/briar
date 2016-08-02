@@ -1,5 +1,7 @@
 package org.briarproject;
 
+import org.briarproject.api.blogs.BlogManager;
+import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
@@ -7,7 +9,6 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.SyncSessionFactory;
@@ -42,8 +43,8 @@ import dagger.Component;
 		DataModule.class,
 		DatabaseModule.class,
 		EventModule.class,
-		ForumModule.class,
 		BlogsModule.class,
+		ForumModule.class,
 		IdentityModule.class,
 		LifecycleModule.class,
 		PropertiesModule.class,
@@ -52,15 +53,15 @@ import dagger.Component;
 		SystemModule.class,
 		TransportModule.class
 })
-interface ForumSharingIntegrationTestComponent {
+interface BlogSharingIntegrationTestComponent {
 
-	void inject(ForumSharingIntegrationTest testCase);
+	void inject(BlogSharingIntegrationTest testCase);
 
 	void inject(ContactModule.EagerSingletons init);
 
 	void inject(CryptoModule.EagerSingletons init);
 
-	void inject(ForumModule.EagerSingletons init);
+	void inject(BlogsModule.EagerSingletons init);
 
 	void inject(LifecycleModule.EagerSingletons init);
 
@@ -80,9 +81,9 @@ interface ForumSharingIntegrationTestComponent {
 
 	ContactManager getContactManager();
 
-	ForumSharingManager getForumSharingManager();
+	BlogSharingManager getBlogSharingManager();
 
-	ForumManager getForumManager();
+	BlogManager getBlogManager();
 
 	SyncSessionFactory getSyncSessionFactory();
 

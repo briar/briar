@@ -26,6 +26,8 @@ import org.briarproject.api.event.BlogInvitationReceivedEvent;
 import org.briarproject.api.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
@@ -50,6 +52,8 @@ class BlogSharingManagerImpl extends
 			"bee438b5de0b3a685badc4e49d76e72d"
 					+ "21e01c4b569a775112756bdae267a028"));
 
+	@Inject
+	IdentityManager identityManager;
 	private final BlogManager blogManager;
 
 	private final SFactory sFactory;
@@ -84,10 +88,19 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	public boolean canBeShared(GroupId g, Contact c) throws DbException {
-		Blog b = blogManager.getPersonalBlog(c.getAuthor());
+	protected boolean canBeShared(Transaction txn, GroupId g, Contact c)
+			throws DbException {
+
+		// check if g is our personal blog
+		LocalAuthor author = identityManager.getLocalAuthor(txn);
+		Blog b = blogManager.getPersonalBlog(author);
 		if (b.getId().equals(g)) return false;
-		return super.canBeShared(g, c);
+
+		// check if g is c's personal blog
+		b = blogManager.getPersonalBlog(c.getAuthor());
+		if (b.getId().equals(g)) return false;
+
+		return super.canBeShared(txn, g, c);
 	}
 
 	@Override
