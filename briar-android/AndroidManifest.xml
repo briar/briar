@@ -51,7 +51,9 @@
 			android:finishOnTaskLaunch="true"
 			android:label="@string/crash_report_title"
 			android:launchMode="singleInstance"
-			android:process=":briar_error_handler">
+			android:process=":briar_error_handler"
+			android:theme="@style/BriarThemeNoActionBar.Default"
+			android:windowSoftInputMode="stateHidden">
 		</activity>
 
 		<activity

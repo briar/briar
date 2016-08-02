@@ -1,14 +1,20 @@
 package org.briarproject.android.report;
 
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -32,7 +38,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static android.content.DialogInterface.BUTTON_POSITIVE;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -46,9 +51,7 @@ import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.STACK_TRACE;
 
 public class DevReportActivity extends BaseCrashReportDialog
-		implements DialogInterface.OnClickListener,
-		DialogInterface.OnCancelListener,
-		CompoundButton.OnCheckedChangeListener {
+		implements CompoundButton.OnCheckedChangeListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(DevReportActivity.class.getName());
@@ -66,21 +69,32 @@ public class DevReportActivity extends BaseCrashReportDialog
 		requiredFields.add(STACK_TRACE);
 	}
 
+	private AppCompatDelegate delegate;
 	private SharedPreferencesFactory sharedPreferencesFactory;
 	private Set<ReportField> excludedFields;
 	private EditText userCommentView = null;
 	private EditText userEmailView = null;
 	private CheckBox includeDebugReport = null;
+	private Button chevron = null;
 	private LinearLayout report = null;
 	private View progress = null;
-	private View share = null;
+	private MenuItem sendReport = null;
 	private boolean reviewing = false;
+
+	private AppCompatDelegate getDelegate() {
+		if (delegate == null) {
+			delegate = AppCompatDelegate.create(this, null);
+		}
+		return delegate;
+	}
 
 	@Override
 	public void onCreate(Bundle state) {
+		getDelegate().installViewFactory();
+		getDelegate().onCreate(state);
 		super.onCreate(state);
 
-		setContentView(R.layout.activity_dev_report);
+		getDelegate().setContentView(R.layout.activity_dev_report);
 
 		sharedPreferencesFactory = new SharedPreferencesFactory(
 				getApplicationContext(), getConfig());
@@ -94,35 +108,62 @@ public class DevReportActivity extends BaseCrashReportDialog
 			}
 		}
 
-		TextView title = (TextView) findViewById(R.id.title);
+		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
+		getDelegate().setSupportActionBar(tb);
+
+		final View requestReport = findViewById(R.id.request_report);
 		userCommentView = (EditText) findViewById(R.id.user_comment);
 		userEmailView = (EditText) findViewById(R.id.user_email);
 		includeDebugReport = (CheckBox) findViewById(R.id.include_debug_report);
+		chevron = (Button) findViewById(R.id.chevron);
 		report = (LinearLayout) findViewById(R.id.report_content);
 		progress = findViewById(R.id.progress_wheel);
-		share = findViewById(R.id.share_dev_report);
 
-		title.setText(isFeedback() ? R.string.feedback_title :
-				R.string.crash_report_title);
+		//noinspection ConstantConditions
+		getDelegate().getSupportActionBar().setTitle(
+				isFeedback() ? R.string.feedback_title :
+						R.string.crash_report_title);
 		userCommentView.setHint(isFeedback() ? R.string.enter_feedback :
 				R.string.describe_crash);
 
-		includeDebugReport.setVisibility(isFeedback() ? VISIBLE : GONE);
-		report.setVisibility(isFeedback() ? GONE : VISIBLE);
+		if (isFeedback()) {
+			includeDebugReport
+					.setText(getString(R.string.include_debug_report_feedback));
+		} else {
+			includeDebugReport.setChecked(true);
+		}
 
-		includeDebugReport.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.acceptButton).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						reviewing = true;
+						requestReport.setVisibility(GONE);
+						((InputMethodManager) getSystemService(
+								Context.INPUT_METHOD_SERVICE))
+								.showSoftInput(userCommentView,
+										InputMethodManager.SHOW_FORCED);
+					}
+				});
+		findViewById(R.id.declineButton).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						closeReport();
+					}
+				});
+		chevron.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (includeDebugReport.isChecked())
+				boolean show =
+						chevron.getText().equals(getString(R.string.show));
+				if (show) {
+					chevron.setText(R.string.hide);
 					refresh();
-				else
+				} else {
+					chevron.setText(R.string.show);
 					report.setVisibility(GONE);
-			}
-		});
-		share.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				processReport();
+				}
 			}
 		});
 
@@ -130,14 +171,65 @@ public class DevReportActivity extends BaseCrashReportDialog
 		userEmailView.setText(userEmail);
 
 		if (state != null)
-			reviewing = state.getBoolean(STATE_REVIEWING, false);
+			reviewing = state.getBoolean(STATE_REVIEWING, isFeedback());
+
+		if (!isFeedback() && !reviewing)
+			requestReport.setVisibility(VISIBLE);
+	}
+
+	@Override
+	public void onPostCreate(Bundle state) {
+		super.onPostCreate(state);
+		getDelegate().onPostCreate(state);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (!isFeedback() && !reviewing) showCrashDialog();
-		if (!isFeedback() || includeDebugReport.isChecked()) refresh();
+		if (chevron.isSelected()) refresh();
+	}
+
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		getDelegate().onPostResume();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getDelegate().getMenuInflater();
+		inflater.inflate(R.menu.dev_report_actions, menu);
+		sendReport = menu.findItem(R.id.action_send_report);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+			case R.id.action_send_report:
+				processReport();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public void onTitleChanged(CharSequence title, int color) {
+		super.onTitleChanged(title, color);
+		getDelegate().setTitle(title);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		getDelegate().onConfigurationChanged(newConfig);
 	}
 
 	@Override
@@ -147,18 +239,19 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
+	public void onStop() {
+		super.onStop();
+		getDelegate().onStop();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		getDelegate().onDestroy();
+	}
+
+	@Override
 	public void onBackPressed() {
-		closeReport();
-	}
-
-	@Override
-	public void onClick(DialogInterface dialog, int which) {
-		if (which == BUTTON_POSITIVE) dialog.dismiss();
-		else dialog.cancel();
-	}
-
-	@Override
-	public void onCancel(DialogInterface dialog) {
 		closeReport();
 	}
 
@@ -174,20 +267,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 	private boolean isFeedback() {
 		return getException() instanceof UserFeedback;
-	}
-
-	private void showCrashDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this,
-				R.style.BriarDialogTheme);
-		builder.setTitle(R.string.dialog_title_share_crash_report)
-				.setIcon(R.drawable.ic_warning_black_24dp)
-				.setMessage(R.string.dialog_message_share_crash_report)
-				.setPositiveButton(R.string.dialog_button_ok, this)
-				.setNegativeButton(R.string.cancel_button, this);
-		AlertDialog dialog = builder.create();
-		dialog.setCanceledOnTouchOutside(false);
-		dialog.setOnCancelListener(this);
-		dialog.show();
 	}
 
 	private void refresh() {
@@ -248,7 +327,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 	private void processReport() {
 		userCommentView.setEnabled(false);
 		userEmailView.setEnabled(false);
-		share.setEnabled(false);
+		sendReport.setEnabled(false);
 		progress.setVisibility(VISIBLE);
 		final boolean includeReport =
 				!isFeedback() || includeDebugReport.isChecked();
@@ -296,7 +375,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 						fields.add(field.name());
 					}
 					prefEditor.putStringSet(PREF_EXCLUDED_FIELDS, fields);
-					prefEditor.commit();
+					prefEditor.apply();
 				}
 
 				if (success) {

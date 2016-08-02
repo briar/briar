@@ -3,14 +3,25 @@
 	<string name="nav_drawer_open_description">Open the navigation drawer</string>
 	<string name="nav_drawer_close_description">Close the navigation drawer</string>
 	<string name="app_name">Briar</string>
+
+	<!-- Crash Reporter -->
 	<string name="crash_report_title">Briar Crash Report</string>
+	<string name="briar_crashed">Sorry, Briar has crashed.</string>
+	<string name="not_your_fault">This is not your fault.</string>
+	<string name="please_send_report">Please help us build a better Briar by sending us a crash report.</string>
+	<string name="report_is_encrypted">We promise that the report is encrypted and sent securely.</string>
 	<string name="feedback_title">Feedback</string>
-	<string name="describe_crash">Describe what happened</string>
+	<string name="describe_crash">Describe what happened (optional)</string>
 	<string name="enter_feedback">Enter your feedback</string>
-	<string name="optional_contact_email">Optional contact email</string>
-	<string name="include_debug_report">Include debug report?</string>
+	<string name="optional_contact_email">Your email address (optional)</string>
+	<string name="debug_report">Debug report:</string>
+	<string name="include_debug_report_crash">Include anonymous data about the crash</string>
+	<string name="include_debug_report_feedback">Include anonymous data about this device</string>
 	<string name="could_not_load_report_data">Could not load report data.</string>
+	<string name="send_report">Send report</string>
+	<string name="close">Close</string>
 	<string name="dev_report_saved">Report saved. It will be sent the next time you log into Briar.</string>
+
 	<string name="ongoing_notification_title">Signed into Briar</string>
 	<string name="ongoing_notification_text">Touch to open Briar.</string>
 	<string name="setup_title">Briar Setup</string>
@@ -80,6 +91,7 @@
 		<item quantity="other">%d forums shared by contacts</item>
 	</plurals>
 	<string name="show">Show</string>
+	<string name="hide">Hide</string>
 	<string name="show_forums">Show</string>
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>
@@ -241,8 +253,6 @@
 	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
 	<string name="dialog_title_welcome">Welcome to Briar</string>
 	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
-	<string name="dialog_title_share_crash_report">Briar has crashed</string>
-	<string name="dialog_message_share_crash_report">Would you like to review the crash report and send it to the developers? It will be stored encrypted on your device until the next time you log into Briar, and then sent securely to the developers.</string>
 	<string name="dialog_title_leave_forum">Confirm Leaving Forum</string>
 	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
 	<string name="dialog_button_ok">OK</string>
