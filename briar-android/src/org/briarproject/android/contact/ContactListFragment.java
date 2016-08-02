@@ -375,6 +375,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	// This needs to be called from the DB thread
+	// Do not call getActivty() here as it might return null
 	private Collection<ConversationItem> getMessages(ContactId id)
 			throws DbException {
 
@@ -406,13 +407,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		Collection<InvitationMessage> invitations =
 				forumSharingManager.getInvitationMessages(id);
 		for (InvitationMessage i : invitations) {
-			if (i instanceof ForumInvitationRequest) {
-				ForumInvitationRequest r = (ForumInvitationRequest) i;
-				messages.add(ConversationItem.from(r));
-			} else if (i instanceof ForumInvitationResponse) {
-				ForumInvitationResponse r = (ForumInvitationResponse) i;
-				messages.add(ConversationItem.from(getActivity(), "", r));
-			}
+			messages.add(ConversationItem.from(i));
 		}
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
