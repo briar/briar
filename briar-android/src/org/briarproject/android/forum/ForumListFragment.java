@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
+import org.briarproject.android.sharing.InvitationsActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
@@ -40,6 +41,8 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.sharing.ShareActivity.FORUM;
+import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
 
 public class ForumListFragment extends BaseEventFragment implements
 		View.OnClickListener {
@@ -285,6 +288,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onClick(View view) {
 		// snackbar click
-		startActivity(new Intent(getContext(), ForumInvitationsActivity.class));
+		Intent i = new Intent(getContext(), InvitationsActivity.class);
+		i.putExtra(SHAREABLE, FORUM);
+		startActivity(i);
 	}
 }

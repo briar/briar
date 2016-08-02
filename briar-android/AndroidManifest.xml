@@ -102,7 +102,7 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.ForumInvitationsActivity"
+			android:name=".android.sharing.InvitationsActivity"
 			android:label="@string/forum_invitations_title"
 			android:parentActivityName=".android.NavDrawerActivity">
 			<meta-data

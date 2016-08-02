@@ -1,29 +1,29 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.forum.Forum;
+import org.briarproject.api.sharing.Shareable;
 
 import java.util.Collection;
 
-class ForumInvitationItem {
+class InvitationItem {
 
-	private final Forum forum;
+	private final Shareable shareable;
 	private final boolean subscribed;
 	private final Collection<Contact> contacts;
 
-	ForumInvitationItem(Forum forum, boolean subscribed,
+	InvitationItem(Shareable shareable, boolean subscribed,
 			Collection<Contact> contacts) {
 
-		this.forum = forum;
+		this.shareable = shareable;
 		this.subscribed = subscribed;
 		this.contacts = contacts;
 	}
 
-	Forum getForum() {
-		return forum;
+	Shareable getShareable() {
+		return shareable;
 	}
 
-	public boolean isSubscribed() {
+	boolean isSubscribed() {
 		return subscribed;
 	}
 

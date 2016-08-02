@@ -15,7 +15,7 @@ import org.briarproject.android.blogs.RssFeedManageActivity;
 import org.briarproject.android.blogs.WriteBlogPostActivity;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
-import org.briarproject.android.forum.ForumInvitationsActivity;
+import org.briarproject.android.sharing.InvitationsActivity;
 import org.briarproject.android.sharing.ContactSelectorFragment;
 import org.briarproject.android.forum.CreateForumActivity;
 import org.briarproject.android.forum.ForumActivity;
@@ -63,7 +63,7 @@ public interface ActivityComponent {
 
 	void inject(CreateIdentityActivity activity);
 
-	void inject(ForumInvitationsActivity activity);
+	void inject(InvitationsActivity activity);
 
 	void inject(CreateForumActivity activity);
 

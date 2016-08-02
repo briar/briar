@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.forum.ForumInvitationsActivity;
+import org.briarproject.android.sharing.InvitationsActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.blogs.BlogInvitationRequest;
 import org.briarproject.api.clients.SessionId;
@@ -42,6 +42,9 @@ import static org.briarproject.android.contact.ConversationItem.MSG_OUT;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_IN;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_OUT;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
+import static org.briarproject.android.sharing.ShareActivity.BLOG;
+import static org.briarproject.android.sharing.ShareActivity.FORUM;
+import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
 
 class ConversationAdapter extends RecyclerView.Adapter {
 
@@ -286,7 +289,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	private void bindInvitation(InvitationHolder ui,
 			final ConversationShareableInvitationItem item) {
 
-		InvitationRequest ir = item.getInvitationRequest();
+		final InvitationRequest ir = item.getInvitationRequest();
 		String name = "";
 		int receivedRes =  0, sentRes = 0, buttonRes = 0;
 		if (ir instanceof ForumInvitationRequest) {
@@ -335,15 +338,18 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ui.text.setText(ctx.getString(receivedRes, contactName, name));
 
 			if (ir.isAvailable()) {
+				final int type =
+						ir instanceof ForumInvitationRequest ? FORUM : BLOG;
 				ui.showInvitationsButton.setText(ctx.getString(buttonRes));
 				ui.showInvitationsButton.setVisibility(VISIBLE);
 				ui.showInvitationsButton
 						.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								Intent intent = new Intent(ctx,
-										ForumInvitationsActivity.class);
-								ctx.startActivity(intent);
+								Intent i = new Intent(ctx,
+										InvitationsActivity.class);
+								i.putExtra(SHAREABLE, type);
+								ctx.startActivity(i);
 							}
 						});
 			} else {
