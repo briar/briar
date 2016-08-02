@@ -18,6 +18,7 @@ import android.widget.TextView.OnEditorActionListener;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPost;
@@ -47,6 +48,9 @@ public class WriteBlogPostActivity extends BriarActivity
 			Logger.getLogger(WriteBlogPostActivity.class.getName());
 	private static final String contentType = "text/plain";
 
+	@Inject
+	protected AndroidNotificationManager notificationManager;
+
 	private TextInputEditText titleInput;
 	private EditText bodyInput;
 	private Button publishButton;
@@ -69,13 +73,8 @@ public class WriteBlogPostActivity extends BriarActivity
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No Group in intent.");
 		groupId = new GroupId(b);
-//		String blogName = i.getStringExtra(BLOG_NAME);
-//		if (blogName != null) setTitle(blogName);
 
 		setContentView(R.layout.activity_write_blog_post);
-//		String title =
-//				getTitle() + ": " + getString(R.string.blogs_write_blog_post);
-//		setTitle(title);
 
 		TextInputLayout titleLayout =
 				(TextInputLayout) findViewById(R.id.titleLayout);
@@ -114,6 +113,18 @@ public class WriteBlogPostActivity extends BriarActivity
 		});
 
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		notificationManager.unblockNotification(groupId);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		notificationManager.blockNotification(groupId);
 	}
 
 	@Override

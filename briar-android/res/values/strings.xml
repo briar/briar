@@ -134,8 +134,10 @@
 	<string name="introduction_response_accepted_received">%1$s accepted the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received">%1$s declined the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received_by_introducee">%1$s says that %2$s declined the introduction.</string>
-	<string name="introduction_success_title">Introduced contact was added</string>
-	<string name="introduction_success_text">You have been introduced to %1$s.</string>
+	<plurals name="introduction_notification_text">
+		<item quantity="one">New contact added.</item>
+		<item quantity="other">%d new contacts added.</item>
+	</plurals>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>

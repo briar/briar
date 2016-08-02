@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.util.BriarRecyclerView;
@@ -75,6 +76,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	ConnectionRegistry connectionRegistry;
 	@Inject
 	protected EventBus eventBus;
+	@Inject
+	protected AndroidNotificationManager notificationManager;
 
 	private ContactListAdapter adapter = null;
 	private BriarRecyclerView list = null;
@@ -184,6 +187,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		notificationManager.blockAllContactNotifications();
+		notificationManager.clearAllContactNotifications();
 		eventBus.addListener(this);
 		loadContacts();
 		list.startPeriodicUpdate();
@@ -193,6 +198,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	public void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
+		notificationManager.unblockAllContactNotifications();
 		adapter.clear();
 		list.showProgressBar();
 		list.stopPeriodicUpdate();
