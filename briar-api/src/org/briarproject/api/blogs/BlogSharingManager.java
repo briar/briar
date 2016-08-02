@@ -3,14 +3,14 @@ package org.briarproject.api.blogs;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.SharingManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-public interface BlogSharingManager
-		extends SharingManager<Blog, BlogInvitationRequest> {
+public interface BlogSharingManager extends SharingManager<Blog> {
 
 	/**
 	 * Returns the unique ID of the blog sharing client.
@@ -34,7 +34,7 @@ public interface BlogSharingManager
 	 * Returns all blogs sharing messages sent by the Contact
 	 * identified by contactId.
 	 */
-	Collection<BlogInvitationRequest> getInvitationMessages(
+	Collection<InvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
 	/**

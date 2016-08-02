@@ -309,6 +309,13 @@
 	<string name="blogs_sharing_error">There was an error sharing this blog.</string>
 	<string name="blogs_sharing_button">Share Blog</string>
 	<string name="blogs_sharing_snackbar">Blog shared with chosen contacts</string>
+	<string name="blogs_sharing_response_accepted_sent">You accepted the blog invitation from %s.</string>
+	<string name="blogs_sharing_response_declined_sent">You declined the blog invitation from %s.</string>
+	<string name="blogs_sharing_response_accepted_received">%s accepted the blog invitation.</string>
+	<string name="blogs_sharing_response_declined_received">%s declined the blog invitation.</string>
+	<string name="blogs_sharing_invitation_received">%1$s has shared the personal blog of %2$s with you.</string>
+	<string name="blogs_sharing_invitation_sent">You have shared the personal blog of %1$s with %2$s.</string>
+	<string name="blogs_sharing_show_invitations">Show Blog Invitations</string>
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>

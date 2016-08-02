@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.BlogInvitationRequest;
+import org.briarproject.api.blogs.BlogInvitationResponse;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogManager.RemoveBlogHook;
 import org.briarproject.api.blogs.BlogSharingManager;
@@ -25,6 +26,7 @@ import org.briarproject.api.event.BlogInvitationReceivedEvent;
 import org.briarproject.api.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -41,7 +43,7 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 
 class BlogSharingManagerImpl extends
-		SharingManagerImpl<Blog, BlogInvitation, BlogInvitationRequest, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
+		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
 		implements BlogSharingManager, RemoveBlogHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
@@ -89,21 +91,21 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	protected BlogInvitationRequest createInvitationRequest(MessageId id,
+	protected InvitationMessage createInvitationRequest(MessageId id,
 			BlogInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read) {
 		return new BlogInvitationRequest(id, msg.getSessionId(), contactId,
-				msg.getBlogTitle(), msg.getMessage(), available, time, local,
-				sent, seen, read);
+				msg.getBlogAuthorName(), msg.getMessage(), available, time,
+				local, sent, seen, read);
 	}
 
 	@Override
-	protected BlogInvitationRequest createInvitationResponse(MessageId id,
+	protected InvitationMessage createInvitationResponse(MessageId id,
 			SessionId sessionId, ContactId contactId, boolean accept, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
-		// TODO implement when doing blog sharing
-		return null;
+		return new BlogInvitationResponse(id, sessionId, contactId, accept,
+				time, local, sent, seen, read);
 	}
 
 	@Override

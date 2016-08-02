@@ -8,20 +8,20 @@ import org.briarproject.api.sync.MessageId;
 
 public class BlogInvitationRequest extends InvitationRequest {
 
-	private final String blogTitle;
+	private final String blogAuthorName;
 
 	public BlogInvitationRequest(MessageId id, SessionId sessionId,
-			ContactId contactId, String blogTitle, String message,
+			ContactId contactId, String blogAuthorName, String message,
 			boolean available, long time, boolean local, boolean sent,
 			boolean seen, boolean read) {
 
 		super(id, sessionId, contactId, message, available, time, local, sent,
 				seen, read);
-		this.blogTitle = blogTitle;
+		this.blogAuthorName = blogAuthorName;
 	}
 
-	public String getBlogTitle() {
-		return blogTitle;
+	public String getBlogAuthorName() {
+		return blogAuthorName;
 	}
 
 }

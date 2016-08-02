@@ -20,6 +20,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -37,6 +38,8 @@ import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
+import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.forum.ForumInvitationRequest;
 import org.briarproject.api.forum.ForumInvitationResponse;
@@ -91,6 +94,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	protected volatile IntroductionManager introductionManager;
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile BlogSharingManager blogSharingManager;
 
 	public static ContactListFragment newInstance() {
 		
@@ -277,14 +282,14 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					(IntroductionResponseReceivedEvent) e;
 			IntroductionResponse ir = m.getIntroductionResponse();
 			updateItem(m.getContactId(), ConversationItem.from(ir));
-		} else if (e instanceof ForumInvitationReceivedEvent) {
-			LOG.info("Forum Invitation received, reloading conversation...");
-			ForumInvitationReceivedEvent m = (ForumInvitationReceivedEvent) e;
+		} else if (e instanceof InvitationReceivedEvent) {
+			LOG.info("Invitation received, reloading conversation...");
+			InvitationReceivedEvent m = (InvitationReceivedEvent) e;
 			reloadConversation(m.getContactId());
-		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
-			LOG.info("Forum Invitation Response received, reloading ...");
-			ForumInvitationResponseReceivedEvent m =
-					(ForumInvitationResponseReceivedEvent) e;
+		} else if (e instanceof InvitationResponseReceivedEvent) {
+			LOG.info("Invitation Response received, reloading ...");
+			InvitationResponseReceivedEvent m =
+					(InvitationResponseReceivedEvent) e;
 			reloadConversation(m.getContactId());
 		}
 	}
@@ -406,6 +411,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		now = System.currentTimeMillis();
 		Collection<InvitationMessage> invitations =
 				forumSharingManager.getInvitationMessages(id);
+		invitations.addAll(blogSharingManager.getInvitationMessages(id));
 		for (InvitationMessage i : invitations) {
 			messages.add(ConversationItem.from(i));
 		}

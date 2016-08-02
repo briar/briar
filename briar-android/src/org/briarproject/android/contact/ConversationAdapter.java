@@ -15,16 +15,22 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.forum.ForumInvitationsActivity;
 import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.api.blogs.BlogInvitationRequest;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.forum.ForumInvitationRequest;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.util.StringUtils;
 
 import java.util.List;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.support.v7.widget.RecyclerView.ViewHolder;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static org.briarproject.android.contact.ConversationItem.BLOG_INVITATION_IN;
+import static org.briarproject.android.contact.ConversationItem.BLOG_INVITATION_OUT;
 import static org.briarproject.android.contact.ConversationItem.FORUM_INVITATION_IN;
 import static org.briarproject.android.contact.ConversationItem.FORUM_INVITATION_OUT;
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_IN;
@@ -46,13 +52,13 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	private IntroductionHandler intro;
 	private String contactName;
 
-	public ConversationAdapter(Context context,
+	ConversationAdapter(Context context,
 			IntroductionHandler introductionHandler) {
 		ctx = context;
 		intro = introductionHandler;
 	}
 
-	public void setContactName(String contactName) {
+	void setContactName(String contactName) {
 		this.contactName = contactName;
 		notifyDataSetChanged();
 	}
@@ -87,13 +93,15 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			v = LayoutInflater.from(viewGroup.getContext()).inflate(
 					R.layout.list_item_notice_out, viewGroup, false);
 			return new NoticeHolder(v, type);
-		} else if (type == FORUM_INVITATION_IN) {
+		} else if (type == FORUM_INVITATION_IN || type == BLOG_INVITATION_IN) {
 			v = LayoutInflater.from(viewGroup.getContext()).inflate(
-					R.layout.list_item_forum_invitation_in, viewGroup, false);
+					R.layout.list_item_shareable_invitation_in, viewGroup,
+					false);
 			return new InvitationHolder(v, type);
-		} else if (type == FORUM_INVITATION_OUT) {
+		} else if (type == FORUM_INVITATION_OUT ||
+				type == BLOG_INVITATION_OUT) {
 			v = LayoutInflater.from(viewGroup.getContext()).inflate(
-					R.layout.list_item_forum_invitation_out, viewGroup, false);
+					R.layout.list_item_introduction_out, viewGroup, false);
 			return new InvitationHolder(v, type);
 		}
 		// incoming message (non-local)
@@ -119,12 +127,12 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			bindNotice((NoticeHolder) ui, (ConversationNoticeOutItem) item);
 		} else if (item instanceof ConversationNoticeInItem) {
 			bindNotice((NoticeHolder) ui, (ConversationNoticeInItem) item);
-		} else if (item instanceof ConversationForumInvitationOutItem) {
+		} else if (item instanceof ConversationShareableInvitationOutItem) {
 			bindInvitation((InvitationHolder) ui,
-					(ConversationForumInvitationOutItem) item);
-		} else if (item instanceof ConversationForumInvitationInItem) {
+					(ConversationShareableInvitationOutItem) item);
+		} else if (item instanceof ConversationShareableInvitationInItem) {
 			bindInvitation((InvitationHolder) ui,
-					(ConversationForumInvitationInItem) item);
+					(ConversationShareableInvitationInItem) item);
 		} else {
 			throw new IllegalArgumentException("Unhandled Conversation Item");
 		}
@@ -180,9 +188,9 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 		String message = ir.getMessage();
 		if (StringUtils.isNullOrEmpty(message)) {
-			ui.messageLayout.setVisibility(View.GONE);
+			ui.messageLayout.setVisibility(GONE);
 		} else {
-			ui.messageLayout.setVisibility(View.VISIBLE);
+			ui.messageLayout.setVisibility(VISIBLE);
 			ui.message.body.setText(StringUtils.trim(message));
 			ui.message.date
 					.setText(AndroidUtils.formatDate(ctx, item.getTime()));
@@ -213,8 +221,8 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ui.text.setText(ctx.getString(
 					R.string.introduction_request_answered_received,
 					contactName, ir.getName()));
-			ui.acceptButton.setVisibility(View.GONE);
-			ui.declineButton.setVisibility(View.GONE);
+			ui.acceptButton.setVisibility(GONE);
+			ui.declineButton.setVisibility(GONE);
 		}
 		// Incoming Introduction Request (Not Answered)
 		else {
@@ -230,12 +238,12 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 			if (item.getIntroductionRequest().doesIntroduceOtherIdentity()) {
 				// don't allow accept when one of our identities is introduced
-				ui.acceptButton.setVisibility(View.GONE);
+				ui.acceptButton.setVisibility(GONE);
 				ui.text.setText(ctx.getString(
 						R.string.introduction_request_for_our_identity_received,
 						contactName, ir.getName()));
 			} else {
-				ui.acceptButton.setVisibility(View.VISIBLE);
+				ui.acceptButton.setVisibility(VISIBLE);
 				ui.acceptButton.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
@@ -245,7 +253,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 					}
 				});
 			}
-			ui.declineButton.setVisibility(View.VISIBLE);
+			ui.declineButton.setVisibility(VISIBLE);
 			ui.declineButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -276,26 +284,38 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	private void bindInvitation(InvitationHolder ui,
-			final ConversationForumInvitationItem item) {
+			final ConversationShareableInvitationItem item) {
 
-		ForumInvitationRequest fim = item.getForumInvitationMessage();
+		InvitationRequest ir = item.getInvitationRequest();
+		String name = "";
+		int receivedRes =  0, sentRes = 0, buttonRes = 0;
+		if (ir instanceof ForumInvitationRequest) {
+			name = ((ForumInvitationRequest) ir).getForumName();
+			receivedRes = R.string.forum_invitation_received;
+			sentRes = R.string.forum_invitation_sent;
+			buttonRes = R.string.forum_show_invitations;
+		} else if (ir instanceof BlogInvitationRequest) {
+			name = ((BlogInvitationRequest) ir).getBlogAuthorName();
+			receivedRes = R.string.blogs_sharing_invitation_received;
+			sentRes = R.string.blogs_sharing_invitation_sent;
+			buttonRes = R.string.blogs_sharing_show_invitations;
+		}
 
-		String message = fim.getMessage();
+		String message = ir.getMessage();
 		if (StringUtils.isNullOrEmpty(message)) {
-			ui.messageLayout.setVisibility(View.GONE);
+			ui.messageLayout.setVisibility(GONE);
 		} else {
-			ui.messageLayout.setVisibility(View.VISIBLE);
+			ui.messageLayout.setVisibility(VISIBLE);
 			ui.message.body.setText(StringUtils.trim(message));
 			ui.message.date
 					.setText(AndroidUtils.formatDate(ctx, item.getTime()));
 		}
 
 		// Outgoing Invitation
-		if (item instanceof ConversationForumInvitationOutItem) {
-			ui.text.setText(ctx.getString(R.string.forum_invitation_sent,
-					fim.getForumName(), contactName));
-			ConversationForumInvitationOutItem i =
-					(ConversationForumInvitationOutItem) item;
+		if (item instanceof ConversationShareableInvitationOutItem) {
+			ui.text.setText(ctx.getString(sentRes, name, contactName));
+			ConversationShareableInvitationOutItem i =
+					(ConversationShareableInvitationOutItem) item;
 			if (i.isSeen()) {
 				ui.status.setImageResource(R.drawable.message_delivered);
 				ui.message.status.setImageResource(
@@ -312,12 +332,12 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 		// Incoming Invitation
 		else {
-			ui.text.setText(ctx.getString(R.string.forum_invitation_received,
-					contactName, fim.getForumName()));
+			ui.text.setText(ctx.getString(receivedRes, contactName, name));
 
-			if (fim.isAvailable()) {
-				ui.showForumsButton.setVisibility(View.VISIBLE);
-				ui.showForumsButton
+			if (ir.isAvailable()) {
+				ui.showInvitationsButton.setText(ctx.getString(buttonRes));
+				ui.showInvitationsButton.setVisibility(VISIBLE);
+				ui.showInvitationsButton
 						.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
@@ -327,7 +347,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 							}
 						});
 			} else {
-				ui.showForumsButton.setVisibility(View.GONE);
+				ui.showInvitationsButton.setVisibility(GONE);
 			}
 		}
 		ui.date.setText(AndroidUtils.formatDate(ctx, item.getTime()));
@@ -345,7 +365,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		return items.get(position);
 	}
 
-	public ConversationItem getLastItem() {
+	ConversationItem getLastItem() {
 		if (items.size() > 0) {
 			return items.get(items.size() - 1);
 		} else {
@@ -353,7 +373,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 	}
 
-	public SparseArray<IncomingItem> getIncomingMessages() {
+	SparseArray<IncomingItem> getIncomingMessages() {
 		SparseArray<IncomingItem> messages = new SparseArray<>();
 
 		for (int i = 0; i < items.size(); i++) {
@@ -365,7 +385,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		return messages;
 	}
 
-	public SparseArray<OutgoingItem> getOutgoingMessages() {
+	SparseArray<OutgoingItem> getOutgoingMessages() {
 		SparseArray<OutgoingItem> messages = new SparseArray<>();
 
 		for (int i = 0; i < items.size(); i++) {
@@ -377,7 +397,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		return messages;
 	}
 
-	public SparseArray<ConversationMessageItem> getPrivateMessages() {
+	SparseArray<ConversationMessageItem> getPrivateMessages() {
 		SparseArray<ConversationMessageItem> messages = new SparseArray<>();
 
 		for (int i = 0; i < items.size(); i++) {
@@ -408,7 +428,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		public TextView date;
 		public ImageView status;
 
-		public MessageHolder(View v, int type) {
+		MessageHolder(View v, int type) {
 			super(v);
 
 			layout = (ViewGroup) v.findViewById(R.id.msgLayout);
@@ -432,7 +452,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		private final TextView date;
 		private final ImageView status;
 
-		public IntroductionHolder(View v, int type) {
+		IntroductionHolder(View v, int type) {
 			super(v);
 
 			messageLayout = v.findViewById(R.id.messageLayout);
@@ -457,7 +477,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		private final TextView date;
 		private final ImageView status;
 
-		public NoticeHolder(View v, int type) {
+		NoticeHolder(View v, int type) {
 			super(v);
 
 			text = (TextView) v.findViewById(R.id.noticeText);
@@ -476,21 +496,21 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		private final View messageLayout;
 		private final MessageHolder message;
 		private final TextView text;
-		private final Button showForumsButton;
+		private final Button showInvitationsButton;
 		private final TextView date;
 		private final ImageView status;
 
-		public InvitationHolder(View v, int type) {
+		InvitationHolder(View v, int type) {
 			super(v);
 
 			messageLayout = v.findViewById(R.id.messageLayout);
 			message = new MessageHolder(messageLayout,
 					type == FORUM_INVITATION_IN ? MSG_IN : MSG_OUT);
 			text = (TextView) v.findViewById(R.id.introductionText);
-			showForumsButton = (Button) v.findViewById(R.id.showForumsButton);
+			showInvitationsButton = (Button) v.findViewById(R.id.showForumsButton);
 			date = (TextView) v.findViewById(R.id.introductionTime);
 
-			if (type == FORUM_INVITATION_OUT) {
+			if (type == FORUM_INVITATION_OUT || type == BLOG_INVITATION_OUT) {
 				status = (ImageView) v.findViewById(R.id.introductionStatus);
 			} else {
 				status = null;
@@ -543,7 +563,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		}
 	}
 
-	public interface IntroductionHandler {
+	interface IntroductionHandler {
 		void respondToIntroduction(SessionId sessionId, boolean accept);
 	}
 }

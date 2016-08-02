@@ -21,11 +21,12 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.ForumPostReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
+import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.lifecycle.Service;
@@ -174,8 +175,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (e instanceof IntroductionSucceededEvent) {
 			Contact c = ((IntroductionSucceededEvent) e).getContact();
 			showIntroductionSucceededNotification(c);
-		} else if (e instanceof ForumInvitationReceivedEvent) {
-			ContactId c = ((ForumInvitationReceivedEvent) e).getContactId();
+		} else if (e instanceof InvitationReceivedEvent) {
+			ContactId c = ((InvitationReceivedEvent) e).getContactId();
+			showNotificationForPrivateConversation(c);
+		} else if (e instanceof InvitationResponseReceivedEvent) {
+			ContactId c = ((InvitationResponseReceivedEvent) e).getContactId();
 			showNotificationForPrivateConversation(c);
 		}
 	}

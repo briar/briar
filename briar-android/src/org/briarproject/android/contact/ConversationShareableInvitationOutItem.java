@@ -1,6 +1,8 @@
 package org.briarproject.android.contact;
 
+import org.briarproject.api.blogs.BlogInvitationRequest;
 import org.briarproject.api.forum.ForumInvitationRequest;
+import org.briarproject.api.sharing.InvitationRequest;
 
 /**
  * This class is needed and can not be replaced by an ConversationNoticeOutItem,
@@ -9,21 +11,31 @@ import org.briarproject.api.forum.ForumInvitationRequest;
  * <p/>
  * This class is not thread-safe
  */
-public class ConversationForumInvitationOutItem
-		extends ConversationForumInvitationItem
+class ConversationShareableInvitationOutItem
+		extends ConversationShareableInvitationItem
 		implements ConversationItem.OutgoingItem {
 
+	private final int type;
 	private boolean sent, seen;
 
-	public ConversationForumInvitationOutItem(ForumInvitationRequest fim) {
-		super(fim);
-		this.sent = fim.isSent();
-		this.seen = fim.isSeen();
+	ConversationShareableInvitationOutItem(InvitationRequest ir) {
+		super(ir);
+
+		if (ir instanceof ForumInvitationRequest) {
+			this.type = FORUM_INVITATION_OUT;
+		} else if (ir instanceof BlogInvitationRequest) {
+			this.type = BLOG_INVITATION_OUT;
+		} else {
+			throw new IllegalArgumentException("Unknown Invitation Type.");
+		}
+
+		this.sent = ir.isSent();
+		this.seen = ir.isSeen();
 	}
 
 	@Override
 	int getType() {
-		return FORUM_INVITATION_OUT;
+		return type;
 	}
 
 	@Override
