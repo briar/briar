@@ -180,6 +180,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 						new Intent(getActivity(), SharingStatusActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
+				i3.putExtra(SHAREABLE, BLOG);
 				startActivity(i3, options.toBundle());
 				return true;
 			default:

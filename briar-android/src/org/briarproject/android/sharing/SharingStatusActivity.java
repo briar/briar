@@ -10,6 +10,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -25,6 +26,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.sharing.ShareActivity.BLOG;
+import static org.briarproject.android.sharing.ShareActivity.FORUM;
+import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
 
 public class SharingStatusActivity extends BriarActivity {
 
@@ -36,10 +40,13 @@ public class SharingStatusActivity extends BriarActivity {
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
 	@Inject
+	protected volatile BlogSharingManager blogSharingManager;
+	@Inject
 	protected volatile IdentityManager identityManager;
 
 	public final static String TAG = "ForumSharingStatusActivity";
 	private static final Logger LOG = Logger.getLogger(TAG);
+	private int shareable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,6 +58,8 @@ public class SharingStatusActivity extends BriarActivity {
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
 		groupId = new GroupId(b);
+		shareable = i.getIntExtra(SHAREABLE, 0);
+		if (shareable == 0) throw new IllegalStateException("No Shareable");
 
 		sharedByList = (BriarRecyclerView) findViewById(R.id.sharedByView);
 		sharedByAdapter = new SharingStatusAdapter(this);
@@ -96,9 +105,7 @@ public class SharingStatusActivity extends BriarActivity {
 			public void run() {
 				List<ContactListItem> contactItems = new ArrayList<>();
 				try {
-					Collection<Contact> contacts =
-							forumSharingManager.getSharedBy(groupId);
-					for (Contact c : contacts) {
+					for (Contact c : getSharedBy()) {
 						LocalAuthor localAuthor = identityManager
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =
@@ -134,9 +141,7 @@ public class SharingStatusActivity extends BriarActivity {
 			public void run() {
 				List<ContactListItem> contactItems = new ArrayList<>();
 				try {
-					Collection<Contact> contacts =
-							forumSharingManager.getSharedWith(groupId);
-					for (Contact c : contacts) {
+					for (Contact c : getSharedWith()) {
 						LocalAuthor localAuthor = identityManager
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =
@@ -151,6 +156,36 @@ public class SharingStatusActivity extends BriarActivity {
 				displaySharedWith(contactItems);
 			}
 		});
+	}
+
+	/**
+	 * This must only be called from the DbThread
+	 */
+	private Collection<Contact> getSharedWith() throws DbException {
+		Collection<Contact> contacts;
+		if (shareable == FORUM) {
+			contacts = forumSharingManager.getSharedWith(groupId);
+		} else if (shareable == BLOG) {
+			contacts = blogSharingManager.getSharedWith(groupId);
+		} else {
+			throw new IllegalArgumentException("Unknown Shareable");
+		}
+		return contacts;
+	}
+
+	/**
+	 * This must only be called from the DbThread
+	 */
+	private Collection<Contact> getSharedBy() throws DbException {
+		Collection<Contact> contacts;
+		if (shareable == FORUM) {
+			contacts = forumSharingManager.getSharedBy(groupId);
+		} else if (shareable == BLOG) {
+			contacts = blogSharingManager.getSharedBy(groupId);
+		} else {
+			throw new IllegalArgumentException("Unknown Shareable");
+		}
+		return contacts;
 	}
 
 	private void displaySharedWith(final List<ContactListItem> contacts) {
