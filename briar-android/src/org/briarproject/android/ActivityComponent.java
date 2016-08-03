@@ -10,6 +10,8 @@ import org.briarproject.android.blogs.BlogsFragment;
 import org.briarproject.android.blogs.CreateBlogActivity;
 import org.briarproject.android.blogs.FeedFragment;
 import org.briarproject.android.blogs.MyBlogsFragment;
+import org.briarproject.android.blogs.RssFeedImportActivity;
+import org.briarproject.android.blogs.RssFeedManageActivity;
 import org.briarproject.android.blogs.WriteBlogPostActivity;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.contact.ConversationActivity;
@@ -86,6 +88,10 @@ public interface ActivityComponent {
 	void inject(ChangePasswordActivity activity);
 
 	void inject(IntroductionActivity activity);
+
+	void inject(RssFeedImportActivity activity);
+
+	void inject(RssFeedManageActivity activity);
 
 	// Fragments
 	void inject(ContactListFragment fragment);
