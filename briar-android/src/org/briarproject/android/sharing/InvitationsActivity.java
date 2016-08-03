@@ -28,6 +28,7 @@ abstract class InvitationsActivity extends BriarActivity
 			Logger.getLogger(InvitationsActivity.class.getName());
 
 	private InvitationAdapter adapter;
+	private BriarRecyclerView list;
 
 	@Inject
 	protected EventBus eventBus;
@@ -40,8 +41,8 @@ abstract class InvitationsActivity extends BriarActivity
 
 		adapter = getAdapter(this, this);
 
-		BriarRecyclerView list =
-				(BriarRecyclerView) findViewById(R.id.invitationsView);
+
+		list = (BriarRecyclerView) findViewById(R.id.invitationsView);
 		if (list != null) {
 			list.setLayoutManager(new LinearLayoutManager(this));
 			list.setAdapter(adapter);
@@ -60,6 +61,7 @@ abstract class InvitationsActivity extends BriarActivity
 		super.onPause();
 		eventBus.removeListener(this);
 		adapter.clear();
+		list.showProgressBar();
 	}
 
 	@Override

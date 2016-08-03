@@ -119,6 +119,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		super.onPause();
 
 		adapter.clear();
+		list.showProgressBar();
 		list.stopPeriodicUpdate();
 	}
 
