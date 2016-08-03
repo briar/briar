@@ -113,6 +113,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	private final String SHARER = "Sharer";
 	private final String INVITEE = "Invitee";
 	private final String SHARER2 = "Sharer2";
+	private boolean respond = true;
 
 	private static final Logger LOG =
 			Logger.getLogger(ForumSharingIntegrationTest.class.getName());
@@ -408,7 +409,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	public void testSharerLeavesBeforeResponse() throws Exception {
 		startLifecycles();
 		try {
-			// initialize and let invitee accept all requests
+			// initialize except event listeners
 			defaultInit(true);
 
 			// send invitation
@@ -418,17 +419,43 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			// sharer un-subscribes from forum
 			forumManager0.removeForum(forum0);
 
-			// from here on expect the response to fail with an AssertionError,
-			// because there is in fact no invited forum available anymore
-			thrown.expect(AssertionError.class);
+			// prevent invitee response before syncing messages
+			respond = false;
 
 			// sync first request message and leave message
 			syncToInvitee();
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener1.requestReceived);
 
-			// invitee has no forums available
+			// wait also for second message to arrive
+			msgWaiter.await(TIMEOUT, 1);
+
+			// ensure that invitee has no forum invitations available
 			assertEquals(0, forumSharingManager1.getInvited().size());
+			assertEquals(0, forumManager1.getForums().size());
+
+			// Try again, this time allow the response
+			addForumForSharer();
+			respond = true;
+
+			// send invitation
+			forumSharingManager0
+					.sendInvitation(forum0.getId(), contactId1, null);
+
+			// sharer un-subscribes from forum
+			forumManager0.removeForum(forum0);
+
+			// sync first request message and leave message
+			syncToInvitee();
+			eventWaiter.await(TIMEOUT, 1);
+			assertTrue(listener1.requestReceived);
+
+			// wait also for second message to arrive
+			msgWaiter.await(TIMEOUT, 1);
+
+			// ensure that invitee has no forum invitations available
+			assertEquals(0, forumSharingManager1.getInvited().size());
+			assertEquals(1, forumManager1.getForums().size());
 		} finally {
 			stopLifecycles();
 		}
@@ -979,9 +1006,12 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				try {
 					eventWaiter.assertEquals(1,
 							forumSharingManager1.getInvited().size());
-					Contact c =
-							contactManager1.getContact(event.getContactId());
-					forumSharingManager1.respondToInvitation(f, c, accept);
+					if (respond) {
+						Contact c =
+								contactManager1
+										.getContact(event.getContactId());
+						forumSharingManager1.respondToInvitation(f, c, accept);
+					}
 				} catch (DbException ex) {
 					eventWaiter.rethrow(ex);
 				} finally {
