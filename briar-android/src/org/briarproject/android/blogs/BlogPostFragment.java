@@ -1,6 +1,7 @@
 package org.briarproject.android.blogs;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -141,8 +142,10 @@ public class BlogPostFragment extends BaseFragment {
 		ui.avatar.setImageDrawable(d);
 		ui.authorName.setText(author.getName());
 		ui.trust.setTrustLevel(post.getAuthorStatus());
-		ui.date.setText(
-				AndroidUtils.formatDate(getActivity(), post.getTimestamp()));
+		Context ctx = getContext();
+		if (ctx != null) {
+			ui.date.setText(AndroidUtils.formatDate(ctx, post.getTimestamp()));
+		}
 
 		if (post.getTitle() != null) {
 			ui.title.setText(post.getTitle());

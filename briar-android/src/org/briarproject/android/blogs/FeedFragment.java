@@ -172,7 +172,7 @@ public class FeedFragment extends BaseFragment implements
 
 	@Override
 	public void onBlogPostAdded(final BlogPostItem post) {
-		getActivity().runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				adapter.add(post);
