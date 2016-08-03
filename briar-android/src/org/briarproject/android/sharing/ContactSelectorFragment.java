@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.os.Build;
@@ -37,8 +37,8 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.forum.ShareForumActivity.CONTACTS;
-import static org.briarproject.android.forum.ShareForumActivity.getContactsFromIds;
+import static org.briarproject.android.sharing.ShareActivity.CONTACTS;
+import static org.briarproject.android.sharing.ShareActivity.getContactsFromIds;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
 public class ContactSelectorFragment extends BaseFragment implements
@@ -49,7 +49,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	private static final Logger LOG =
 			Logger.getLogger(ContactSelectorFragment.class.getName());
 
-	private ShareForumActivity shareForumActivity;
+	private ShareActivity shareActivity;
 	private Menu menu;
 	private BriarRecyclerView list;
 	private ContactSelectorAdapter adapter;
@@ -63,7 +63,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
 
-	protected volatile GroupId groupId;
+	private volatile GroupId groupId;
 
 	public static ContactSelectorFragment newInstance(GroupId groupId) {
 
@@ -83,10 +83,10 @@ public class ContactSelectorFragment extends BaseFragment implements
 	public void onAttach(Context context) {
 		super.onAttach(context);
 		try {
-			shareForumActivity = (ShareForumActivity) context;
+			shareActivity = (ShareActivity) context;
 		} catch (ClassCastException e) {
 			throw new InstantiationError(
-					"This fragment is only meant to be attached to the ShareForumActivity");
+					"This fragment is only meant to be attached to a subclass of ShareActivity");
 		}
 	}
 
@@ -95,7 +95,8 @@ public class ContactSelectorFragment extends BaseFragment implements
 		super.onCreate(savedInstanceState);
 
 		setHasOptionsMenu(true);
-		groupId = new GroupId(getArguments().getByteArray(GROUP_ID));
+		Bundle args = getArguments();
+		groupId = new GroupId(args.getByteArray(GROUP_ID));
 		if (groupId == null) throw new IllegalStateException("No GroupId");
 	}
 
@@ -115,13 +116,13 @@ public class ContactSelectorFragment extends BaseFragment implements
 		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
-		list.setEmptyText(getString(R.string.no_contacts));
+		list.setEmptyText(getString(R.string.no_contacts_selector));
 
 		// restore selected contacts if available
 		if (savedInstanceState != null) {
 			ArrayList<Integer> intContacts =
 					savedInstanceState.getIntegerArrayList(CONTACTS);
-			selectedContacts = ShareForumActivity.getContactsFromIntegers(
+			selectedContacts = ShareActivity.getContactsFromIntegers(
 					intContacts);
 		}
 
@@ -160,11 +161,11 @@ public class ContactSelectorFragment extends BaseFragment implements
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				shareForumActivity.onBackPressed();
+				shareActivity.onBackPressed();
 				return true;
 			case R.id.action_share_forum:
 				selectedContacts = adapter.getSelectedContactIds();
-				shareForumActivity.showMessageScreen(groupId, selectedContacts);
+				shareActivity.showMessageScreen(groupId, selectedContacts);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -185,7 +186,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	private void loadContacts(final Collection<ContactId> selection) {
-		shareForumActivity.runOnDbThread(new Runnable() {
+		shareActivity.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -199,8 +200,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 						boolean selected = selection != null &&
 								selection.contains(c.getId());
 						// do we have already some sharing with that contact?
-						boolean disabled =
-								!forumSharingManager.canBeShared(groupId, c);
+						boolean disabled = shareActivity.isDisabled(groupId, c);
 						contacts.add(new SelectableContactListItem(c,
 								localAuthor, groupId, selected, disabled));
 					}
@@ -218,7 +218,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	private void displayContacts(final List<ContactListItem> contacts) {
-		shareForumActivity.runOnUiThread(new Runnable() {
+		shareActivity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (!contacts.isEmpty()) adapter.addAll(contacts);

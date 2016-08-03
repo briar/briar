@@ -102,12 +102,22 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.ForumInvitationsActivity"
+			android:name=".android.sharing.InvitationsForumActivity"
 			android:label="@string/forum_invitations_title"
 			android:parentActivityName=".android.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.NavDrawerActivity"
+				/>
+		</activity>
+
+		<activity
+			android:name=".android.sharing.InvitationsBlogActivity"
+			android:label="@string/blogs_sharing_invitations_title"
+			android:parentActivityName=".android.contact.ConversationActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.contact.ConversationActivity"
 				/>
 		</activity>
 
@@ -133,8 +143,8 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.ShareForumActivity"
-			android:label="@string/forums_share_toolbar_header"
+			android:name=".android.sharing.ShareForumActivity"
+			android:label="@string/activity_share_toolbar_header"
 			android:parentActivityName=".android.forum.ForumActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -143,12 +153,32 @@
 		</activity>
 
 		<activity
-			android:name=".android.forum.ForumSharingStatusActivity"
-			android:label="@string/forum_sharing_status"
+			android:name=".android.sharing.ShareBlogActivity"
+			android:label="@string/activity_share_toolbar_header"
+			android:parentActivityName=".android.blogs.BlogActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.blogs.BlogActivity"
+				/>
+		</activity>
+
+		<activity
+			android:name=".android.sharing.SharingStatusForumActivity"
+			android:label="@string/sharing_status"
 			android:parentActivityName=".android.forum.ForumActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.forum.ForumActivity"
+				/>
+		</activity>
+
+		<activity
+			android:name=".android.sharing.SharingStatusBlogActivity"
+			android:label="@string/sharing_status"
+			android:parentActivityName=".android.blogs.BlogActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.blogs.BlogActivity"
 				/>
 		</activity>
 

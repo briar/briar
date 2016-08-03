@@ -1,22 +1,18 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.BaseContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 
-public class ForumSharingStatusAdapter
+class SharingStatusAdapter
 		extends BaseContactListAdapter<BaseContactListAdapter.BaseContactHolder> {
 
-	public ForumSharingStatusAdapter(Context context) {
+	SharingStatusAdapter(Context context) {
 		super(context, null);
 	}
 

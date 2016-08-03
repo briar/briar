@@ -37,13 +37,13 @@
 			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
 			android:layout_alignEnd="@+id/introductionText"
 			android:layout_alignRight="@+id/introductionText"
-			android:layout_below="@+id/showForumsButton"
+			android:layout_below="@+id/showInvitationsButton"
 			android:textColor="@color/private_message_date"
 			android:textSize="@dimen/text_size_tiny"
 			tools:text="Dec 24, 13:37"/>
 
 		<Button
-			android:id="@+id/showForumsButton"
+			android:id="@+id/showInvitationsButton"
 			style="@style/BriarButtonFlat.Positive"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
 			android:layout_alignEnd="@+id/introductionText"
 			android:layout_alignRight="@+id/introductionText"
 			android:layout_below="@+id/introductionText"
-			android:text="@string/forum_show_invitations"/>
+			tools:text="@string/forum_show_invitations"/>
 
 	</RelativeLayout>
 

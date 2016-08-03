@@ -32,6 +32,7 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 		OnBlogPostClickListener, BaseFragmentListener {
 
 	static final int REQUEST_WRITE_POST = 1;
+	static final int REQUEST_SHARE = 2;
 	static final String BLOG_NAME = "briar.BLOG_NAME";
 	static final String IS_MY_BLOG = "briar.IS_MY_BLOG";
 	static final String IS_NEW_BLOG = "briar.IS_NEW_BLOG";
@@ -185,6 +186,7 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 
 		// The BlogPostAddedEvent arrives when the controller is not listening,
 		// so we need to manually reload the blog posts :(

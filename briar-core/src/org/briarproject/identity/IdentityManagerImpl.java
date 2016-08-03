@@ -10,9 +10,7 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.inject.Inject;
@@ -70,16 +68,32 @@ class IdentityManagerImpl implements IdentityManager {
 	}
 
 	@Override
+	public LocalAuthor getLocalAuthor() throws DbException {
+		return getLocalAuthors().iterator().next();
+	}
+
+	@Override
+	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
+		return getLocalAuthors(txn).iterator().next();
+	}
+
+	@Override
 	public Collection<LocalAuthor> getLocalAuthors() throws DbException {
 		Collection<LocalAuthor> authors;
 		Transaction txn = db.startTransaction(true);
 		try {
-			authors = db.getLocalAuthors(txn);
+			authors = getLocalAuthors(txn);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
 		}
 		return authors;
+	}
+
+	private Collection<LocalAuthor> getLocalAuthors(Transaction txn)
+			throws DbException {
+
+		return db.getLocalAuthors(txn);
 	}
 
 	@Override

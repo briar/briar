@@ -37,7 +37,7 @@ import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
 
 class ForumSharingManagerImpl extends
-		SharingManagerImpl<Forum, ForumInvitation, InvitationMessage, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
+		SharingManagerImpl<Forum, ForumInvitation, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
 		implements ForumSharingManager, ForumManager.RemoveForumHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(

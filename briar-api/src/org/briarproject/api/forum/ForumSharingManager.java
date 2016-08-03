@@ -10,7 +10,7 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-public interface ForumSharingManager extends SharingManager<Forum, InvitationMessage> {
+public interface ForumSharingManager extends SharingManager<Forum> {
 
 	/** Returns the unique ID of the forum sharing client. */
 	ClientId getClientId();

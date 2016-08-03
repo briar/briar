@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,13 +6,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 
 import org.briarproject.R;
-import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
@@ -26,26 +24,24 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class ForumSharingStatusActivity extends BriarActivity {
+abstract class SharingStatusActivity extends BriarActivity {
 
 	private GroupId groupId;
 	private BriarRecyclerView sharedByList, sharedWithList;
-	private ForumSharingStatusAdapter sharedByAdapter, sharedWithAdapter;
+	private SharingStatusAdapter sharedByAdapter, sharedWithAdapter;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
-	@Inject
 	protected volatile IdentityManager identityManager;
 
-	public final static String TAG = "ForumSharingStatusActivity";
+	public final static String TAG = SharingStatusActivity.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_forum_sharing_status);
+		setContentView(R.layout.activity_sharing_status);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
@@ -53,13 +49,13 @@ public class ForumSharingStatusActivity extends BriarActivity {
 		groupId = new GroupId(b);
 
 		sharedByList = (BriarRecyclerView) findViewById(R.id.sharedByView);
-		sharedByAdapter = new ForumSharingStatusAdapter(this);
+		sharedByAdapter = new SharingStatusAdapter(this);
 		sharedByList.setLayoutManager(new LinearLayoutManager(this));
 		sharedByList.setAdapter(sharedByAdapter);
 		sharedByList.setEmptyText(getString(R.string.nobody));
 
 		sharedWithList = (BriarRecyclerView) findViewById(R.id.sharedWithView);
-		sharedWithAdapter = new ForumSharingStatusAdapter(this);
+		sharedWithAdapter = new SharingStatusAdapter(this);
 		sharedWithList.setLayoutManager(new LinearLayoutManager(this));
 		sharedWithList.setAdapter(sharedWithAdapter);
 		sharedWithList.setEmptyText(getString(R.string.nobody));
@@ -85,9 +81,18 @@ public class ForumSharingStatusActivity extends BriarActivity {
 		}
 	}
 
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
+	/**
+	 * This must only be called from the DbThread
+	 */
+	abstract protected Collection<Contact> getSharedWith() throws DbException;
+
+	/**
+	 * This must only be called from the DbThread
+	 */
+	abstract protected Collection<Contact> getSharedBy() throws DbException;
+
+	protected GroupId getGroupId() {
+		return groupId;
 	}
 
 	private void loadSharedBy() {
@@ -96,9 +101,7 @@ public class ForumSharingStatusActivity extends BriarActivity {
 			public void run() {
 				List<ContactListItem> contactItems = new ArrayList<>();
 				try {
-					Collection<Contact> contacts =
-							forumSharingManager.getSharedBy(groupId);
-					for (Contact c : contacts) {
+					for (Contact c : getSharedBy()) {
 						LocalAuthor localAuthor = identityManager
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =
@@ -134,9 +137,7 @@ public class ForumSharingStatusActivity extends BriarActivity {
 			public void run() {
 				List<ContactListItem> contactItems = new ArrayList<>();
 				try {
-					Collection<Contact> contacts =
-							forumSharingManager.getSharedWith(groupId);
-					for (Contact c : contacts) {
+					for (Contact c : getSharedWith()) {
 						LocalAuthor localAuthor = identityManager
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =

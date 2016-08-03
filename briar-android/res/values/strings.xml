@@ -53,6 +53,7 @@
 	<string name="now">now</string>
 	<string name="contact_list_title">Contacts</string>
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
+	<string name="no_contacts_selector">It seems that you are new here and have no contacts yet.\n\nPlease come back here after you added your first contact.</string>
 	<string name="add_contact_title">Add a Contact</string>
 	<string name="your_nickname">Choose the identity you want to use:</string>
 	<string name="face_to_face">You must be face-to-face with the person you want to add as a contact. This will prevent anyone from impersonating you or reading your messages in future.</string>
@@ -95,7 +96,7 @@
 	<string name="show_forums">Show</string>
 	<string name="forum_leave">Leave Forum</string>
 	<string name="forum_left_toast">Left Forum</string>
-	<string name="forum_sharing_status">Sharing Status</string>
+	<string name="sharing_status">Sharing Status</string>
 	<string name="no_posts">No posts</string>
 	<plurals name="unread_posts">
 		<item quantity="one">%d unread post</item>
@@ -113,6 +114,7 @@
 	<string name="forum_share_button">Share Forum</string>
 	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
 	<string name="forum_share_message">You may compose an optional invitation message that will be sent to the selected contacts.</string>
+	<string name="forum_share_error">There was an error sharing this forum.</string>
 	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
 	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
 	<string name="forum_show_invitations">Show Forum Invitations</string>
@@ -265,7 +267,7 @@
 	<string name="settings_toolbar_header">Settings</string>
 	<string name="contacts_toolbar_header">Contacts</string>
 	<string name="forums_toolbar_header">Forums</string>
-	<string name="forums_share_toolbar_header">Choose Contacts</string>
+	<string name="activity_share_toolbar_header">Choose Contacts</string>
 	<!-- Progress titles -->
 	<string name="progress_title_logout">Signing out of Briar..</string>
 	<string name="progress_title_please_wait">Please wait..</string>
@@ -304,6 +306,21 @@
 	<string name="blogs_delete_blog_cancel">Keep</string>
 	<string name="blogs_blog_deleted">Blog Deleted</string>
 	<string name="blogs_remove_blog">Remove Blog</string>
+	<string name="blogs_sharing_share">Share Blog</string>
+	<string name="blogs_sharing_error">There was an error sharing this blog.</string>
+	<string name="blogs_sharing_button">Share Blog</string>
+	<string name="blogs_sharing_snackbar">Blog shared with chosen contacts</string>
+	<string name="blogs_sharing_response_accepted_sent">You accepted the blog invitation from %s.</string>
+	<string name="blogs_sharing_response_declined_sent">You declined the blog invitation from %s.</string>
+	<string name="blogs_sharing_response_accepted_received">%s accepted the blog invitation.</string>
+	<string name="blogs_sharing_response_declined_received">%s declined the blog invitation.</string>
+	<string name="blogs_sharing_invitation_received">%1$s has shared the personal blog of %2$s with you.</string>
+	<string name="blogs_sharing_invitation_sent">You have shared the personal blog of %1$s with %2$s.</string>
+	<string name="blogs_sharing_show_invitations">Show Blog Invitations</string>
+	<string name="blogs_sharing_invitations_title">Blog Invitations</string>
+	<string name="blogs_sharing_exists">You are subscribed to this blog already. Accepting again can lead to faster blog post delivery.</string>
+	<string name="blogs_sharing_joined_toast">Subscribed to Blog</string>
+	<string name="blogs_sharing_declined_toast">Blog Invitation Declined</string>
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>

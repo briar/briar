@@ -69,7 +69,7 @@ class BlogFactoryImpl implements BlogFactory {
 		Author a =
 				authorFactory.createAuthor(blog.getString(1), blog.getRaw(2));
 		// TODO change permanent depending on how this will be used
-		boolean permanent = false;
+		boolean permanent = true;
 		return new Blog(g, blog.getString(0), description, a, permanent);
 	}
 

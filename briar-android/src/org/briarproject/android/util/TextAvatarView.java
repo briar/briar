@@ -2,6 +2,7 @@ package org.briarproject.android.util;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
@@ -10,8 +11,10 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.api.identity.Author;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import im.delight.android.identicons.IdenticonDrawable;
 
 public class TextAvatarView extends FrameLayout {
 
@@ -81,6 +84,12 @@ public class TextAvatarView extends FrameLayout {
 		} else {
 			return bytes[index % bytes.length];
 		}
+	}
+
+	public void setAuthorAvatar(Author author) {
+		Drawable drawable = new IdenticonDrawable(author.getId().getBytes());
+		background.setImageDrawable(drawable);
+		character.setVisibility(GONE);
 	}
 
 }

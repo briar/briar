@@ -83,9 +83,9 @@ import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.Invitation;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
-abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM extends InvitationMessage, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
+abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
 		extends BdfIncomingMessageHook
-		implements SharingManager<S, IM>, Client, AddContactHook,
+		implements SharingManager<S>, Client, AddContactHook,
 		RemoveContactHook {
 
 	private static final Logger LOG =
@@ -117,11 +117,11 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 
 	public abstract ClientId getClientId();
 
-	protected abstract IM createInvitationRequest(MessageId id, I msg,
+	protected abstract InvitationMessage createInvitationRequest(MessageId id, I msg,
 			ContactId contactId, boolean available, long time, boolean local,
 			boolean sent, boolean seen, boolean read);
 
-	protected abstract IM createInvitationResponse(MessageId id,
+	protected abstract InvitationMessage createInvitationResponse(MessageId id,
 			SessionId sessionId, ContactId contactId, boolean accept, long time,
 			boolean local, boolean sent, boolean seen, boolean read);
 
@@ -326,7 +326,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 	}
 
 	@Override
-	public Collection<IM> getInvitationMessages(ContactId contactId)
+	public Collection<InvitationMessage> getInvitationMessages(ContactId contactId)
 			throws DbException {
 
 		Transaction txn = db.startTransaction(true);
@@ -334,7 +334,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 			Contact contact = db.getContact(txn, contactId);
 			Group group = getContactGroup(contact);
 
-			Collection<IM> list = new ArrayList<IM>();
+			Collection<InvitationMessage> list =
+					new ArrayList<InvitationMessage>();
 			Map<MessageId, BdfDictionary> map = clientHelper
 					.getMessageMetadataAsDictionary(txn, group.getId());
 			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
@@ -362,7 +363,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 							available = ((InviteeSessionState) s).getState() ==
 									AWAIT_LOCAL_RESPONSE;
 						}
-						IM im = createInvitationRequest(m.getKey(), msg,
+						InvitationMessage im = createInvitationRequest(m.getKey(), msg,
 								contactId, available, time, local,
 								status.isSent(), status.isSeen(), read);
 						list.add(im);
@@ -373,9 +374,9 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 						BaseMessage msg = BaseMessage
 								.from(getIFactory(), group.getId(), d);
 						SessionId sessionId = msg.getSessionId();
-						IM im = createInvitationResponse(m.getKey(), sessionId,
-								contactId, accept, time, local,
-								status.isSent(), status.isSeen(), read);
+						InvitationMessage im = createInvitationResponse(
+								m.getKey(), sessionId, contactId, accept, time,
+								local, status.isSent(), status.isSeen(), read);
 						list.add(im);
 					}
 					else {
@@ -499,7 +500,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IM 
 		return canBeShared;
 	}
 
-	private boolean canBeShared(Transaction txn, GroupId g, Contact c)
+	protected boolean canBeShared(Transaction txn, GroupId g, Contact c)
 			throws DbException {
 
 		try {

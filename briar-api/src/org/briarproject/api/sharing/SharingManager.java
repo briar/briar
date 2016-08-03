@@ -8,7 +8,7 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-public interface SharingManager<S extends Shareable, IM extends InvitationMessage> {
+public interface SharingManager<S extends Shareable> {
 
 	/** Returns the unique ID of the group sharing client. */
 	ClientId getClientId();
@@ -30,7 +30,7 @@ public interface SharingManager<S extends Shareable, IM extends InvitationMessag
 	 * Returns all group sharing messages sent by the Contact
 	 * identified by contactId.
 	 */
-	Collection<IM> getInvitationMessages(
+	Collection<InvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
 	/** Returns all shareables to which the user has been invited. */

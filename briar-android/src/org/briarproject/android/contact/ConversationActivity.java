@@ -30,6 +30,7 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.FormatException;
+import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -44,15 +45,13 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.ForumInvitationReceivedEvent;
-import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
+import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.forum.ForumInvitationRequest;
-import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
@@ -64,6 +63,8 @@ import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sharing.InvitationMessage;
+import org.briarproject.api.sharing.InvitationRequest;
+import org.briarproject.api.sharing.InvitationResponse;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
@@ -128,6 +129,8 @@ public class ConversationActivity extends BriarActivity
 	protected volatile IntroductionManager introductionManager;
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile BlogSharingManager blogSharingManager;
 
 	private volatile GroupId groupId = null;
 	private volatile ContactId contactId = null;
@@ -334,9 +337,16 @@ public class ConversationActivity extends BriarActivity
 					Collection<IntroductionMessage> introductions =
 							introductionManager
 									.getIntroductionMessages(contactId);
-					Collection<InvitationMessage> invitations =
+					Collection<InvitationMessage> forumInvitations =
 							forumSharingManager
 									.getInvitationMessages(contactId);
+					Collection<InvitationMessage> blogInvitations =
+							blogSharingManager
+									.getInvitationMessages(contactId);
+					List<InvitationMessage> invitations = new ArrayList<>(
+							forumInvitations.size() + blogInvitations.size());
+					invitations.addAll(forumInvitations);
+					invitations.addAll(blogInvitations);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");
@@ -388,13 +398,13 @@ public class ConversationActivity extends BriarActivity
 						items.add(item);
 					}
 					for (InvitationMessage i : invitations) {
-						if (i instanceof ForumInvitationRequest) {
-							ForumInvitationRequest r =
-									(ForumInvitationRequest) i;
+						if (i instanceof InvitationRequest) {
+							InvitationRequest r =
+									(InvitationRequest) i;
 							items.add(ConversationItem.from(r));
-						} else if (i instanceof ForumInvitationResponse) {
-							ForumInvitationResponse r =
-									(ForumInvitationResponse) i;
+						} else if (i instanceof InvitationResponse) {
+							InvitationResponse r =
+									(InvitationResponse) i;
 							items.add(ConversationItem
 									.from(ConversationActivity.this,
 											contactName, r));
@@ -541,6 +551,7 @@ public class ConversationActivity extends BriarActivity
 			IntroductionRequestReceivedEvent event =
 					(IntroductionRequestReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
+				LOG.info("Introduction request received, adding...");
 				IntroductionRequest ir = event.getIntroductionRequest();
 				ConversationItem item = new ConversationIntroductionInItem(ir);
 				addConversationItem(item);
@@ -549,21 +560,24 @@ public class ConversationActivity extends BriarActivity
 			IntroductionResponseReceivedEvent event =
 					(IntroductionResponseReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
+				LOG.info("Introduction response received, adding...");
 				IntroductionResponse ir = event.getIntroductionResponse();
 				ConversationItem item =
 						ConversationItem.from(this, contactName, ir);
 				addConversationItem(item);
 			}
-		} else if (e instanceof ForumInvitationReceivedEvent) {
-			ForumInvitationReceivedEvent event =
-					(ForumInvitationReceivedEvent) e;
+		} else if (e instanceof InvitationReceivedEvent) {
+			InvitationReceivedEvent event =
+					(InvitationReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
+				LOG.info("Invitation received, reloading...");
 				loadMessages();
 			}
-		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
-			ForumInvitationResponseReceivedEvent event =
-					(ForumInvitationResponseReceivedEvent) e;
+		} else if (e instanceof InvitationResponseReceivedEvent) {
+			InvitationResponseReceivedEvent event =
+					(InvitationResponseReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
+				LOG.info("Invitation response received, reloading...");
 				loadMessages();
 			}
 		}

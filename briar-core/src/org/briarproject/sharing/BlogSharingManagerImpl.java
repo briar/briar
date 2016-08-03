@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.BlogInvitationRequest;
+import org.briarproject.api.blogs.BlogInvitationResponse;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogManager.RemoveBlogHook;
 import org.briarproject.api.blogs.BlogSharingManager;
@@ -12,6 +13,7 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
@@ -24,6 +26,9 @@ import org.briarproject.api.event.BlogInvitationReceivedEvent;
 import org.briarproject.api.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -40,12 +45,16 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 
 class BlogSharingManagerImpl extends
-		SharingManagerImpl<Blog, BlogInvitation, BlogInvitationRequest, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
+		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
 		implements BlogSharingManager, RemoveBlogHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"bee438b5de0b3a685badc4e49d76e72d"
 					+ "21e01c4b569a775112756bdae267a028"));
+
+	@Inject
+	IdentityManager identityManager;
+	private final BlogManager blogManager;
 
 	private final SFactory sFactory;
 	private final IFactory iFactory;
@@ -64,6 +73,7 @@ class BlogSharingManagerImpl extends
 		super(db, messageQueueManager, clientHelper, metadataParser,
 				metadataEncoder, random, privateGroupFactory, clock);
 
+		this.blogManager = blogManager;
 		sFactory = new SFactory(authorFactory, blogFactory, blogManager);
 		iFactory = new IFactory();
 		isFactory = new ISFactory();
@@ -78,21 +88,37 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	protected BlogInvitationRequest createInvitationRequest(MessageId id,
+	protected boolean canBeShared(Transaction txn, GroupId g, Contact c)
+			throws DbException {
+
+		// check if g is our personal blog
+		LocalAuthor author = identityManager.getLocalAuthor(txn);
+		Blog b = blogManager.getPersonalBlog(author);
+		if (b.getId().equals(g)) return false;
+
+		// check if g is c's personal blog
+		b = blogManager.getPersonalBlog(c.getAuthor());
+		if (b.getId().equals(g)) return false;
+
+		return super.canBeShared(txn, g, c);
+	}
+
+	@Override
+	protected InvitationMessage createInvitationRequest(MessageId id,
 			BlogInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read) {
 		return new BlogInvitationRequest(id, msg.getSessionId(), contactId,
-				msg.getBlogTitle(), msg.getMessage(), available, time, local,
-				sent, seen, read);
+				msg.getBlogAuthorName(), msg.getMessage(), available, time,
+				local, sent, seen, read);
 	}
 
 	@Override
-	protected BlogInvitationRequest createInvitationResponse(MessageId id,
+	protected InvitationMessage createInvitationResponse(MessageId id,
 			SessionId sessionId, ContactId contactId, boolean accept, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
-		// TODO implement when doing blog sharing
-		return null;
+		return new BlogInvitationResponse(id, sessionId, contactId, accept,
+				time, local, sent, seen, read);
 	}
 
 	@Override

@@ -58,7 +58,7 @@ class BlogSharingValidator extends BdfMessageValidator {
 			checkLength(name, 1, MAX_BLOG_TITLE_LENGTH);
 
 			String desc = body.getString(3);
-			checkLength(desc, 1, MAX_BLOG_DESC_LENGTH);
+			checkLength(desc, 0, MAX_BLOG_DESC_LENGTH);
 
 			BdfList author = body.getList(4);
 			checkSize(author, 2);

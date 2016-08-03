@@ -23,6 +23,8 @@ import org.briarproject.android.blogs.BlogController.BlogPostListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.sharing.ShareBlogActivity;
+import org.briarproject.android.sharing.SharingStatusBlogActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.sync.GroupId;
 
@@ -30,6 +32,9 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import static android.app.Activity.RESULT_OK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -37,6 +42,7 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
 import static org.briarproject.android.blogs.BlogActivity.IS_MY_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.IS_NEW_BLOG;
+import static org.briarproject.android.blogs.BlogActivity.REQUEST_SHARE;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
 public class BlogFragment extends BaseFragment implements BlogPostListener {
@@ -136,12 +142,18 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		if (myBlog) {
 			inflater.inflate(R.menu.blogs_my_blog_actions, menu);
+		} else {
+			inflater.inflate(R.menu.blogs_blog_actions, menu);
 		}
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
+		ActivityOptionsCompat options =
+				makeCustomAnimation(getActivity(),
+						android.R.anim.slide_in_left,
+						android.R.anim.slide_out_right);
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				getActivity().onBackPressed();
@@ -151,15 +163,33 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 						new Intent(getActivity(), WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
 				i.putExtra(BLOG_NAME, blogName);
-				ActivityOptionsCompat options =
-						makeCustomAnimation(getActivity(),
-								android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
 				ActivityCompat.startActivityForResult(getActivity(), i,
 						REQUEST_WRITE_POST, options.toBundle());
 				return true;
+			case R.id.action_blog_share:
+				Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
+				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i2.putExtra(GROUP_ID, groupId.getBytes());
+				startActivityForResult(i2, REQUEST_SHARE, options.toBundle());
+				return true;
+			case R.id.action_blog_sharing_status:
+				Intent i3 = new Intent(getActivity(),
+						SharingStatusBlogActivity.class);
+				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i3.putExtra(GROUP_ID, groupId.getBytes());
+				startActivity(i3, options.toBundle());
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public void onActivityResult(int request, int result, Intent data) {
+		super.onActivityResult(request, result, data);
+
+		if (request == REQUEST_SHARE && result == RESULT_OK) {
+			displaySnackbar(R.string.blogs_sharing_snackbar);
 		}
 	}
 
@@ -200,6 +230,13 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 
 	void reload() {
 		loadData(true);
+	}
+
+	private void displaySnackbar(int stringId) {
+		Snackbar snackbar =
+				Snackbar.make(list, stringId, Snackbar.LENGTH_SHORT);
+		snackbar.getView().setBackgroundResource(R.color.briar_primary);
+		snackbar.show();
 	}
 
 	private void showDeleteDialog() {

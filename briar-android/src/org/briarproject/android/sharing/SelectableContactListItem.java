@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.contact.ConversationItem;

@@ -36,7 +36,7 @@ public interface BlogManager {
 	Collection<Blog> getBlogs(LocalAuthor localAuthor) throws DbException;
 
 	/** Returns only the personal blog of the given author. */
-	Blog getPersonalBlog(Author author) throws DbException;
+	Blog getPersonalBlog(Author author);
 
 	/** Returns all blogs to which the user subscribes. */
 	Collection<Blog> getBlogs() throws DbException;

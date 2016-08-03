@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseEventFragment;
+import org.briarproject.android.sharing.InvitationsForumActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
@@ -285,6 +286,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onClick(View view) {
 		// snackbar click
-		startActivity(new Intent(getContext(), ForumInvitationsActivity.class));
+		Intent i = new Intent(getContext(), InvitationsForumActivity.class);
+		startActivity(i);
 	}
 }

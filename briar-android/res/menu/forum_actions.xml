@@ -17,7 +17,7 @@
 
 	<item
 		android:id="@+id/action_forum_sharing_status"
-		android:title="@string/forum_sharing_status"
+		android:title="@string/sharing_status"
 		app:showAsAction="never"/>
 
 	<item

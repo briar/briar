@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.support.v7.util.SortedList;
@@ -12,7 +12,6 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.util.TextAvatarView;
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.forum.ForumSharingMessage;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -21,37 +20,32 @@ import java.util.Collection;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-class ForumInvitationAdapter extends
-		RecyclerView.Adapter<ForumInvitationAdapter.AvailableForumViewHolder> {
+abstract class InvitationAdapter extends
+		RecyclerView.Adapter<InvitationAdapter.InvitationsViewHolder> {
 
-	private final Context ctx;
+	protected final Context ctx;
 	private final AvailableForumClickListener listener;
-	private final SortedList<ForumInvitationItem> forums =
-			new SortedList<>(ForumInvitationItem.class,
+	private final SortedList<InvitationItem> invitations =
+			new SortedList<>(InvitationItem.class,
 					new SortedListCallBacks());
 
-	ForumInvitationAdapter(Context ctx, AvailableForumClickListener listener) {
+	InvitationAdapter(Context ctx, AvailableForumClickListener listener) {
 		this.ctx = ctx;
 		this.listener = listener;
 	}
 
 	@Override
-	public AvailableForumViewHolder onCreateViewHolder(ViewGroup parent,
+	public InvitationsViewHolder onCreateViewHolder(ViewGroup parent,
 			int viewType) {
 
 		View v = LayoutInflater.from(ctx)
-				.inflate(R.layout.list_item_available_forum, parent,  false);
-		return new AvailableForumViewHolder(v);
+				.inflate(R.layout.list_item_invitations, parent,  false);
+		return new InvitationsViewHolder(v);
 	}
 
 	@Override
-	public void onBindViewHolder(AvailableForumViewHolder ui, int position) {
-		final ForumInvitationItem item = getItem(position);
-
-		ui.avatar.setText(item.getForum().getName().substring(0, 1));
-		ui.avatar.setBackgroundBytes(item.getForum().getId().getBytes());
-
-		ui.name.setText(item.getForum().getName());
+	public void onBindViewHolder(InvitationsViewHolder ui, int position) {
+		final InvitationItem item = getItem(position);
 
 		Collection<String> names = new ArrayList<>();
 		for (Contact c : item.getContacts()) names.add(c.getAuthor().getName());
@@ -80,40 +74,39 @@ class ForumInvitationAdapter extends
 
 	@Override
 	public int getItemCount() {
-		return forums.size();
+		return invitations.size();
 	}
 
-	public ForumInvitationItem getItem(int position) {
-		return forums.get(position);
+	public InvitationItem getItem(int position) {
+		return invitations.get(position);
 	}
 
-	public void add(ForumInvitationItem item) {
-		forums.add(item);
+	public void add(InvitationItem item) {
+		invitations.add(item);
 	}
 
-	public void addAll(Collection<ForumInvitationItem> list) {
-		forums.addAll(list);
+	public void addAll(Collection<InvitationItem> list) {
+		invitations.addAll(list);
 	}
 
-	public void remove(ForumInvitationItem item) {
-		forums.remove(item);
+	public void remove(InvitationItem item) {
+		invitations.remove(item);
 	}
 
 	public void clear() {
-		forums.clear();
+		invitations.clear();
 	}
 
-	static class AvailableForumViewHolder
-			extends RecyclerView.ViewHolder {
+	static class InvitationsViewHolder extends RecyclerView.ViewHolder {
 
-		private final TextAvatarView avatar;
-		private final TextView name;
-		private final TextView sharedBy;
-		private final TextView subscribed;
-		private final Button accept;
-		private final Button decline;
+		final TextAvatarView avatar;
+		final TextView name;
+		final TextView sharedBy;
+		final TextView subscribed;
+		final Button accept;
+		final Button decline;
 
-		AvailableForumViewHolder(View v) {
+		InvitationsViewHolder(View v) {
 			super(v);
 
 			avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
@@ -125,15 +118,15 @@ class ForumInvitationAdapter extends
 		}
 	}
 
+	abstract int compareInvitations(InvitationItem o1, InvitationItem o2);
+
 	private class SortedListCallBacks
-			extends SortedList.Callback<ForumInvitationItem> {
+			extends SortedList.Callback<InvitationItem> {
 
 		@Override
-		public int compare(ForumInvitationItem o1,
-				ForumInvitationItem o2) {
-			return String.CASE_INSENSITIVE_ORDER
-					.compare(o1.getForum().getName(),
-							o2.getForum().getName());
+		public int compare(InvitationItem o1,
+				InvitationItem o2) {
+			return compareInvitations(o1, o2);
 		}
 
 		@Override
@@ -157,21 +150,21 @@ class ForumInvitationAdapter extends
 		}
 
 		@Override
-		public boolean areContentsTheSame(ForumInvitationItem oldItem,
-				ForumInvitationItem newItem) {
+		public boolean areContentsTheSame(InvitationItem oldItem,
+				InvitationItem newItem) {
 			return oldItem.isSubscribed() == newItem.isSubscribed() &&
 					oldItem.getContacts().equals(newItem.getContacts());
 		}
 
 		@Override
-		public boolean areItemsTheSame(ForumInvitationItem oldItem,
-				ForumInvitationItem newItem) {
-			return oldItem.getForum().equals(newItem.getForum());
+		public boolean areItemsTheSame(InvitationItem oldItem,
+				InvitationItem newItem) {
+			return oldItem.getShareable().equals(newItem.getShareable());
 		}
 	}
 
 
 	interface AvailableForumClickListener {
-		void onItemClick(ForumInvitationItem item, boolean accept);
+		void onItemClick(InvitationItem item, boolean accept);
 	}
 }

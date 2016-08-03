@@ -33,6 +33,8 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.sharing.ShareForumActivity;
+import org.briarproject.android.sharing.SharingStatusForumActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.android.util.TrustIndicatorView;
@@ -228,7 +230,7 @@ public class ForumActivity extends BriarActivity implements
 								options.toBundle());
 				return true;
 			case R.id.action_forum_sharing_status:
-				Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
+				Intent i3 = new Intent(this, SharingStatusForumActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
 				ActivityCompat.startActivity(this, i3, options.toBundle());

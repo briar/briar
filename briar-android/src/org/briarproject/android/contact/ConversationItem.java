@@ -3,13 +3,15 @@ package org.briarproject.android.contact;
 import android.content.Context;
 
 import org.briarproject.R;
-import org.briarproject.api.forum.ForumInvitationRequest;
+import org.briarproject.api.blogs.BlogInvitationResponse;
 import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sharing.InvitationMessage;
+import org.briarproject.api.sharing.InvitationRequest;
+import org.briarproject.api.sharing.InvitationResponse;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
@@ -25,6 +27,8 @@ public abstract class ConversationItem {
 	final static int NOTICE_OUT = 6;
 	final static int FORUM_INVITATION_IN = 7;
 	final static int FORUM_INVITATION_OUT = 8;
+	final static int BLOG_INVITATION_IN = 9;
+	final static int BLOG_INVITATION_OUT = 10;
 
 	private MessageId id;
 	private long time;
@@ -97,15 +101,27 @@ public abstract class ConversationItem {
 		}
 	}
 
-	public static ConversationItem from(ForumInvitationRequest fim) {
+	public static ConversationItem from(InvitationRequest fim) {
 		if (fim.isLocal()) {
-			return new ConversationForumInvitationOutItem(fim);
+			return new ConversationShareableInvitationOutItem(fim);
 		} else {
-			return new ConversationForumInvitationInItem(fim);
+			return new ConversationShareableInvitationInItem(fim);
 		}
 	}
 
 	public static ConversationItem from(Context ctx, String contactName,
+			InvitationResponse ir) {
+
+		if (ir instanceof ForumInvitationResponse) {
+			return from(ctx, contactName, (ForumInvitationResponse) ir);
+		} else if (ir instanceof BlogInvitationResponse) {
+			return from(ctx, contactName, (BlogInvitationResponse) ir);
+		} else {
+			throw new IllegalArgumentException("Unknown Invitation Response.");
+		}
+	}
+
+	private static ConversationItem from(Context ctx, String contactName,
 			ForumInvitationResponse fir) {
 
 		if (fir.isLocal()) {
@@ -130,6 +146,38 @@ public abstract class ConversationItem {
 			} else {
 				text = ctx.getString(
 						R.string.forum_invitation_response_declined_received,
+						contactName);
+			}
+			return new ConversationNoticeInItem(fir.getId(), text,
+					fir.getTimestamp(), fir.isRead());
+		}
+	}
+
+	private static ConversationItem from(Context ctx, String contactName,
+			BlogInvitationResponse fir) {
+
+		if (fir.isLocal()) {
+			String text;
+			if (fir.wasAccepted()) {
+				text = ctx.getString(
+						R.string.blogs_sharing_response_accepted_sent,
+						contactName);
+			} else {
+				text = ctx.getString(
+						R.string.blogs_sharing_response_declined_sent,
+						contactName);
+			}
+			return new ConversationNoticeOutItem(fir.getId(), text,
+					fir.getTimestamp(), fir.isSent(), fir.isSeen());
+		} else {
+			String text;
+			if (fir.wasAccepted()) {
+				text = ctx.getString(
+						R.string.blogs_sharing_response_accepted_received,
+						contactName);
+			} else {
+				text = ctx.getString(
+						R.string.blogs_sharing_response_declined_received,
 						contactName);
 			}
 			return new ConversationNoticeInItem(fir.getId(), text,
