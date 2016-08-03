@@ -1,7 +1,6 @@
-package briarproject.activity;
+package org.briarproject.android;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
@@ -9,7 +8,6 @@ import android.widget.EditText;
 
 import org.briarproject.BuildConfig;
 import org.briarproject.R;
-import org.briarproject.android.SettingsActivity;
 import org.briarproject.android.controller.PasswordController;
 import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.handler.ResultHandler;
@@ -26,7 +24,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowActivity;
 
 import static junit.framework.Assert.assertEquals;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.NONE;
@@ -43,7 +40,6 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21,

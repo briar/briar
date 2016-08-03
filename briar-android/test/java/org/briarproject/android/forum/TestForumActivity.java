@@ -1,11 +1,8 @@
-package briarproject.activity;
+package org.briarproject.android.forum;
 
 import org.briarproject.android.ActivityModule;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
-import org.briarproject.android.forum.ForumActivity;
-import org.briarproject.android.forum.ForumController;
-import org.briarproject.android.forum.ForumControllerImpl;
 import org.mockito.Mockito;
 
 /**

@@ -1,13 +1,8 @@
-package briarproject.activity;
+package org.briarproject.android;
 
 import android.app.Application;
 
 import org.briarproject.CoreModule;
-import org.briarproject.android.AndroidComponent;
-import org.briarproject.android.AndroidEagerSingletons;
-import org.briarproject.android.AppModule;
-import org.briarproject.android.BriarApplication;
-import org.briarproject.android.DaggerAndroidComponent;
 
 import java.util.logging.Logger;
 

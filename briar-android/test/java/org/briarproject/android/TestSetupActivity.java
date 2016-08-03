@@ -1,6 +1,5 @@
-package briarproject.activity;
+package org.briarproject.android;
 
-import org.briarproject.android.SetupActivity;
 import org.briarproject.android.controller.SetupController;
 
 /**

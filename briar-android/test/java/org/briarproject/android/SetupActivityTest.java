@@ -1,4 +1,4 @@
-package briarproject.activity;
+package org.briarproject.android;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +11,6 @@ import com.google.common.base.Strings;
 
 import org.briarproject.BuildConfig;
 import org.briarproject.R;
-import org.briarproject.android.NavDrawerActivity;
 import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.android.util.StrengthMeter;

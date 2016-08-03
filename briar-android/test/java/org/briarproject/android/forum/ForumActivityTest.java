@@ -1,4 +1,4 @@
-package briarproject.activity;
+package org.briarproject.android.forum;
 
 import android.content.Intent;
 
@@ -6,10 +6,8 @@ import junit.framework.Assert;
 
 import org.briarproject.BuildConfig;
 import org.briarproject.TestUtils;
+import org.briarproject.android.TestBriarApplication;
 import org.briarproject.android.controller.handler.UiResultHandler;
-import org.briarproject.android.forum.ForumActivity;
-import org.briarproject.android.forum.ForumController;
-import org.briarproject.android.forum.ForumEntry;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
