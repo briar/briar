@@ -13,7 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.sharing.InvitationsActivity;
+import org.briarproject.android.sharing.InvitationsBlogActivity;
+import org.briarproject.android.sharing.InvitationsForumActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.blogs.BlogInvitationRequest;
 import org.briarproject.api.clients.SessionId;
@@ -42,9 +43,6 @@ import static org.briarproject.android.contact.ConversationItem.MSG_OUT;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_IN;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_OUT;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
-import static org.briarproject.android.sharing.ShareActivity.BLOG;
-import static org.briarproject.android.sharing.ShareActivity.FORUM;
-import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
 
 class ConversationAdapter extends RecyclerView.Adapter {
 
@@ -86,7 +84,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			return new IntroductionHolder(v, type);
 		} else if (type == INTRODUCTION_OUT) {
 			v = LayoutInflater.from(viewGroup.getContext()).inflate(
-					R.layout.list_item_introduction_out, viewGroup, false);
+					R.layout.list_item_msg_notice_out, viewGroup, false);
 			return new IntroductionHolder(v, type);
 		} else if (type == NOTICE_IN) {
 			v = LayoutInflater.from(viewGroup.getContext()).inflate(
@@ -104,7 +102,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		} else if (type == FORUM_INVITATION_OUT ||
 				type == BLOG_INVITATION_OUT) {
 			v = LayoutInflater.from(viewGroup.getContext()).inflate(
-					R.layout.list_item_introduction_out, viewGroup, false);
+					R.layout.list_item_msg_notice_out, viewGroup, false);
 			return new InvitationHolder(v, type);
 		}
 		// incoming message (non-local)
@@ -338,17 +336,16 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ui.text.setText(ctx.getString(receivedRes, contactName, name));
 
 			if (ir.isAvailable()) {
-				final int type =
-						ir instanceof ForumInvitationRequest ? FORUM : BLOG;
+				final Class c = ir instanceof ForumInvitationRequest ?
+						InvitationsForumActivity.class :
+						InvitationsBlogActivity.class;
 				ui.showInvitationsButton.setText(ctx.getString(buttonRes));
 				ui.showInvitationsButton.setVisibility(VISIBLE);
 				ui.showInvitationsButton
 						.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								Intent i = new Intent(ctx,
-										InvitationsActivity.class);
-								i.putExtra(SHAREABLE, type);
+								Intent i = new Intent(ctx, c);
 								ctx.startActivity(i);
 							}
 						});
@@ -513,7 +510,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			message = new MessageHolder(messageLayout,
 					type == FORUM_INVITATION_IN ? MSG_IN : MSG_OUT);
 			text = (TextView) v.findViewById(R.id.introductionText);
-			showInvitationsButton = (Button) v.findViewById(R.id.showForumsButton);
+			showInvitationsButton = (Button) v.findViewById(R.id.showInvitationsButton);
 			date = (TextView) v.findViewById(R.id.introductionTime);
 
 			if (type == FORUM_INVITATION_OUT || type == BLOG_INVITATION_OUT) {

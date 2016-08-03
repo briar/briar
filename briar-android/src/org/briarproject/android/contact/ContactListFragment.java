@@ -34,15 +34,11 @@ import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.ForumInvitationReceivedEvent;
-import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.InvitationReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.forum.ForumInvitationRequest;
-import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
@@ -409,15 +405,19 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			LOG.info("Loading introduction messages took " + duration + " ms");
 
 		now = System.currentTimeMillis();
-		Collection<InvitationMessage> invitations =
+		Collection<InvitationMessage> forumInvitations =
 				forumSharingManager.getInvitationMessages(id);
-		invitations.addAll(blogSharingManager.getInvitationMessages(id));
-		for (InvitationMessage i : invitations) {
+		for (InvitationMessage i : forumInvitations) {
+			messages.add(ConversationItem.from(i));
+		}
+		Collection<InvitationMessage> blogInvitations =
+				blogSharingManager.getInvitationMessages(id);
+		for (InvitationMessage i : blogInvitations) {
 			messages.add(ConversationItem.from(i));
 		}
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Loading forum invitations took " + duration + " ms");
+			LOG.info("Loading invitations took " + duration + " ms");
 
 		return messages;
 	}

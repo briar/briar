@@ -337,11 +337,16 @@ public class ConversationActivity extends BriarActivity
 					Collection<IntroductionMessage> introductions =
 							introductionManager
 									.getIntroductionMessages(contactId);
-					Collection<InvitationMessage> invitations =
+					Collection<InvitationMessage> forumInvitations =
 							forumSharingManager
 									.getInvitationMessages(contactId);
-					invitations.addAll(blogSharingManager
-							.getInvitationMessages(contactId));
+					Collection<InvitationMessage> blogInvitations =
+							blogSharingManager
+									.getInvitationMessages(contactId);
+					List<InvitationMessage> invitations = new ArrayList<>(
+							forumInvitations.size() + blogInvitations.size());
+					invitations.addAll(forumInvitations);
+					invitations.addAll(blogInvitations);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");

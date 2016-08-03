@@ -79,7 +79,7 @@
   <string name="show_forums">Mostrar</string>
   <string name="forum_leave">Sair do fórum</string>
   <string name="forum_left_toast">Saiu do fórum</string>
-  <string name="forum_sharing_status">Status de compartilhamento</string>
+  <string name="sharing_status">Status de compartilhamento</string>
   <string name="no_posts">Sem Posts</string>
   <plurals name="unread_posts">
     <item quantity="one">%d post não lido</item>

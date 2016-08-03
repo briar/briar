@@ -23,8 +23,8 @@ import org.briarproject.android.blogs.BlogController.BlogPostListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.sharing.ShareActivity;
-import org.briarproject.android.sharing.SharingStatusActivity;
+import org.briarproject.android.sharing.ShareBlogActivity;
+import org.briarproject.android.sharing.SharingStatusBlogActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.sync.GroupId;
 
@@ -44,8 +44,6 @@ import static org.briarproject.android.blogs.BlogActivity.IS_MY_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.IS_NEW_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_SHARE;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
-import static org.briarproject.android.sharing.ShareActivity.BLOG;
-import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
 
 public class BlogFragment extends BaseFragment implements BlogPostListener {
 
@@ -169,18 +167,16 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 						REQUEST_WRITE_POST, options.toBundle());
 				return true;
 			case R.id.action_blog_share:
-				Intent i2 = new Intent(getActivity(), ShareActivity.class);
+				Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				i2.putExtra(SHAREABLE, BLOG);
 				startActivityForResult(i2, REQUEST_SHARE, options.toBundle());
 				return true;
 			case R.id.action_blog_sharing_status:
-				Intent i3 =
-						new Intent(getActivity(), SharingStatusActivity.class);
+				Intent i3 = new Intent(getActivity(),
+						SharingStatusBlogActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
-				i3.putExtra(SHAREABLE, BLOG);
 				startActivity(i3, options.toBundle());
 				return true;
 			default:

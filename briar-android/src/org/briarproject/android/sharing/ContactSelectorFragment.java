@@ -18,7 +18,6 @@ import org.briarproject.android.contact.BaseContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.BriarRecyclerView;
-import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -38,10 +37,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.sharing.ShareActivity.BLOG;
 import static org.briarproject.android.sharing.ShareActivity.CONTACTS;
-import static org.briarproject.android.sharing.ShareActivity.FORUM;
-import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
 import static org.briarproject.android.sharing.ShareActivity.getContactsFromIds;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
@@ -66,18 +62,13 @@ public class ContactSelectorFragment extends BaseFragment implements
 	protected volatile IdentityManager identityManager;
 	@Inject
 	protected volatile ForumSharingManager forumSharingManager;
-	@Inject
-	volatile BlogSharingManager blogSharingManager;
 
 	private volatile GroupId groupId;
-	private volatile int shareable;
 
-	public static ContactSelectorFragment newInstance(int shareable,
-			GroupId groupId) {
+	public static ContactSelectorFragment newInstance(GroupId groupId) {
 
 		Bundle args = new Bundle();
 		args.putByteArray(GROUP_ID, groupId.getBytes());
-		args.putInt(SHAREABLE, shareable);
 		ContactSelectorFragment fragment = new ContactSelectorFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -95,7 +86,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 			shareActivity = (ShareActivity) context;
 		} catch (ClassCastException e) {
 			throw new InstantiationError(
-					"This fragment is only meant to be attached to the ShareForumActivity");
+					"This fragment is only meant to be attached to a subclass of ShareActivity");
 		}
 	}
 
@@ -104,9 +95,9 @@ public class ContactSelectorFragment extends BaseFragment implements
 		super.onCreate(savedInstanceState);
 
 		setHasOptionsMenu(true);
-		groupId = new GroupId(getArguments().getByteArray(GROUP_ID));
+		Bundle args = getArguments();
+		groupId = new GroupId(args.getByteArray(GROUP_ID));
 		if (groupId == null) throw new IllegalStateException("No GroupId");
-		shareable = getArguments().getInt(SHAREABLE);
 	}
 
 	@Override
@@ -125,7 +116,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
-		list.setEmptyText(getString(R.string.no_contacts));
+		list.setEmptyText(getString(R.string.no_contacts_selector));
 
 		// restore selected contacts if available
 		if (savedInstanceState != null) {
@@ -195,7 +186,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	private void loadContacts(final Collection<ContactId> selection) {
-		listener.runOnDbThread(new Runnable() {
+		shareActivity.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -209,14 +200,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 						boolean selected = selection != null &&
 								selection.contains(c.getId());
 						// do we have already some sharing with that contact?
-						boolean disabled = true;
-						if (shareable == FORUM) {
-							disabled = !forumSharingManager
-									.canBeShared(groupId, c);
-						} else if (shareable == BLOG) {
-							disabled = !blogSharingManager
-									.canBeShared(groupId, c);
-						}
+						boolean disabled = shareActivity.isDisabled(groupId, c);
 						contacts.add(new SelectableContactListItem(c,
 								localAuthor, groupId, selected, disabled));
 					}

@@ -5,60 +5,50 @@ import android.os.Bundle;
 import android.view.View;
 
 import org.briarproject.R;
-import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ShareActivity extends BriarActivity implements
+public abstract class ShareActivity extends BriarActivity implements
 		BaseFragment.BaseFragmentListener {
 
-	public final static String SHAREABLE = "shareable";
-	public final static int FORUM = 1;
-	public final static int BLOG = 2;
-
 	final static String CONTACTS = "contacts";
-
-	private int shareable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_share_forum);
+		setContentView(R.layout.activity_share);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
 		GroupId groupId = new GroupId(b);
 
-		shareable = i.getIntExtra(SHAREABLE, 0);
-		if (shareable == 0) throw new IllegalStateException("No Shareable");
-
 		if (savedInstanceState == null) {
 			ContactSelectorFragment contactSelectorFragment =
-					ContactSelectorFragment.newInstance(shareable, groupId);
+					ContactSelectorFragment.newInstance(groupId);
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.shareContainer, contactSelectorFragment)
 					.commit();
 		}
 	}
 
-	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
-	}
+	abstract ShareMessageFragment getMessageFragment(GroupId groupId,
+			Collection<ContactId> contacts);
 
-	void showMessageScreen(GroupId groupId,
-			Collection<ContactId> contacts) {
+	abstract boolean isDisabled(GroupId groupId, Contact c) throws DbException;
 
+	void showMessageScreen(GroupId groupId, Collection<ContactId> contacts) {
 		ShareMessageFragment messageFragment =
-				ShareMessageFragment.newInstance(shareable, groupId, contacts);
+				getMessageFragment(groupId, contacts);
 
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,

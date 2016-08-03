@@ -33,8 +33,8 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.UiResultHandler;
-import org.briarproject.android.sharing.ShareActivity;
-import org.briarproject.android.sharing.SharingStatusActivity;
+import org.briarproject.android.sharing.ShareForumActivity;
+import org.briarproject.android.sharing.SharingStatusForumActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.android.util.TrustIndicatorView;
@@ -59,8 +59,6 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
-import static org.briarproject.android.sharing.ShareActivity.FORUM;
-import static org.briarproject.android.sharing.ShareActivity.SHAREABLE;
 
 public class ForumActivity extends BriarActivity implements
 		ForumController.ForumPostListener {
@@ -224,19 +222,17 @@ public class ForumActivity extends BriarActivity implements
 				showTextInput(null);
 				return true;
 			case R.id.action_forum_share:
-				Intent i2 = new Intent(this, ShareActivity.class);
+				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				i2.putExtra(SHAREABLE, FORUM);
 				ActivityCompat
 						.startActivityForResult(this, i2, REQUEST_FORUM_SHARED,
 								options.toBundle());
 				return true;
 			case R.id.action_forum_sharing_status:
-				Intent i3 = new Intent(this, SharingStatusActivity.class);
+				Intent i3 = new Intent(this, SharingStatusForumActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
-				i3.putExtra(SHAREABLE, FORUM);
 				ActivityCompat.startActivity(this, i3, options.toBundle());
 				return true;
 			case R.id.action_forum_delete:
