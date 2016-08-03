@@ -191,6 +191,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void removeBlog(Blog b) throws DbException {
+		// TODO if this gets used, check for RSS feeds posting into this blog
 		Transaction txn = db.startTransaction(false);
 		try {
 			for (RemoveBlogHook hook : removeHooks)
