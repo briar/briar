@@ -3,6 +3,7 @@ package org.briarproject.android.sharing;
 import android.content.Context;
 
 import org.briarproject.api.forum.Forum;
+import org.briarproject.api.sharing.InvitationItem;
 
 class ForumInvitationAdapter extends InvitationAdapter {
 

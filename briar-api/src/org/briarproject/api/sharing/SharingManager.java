@@ -33,8 +33,8 @@ public interface SharingManager<S extends Shareable> {
 	Collection<InvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
-	/** Returns all shareables to which the user has been invited. */
-	Collection<S> getInvited() throws DbException;
+	/** Returns all invitations to shareables. */
+	Collection<InvitationItem> getInvitations() throws DbException;
 
 	/** Returns all contacts who are sharing the given group with us. */
 	Collection<Contact> getSharedBy(GroupId g) throws DbException;

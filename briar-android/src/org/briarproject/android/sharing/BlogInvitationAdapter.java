@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.briarproject.R;
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.sharing.InvitationItem;
 
 class BlogInvitationAdapter extends InvitationAdapter {
 

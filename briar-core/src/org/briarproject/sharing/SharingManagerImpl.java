@@ -25,6 +25,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.InvitationReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sharing.SharingManager;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -397,16 +399,39 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	@Override
-	public Collection<S> getInvited() throws DbException {
+	public Collection<InvitationItem> getInvitations() throws DbException {
+		List<InvitationItem> invitations = new ArrayList<InvitationItem>();
 		Transaction txn = db.startTransaction(true);
 		try {
-			Set<S> invited = new HashSet<S>();
+			Set<S> shareables = new HashSet<S>();
+			Map<GroupId, Collection<Contact>> newSharers =
+					new HashMap<GroupId, Collection<Contact>>();
 			Collection<Contact> contacts = db.getContacts(txn);
+
+			// get invitations from each contact
 			for (Contact contact : contacts) {
-				invited.addAll(getInvited(txn, contact));
+				Collection<S> newShareables = getInvited(txn, contact);
+				shareables.addAll(newShareables);
+				for (S s : newShareables) {
+					if (newSharers.containsKey(s.getId())) {
+						newSharers.get(s.getId()).add(contact);
+					} else {
+						Collection<Contact> c = new ArrayList<Contact>();
+						c.add(contact);
+						newSharers.put(s.getId(), c);
+					}
+				}
+			}
+			// construct InvitationItem objects
+			for (S s : shareables) {
+				Collection<Contact> newS = newSharers.get(s.getId());
+				boolean subscribed = db.containsGroup(txn, s.getId());
+				InvitationItem invitation =
+						new InvitationItem(s, subscribed, newS);
+				invitations.add(invitation);
 			}
 			txn.setComplete();
-			return Collections.unmodifiableCollection(invited);
+			return Collections.unmodifiableCollection(invitations);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
@@ -447,20 +472,27 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 	@Override
 	public Collection<Contact> getSharedBy(GroupId g) throws DbException {
+		List<Contact> subscribers;
+		Transaction txn = db.startTransaction(true);
+		try {
+			subscribers = getSharedBy(txn, g);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return Collections.unmodifiableList(subscribers);
+	}
+
+	private List<Contact> getSharedBy(Transaction txn, GroupId g)
+			throws DbException {
 		try {
 			List<Contact> subscribers = new ArrayList<Contact>();
-			Transaction txn = db.startTransaction(true);
-			try {
-				for (Contact c : db.getContacts(txn)) {
-					GroupId contactGroup = getContactGroup(c).getId();
-					if (listContains(txn, contactGroup, g, SHARED_WITH_US))
-						subscribers.add(c);
-				}
-				txn.setComplete();
-			} finally {
-				db.endTransaction(txn);
+			for (Contact c : db.getContacts(txn)) {
+				GroupId contactGroup = getContactGroup(c).getId();
+				if (listContains(txn, contactGroup, g, SHARED_WITH_US))
+					subscribers.add(c);
 			}
-			return Collections.unmodifiableList(subscribers);
+			return subscribers;
 		} catch (IOException e) {
 			throw new DbException(e);
 		}

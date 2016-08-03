@@ -12,6 +12,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.util.TextAvatarView;
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -48,7 +49,8 @@ abstract class InvitationAdapter extends
 		final InvitationItem item = getItem(position);
 
 		Collection<String> names = new ArrayList<>();
-		for (Contact c : item.getContacts()) names.add(c.getAuthor().getName());
+		for (Contact c : item.getNewSharers())
+			names.add(c.getAuthor().getName());
 		ui.sharedBy.setText(ctx.getString(R.string.shared_by_format,
 				StringUtils.join(names, ", ")));
 
@@ -153,7 +155,7 @@ abstract class InvitationAdapter extends
 		public boolean areContentsTheSame(InvitationItem oldItem,
 				InvitationItem newItem) {
 			return oldItem.isSubscribed() == newItem.isSubscribed() &&
-					oldItem.getContacts().equals(newItem.getContacts());
+					oldItem.getNewSharers().equals(newItem.getNewSharers());
 		}
 
 		@Override
