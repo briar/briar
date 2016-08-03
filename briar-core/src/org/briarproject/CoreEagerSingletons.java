@@ -4,6 +4,7 @@ import org.briarproject.blogs.BlogsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
 import org.briarproject.db.DatabaseExecutorModule;
+import org.briarproject.feed.FeedModule;
 import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.introduction.IntroductionModule;
@@ -47,4 +48,6 @@ public interface CoreEagerSingletons {
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	void inject(FeedModule.EagerSingletons init);
 }

@@ -60,3 +60,13 @@
 -dontnote dagger.**
 -dontwarn dagger.**
 -dontwarn com.google.common.**
+
+
+# RSS libraries
+-keep class com.rometools.rome.feed.synd.impl.** { *;}
+-keep class com.rometools.rome.io.impl.** { *;}
+-dontwarn javax.xml.stream.**
+-dontwarn org.jaxen.**
+-dontwarn java.nio.**
+-dontwarn org.codehaus.mojo.animal_sniffer.**
+-dontwarn org.slf4j.impl.**

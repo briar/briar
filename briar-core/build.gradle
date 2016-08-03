@@ -9,12 +9,22 @@ dependencies {
 	compile fileTree(dir: 'libs', include: '*.jar')
 	compile "com.madgag.spongycastle:core:1.54.0.0"
 	compile "com.h2database:h2:1.4.190"
+	compile 'com.rometools:rome:1.7.0'
+	compile 'org.jdom:jdom2:2.0.6'
+	compile 'org.slf4j:slf4j-api:1.7.21'
+	compile 'com.squareup.okhttp3:okhttp:3.3.1'
 }
 
 dependencyVerification {
 	verify = [
 			'com.madgag.spongycastle:core:1e7fa4b19ccccd1011364ab838d0b4702470c178bbbdd94c5c90b2d4d749ea1e',
 			'com.h2database:h2:23ba495a07bbbb3bd6c3084d10a96dad7a23741b8b6d64b213459a784195a98c',
+			'com.rometools:rome:3096b7a36c0e54f59b8193c431d28494c6bfa85c72ef3c5f341cdf09eae815e6',
+			'org.jdom:jdom2:1345f11ba606d15603d6740551a8c21947c0215640770ec67271fe78bea97cf5',
+			'org.slf4j:slf4j-api:1d5aeb6bd98b0fdd151269eae941c05f6468a791ea0f1e68d8e7fe518af3e7df',
+			'com.squareup.okhttp3:okhttp:a47f4efa166551cd5acc04f1071d82dafbf05638c21f9ca13068bc6633e3bff6',
+			'com.rometools:rome-utils:2be18a1edc601c31fe49c2000bb5484dd75182309270c2a2561d71888d81587a',
+			'com.squareup.okio:okio:5cfea5afe6c6e441a4dbf6053a07a733b1249d1009382eb44ac2255ccedd0c15',
 	]
 }
 

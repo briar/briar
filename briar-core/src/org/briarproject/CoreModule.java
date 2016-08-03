@@ -8,6 +8,7 @@ import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseExecutorModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
+import org.briarproject.feed.FeedModule;
 import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.introduction.IntroductionModule;
@@ -51,7 +52,8 @@ import dagger.Module;
 		SharingModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		FeedModule.class
 })
 public class CoreModule {
 
@@ -71,5 +73,6 @@ public class CoreModule {
 		c.inject(new SystemModule.EagerSingletons());
 		c.inject(new TransportModule.EagerSingletons());
 		c.inject(new IntroductionModule.EagerSingletons());
+		c.inject(new FeedModule.EagerSingletons());
 	}
 }

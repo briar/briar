@@ -138,6 +138,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 		// Wait for all the plugins to stop
 		try {
+			LOG.info("Waiting for all the plugins to stop");
 			stopLatch.await();
 		} catch (InterruptedException e) {
 			throw new ServiceException(e);
@@ -227,6 +228,8 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		@Override
 		public void run() {
+			if (LOG.isLoggable(INFO))
+				LOG.info("Trying to stop plugin " + plugin.getId());
 			try {
 				// Wait for the plugin to finish starting
 				startLatch.await();
