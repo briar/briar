@@ -68,7 +68,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 	private LifecycleManager lifecycleManager0, lifecycleManager1,
 			lifecycleManager2;
 	private SyncSessionFactory sync0, sync1, sync2;
-	private BlogManager blogManager0, blogManager1;
+	private BlogManager blogManager0, blogManager1, blogManager2;
 	private ContactManager contactManager0, contactManager1, contactManager2;
 	private Contact contact1, contact2, contact01, contact02;
 	private ContactId contactId1, contactId2, contactId01, contactId02;
@@ -139,6 +139,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		contactManager2 = t2.getContactManager();
 		blogManager0 = t0.getBlogManager();
 		blogManager1 = t1.getBlogManager();
+		blogManager2 = t2.getBlogManager();
 		blogSharingManager0 = t0.getBlogSharingManager();
 		blogSharingManager1 = t1.getBlogSharingManager();
 		blogSharingManager2 = t2.getBlogSharingManager();
@@ -398,6 +399,106 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		// blog was not added, because it was there already
 		assertEquals(0, blogSharingManager0.getInvited().size());
 		assertEquals(3, blogManager1.getBlogs().size());
+
+		stopLifecycles();
+	}
+
+	@Test
+	public void testRemovingSharedBlog() throws Exception {
+		startLifecycles();
+
+		// initialize and let invitee accept all requests
+		defaultInit(true);
+
+		// send invitation
+		blogSharingManager0
+				.sendInvitation(blog2.getId(), contactId1, "Hi!");
+
+		// sync first request message
+		sync0To1();
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+
+		// sync response back
+		sync1To0();
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.responseReceived);
+
+		// blog was added successfully and is shard both ways
+		assertEquals(3, blogManager1.getBlogs().size());
+		Collection<Contact> sharedWith =
+				blogSharingManager0.getSharedWith(blog2.getId());
+		assertEquals(1, sharedWith.size());
+		assertEquals(contact1, sharedWith.iterator().next());
+		Collection<Contact> sharedBy =
+				blogSharingManager1.getSharedBy(blog2.getId());
+		assertEquals(1, sharedBy.size());
+		assertEquals(contact01, sharedBy.iterator().next());
+
+		// shared blog can be removed
+		assertTrue(blogManager1.canBeRemoved(blog2.getId()));
+
+		// invitee removes blog again
+		blogManager1.removeBlog(blog2);
+
+		// sync LEAVE message
+		sync1To0();
+
+		// sharer does not share this blog anymore with invitee
+		sharedWith =
+				blogSharingManager0.getSharedWith(blog2.getId());
+		assertEquals(0, sharedWith.size());
+
+		stopLifecycles();
+	}
+
+	@Test
+	public void testSharedBlogBecomesPermanent() throws Exception {
+		startLifecycles();
+
+		// initialize and let invitee accept all requests
+		defaultInit(true);
+
+		// invitee only sees two blogs
+		assertEquals(2, blogManager1.getBlogs().size());
+
+		// sharer sends invitation for 2's blog to 1
+		blogSharingManager0
+				.sendInvitation(blog2.getId(), contactId1, "Hi!");
+
+		// sync first request message
+		sync0To1();
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+
+		// make sure blog2 is shared by 0
+		Collection<Contact> contacts =
+				blogSharingManager1.getSharedBy(blog2.getId());
+		assertEquals(1, contacts.size());
+		assertTrue(contacts.contains(contact01));
+
+		// sync response back
+		sync1To0();
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.responseReceived);
+
+		// blog was added and can be removed
+		assertEquals(3, blogManager1.getBlogs().size());
+		assertTrue(blogManager1.canBeRemoved(blog2.getId()));
+
+		// 1 and 2 are adding each other
+		contactManager1.addContact(author2,
+				author1.getId(), master, clock.currentTimeMillis(), true,
+				true
+		);
+		contactManager2.addContact(author1,
+				author2.getId(), master, clock.currentTimeMillis(), true,
+				true
+		);
+		assertEquals(3, blogManager1.getBlogs().size());
+
+		// now blog can not be removed anymore
+		assertFalse(blogManager1.canBeRemoved(blog2.getId()));
 
 		stopLifecycles();
 	}
