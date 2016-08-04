@@ -27,7 +27,7 @@
 			android:id="@+id/spinner"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@drawable/spinner_border"
+			android:background="@drawable/border_spinner"
 			android:layout_marginTop="@dimen/margin_medium"
 			android:spinnerMode="dropdown"
 			android:visibility="gone"/>

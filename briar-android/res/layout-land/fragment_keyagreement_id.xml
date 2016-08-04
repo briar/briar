@@ -3,23 +3,21 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="horizontal"
-	android:paddingBottom="@dimen/margin_activity_vertical"
-	android:paddingEnd="@dimen/margin_activity_horizontal"
-	android:paddingLeft="@dimen/margin_activity_horizontal"
-	android:paddingRight="@dimen/margin_activity_horizontal"
-	android:paddingStart="@dimen/margin_activity_horizontal"
-	android:paddingTop="@dimen/margin_activity_vertical">
+	android:orientation="horizontal">
 
 	<ImageView
 		android:id="@+id/imageView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical"
-		android:layout_marginEnd="@dimen/margin_medium"
-		android:layout_marginRight="@dimen/margin_medium"
 		android:layout_weight="1"
 		android:adjustViewBounds="true"
+		android:paddingBottom="@dimen/margin_activity_vertical"
+		android:paddingEnd="@dimen/margin_activity_horizontal"
+		android:paddingLeft="@dimen/margin_activity_horizontal"
+		android:paddingRight="@dimen/margin_activity_horizontal"
+		android:paddingStart="@dimen/margin_activity_horizontal"
+		android:paddingTop="@dimen/margin_activity_vertical"
 		android:scaleType="fitCenter"
 		android:src="@drawable/qr_code_intro"/>
 
@@ -31,7 +29,13 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:orientation="vertical"
+			android:paddingBottom="@dimen/margin_activity_vertical"
+			android:paddingEnd="@dimen/margin_activity_horizontal"
+			android:paddingLeft="@dimen/margin_activity_horizontal"
+			android:paddingRight="@dimen/margin_activity_horizontal"
+			android:paddingStart="@dimen/margin_activity_horizontal"
+			android:paddingTop="@dimen/margin_activity_vertical">
 
 			<TextView
 				android:id="@+id/yourNicknameView"
@@ -46,17 +50,34 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/margin_medium"
-				android:background="@drawable/spinner_border"
+				android:background="@drawable/border_spinner"
 				android:spinnerMode="dropdown"
 				android:visibility="gone"/>
 
-			<TextView
-				android:id="@+id/faceToFaceView"
-				style="@style/BriarTextBody"
+			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="@dimen/margin_medium"
-				android:text="@string/face_to_face"/>
+				android:background="@drawable/border_explanation"
+				android:orientation="vertical"
+				android:padding="@dimen/margin_large">
+
+				<ImageView
+					android:id="@+id/explanationView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:adjustViewBounds="true"
+					android:padding="@dimen/margin_medium"
+					android:src="@drawable/qr_code_explanation"/>
+
+				<TextView
+					android:id="@+id/faceToFaceView"
+					style="@style/BriarTextBody"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/margin_medium"
+					android:text="@string/face_to_face"/>
+
+			</LinearLayout>
 
 			<Button
 				android:id="@+id/continueButton"
