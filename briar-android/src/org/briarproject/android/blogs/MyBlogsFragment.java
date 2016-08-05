@@ -82,6 +82,7 @@ public class MyBlogsFragment extends BaseFragment {
 	public void onResume() {
 		super.onResume();
 		adapter.clear();
+		list.showProgressBar();
 		loadBlogs();
 	}
 

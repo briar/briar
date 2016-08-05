@@ -140,6 +140,7 @@ public class ContactChooserFragment extends BaseFragment {
 	public void onPause() {
 		super.onPause();
 		adapter.clear();
+		list.showProgressBar();
 	}
 
 	@Override

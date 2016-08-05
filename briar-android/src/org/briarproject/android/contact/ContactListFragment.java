@@ -192,8 +192,9 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		adapter.clear();
 		eventBus.removeListener(this);
+		adapter.clear();
+		list.showProgressBar();
 		list.stopPeriodicUpdate();
 	}
 
