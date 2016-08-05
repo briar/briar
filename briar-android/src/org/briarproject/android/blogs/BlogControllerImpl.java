@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.support.annotation.Nullable;
 
 import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogManager;
@@ -173,6 +174,27 @@ public class BlogControllerImpl extends DbControllerImpl
 			i++;
 		}
 		return null;
+	}
+
+	@Override
+	public void canDeleteBlog(final GroupId g,
+			final ResultExceptionHandler<Boolean, DbException> resultHandler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				if (groupId == null) {
+					resultHandler.onResult(false);
+					return;
+				}
+				try {
+					resultHandler.onResult(blogManager.canBeRemoved(groupId));
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					resultHandler.onException(e);
+				}
+			}
+		});
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -73,17 +74,19 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
+	private final ContactManager contactManager;
 	private final BlogFactory blogFactory;
 	private final List<RemoveBlogHook> removeHooks;
 
 	@Inject
 	BlogManagerImpl(DatabaseComponent db, IdentityManager identityManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
-			BlogFactory blogFactory) {
+			ContactManager contactManager, BlogFactory blogFactory) {
 		super(clientHelper, metadataParser);
 
 		this.db = db;
 		this.identityManager = identityManager;
+		this.contactManager = contactManager;
 		this.blogFactory = blogFactory;
 		removeHooks = new CopyOnWriteArrayList<RemoveBlogHook>();
 	}
@@ -190,10 +193,35 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
+	public boolean canBeRemoved(GroupId g) throws DbException {
+		Transaction txn = db.startTransaction(true);
+		try {
+			boolean canBeRemoved = canBeRemoved(txn, g);
+			txn.setComplete();
+			return canBeRemoved;
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	private boolean canBeRemoved(Transaction txn, GroupId g)
+			throws DbException {
+		boolean canBeRemoved;
+		Blog b = getBlog(txn, g);
+		AuthorId authorId = b.getAuthor().getId();
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		canBeRemoved = !contactManager
+				.contactExists(txn, authorId, localAuthor.getId());
+		return canBeRemoved;
+	}
+
+	@Override
 	public void removeBlog(Blog b) throws DbException {
 		// TODO if this gets used, check for RSS feeds posting into this blog
 		Transaction txn = db.startTransaction(false);
 		try {
+			if (!canBeRemoved(txn, b.getId()))
+				throw new DbException();
 			for (RemoveBlogHook hook : removeHooks)
 				hook.removingBlog(txn, b);
 			db.removeGroup(txn, b.getGroup());

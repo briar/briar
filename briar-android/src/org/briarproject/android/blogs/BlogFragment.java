@@ -21,11 +21,13 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.blogs.BlogController.BlogPostListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.sharing.ShareBlogActivity;
 import org.briarproject.android.sharing.SharingStatusBlogActivity;
 import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
@@ -57,6 +59,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	private boolean myBlog;
 	private BlogPostAdapter adapter;
 	private BriarRecyclerView list;
+	private MenuItem deleteButton = null;
 
 	static BlogFragment newInstance(GroupId groupId, String name,
 			boolean myBlog, boolean isNew) {
@@ -124,6 +127,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	public void onStart() {
 		super.onStart();
 		loadData(false);
+		if (!myBlog) checkIfBlogCanBeDeleted();
 	}
 
 	@Override
@@ -144,6 +148,8 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 			inflater.inflate(R.menu.blogs_my_blog_actions, menu);
 		} else {
 			inflater.inflate(R.menu.blogs_blog_actions, menu);
+			deleteButton = menu.findItem(R.id.action_blog_delete);
+			deleteButton.setVisible(false);
 		}
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -178,6 +184,9 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
 				startActivity(i3, options.toBundle());
+				return true;
+			case R.id.action_blog_delete:
+				showDeleteDialog();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -232,6 +241,28 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 		loadData(true);
 	}
 
+	private void checkIfBlogCanBeDeleted() {
+		blogController.canDeleteBlog(groupId,
+				new UiResultExceptionHandler<Boolean, DbException>(
+						getActivity()) {
+					@Override
+					public void onResultUi(Boolean canBeDeleted) {
+						if (canBeDeleted) {
+							showDeleteButton();
+						}
+					}
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// nothing to do here, delete button is already hidden
+					}
+				});
+	}
+
+	private void showDeleteButton() {
+		if (deleteButton != null)
+			deleteButton.setVisible(true);
+	}
+
 	private void displaySnackbar(int stringId) {
 		Snackbar snackbar =
 				Snackbar.make(list, stringId, Snackbar.LENGTH_SHORT);
@@ -249,11 +280,11 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 				};
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
 				R.style.BriarDialogTheme);
-		builder.setTitle(getString(R.string.blogs_delete_blog));
+		builder.setTitle(getString(R.string.blogs_remove_blog));
 		builder.setMessage(
-				getString(R.string.blogs_delete_blog_dialog_message));
-		builder.setPositiveButton(R.string.blogs_delete_blog_cancel, null);
-		builder.setNegativeButton(R.string.blogs_delete_blog_ok, okListener);
+				getString(R.string.blogs_remove_blog_dialog_message));
+		builder.setPositiveButton(R.string.cancel_button, null);
+		builder.setNegativeButton(R.string.blogs_remove_blog_ok, okListener);
 		builder.show();
 	}
 
@@ -264,7 +295,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 					public void onResultUi(Boolean result) {
 						if (!result) return;
 						Toast.makeText(getActivity(),
-								R.string.blogs_blog_deleted, LENGTH_SHORT)
+								R.string.blogs_blog_removed, LENGTH_SHORT)
 								.show();
 						getActivity().supportFinishAfterTransition();
 					}

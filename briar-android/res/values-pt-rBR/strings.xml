@@ -267,13 +267,12 @@ Ou o autor não não postou nada ainda, ou a pessoa que compartilhou esse Blog c
   <string name="blogs_feed_empty_state">Esse é o feed de blog global.
 Parece que ninguém postou nada, ainda.
 Seja o primeiro a postar e clique no ícone da caneta para escrever um novo Post pro Blog.</string>
-  <string name="blogs_delete_blog">Deletar Blog</string>
-  <string name="blogs_delete_blog_dialog_message">Você ter certeza que quer deletar esse Blog e todos seus Posts?
-Note que isso não irá deletar o Blog dos dispositivos de outras pessoas. </string>
-  <string name="blogs_delete_blog_ok">Deletar Blog</string>
-  <string name="blogs_delete_blog_cancel">Manter</string>
-  <string name="blogs_blog_deleted">Blog Deletado</string>
   <string name="blogs_remove_blog">Remover Blog</string>
+  <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer deletar esse Blog e todos seus Posts?
+Note que isso não irá deletar o Blog dos dispositivos de outras pessoas. </string>
+  <string name="blogs_remove_blog_ok">Deletar Blog</string>
+  <string name="blogs_delete_blog_cancel">Manter</string>
+  <string name="blogs_blog_removed">Blog Deletado</string>
   <string name="blogs_blog_list">Lista de blogs</string>
   <string name="blogs_available_blogs">Blogs Disponíveis </string>
   <string name="blogs_drafts">Rascunhos</string>

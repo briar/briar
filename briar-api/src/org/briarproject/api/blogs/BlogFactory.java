@@ -1,7 +1,6 @@
 package org.briarproject.api.blogs;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.contact.Contact;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Group;
 import org.jetbrains.annotations.NotNull;

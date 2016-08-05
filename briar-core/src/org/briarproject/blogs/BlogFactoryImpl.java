@@ -4,7 +4,6 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.contact.Contact;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
@@ -32,18 +31,13 @@ class BlogFactoryImpl implements BlogFactory {
 	}
 
 	@Override
-	public Blog createBlog(@NotNull String name, @NotNull String description,
-			@NotNull Author author) {
-		return createBlog(name, description, author, false);
+	public Blog createPersonalBlog(@NotNull Author a) {
+		return createBlog(PERSONAL_BLOG_NAME, "", a);
 	}
 
 	@Override
-	public Blog createPersonalBlog(@NotNull Author a) {
-		return createBlog(PERSONAL_BLOG_NAME, "", a, true);
-	}
-
-	private Blog createBlog(@NotNull String name, @NotNull String description,
-			@NotNull Author author, boolean permanent) {
+	public Blog createBlog(@NotNull String name, @NotNull String description,
+			@NotNull Author author) {
 		try {
 			BdfList blog = BdfList.of(
 					name,
@@ -53,7 +47,7 @@ class BlogFactoryImpl implements BlogFactory {
 			byte[] descriptor = clientHelper.toByteArray(blog);
 			Group g = groupFactory
 					.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
-			return new Blog(g, name, description, author, permanent);
+			return new Blog(g, name, description, author);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -66,11 +60,10 @@ class BlogFactoryImpl implements BlogFactory {
 		byte[] descriptor = g.getDescriptor();
 		// Blog Name, Author Name, Public Key
 		BdfList blog = clientHelper.toList(descriptor, 0, descriptor.length);
+		String name = blog.getString(0);
 		Author a =
 				authorFactory.createAuthor(blog.getString(1), blog.getRaw(2));
-		// TODO change permanent depending on how this will be used
-		boolean permanent = true;
-		return new Blog(g, blog.getString(0), description, a, permanent);
+		return new Blog(g, name, description, a);
 	}
 
 }

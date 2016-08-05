@@ -33,7 +33,9 @@ import org.briarproject.sync.SyncModule;
 import org.briarproject.transport.TransportModule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -93,6 +95,9 @@ public class BlogManagerTest {
 			Logger.getLogger(ForumSharingIntegrationTest.class.getName());
 
 	private BlogManagerTestComponent t0, t1;
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void setUp() throws Exception {
@@ -249,6 +254,7 @@ public class BlogManagerTest {
 		assertEquals(3, blogs0.size());
 		assertTrue(blogs0.contains(blog));
 		assertEquals(2, blogManager0.getBlogs(author0).size());
+		assertTrue(blogManager0.canBeRemoved(blog.getId()));
 
 		// remove blog
 		blogManager0.removeBlog(blog);
@@ -256,6 +262,27 @@ public class BlogManagerTest {
 		assertEquals(2, blogs0.size());
 		assertFalse(blogs0.contains(blog));
 		assertEquals(1, blogManager0.getBlogs(author0).size());
+
+		stopLifecycles();
+	}
+
+	@Test
+	public void testCanNotRemoveContactsPersonalBlog() throws Exception {
+		startLifecycles();
+		defaultInit();
+
+		assertFalse(blogManager0.canBeRemoved(blog1.getId()));
+		assertFalse(blogManager1.canBeRemoved(blog0.getId()));
+
+		// the following two calls should throw a DbException now
+		thrown.expect(DbException.class);
+
+		blogManager0.removeBlog(blog1);
+		blogManager1.removeBlog(blog0);
+
+		// blogs have not been removed
+		assertEquals(2, blogManager0.getBlogs().size());
+		assertEquals(2, blogManager1.getBlogs().size());
 
 		stopLifecycles();
 	}

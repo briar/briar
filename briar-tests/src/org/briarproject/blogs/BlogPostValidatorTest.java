@@ -67,7 +67,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		AuthorId authorId = new AuthorId(TestUtils.getRandomBytes(AuthorId.LENGTH));
 		byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		author = new Author(authorId, "Author", publicKey);
-		blog = new Blog(group, "Test Blog", "", author, false);
+		blog = new Blog(group, "Test Blog", "", author);
 
 		MessageId messageId = new MessageId(TestUtils.getRandomId());
 		long timestamp = System.currentTimeMillis();

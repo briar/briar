@@ -9,6 +9,7 @@ import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -59,6 +60,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
 	private final MetadataParser metadataParser =
 			context.mock(MetadataParser.class);
+	private final ContactManager contactManager =
+			context.mock(ContactManager.class);
 	private final BlogFactory blogFactory = context.mock(BlogFactory.class);
 
 	private final Blog blog1, blog2;
@@ -67,7 +70,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	public BlogManagerImplTest() {
 		blogManager = new BlogManagerImpl(db, identityManager, clientHelper,
-				metadataParser, blogFactory);
+				metadataParser, contactManager, blogFactory);
 
 		blog1 = getBlog("Test Blog 1", "Test Description 1");
 		blog2 = getBlog("Test Blog 2", "Test Description 2");
@@ -246,6 +249,17 @@ public class BlogManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
+			oneOf(db).getGroup(txn, blog1.getId());
+			will(returnValue(blog1.getGroup()));
+			oneOf(clientHelper)
+					.getGroupMetadataAsDictionary(txn, blog1.getId());
+			oneOf(blogFactory).parseBlog(blog1.getGroup(), "");
+			will(returnValue(blog1));
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(blog2.getAuthor()));
+			oneOf(contactManager).contactExists(txn, blog1.getAuthor().getId(),
+					blog2.getAuthor().getId());
+			will(returnValue(false));
 			oneOf(db).removeGroup(txn, blog1.getGroup());
 			oneOf(db).endTransaction(txn);
 		}});
@@ -306,7 +320,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		final LocalAuthor localAuthor =
 				new LocalAuthor(authorId, "Author", publicKey, privateKey,
 						created);
-		return new Blog(group, name, desc, localAuthor, false);
+		return new Blog(group, name, desc, localAuthor);
 	}
 
 	private BdfDictionary authorToBdfDictionary(Author a) {

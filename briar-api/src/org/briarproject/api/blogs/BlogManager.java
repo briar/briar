@@ -20,6 +20,9 @@ public interface BlogManager {
 	Blog addBlog(LocalAuthor localAuthor, String name, String description)
 			throws DbException;
 
+	/** Returns true if a blog can be removed. */
+	boolean canBeRemoved(GroupId g) throws DbException;
+
 	/** Removes and deletes a blog. */
 	void removeBlog(Blog b) throws DbException;
 
