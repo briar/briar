@@ -225,6 +225,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 					protected void onPostExecute(Camera camera) {
 						if (camera == null) {
 							// TODO better solution?
+							LOG.info("No Camera found, finishing...");
 							getActivity().finish();
 						} else {
 							cameraView.start(camera, decoder, 0);

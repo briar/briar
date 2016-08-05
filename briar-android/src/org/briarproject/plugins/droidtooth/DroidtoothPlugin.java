@@ -261,7 +261,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	@Override
 	public boolean isRunning() {
-		return running && adapter.isEnabled();
+		return running && adapter != null && adapter.isEnabled();
 	}
 
 	@Override
@@ -446,6 +446,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
+		if (!isRunning()) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		UUID uuid = UUID.nameUUIDFromBytes(commitment);
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
@@ -616,7 +617,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 		private final BluetoothServerSocket ss;
 
-		public BluetoothKeyAgreementListener(TransportDescriptor descriptor,
+		BluetoothKeyAgreementListener(TransportDescriptor descriptor,
 				BluetoothServerSocket ss) {
 			super(descriptor);
 			this.ss = ss;

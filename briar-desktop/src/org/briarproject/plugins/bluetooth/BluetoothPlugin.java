@@ -363,6 +363,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
+		if (!running) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
@@ -490,7 +491,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 		private final StreamConnectionNotifier ss;
 
-		public BluetoothKeyAgreementListener(TransportDescriptor descriptor,
+		BluetoothKeyAgreementListener(TransportDescriptor descriptor,
 				StreamConnectionNotifier ss) {
 			super(descriptor);
 			this.ss = ss;

@@ -51,7 +51,7 @@ class KeyAgreementConnector {
 	private volatile boolean connecting = false;
 	private volatile boolean alice = false;
 
-	public KeyAgreementConnector(Callbacks callbacks, Clock clock,
+	KeyAgreementConnector(Callbacks callbacks, Clock clock,
 			CryptoComponent crypto, PluginManager pluginManager,
 			Executor ioExecutor) {
 		this.callbacks = callbacks;
@@ -83,7 +83,7 @@ class KeyAgreementConnector {
 		return new Payload(commitment, descriptors);
 	}
 
-	public void stopListening() {
+	void stopListening() {
 		LOG.info("Stopping BQP listeners");
 		for (KeyAgreementListener l : listeners) {
 			l.close();

@@ -86,7 +86,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	public void stop() {
 		stopPreview();
 		try {
-			camera.release();
+			if (camera != null)
+				camera.release();
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error releasing camera", e);
 		}
@@ -106,7 +107,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private void stopPreview() {
 		try {
 			stopConsumer();
-			camera.stopPreview();
+			if (camera != null)
+				camera.stopPreview();
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error stopping camera preview", e);
 		}
@@ -118,7 +120,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	public void stopConsumer() {
-		previewConsumer.stop();
+		if (previewConsumer != null) {
+			previewConsumer.stop();
+		}
 		if (autoFocus) camera.cancelAutoFocus();
 	}
 
