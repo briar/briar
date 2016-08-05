@@ -111,8 +111,7 @@ public class ForumActivity extends BriarActivity implements
 		recyclerView.setAdapter(forumAdapter);
 		linearLayoutManager = new LinearLayoutManager(this);
 		recyclerView.setLayoutManager(linearLayoutManager);
-		recyclerView.setEmptyText(getString(R.string.no_forum_posts));
-		recyclerView.showProgressBar();
+		recyclerView.setEmptyText(R.string.no_forum_posts);
 
 		forumController.loadForum(groupId, new UiResultHandler<Boolean>(this) {
 			@Override
@@ -120,13 +119,18 @@ public class ForumActivity extends BriarActivity implements
 				if (result) {
 					Forum forum = forumController.getForum();
 					if (forum != null) setTitle(forum.getName());
-					forumAdapter.setEntries(forumController.getForumEntries());
-					if (state != null) {
-						byte[] replyId = state.getByteArray(KEY_REPLY_ID);
-						if (replyId != null)
-							forumAdapter.setReplyEntryById(replyId);
+					List<ForumEntry> entries =
+							forumController.getForumEntries();
+					if (entries.isEmpty()) {
+						recyclerView.showData();
+					} else {
+						forumAdapter.setEntries(entries);
+						if (state != null) {
+							byte[] replyId = state.getByteArray(KEY_REPLY_ID);
+							if (replyId != null)
+								forumAdapter.setReplyEntryById(replyId);
+						}
 					}
-					recyclerView.showData();
 				} else {
 					// TODO Maybe an error dialog ?
 					finish();
@@ -383,6 +387,7 @@ public class ForumActivity extends BriarActivity implements
 		void setEntries(List<ForumEntry> entries) {
 			forumEntries.clear();
 			forumEntries.addAll(entries);
+			notifyItemRangeInserted(0, entries.size());
 		}
 
 		void addEntry(int index, ForumEntry entry, boolean isScrolling) {
@@ -494,7 +499,7 @@ public class ForumActivity extends BriarActivity implements
 			return indexList;
 		}
 
-		public void showDescendants(ForumEntry forumEntry) {
+		void showDescendants(ForumEntry forumEntry) {
 			forumEntry.setShowingDescendants(true);
 			int visiblePos = getVisiblePos(forumEntry);
 			List<Integer> indexList =
@@ -509,7 +514,7 @@ public class ForumActivity extends BriarActivity implements
 			}
 		}
 
-		public void hideDescendants(ForumEntry forumEntry) {
+		void hideDescendants(ForumEntry forumEntry) {
 			int visiblePos = getVisiblePos(forumEntry);
 			List<Integer> indexList =
 					getSubTreeIndexes(visiblePos, forumEntry.getLevel());
@@ -536,7 +541,7 @@ public class ForumActivity extends BriarActivity implements
 
 
 		@Nullable
-		public ForumEntry getVisibleEntry(int position) {
+		ForumEntry getVisibleEntry(int position) {
 			int levelLimit = UNDEFINED;
 			for (ForumEntry forumEntry : forumEntries) {
 				if (levelLimit >= 0) {
