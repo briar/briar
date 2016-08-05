@@ -198,7 +198,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		assertTrue(listener0.responseReceived);
 
 		// blog was added successfully
-		assertEquals(0, blogSharingManager0.getInvited().size());
+		assertEquals(0, blogSharingManager0.getInvitations().size());
 		assertEquals(3, blogManager1.getBlogs().size());
 
 		// invitee has one invitation message from sharer
@@ -257,10 +257,10 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		assertTrue(listener0.responseReceived);
 
 		// blog was not added
-		assertEquals(0, blogSharingManager0.getInvited().size());
+		assertEquals(0, blogSharingManager0.getInvitations().size());
 		assertEquals(2, blogManager1.getBlogs().size());
 		// blog is no longer available to invitee who declined
-		assertEquals(0, blogSharingManager1.getInvited().size());
+		assertEquals(0, blogSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
 		List<InvitationMessage> list =
@@ -317,7 +317,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		assertTrue(listener0.responseReceived);
 
 		// blog was added successfully
-		assertEquals(0, blogSharingManager0.getInvited().size());
+		assertEquals(0, blogSharingManager0.getInvitations().size());
 		assertEquals(3, blogManager1.getBlogs().size());
 		assertTrue(blogManager1.getBlogs().contains(blog2));
 
@@ -335,7 +335,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		sync1To0();
 
 		// blog is gone
-		assertEquals(0, blogSharingManager0.getInvited().size());
+		assertEquals(0, blogSharingManager0.getInvitations().size());
 		assertEquals(2, blogManager1.getBlogs().size());
 
 		// sharer no longer shares blog with invitee
@@ -396,7 +396,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		assertTrue(listener0.responseReceived);
 
 		// blog was not added, because it was there already
-		assertEquals(0, blogSharingManager0.getInvited().size());
+		assertEquals(0, blogSharingManager0.getInvitations().size());
 		assertEquals(3, blogManager1.getBlogs().size());
 
 		stopLifecycles();
@@ -495,7 +495,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 				Blog b = event.getBlog();
 				try {
 					eventWaiter.assertEquals(1,
-							blogSharingManager1.getInvited().size());
+							blogSharingManager1.getInvitations().size());
 					Contact c =
 							contactManager1.getContact(event.getContactId());
 					blogSharingManager1.respondToInvitation(b, c, accept);

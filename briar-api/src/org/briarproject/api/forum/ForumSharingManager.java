@@ -3,6 +3,7 @@ package org.briarproject.api.forum;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.SharingManager;
 import org.briarproject.api.sync.ClientId;
@@ -36,7 +37,7 @@ public interface ForumSharingManager extends SharingManager<Forum> {
 			ContactId contactId) throws DbException;
 
 	/** Returns all forums to which the user has been invited. */
-	Collection<Forum> getInvited() throws DbException;
+	Collection<InvitationItem> getInvitations() throws DbException;
 
 	/** Returns all contacts who are sharing the given forum with us. */
 	Collection<Contact> getSharedBy(GroupId g) throws DbException;

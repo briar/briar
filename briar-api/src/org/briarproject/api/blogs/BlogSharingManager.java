@@ -3,6 +3,7 @@ package org.briarproject.api.blogs;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.SharingManager;
 import org.briarproject.api.sync.ClientId;
@@ -40,7 +41,7 @@ public interface BlogSharingManager extends SharingManager<Blog> {
 	/**
 	 * Returns all blogs to which the user has been invited.
 	 */
-	Collection<Blog> getInvited() throws DbException;
+	Collection<InvitationItem> getInvitations() throws DbException;
 
 	/**
 	 * Returns all contacts who are sharing the given blog with us.

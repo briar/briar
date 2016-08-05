@@ -6,7 +6,6 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.event.GroupAddedEvent;
@@ -14,6 +13,7 @@ import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.api.sync.ClientId;
 
 import java.util.ArrayList;
@@ -71,30 +71,18 @@ public class InvitationsForumActivity extends InvitationsActivity {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
+				Collection<InvitationItem> invitations = new ArrayList<>();
 				try {
-					Collection<InvitationItem> forums = new ArrayList<>();
 					long now = System.currentTimeMillis();
-					for (Forum f : forumSharingManager.getInvited()) {
-						boolean subscribed;
-						try {
-							forumManager.getForum(f.getId());
-							subscribed = true;
-						} catch (NoSuchGroupException e) {
-							subscribed = false;
-						}
-						Collection<Contact> c =
-								forumSharingManager.getSharedBy(f.getId());
-						forums.add(
-								new InvitationItem(f, subscribed, c));
-					}
+					invitations.addAll(forumSharingManager.getInvitations());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayInvitations(forums, clear);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
+				displayInvitations(invitations, clear);
 			}
 		});
 	}
@@ -106,7 +94,7 @@ public class InvitationsForumActivity extends InvitationsActivity {
 			public void run() {
 				try {
 					Forum f = (Forum) item.getShareable();
-					for (Contact c : item.getContacts()) {
+					for (Contact c : item.getNewSharers()) {
 						forumSharingManager.respondToInvitation(f, c, accept);
 					}
 				} catch (DbException e) {

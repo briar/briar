@@ -189,7 +189,7 @@ public class ForumListFragment extends BaseEventFragment implements
 				try {
 					long now = System.currentTimeMillis();
 					int available =
-							forumSharingManager.getInvited().size();
+							forumSharingManager.getInvitations().size();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
@@ -206,6 +206,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				if (getActivity() == null) return;
 				if (availableCount == 0) {
 					snackbar.dismiss();
 				} else {

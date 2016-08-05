@@ -9,11 +9,11 @@ import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.BlogInvitationReceivedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
+import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.api.sync.ClientId;
 
 import java.util.ArrayList;
@@ -71,30 +71,18 @@ public class InvitationsBlogActivity extends InvitationsActivity {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
+				Collection<InvitationItem> invitations = new ArrayList<>();
 				try {
-					Collection<InvitationItem> invitations = new ArrayList<>();
 					long now = System.currentTimeMillis();
-					for (Blog b : blogSharingManager.getInvited()) {
-						boolean subscribed;
-						try {
-							blogManager.getBlog(b.getId());
-							subscribed = true;
-						} catch (NoSuchGroupException e) {
-							subscribed = false;
-						}
-						Collection<Contact> c =
-								blogSharingManager.getSharedBy(b.getId());
-						invitations.add(
-								new InvitationItem(b, subscribed, c));
-					}
+					invitations.addAll(blogSharingManager.getInvitations());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayInvitations(invitations, clear);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
+				displayInvitations(invitations, clear);
 			}
 		});
 	}
@@ -106,7 +94,7 @@ public class InvitationsBlogActivity extends InvitationsActivity {
 			public void run() {
 				try {
 					Blog b = (Blog) item.getShareable();
-					for (Contact c : item.getContacts()) {
+					for (Contact c : item.getNewSharers()) {
 						blogSharingManager.respondToInvitation(b, c, accept);
 					}
 				} catch (DbException e) {

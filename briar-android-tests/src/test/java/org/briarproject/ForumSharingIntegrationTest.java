@@ -36,6 +36,7 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -186,7 +187,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was added successfully
-			assertEquals(0, forumSharingManager0.getInvited().size());
+			assertEquals(0, forumSharingManager0.getInvitations().size());
 			assertEquals(1, forumManager1.getForums().size());
 
 			// invitee has one invitation message from sharer
@@ -247,10 +248,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was not added
-			assertEquals(0, forumSharingManager0.getInvited().size());
+			assertEquals(0, forumSharingManager0.getInvitations().size());
 			assertEquals(0, forumManager1.getForums().size());
 			// forum is no longer available to invitee who declined
-			assertEquals(0, forumSharingManager1.getInvited().size());
+			assertEquals(0, forumSharingManager1.getInvitations().size());
 
 			// invitee has one invitation message from sharer and one response
 			List<InvitationMessage> list =
@@ -308,7 +309,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was added successfully
-			assertEquals(0, forumSharingManager0.getInvited().size());
+			assertEquals(0, forumSharingManager0.getInvitations().size());
 			assertEquals(1, forumManager1.getForums().size());
 			assertTrue(forumManager1.getForums().contains(forum0));
 
@@ -328,7 +329,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			syncToSharer();
 
 			// forum is gone
-			assertEquals(0, forumSharingManager0.getInvited().size());
+			assertEquals(0, forumSharingManager0.getInvitations().size());
 			assertEquals(0, forumManager1.getForums().size());
 
 			// sharer no longer shares forum with invitee
@@ -368,7 +369,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertTrue(listener0.responseReceived);
 
 			// forum was added successfully
-			assertEquals(0, forumSharingManager0.getInvited().size());
+			assertEquals(0, forumSharingManager0.getInvitations().size());
 			assertEquals(1, forumManager1.getForums().size());
 			assertTrue(forumManager1.getForums().contains(forum0));
 
@@ -431,7 +432,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			msgWaiter.await(TIMEOUT, 1);
 
 			// ensure that invitee has no forum invitations available
-			assertEquals(0, forumSharingManager1.getInvited().size());
+			assertEquals(0, forumSharingManager1.getInvitations().size());
 			assertEquals(0, forumManager1.getForums().size());
 
 			// Try again, this time allow the response
@@ -454,7 +455,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			msgWaiter.await(TIMEOUT, 1);
 
 			// ensure that invitee has no forum invitations available
-			assertEquals(0, forumSharingManager1.getInvited().size());
+			assertEquals(0, forumSharingManager1.getInvitations().size());
 			assertEquals(1, forumManager1.getForums().size());
 		} finally {
 			stopLifecycles();
@@ -570,6 +571,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			assertEquals(2,
 					forumSharingManager0.getInvitationMessages(contactId1)
 							.size());
+			assertEquals(0, forumSharingManager0.getInvitations().size());
 		} finally {
 			stopLifecycles();
 		}
@@ -767,8 +769,11 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 					"Sharer2 to Invitee");
 
 			// make sure we now have two invitations to the same forum available
-			Collection<Forum> forums = forumSharingManager1.getInvited();
+			Collection<InvitationItem> forums =
+					forumSharingManager1.getInvitations();
 			assertEquals(1, forums.size());
+			assertEquals(2, forums.iterator().next().getNewSharers().size());
+			assertEquals(forum0, forums.iterator().next().getShareable());
 			assertEquals(2,
 					forumSharingManager1.getSharedBy(forum0.getId()).size());
 
@@ -1005,13 +1010,16 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				Forum f = event.getForum();
 				try {
 					eventWaiter.assertEquals(1,
-							forumSharingManager1.getInvited().size());
-					if (respond) {
-						Contact c =
-								contactManager1
-										.getContact(event.getContactId());
-						forumSharingManager1.respondToInvitation(f, c, accept);
-					}
+							forumSharingManager1.getInvitations().size());
+					InvitationItem invitation =
+							forumSharingManager1.getInvitations().iterator()
+									.next();
+					eventWaiter.assertEquals(f, invitation.getShareable());
+				if (respond) {
+					Contact c =
+							contactManager1.getContact(event.getContactId());
+					forumSharingManager1.respondToInvitation(f, c, accept);
+				}
 				} catch (DbException ex) {
 					eventWaiter.rethrow(ex);
 				} finally {

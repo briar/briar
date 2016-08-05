@@ -12,6 +12,7 @@ import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
+import org.briarproject.api.sharing.InvitationItem;
 
 import java.util.Collection;
 import java.util.logging.Logger;
