@@ -134,8 +134,10 @@ android {
 	}
 
 	lintOptions {
-		abortOnError false
+		warning 'MissingTranslation'
+		warning 'ImpliedQuantity'
 	}
+
 	dexOptions {
 		incremental true
 	}

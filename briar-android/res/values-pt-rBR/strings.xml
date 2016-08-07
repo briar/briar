@@ -8,7 +8,6 @@
   <string name="describe_crash">Descreva o que aconteceu</string>
   <string name="enter_feedback">Digite seu comentário</string>
   <string name="optional_contact_email">Email de contato opcional</string>
-  <string name="include_debug_report">Incluir relatório de depuração?</string>
   <string name="could_not_load_report_data">Não foi possível carregar os dados do relatório.</string>
   <string name="dev_report_saved">Relatório salvo. Ele será enviado na próxima vez em que você entrar no Briar.</string>
   <string name="ongoing_notification_title">Conectado ao Briar</string>
@@ -220,8 +219,6 @@
   <string name="dialog_message_connect_panic_app">Você tem certeza que quer permitir que %1$s ative ações destrutivas do botão de pânico?</string>
   <string name="dialog_title_welcome">Bem-vindo ao Briar</string>
   <string name="dialog_welcome_message">Adicione um contato para começar uma comunicação segura ou pressione o ícone na parte superior direita da tela para mais opções.</string>
-  <string name="dialog_title_share_crash_report">Briar encerrou de maneira inesperada</string>
-  <string name="dialog_message_share_crash_report">Você gostaria de ver o relatório de falha e enviá-lo aos desenvolvedores? Ele será armazenado de maneira criptografada no seu dispositivo até a próxima vez que você entrar no Briar, então será enviado seguramente aos desenvolvedores.</string>
   <string name="dialog_title_leave_forum">Confirmar saída do fórum</string>
   <string name="dialog_message_leave_forum">Você tem certeza que deseja sair deste fórum? Seus contatos com quem você o compartilhou podem deixar de receber notificações dele.</string>
   <string name="dialog_button_ok">OK</string>
@@ -234,7 +231,6 @@
   <string name="settings_toolbar_header">Configurações</string>
   <string name="contacts_toolbar_header">Contatos</string>
   <string name="forums_toolbar_header">Fóruns</string>
-  <string name="forums_share_toolbar_header">Escolher contatos</string>
   <!--Progress titles-->
   <string name="progress_title_logout">Desconectando do Briar...</string>
   <string name="progress_title_please_wait">Por favor, aguarde</string>
@@ -271,7 +267,6 @@ Seja o primeiro a postar e clique no ícone da caneta para escrever um novo Post
   <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer deletar esse Blog e todos seus Posts?
 Note que isso não irá deletar o Blog dos dispositivos de outras pessoas. </string>
   <string name="blogs_remove_blog_ok">Deletar Blog</string>
-  <string name="blogs_delete_blog_cancel">Manter</string>
   <string name="blogs_blog_removed">Blog Deletado</string>
   <string name="blogs_blog_list">Lista de blogs</string>
   <string name="blogs_available_blogs">Blogs Disponíveis </string>
