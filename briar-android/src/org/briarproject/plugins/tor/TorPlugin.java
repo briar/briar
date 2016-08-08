@@ -150,74 +150,64 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public boolean start() throws IOException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		// Try to connect to an existing Tor process if there is one
-		boolean startProcess = false;
+		// Install the binary, possibly overwriting an older version
+		if (!installBinary()) {
+			LOG.warning("Could not install Tor binary");
+			return false;
+		}
+		// Install the GeoIP database and config file if necessary
+		if (!isConfigInstalled() && !installConfig()) {
+			LOG.warning("Could not install Tor config");
+			return false;
+		}
+		LOG.info("Starting Tor");
+		// Watch for the auth cookie file being updated
+		cookieFile.getParentFile().mkdirs();
+		cookieFile.createNewFile();
+		CountDownLatch latch = new CountDownLatch(1);
+		FileObserver obs = new WriteObserver(cookieFile, latch);
+		obs.startWatching();
+		// Start a new Tor process
+		String torPath = torFile.getAbsolutePath();
+		String configPath = configFile.getAbsolutePath();
+		String pid = String.valueOf(android.os.Process.myPid());
+		String[] cmd = {torPath, "-f", configPath, OWNER, pid};
+		String[] env = {"HOME=" + torDirectory.getAbsolutePath()};
+		Process torProcess;
 		try {
-			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
-			LOG.info("Tor is already running");
-		} catch (IOException e) {
-			LOG.info("Tor is not running");
-			startProcess = true;
-			// Install the binary, possibly overwriting an older version
-			if (!installBinary()) {
-				LOG.warning("Could not install Tor binary");
-				return false;
-			}
-			// Install the GeoIP database and config file if necessary
-			if (!isConfigInstalled() && !installConfig()) {
-				LOG.warning("Could not install Tor config");
-				return false;
-			}
-			LOG.info("Starting Tor");
-			// Watch for the auth cookie file being created/updated
-			cookieFile.getParentFile().mkdirs();
-			cookieFile.createNewFile();
-			CountDownLatch latch = new CountDownLatch(1);
-			FileObserver obs = new WriteObserver(cookieFile, latch);
-			obs.startWatching();
-			// Start a new Tor process
-			String torPath = torFile.getAbsolutePath();
-			String configPath = configFile.getAbsolutePath();
-			String pid = String.valueOf(android.os.Process.myPid());
-			String[] cmd = {torPath, "-f", configPath, OWNER, pid};
-			String[] env = {"HOME=" + torDirectory.getAbsolutePath()};
-			Process torProcess;
-			try {
-				torProcess = Runtime.getRuntime().exec(cmd, env, torDirectory);
-			} catch (SecurityException e1) {
+			torProcess = Runtime.getRuntime().exec(cmd, env, torDirectory);
+		} catch (SecurityException e1) {
+			if (LOG.isLoggable(WARNING))
+				LOG.log(WARNING, e1.toString(), e1);
+			return false;
+		}
+		// Log the process's standard output until it detaches
+		if (LOG.isLoggable(INFO)) {
+			Scanner stdout = new Scanner(torProcess.getInputStream());
+			while (stdout.hasNextLine()) LOG.info(stdout.nextLine());
+			stdout.close();
+		}
+		try {
+			// Wait for the process to detach or exit
+			int exit = torProcess.waitFor();
+			if (exit != 0) {
 				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e1.toString(), e1);
+					LOG.warning("Tor exited with value " + exit);
 				return false;
 			}
-			// Log the process's standard output until it detaches
-			if (LOG.isLoggable(INFO)) {
-				Scanner stdout = new Scanner(torProcess.getInputStream());
-				while (stdout.hasNextLine()) LOG.info(stdout.nextLine());
-				stdout.close();
-			}
-			try {
-				// Wait for the process to detach or exit
-				int exit = torProcess.waitFor();
-				if (exit != 0) {
-					if (LOG.isLoggable(WARNING))
-						LOG.warning("Tor exited with value " + exit);
-					return false;
-				}
-				// Wait for the auth cookie file to be created/updated
-				if (!latch.await(COOKIE_TIMEOUT, MILLISECONDS)) {
-					LOG.warning("Auth cookie not created");
-					if (LOG.isLoggable(INFO)) listFiles(torDirectory);
-					return false;
-				}
-			} catch (InterruptedException e1) {
-				LOG.warning("Interrupted while starting Tor");
-				Thread.currentThread().interrupt();
+			// Wait for the auth cookie file to be created/updated
+			if (!latch.await(COOKIE_TIMEOUT, MILLISECONDS)) {
+				LOG.warning("Auth cookie not created");
+				if (LOG.isLoggable(INFO)) listFiles(torDirectory);
 				return false;
 			}
-			// Now we should be able to connect to the new process
-			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
+		} catch (InterruptedException e1) {
+			LOG.warning("Interrupted while starting Tor");
+			Thread.currentThread().interrupt();
+			return false;
 		}
 		// Open a control connection and authenticate using the cookie file
+		controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 		controlConnection = new TorControlConnection(controlSocket);
 		controlConnection.authenticate(read(cookieFile));
 		// Tell Tor to exit when the control connection is closed
@@ -227,13 +217,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList(EVENTS));
-		// If Tor was already running, find out whether it's bootstrapped
-		if (!startProcess) {
-			String phase = controlConnection.getInfo("status/bootstrap-phase");
-			if (phase != null && phase.contains("PROGRESS=100")) {
-				LOG.info("Tor has already bootstrapped");
-				connectionStatus.setBootstrapped();
-			}
+		// Check whether Tor has already bootstrapped
+		String phase = controlConnection.getInfo("status/bootstrap-phase");
+		if (phase != null && phase.contains("PROGRESS=100")) {
+			LOG.info("Tor has already bootstrapped");
+			connectionStatus.setBootstrapped();
 		}
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
@@ -271,6 +259,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private boolean installConfig() {
+		LOG.info("Installing Tor config");
 		InputStream in = null;
 		OutputStream out = null;
 		try {
@@ -500,19 +489,15 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		tryToClose(socket);
 		if (networkStateReceiver != null)
 			appContext.unregisterReceiver(networkStateReceiver);
-		try {
-			LOG.info("Stopping Tor");
-			if (controlSocket == null)
-				controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
-			if (controlConnection == null) {
-				controlConnection = new TorControlConnection(controlSocket);
-				controlConnection.authenticate(read(cookieFile));
+		if (controlSocket != null && controlConnection != null) {
+			try {
+				LOG.info("Stopping Tor");
+				controlConnection.setConf("DisableNetwork", "1");
+				controlConnection.shutdownTor("TERM");
+				controlSocket.close();
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
-			controlConnection.setConf("DisableNetwork", "1");
-			controlConnection.shutdownTor("TERM");
-			controlSocket.close();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		wakeLock.release();
 	}
