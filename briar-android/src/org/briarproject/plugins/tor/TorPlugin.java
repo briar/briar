@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.FileObserver;
@@ -150,16 +153,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public boolean start() throws IOException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		// Install the binary, possibly overwriting an older version
-		if (!installBinary()) {
-			LOG.warning("Could not install Tor binary");
-			return false;
-		}
-		// Install the GeoIP database and config file if necessary
-		if (!isConfigInstalled() && !installConfig()) {
-			LOG.warning("Could not install Tor config");
-			return false;
-		}
+		// Install or update the assets if necessary
+		if (!assetsAreUpToDate()) installAssets();
 		LOG.info("Starting Tor");
 		// Watch for the auth cookie file being updated
 		cookieFile.getParentFile().mkdirs();
@@ -176,10 +171,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		Process torProcess;
 		try {
 			torProcess = Runtime.getRuntime().exec(cmd, env, torDirectory);
-		} catch (SecurityException e1) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e1.toString(), e1);
-			return false;
+		} catch (SecurityException e) {
+			throw new IOException(e);
 		}
 		// Log the process's standard output until it detaches
 		if (LOG.isLoggable(INFO)) {
@@ -201,7 +194,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				if (LOG.isLoggable(INFO)) listFiles(torDirectory);
 				return false;
 			}
-		} catch (InterruptedException e1) {
+		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while starting Tor");
 			Thread.currentThread().interrupt();
 			return false;
@@ -232,37 +225,27 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return true;
 	}
 
-	private boolean installBinary() {
+	private boolean assetsAreUpToDate() {
+		try {
+			PackageManager pm = appContext.getPackageManager();
+			PackageInfo pi = pm.getPackageInfo(appContext.getPackageName(), 0);
+			return doneFile.lastModified() > pi.lastUpdateTime;
+		} catch (NameNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void installAssets() throws IOException {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
+			doneFile.delete();
 			// Unzip the Tor binary to the filesystem
 			in = getTorInputStream();
 			out = new FileOutputStream(torFile);
 			copy(in, out);
 			// Make the Tor binary executable
-			if (!torFile.setExecutable(true, true)) {
-				LOG.warning("Could not make Tor binary executable");
-				return false;
-			}
-			return true;
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(in);
-			tryToClose(out);
-			return false;
-		}
-	}
-
-	private boolean isConfigInstalled() {
-		return geoIpFile.exists() && configFile.exists() && doneFile.exists();
-	}
-
-	private boolean installConfig() {
-		LOG.info("Installing Tor config");
-		InputStream in = null;
-		OutputStream out = null;
-		try {
+			if (!torFile.setExecutable(true, true)) throw new IOException();
 			// Unzip the GeoIP database to the filesystem
 			in = getGeoIpInputStream();
 			out = new FileOutputStream(geoIpFile);
@@ -271,14 +254,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
 			copy(in, out);
-			// Create a file to indicate that installation succeeded
 			doneFile.createNewFile();
-			return true;
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(in);
 			tryToClose(out);
-			return false;
+			throw e;
 		}
 	}
 
