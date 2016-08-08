@@ -22,11 +22,11 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.blogs.BlogController.BlogPostListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.sharing.ShareBlogActivity;
 import org.briarproject.android.sharing.SharingStatusBlogActivity;
 import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
@@ -59,7 +59,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	private boolean myBlog;
 	private BlogPostAdapter adapter;
 	private BriarRecyclerView list;
-	private MenuItem deleteButton = null;
+	private MenuItem deleteButton;
 
 	static BlogFragment newInstance(GroupId groupId, String name,
 			boolean myBlog, boolean isNew) {
@@ -85,7 +85,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 
 		Bundle args = getArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No Group found.");
+		if (b == null) throw new IllegalStateException("No group ID in args");
 		groupId = new GroupId(b);
 		blogName = args.getString(BLOG_NAME);
 		myBlog = args.getBoolean(IS_MY_BLOG);
@@ -126,19 +126,21 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	@Override
 	public void onStart() {
 		super.onStart();
-		loadData(false);
 		if (!myBlog) checkIfBlogCanBeDeleted();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+		loadBlogPosts(false);
 		list.startPeriodicUpdate();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
+		adapter.clear();
+		list.showProgressBar();
 		list.stopPeriodicUpdate();
 	}
 
@@ -208,41 +210,49 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	}
 
 	@Override
-	public void onBlogPostAdded(BlogPostItem post, boolean local) {
-		adapter.add(post);
-		if (local) list.scrollToPosition(0);
+	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
+		blogController.loadBlogPost(header,
+				new UiResultExceptionHandler<BlogPostItem, DbException>(
+						getActivity()) {
+					@Override
+					public void onResultUi(BlogPostItem post) {
+						adapter.add(post);
+						if (local) list.scrollToPosition(0);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						getActivity().finish();
+					}
+				}
+		);
 	}
 
-	private void loadData(final boolean reload) {
-		blogController.loadBlog(groupId, reload,
-				new UiResultHandler<Boolean>(getActivity()) {
+	void loadBlogPosts(final boolean reload) {
+		blogController.loadBlogPosts(
+				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
+						getActivity()) {
 					@Override
-					public void onResultUi(Boolean result) {
-						if (result) {
-							Collection<BlogPostItem> posts =
-									blogController.getBlogPosts();
-							if (posts.size() > 0) {
-								adapter.addAll(posts);
-								if (reload) list.scrollToPosition(0);
-							} else {
-								list.showData();
-							}
+					public void onResultUi(Collection<BlogPostItem> posts) {
+						if (posts.size() > 0) {
+							adapter.addAll(posts);
+							if (reload) list.scrollToPosition(0);
 						} else {
-							Toast.makeText(getActivity(),
-									R.string.blogs_blog_failed_to_load,
-									LENGTH_SHORT).show();
-							getActivity().supportFinishAfterTransition();
+							list.showData();
 						}
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						getActivity().finish();
 					}
 				});
 	}
 
-	void reload() {
-		loadData(true);
-	}
-
 	private void checkIfBlogCanBeDeleted() {
-		blogController.canDeleteBlog(groupId,
+		blogController.canDeleteBlog(
 				new UiResultExceptionHandler<Boolean, DbException>(
 						getActivity()) {
 					@Override
@@ -251,9 +261,11 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 							showDeleteButton();
 						}
 					}
+
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// nothing to do here, delete button is already hidden
+						// TODO: Decide how to handle errors in the UI
+						getActivity().finish();
 					}
 				});
 	}
@@ -290,14 +302,19 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 
 	private void deleteBlog() {
 		blogController.deleteBlog(
-				new UiResultHandler<Boolean>(getActivity()) {
+				new UiResultExceptionHandler<Void, DbException>(getActivity()) {
 					@Override
-					public void onResultUi(Boolean result) {
-						if (!result) return;
+					public void onResultUi(Void result) {
 						Toast.makeText(getActivity(),
 								R.string.blogs_blog_removed, LENGTH_SHORT)
 								.show();
 						getActivity().supportFinishAfterTransition();
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						getActivity().finish();
 					}
 				});
 	}

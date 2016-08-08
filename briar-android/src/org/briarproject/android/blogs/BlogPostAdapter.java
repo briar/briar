@@ -3,11 +3,9 @@ package org.briarproject.android.blogs;
 import android.content.Context;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
@@ -97,7 +95,7 @@ class BlogPostAdapter extends
 		ui.layout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				listener.onBlogPostClick(ui.getAdapterPosition(), post);
+				listener.onBlogPostClick(post);
 			}
 		});
 	}
@@ -132,15 +130,12 @@ class BlogPostAdapter extends
 	}
 
 	static class BlogPostHolder extends RecyclerView.ViewHolder {
+
 		private final ViewGroup layout;
 		private final CircleImageView avatar;
 		private final TextView author;
 		private final TrustIndicatorView trust;
 		private final TextView date;
-		private final TextView unread;
-		private final ImageView chat;
-		private final ImageView comment;
-		private final TextView title;
 		private final TextView body;
 
 		BlogPostHolder(View v) {
@@ -151,16 +146,12 @@ class BlogPostAdapter extends
 			author = (TextView) v.findViewById(R.id.authorName);
 			trust = (TrustIndicatorView) v.findViewById(R.id.trustIndicator);
 			date = (TextView) v.findViewById(R.id.dateView);
-			unread = (TextView) v.findViewById(R.id.newView);
-			chat = (ImageView) v.findViewById(R.id.chatView);
-			comment = (ImageView) v.findViewById(R.id.commentView);
-			title = (TextView) v.findViewById(R.id.titleView);
 			body = (TextView) v.findViewById(R.id.bodyView);
 		}
 	}
 
 	interface OnBlogPostClickListener {
-		void onBlogPostClick(int position, BlogPostItem post);
+		void onBlogPostClick(BlogPostItem post);
 	}
 
 }

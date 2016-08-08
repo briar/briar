@@ -1,36 +1,36 @@
 package org.briarproject.android.blogs;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 
 import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.android.controller.handler.ResultHandler;
+import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-import java.util.SortedSet;
+import java.util.Collection;
 
 public interface BlogController extends ActivityLifecycleController {
 
-	void loadBlog(GroupId groupId, boolean reload,
-			ResultHandler<Boolean> resultHandler);
+	void setGroupId(GroupId g);
 
-	SortedSet<BlogPostItem> getBlogPosts();
+	void loadBlogPosts(
+			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler);
 
-	@Nullable
-	BlogPostItem getBlogPost(MessageId postId);
+	void loadBlogPost(BlogPostHeader header,
+			ResultExceptionHandler<BlogPostItem, DbException> handler);
 
-	@Nullable
-	MessageId getBlogPostId(int position);
+	void loadBlogPost(MessageId m,
+			ResultExceptionHandler<BlogPostItem, DbException> handler);
 
-	void canDeleteBlog(GroupId groupId,
-			ResultExceptionHandler<Boolean, DbException> resultHandler);
+	void canDeleteBlog(ResultExceptionHandler<Boolean, DbException> handler);
 
-	void deleteBlog(ResultHandler<Boolean> resultHandler);
+	void deleteBlog(ResultExceptionHandler<Void, DbException> handler);
 
 	interface BlogPostListener {
-		void onBlogPostAdded(BlogPostItem post, boolean local);
+		@UiThread
+		void onBlogPostAdded(BlogPostHeader header, boolean local);
 	}
 
 }

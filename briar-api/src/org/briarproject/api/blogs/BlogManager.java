@@ -7,7 +7,6 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -44,8 +43,10 @@ public interface BlogManager {
 	/** Returns all blogs to which the user subscribes. */
 	Collection<Blog> getBlogs() throws DbException;
 
+	/** Returns the header of the blog post with the given ID. */
+	BlogPostHeader getPostHeader(MessageId m) throws DbException;
+
 	/** Returns the body of the blog post with the given ID. */
-	@Nullable
 	byte[] getPostBody(MessageId m) throws DbException;
 
 	/** Returns the headers of all posts in the given blog. */

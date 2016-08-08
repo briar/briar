@@ -1,6 +1,7 @@
 package org.briarproject.android.controller.handler;
 
 import android.app.Activity;
+import android.support.annotation.UiThread;
 
 public abstract class UiResultHandler<R> implements ResultHandler<R> {
 
@@ -20,5 +21,6 @@ public abstract class UiResultHandler<R> implements ResultHandler<R> {
 		});
 	}
 
+	@UiThread
 	public abstract void onResultUi(R result);
 }

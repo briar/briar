@@ -1,11 +1,9 @@
 package org.briarproject.android.blogs;
 
 import android.app.Activity;
-import android.support.annotation.Nullable;
 
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostHeader;
@@ -20,8 +18,9 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -38,17 +37,23 @@ public class BlogControllerImpl extends DbControllerImpl
 	@Inject
 	protected Activity activity;
 	@Inject
-	protected volatile BlogManager blogManager;
+	protected EventBus eventBus;
+
 	@Inject
-	protected volatile EventBus eventBus;
+	protected volatile BlogManager blogManager;
+
+	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
 
 	private volatile BlogPostListener listener;
 	private volatile GroupId groupId = null;
-	// FIXME: This collection isn't thread-safe, isn't updated atomically
-	private volatile TreeSet<BlogPostItem> posts = null;
 
 	@Inject
 	BlogControllerImpl() {
+	}
+
+	@Override
+	public void setGroupId(GroupId g) {
+		groupId = g;
 	}
 
 	@Override
@@ -78,26 +83,17 @@ public class BlogControllerImpl extends DbControllerImpl
 
 	@Override
 	public void eventOccurred(Event e) {
+		if (groupId == null) throw new IllegalStateException();
 		if (e instanceof BlogPostAddedEvent) {
-			BlogPostAddedEvent m = (BlogPostAddedEvent) e;
+			final BlogPostAddedEvent m = (BlogPostAddedEvent) e;
 			if (m.getGroupId().equals(groupId)) {
 				LOG.info("New blog post added");
-				if (posts == null) {
-					LOG.info("Posts have not loaded, yet");
-					// FIXME: Race condition, new post may not get loaded
-					return;
-				}
-				final BlogPostHeader header = m.getHeader();
-				// FIXME: Don't make blocking calls in event handlers
-				try {
-					byte[] body = blogManager.getPostBody(header.getId());
-					BlogPostItem post = new BlogPostItem(groupId, header, body);
-					posts.add(post);
-					listener.onBlogPostAdded(post, m.isLocal());
-				} catch (DbException ex) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, ex.toString(), ex);
-				}
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						listener.onBlogPostAdded(m.getHeader(), m.isLocal());
+					}
+				});
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
@@ -106,6 +102,7 @@ public class BlogControllerImpl extends DbControllerImpl
 				activity.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
+						// TODO: Not the controller's job, add a listener method
 						activity.finish();
 					}
 				});
@@ -114,106 +111,127 @@ public class BlogControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadBlog(final GroupId g, final boolean reload,
-			final ResultHandler<Boolean> resultHandler) {
-
+	public void loadBlogPosts(
+			final ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
+		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					if (reload || posts == null) {
-						groupId = g;
-						posts = new TreeSet<>();
-						// load blog posts
-						long now = System.currentTimeMillis();
-						Collection<BlogPostItem> newPosts = new ArrayList<>();
-						Collection<BlogPostHeader> header =
-								blogManager.getPostHeaders(g);
-						for (BlogPostHeader h : header) {
-							byte[] body = blogManager.getPostBody(h.getId());
-							newPosts.add(new BlogPostItem(g, h, body));
-						}
-						posts.addAll(newPosts);
-						long duration = System.currentTimeMillis() - now;
-						if (LOG.isLoggable(INFO))
-							LOG.info("Loading blog took " + duration + " ms");
+					long now = System.currentTimeMillis();
+					Collection<BlogPostHeader> headers =
+							blogManager.getPostHeaders(groupId);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading headers took " + duration + " ms");
+					List<BlogPostItem> items = new ArrayList<>(headers.size());
+					now = System.currentTimeMillis();
+					for (BlogPostHeader h : headers) {
+						byte[] body = getPostBody(h.getId());
+						items.add(new BlogPostItem(groupId, h, body));
 					}
-					resultHandler.onResult(true);
+					duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading bodies took " + duration + " ms");
+					handler.onResult(items);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onResult(false);
+					handler.onException(e);
 				}
 			}
 		});
 	}
 
 	@Override
-	@Nullable
-	public SortedSet<BlogPostItem> getBlogPosts() {
-		return posts;
-	}
-
-	@Override
-	@Nullable
-	public BlogPostItem getBlogPost(MessageId id) {
-		if (posts == null) return null;
-		for (BlogPostItem item : posts) {
-			if (item.getId().equals(id)) return item;
-		}
-		return null;
-	}
-
-	@Override
-	@Nullable
-	public MessageId getBlogPostId(int position) {
-		if (posts == null) return null;
-		int i = 0;
-		for (BlogPostItem post : posts) {
-			if (i == position) return post.getId();
-			i++;
-		}
-		return null;
-	}
-
-	@Override
-	public void canDeleteBlog(final GroupId g,
-			final ResultExceptionHandler<Boolean, DbException> resultHandler) {
+	public void loadBlogPost(final BlogPostHeader header,
+			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
+		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				if (groupId == null) {
-					resultHandler.onResult(false);
-					return;
-				}
 				try {
-					resultHandler.onResult(blogManager.canBeRemoved(groupId));
+					long now = System.currentTimeMillis();
+					byte[] body = getPostBody(header.getId());
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading body took " + duration + " ms");
+					handler.onResult(new BlogPostItem(groupId, header, body));
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onException(e);
+					handler.onException(e);
 				}
 			}
 		});
 	}
 
 	@Override
-	public void deleteBlog(final ResultHandler<Boolean> resultHandler) {
+	public void loadBlogPost(final MessageId m,
+			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
+		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				if (groupId == null) {
-					resultHandler.onResult(false);
-					return;
+				try {
+					long now = System.currentTimeMillis();
+					BlogPostHeader header = blogManager.getPostHeader(m);
+					byte[] body = getPostBody(m);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading post took " + duration + " ms");
+					handler.onResult(new BlogPostItem(groupId, header, body));
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
 				}
+			}
+		});
+	}
+
+	private byte[] getPostBody(MessageId m) throws DbException {
+		byte[] body = bodyCache.get(m);
+		if (body == null) {
+			body = blogManager.getPostBody(m);
+			if (body != null) bodyCache.put(m, body);
+		}
+		return body;
+	}
+
+	@Override
+	public void canDeleteBlog(
+			final ResultExceptionHandler<Boolean, DbException> handler) {
+		if (groupId == null) throw new IllegalStateException();
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					handler.onResult(blogManager.canBeRemoved(groupId));
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void deleteBlog(
+			final ResultExceptionHandler<Void, DbException> handler) {
+		if (groupId == null) throw new IllegalStateException();
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
 				try {
 					Blog b = blogManager.getBlog(groupId);
 					blogManager.removeBlog(b);
-					resultHandler.onResult(true);
+					handler.onResult(null);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onResult(false);
+					handler.onException(e);
 				}
 			}
 		});
