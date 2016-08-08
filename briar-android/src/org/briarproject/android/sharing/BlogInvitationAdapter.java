@@ -24,8 +24,7 @@ class BlogInvitationAdapter extends InvitationAdapter {
 				blog.getAuthor().getName()));
 
 		if (item.isSubscribed()) {
-			ui.subscribed.setText(ctx.getString(R.string.blogs_sharing_exists,
-					blog.getAuthor().getName()));
+			ui.subscribed.setText(ctx.getString(R.string.blogs_sharing_exists));
 		}
 	}
 

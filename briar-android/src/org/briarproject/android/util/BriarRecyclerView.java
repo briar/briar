@@ -1,5 +1,6 @@
 package org.briarproject.android.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -71,24 +72,7 @@ public class BriarRecyclerView extends FrameLayout {
 
 		// scroll down when opening keyboard
 		if (isScrollingToEnd && Build.VERSION.SDK_INT >= 11) {
-			recyclerView.addOnLayoutChangeListener(
-					new View.OnLayoutChangeListener() {
-						@Override
-						public void onLayoutChange(View v, int left, int top,
-								int right, int bottom, int oldLeft, int oldTop,
-								int oldRight, int oldBottom) {
-							if (bottom < oldBottom) {
-								recyclerView.postDelayed(new Runnable() {
-									@Override
-									public void run() {
-										scrollToPosition(
-												recyclerView.getAdapter()
-														.getItemCount() - 1);
-									}
-								}, 100);
-							}
-						}
-					});
+			addLayoutChangeListener();
 		}
 
 		emptyObserver = new RecyclerView.AdapterDataObserver() {
@@ -97,12 +81,35 @@ public class BriarRecyclerView extends FrameLayout {
 				super.onItemRangeInserted(positionStart, itemCount);
 				if (itemCount > 0) showData();
 			}
+
 			@Override
 			public void onItemRangeRemoved(int positionStart, int itemCount) {
 				super.onItemRangeRemoved(positionStart, itemCount);
 				if (itemCount > 0) showData();
 			}
 		};
+	}
+
+	@TargetApi(11)
+	private void addLayoutChangeListener() {
+		recyclerView.addOnLayoutChangeListener(
+				new OnLayoutChangeListener() {
+					@Override
+					public void onLayoutChange(View v, int left, int top,
+							int right, int bottom, int oldLeft, int oldTop,
+							int oldRight, int oldBottom) {
+						if (bottom < oldBottom) {
+							recyclerView.postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									scrollToPosition(
+											recyclerView.getAdapter()
+													.getItemCount() - 1);
+								}
+							}, 100);
+						}
+					}
+				});
 	}
 
 	public void setLayoutManager(RecyclerView.LayoutManager layout) {

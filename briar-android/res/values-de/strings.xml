@@ -4,7 +4,6 @@
   <string name="crash_report_title">Briar-Absturzberichte</string>
   <string name="feedback_title">Feedback</string>
   <string name="optional_contact_email">Optionale Kontaktemail</string>
-  <string name="include_debug_report">Absturzbericht anhängen?</string>
   <string name="could_not_load_report_data">Konnte Daten des Berichts nicht laden</string>
   <string name="ongoing_notification_title">In Briar angemeldet</string>
   <string name="setup_title">Briar einrichten</string>
@@ -50,7 +49,6 @@
   <string name="create_identity_button">Identität erstellen</string>
   <string name="identity_created_toast">Identität wurde erstellt</string>
   <string name="forum_post_hint">Forenbeitrag eingeben</string>
-  <string name="available_forums_title">Verfügbare Foren</string>
   <string name="forum_declined_toast">Foreneinladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
   <string name="forum_shared_by">Geteilt durch</string>
@@ -116,7 +114,6 @@
   <string name="dialog_title_lost_password">Passwort vergessen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_title_welcome">Willkommen bei Briar</string>
-  <string name="dialog_title_share_crash_report">Briar ist abgestürzt</string>
   <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
   <string name="dialog_button_ok">OK</string>
   <string name="dialog_button_leave">Verlassen</string>
@@ -127,7 +124,6 @@
   <string name="settings_toolbar_header">Einstellungen</string>
   <string name="contacts_toolbar_header">Kontakte</string>
   <string name="forums_toolbar_header">Foren</string>
-  <string name="forums_share_toolbar_header">Kontakte auswählen</string>
   <!--Progress titles-->
   <string name="progress_title_please_wait">Bitte warten...</string>
   <!--Blogs-->
