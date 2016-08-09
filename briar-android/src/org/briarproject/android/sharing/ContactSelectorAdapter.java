@@ -1,12 +1,6 @@
 package org.briarproject.android.sharing;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.os.Build;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,25 +21,10 @@ import static android.view.View.VISIBLE;
 class ContactSelectorAdapter
 		extends BaseContactListAdapter<ContactSelectorAdapter.SelectableContactHolder> {
 
-	private final ColorFilter grayColorFilter;
-
 	ContactSelectorAdapter(Context context,
 			OnItemClickListener listener) {
 
 		super(context, listener);
-		if (Build.VERSION.SDK_INT >= 11) {
-			grayColorFilter = null;
-		} else {
-			// Overlay the background colour at 75% opacity
-			int bg = ContextCompat.getColor(context, R.color.window_background);
-			int alpha = (int) (255 * 0.75f);
-			int red = Color.red(bg);
-			int green = Color.green(bg);
-			int blue = Color.blue(bg);
-			bg = Color.argb(alpha, red, green, blue);
-			grayColorFilter = new PorterDuffColorFilter(bg,
-					PorterDuff.Mode.SRC_OVER);
-		}
 	}
 
 	@Override
@@ -114,14 +93,9 @@ class ContactSelectorAdapter
 	}
 
 	private void grayOutItem(SelectableContactHolder ui, boolean gray) {
-		if (Build.VERSION.SDK_INT >= 11) {
-			float alpha = gray ? 0.25f : 1f;
-			ui.avatar.setAlpha(alpha);
-			ui.name.setAlpha(alpha);
-			ui.checkBox.setAlpha(alpha);
-		} else {
-			if (gray) ui.avatar.setColorFilter(grayColorFilter);
-			else ui.avatar.clearColorFilter();
-		}
+		float alpha = gray ? 0.25f : 1f;
+		ui.avatar.setAlpha(alpha);
+		ui.name.setAlpha(alpha);
+		ui.checkBox.setAlpha(alpha);
 	}
 }

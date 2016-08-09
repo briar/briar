@@ -34,7 +34,7 @@
 	<style name="BriarThemeNoActionBar.Default"/>
 
 	<style name="BriarTheme" parent="BriarBaseTheme">
-		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 		<item name="android:listSeparatorTextViewStyle">@style/BriarTheme.ListSeparatorTextView</item>
 	</style>
 
