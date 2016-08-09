@@ -277,7 +277,7 @@
 
 		<activity
 			android:name=".android.SettingsActivity"
-			android:label="@string/settings_title"
+			android:label="@string/settings_button"
 			android:parentActivityName=".android.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"

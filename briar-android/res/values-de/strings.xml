@@ -10,18 +10,13 @@
   <string name="name_too_long">Name ist zu lang</string>
   <string name="password_too_weak">Passwort ist zu schwach</string>
   <string name="create_account_button">Konto anlegen</string>
-  <string name="password_hint">Passwort</string>
   <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
   <string name="sign_in_button">Anmelden</string>
   <string name="startup_failed_notification_title">Briar konnte nicht gestartet werden</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
-  <string name="contact_list_button">Kontakte</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="contact_deleted_toast">Kontakt gelöscht</string>
-  <string name="forums_button">Foren</string>
-  <string name="settings_button">Einstellungen</string>
   <string name="sign_out_button">Abmelden</string>
-  <string name="contact_list_title">Kontakte</string>
   <string name="no_contacts">Keine Kontakte</string>
   <string name="add_contact_title">Kontakt hinzufügen</string>
   <string name="continue_button">Weiter</string>
@@ -31,34 +26,27 @@
   <string name="codes_do_not_match">Codes stimmen nicht überein</string>
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
-  <string name="scan_qr_code">QR-Code scannen</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
   <string name="no_private_messages">Keine Nachrichten</string>
-  <string name="message_sent_toast">Nachricht wurde versendet</string>
-  <string name="show_forums">Anzeigen</string>
+  <string name="show">Anzeigen</string>
   <string name="forum_leave">Forum verlassen</string>
   <string name="forum_left_toast">Forum wurde verlassen</string>
   <string name="create_forum_title">Neues Forum</string>
   <string name="forum_created_toast">Forum wurde erstellt</string>
   <string name="forum_share_button">Forum teilen</string>
   <string name="forum_compose_post">Neuer Forenbeitrag</string>
-  <string name="from">Von:</string>
   <string name="anonymous">Anonym</string>
   <string name="new_identity_item">Neue Identität\u2026</string>
   <string name="new_identity_title">Neue Identität</string>
   <string name="create_identity_button">Identität erstellen</string>
   <string name="identity_created_toast">Identität wurde erstellt</string>
-  <string name="forum_post_hint">Forenbeitrag eingeben</string>
   <string name="forum_declined_toast">Foreneinladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
   <string name="forum_shared_by">Geteilt durch</string>
   <string name="forum_shared_with">Geteilt mit</string>
   <string name="nobody">Niemand</string>
-  <string name="add_button">Hinzufügen</string>
-  <string name="cancel_button">Abbrechen</string>
-  <string name="done_button">Fertig</string>
-  <string name="delete_button">Löschen</string>
-  <string name="post_sent_toast">Forenbeitrag wurde versendet</string>
+  <string name="cancel">Abbrechen</string>
+  <string name="delete">Löschen</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Neue private Nachricht.</item>
     <item quantity="other">%d neue private Nachrichten</item>
@@ -68,7 +56,7 @@
     <item quantity="other">%d neue Forenbeiträge</item>
   </plurals>
   <!--Settings-->
-  <string name="settings_title">Einstellungen</string>
+  <string name="settings_button">Einstellungen</string>
   <string name="network_settings_title">Netzwerke</string>
   <string name="bluetooth_setting">Mit Bluetooth verbinden</string>
   <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
@@ -115,16 +103,14 @@
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_title_welcome">Willkommen bei Briar</string>
   <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
-  <string name="dialog_button_ok">OK</string>
+  <string name="ok">OK</string>
   <string name="dialog_button_leave">Verlassen</string>
-  <string name="dialog_button_accept">Annehmen</string>
-  <string name="dialog_button_decline">Ablehnen</string>
+  <string name="accept">Annehmen</string>
+  <string name="decline">Ablehnen</string>
   <!--Toolbar headers-->
-  <string name="dashboard_toolbar_header">Briar</string>
-  <string name="settings_toolbar_header">Einstellungen</string>
-  <string name="contacts_toolbar_header">Kontakte</string>
-  <string name="forums_toolbar_header">Foren</string>
+  <string name="contact_list_button">Kontakte</string>
+  <string name="forums_button">Foren</string>
   <!--Progress titles-->
-  <string name="progress_title_please_wait">Bitte warten...</string>
+  <string name="progress_title_please_wait">Bitte warten…</string>
   <!--Blogs-->
 </resources>

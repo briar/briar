@@ -67,7 +67,7 @@
 		android:layout_alignParentRight="true"
 		android:layout_below="@+id/forumSubscribedView"
 		android:layout_marginTop="-8dp"
-		android:text="@string/dialog_button_accept"/>
+		android:text="@string/accept"/>
 
 	<Button
 		android:id="@+id/declineButton"
@@ -78,7 +78,7 @@
 		android:layout_marginTop="-8dp"
 		android:layout_toLeftOf="@+id/acceptButton"
 		android:layout_toStartOf="@+id/acceptButton"
-		android:text="@string/dialog_button_decline"/>
+		android:text="@string/decline"/>
 
 	<View
 		style="@style/Divider.ForumList"

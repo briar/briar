@@ -24,9 +24,9 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 			return;
 
 		if (fragmentTag.equals(ContactListFragment.TAG)) {
-			actionBar.setTitle(R.string.contacts_toolbar_header);
+			actionBar.setTitle(R.string.contact_list_button);
 		} else if (fragmentTag.equals(ForumListFragment.TAG)) {
-			actionBar.setTitle(R.string.forums_toolbar_header);
+			actionBar.setTitle(R.string.forums_button);
 		} else if (fragmentTag.equals(BlogsFragment.TAG)) {
 			actionBar.setTitle(R.string.blogs_button);
 		}
@@ -75,7 +75,7 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 				R.style.BriarDialogTheme);
 		builder.setTitle(titleStringId);
 		builder.setMessage(msgStringId);
-		builder.setPositiveButton(R.string.dialog_button_ok, null);
+		builder.setPositiveButton(R.string.ok, null);
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}

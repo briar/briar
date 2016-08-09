@@ -16,7 +16,6 @@
 		android:paddingTop="@dimen/margin_activity_vertical">
 
 		<TextView
-			android:id="@+id/yourNicknameView"
 			style="@style/BriarTextBody"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -42,7 +41,6 @@
 			android:src="@drawable/bluetooth"/>
 
 		<TextView
-			android:id="@+id/faceToFaceView"
 			style="@style/BriarTextBody"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

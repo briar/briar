@@ -18,9 +18,7 @@
   <string name="delete_contact">Padam kenalan</string>
   <string name="contact_deleted_toast">Kenalan telah dipadam</string>
   <string name="forums_button">Forum</string>
-  <string name="settings_button">Tetapan</string>
   <string name="sign_out_button">Daftar Keluar</string>
-  <string name="contact_list_title">Kenalan</string>
   <string name="no_contacts">Tiada kenalan</string>
   <string name="add_contact_title">Tambah kenalan</string>
   <string name="continue_button">Teruskan</string>
@@ -38,24 +36,19 @@
   <string name="interfering">Ini menunjukkan bahawa seseorang sedang mengganggu sambungan anda</string>
   <string name="contact_added_toast">Kenalan telah ditambah: %s</string>
   <string name="no_private_messages">Tiada mesej</string>
-  <string name="private_message_hint">Taip mesej</string>
-  <string name="message_sent_toast">Mesej telah dihantar</string>
   <string name="create_forum_title">Cipta forum baru</string>
   <string name="choose_forum_name">Pilih nama untuk forum anda:</string>
   <string name="forum_created_toast">Forum telah dicipta</string>
-  <string name="from">Daripada:</string>
   <string name="anonymous">Tidak dikenali</string>
   <string name="new_identity_item">Identiti baru\u2026</string>
   <string name="new_identity_title">Identiti baru</string>
   <string name="identity_created_toast">Identiti telah dicipta</string>
-  <string name="add_button">Tambah</string>
-  <string name="cancel_button">Batal</string>
-  <string name="done_button">Selesai</string>
+  <string name="cancel">Batal</string>
   <plurals name="private_message_notification_text">
     <item quantity="other">%d mesej peribadi baru.</item>
   </plurals>
   <!--Settings-->
-  <string name="settings_title">Tetapan</string>
+  <string name="settings_button">Tetapan</string>
   <string name="bluetooth_setting_disabled">Hanya ketika menambah kenalan</string>
   <string name="notify_private_messages_setting">Papar notifikasi untuk mesej peribadi</string>
   <string name="notify_vibration_setting">Getar</string>

@@ -16,7 +16,6 @@
 		android:paddingTop="@dimen/margin_activity_vertical">
 
 		<TextView
-			android:id="@+id/yourNicknameView"
 			style="@style/BriarTextBody"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -52,7 +51,6 @@
 			android:padding="@dimen/margin_large">
 
 			<ImageView
-				android:id="@+id/explanationView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:adjustViewBounds="true"
@@ -60,7 +58,6 @@
 				android:src="@drawable/qr_code_explanation"/>
 
 			<TextView
-				android:id="@+id/faceToFaceView"
 				style="@style/BriarTextBody"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
