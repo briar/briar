@@ -295,7 +295,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 				String input = Base64.encodeToString(
 						payloadEncoder.encode(localPayload), 0);
 				qrCode.setImageBitmap(
-						QrCodeUtils.createQrCode(getActivity(), input));
+						QrCodeUtils.createQrCode((Context) listener, input));
 				// Simple fade-in animation
 				AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
 				anim.setDuration(200);
