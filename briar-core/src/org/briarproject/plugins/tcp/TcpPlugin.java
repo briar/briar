@@ -51,7 +51,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	 * Returns zero or more socket addresses on which the plugin should listen,
 	 * in order of preference. At most one of the addresses will be bound.
 	 */
-	protected abstract List<SocketAddress> getLocalSocketAddresses();
+	protected abstract List<InetSocketAddress> getLocalSocketAddresses();
 
 	/**
 	 * Adds the address on which the plugin is listening to the transport
