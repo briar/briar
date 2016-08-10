@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Camera;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Base64;
@@ -53,7 +52,6 @@ import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 
-@SuppressWarnings("deprecation")
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
 
@@ -195,44 +193,24 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	private void openCamera() {
-		AsyncTask<Void, Void, Camera> openTask =
-				new AsyncTask<Void, Void, Camera>() {
-					@Override
-					protected Camera doInBackground(Void... unused) {
-						LOG.info("Opening camera");
-						try {
-							return Camera.open();
-						} catch (RuntimeException e) {
-							LOG.log(WARNING,
-									"Error opening camera, trying again", e);
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e2) {
-								LOG.info("Interrupted before second attempt");
-								return null;
-							}
-							try {
-								return Camera.open();
-							} catch (RuntimeException e2) {
-								LOG.log(WARNING, "Error opening camera", e2);
-								return null;
-							}
-						}
-					}
-
-					@Override
-					protected void onPostExecute(Camera camera) {
-						if (camera == null) {
-							// TODO better solution?
-							LOG.info("No Camera found, finishing...");
-							getActivity().finish();
-						} else {
-							cameraView.start(camera, decoder, 0);
-						}
-					}
-				};
-		openTask.execute();
+		LOG.info("Opening camera");
+		Camera camera;
+		try {
+			camera = Camera.open();
+		} catch (RuntimeException e) {
+			LOG.log(WARNING, e.toString(), e);
+			camera = null;
+		}
+		if (camera == null) {
+			LOG.log(WARNING, "Error opening camera");
+			Toast.makeText(getActivity(), R.string.could_not_open_camera,
+					LENGTH_LONG).show();
+			finish();
+			return;
+		}
+		cameraView.start(camera, decoder, 0);
 	}
 
 	private void releaseCamera() {
@@ -242,7 +220,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error releasing camera", e);
 			// TODO better solution
-			getActivity().finish();
+			finish();
 		}
 	}
 
@@ -363,6 +341,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 				}
 			}
 		});
+	}
+
+	private void finish() {
+		getActivity().getSupportFragmentManager().popBackStack();
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
