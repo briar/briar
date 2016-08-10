@@ -21,16 +21,16 @@ public interface ContactManager {
 	 * local and remote pseudonyms, and returns an ID for the contact.
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey master, long timestamp, boolean alice, boolean active)
-			throws DbException;
+			SecretKey master, long timestamp, boolean alice, boolean verified,
+			boolean active) throws DbException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
 	ContactId addContact(Author remote, AuthorId local,
-			SecretKey master, long timestamp, boolean alice, boolean active)
-			throws DbException;
+			SecretKey master, long timestamp, boolean alice, boolean verified,
+			boolean active) throws DbException;
 
 	/** Returns the contact with the given ID. */
 	Contact getContact(ContactId c) throws DbException;

@@ -85,14 +85,16 @@ public class IntroducerManagerTest extends BriarTestCase {
 				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
 		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
 		ContactId contactId1 = new ContactId(234);
-		introducee1 = new Contact(contactId1, author1, localAuthorId1, true);
+		introducee1 =
+				new Contact(contactId1, author1, localAuthorId1, true, true);
 
 		AuthorId authorId2 = new AuthorId(TestUtils.getRandomId());
 		Author author2 = new Author(authorId2, "Introducee2",
 				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
 		AuthorId localAuthorId2 = new AuthorId(TestUtils.getRandomId());
 		ContactId contactId2 = new ContactId(235);
-		introducee2 = new Contact(contactId2, author2, localAuthorId2, true);
+		introducee2 =
+				new Contact(contactId2, author2, localAuthorId2, true, true);
 
 		localGroup0 = new Group(new GroupId(TestUtils.getRandomId()),
 				getClientId(), new byte[0]);

@@ -8,13 +8,14 @@ public class Contact {
 	private final ContactId id;
 	private final Author author;
 	private final AuthorId localAuthorId;
-	private final boolean active;
+	private final boolean verified, active;
 
 	public Contact(ContactId id, Author author, AuthorId localAuthorId,
-			boolean active) {
+			boolean verified, boolean active) {
 		this.id = id;
 		this.author = author;
 		this.localAuthorId = localAuthorId;
+		this.verified = verified;
 		this.active = active;
 	}
 
@@ -28,6 +29,10 @@ public class Contact {
 
 	public AuthorId getLocalAuthorId() {
 		return localAuthorId;
+	}
+
+	public boolean isVerified() {
+		return verified;
 	}
 
 	public boolean isActive() {

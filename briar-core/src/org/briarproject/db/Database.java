@@ -63,8 +63,8 @@ interface Database<T> {
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
-	ContactId addContact(T txn, Author remote, AuthorId local, boolean active)
-			throws DbException;
+	ContactId addContact(T txn, Author remote, AuthorId local, boolean verified,
+			boolean active) throws DbException;
 
 	/**
 	 * Stores a group.
@@ -574,6 +574,12 @@ interface Database<T> {
 	 * respect to the given contact.
 	 */
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
+
+	/**
+	 * Marks the given contact as verified or unverified.
+	 */
+	void setContactVerified(T txn, ContactId c, boolean verified)
+			throws DbException;
 
 	/**
 	 * Marks the given contact as active or inactive.

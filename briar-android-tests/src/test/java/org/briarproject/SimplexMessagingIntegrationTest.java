@@ -93,7 +93,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author bobAuthor = new Author(bobId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(bobAuthor, aliceId,
-				master, timestamp, true, true);
+				master, timestamp, true, true, true);
 
 		// Send Bob a message
 		GroupId groupId = messagingManager.getConversationId(contactId);
@@ -146,7 +146,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author aliceAuthor = new Author(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(aliceAuthor, bobId,
-				master, timestamp, false, true);
+				master, timestamp, false, true, true);
 
 		// Set up an event listener
 		MessageListener listener = new MessageListener();

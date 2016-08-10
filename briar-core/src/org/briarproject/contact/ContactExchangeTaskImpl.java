@@ -311,7 +311,7 @@ public class ContactExchangeTaskImpl extends Thread
 		Transaction txn = db.startTransaction(false);
 		try {
 			contactId = contactManager.addContact(txn, remoteAuthor,
-					localAuthor.getId(), master, timestamp, alice, true);
+					localAuthor.getId(), master, timestamp, alice, true, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);
 			txn.setComplete();

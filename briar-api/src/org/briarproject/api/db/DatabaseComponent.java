@@ -62,7 +62,7 @@ public interface DatabaseComponent {
 	 * and returns an ID for the contact.
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean active) throws DbException;
+			boolean verified, boolean active) throws DbException;
 
 	/**
 	 * Stores a group.
@@ -422,6 +422,12 @@ public interface DatabaseComponent {
 	 * Removes a transport (and all associated state) from the database.
 	 */
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
+
+	/**
+	 * Marks the given contact as verified or unverified.
+	 */
+	void setContactVerified(Transaction txn, ContactId c, boolean verified)
+			throws DbException;
 
 	/**
 	 * Marks the given contact as active or inactive.

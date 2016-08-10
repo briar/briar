@@ -94,7 +94,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 				Collections.singletonList(contactId);
 
 		Contact contact = new Contact(contactId, blog2.getAuthor(),
-				blog1.getAuthor().getId(), true);
+				blog1.getAuthor().getId(), true, true);
 		final Collection<Contact> contacts = Collections.singletonList(contact);
 
 		context.checking(new Expectations() {{
@@ -132,7 +132,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 		final ContactId contactId = new ContactId(0);
 		Contact contact = new Contact(contactId, blog2.getAuthor(),
-				blog1.getAuthor().getId(), true);
+				blog1.getAuthor().getId(), true, true);
 
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createPersonalBlog(blog2.getAuthor());

@@ -325,7 +325,7 @@ class IntroduceeManager {
 							localState.getRaw(PUBLIC_KEY));
 			ContactId contactId = contactManager
 					.addContact(txn, remoteAuthor, localAuthorId, secretKey,
-							timestamp, alice, false);
+							timestamp, alice, false, false);
 
 			// Update local state with ContactId, so we know what to activate
 			localState.put(ADDED_CONTACT_ID, contactId.getInt());
