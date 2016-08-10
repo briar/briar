@@ -25,6 +25,7 @@
 			android:layout_alignTop="@+id/avatar"
 			android:layout_toEndOf="@+id/avatar"
 			android:layout_toRightOf="@+id/avatar"
+			android:textColor="@color/briar_text_primary"
 			android:textSize="@dimen/text_size_tiny"
 			tools:text="Author Name"/>
 
@@ -37,6 +38,7 @@
 			android:layout_toEndOf="@+id/avatar"
 			android:layout_toRightOf="@+id/avatar"
 			android:gravity="bottom"
+			android:textColor="@color/briar_text_primary"
 			android:textSize="@dimen/text_size_tiny"
 			tools:text="yesterday"/>
 
@@ -56,7 +58,8 @@
 			android:layout_alignParentStart="true"
 			android:layout_below="@+id/avatar"
 			android:layout_marginTop="@dimen/margin_medium"
-			android:textSize="@dimen/text_size_medium"
+			android:textColor="@color/briar_text_primary"
+			android:textSize="@dimen/text_size_large"
 			android:textStyle="bold"
 			tools:text="This Is A Blog Post Title"/>
 
@@ -66,6 +69,8 @@
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/title"
 			android:layout_marginTop="@dimen/margin_medium"
+			android:textColor="@color/briar_text_secondary"
+			android:textSize="@dimen/text_size_medium"
 			tools:text="Body of Blog Post. This could be insanely large or just a short text as well."/>
 
 	</RelativeLayout>
