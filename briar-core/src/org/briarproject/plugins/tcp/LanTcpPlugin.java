@@ -53,12 +53,12 @@ class LanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected List<SocketAddress> getLocalSocketAddresses() {
+	protected List<InetSocketAddress> getLocalSocketAddresses() {
 		// Use the same address and port as last time if available
 		TransportProperties p = callback.getLocalProperties();
 		String oldIpPorts = p.get(PROP_IP_PORTS);
 		List<InetSocketAddress> olds = parseSocketAddresses(oldIpPorts);
-		List<SocketAddress> locals = new LinkedList<SocketAddress>();
+		List<InetSocketAddress> locals = new LinkedList<InetSocketAddress>();
 		for (InetAddress local : getLocalIpAddresses()) {
 			if (isAcceptableAddress(local)) {
 				// If this is the old address, try to use the same port
@@ -168,7 +168,9 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		ServerSocket ss = null;
-		for (SocketAddress addr : getLocalSocketAddresses()) {
+		for (InetSocketAddress addr : getLocalSocketAddresses()) {
+			// Don't try to reuse the same port we use for contact connections
+			addr = new InetSocketAddress(addr.getAddress(), 0);
 			try {
 				ss = new ServerSocket();
 				ss.bind(addr);

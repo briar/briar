@@ -9,7 +9,6 @@ import org.briarproject.api.properties.TransportProperties;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,11 +36,11 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected List<SocketAddress> getLocalSocketAddresses() {
+	protected List<InetSocketAddress> getLocalSocketAddresses() {
 		// Use the same address and port as last time if available
 		TransportProperties p = callback.getLocalProperties();
 		InetSocketAddress old = parseSocketAddress(p.get(PROP_IP_PORT));
-		List<SocketAddress> addrs = new LinkedList<SocketAddress>();
+		List<InetSocketAddress> addrs = new LinkedList<InetSocketAddress>();
 		for (InetAddress a : getLocalIpAddresses()) {
 			if (isAcceptableAddress(a)) {
 				// If this is the old address, try to use the same port
