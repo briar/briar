@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="nav_drawer_open_description">Open the navigation drawer</string>
-	<string name="nav_drawer_close_description">Close the navigation drawer</string>
-	<string name="app_name">Briar</string>
+	<string translatable="false" name="app_name">Briar</string>
 
-	<!-- Crash Reporter -->
-	<string name="crash_report_title">Briar Crash Report</string>
-	<string name="briar_crashed">Sorry, Briar has crashed.</string>
-	<string name="not_your_fault">This is not your fault.</string>
-	<string name="please_send_report">Please help us build a better Briar by sending us a crash report.</string>
-	<string name="report_is_encrypted">We promise that the report is encrypted and sent securely.</string>
-	<string name="feedback_title">Feedback</string>
-	<string name="describe_crash">Describe what happened (optional)</string>
-	<string name="enter_feedback">Enter your feedback</string>
-	<string name="optional_contact_email">Your email address (optional)</string>
-	<string name="debug_report">Debug report:</string>
-	<string name="include_debug_report_crash">Include anonymous data about the crash</string>
-	<string name="include_debug_report_feedback">Include anonymous data about this device</string>
-	<string name="could_not_load_report_data">Could not load report data.</string>
-	<string name="send_report">Send report</string>
-	<string name="close">Close</string>
-	<string name="dev_report_saved">Report saved. It will be sent the next time you log into Briar.</string>
-
-	<string name="ongoing_notification_title">Signed into Briar</string>
-	<string name="ongoing_notification_text">Touch to open Briar.</string>
+	<!-- Setup -->
 	<string name="setup_title">Briar Setup</string>
 	<string name="setup_explanation">Your Briar account is stored encrypted on your device, not in the cloud. If you uninstall Briar or forget your password, there\'s no way to recover your account and your data.</string>
 	<string name="choose_nickname">Choose your nickname</string>
@@ -33,27 +12,78 @@
 	<string name="password_too_weak">Password is too weak</string>
 	<string name="passwords_do_not_match">Passwords do not match</string>
 	<string name="create_account_button">Create Account</string>
+	<string name="progress_title_please_wait">Please wait..</string>
+
+	<!-- Login -->
 	<string name="enter_password">Enter your password:</string>
-	<string name="password_hint">Password</string>
-	<string name="forgotten_password">I have forgotten my password</string>
 	<string name="try_again">Wrong password, try again</string>
 	<string name="sign_in_button">Sign In</string>
+	<string name="forgotten_password">I have forgotten my password</string>
+	<string name="dialog_title_lost_password">Lost Password</string>
+	<string name="dialog_message_lost_password">Your Briar account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
 	<string name="startup_failed_notification_title">Briar could not start</string>
 	<string name="startup_failed_notification_text">You may need to reinstall Briar.</string>
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>
 	<string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contact connections are lost. Unfortunately, you need to reinstall Briar und set up a new account.</string>
 	<string name="startup_failed_service_error">Briar was unable to start a required plugin. Reinstalling Briar usually solves this problem. However, please note that you will then lose your account and all data associated with it since Briar is not using central servers to store your data on.</string>
 	<string name="expiry_warning">This software has expired.\nPlease install a newer version.</string>
+	<string name="dialog_title_welcome">Welcome to Briar</string>
+	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
+
+	<!-- Navigation Drawer -->
+	<string name="nav_drawer_open_description">Open the navigation drawer</string>
+	<string name="nav_drawer_close_description">Close the navigation drawer</string>
 	<string name="contact_list_button">Contacts</string>
-	<string name="delete_contact">Delete contact</string>
-	<string name="contact_deleted_toast">Contact deleted</string>
 	<string name="forums_button">Forums</string>
+	<string name="blogs_button">Micro Blogs</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
+
+	<!-- Transports -->
+	<string name="transport_tor">Internet</string>
+	<string name="transport_bt">Bluetooth</string>
+	<string name="transport_lan">Wi-Fi</string>
+
+	<!-- Notifications -->
+	<string name="ongoing_notification_title">Signed into Briar</string>
+	<string name="ongoing_notification_text">Touch to open Briar.</string>
+	<plurals name="private_message_notification_text">
+		<item quantity="one">New private message.</item>
+		<item quantity="other">%d new private messages.</item>
+	</plurals>
+	<plurals name="forum_post_notification_text">
+		<item quantity="one">New forum post.</item>
+		<item quantity="other">%d new forum posts.</item>
+	</plurals>
+	<plurals name="blog_post_notification_text">
+		<item quantity="one">New blog post.</item>
+		<item quantity="other">%d new blog posts.</item>
+	</plurals>
+
+	<!-- Misc -->
 	<string name="now">now</string>
-	<string name="contact_list_title">Contacts</string>
+	<string name="show">Show</string>
+	<string name="hide">Hide</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Cancel</string>
+	<string name="delete">Delete</string>
+	<string name="accept">Accept</string>
+	<string name="decline">Decline</string>
+	<string name="online">Online</string>
+	<string name="offline">Offline</string>
+	<string name="send">Send</string>
+	<string name="no_data">No data</string>
+
+	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
-	<string name="no_contacts_selector">It seems that you are new here and have no contacts yet.\n\nPlease come back here after you added your first contact.</string>
+	<string name="date_no_private_messages">No messages.</string>
+	<string name="no_private_messages">This is the conversation view.\n\nThere seems to be a lack of conversation.\n\nJust tap the input field at the bottom to start a conversation.</string>
+	<string name="delete_contact">Delete contact</string>
+	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
+	<string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
+	<string name="contact_deleted_toast">Contact deleted</string>
+
+	<!-- Adding Contacts -->
 	<string name="add_contact_title">Add a Contact</string>
 	<string name="your_nickname">Choose the identity you want to use:</string>
 	<string name="face_to_face">You must be face-to-face with the person you want to add as a contact. This will prevent anyone from impersonating you or reading your messages in future.</string>
@@ -75,138 +105,13 @@
 	<string name="contact_added_toast">Contact added: %s</string>
 	<string name="contact_already_exists">Contact %s already exists</string>
 	<string name="contact_exchange_failed">Contact exchange failed</string>
-	<string name="scan_qr_code">Scan QR code</string>
 	<string name="qr_code_invalid">The QR code is invalid</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
 	<string name="connection_aborted_local">Connection aborted by us! This could mean that someone is trying to interfere with your connection</string>
 	<string name="connection_aborted_remote">Connection aborted by your contact! This could mean that someone is trying to interfere with your connection</string>
-	<string name="date_no_private_messages">No messages.</string>
-	<string name="no_private_messages">This is the conversation view.\n\nThere seems to be a lack of conversation.\n\nJust tap the input field at the bottom to start a conversation.</string>
-	<string name="private_message_hint">Type message</string>
-	<string name="message_sent_toast">Message sent</string>
-	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
-	<string name="no_forum_posts">This forum is empty.\n\nUse the pen icon at the top to compose the first post.\n\nFeeling lonely here? Share this forum with more of your contacts!</string>
-	<plurals name="forums_shared">
-		<item quantity="one">%d forum shared by contacts</item>
-		<item quantity="other">%d forums shared by contacts</item>
-	</plurals>
-	<string name="show">Show</string>
-	<string name="hide">Hide</string>
-	<string name="show_forums">Show</string>
-	<string name="forum_leave">Leave Forum</string>
-	<string name="forum_left_toast">Left Forum</string>
-	<string name="sharing_status">Sharing Status</string>
-	<string name="no_posts">No posts</string>
-	<plurals name="unread_posts">
-		<item quantity="one">%d unread post</item>
-		<item quantity="other">%d unread posts</item>
-	</plurals>
-	<plurals name="posts">
-		<item quantity="one">%d post</item>
-		<item quantity="other">%d posts</item>
-	</plurals>
-	<string name="create_forum_title">New Forum</string>
-	<string name="choose_forum_name">Choose a name for your forum:</string>
-	<string name="create_forum_button">Create Forum</string>
-	<string name="forum_created_toast">Forum created</string>
-	<string name="forum_share_action">Share this forum with chosen contacts</string>
-	<string name="forum_share_button">Share Forum</string>
-	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
-	<string name="forum_share_message">You may compose an optional invitation message that will be sent to the selected contacts.</string>
-	<string name="forum_share_error">There was an error sharing this forum.</string>
-	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
-	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
-	<string name="forum_show_invitations">Show Forum Invitations</string>
-	<string name="forum_compose_post">New Forum Post</string>
-	<string name="from">From:</string>
-	<string name="anonymous">Anonymous</string>
-	<string name="new_identity_item">New identity\u2026</string>
-	<string name="new_identity_title">New Identity</string>
-	<string name="create_identity_button">Create Identity</string>
-	<string name="identity_created_toast">Identity created</string>
-	<string name="forum_post_hint">Type forum post</string>
-	<string name="forum_invitations_title">Forum Invitations</string>
-	<string name="forum_invitation_exists">You accepted an invitation to this forum already. Accepting more invitations will grow and strengthen the communication in the forum.</string>
-	<string name="forum_joined_toast">Joined Forum</string>
-	<string name="forum_declined_toast">Forum Invitation Declined</string>
-	<string name="shared_by_format">Shared by %s</string>
-	<string name="forum_shared_by">Shared by</string>
-	<string name="forum_shared_with">Shared with</string>
-	<string name="nobody">Nobody</string>
-	<string name="add_button">Add</string>
-	<string name="cancel_button">Cancel</string>
-	<string name="done_button">Done</string>
-	<string name="delete_button">Delete</string>
-	<string name="post_sent_toast">Forum post sent</string>
-	<plurals name="private_message_notification_text">
-		<item quantity="one">New private message.</item>
-		<item quantity="other">%d new private messages.</item>
-	</plurals>
-	<plurals name="forum_post_notification_text">
-		<item quantity="one">New forum post.</item>
-		<item quantity="other">%d new forum posts.</item>
-	</plurals>
-	<plurals name="blog_post_notification_text">
-		<item quantity="one">New blog post.</item>
-		<item quantity="other">%d new blog posts.</item>
-	</plurals>
 
-	<!-- Settings -->
-	<string name="settings_title">Settings</string>
-	<string name="network_settings_title">Networks</string>
-	<string name="bluetooth_setting">Connect via Bluetooth</string>
-	<string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
-	<string name="bluetooth_setting_disabled">Only when adding contacts</string>
-	<string name="tor_mobile_setting">Connect via Tor</string>
-	<string name="tor_mobile_setting_enabled">When using Wi-Fi or mobile data</string>
-	<string name="tor_mobile_setting_disabled">Only when using Wi-Fi</string>
-	<string name="security_settings_title">Security</string>
-	<string name="change_password">Change password</string>
-	<string name="panic_setting">Panic button setup</string>
-	<string name="panic_setting_title">Panic button</string>
-	<string name="panic_setting_hint">Configure how Briar will react when you use a panic button app</string>
-	<string name="notification_settings_title">Notifications</string>
-	<string name="notify_private_messages_setting">Show alerts for private messages</string>
-	<string name="notify_forum_posts_setting">Show alerts for forum posts</string>
-	<string name="notify_blog_posts_setting">Show alerts for blog posts</string>
-	<string name="notify_vibration_setting">Vibrate</string>
-	<string name="notify_sound_setting">Sound</string>
-	<string name="notify_sound_setting_default">Default ringtone</string>
-	<string name="notify_sound_setting_disabled">None</string>
-	<string name="choose_ringtone_title">Choose ringtone</string>
-	<string name="crash_report_settings_title">Crash reports</string>
-	<string name="enable_acra_setting">Enable crash reporter</string>
-	<string name="acra_syslog_setting">Send system logs</string>
-	<string name="acra_user_email_setting">Optional contact email</string>
-	<string name="acra_alwaysaccept_setting">Always send reports</string>
-	<string name="panic_app_setting_title">Panic Button App</string>
-	<string name="unknown_app">an unknown app</string>
-	<string name="panic_app_setting_summary">No app has been set</string>
-	<string name="panic_app_setting_none">None</string>
-	<string name="lock_setting_title">Sign Out</string>
-	<string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
-	<string name="purge_setting_title">Delete Account</string>
-	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
-	<string name="uninstall_setting_title">Uninstall Briar</string>
-	<string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
-	<string name="current_password">Enter your current password:</string>
-	<string name="choose_new_password">Choose your new password:</string>
-	<string name="confirm_new_password">Confirm your new password:</string>
-	<string name="password_changed">Password has been changed.</string>
-	<string name="feedback_settings_title">Feedback</string>
-	<string name="send_feedback">Send feedback</string>
-
-	<string name="step">Step %1$d/%2$d</string>
-	<string name="online">Online</string>
-	<string name="offline">Offline</string>
-	<string name="send">Send</string>
-	<string name="transport_tor">Internet</string>
-	<string name="transport_bt">Bluetooth</string>
-	<string name="transport_lan">Wi-Fi</string>
-	<string name="no_data">No data</string>
-
-	<!-- Introduction Client -->
+	<!-- Introductions -->
 	<string name="introduction_activity_title">Select Contact</string>
 	<string name="introduction_message_title">Introduce Contacts</string>
 	<string name="introduction_message_text">You can compose a message that will be sent to %1$s and %2$s along with your introduction:</string>
@@ -217,6 +122,7 @@
 	<string name="introduction_response_error">Error when responding to introduction</string>
 	<string name="introduction_warn_different_identities_title">Warning: Different Identities</string>
 	<string name="introduction_warn_different_identities_text">You are trying to introduce two contacts that you have added with different identities. This might reveal that both identities are yours.</string>
+	<string name="dialog_button_introduce">Introduce</string>
 	<string name="introduction_request_sent">You have asked to introduce %1$s to %2$s.</string>
 	<string name="introduction_request_received">%1$s has asked to introduce you to %2$s. Do you want to add %2$s to your contact list?</string>
 	<string name="introduction_request_exists_received">%1$s has asked to introduce you to %2$s, but %2$s is already in your contact list. Since %1$s might not know that, you can still respond:</string>
@@ -230,52 +136,67 @@
 	<string name="introduction_success_title">Introduced contact was added</string>
 	<string name="introduction_success_text">You have been introduced to %1$s.</string>
 
-	<!-- Forum -->
+	<!-- Forums -->
+	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
+	<string name="create_forum_title">New Forum</string>
+	<string name="choose_forum_name">Choose a name for your forum:</string>
+	<string name="create_forum_button">Create Forum</string>
+	<string name="forum_created_toast">Forum created</string>
+	<string name="no_forum_posts">This forum is empty.\n\nUse the pen icon at the top to compose the first post.\n\nFeeling lonely here? Share this forum with more of your contacts!</string>
+	<string name="no_posts">No posts</string>
+	<plurals name="posts">
+		<item quantity="one">%d post</item>
+		<item quantity="other">%d posts</item>
+	</plurals>
+	<string name="forum_compose_post">New Forum Post</string>
+	<string name="forum_new_entry_posted">Forum entry posted</string>
+	<string name="forum_new_entry_received">New forum entry</string>
+	<string name="forum_new_message_hint">New Entry</string>
+	<string name="forum_message_reply_hint">New Reply</string>
 	<string name="btn_reply">REPLY</string>
 	<plurals name="message_replies">
 		<item quantity="one">%1$d reply</item>
 		<item quantity="other">%1$d replies</item>
 	</plurals>
-	<string name="forum_new_entry_posted">Forum entry posted</string>
-	<string name="forum_new_entry_received">New forum entry</string>
-	<string name="forum_new_message_hint">New Entry</string>
-	<string name="forum_message_reply_hint">New Reply</string>
+	<string name="forum_leave">Leave Forum</string>
+	<string name="dialog_title_leave_forum">Confirm Leaving Forum</string>
+	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
+	<string name="dialog_button_leave">Leave</string>
+	<string name="forum_left_toast">Left Forum</string>
+
+	<!-- Forum Sharing -->
+	<string name="forum_share_button">Share Forum</string>
+	<string name="forum_share_action">Share this forum with chosen contacts</string>
+	<string name="activity_share_toolbar_header">Choose Contacts</string>
+	<string name="no_contacts_selector">It seems that you are new here and have no contacts yet.\n\nPlease come back here after you added your first contact.</string>
+	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
+	<string name="forum_share_message">You may compose an optional invitation message that will be sent to the selected contacts.</string>
+	<string name="forum_share_error">There was an error sharing this forum.</string>
+	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
+	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
+	<string name="forum_show_invitations">Show Forum Invitations</string>
+	<string name="forum_invitations_title">Forum Invitations</string>
+	<string name="forum_invitation_exists">You accepted an invitation to this forum already. Accepting more invitations will grow and strengthen the communication in the forum.</string>
+	<string name="forum_joined_toast">Joined Forum</string>
+	<string name="forum_declined_toast">Forum Invitation Declined</string>
+	<string name="shared_by_format">Shared by %s</string>
 	<string name="forum_invitation_already_sharing">Already sharing</string>
 	<string name="forum_invitation_response_accepted_sent">You accepted the forum invitation from %s.</string>
 	<string name="forum_invitation_response_declined_sent">You declined the forum invitation from %s.</string>
 	<string name="forum_invitation_response_accepted_received">%s accepted the forum invitation.</string>
 	<string name="forum_invitation_response_declined_received">%s declined the forum invitation.</string>
 
-	<!-- Dialogs -->
-	<string name="dialog_title_lost_password">Lost Password</string>
-	<string name="dialog_message_lost_password">Your Briar account is stored encrypted on your device, not in the cloud, so we can\'t reset your password. Would you like to delete your account and start again?\n\nCaution: Your identities, contacts and messages will be permanently lost.</string>
-	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
-	<string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
-	<string name="dialog_title_connect_panic_app">Confirm Panic App</string>
-	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
-	<string name="dialog_title_welcome">Welcome to Briar</string>
-	<string name="dialog_welcome_message">Add a contact to start communicating securely or press the icon in the upper left corner of the screen for more options.</string>
-	<string name="dialog_title_leave_forum">Confirm Leaving Forum</string>
-	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
-	<string name="dialog_button_ok">OK</string>
-	<string name="dialog_button_leave">Leave</string>
-	<string name="dialog_button_introduce">Introduce</string>
-	<string name="dialog_button_accept">Accept</string>
-	<string name="dialog_button_decline">Decline</string>
-	<!-- Toolbar headers -->
-	<string name="dashboard_toolbar_header">Briar</string>
-	<string name="settings_toolbar_header">Settings</string>
-	<string name="contacts_toolbar_header">Contacts</string>
-	<string name="forums_toolbar_header">Forums</string>
-	<string name="activity_share_toolbar_header">Choose Contacts</string>
-	<!-- Progress titles -->
-	<string name="progress_title_logout">Signing out of Briar..</string>
-	<string name="progress_title_please_wait">Please wait..</string>
+	<string name="sharing_status">Sharing Status</string>
+	<plurals name="forums_shared">
+		<item quantity="one">%d forum shared by contacts</item>
+		<item quantity="other">%d forums shared by contacts</item>
+	</plurals>
+	<string name="forum_shared_by">Shared by</string>
+	<string name="forum_shared_with">Shared with</string>
+	<string name="nobody">Nobody</string>
 
 	<!-- Blogs -->
-	<string name="blogs_button">Micro Blogs</string>
 	<string name="blogs_feed">Feed</string>
-
 	<string name="blogs_my_blogs">My Blogs</string>
 	<string name="blogs_my_blogs_create">Create Blog</string>
 	<string name="blogs_my_blogs_label">Add new Blog</string>
@@ -288,7 +209,6 @@
 	<string name="blogs_blog_is_empty">This blog is empty</string>
 	<string name="blogs_other_blog_empty_state">This blog is currently empty.\n\nEither the author hasn\'t written anything yet, or the person who shared this blog with you needs to come online, so posts can be synchronized.</string>
 	<string name="tag_new">NEW</string>
-	<string name="blogs_post_more">more</string>
 	<string name="blogs_write_blog_post">Write Blog Post</string>
 	<string name="blogs_write_blog_post_title_hint">Add a title (optional)</string>
 	<string name="blogs_write_blog_post_body_hint">Type your blog post here</string>
@@ -304,6 +224,12 @@
 	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog and all posts?\nNote that this will not remove the blog from other people\'s devices.</string>
 	<string name="blogs_remove_blog_ok">Remove Blog</string>
 	<string name="blogs_blog_removed">Blog Removed</string>
+
+	<string name="blogs_blog_list">Blog List</string>
+	<string name="blogs_available_blogs">Available Blogs</string>
+	<string name="blogs_drafts">Drafts</string>
+
+	<!-- Blog Sharing -->
 	<string name="blogs_sharing_share">Share Blog</string>
 	<string name="blogs_sharing_error">There was an error sharing this blog.</string>
 	<string name="blogs_sharing_button">Share Blog</string>
@@ -320,10 +246,6 @@
 	<string name="blogs_sharing_joined_toast">Subscribed to Blog</string>
 	<string name="blogs_sharing_declined_toast">Blog Invitation Declined</string>
 
-	<string name="blogs_blog_list">Blog List</string>
-	<string name="blogs_available_blogs">Available Blogs</string>
-	<string name="blogs_drafts">Drafts</string>
-
 	<!-- RSS Feeds -->
 	<string name="blogs_rss_feeds_import">Import RSS Feed</string>
 	<string name="blogs_rss_feeds_import_button">Import</string>
@@ -336,5 +258,84 @@
 	<string name="blogs_rss_feeds_manage_delete_error">The feed could not be deleted!</string>
 	<string name="blogs_rss_feeds_manage_empty_state">You haven\'t imported any RSS feeds.\n\nWhy don\'t you click the plus in the top right screen corner to add your first?</string>
 	<string name="blogs_rss_feeds_manage_error">There was a problem loading your feeds. Please try again later.</string>
+
+	<!-- Settings Network -->
+	<string name="network_settings_title">Networks</string>
+	<string name="bluetooth_setting">Connect via Bluetooth</string>
+	<string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
+	<string name="bluetooth_setting_disabled">Only when adding contacts</string>
+	<string name="tor_mobile_setting">Connect via Tor</string>
+	<string name="tor_mobile_setting_enabled">When using Wi-Fi or mobile data</string>
+	<string name="tor_mobile_setting_disabled">Only when using Wi-Fi</string>
+
+	<!-- Settings Security and Panic -->
+	<string name="security_settings_title">Security</string>
+	<string name="change_password">Change password</string>
+	<string name="current_password">Enter your current password:</string>
+	<string name="choose_new_password">Choose your new password:</string>
+	<string name="confirm_new_password">Confirm your new password:</string>
+	<string name="password_changed">Password has been changed.</string>
+	<string name="panic_setting">Panic button setup</string>
+	<string name="panic_setting_title">Panic button</string>
+	<string name="panic_setting_hint">Configure how Briar will react when you use a panic button app</string>
+	<string name="panic_app_setting_title">Panic Button App</string>
+	<string name="unknown_app">an unknown app</string>
+	<string name="panic_app_setting_summary">No app has been set</string>
+	<string name="panic_app_setting_none">None</string>
+	<string name="dialog_title_connect_panic_app">Confirm Panic App</string>
+	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
+	<string name="lock_setting_title">Sign Out</string>
+	<string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
+	<string name="purge_setting_title">Delete Account</string>
+	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
+	<string name="uninstall_setting_title">Uninstall Briar</string>
+	<string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
+
+	<!-- Settings Notifications -->
+	<string name="notification_settings_title">Notifications</string>
+	<string name="notify_private_messages_setting">Show alerts for private messages</string>
+	<string name="notify_forum_posts_setting">Show alerts for forum posts</string>
+	<string name="notify_blog_posts_setting">Show alerts for blog posts</string>
+	<string name="notify_vibration_setting">Vibrate</string>
+	<string name="notify_sound_setting">Sound</string>
+	<string name="notify_sound_setting_default">Default ringtone</string>
+	<string name="notify_sound_setting_disabled">None</string>
+	<string name="choose_ringtone_title">Choose ringtone</string>
+
+	<!-- Settings Crash reports and feedback -->
+	<string name="crash_report_settings_title">Crash reports</string>
+	<string name="enable_acra_setting">Enable crash reporter</string>
+	<string name="acra_syslog_setting">Send system logs</string>
+	<string name="acra_user_email_setting">Optional contact email</string>
+	<string name="acra_alwaysaccept_setting">Always send reports</string>
+	<string name="feedback_settings_title">Feedback</string>
+	<string name="send_feedback">Send feedback</string>
+
+	<!-- Multiple Identities -->
+	<string name="anonymous">Anonymous</string>
+	<string name="new_identity_item">New identity\u2026</string>
+	<string name="new_identity_title">New Identity</string>
+	<string name="create_identity_button">Create Identity</string>
+	<string name="identity_created_toast">Identity created</string>
+
+	<!-- Crash Reporter -->
+	<string name="crash_report_title">Briar Crash Report</string>
+	<string name="briar_crashed">Sorry, Briar has crashed.</string>
+	<string name="not_your_fault">This is not your fault.</string>
+	<string name="please_send_report">Please help us build a better Briar by sending us a crash report.</string>
+	<string name="report_is_encrypted">We promise that the report is encrypted and sent securely.</string>
+	<string name="feedback_title">Feedback</string>
+	<string name="describe_crash">Describe what happened (optional)</string>
+	<string name="enter_feedback">Enter your feedback</string>
+	<string name="optional_contact_email">Your email address (optional)</string>
+	<string name="include_debug_report_crash">Include anonymous data about the crash</string>
+	<string name="include_debug_report_feedback">Include anonymous data about this device</string>
+	<string name="could_not_load_report_data">Could not load report data.</string>
+	<string name="send_report">Send report</string>
+	<string name="close">Close</string>
+	<string name="dev_report_saved">Report saved. It will be sent the next time you log into Briar.</string>
+
+	<!-- Sign Out -->
+	<string name="progress_title_logout">Signing out of Briar…</string>
 
 </resources>

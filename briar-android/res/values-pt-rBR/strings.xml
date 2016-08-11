@@ -22,7 +22,6 @@
   <string name="passwords_do_not_match">As senhas não conferem</string>
   <string name="create_account_button">Criar conta</string>
   <string name="enter_password">Insira sua senha:</string>
-  <string name="password_hint">senha</string>
   <string name="forgotten_password">Esqueci minha senha</string>
   <string name="try_again">Senha Incorreta, tente novamente</string>
   <string name="sign_in_button">Entrar</string>
@@ -32,14 +31,10 @@
   <string name="startup_failed_db_error">Por alguma razão, seus dados do Briar estão corrompidos e não podem ser reparados. Sua conta, seus dados e todas suas conexões com contatos estão perdidas. Infelizmente você terá que resintalar o Briar e criar uma nova conta.</string>
   <string name="startup_failed_service_error">O Briar não pode iniciar devido a um plugin. Reinstalar o Briar geralmente resolve esse problema. Porém, note que ao fazer isso você perderá sua conta e todos os dados associados a ela,  já que o Briar não usa um servidor central para armazenar seus dados.</string>
   <string name="expiry_warning">Esse programa expirou.\nPor favor instale uma versão mais recente.</string>
-  <string name="contact_list_button">Contatos</string>
   <string name="delete_contact">Apagar contato</string>
   <string name="contact_deleted_toast">Contato apagado</string>
-  <string name="forums_button">Fóruns</string>
-  <string name="settings_button">Configurações</string>
   <string name="sign_out_button">Sair</string>
   <string name="now">agora</string>
-  <string name="contact_list_title">Contatos</string>
   <string name="add_contact_title">Adicionar um contato</string>
   <string name="your_nickname">Escolha a identidade que você quer usar:</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoal que deseja adicionar como contato. Isso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
@@ -61,29 +56,21 @@
   <string name="contact_added_toast">Contato adicionado: %s</string>
   <string name="contact_already_exists">Contato %s já existe</string>
   <string name="contact_exchange_failed">Troca de contatos falhou</string>
-  <string name="scan_qr_code">Escanear QR code</string>
   <string name="qr_code_invalid">O QR code é inválido</string>
   <string name="connecting_to_device">Conectando a device\u2026</string>
   <string name="authenticating_with_device">Autenticando com o dispositivo\u2026</string>
   <string name="connection_aborted_local">Conexão interrompida por nós! Isso pode disgnificar que alguém está tentando interferir na sua conexão</string>
   <string name="connection_aborted_remote">Conexão interrompida pelo seu contato! Isto pode significar que algúem está tentando interferir em sua conexão</string>
   <string name="date_no_private_messages">Sem Mensagens</string>
-  <string name="private_message_hint">Escrever mensagem</string>
-  <string name="message_sent_toast">Mensagem enviada</string>
   <plurals name="forums_shared">
     <item quantity="one">%d fórum compartilhado por contatos</item>
     <item quantity="other">%d fóruns compartilhados por contatos</item>
   </plurals>
   <string name="show">Mostrar</string>
-  <string name="show_forums">Mostrar</string>
   <string name="forum_leave">Sair do fórum</string>
   <string name="forum_left_toast">Saiu do fórum</string>
   <string name="sharing_status">Status de compartilhamento</string>
   <string name="no_posts">Sem Posts</string>
-  <plurals name="unread_posts">
-    <item quantity="one">%d post não lido</item>
-    <item quantity="other">%d posts não lidos</item>
-  </plurals>
   <plurals name="posts">
     <item quantity="one">%d Post</item>
     <item quantity="other">%d Posts</item>
@@ -100,13 +87,11 @@
   <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
   <string name="forum_show_invitations">Mostrar os convites de Forum</string>
   <string name="forum_compose_post">Nova postagem em fórum</string>
-  <string name="from">De:</string>
   <string name="anonymous">Anônimo</string>
   <string name="new_identity_item">Nova identidade\u2026</string>
   <string name="new_identity_title">Nova identidade</string>
   <string name="create_identity_button">Criar identidade</string>
   <string name="identity_created_toast">Identidade criada</string>
-  <string name="forum_post_hint">Digite sua postagem para o fórum</string>
   <string name="forum_invitations_title">Convites para Foruns</string>
   <string name="forum_joined_toast">Você entrou no fórum</string>
   <string name="forum_declined_toast">Convite do fórum recusado</string>
@@ -114,11 +99,8 @@
   <string name="forum_shared_by">Compartilhado por</string>
   <string name="forum_shared_with">Compartilhado com</string>
   <string name="nobody">Ninguém</string>
-  <string name="add_button">Adicionar</string>
-  <string name="cancel_button">Cancelar</string>
-  <string name="done_button">Pronto</string>
-  <string name="delete_button">Apagar</string>
-  <string name="post_sent_toast">Postagem do fórum enviada</string>
+  <string name="cancel">Cancelar</string>
+  <string name="delete">Apagar</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Nova mensagem privada.</item>
     <item quantity="other">%d novas mensagens privadas.</item>
@@ -128,7 +110,7 @@
     <item quantity="other">%d novas postagens em fóruns.</item>
   </plurals>
   <!--Settings-->
-  <string name="settings_title">Configurações</string>
+  <string name="settings_button">Configurações</string>
   <string name="network_settings_title">Redes</string>
   <string name="bluetooth_setting">Conectar via Bluetooth</string>
   <string name="bluetooth_setting_enabled">Sempre que estiver perto de contatos</string>
@@ -170,7 +152,6 @@
   <string name="password_changed">Senha alterada com sucesso.</string>
   <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Enviar feedback</string>
-  <string name="step">Passo %1$d/%2$d</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Enviar</string>
@@ -221,18 +202,16 @@
   <string name="dialog_welcome_message">Adicione um contato para começar uma comunicação segura ou pressione o ícone na parte superior direita da tela para mais opções.</string>
   <string name="dialog_title_leave_forum">Confirmar saída do fórum</string>
   <string name="dialog_message_leave_forum">Você tem certeza que deseja sair deste fórum? Seus contatos com quem você o compartilhou podem deixar de receber notificações dele.</string>
-  <string name="dialog_button_ok">OK</string>
+  <string name="ok">OK</string>
   <string name="dialog_button_leave">Sair</string>
   <string name="dialog_button_introduce">Apresentar</string>
-  <string name="dialog_button_accept">Aceitar</string>
-  <string name="dialog_button_decline">Negar</string>
+  <string name="accept">Aceitar</string>
+  <string name="decline">Negar</string>
   <!--Toolbar headers-->
-  <string name="dashboard_toolbar_header">Briar</string>
-  <string name="settings_toolbar_header">Configurações</string>
-  <string name="contacts_toolbar_header">Contatos</string>
-  <string name="forums_toolbar_header">Fóruns</string>
+  <string name="contact_list_button">Contatos</string>
+  <string name="forums_button">Fóruns</string>
   <!--Progress titles-->
-  <string name="progress_title_logout">Desconectando do Briar...</string>
+  <string name="progress_title_logout">Desconectando do Briar…</string>
   <string name="progress_title_please_wait">Por favor, aguarde</string>
   <!--Blogs-->
   <string name="blogs_button">Micro Blogs</string>
@@ -244,13 +223,12 @@
   <string name="blogs_my_blogs_create_hint_desc">Uma pequena descrição do seu novo Blog</string>
   <string name="blogs_my_blogs_create_hint_desc_explanation">Leitores Potenciais podem se inscrever ou não no seu Blog baseado no conteúdo da descrição. </string>
   <string name="blogs_my_blogs_empty_state">Você não tem nenhum Blog.
-Por que não cria um clicando no simbolo mais no topo direito da tela? </string>
+Por que não cria um clicando no símbolo mais no topo direito da tela? </string>
   <string name="blogs_my_blogs_created">Blog Criado</string>
   <string name="blogs_blog_is_empty">Esse blog está vazio</string>
   <string name="blogs_other_blog_empty_state">Esse Blog atualmente está vazio.
-Ou o autor não não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
+Ou o autor não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
   <string name="tag_new">Novo</string>
-  <string name="blogs_post_more">mais</string>
   <string name="blogs_write_blog_post">Escrever Post do Blog</string>
   <string name="blogs_write_blog_post_title_hint">Adicione um Título (opcional)</string>
   <string name="blogs_write_blog_post_body_hint">Digite aqui seu post do blog</string>

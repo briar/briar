@@ -160,7 +160,7 @@ public class RssFeedImportActivity extends BriarActivity {
 						new AlertDialog.Builder(RssFeedImportActivity.this,
 								R.style.BriarDialogTheme);
 				builder.setMessage(R.string.blogs_rss_feeds_import_error);
-				builder.setNegativeButton(R.string.cancel_button, null);
+				builder.setNegativeButton(R.string.cancel, null);
 				builder.setPositiveButton(R.string.try_again_button,
 						new DialogInterface.OnClickListener() {
 							@Override

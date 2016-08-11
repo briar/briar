@@ -34,7 +34,6 @@
 			android:orientation="vertical">
 
 			<TextView
-				android:id="@+id/yourNicknameView"
 				style="@style/BriarTextBody"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -51,7 +50,6 @@
 				android:visibility="gone"/>
 
 			<TextView
-				android:id="@+id/faceToFaceView"
 				style="@style/BriarTextBody"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

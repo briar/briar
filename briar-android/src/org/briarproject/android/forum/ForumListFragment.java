@@ -88,7 +88,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
-		snackbar.setAction(R.string.show_forums, this);
+		snackbar.setAction(R.string.show, this);
 		snackbar.setActionTextColor(ContextCompat
 				.getColor(getContext(), R.color.briar_button_positive));
 

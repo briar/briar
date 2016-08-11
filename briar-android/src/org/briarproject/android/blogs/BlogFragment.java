@@ -283,7 +283,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 		builder.setTitle(getString(R.string.blogs_remove_blog));
 		builder.setMessage(
 				getString(R.string.blogs_remove_blog_dialog_message));
-		builder.setPositiveButton(R.string.cancel_button, null);
+		builder.setPositiveButton(R.string.cancel, null);
 		builder.setNegativeButton(R.string.blogs_remove_blog_ok, okListener);
 		builder.show();
 	}

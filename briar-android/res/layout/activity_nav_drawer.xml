@@ -11,7 +11,6 @@
 
 	<!-- The second child is the menu -->
 	<include
-		android:id="@+id/navigation_menu_drawer"
 		layout="@layout/navigation_menu"
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
