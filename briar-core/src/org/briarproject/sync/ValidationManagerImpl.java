@@ -358,8 +358,6 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							throw new InvalidMessageException(
 									"Deleted by Client");
 						}
-
-						db.setMessageShared(txn, m, true);
 						db.setMessageState(txn, m, c, DELIVERED);
 
 						// deliver pending dependents

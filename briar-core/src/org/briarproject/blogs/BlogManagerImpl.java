@@ -162,6 +162,8 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	protected void incomingMessage(Transaction txn, Message m, BdfList list,
 			BdfDictionary meta) throws DbException, FormatException {
 
+		clientHelper.setMessageShared(txn, m, true);
+
 		GroupId groupId = m.getGroupId();
 		BlogPostHeader h = getPostHeaderFromMetadata(txn, m.getId(), meta);
 		BlogPostAddedEvent event =
