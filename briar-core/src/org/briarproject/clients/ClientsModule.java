@@ -26,9 +26,10 @@ public class ClientsModule {
 	ClientHelper provideClientHelper(DatabaseComponent db,
 			MessageFactory messageFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataParser metadataParser,
-			MetadataEncoder metadataEncoder) {
+			MetadataEncoder metadataEncoder, CryptoComponent cryptoComponent) {
 		return new ClientHelperImpl(db, messageFactory, bdfReaderFactory,
-				bdfWriterFactory, metadataParser, metadataEncoder);
+				bdfWriterFactory, metadataParser, metadataEncoder,
+				cryptoComponent);
 	}
 
 	@Provides

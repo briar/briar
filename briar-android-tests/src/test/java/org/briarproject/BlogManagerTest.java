@@ -3,6 +3,7 @@ package org.briarproject;
 import net.jodah.concurrentunit.Waiter;
 
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.blogs.BlogCommentHeader;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPost;
@@ -31,6 +32,7 @@ import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.transport.TransportModule;
+import org.briarproject.util.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,6 +52,10 @@ import javax.inject.Inject;
 
 import static junit.framework.Assert.assertFalse;
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
+import static org.briarproject.api.blogs.MessageType.COMMENT;
+import static org.briarproject.api.blogs.MessageType.POST;
+import static org.briarproject.api.blogs.MessageType.WRAPPED_COMMENT;
+import static org.briarproject.api.blogs.MessageType.WRAPPED_POST;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
@@ -89,7 +95,6 @@ public class BlogManagerTest {
 	private final int TIMEOUT = 15000;
 	private final String AUTHOR1 = "Author 1";
 	private final String AUTHOR2 = "Author 2";
-	private final String CONTENT_TYPE = "text/plain";
 
 	private static final Logger LOG =
 			Logger.getLogger(ForumSharingIntegrationTest.class.getName());
@@ -172,15 +177,15 @@ public class BlogManagerTest {
 		defaultInit();
 
 		// check that blog0 has no posts
-		final byte[] body = TestUtils.getRandomBytes(42);
+		final String body = TestUtils.getRandomString(42);
 		Collection<BlogPostHeader> headers0 =
 				blogManager0.getPostHeaders(blog0.getId());
 		assertEquals(0, headers0.size());
 
 		// add a post to blog0
 		BlogPost p = blogPostFactory
-				.createBlogPost(blog0.getId(), null, clock.currentTimeMillis(),
-						null, author0, CONTENT_TYPE, body);
+				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
+						author0, body);
 		blogManager0.addLocalPost(p);
 
 		// check that post is now in blog0
@@ -188,7 +193,7 @@ public class BlogManagerTest {
 		assertEquals(1, headers0.size());
 
 		// check that body is there
-		assertArrayEquals(body,
+		assertArrayEquals(StringUtils.toUtf8(body),
 				blogManager0.getPostBody(p.getMessage().getId()));
 
 		// make sure that blog0 at author1 doesn't have the post yet
@@ -203,9 +208,10 @@ public class BlogManagerTest {
 		// make sure post arrived
 		headers1 = blogManager1.getPostHeaders(blog0.getId());
 		assertEquals(1, headers1.size());
+		assertEquals(POST, headers1.iterator().next().getType());
 
 		// check that body is there
-		assertArrayEquals(body,
+		assertArrayEquals(StringUtils.toUtf8(body),
 				blogManager1.getPostBody(p.getMessage().getId()));
 
 		stopLifecycles();
@@ -217,10 +223,10 @@ public class BlogManagerTest {
 		defaultInit();
 
 		// add a post to blog1
-		final byte[] body = TestUtils.getRandomBytes(42);
+		final String body = TestUtils.getRandomString(42);
 		BlogPost p = blogPostFactory
-				.createBlogPost(blog1.getId(), null, clock.currentTimeMillis(),
-						null, author0, CONTENT_TYPE, body);
+				.createBlogPost(blog1.getId(), clock.currentTimeMillis(), null,
+						author0, body);
 		blogManager0.addLocalPost(p);
 
 		// check that post is now in blog1
@@ -283,6 +289,241 @@ public class BlogManagerTest {
 		// blogs have not been removed
 		assertEquals(2, blogManager0.getBlogs().size());
 		assertEquals(2, blogManager1.getBlogs().size());
+
+		stopLifecycles();
+	}
+
+	@Test
+	public void testBlogComment() throws Exception {
+		startLifecycles();
+		defaultInit();
+
+		// add a post to blog0
+		final String body = TestUtils.getRandomString(42);
+		BlogPost p = blogPostFactory
+				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
+						author0, body);
+		blogManager0.addLocalPost(p);
+
+		// sync the post over
+		sync0To1();
+		deliveryWaiter.await(TIMEOUT, 1);
+
+		// make sure post arrived
+		Collection<BlogPostHeader> headers1 =
+				blogManager1.getPostHeaders(blog0.getId());
+		assertEquals(1, headers1.size());
+		assertEquals(POST, headers1.iterator().next().getType());
+
+		// 1 adds a comment to that blog post
+		String comment = "This is a comment on a blog post!";
+		blogManager1
+				.addLocalComment(author1, blog1.getId(), comment,
+						headers1.iterator().next());
+
+		// sync comment over
+		sync1To0();
+		deliveryWaiter.await(TIMEOUT, 2);
+
+		// make sure comment and wrapped post arrived
+		Collection<BlogPostHeader> headers0 =
+				blogManager0.getPostHeaders(blog1.getId());
+		assertEquals(1, headers0.size());
+		assertEquals(COMMENT, headers0.iterator().next().getType());
+		BlogCommentHeader h = (BlogCommentHeader) headers0.iterator().next();
+		assertEquals(author0, h.getParent().getAuthor());
+
+		// ensure that body can be retrieved from wrapped post
+		assertArrayEquals(StringUtils.toUtf8(body),
+				blogManager0.getPostBody(h.getParentId()));
+
+		// 1 has only their own comment in their blog
+		headers1 = blogManager1.getPostHeaders(blog1.getId());
+		assertEquals(1, headers1.size());
+
+		stopLifecycles();
+	}
+
+	@Test
+	public void testBlogCommentOnOwnPost() throws Exception {
+		startLifecycles();
+		defaultInit();
+
+		// add a post to blog0
+		final String body = TestUtils.getRandomString(42);
+		BlogPost p = blogPostFactory
+				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
+						author0, body);
+		blogManager0.addLocalPost(p);
+
+		// get header of own post
+		Collection<BlogPostHeader> headers0 =
+				blogManager0.getPostHeaders(blog0.getId());
+		assertEquals(1, headers0.size());
+		BlogPostHeader header = headers0.iterator().next();
+
+		// add a comment on own post
+		String comment = "This is a comment on my own blog post!";
+		blogManager0
+				.addLocalComment(author0, blog0.getId(), comment, header);
+
+		// sync the post and comment over
+		sync0To1();
+		deliveryWaiter.await(TIMEOUT, 2);
+
+		// make sure post arrived
+		Collection<BlogPostHeader> headers1 =
+				blogManager1.getPostHeaders(blog0.getId());
+		assertEquals(2, headers1.size());
+
+		stopLifecycles();
+	}
+
+	@Test
+	public void testCommentOnComment() throws Exception {
+		startLifecycles();
+		defaultInit();
+
+		// add a post to blog0
+		final String body = TestUtils.getRandomString(42);
+		BlogPost p = blogPostFactory
+				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
+						author0, body);
+		blogManager0.addLocalPost(p);
+
+		// sync the post over
+		sync0To1();
+		deliveryWaiter.await(TIMEOUT, 1);
+
+		// make sure post arrived
+		Collection<BlogPostHeader> headers1 =
+				blogManager1.getPostHeaders(blog0.getId());
+		assertEquals(1, headers1.size());
+		assertEquals(POST, headers1.iterator().next().getType());
+
+		// 1 reblogs that blog post
+		blogManager1
+				.addLocalComment(author1, blog1.getId(), null,
+						headers1.iterator().next());
+
+		// sync comment over
+		sync1To0();
+		deliveryWaiter.await(TIMEOUT, 2);
+
+		// make sure comment and wrapped post arrived
+		Collection<BlogPostHeader> headers0 =
+				blogManager0.getPostHeaders(blog1.getId());
+		assertEquals(1, headers0.size());
+
+		// get header of comment
+		BlogPostHeader cHeader = headers0.iterator().next();
+		assertEquals(COMMENT, cHeader.getType());
+
+		// comment on the comment
+		String comment = "This is a comment on a reblogged post.";
+		blogManager0
+				.addLocalComment(author0, blog0.getId(), comment, cHeader);
+
+		// sync comment over
+		sync0To1();
+		deliveryWaiter.await(TIMEOUT, 3);
+
+		// check that comment arrived
+		headers1 =
+				blogManager1.getPostHeaders(blog0.getId());
+		assertEquals(2, headers1.size());
+
+		// get header of comment
+		cHeader = null;
+		for (BlogPostHeader h : headers1) {
+			if (h.getType() == COMMENT) {
+				cHeader = h;
+			}
+		}
+		assertTrue(cHeader != null);
+
+		// another comment on the comment
+		String comment2 = "This is a comment on a comment.";
+		blogManager1.addLocalComment(author1, blog1.getId(), comment2, cHeader);
+
+		// sync comment over
+		sync1To0();
+		deliveryWaiter.await(TIMEOUT, 4);
+
+		// make sure new comment arrived
+		headers0 =
+				blogManager0.getPostHeaders(blog1.getId());
+		assertEquals(2, headers0.size());
+		boolean satisfied = false;
+		for (BlogPostHeader h : headers0) {
+			assertEquals(COMMENT, h.getType());
+			BlogCommentHeader c = (BlogCommentHeader) h;
+			if (c.getComment() != null && c.getComment().equals(comment2)) {
+				assertEquals(author0, c.getParent().getAuthor());
+				assertEquals(WRAPPED_COMMENT, c.getParent().getType());
+				assertEquals(comment,
+						((BlogCommentHeader) c.getParent()).getComment());
+				assertEquals(WRAPPED_COMMENT,
+						((BlogCommentHeader) c.getParent()).getParent()
+								.getType());
+				assertEquals(WRAPPED_POST,
+						((BlogCommentHeader) ((BlogCommentHeader) c
+								.getParent()).getParent()).getParent()
+								.getType());
+				satisfied = true;
+			}
+		}
+		assertTrue(satisfied);
+
+		stopLifecycles();
+	}
+
+	@Test
+	public void testCommentOnOwnComment() throws Exception {
+		startLifecycles();
+		defaultInit();
+
+		// add a post to blog0
+		final String body = TestUtils.getRandomString(42);
+		BlogPost p = blogPostFactory
+				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
+						author0, body);
+		blogManager0.addLocalPost(p);
+
+		// sync the post over
+		sync0To1();
+		deliveryWaiter.await(TIMEOUT, 1);
+
+		// make sure post arrived
+		Collection<BlogPostHeader> headers1 =
+				blogManager1.getPostHeaders(blog0.getId());
+		assertEquals(1, headers1.size());
+		assertEquals(POST, headers1.iterator().next().getType());
+
+		// 1 reblogs that blog post with a comment
+		String comment = "This is a comment on a post.";
+		blogManager1
+				.addLocalComment(author1, blog1.getId(), comment,
+						headers1.iterator().next());
+
+		// get comment from own blog
+		headers1 = blogManager1.getPostHeaders(blog1.getId());
+		assertEquals(1, headers1.size());
+		assertEquals(COMMENT, headers1.iterator().next().getType());
+		BlogCommentHeader ch = (BlogCommentHeader) headers1.iterator().next();
+		assertEquals(comment, ch.getComment());
+
+		comment = "This is a comment on a post with a comment.";
+		blogManager1.addLocalComment(author1, blog1.getId(), comment, ch);
+
+		// sync both comments over (2 comments + 1 wrapped post)
+		sync1To0();
+		deliveryWaiter.await(TIMEOUT, 3);
+
+		// make sure both comments arrived
+		Collection<BlogPostHeader> headers0 =
+				blogManager0.getPostHeaders(blog1.getId());
+		assertEquals(2, headers0.size());
 
 		stopLifecycles();
 	}

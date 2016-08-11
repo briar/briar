@@ -10,6 +10,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 public interface ClientHelper {
@@ -83,4 +84,9 @@ public interface ClientHelper {
 			throws FormatException;
 
 	BdfList toList(byte[] b, int off, int len) throws FormatException;
+
+	BdfList toList(byte[] b) throws FormatException;
+
+	byte[] sign(BdfList toSign, byte[] privateKey)
+			throws FormatException, GeneralSecurityException;
 }

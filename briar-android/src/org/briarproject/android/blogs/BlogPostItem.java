@@ -32,11 +32,6 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 		return groupId;
 	}
 
-	@Nullable
-	public String getTitle() {
-		return header.getTitle();
-	}
-
 	public long getTimestamp() {
 		return header.getTimestamp();
 	}
@@ -72,11 +67,6 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 		long aTime = getTimeReceived(), bTime = other.getTimeReceived();
 		if (aTime > bTime) return -1;
 		if (aTime < bTime) return 1;
-		// Break ties by post title
-		if (getTitle() != null && other.getTitle() != null) {
-			return String.CASE_INSENSITIVE_ORDER
-					.compare(getTitle(), other.getTitle());
-		}
 		return 0;
 	}
 }

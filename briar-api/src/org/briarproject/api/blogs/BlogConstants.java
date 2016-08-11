@@ -10,12 +10,6 @@ public interface BlogConstants {
 	/** The length of a blogs's description in UTF-8 bytes. */
 	int MAX_BLOG_DESC_LENGTH = 240;
 
-	/** The maximum length of a blog post's content type in UTF-8 bytes. */
-	int MAX_CONTENT_TYPE_LENGTH = 50;
-
-	/** The length of a blog post's title in UTF-8 bytes. */
-	int MAX_BLOG_POST_TITLE_LENGTH = 100;
-
 	/** The maximum length of a blog post's body in bytes. */
 	int MAX_BLOG_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
@@ -31,17 +25,16 @@ public interface BlogConstants {
 	// Metadata keys
 	String KEY_TYPE = "type";
 	String KEY_DESCRIPTION = "description";
-	String KEY_TITLE = "title";
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_TIME_RECEIVED = "timeReceived";
 	String KEY_AUTHOR_ID = "id";
 	String KEY_AUTHOR_NAME = "name";
 	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_AUTHOR = "author";
-	String KEY_CONTENT_TYPE = "contentType";
 	String KEY_READ = "read";
 	String KEY_COMMENT = "comment";
 	String KEY_ORIGINAL_MSG_ID = "originalMessageId";
-	String KEY_CURRENT_MSG_ID = "currentMessageId";
+	String KEY_ORIGINAL_PARENT_MSG_ID = "originalParentMessageId";
+	String KEY_WRAPPED_MSG_ID = "wrappedMessageId";
 
 }

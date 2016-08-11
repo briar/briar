@@ -136,11 +136,8 @@ public class BlogPostFragment extends BaseFragment {
 			ui.date.setText(AndroidUtils.formatDate(ctx, post.getTimestamp()));
 		}
 
-		if (post.getTitle() != null) {
-			ui.title.setText(post.getTitle());
-		} else {
-			ui.title.setVisibility(GONE);
-		}
+		// TODO remove #598
+		ui.title.setVisibility(GONE);
 
 		ui.body.setText(StringUtils.fromUtf8(post.getBody()));
 	}

@@ -1,6 +1,7 @@
 package org.briarproject.api.clients;
 
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.MessageId;
 
 public abstract class PostHeader {
@@ -9,19 +10,16 @@ public abstract class PostHeader {
 	private final MessageId parentId;
 	private final long timestamp;
 	private final Author author;
-	private final Author.Status authorStatus;
-	private final String contentType;
+	private final Status authorStatus;
 	private final boolean read;
 
 	public PostHeader(MessageId id, MessageId parentId, long timestamp,
-			Author author, Author.Status authorStatus, String contentType,
-			boolean read) {
+			Author author, Status authorStatus, boolean read) {
 		this.id = id;
 		this.parentId = parentId;
 		this.timestamp = timestamp;
 		this.author = author;
 		this.authorStatus = authorStatus;
-		this.contentType = contentType;
 		this.read = read;
 	}
 
@@ -33,12 +31,8 @@ public abstract class PostHeader {
 		return author;
 	}
 
-	public Author.Status getAuthorStatus() {
+	public Status getAuthorStatus() {
 		return authorStatus;
-	}
-
-	public String getContentType() {
-		return contentType;
 	}
 
 	public long getTimestamp() {

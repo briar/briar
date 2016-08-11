@@ -50,9 +50,9 @@ public class BlogsModule {
 	}
 
 	@Provides
-	BlogPostFactory provideBlogPostFactory(CryptoComponent crypto,
-			ClientHelper clientHelper) {
-		return new BlogPostFactoryImpl(crypto, clientHelper);
+	BlogPostFactory provideBlogPostFactory(ClientHelper clientHelper,
+			Clock clock) {
+		return new BlogPostFactoryImpl(clientHelper, clock);
 	}
 
 	@Provides

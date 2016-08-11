@@ -38,7 +38,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static org.briarproject.api.forum.ForumConstants.KEY_AUTHOR;
-import static org.briarproject.api.forum.ForumConstants.KEY_CONTENT_TYPE;
 import static org.briarproject.api.forum.ForumConstants.KEY_ID;
 import static org.briarproject.api.forum.ForumConstants.KEY_LOCAL;
 import static org.briarproject.api.forum.ForumConstants.KEY_NAME;
@@ -132,7 +131,6 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				authorMeta.put(KEY_PUBLIC_NAME, a.getPublicKey());
 				meta.put(KEY_AUTHOR, authorMeta);
 			}
-			meta.put(KEY_CONTENT_TYPE, p.getContentType());
 			meta.put(KEY_LOCAL, true);
 			meta.put(KEY_READ, true);
 			clientHelper.addLocalMessage(p.getMessage(), CLIENT_ID, meta, true);
@@ -236,7 +234,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	private Forum parseForum(Group g) throws FormatException {
 		byte[] descriptor = g.getDescriptor();
 		// Name, salt
-		BdfList forum = clientHelper.toList(descriptor, 0, descriptor.length);
+		BdfList forum = clientHelper.toList(descriptor);
 		return new Forum(g, forum.getString(0), forum.getRaw(1));
 	}
 
@@ -262,11 +260,10 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 						identityManager.getAuthorStatus(txn, author.getId());
 			}
 		}
-		String contentType = meta.getString(KEY_CONTENT_TYPE);
 		boolean read = meta.getBoolean(KEY_READ);
 
 		return new ForumPostHeader(id, parentId, timestamp, author,
-				authorStatus, contentType, read);
+				authorStatus, read);
 	}
 
 	private ForumPostHeader getForumPostHeader(MessageId id,
