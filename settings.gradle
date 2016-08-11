@@ -1,5 +1,6 @@
-include ':briar-api', ':briar-android-tests'
+include ':briar-api'
 include ':briar-core'
 include ':briar-desktop'
 include ':briar-tests'
 include ':briar-android'
+include ':briar-android-tests'
