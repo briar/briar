@@ -78,6 +78,8 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	protected void incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 
+		clientHelper.setMessageShared(txn, m, true);
+
 		ForumPostHeader post = getForumPostHeader(txn, m.getId(), meta);
 		ForumPostReceivedEvent event =
 				new ForumPostReceivedEvent(post, m.getGroupId());

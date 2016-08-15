@@ -119,7 +119,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Async delivery
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn2b));
-			oneOf(db).setMessageShared(txn2b, message, true);
 			// Call the hook for the first message
 			oneOf(hook).incomingMessage(txn2b, message, metadata);
 			oneOf(db).getRawMessage(txn2b, messageId);
@@ -209,7 +208,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver message in a new transaction
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
-			oneOf(db).setMessageShared(txn3, message, true);
 			oneOf(db).setMessageState(txn3, message, clientId, DELIVERED);
 			oneOf(hook).incomingMessage(txn3, message, metadata);
 			oneOf(db).getRawMessage(txn3, messageId);
@@ -233,7 +231,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the dependent in a new transaction
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn5));
-			oneOf(db).setMessageShared(txn5, message1, true);
 			oneOf(db).setMessageState(txn5, message1, clientId, DELIVERED);
 			oneOf(hook).incomingMessage(txn5, message1, metadata);
 			oneOf(db).getRawMessage(txn5, messageId1);
@@ -299,7 +296,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the pending message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn3));
-			oneOf(db).setMessageShared(txn3, message, true);
 			oneOf(db).setMessageState(txn3, message, clientId, DELIVERED);
 			oneOf(hook).incomingMessage(txn3, message, metadata);
 			oneOf(db).getRawMessage(txn3, messageId);
@@ -499,7 +495,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// async delivery
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn2));
-			oneOf(db).setMessageShared(txn2, message, true);
 			// Call the hook
 			oneOf(hook).incomingMessage(txn2, message, metadata);
 			oneOf(db).getRawMessage(txn2, messageId);
@@ -627,7 +622,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// async delivery
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn2));
-			oneOf(db).setMessageShared(txn2, message, true);
 			// Call the hook
 			oneOf(hook).incomingMessage(txn2, message, metadata);
 			oneOf(db).getRawMessage(txn2, messageId);
@@ -761,7 +755,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver first message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn2));
-			oneOf(db).setMessageShared(txn2, message, true);
 			oneOf(hook).incomingMessage(txn2, message, metadata);
 			oneOf(db).getRawMessage(txn2, messageId);
 			will(returnValue(raw));
@@ -784,7 +777,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the pending message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn4));
-			oneOf(db).setMessageShared(txn4, message1, true);
 			oneOf(hook).incomingMessage(txn4, message1, metadata);
 			oneOf(db).getRawMessage(txn4, messageId1);
 			will(returnValue(raw));
@@ -842,7 +834,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver first message
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn2));
-			oneOf(db).setMessageShared(txn2, message, true);
 			oneOf(hook).incomingMessage(txn2, message, metadata);
 			oneOf(db).getRawMessage(txn2, messageId);
 			will(returnValue(raw));

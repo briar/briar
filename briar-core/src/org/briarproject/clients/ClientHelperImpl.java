@@ -240,6 +240,12 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
+	public void setMessageShared(Transaction txn, Message m, boolean shared)
+			throws DbException {
+		db.setMessageShared(txn, m, shared);
+	}
+
+	@Override
 	public byte[] toByteArray(BdfDictionary dictionary) throws FormatException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		BdfWriter writer = bdfWriterFactory.createWriter(out);
