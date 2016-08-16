@@ -1,24 +1,17 @@
 package org.briarproject.android.blogs;
 
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.db.DbException;
 
 import java.util.Collection;
 
-public interface FeedController {
+public interface FeedController extends BaseController {
 
-	void onResume();
-
-	void onPause();
-
-	void loadPosts(ResultHandler<Collection<BlogPostItem>> resultHandler);
+	void loadBlogPosts(
+			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler);
 
 	void loadPersonalBlog(ResultHandler<Blog> resultHandler);
-
-	void setOnBlogPostAddedListener(OnBlogPostAddedListener listener);
-
-	interface OnBlogPostAddedListener {
-		void onBlogPostAdded(final BlogPostItem post);
-	}
 
 }

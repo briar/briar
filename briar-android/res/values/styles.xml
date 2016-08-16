@@ -126,7 +126,6 @@
 
 	<style name="BriarCard" parent="CardView">
 		<item name="cardUseCompatPadding">true</item>
-		<item name="contentPadding">@dimen/listitem_vertical_margin</item>
 		<item name="android:layout_margin">@dimen/margin_small</item>
 	</style>
 

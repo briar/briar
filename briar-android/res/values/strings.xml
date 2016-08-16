@@ -35,7 +35,7 @@
 	<string name="nav_drawer_close_description">Close the navigation drawer</string>
 	<string name="contact_list_button">Contacts</string>
 	<string name="forums_button">Forums</string>
-	<string name="blogs_button">Micro Blogs</string>
+	<string name="blogs_button">Blogs</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
 
@@ -207,7 +207,6 @@
 	<string name="blogs_my_blogs_create_hint_desc">A short description of your new blog</string>
 	<string name="blogs_my_blogs_create_hint_desc_explanation">Potential readers may or may not subscribe to your blog based on the content of the description.</string>
 	<string name="blogs_my_blogs_empty_state">You don\'t have any blogs.\n\nWhy don\'t you create one now by clicking the plus in the top right screen corner?</string>
-	<string name="blogs_my_blogs_blog_empty_state">This is the place for content of your blog.\n\nIt seems like you haven\'t written anything yet.\n\nPlease tap the pen icon to compose a new blog post.\n\nDon\'t forget to go public and share your blog.</string>
 	<string name="blogs_my_blogs_created">Blog created</string>
 	<string name="blogs_blog_is_empty">This blog is empty</string>
 	<string name="blogs_other_blog_empty_state">This blog is currently empty.\n\nEither the author hasn\'t written anything yet, or the person who shared this blog with you needs to come online, so posts can be synchronized.</string>
@@ -227,6 +226,8 @@
 	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog and all posts?\nNote that this will not remove the blog from other people\'s devices.</string>
 	<string name="blogs_remove_blog_ok">Remove Blog</string>
 	<string name="blogs_blog_removed">Blog Removed</string>
+	<string name="blogs_reblog_comment_hint">Add an optional comment</string>
+	<string name="blogs_reblog_button">Reblog</string>
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>

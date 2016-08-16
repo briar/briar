@@ -45,6 +45,9 @@ public class TrustIndicatorView extends ImageView {
 		}
 		setImageDrawable(ContextCompat.getDrawable(getContext(), res));
 		setVisibility(VISIBLE);
+
+		invalidate();
+		requestLayout();
 	}
 
 }

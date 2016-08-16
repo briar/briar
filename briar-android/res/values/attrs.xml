@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
 	<declare-styleable name="BriarRecyclerView">
 		<attr name="scrollToEnd" format="boolean" />
 		<attr name="emptyText" format="string" />
+	</declare-styleable>
+
+	<declare-styleable name="AuthorView">
+		<attr name="persona" format="enum">
+			<enum name="normal" value="0"/>
+			<enum name="reblogger" value="1"/>
+			<enum name="commenter" value="2"/>
+		</attr>
 	</declare-styleable>
 
 </resources>

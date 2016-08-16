@@ -32,7 +32,6 @@ import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.transport.TransportModule;
-import org.briarproject.util.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,7 +59,6 @@ import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.api.sync.ValidationManager.State.VALID;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -193,8 +191,7 @@ public class BlogManagerTest {
 		assertEquals(1, headers0.size());
 
 		// check that body is there
-		assertArrayEquals(StringUtils.toUtf8(body),
-				blogManager0.getPostBody(p.getMessage().getId()));
+		assertEquals(body, blogManager0.getPostBody(p.getMessage().getId()));
 
 		// make sure that blog0 at author1 doesn't have the post yet
 		Collection<BlogPostHeader> headers1 =
@@ -211,8 +208,7 @@ public class BlogManagerTest {
 		assertEquals(POST, headers1.iterator().next().getType());
 
 		// check that body is there
-		assertArrayEquals(StringUtils.toUtf8(body),
-				blogManager1.getPostBody(p.getMessage().getId()));
+		assertEquals(body, blogManager1.getPostBody(p.getMessage().getId()));
 
 		stopLifecycles();
 	}
@@ -334,8 +330,7 @@ public class BlogManagerTest {
 		assertEquals(author0, h.getParent().getAuthor());
 
 		// ensure that body can be retrieved from wrapped post
-		assertArrayEquals(StringUtils.toUtf8(body),
-				blogManager0.getPostBody(h.getParentId()));
+		assertEquals(body, blogManager0.getPostBody(h.getParentId()));
 
 		// 1 has only their own comment in their blog
 		headers1 = blogManager1.getPostHeaders(blog1.getId());
@@ -375,6 +370,13 @@ public class BlogManagerTest {
 		Collection<BlogPostHeader> headers1 =
 				blogManager1.getPostHeaders(blog0.getId());
 		assertEquals(2, headers1.size());
+		for (BlogPostHeader h : headers1) {
+			if (h.getType() == POST) {
+				assertEquals(body, blogManager1.getPostBody(h.getId()));
+			} else {
+				assertEquals(comment, ((BlogCommentHeader)h).getComment());
+			}
+		}
 
 		stopLifecycles();
 	}

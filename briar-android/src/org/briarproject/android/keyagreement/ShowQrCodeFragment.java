@@ -343,12 +343,12 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		});
 	}
 
-	private void finish() {
+	@Override
+	protected void finish() {
 		getActivity().getSupportFragmentManager().popBackStack();
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
-
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);

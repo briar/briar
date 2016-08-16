@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
@@ -35,11 +34,9 @@ import javax.inject.Inject;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
-import static org.briarproject.android.blogs.BlogActivity.IS_MY_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.IS_NEW_BLOG;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_DESC_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_TITLE_LENGTH;
@@ -180,7 +177,6 @@ public class CreateBlogActivity extends BriarActivity
 						new Intent(CreateBlogActivity.this, BlogActivity.class);
 				i.putExtra(GROUP_ID, b.getId().getBytes());
 				i.putExtra(BLOG_NAME, b.getName());
-				i.putExtra(IS_MY_BLOG, true);
 				i.putExtra(IS_NEW_BLOG, true);
 				ActivityOptionsCompat options =
 						makeCustomAnimation(CreateBlogActivity.this,

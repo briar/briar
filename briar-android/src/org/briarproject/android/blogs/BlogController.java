@@ -11,26 +11,20 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface BlogController extends ActivityLifecycleController {
+public interface BlogController extends BaseController {
 
 	void setGroupId(GroupId g);
 
 	void loadBlogPosts(
 			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler);
 
-	void loadBlogPost(BlogPostHeader header,
-			ResultExceptionHandler<BlogPostItem, DbException> handler);
-
 	void loadBlogPost(MessageId m,
 			ResultExceptionHandler<BlogPostItem, DbException> handler);
+
+	void isMyBlog(ResultExceptionHandler<Boolean, DbException> handler);
 
 	void canDeleteBlog(ResultExceptionHandler<Boolean, DbException> handler);
 
 	void deleteBlog(ResultExceptionHandler<Void, DbException> handler);
-
-	interface BlogPostListener {
-		@UiThread
-		void onBlogPostAdded(BlogPostHeader header, boolean local);
-	}
 
 }

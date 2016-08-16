@@ -12,16 +12,14 @@ import org.briarproject.api.sync.MessageId;
 // This class is not thread-safe
 class BlogPostItem implements Comparable<BlogPostItem> {
 
-	private final GroupId groupId;
 	private final BlogPostHeader header;
-	private final byte[] body;
+	protected String body;
 	private boolean read;
 
-	BlogPostItem(GroupId groupId, BlogPostHeader header, byte[] body) {
-		this.groupId = groupId;
+	BlogPostItem(BlogPostHeader header, @Nullable String body) {
 		this.header = header;
 		this.body = body;
-		read = header.isRead();
+		this.read = header.isRead();
 	}
 
 	public MessageId getId() {
@@ -29,15 +27,11 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 	}
 
 	public GroupId getGroupId() {
-		return groupId;
+		return header.getGroupId();
 	}
 
 	public long getTimestamp() {
 		return header.getTimestamp();
-	}
-
-	public long getTimeReceived() {
-		return header.getTimeReceived();
 	}
 
 	public Author getAuthor() {
@@ -48,7 +42,7 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 		return header.getAuthorStatus();
 	}
 
-	public byte[] getBody() {
+	public String getBody() {
 		return body;
 	}
 
@@ -56,15 +50,23 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 		return read;
 	}
 
-	public void setRead(boolean read) {
-		this.read = read;
+	public BlogPostHeader getHeader() {
+		return header;
+	}
+
+	BlogPostHeader getPostHeader() {
+		return getHeader();
 	}
 
 	@Override
 	public int compareTo(@NonNull BlogPostItem other) {
 		if (this == other) return 0;
+		return compare(getHeader(), other.getHeader());
+	}
+
+	protected static int compare(BlogPostHeader h1, BlogPostHeader h2) {
 		// The newest post comes first
-		long aTime = getTimeReceived(), bTime = other.getTimeReceived();
+		long aTime = h1.getTimeReceived(), bTime = h2.getTimeReceived();
 		if (aTime > bTime) return -1;
 		if (aTime < bTime) return 1;
 		return 0;

@@ -7,10 +7,24 @@
 	<de.hdodenhof.circleimageview.CircleImageView
 		android:id="@+id/avatar"
 		style="@style/BriarAvatar"
-		android:layout_width="30dp"
-		android:layout_height="30dp"
+		android:layout_width="@dimen/blogs_avatar_normal_size"
+		android:layout_height="@dimen/blogs_avatar_normal_size"
+		android:layout_centerVertical="true"
 		android:layout_marginRight="@dimen/margin_medium"
 		tools:src="@drawable/ic_launcher"/>
+
+	<ImageView
+		android:id="@+id/avatarIcon"
+		android:layout_width="@dimen/blogs_avatar_icon_size"
+		android:layout_height="@dimen/blogs_avatar_icon_size"
+		android:layout_alignBottom="@+id/avatar"
+		android:layout_alignRight="@+id/avatar"
+		android:background="@drawable/bubble_white"
+		android:padding="2dp"
+		android:scaleType="fitCenter"
+		android:src="@drawable/ic_repeat"
+		android:visibility="invisible"
+		tools:ignore="ContentDescription"/>
 
 	<TextView
 		android:id="@+id/authorName"
@@ -20,7 +34,7 @@
 		android:layout_toEndOf="@+id/avatar"
 		android:layout_toRightOf="@+id/avatar"
 		android:textColor="@color/briar_text_primary"
-		android:textSize="@dimen/text_size_tiny"
+		android:textSize="@dimen/text_size_small"
 		tools:text="Author Name"/>
 
 	<org.briarproject.android.util.TrustIndicatorView
@@ -42,7 +56,7 @@
 		android:layout_toEndOf="@+id/avatar"
 		android:layout_toRightOf="@+id/avatar"
 		android:gravity="bottom"
-		android:textColor="@color/briar_text_primary"
+		android:textColor="@color/briar_text_secondary"
 		android:textSize="@dimen/text_size_tiny"
 		tools:text="yesterday"/>
 

@@ -39,6 +39,10 @@ public abstract class BaseFragment extends Fragment {
 		listener.onFragmentCreated(getUniqueTag());
 	}
 
+	protected void finish() {
+		getActivity().supportFinishAfterTransition();
+	}
+
 	public interface BaseFragmentListener {
 
 		void showLoadingScreen(boolean isBlocking, int stringId);

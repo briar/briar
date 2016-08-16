@@ -6,10 +6,10 @@ import org.briarproject.android.blogs.BlogActivity;
 import org.briarproject.android.blogs.BlogFragment;
 import org.briarproject.android.blogs.BlogListFragment;
 import org.briarproject.android.blogs.BlogPostFragment;
-import org.briarproject.android.blogs.BlogsFragment;
 import org.briarproject.android.blogs.CreateBlogActivity;
 import org.briarproject.android.blogs.FeedFragment;
-import org.briarproject.android.blogs.MyBlogsFragment;
+import org.briarproject.android.blogs.ReblogActivity;
+import org.briarproject.android.blogs.ReblogFragment;
 import org.briarproject.android.blogs.RssFeedImportActivity;
 import org.briarproject.android.blogs.RssFeedManageActivity;
 import org.briarproject.android.blogs.WriteBlogPostActivity;
@@ -93,6 +93,10 @@ public interface ActivityComponent {
 
 	void inject(BlogPostFragment fragment);
 
+	void inject(ReblogFragment fragment);
+
+	void inject(ReblogActivity activity);
+
 	void inject(SettingsActivity activity);
 
 	void inject(ChangePasswordActivity activity);
@@ -106,10 +110,8 @@ public interface ActivityComponent {
 	// Fragments
 	void inject(ContactListFragment fragment);
 	void inject(ForumListFragment fragment);
-	void inject(BlogsFragment fragment);
 	void inject(BlogListFragment fragment);
 	void inject(FeedFragment fragment);
-	void inject(MyBlogsFragment fragment);
 	void inject(IntroFragment fragment);
 	void inject(ShowQrCodeFragment fragment);
 	void inject(ContactChooserFragment fragment);

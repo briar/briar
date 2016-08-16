@@ -212,6 +212,17 @@
 		</activity>
 
 		<activity
+			android:name=".android.blogs.ReblogActivity"
+			android:label="@string/blogs_reblog_button"
+			android:parentActivityName=".android.blogs.BlogActivity"
+			android:windowSoftInputMode="stateHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.blogs.BlogActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name=".android.blogs.RssFeedImportActivity"
 			android:label="@string/blogs_rss_feeds_import"
 			android:parentActivityName=".android.NavDrawerActivity"

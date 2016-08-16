@@ -21,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.blogs.BlogsFragment;
+import org.briarproject.android.blogs.FeedFragment;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.TransportStateListener;
@@ -82,7 +82,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 			startFragment(ContactListFragment.newInstance());
 		}
 		else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
-			startFragment(BlogsFragment.newInstance());
+			startFragment(FeedFragment.newInstance());
 		}
 		setIntent(null);
 	}
@@ -186,7 +186,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 				startFragment(ForumListFragment.newInstance());
 				break;
 			case R.id.nav_btn_blogs:
-				startFragment(BlogsFragment.newInstance());
+				startFragment(FeedFragment.newInstance());
 				break;
 			case R.id.nav_btn_settings:
 				startActivity(new Intent(this, SettingsActivity.class));

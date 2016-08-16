@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.blogs.BlogController.BlogPostListener;
+import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
@@ -42,12 +42,12 @@ import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
-import static org.briarproject.android.blogs.BlogActivity.IS_MY_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.IS_NEW_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_SHARE;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
-public class BlogFragment extends BaseFragment implements BlogPostListener {
+public class BlogFragment extends BaseFragment implements
+		OnBlogPostAddedListener {
 
 	public final static String TAG = BlogFragment.class.getName();
 
@@ -56,20 +56,18 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 
 	private GroupId groupId;
 	private String blogName;
-	private boolean myBlog;
 	private BlogPostAdapter adapter;
 	private BriarRecyclerView list;
-	private MenuItem deleteButton;
+	private MenuItem writeButton, deleteButton;
 
 	static BlogFragment newInstance(GroupId groupId, String name,
-			boolean myBlog, boolean isNew) {
+			boolean isNew) {
 
 		BlogFragment f = new BlogFragment();
 
 		Bundle bundle = new Bundle();
 		bundle.putByteArray(GROUP_ID, groupId.getBytes());
 		bundle.putString(BLOG_NAME, name);
-		bundle.putBoolean(IS_MY_BLOG, myBlog);
 		bundle.putBoolean(IS_NEW_BLOG, isNew);
 
 		f.setArguments(bundle);
@@ -88,7 +86,6 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 		if (b == null) throw new IllegalStateException("No group ID in args");
 		groupId = new GroupId(b);
 		blogName = args.getString(BLOG_NAME);
-		myBlog = args.getBoolean(IS_MY_BLOG);
 		boolean isNew = args.getBoolean(IS_NEW_BLOG);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
@@ -99,12 +96,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.showProgressBar();
-		if (myBlog) {
-			list.setEmptyText(
-					getString(R.string.blogs_my_blogs_blog_empty_state));
-		} else {
-			list.setEmptyText(getString(R.string.blogs_other_blog_empty_state));
-		}
+		list.setEmptyText(getString(R.string.blogs_other_blog_empty_state));
 
 		// show snackbar if this blog was just created
 		if (isNew) {
@@ -128,7 +120,8 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	@Override
 	public void onStart() {
 		super.onStart();
-		if (!myBlog) checkIfBlogCanBeDeleted();
+		checkIfThisIsMyBlog();
+		checkIfBlogCanBeDeleted();
 	}
 
 	@Override
@@ -146,13 +139,10 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		if (myBlog) {
-			inflater.inflate(R.menu.blogs_my_blog_actions, menu);
-		} else {
-			inflater.inflate(R.menu.blogs_blog_actions, menu);
-			deleteButton = menu.findItem(R.id.action_blog_delete);
-			deleteButton.setVisible(false);
-		}
+		inflater.inflate(R.menu.blogs_blog_actions, menu);
+		writeButton = menu.findItem(R.id.action_write_blog_post);
+		deleteButton = menu.findItem(R.id.action_blog_delete);
+
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
@@ -199,7 +189,9 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	public void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 
-		if (request == REQUEST_SHARE && result == RESULT_OK) {
+		if (request == REQUEST_WRITE_POST && result == RESULT_OK) {
+			displaySnackbar(R.string.blogs_blog_post_created);
+		} else if (request == REQUEST_SHARE && result == RESULT_OK) {
 			displaySnackbar(R.string.blogs_sharing_snackbar);
 		}
 	}
@@ -217,7 +209,12 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						adapter.add(post);
-						if (local) list.scrollToPosition(0);
+						if (local) {
+							list.scrollToPosition(0);
+							displaySnackbar(R.string.blogs_blog_post_created);
+						} else {
+							displaySnackbar(R.string.blogs_blog_post_received);
+						}
 					}
 
 					@Override
@@ -251,6 +248,25 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 				});
 	}
 
+	private void checkIfThisIsMyBlog() {
+		blogController.canDeleteBlog(
+				new UiResultExceptionHandler<Boolean, DbException>(
+						getActivity()) {
+					@Override
+					public void onResultUi(Boolean isMyBlog) {
+						if (isMyBlog) {
+							showWriteButton();
+						}
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						getActivity().finish();
+					}
+				});
+	}
+
 	private void checkIfBlogCanBeDeleted() {
 		blogController.canDeleteBlog(
 				new UiResultExceptionHandler<Boolean, DbException>(
@@ -268,6 +284,11 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 						getActivity().finish();
 					}
 				});
+	}
+
+	private void showWriteButton() {
+		if (writeButton != null)
+			writeButton.setVisible(true);
 	}
 
 	private void showDeleteButton() {

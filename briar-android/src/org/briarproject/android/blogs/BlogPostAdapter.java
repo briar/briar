@@ -6,21 +6,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.util.AuthorView;
-import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
 
-class BlogPostAdapter extends
-		RecyclerView.Adapter<BlogPostAdapter.BlogPostHolder> {
+class BlogPostAdapter extends RecyclerView.Adapter<BlogPostViewHolder> {
 
 	private SortedList<BlogPostItem> posts = new SortedList<>(
 			BlogPostItem.class, new SortedList.Callback<BlogPostItem>() {
-
 		@Override
 		public int compare(BlogPostItem a, BlogPostItem b) {
 			return a.compareTo(b);
@@ -56,7 +50,6 @@ class BlogPostAdapter extends
 			return a.getId().equals(b.getId());
 		}
 	});
-
 	private final Context ctx;
 	private final OnBlogPostClickListener listener;
 
@@ -66,30 +59,18 @@ class BlogPostAdapter extends
 	}
 
 	@Override
-	public BlogPostHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public BlogPostViewHolder onCreateViewHolder(ViewGroup parent,
+			int viewType) {
 		View v = LayoutInflater.from(ctx).inflate(
 				R.layout.list_item_blog_post, parent, false);
-		return new BlogPostHolder(v);
+		BlogPostViewHolder ui = new BlogPostViewHolder(v);
+		ui.setOnBlogPostClickListener(listener);
+		return ui;
 	}
 
 	@Override
-	public void onBindViewHolder(final BlogPostHolder ui, int position) {
-		final BlogPostItem post = getItem(position);
-
-		// author and date
-		ui.author.setAuthor(post.getAuthor());
-		ui.author.setAuthorStatus(post.getAuthorStatus());
-		ui.author.setDate(post.getTimestamp());
-
-		// post body
-		ui.body.setText(StringUtils.fromUtf8(post.getBody()));
-
-		ui.layout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onBlogPostClick(post);
-			}
-		});
+	public void onBindViewHolder(BlogPostViewHolder ui, int position) {
+		ui.bindItem(getItem(position));
 	}
 
 	@Override
@@ -119,23 +100,6 @@ class BlogPostAdapter extends
 
 	public boolean isEmpty() {
 		return posts.size() == 0;
-	}
-
-	static class BlogPostHolder extends RecyclerView.ViewHolder {
-
-		private final ViewGroup layout;
-		private final AuthorView author;
-		private final ImageView comment;
-		private final TextView body;
-
-		BlogPostHolder(View v) {
-			super(v);
-
-			layout = (ViewGroup) v;
-			author = (AuthorView) v.findViewById(R.id.authorView);
-			comment = (ImageView) v.findViewById(R.id.commentView);
-			body = (TextView) v.findViewById(R.id.bodyView);
-		}
 	}
 
 	interface OnBlogPostClickListener {
