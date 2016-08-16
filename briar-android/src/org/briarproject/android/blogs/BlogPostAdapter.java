@@ -6,18 +6,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.android.util.TrustIndicatorView;
-import org.briarproject.api.identity.Author;
+import org.briarproject.android.util.AuthorView;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
-
-import de.hdodenhof.circleimageview.CircleImageView;
-import im.delight.android.identicons.IdenticonDrawable;
 
 class BlogPostAdapter extends
 		RecyclerView.Adapter<BlogPostAdapter.BlogPostHolder> {
@@ -80,14 +76,10 @@ class BlogPostAdapter extends
 	public void onBindViewHolder(final BlogPostHolder ui, int position) {
 		final BlogPostItem post = getItem(position);
 
-		Author author = post.getAuthor();
-		IdenticonDrawable d = new IdenticonDrawable(author.getId().getBytes());
-		ui.avatar.setImageDrawable(d);
-		ui.author.setText(author.getName());
-		ui.trust.setTrustLevel(post.getAuthorStatus());
-
-		// date
-		ui.date.setText(AndroidUtils.formatDate(ctx, post.getTimestamp()));
+		// author and date
+		ui.author.setAuthor(post.getAuthor());
+		ui.author.setAuthorStatus(post.getAuthorStatus());
+		ui.author.setDate(post.getTimestamp());
 
 		// post body
 		ui.body.setText(StringUtils.fromUtf8(post.getBody()));
@@ -132,20 +124,16 @@ class BlogPostAdapter extends
 	static class BlogPostHolder extends RecyclerView.ViewHolder {
 
 		private final ViewGroup layout;
-		private final CircleImageView avatar;
-		private final TextView author;
-		private final TrustIndicatorView trust;
-		private final TextView date;
+		private final AuthorView author;
+		private final ImageView comment;
 		private final TextView body;
 
 		BlogPostHolder(View v) {
 			super(v);
 
 			layout = (ViewGroup) v;
-			avatar = (CircleImageView) v.findViewById(R.id.avatar);
-			author = (TextView) v.findViewById(R.id.authorName);
-			trust = (TrustIndicatorView) v.findViewById(R.id.trustIndicator);
-			date = (TextView) v.findViewById(R.id.dateView);
+			author = (AuthorView) v.findViewById(R.id.authorView);
+			comment = (ImageView) v.findViewById(R.id.commentView);
 			body = (TextView) v.findViewById(R.id.bodyView);
 		}
 	}
