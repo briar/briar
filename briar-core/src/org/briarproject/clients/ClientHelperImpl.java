@@ -240,7 +240,7 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public void setMessageShared(Transaction txn, Message m, boolean shared)
+	public void setMessageShared(Transaction txn, MessageId m, boolean shared)
 			throws DbException {
 		db.setMessageShared(txn, m, shared);
 	}

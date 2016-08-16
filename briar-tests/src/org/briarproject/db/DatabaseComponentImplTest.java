@@ -751,7 +751,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			db.setMessageShared(transaction, message, true);
+			db.setMessageShared(transaction, message.getId(), true);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected

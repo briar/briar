@@ -1,17 +1,17 @@
 package org.briarproject.api.event;
 
-import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageId;
 
 /** An event that is broadcast when a message is shared. */
 public class MessageSharedEvent extends Event {
 
-	private final Message message;
+	private final MessageId messageId;
 
-	public MessageSharedEvent(Message message) {
-		this.message = message;
+	public MessageSharedEvent(MessageId message) {
+		this.messageId = message;
 	}
 
-	public Message getMessage() {
-		return message;
+	public MessageId getMessageId() {
+		return messageId;
 	}
 }
