@@ -1,5 +1,6 @@
 package org.briarproject.feed;
 
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.feed.FeedManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
@@ -20,10 +21,10 @@ public class FeedModule {
 	@Provides
 	@Singleton
 	FeedManager provideFeedManager(FeedManagerImpl feedManager,
-			LifecycleManager lifecycleManager) {
+			LifecycleManager lifecycleManager, EventBus eventBus) {
 
 		lifecycleManager.registerClient(feedManager);
-		lifecycleManager.registerService(feedManager);
+		eventBus.addListener(feedManager);
 		return feedManager;
 	}
 

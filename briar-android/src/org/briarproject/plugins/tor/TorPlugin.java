@@ -27,6 +27,7 @@ import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
 import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
+import org.briarproject.api.plugins.TorConstants;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -72,18 +73,17 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
+import static org.briarproject.api.plugins.TorConstants.CONTROL_PORT;
+import static org.briarproject.api.plugins.TorConstants.SOCKS_PORT;
 import static org.briarproject.util.PrivacyUtils.scrubOnion;
 
 class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
-
-	static final TransportId ID = new TransportId("tor");
 
 	private static final String PROP_ONION = "onion";
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
-	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
 	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
 	private static final Logger LOG =
@@ -140,7 +140,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public TransportId getId() {
-		return ID;
+		return TorConstants.ID;
 	}
 
 	@Override

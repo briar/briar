@@ -8,6 +8,7 @@ import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPost;
@@ -21,14 +22,16 @@ import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.feed.Feed;
 import org.briarproject.api.feed.FeedManager;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.IoExecutor;
-import org.briarproject.api.lifecycle.Service;
-import org.briarproject.api.lifecycle.ServiceException;
+import org.briarproject.api.plugins.TorConstants;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -39,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +51,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -62,8 +67,9 @@ import static org.briarproject.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
 import static org.briarproject.api.feed.FeedConstants.FETCH_INTERVAL;
 import static org.briarproject.api.feed.FeedConstants.FETCH_UNIT;
 import static org.briarproject.api.feed.FeedConstants.KEY_FEEDS;
+import static org.briarproject.api.plugins.TorConstants.SOCKS_PORT;
 
-class FeedManagerImpl implements FeedManager, Service, Client {
+class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(FeedManagerImpl.class.getName());
@@ -78,8 +84,9 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 	private final DatabaseComponent db;
 	private final PrivateGroupFactory privateGroupFactory;
 	private final ClientHelper clientHelper;
-	private IdentityManager identityManager;
+	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
+	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
 
 	@Inject
 	@SuppressWarnings("WeakerAccess")
@@ -109,8 +116,20 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 	}
 
 	@Override
-	public void startService() throws ServiceException {
+	public void eventOccurred(Event e) {
+		if (e instanceof TransportEnabledEvent) {
+			TransportId t = ((TransportEnabledEvent) e).getTransportId();
+			if (t.equals(TorConstants.ID)) {
+				startFeedExecutor();
+			}
+		}
+	}
+
+	private void startFeedExecutor() {
+		if (fetcherStarted.getAndSet(true)) return;
+		LOG.info("Tor started, scheduling RSS feed fetcher");
 		Runnable fetcher = new Runnable() {
+			@Override
 			public void run() {
 				ioExecutor.execute(new Runnable() {
 					@Override
@@ -122,11 +141,6 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 		};
 		feedExecutor.scheduleWithFixedDelay(fetcher, FETCH_DELAY_INITIAL,
 				FETCH_INTERVAL, FETCH_UNIT);
-	}
-
-	@Override
-	public void stopService() throws ServiceException {
-		// feedExecutor will be stopped by LifecycleManager
 	}
 
 	@Override
@@ -341,11 +355,9 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 
 	private InputStream getFeedInputStream(String url) throws IOException {
 		// Set proxy
-		// TODO verify and use local Tor proxy address/port
-		String proxyHost = "localhost";
-		int proxyPort = 59050;
-		Proxy proxy = new Proxy(Proxy.Type.SOCKS,
-				new InetSocketAddress(proxyHost, proxyPort));
+		SocketAddress socketAddress =
+				new InetSocketAddress("127.0.0.1", SOCKS_PORT);
+		Proxy proxy = new Proxy(Proxy.Type.SOCKS, socketAddress);
 
 		// Build HTTP Client
 		OkHttpClient client = new OkHttpClient.Builder()
