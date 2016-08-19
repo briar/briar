@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.api.identity.Author.Status.UNKNOWN;
+import static org.briarproject.api.identity.Author.Status.UNVERIFIED;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
 class IdentityManagerImpl implements IdentityManager {
@@ -127,10 +128,12 @@ class IdentityManagerImpl implements IdentityManager {
 		for (LocalAuthor a : db.getLocalAuthors(txn))
 			if (a.getId().equals(authorId)) return OURSELVES;
 		// Compare to the IDs of contacts' identities
-		for (Contact c : db.getContacts(txn))
-			if (c.getAuthor().getId().equals(authorId)) return VERIFIED;
-
-		// TODO also handle UNVERIFIED when #261 is implemented
+		for (Contact c : db.getContacts(txn)) {
+			if (c.getAuthor().getId().equals(authorId)) {
+				if (c.isVerified()) return VERIFIED;
+				else return UNVERIFIED;
+			}
+		}
 		return UNKNOWN;
 	}
 

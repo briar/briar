@@ -1091,21 +1091,21 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		// sharer adds invitee as contact
 		contactId1 = contactManager0.addContact(author1,
 				author0.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		// second sharer does the same
 		contactId21 = contactManager2.addContact(author1,
 				author2.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		// invitee adds sharers back
 		contactId0 = contactManager1.addContact(author0,
 				author1.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		contactId2 = contactManager1.addContact(author2,
 				author1.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 	}
 

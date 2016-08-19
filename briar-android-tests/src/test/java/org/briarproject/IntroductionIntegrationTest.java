@@ -164,20 +164,20 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			// Add introducees as contacts
 			contactId1 = contactManager0.addContact(author1,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			contactId2 = contactManager0.addContact(author2,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0,
 					author1.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			ContactId contactId02 = contactManager2.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			assertTrue(contactId0.equals(contactId02));
 
@@ -238,6 +238,18 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			assertTrue(contactManager2
 					.contactExists(author1.getId(), author2.getId()));
 
+			// make sure that introduced contacts are not verified
+			for (Contact c : contactManager1.getActiveContacts()) {
+				if (c.getAuthor().equals(author2)) {
+					assertFalse(c.isVerified());
+				}
+			}
+			for (Contact c : contactManager2.getActiveContacts()) {
+				if (c.getAuthor().equals(author1)) {
+					assertFalse(c.isVerified());
+				}
+			}
+
 			assertDefaultUiMessages();
 		} finally {
 			stopLifecycles();
@@ -256,18 +268,18 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 			// Add introducees as contacts
 			contactId1 = contactManager0.addContact(author1, author0.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			contactId2 = contactManager0.addContact(author2, author0.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0, author1.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			ContactId contactId02 = contactManager2.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			assertTrue(contactId0.equals(contactId02));
 
@@ -349,18 +361,18 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 			// Add introducees as contacts
 			contactId1 = contactManager0.addContact(author1, author0.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			contactId2 = contactManager0.addContact(author2, author0.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0, author1.getId(),
-					master, clock.currentTimeMillis(), false, true
+					master, clock.currentTimeMillis(), false, true, true
 			);
 			ContactId contactId02 = contactManager2.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), false,
-					true
+					true, true
 			);
 			assertTrue(contactId0.equals(contactId02));
 
@@ -437,18 +449,18 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 			// Add introducees as contacts
 			contactId1 = contactManager0.addContact(author1, author0.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			contactId2 = contactManager0.addContact(author2, author0.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0, author1.getId(),
-					master, clock.currentTimeMillis(), false, true
+					master, clock.currentTimeMillis(), false, true, true
 			);
 			ContactId contactId02 = contactManager2.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), false,
-					true
+					true, true
 			);
 			assertTrue(contactId0.equals(contactId02));
 
@@ -516,11 +528,11 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 			// Add introducee as contact
 			contactId1 = contactManager0.addContact(author1, author0.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0, author1.getId(),
-					master, clock.currentTimeMillis(), true, true
+					master, clock.currentTimeMillis(), true, true, true
 			);
 
 			// listen to events
@@ -573,21 +585,21 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			// Add introducees' authors as contacts
 			contactId1 = contactManager0.addContact(author1,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			contactId2 = contactManager0.addContact(author2,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			// Add introducer back
 			contactId0 = null;
 			ContactId contactId01 = contactManager1.addContact(author0,
 					author1.getId(), master, clock.currentTimeMillis(), false,
-					true
+					true, true
 			);
 			ContactId contactId02 = contactManager1.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), false,
-					true
+					true, true
 			);
 
 			// listen to events
@@ -667,20 +679,20 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			// Add introducees as contacts
 			contactId1 = contactManager0.addContact(author1,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			contactId2 = contactManager0.addContact(author2,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0,
 					author1.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			ContactId contactId02 = contactManager2.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			assertTrue(contactId0.equals(contactId02));
 
@@ -764,20 +776,20 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			// Add introducees as contacts
 			contactId1 = contactManager0.addContact(author1,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			contactId2 = contactManager0.addContact(author2,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0,
 					author1.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			ContactId contactId02 = contactManager2.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			assertTrue(contactId0.equals(contactId02));
 
@@ -850,20 +862,20 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			// Add introducees as contacts
 			contactId1 = contactManager0.addContact(author1,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			contactId2 = contactManager0.addContact(author2,
 					author0.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			// Add introducer back
 			contactId0 = contactManager1.addContact(author0,
 					author1.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			ContactId contactId02 = contactManager2.addContact(author0,
 					author2.getId(), master, clock.currentTimeMillis(), true,
-					true
+					true, true
 			);
 			assertTrue(contactId0.equals(contactId02));
 

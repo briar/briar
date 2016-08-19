@@ -362,11 +362,11 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		// 1 and 2 are adding each other
 		contactManager1.addContact(author2,
 				author1.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		contactManager2.addContact(author1,
 				author2.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		assertEquals(3, blogManager1.getBlogs().size());
 
@@ -489,11 +489,11 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		// 1 and 2 are adding each other
 		contactManager1.addContact(author2,
 				author1.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		contactManager2.addContact(author1,
 				author2.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		assertEquals(3, blogManager1.getBlogs().size());
 
@@ -671,24 +671,24 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		// sharer adds invitee as contact
 		contactId1 = contactManager0.addContact(author1,
 				author0.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		contact1 = contactManager0.getContact(contactId1);
 		// sharer adds second contact
 		contactId2 = contactManager0.addContact(author2,
 				author0.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		contact2 = contactManager0.getContact(contactId2);
 		// contacts add sharer back
 		contactId01 = contactManager1.addContact(author0,
 				author1.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		contact01 = contactManager1.getContact(contactId01);
 		contactId02 = contactManager2.addContact(author0,
 				author2.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		contact02 = contactManager2.getContact(contactId02);
 	}

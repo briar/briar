@@ -48,9 +48,9 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey master,long timestamp, boolean alice, boolean active)
-			throws DbException {
-		ContactId c = db.addContact(txn, remote, local, active);
+			SecretKey master,long timestamp, boolean alice, boolean verified,
+			boolean active) throws DbException {
+		ContactId c = db.addContact(txn, remote, local, verified, active);
 		keyManager.addContact(txn, c, master, timestamp, alice);
 		Contact contact = db.getContact(txn, c);
 		for (AddContactHook hook : addHooks)
@@ -60,13 +60,13 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 
 	@Override
 	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
-			long timestamp, boolean alice, boolean active)
+			long timestamp, boolean alice, boolean verified, boolean active)
 			throws DbException {
 		ContactId c;
 		Transaction txn = db.startTransaction(false);
 		try {
 			c = addContact(txn, remote, local, master, timestamp, alice,
-					active);
+					verified, active);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);

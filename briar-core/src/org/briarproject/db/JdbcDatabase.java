@@ -67,8 +67,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 25;
-	private static final int MIN_SCHEMA_VERSION = 25;
+	private static final int SCHEMA_VERSION = 26;
+	private static final int MIN_SCHEMA_VERSION = 26;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -93,6 +93,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " name VARCHAR NOT NULL,"
 					+ " publicKey BINARY NOT NULL,"
 					+ " localAuthorId HASH NOT NULL,"
+					+ " verified BOOLEAN NOT NULL,"
 					+ " active BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
@@ -456,20 +457,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public ContactId addContact(Connection txn, Author remote, AuthorId local,
-			boolean active) throws DbException {
+			boolean verified, boolean active) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
-					+ " (authorId, name, publicKey, localAuthorId, active)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+					+ " (authorId, name, publicKey, localAuthorId, verified, active)"
+					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setString(2, remote.getName());
 			ps.setBytes(3, remote.getPublicKey());
 			ps.setBytes(4, local.getBytes());
-			ps.setBoolean(5, active);
+			ps.setBoolean(5, verified);
+			ps.setBoolean(6, active);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -961,7 +963,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT authorId, name, publicKey,"
-					+ " localAuthorId, active"
+					+ " localAuthorId, verified, active"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -972,11 +974,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
-			boolean active = rs.getBoolean(5);
+			boolean verified = rs.getBoolean(5);
+			boolean active = rs.getBoolean(6);
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, localAuthorId, active);
+			return new Contact(c, author, localAuthorId, verified, active);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -990,7 +993,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, name, publicKey,"
-					+ " localAuthorId, active"
+					+ " localAuthorId, verified, active"
 					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1002,9 +1005,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(4);
 				Author author = new Author(authorId, name, publicKey);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				boolean active = rs.getBoolean(6);
+				boolean verified = rs.getBoolean(6);
+				boolean active = rs.getBoolean(7);
 				contacts.add(new Contact(contactId, author, localAuthorId,
-						active));
+						verified, active));
 			}
 			rs.close();
 			ps.close();
@@ -2235,6 +2239,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setContactVerified(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE contacts SET verified = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, true);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();

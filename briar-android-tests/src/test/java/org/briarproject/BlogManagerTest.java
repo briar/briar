@@ -337,12 +337,12 @@ public class BlogManagerTest {
 		// sharer adds invitee as contact
 		contactId1 = contactManager0.addContact(author1,
 				author0.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 		// invitee adds sharer back
 		contactId0 = contactManager1.addContact(author0,
 				author1.getId(), master, clock.currentTimeMillis(), true,
-				true
+				true, true
 		);
 	}
 
