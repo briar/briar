@@ -53,7 +53,6 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 			as in Gmail/Inbox.
 			 */
 			startFragment(ContactListFragment.newInstance());
-
 		} else {
 			super.onBackPressed();
 		}
@@ -80,7 +79,7 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 		dialog.show();
 	}
 
-	private void startFragment(BaseFragment fragment,
+	public void startFragment(BaseFragment fragment,
 			boolean isAddedToBackStack) {
 		startFragment(fragment, 0, 0, isAddedToBackStack);
 	}

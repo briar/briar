@@ -2,6 +2,7 @@ package org.briarproject.android.keyagreement;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -9,7 +10,8 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarFragmentActivity;
-import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.android.keyagreement.ChooseIdentityFragment.IdentitySelectedListener;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.contact.ContactExchangeListener;
 import org.briarproject.api.contact.ContactExchangeTask;
@@ -32,8 +34,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 
 public class KeyAgreementActivity extends BriarFragmentActivity implements
-		BaseFragment.BaseFragmentListener,
-		ChooseIdentityFragment.IdentitySelectedListener, EventListener,
+		BaseFragmentListener, IdentitySelectedListener, EventListener,
 		ContactExchangeListener {
 
 	private static final Logger LOG =
@@ -43,7 +44,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	private static final int STEP_ID = 1;
 	private static final int STEP_QR = 2;
-	private static final int STEPS = 2;
 
 	@Inject
 	protected EventBus eventBus;
@@ -87,15 +87,14 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 		showStep(localAuthorId == null ? STEP_ID : STEP_QR);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	private void showStep(int step) {
 		switch (step) {
 			case STEP_QR:
-				startFragment(ShowQrCodeFragment.newInstance());
+				startFragment(ShowQrCodeFragment.newInstance(), true);
 				break;
 			case STEP_ID:
 			default:
-				startFragment(ChooseIdentityFragment.newInstance());
+				startFragment(ChooseIdentityFragment.newInstance(), true);
 				break;
 		}
 	}
@@ -118,6 +117,26 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 		if (localAuthorId != null) {
 			byte[] b = localAuthorId.getBytes();
 			state.putByteArray(LOCAL_AUTHOR_ID, b);
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
+			supportFinishAfterTransition();
+		} else {
+			super.onBackPressed();
 		}
 	}
 
