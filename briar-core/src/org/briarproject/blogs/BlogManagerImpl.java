@@ -52,7 +52,6 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.KEY_CONTENT_TYPE;
 import static org.briarproject.api.blogs.BlogConstants.KEY_DESCRIPTION;
-import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
@@ -240,7 +239,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta = new BdfDictionary();
 			if (p.getTitle() != null) meta.put(KEY_TITLE, p.getTitle());
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
 
 			Author a = p.getAuthor();
 			BdfDictionary authorMeta = new BdfDictionary();
@@ -409,9 +407,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		String title = meta.getOptionalString(KEY_TITLE);
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
 		long timeReceived = meta.getLong(KEY_TIME_RECEIVED, timestamp);
-		MessageId parentId = null;
-		if (meta.containsKey(KEY_PARENT))
-			parentId = new MessageId(meta.getRaw(KEY_PARENT));
 
 		BdfDictionary d = meta.getDictionary(KEY_AUTHOR);
 		AuthorId authorId = new AuthorId(d.getRaw(KEY_AUTHOR_ID));
@@ -427,7 +422,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 		String contentType = meta.getString(KEY_CONTENT_TYPE);
 		boolean read = meta.getBoolean(KEY_READ);
-		return new BlogPostHeader(title, id, parentId, timestamp, timeReceived,
-				author, authorStatus, contentType, read);
+		return new BlogPostHeader(title, id, timestamp, timeReceived, author,
+				authorStatus, contentType, read);
 	}
 }

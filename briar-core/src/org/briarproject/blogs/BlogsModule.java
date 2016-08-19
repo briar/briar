@@ -11,6 +11,7 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupFactory;
+import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
 
@@ -64,11 +65,13 @@ public class BlogsModule {
 	@Singleton
 	BlogPostValidator provideBlogPostValidator(
 			ValidationManager validationManager, CryptoComponent crypto,
+			GroupFactory groupFactory, MessageFactory messageFactory,
 			BlogFactory blogFactory, ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock) {
 
 		BlogPostValidator validator = new BlogPostValidator(crypto,
-				blogFactory, clientHelper, metadataEncoder, clock);
+				groupFactory, messageFactory, blogFactory, clientHelper,
+				metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 
 		return validator;

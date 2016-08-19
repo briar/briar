@@ -14,10 +14,10 @@ public class BlogPostHeader extends PostHeader {
 	private final long timeReceived;
 
 	public BlogPostHeader(@Nullable String title, @NotNull MessageId id,
-			@Nullable MessageId parentId, long timestamp, long timeReceived,
-			@NotNull Author author,	@NotNull Status authorStatus,
-			@NotNull String contentType, boolean read) {
-		super(id, parentId, timestamp, author, authorStatus, contentType, read);
+			long timestamp, long timeReceived, @NotNull Author author,
+			@NotNull Status authorStatus, @NotNull String contentType,
+			boolean read) {
+		super(id, null, timestamp, author, authorStatus, contentType, read);
 
 		this.title = title;
 		this.timeReceived = timeReceived;

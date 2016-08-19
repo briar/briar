@@ -29,16 +29,19 @@ public interface BlogConstants {
 	String BLOG_PUBLIC_KEY = "blogPublicKey";
 
 	// Metadata keys
+	String KEY_TYPE = "type";
 	String KEY_DESCRIPTION = "description";
 	String KEY_TITLE = "title";
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_TIME_RECEIVED = "timeReceived";
-	String KEY_PARENT = "parent";
 	String KEY_AUTHOR_ID = "id";
 	String KEY_AUTHOR_NAME = "name";
 	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_AUTHOR = "author";
 	String KEY_CONTENT_TYPE = "contentType";
 	String KEY_READ = "read";
+	String KEY_COMMENT = "comment";
+	String KEY_ORIGINAL_MSG_ID = "originalMessageId";
+	String KEY_CURRENT_MSG_ID = "currentMessageId";
 
 }
