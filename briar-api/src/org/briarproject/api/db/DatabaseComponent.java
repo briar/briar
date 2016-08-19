@@ -424,10 +424,9 @@ public interface DatabaseComponent {
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
 
 	/**
-	 * Marks the given contact as verified or unverified.
+	 * Marks the given contact as verified.
 	 */
-	void setContactVerified(Transaction txn, ContactId c, boolean verified)
-			throws DbException;
+	void setContactVerified(Transaction txn, ContactId c) throws DbException;
 
 	/**
 	 * Marks the given contact as active or inactive.

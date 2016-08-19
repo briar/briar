@@ -576,10 +576,9 @@ interface Database<T> {
 	void resetExpiryTime(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Marks the given contact as verified or unverified.
+	 * Marks the given contact as verified.
 	 */
-	void setContactVerified(T txn, ContactId c, boolean verified)
-			throws DbException;
+	void setContactVerified(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Marks the given contact as active or inactive.

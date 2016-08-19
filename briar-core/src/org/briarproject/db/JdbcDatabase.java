@@ -2249,13 +2249,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setContactVerified(Connection txn, ContactId c,
-			boolean verified) throws DbException {
+	public void setContactVerified(Connection txn, ContactId c)
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE contacts SET verified = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, verified);
+			ps.setBoolean(1, true);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
