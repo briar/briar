@@ -107,7 +107,7 @@ public class PanicResponderActivity extends BriarActivity {
 	}
 
 	private void deleteAllData() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnBackgroundThread(new Runnable() {
 			@Override
 			public void run() {
 				configController.deleteAccount(PanicResponderActivity.this);

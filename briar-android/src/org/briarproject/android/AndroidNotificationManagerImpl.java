@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.UiThread;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -105,7 +106,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final BroadcastReceiver receiver = new DeleteIntentReceiver();
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	// The following must only be accessed on the AndroidExecutor thread
+	// The following must only be accessed on the main UI thread
 	private final Map<GroupId, Integer> contactCounts = new HashMap<>();
 	private final Map<GroupId, Integer> forumCounts = new HashMap<>();
 	private final Map<GroupId, Integer> blogCounts = new HashMap<>();
@@ -139,7 +140,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			throw new ServiceException(e);
 		}
 		// Register a broadcast receiver for notifications being dismissed
-		Future<Void> f = androidExecutor.submit(new Callable<Void>() {
+		Future<Void> f = androidExecutor.runOnUiThread(new Callable<Void>() {
 			@Override
 			public Void call() {
 				IntentFilter filter = new IntentFilter();
@@ -161,7 +162,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void stopService() throws ServiceException {
 		// Clear all notifications and unregister the broadcast receiver
-		Future<Void> f = androidExecutor.submit(new Callable<Void>() {
+		Future<Void> f = androidExecutor.runOnUiThread(new Callable<Void>() {
 			@Override
 			public Void call() {
 				clearPrivateMessageNotification();
@@ -179,6 +180,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
+	@UiThread
 	private void clearPrivateMessageNotification() {
 		contactCounts.clear();
 		contactTotal = 0;
@@ -187,6 +189,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		nm.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
 	}
 
+	@UiThread
 	private void clearForumPostNotification() {
 		forumCounts.clear();
 		forumTotal = 0;
@@ -195,6 +198,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		nm.cancel(FORUM_POST_NOTIFICATION_ID);
 	}
 
+	@UiThread
 	private void clearBlogPostNotification() {
 		blogCounts.clear();
 		blogTotal = 0;
@@ -203,6 +207,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		nm.cancel(BLOG_POST_NOTIFICATION_ID);
 	}
 
+	@UiThread
 	private void clearIntroductionSuccessNotification() {
 		introductionTotal = 0;
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
@@ -256,7 +261,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	private void showPrivateMessageNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (blockContacts) return;
@@ -272,7 +277,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearPrivateMessageNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				Integer count = contactCounts.remove(g);
@@ -283,6 +288,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@UiThread
 	private void updatePrivateMessageNotification() {
 		if (contactTotal == 0) {
 			clearPrivateMessageNotification();
@@ -339,6 +345,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
+	@UiThread
 	private int getDefaults() {
 		int defaults = DEFAULT_LIGHTS;
 		boolean sound = settings.getBoolean("notifySound", true);
@@ -352,7 +359,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllContactNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				clearPrivateMessageNotification();
@@ -361,8 +368,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@UiThread
 	private void showForumPostNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (blockForums) return;
@@ -378,7 +386,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearForumPostNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				Integer count = forumCounts.remove(g);
@@ -389,6 +397,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@UiThread
 	private void updateForumPostNotification() {
 		if (forumTotal == 0) {
 			clearForumPostNotification();
@@ -446,7 +455,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllForumPostNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				clearForumPostNotification();
@@ -454,8 +463,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@UiThread
 	private void showBlogPostNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (blockBlogs) return;
@@ -471,7 +481,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearBlogPostNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				Integer count = blogCounts.remove(g);
@@ -482,6 +492,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@UiThread
 	private void updateBlogPostNotification() {
 		if (blogTotal == 0) {
 			clearBlogPostNotification();
@@ -525,7 +536,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllBlogPostNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				clearBlogPostNotification();
@@ -534,7 +545,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	private void showIntroductionNotification() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (blockIntroductions) return;
@@ -544,6 +555,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
+	@UiThread
 	private void updateIntroductionNotification() {
 		NotificationCompat.Builder b =
 				new NotificationCompat.Builder(appContext);
@@ -583,7 +595,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void blockNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				blockedGroup = g;
@@ -593,7 +605,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void unblockNotification(final GroupId g) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (g.equals(blockedGroup)) blockedGroup = null;
@@ -603,7 +615,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void blockAllContactNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				blockContacts = true;
@@ -614,7 +626,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void unblockAllContactNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				blockContacts = false;
@@ -625,7 +637,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void blockAllForumPostNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				blockForums = true;
@@ -635,7 +647,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void unblockAllForumPostNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				blockForums = false;
@@ -645,7 +657,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void blockAllBlogPostNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				blockBlogs = true;
@@ -655,7 +667,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void unblockAllBlogPostNotifications() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				blockBlogs = false;
@@ -683,7 +695,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			final String action = intent.getAction();
-			androidExecutor.execute(new Runnable() {
+			androidExecutor.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					if (CLEAR_PRIVATE_MESSAGE_ACTION.equals(action)) {

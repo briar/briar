@@ -13,10 +13,21 @@ public interface AndroidExecutor {
 	 * Runs the given task on a background thread with a message queue and
 	 * returns a Future for getting the result.
 	 */
-	<V> Future<V> submit(Callable<V> c);
+	<V> Future<V> runOnBackgroundThread(Callable<V> c);
 
 	/**
 	 * Runs the given task on a background thread with a message queue.
 	 */
-	void execute(Runnable r);
+	void runOnBackgroundThread(Runnable r);
+
+	/**
+	 * Runs the given task on the main UI thread and returns a Future for
+	 * getting the result.
+	 */
+	<V> Future<V> runOnUiThread(Callable<V> c);
+
+	/**
+	 * Runs the given task on the main UI thread.
+	 */
+	void runOnUiThread(Runnable r);
 }

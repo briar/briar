@@ -27,7 +27,7 @@ public class AndroidSystemModule {
 
 	@Provides
 	@Singleton
-	public AndroidExecutor provideAndroidExecutor() {
-		return new AndroidExecutorImpl();
+	public AndroidExecutor provideAndroidExecutor(Application app) {
+		return new AndroidExecutorImpl(app);
 	}
 }
