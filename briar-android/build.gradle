@@ -19,13 +19,9 @@ dependencies {
 	compile("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
 	}
-	compile("com.android.support:preference-v7:$supportVersion") {
-		exclude module: 'support-v4'
-	}
+
 	compile("com.android.support:preference-v14:$supportVersion") {
 		exclude module: 'support-v4'
-		exclude module: 'preference-v7'
-		exclude module: 'recyclerview-v7'
 	}
 	compile("com.android.support:design:$supportVersion") {
 		exclude module: 'support-v4'
@@ -64,7 +60,6 @@ dependencyVerification {
 			'com.google.zxing:core:b4d82452e7a6bf6ec2698904b332431717ed8f9a850224f295aec89de80f2259',
 			'com.android.support:support-v4:81ce890f26d35c75ad17d0f998a7e3230330c3b41e0b629566bc744bee89e448',
 			'com.android.support:appcompat-v7:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',
-			'com.android.support:preference-v7:775101bd07bd052e455761c5c5d9523d7ad59f2f320e3e8cbde241fd6b1d6025',
 			'com.android.support:preference-v14:44881bb46094e86d0bc2426f205419674a5b4eb514b44b5a4659b5de29f71eb7',
 			'com.android.support:design:003e0c0bea0a6891f8b2bc43f20ae7af2a49a17363e5bb10df5ee0bae12fa686',
 			'com.android.support:support-annotations:786ab0d060774fb95cfdaf4878771e14b85733b1af9d72a4aae762dc7c1dff9f',

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
@@ -101,11 +100,9 @@ public class DevReportActivity extends BaseCrashReportDialog
 
 		SharedPreferences prefs = sharedPreferencesFactory.create();
 		excludedFields = new HashSet<>();
-		if (Build.VERSION.SDK_INT >= 11) {
-			for (String name : prefs.getStringSet(PREF_EXCLUDED_FIELDS,
-					new HashSet<String>())) {
-				excludedFields.add(ReportField.valueOf(name));
-			}
+		for (String name : prefs.getStringSet(PREF_EXCLUDED_FIELDS,
+				new HashSet<String>())) {
+			excludedFields.add(ReportField.valueOf(name));
 		}
 
 		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
@@ -367,16 +364,14 @@ public class DevReportActivity extends BaseCrashReportDialog
 			protected void onPostExecute(Boolean success) {
 				final SharedPreferences prefs =
 						sharedPreferencesFactory.create();
-				if (Build.VERSION.SDK_INT >= 11) {
-					final SharedPreferences.Editor prefEditor =
-							prefs.edit();
-					Set<String> fields = new HashSet<>();
-					for (ReportField field : excludedFields) {
-						fields.add(field.name());
-					}
-					prefEditor.putStringSet(PREF_EXCLUDED_FIELDS, fields);
-					prefEditor.apply();
+				final SharedPreferences.Editor prefEditor =
+						prefs.edit();
+				Set<String> fields = new HashSet<>();
+				for (ReportField field : excludedFields) {
+					fields.add(field.name());
 				}
+				prefEditor.putStringSet(PREF_EXCLUDED_FIELDS, fields);
+				prefEditor.apply();
 
 				if (success) {
 					// Retrieve user's comment and email address, if any

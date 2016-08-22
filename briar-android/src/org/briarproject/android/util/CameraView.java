@@ -25,7 +25,6 @@ import static android.hardware.Camera.Parameters.FOCUS_MODE_EDOF;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_FIXED;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
 import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
-import static android.view.SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -59,8 +58,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		super.onAttachedToWindow();
 		setKeepScreenOn(true);
 		SurfaceHolder holder = getHolder();
-		if (Build.VERSION.SDK_INT < 11)
-			holder.setType(SURFACE_TYPE_PUSH_BUFFERS);
 		holder.addCallback(this);
 	}
 
@@ -164,8 +161,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			LOG.info("Setting scene mode to barcode");
 			params.setSceneMode(SCENE_MODE_BARCODE);
 		}
-		if (Build.VERSION.SDK_INT >= 14 &&
-				focusModes.contains(FOCUS_MODE_CONTINUOUS_PICTURE)) {
+		if (focusModes.contains(FOCUS_MODE_CONTINUOUS_PICTURE)) {
 			LOG.info("Setting focus mode to continuous picture");
 			params.setFocusMode(FOCUS_MODE_CONTINUOUS_PICTURE);
 		} else if (focusModes.contains(FOCUS_MODE_CONTINUOUS_VIDEO)) {
@@ -211,12 +207,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 				LOG.info("Size " + size.width + "x" + size.height
 						+ ", stretch " + stretch + ", pixels " + pixels
 						+ ", score " + score);
-			}
-			// Large preview sizes can crash older devices
-			int maxDimension = Math.max(width, height);
-			if (Build.VERSION.SDK_INT < 14 && maxDimension > screenMax) {
-				LOG.info("Too large for screen");
-				continue;
 			}
 			if (bestSize == null || score > bestScore) {
 				bestSize = size;

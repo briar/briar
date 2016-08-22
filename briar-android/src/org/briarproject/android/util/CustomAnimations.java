@@ -2,8 +2,6 @@ package org.briarproject.android.util;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
-import android.os.Build;
 import android.view.ViewGroup;
 
 import static android.view.View.GONE;
@@ -12,25 +10,7 @@ import static android.view.View.VISIBLE;
 
 public class CustomAnimations {
 
-	public static void animateHeight(ViewGroup viewGroup, boolean isExtending,
-			int duration) {
-		if (Build.VERSION.SDK_INT >= 11) {
-			animateHeightPostGingerbread(viewGroup, isExtending, duration);
-		} else {
-			animateHeightGingerbread(viewGroup, isExtending);
-		}
-	}
-
-	private static void animateHeightGingerbread(ViewGroup viewGroup,
-			boolean isExtending) {
-		// No animations for Gingerbread
-		if (isExtending) viewGroup.setVisibility(VISIBLE);
-		else viewGroup.setVisibility(GONE);
-	}
-
-
-	@SuppressLint("NewApi")
-	private static void animateHeightPostGingerbread(final ViewGroup viewGroup,
+	public static void animateHeight(final ViewGroup viewGroup,
 			final boolean isExtending, int duration) {
 		ValueAnimator anim;
 		if (isExtending) {
@@ -74,4 +54,5 @@ public class CustomAnimations {
 		anim.setDuration(duration);
 		anim.start();
 	}
+
 }

@@ -3,11 +3,9 @@ package org.briarproject.android.forum;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -519,14 +517,12 @@ public class ForumActivity extends BriarActivity implements
 			List<Integer> indexList =
 					getSubTreeIndexes(visiblePos, forumEntry.getLevel());
 			if (!indexList.isEmpty()) {
-				if (Build.VERSION.SDK_INT >= 11) {
-					// stop animating children
-					for (int index : indexList) {
-						ValueAnimator anim =
-								animatingEntries.get(forumEntries.get(index));
-						if (anim != null && anim.isRunning()) {
-							anim.cancel();
-						}
+				// stop animating children
+				for (int index : indexList) {
+					ValueAnimator anim =
+							animatingEntries.get(forumEntries.get(index));
+					if (anim != null && anim.isRunning()) {
+						anim.cancel();
 					}
 				}
 				if (indexList.size() == 1) {
@@ -560,7 +556,6 @@ public class ForumActivity extends BriarActivity implements
 			return null;
 		}
 
-		@TargetApi(11)
 		private void animateFadeOut(final ForumViewHolder ui,
 				final ForumEntry addedEntry) {
 			ui.setIsRecyclable(false);
@@ -686,9 +681,7 @@ public class ForumActivity extends BriarActivity implements
 				ui.cell.setBackgroundColor(ContextCompat
 						.getColor(ForumActivity.this,
 								R.color.forum_cell_highlight));
-				if (Build.VERSION.SDK_INT >= 11) {
-					animateFadeOut(ui, addedEntry);
-				}
+				animateFadeOut(ui, addedEntry);
 				addedEntry = null;
 			} else {
 				ui.cell.setBackgroundColor(ContextCompat

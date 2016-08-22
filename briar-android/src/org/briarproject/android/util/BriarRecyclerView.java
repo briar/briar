@@ -1,9 +1,7 @@
 package org.briarproject.android.util;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.util.AttributeSet;
@@ -71,7 +69,7 @@ public class BriarRecyclerView extends FrameLayout {
 		showProgressBar();
 
 		// scroll down when opening keyboard
-		if (isScrollingToEnd && Build.VERSION.SDK_INT >= 11) {
+		if (isScrollingToEnd) {
 			addLayoutChangeListener();
 		}
 
@@ -90,7 +88,6 @@ public class BriarRecyclerView extends FrameLayout {
 		};
 	}
 
-	@TargetApi(11)
 	private void addLayoutChangeListener() {
 		recyclerView.addOnLayoutChangeListener(
 				new OnLayoutChangeListener() {

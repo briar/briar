@@ -1,11 +1,6 @@
 package org.briarproject.android.introduction;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.os.Build;
 import android.view.View;
 
 import org.briarproject.android.contact.ContactListAdapter;
@@ -47,6 +42,7 @@ public class ContactChooserAdapter extends ContactListAdapter {
 	 * Set the identity from whose perspective the contact shall be chosen.
 	 * Contacts that belong to a different author will be shown grayed out,
 	 * but are still clickable.
+	 *
 	 * @param authorId The ID of the local Author
 	 */
 	public void setLocalAuthor(AuthorId authorId) {
@@ -55,21 +51,12 @@ public class ContactChooserAdapter extends ContactListAdapter {
 	}
 
 	private void grayOutItem(final ContactHolder ui) {
-		if (Build.VERSION.SDK_INT >= 11) {
-			float alpha = 0.25f;
-			ui.bulb.setAlpha(alpha);
-			ui.avatar.setAlpha(alpha);
-			ui.name.setAlpha(alpha);
-			ui.date.setAlpha(alpha);
-			ui.identity.setAlpha(alpha);
-		} else {
-			ColorFilter colorFilter = new PorterDuffColorFilter(Color.GRAY,
-					PorterDuff.Mode.MULTIPLY);
-			ui.bulb.setColorFilter(colorFilter);
-			ui.avatar.setColorFilter(colorFilter);
-			ui.name.setEnabled(false);
-			ui.date.setEnabled(false);
-		}
+		float alpha = 0.25f;
+		ui.bulb.setAlpha(alpha);
+		ui.avatar.setAlpha(alpha);
+		ui.name.setAlpha(alpha);
+		ui.date.setAlpha(alpha);
+		ui.identity.setAlpha(alpha);
 	}
 
 }

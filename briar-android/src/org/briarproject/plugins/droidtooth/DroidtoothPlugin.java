@@ -182,7 +182,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 				// Bind a server socket to accept connections from contacts
 				BluetoothServerSocket ss;
 				try {
-					ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid());
+					ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
+							"RFCOMM", getUuid());
 				} catch (IOException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -321,7 +322,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		BluetoothDevice d = adapter.getRemoteDevice(address);
 		BluetoothSocket s = null;
 		try {
-			s = InsecureBluetooth.createSocket(d, u);
+			s = d.createInsecureRfcommSocketToServiceRecord(u);
 			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + address);
 			s.connect();
 			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + address);
@@ -372,7 +373,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Bind a server socket for receiving invitation connections
 		BluetoothServerSocket ss;
 		try {
-			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
+			ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
+					"RFCOMM", getUuid());
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
@@ -453,7 +455,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Bind a server socket for receiving invitation connections
 		BluetoothServerSocket ss;
 		try {
-			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
+			ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
+					"RFCOMM", getUuid());
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;

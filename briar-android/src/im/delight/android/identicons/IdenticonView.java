@@ -16,10 +16,8 @@ package im.delight.android.identicons;
  * limitations under the License.
  */
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -41,12 +39,9 @@ abstract public class IdenticonView extends View {
 		init();
 	}
 
-	@SuppressLint("NewApi")
 	protected void init() {
 		setWillNotDraw(false);
-		if (Build.VERSION.SDK_INT >= 11) {
-			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-		}
+		setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 	}
 
 	public void show(byte[] input) {

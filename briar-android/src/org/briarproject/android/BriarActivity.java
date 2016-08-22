@@ -76,9 +76,8 @@ public abstract class BriarActivity extends BaseActivity {
 		Intent i = new Intent(this, ExitActivity.class);
 		i.addFlags(FLAG_ACTIVITY_NEW_TASK
 				| FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-				| FLAG_ACTIVITY_NO_ANIMATION);
-		if (Build.VERSION.SDK_INT >= 11)
-			i.addFlags(FLAG_ACTIVITY_CLEAR_TASK);
+				| FLAG_ACTIVITY_NO_ANIMATION
+				| FLAG_ACTIVITY_CLEAR_TASK);
 		startActivity(i);
 	}
 
