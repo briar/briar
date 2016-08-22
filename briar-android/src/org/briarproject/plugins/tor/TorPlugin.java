@@ -34,8 +34,10 @@ import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.reporting.DevReporter;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.system.LocationUtils;
+import org.briarproject.util.IoUtils;
 import org.briarproject.util.StringUtils;
 
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -243,17 +245,17 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Unzip the Tor binary to the filesystem
 			in = getTorInputStream();
 			out = new FileOutputStream(torFile);
-			copy(in, out);
+			IoUtils.copy(in, out);
 			// Make the Tor binary executable
 			if (!torFile.setExecutable(true, true)) throw new IOException();
 			// Unzip the GeoIP database to the filesystem
 			in = getGeoIpInputStream();
 			out = new FileOutputStream(geoIpFile);
-			copy(in, out);
+			IoUtils.copy(in, out);
 			// Copy the config file to the filesystem
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
-			copy(in, out);
+			IoUtils.copy(in, out);
 			doneFile.createNewFile();
 		} catch (IOException e) {
 			tryToClose(in);
@@ -284,28 +286,9 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return appContext.getResources().getAssets().open("torrc");
 	}
 
-	private void copy(InputStream in, OutputStream out) throws IOException {
-		byte[] buf = new byte[4096];
-		while (true) {
-			int read = in.read(buf);
-			if (read == -1) break;
-			out.write(buf, 0, read);
-		}
-		in.close();
-		out.close();
-	}
-
-	private void tryToClose(InputStream in) {
+	private void tryToClose(Closeable c) {
 		try {
-			if (in != null) in.close();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-	}
-
-	private void tryToClose(OutputStream out) {
-		try {
-			if (out != null) out.close();
+			if (c != null) c.close();
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
