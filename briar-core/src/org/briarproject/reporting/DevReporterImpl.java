@@ -1,7 +1,5 @@
 package org.briarproject.reporting;
 
-import com.google.common.io.Files;
-
 import net.sourceforge.jsocks.socks.Socks5Proxy;
 import net.sourceforge.jsocks.socks.SocksException;
 import net.sourceforge.jsocks.socks.SocksSocket;
@@ -10,19 +8,21 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.reporting.DevConfig;
 import org.briarproject.api.reporting.DevReporter;
 import org.briarproject.util.StringUtils;
+import org.h2.util.IOUtils;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
@@ -33,7 +33,7 @@ class DevReporterImpl implements DevReporter {
 			Logger.getLogger(DevReporterImpl.class.getName());
 
 	private static final int SOCKET_TIMEOUT = 30 * 1000; // 30 seconds
-	private static final String CRLF = "\r\n";
+	private static final int LINE_LENGTH = 70;
 
 	private CryptoComponent crypto;
 	private DevConfig devConfig;
@@ -55,16 +55,17 @@ class DevReporterImpl implements DevReporter {
 	@Override
 	public void encryptReportToFile(File reportDir, String filename,
 			String report) throws FileNotFoundException {
-		String encryptedReport =
-				crypto.encryptToKey(devConfig.getDevPublicKey(),
-						StringUtils.toUtf8(report));
+		byte[] plaintext = StringUtils.toUtf8(report);
+		byte[] ciphertext = crypto.encryptToKey(devConfig.getDevPublicKey(),
+				plaintext);
+		String armoured = crypto.asciiArmour(ciphertext, LINE_LENGTH);
 
 		File f = new File(reportDir, filename);
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream(f)));
-			writer.append(encryptedReport);
+			writer.append(armoured);
 			writer.flush();
 		} finally {
 			if (writer != null)
@@ -78,41 +79,31 @@ class DevReporterImpl implements DevReporter {
 		if (reports == null || reports.length == 0)
 			return; // No reports to send
 
-		LOG.info("Connecting to developers");
-		Socket s;
-		try {
-			s = connectToDevelopers(socksPort);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, "Could not connect to developers", e);
-			return;
-		}
-
 		LOG.info("Sending reports to developers");
-		OutputStream output;
-		PrintWriter writer = null;
-		try {
-			output = s.getOutputStream();
-			writer = new PrintWriter(
-					new OutputStreamWriter(output, "UTF-8"), true);
-			for (File f : reports) {
-				List<String> encryptedReport = Files.readLines(f,
-						Charset.forName("UTF-8"));
-				writer.append(f.getName()).append(CRLF);
-				for (String line : encryptedReport) {
-					writer.append(line).append(CRLF);
-				}
-				writer.append(CRLF);
-				writer.flush();
+		for (File f : reports) {
+			OutputStream out = null;
+			InputStream in = null;
+			try {
+				Socket s = connectToDevelopers(socksPort);
+				out = s.getOutputStream();
+				in = new FileInputStream(f);
+				IOUtils.copy(in, out);
 				f.delete();
+			} catch (IOException e) {
+				LOG.log(WARNING, "Failed to send reports", e);
+				tryToClose(out);
+				tryToClose(in);
+				return;
 			}
-			LOG.info("Reports sent");
+		}
+		LOG.info("Reports sent");
+	}
+
+	private void tryToClose(Closeable c) {
+		try {
+			if (c != null) c.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, "Connection to developers failed", e);
-		} finally {
-			if (writer != null)
-				writer.close();
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 }

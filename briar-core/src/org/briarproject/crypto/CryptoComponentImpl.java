@@ -120,20 +120,24 @@ class CryptoComponentImpl implements CryptoComponent {
 		messageEncrypter = new MessageEncrypter(secureRandom);
 	}
 
+	@Override
 	public SecretKey generateSecretKey() {
 		byte[] b = new byte[SecretKey.LENGTH];
 		secureRandom.nextBytes(b);
 		return new SecretKey(b);
 	}
 
+	@Override
 	public MessageDigest getMessageDigest() {
 		return new DigestWrapper(new Blake2sDigest());
 	}
 
+	@Override
 	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
 		return new PseudoRandomImpl(seed1, seed2);
 	}
 
+	@Override
 	public SecureRandom getSecureRandom() {
 		return secureRandom;
 	}
@@ -157,10 +161,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		return secret;
 	}
 
+	@Override
 	public Signature getSignature() {
 		return new SignatureImpl(secureRandom);
 	}
 
+	@Override
 	public KeyPair generateAgreementKeyPair() {
 		AsymmetricCipherKeyPair keyPair =
 				agreementKeyPairGenerator.generateKeyPair();
@@ -176,10 +182,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new KeyPair(publicKey, privateKey);
 	}
 
+	@Override
 	public KeyParser getAgreementKeyParser() {
 		return agreementKeyParser;
 	}
 
+	@Override
 	public KeyPair generateSignatureKeyPair() {
 		AsymmetricCipherKeyPair keyPair =
 				signatureKeyPairGenerator.generateKeyPair();
@@ -195,14 +203,17 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new KeyPair(publicKey, privateKey);
 	}
 
+	@Override
 	public KeyParser getSignatureKeyParser() {
 		return signatureKeyParser;
 	}
 
+	@Override
 	public KeyParser getMessageKeyParser() {
 		return messageEncrypter.getKeyParser();
 	}
 
+	@Override
 	public int generateBTInvitationCode() {
 		int codeBytes = (CODE_BITS + 7) / 8;
 		byte[] random = new byte[codeBytes];
@@ -210,21 +221,25 @@ class CryptoComponentImpl implements CryptoComponent {
 		return ByteUtils.readUint(random, CODE_BITS);
 	}
 
+	@Override
 	public int deriveBTConfirmationCode(SecretKey master, boolean alice) {
 		byte[] b = macKdf(master, alice ? BT_A_CONFIRM : BT_B_CONFIRM);
 		return ByteUtils.readUint(b, CODE_BITS);
 	}
 
+	@Override
 	public SecretKey deriveHeaderKey(SecretKey master,
 			boolean alice) {
 		return new SecretKey(macKdf(master, alice ? A_INVITE : B_INVITE));
 	}
 
+	@Override
 	public byte[] deriveSignatureNonce(SecretKey master,
 			boolean alice) {
 		return macKdf(master, alice ? A_SIG_NONCE : B_SIG_NONCE);
 	}
 
+	@Override
 	public byte[] deriveKeyCommitment(byte[] publicKey) {
 		byte[] hash = hash(COMMIT, publicKey);
 		// The output is the first COMMIT_LENGTH bytes of the hash
@@ -233,6 +248,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return commitment;
 	}
 
+	@Override
 	public SecretKey deriveSharedSecret(byte[] theirPublicKey,
 			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
 		PrivateKey ourPriv = ourKeyPair.getPrivate();
@@ -249,6 +265,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new SecretKey(hash(SHARED_SECRET, raw, alicePub, bobPub));
 	}
 
+	@Override
 	public byte[] deriveConfirmationRecord(SecretKey sharedSecret,
 			byte[] theirPayload, byte[] ourPayload, byte[] theirPublicKey,
 			KeyPair ourKeyPair, boolean alice, boolean aliceRecord) {
@@ -271,16 +288,19 @@ class CryptoComponentImpl implements CryptoComponent {
 			return macKdf(ck, bobPayload, bobPub, alicePayload, alicePub);
 	}
 
+	@Override
 	public SecretKey deriveMasterSecret(SecretKey sharedSecret) {
 		return new SecretKey(macKdf(sharedSecret, MASTER_KEY));
 	}
 
+	@Override
 	public SecretKey deriveMasterSecret(byte[] theirPublicKey,
 			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
 		return deriveMasterSecret(deriveSharedSecret(
 				theirPublicKey,ourKeyPair, alice));
 	}
 
+	@Override
 	public TransportKeys deriveTransportKeys(TransportId t,
 			SecretKey master, long rotationPeriod, boolean alice) {
 		// Keys for the previous period are derived from the master secret
@@ -308,6 +328,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new TransportKeys(t, inPrev, inCurr, inNext, outCurr);
 	}
 
+	@Override
 	public TransportKeys rotateTransportKeys(TransportKeys k,
 			long rotationPeriod) {
 		if (k.getRotationPeriod() >= rotationPeriod) return k;
@@ -350,6 +371,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new SecretKey(macKdf(master, alice ? A_HEADER : B_HEADER, id));
 	}
 
+	@Override
 	public void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber) {
 		if (tag.length < TAG_LENGTH) throw new IllegalArgumentException();
 		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
@@ -369,6 +391,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		System.arraycopy(mac, 0, tag, 0, TAG_LENGTH);
 	}
 
+	@Override
 	public byte[] hash(byte[]... inputs) {
 		MessageDigest digest = getMessageDigest();
 		byte[] length = new byte[INT_32_BYTES];
@@ -380,6 +403,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return digest.digest();
 	}
 
+	@Override
 	public byte[] encryptWithPassword(byte[] input, String password) {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
@@ -411,6 +435,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
+	@Override
 	public byte[] decryptWithPassword(byte[] input, String password) {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
@@ -445,13 +470,18 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public String encryptToKey(PublicKey publicKey, byte[] plaintext) {
+	@Override
+	public byte[] encryptToKey(PublicKey publicKey, byte[] plaintext) {
 		try {
-			byte[] ciphertext = messageEncrypter.encrypt(publicKey, plaintext);
-			return AsciiArmour.wrap(ciphertext, 70);
+			return messageEncrypter.encrypt(publicKey, plaintext);
 		} catch (CryptoException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public String asciiArmour(byte[] b, int lineLength) {
+		return AsciiArmour.wrap(b, lineLength);
 	}
 
 	// Key derivation function based on a pseudo-random function - see
