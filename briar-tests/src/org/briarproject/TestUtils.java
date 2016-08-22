@@ -2,7 +2,7 @@ package org.briarproject;
 
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.util.FileUtils;
+import org.briarproject.util.IoUtils;
 
 import java.io.File;
 import java.util.Random;
@@ -20,7 +20,7 @@ public class TestUtils {
 	}
 
 	public static void deleteTestDirectory(File testDir) {
-		FileUtils.deleteFileOrDir(testDir);
+		IoUtils.deleteFileOrDir(testDir);
 		testDir.getParentFile().delete(); // Delete if empty
 	}
 

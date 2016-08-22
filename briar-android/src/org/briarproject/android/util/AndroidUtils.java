@@ -9,7 +9,7 @@ import android.support.design.widget.TextInputLayout;
 import android.text.format.DateUtils;
 
 import org.briarproject.R;
-import org.briarproject.util.FileUtils;
+import org.briarproject.util.IoUtils;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
@@ -89,7 +89,7 @@ public class AndroidUtils {
 		if (children != null) {
 			for (File child : children) {
 				if (!child.getName().equals("lib"))
-					FileUtils.deleteFileOrDir(child);
+					IoUtils.deleteFileOrDir(child);
 			}
 		}
 	}

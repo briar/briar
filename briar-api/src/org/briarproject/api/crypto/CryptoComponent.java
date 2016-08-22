@@ -3,7 +3,6 @@ package org.briarproject.api.crypto;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.transport.TransportKeys;
 
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
@@ -163,5 +162,11 @@ public interface CryptoComponent {
 	/**
 	 * Encrypts the given plaintext to the given public key.
 	 */
-	String encryptToKey(PublicKey publicKey, byte[] plaintext);
+	byte[] encryptToKey(PublicKey publicKey, byte[] plaintext);
+
+	/**
+	 * Encodes the given data as a hex string divided into lines of the given
+	 * length. The line terminator is CRLF.
+	 */
+	String asciiArmour(byte[] b, int lineLength);
 }
