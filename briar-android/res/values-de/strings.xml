@@ -1,52 +1,46 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">Briar</string>
-  <string name="crash_report_title">Briar-Absturzberichte</string>
-  <string name="feedback_title">Feedback</string>
-  <string name="optional_contact_email">Optionale Kontaktemail</string>
-  <string name="could_not_load_report_data">Konnte Daten des Berichts nicht laden</string>
-  <string name="ongoing_notification_title">In Briar angemeldet</string>
-  <string name="setup_title">Briar einrichten</string>
+  <!--Setup-->
+  <string name="setup_title">Fehler beim Starten von Briar</string>
+  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, kannst du dein Konto und deine Daten nicht wiederherstellen.</string>
+  <string name="choose_nickname">Wähle deinen Benutzernamen</string>
+  <string name="choose_password">Wähle dein Passwort</string>
+  <string name="confirm_password">Passwort bestätigen</string>
   <string name="name_too_long">Name ist zu lang</string>
   <string name="password_too_weak">Passwort ist zu schwach</string>
+  <string name="passwords_do_not_match">Passwörter stimmen nicht überein</string>
   <string name="create_account_button">Konto anlegen</string>
-  <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
+  <string name="progress_title_please_wait">Bitte warten...</string>
+  <!--Login-->
+  <string name="enter_password">Passwort eingeben:</string>
+  <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
   <string name="sign_in_button">Anmelden</string>
+  <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
+  <string name="dialog_title_lost_password">Passwort vergessen</string>
+  <string name="dialog_message_lost_password">Dein Briar-Konto ist  verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Deshalb können wir dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
   <string name="startup_failed_notification_title">Briar konnte nicht gestartet werden</string>
+  <string name="startup_failed_notification_text">Möglicherweise hilft eine Neuinstallation von Briar.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
-  <string name="delete_contact">Kontakt löschen</string>
-  <string name="contact_deleted_toast">Kontakt gelöscht</string>
+  <string name="startup_failed_db_error">Deine Briar-Datenbank ist korrupt. Briar-Konto, Daten und alle Verbindungen zu Kontakten können nicht mehr wiederhergestellt werden. Deinstalliere Briar und erstelle nach Installation der aktuellen Briar-Version ein neues Konto.</string>
+  <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust des Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert</string>
+  <string name="expiry_warning">Diese Version von Briar ist nicht mehr aktuell.\nBitte installiere eine neuere Version.</string>
+  <string name="dialog_title_welcome">Willkommen bei Briar</string>
+  <string name="dialog_welcome_message">Füge einen Kontakt hinzu, um mit verschlüsselter Kommunikation zu beginnen oder wähle das Icon in der oberen linken Ecke für mehr Optionen.</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
+  <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
+  <string name="contact_list_button">Kontakte</string>
+  <string name="forums_button">Foren</string>
+  <string name="blogs_button">Mikroblogs</string>
+  <string name="settings_button">Einstellungen</string>
   <string name="sign_out_button">Abmelden</string>
-  <string name="no_contacts">Keine Kontakte</string>
-  <string name="add_contact_title">Kontakt hinzufügen</string>
-  <string name="continue_button">Weiter</string>
-  <string name="connection_failed">Verbindung fehlgeschlagen</string>
-  <string name="try_again_button">Noch einmal versuchen</string>
-  <string name="connected_to_contact">Mit Kontakt verbunden</string>
-  <string name="codes_do_not_match">Codes stimmen nicht überein</string>
-  <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
-  <string name="contact_already_exists">Kontakt %s existiert bereits</string>
-  <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
-  <string name="no_private_messages">Keine Nachrichten</string>
-  <string name="show">Anzeigen</string>
-  <string name="forum_leave">Forum verlassen</string>
-  <string name="forum_left_toast">Forum wurde verlassen</string>
-  <string name="create_forum_title">Neues Forum</string>
-  <string name="forum_created_toast">Forum wurde erstellt</string>
-  <string name="forum_share_button">Forum teilen</string>
-  <string name="forum_compose_post">Neuer Forenbeitrag</string>
-  <string name="anonymous">Anonym</string>
-  <string name="new_identity_item">Neue Identität\u2026</string>
-  <string name="new_identity_title">Neue Identität</string>
-  <string name="create_identity_button">Identität erstellen</string>
-  <string name="identity_created_toast">Identität wurde erstellt</string>
-  <string name="forum_declined_toast">Foreneinladung abgelehnt</string>
-  <string name="shared_by_format">Geteilt durch %s</string>
-  <string name="forum_shared_by">Geteilt durch</string>
-  <string name="forum_shared_with">Geteilt mit</string>
-  <string name="nobody">Niemand</string>
-  <string name="cancel">Abbrechen</string>
-  <string name="delete">Löschen</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">In Briar angemeldet</string>
+  <string name="ongoing_notification_text">Berühren, um Briar zu öffnen</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Neue private Nachricht.</item>
     <item quantity="other">%d neue private Nachrichten</item>
@@ -55,8 +49,200 @@
     <item quantity="one">Neuer Forenbeitrag</item>
     <item quantity="other">%d neue Forenbeiträge</item>
   </plurals>
-  <!--Settings-->
-  <string name="settings_button">Einstellungen</string>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Neuer Blogeintrag.</item>
+    <item quantity="other">%d neue Blogbeiträge.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">jetzt</string>
+  <string name="show">Anzeigen</string>
+  <string name="hide">Ausblenden</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Abbrechen</string>
+  <string name="delete">Löschen</string>
+  <string name="accept">Annehmen</string>
+  <string name="decline">Ablehnen</string>
+  <string name="online">Online</string>
+  <string name="offline">Offline</string>
+  <string name="send">Senden</string>
+  <string name="no_data">Keine Daten</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nTipp das \"+\"-Icon am oberen Bildschirmrand an und folge den Anweisungen, um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenk daran: Du kannst neue Kontakte nur dann hinzufügen, wenn du ihnen physisch begegnest. Das hindert andere daran, sich als dich auszugeben oder deine Nachrichten abzufangen.</string>
+  <string name="date_no_private_messages">Keine Nachrichten.</string>
+  <string name="no_private_messages">Das ist die Gesprächsansicht.\n\nEs scheint hier einen Mangel an Gesprächsthemen zu geben.\n\nTipp einfach auf das Eingabefeld am unteren Bildschirmrand, um ein Gespräch zu beginnen.</string>
+  <string name="delete_contact">Kontakt löschen</string>
+  <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
+  <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>
+  <string name="contact_deleted_toast">Kontakt gelöscht</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Kontakt hinzufügen</string>
+  <string name="your_nickname">Wähle die zu verwendende Identität:</string>
+  <string name="face_to_face">Du kannst eine Person nur als Kontakt hinzufügen, wenn du ihr physisch begegnest.  Das hindert andere daran, sich als dich auszugeben oder deine Nachrichten abzufangen.</string>
+  <string name="continue_button">Weiter</string>
+  <string name="your_invitation_code">Dein Einladungs-Code ist</string>
+  <string name="enter_invitation_code">Bitte gib den Einladungs-Code deines Kontakts an:</string>
+  <string name="searching_format">Such nach Kontakt mit Einladungs-Code %06d\u2026</string>
+  <string name="connection_failed">Verbindung fehlgeschlagen</string>
+  <string name="could_not_find_contact">Briar kann Deinen Kontakt in der Nähe nicht finden</string>
+  <string name="could_not_open_camera">Es konnte nicht auf die Kamera zugegriffen werden. Bitte versuche es erneut.</string>
+  <string name="try_again_button">Noch einmal versuchen</string>
+  <string name="connected_to_contact">Mit Kontakt verbunden</string>
+  <string name="calculating_confirmation_code">Bestätigungscode wird berechnet\u2026</string>
+  <string name="your_confirmation_code">Dein Bestätigungscode ist</string>
+  <string name="enter_confirmation_code">Bitte gebe den Bestätigungscode Deines Kontakts ein:</string>
+  <string name="waiting_for_contact">Warte auf Kontakt\u2026</string>
+  <string name="exchanging_contact_details">Kontaktdetails werden ausgetauscht\u2026</string>
+  <string name="codes_do_not_match">Codes stimmen nicht überein</string>
+  <string name="interfering">Das könnte daran liegen, dass jemand deine Verbindung stört</string>
+  <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
+  <string name="contact_already_exists">Kontakt %s existiert bereits</string>
+  <string name="contact_exchange_failed">Kontaktaustausch fehlgeschlagen</string>
+  <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
+  <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
+  <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
+  <string name="connection_aborted_local">Verbindung wurde durch uns abgebrochen! Das könnte daran liegen, dass jemand deine Verbindung stört.</string>
+  <string name="connection_aborted_remote">Verbindung wurde durch deinen Kontakt abgebrochen! Das könnte daran liegen, dass jemand deine Verbindung stört.</string>
+  <!--Introductions-->
+  <string name="introduction_activity_title">Kontakt auswählen</string>
+  <string name="introduction_message_title">Kontakte einander empfehlen</string>
+  <string name="introduction_message_text">Du kannst eine Nachrircht verfassen, welche mit deiner Kontaktempfehlung an %1$s und %2$s mitgesendet wird.</string>
+  <string name="introduction_message_hint">Gib eine Nachricht ein (optional)</string>
+  <string name="introduction_button">Kontaktempfehlung abgeben</string>
+  <string name="introduction_sent">Deine Kontaktempfehlung wurde verschickt</string>
+  <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken</string>
+  <string name="introduction_response_error">Fehler bei Antwort auf Kontaktempfehlung</string>
+  <string name="introduction_warn_different_identities_title">Vorsicht: Verschiedene Identitäten</string>
+  <string name="introduction_warn_different_identities_text">Du versucht zwei Kontakte zu empfehlen, welche du mit zwei verschiedenen Identitäten hinzugefügt hast. Es bedeutet wahrscheinlich, dass beide Identitäten zu dir gehören.</string>
+  <string name="dialog_button_introduce">Als Kontakt empfehlen</string>
+  <string name="introduction_request_sent">Du wolltest %1$s an %2$s als Kontakt empfehlen</string>
+  <string name="introduction_request_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. Möchtest Du %2$s zu deiner Kontaktliste hinzufügen?</string>
+  <string name="introduction_request_exists_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. %2$s ist allerdings bereits in deiner Kontaktliste. Da %1$s das vielleicht nicht weiss, kannst du trotzdem antworten:</string>
+  <string name="introduction_request_for_our_identity_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen, aber %2$s ist eine deiner eigenen Identitäten. Deshalb kannst du die Empfehlung nicht annehmen:</string>
+  <string name="introduction_request_answered_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. </string>
+  <string name="introduction_response_accepted_sent">Du hast die Kontaktempfehlung für %1$s angenommen.</string>
+  <string name="introduction_response_declined_sent">Du hast die Kontaktempfehlung von %1$s abgelehnt.</string>
+  <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
+  <string name="introduction_response_declined_received">%1$s hat deine Kontaktempfehlung von %2$s abgelehnt.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s meldet, dass %2$s die Kontaktempfehlung abgelehnt hat.</string>
+  <string name="introduction_success_title">Empfohlener Kontakt wurde hinzugefügt.</string>
+  <string name="introduction_success_text">%1$s wurde dir als Kontakt empfohlen.</string>
+  <!--Forums-->
+  <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
+  <string name="create_forum_title">Neues Forum</string>
+  <string name="choose_forum_name">Wähle einen Namen für dein Forum:</string>
+  <string name="create_forum_button">Forum erstellen</string>
+  <string name="forum_created_toast">Forum wurde erstellt</string>
+  <string name="no_forum_posts">Dieses Forum ist leer.\n\nBenutze das Stift-Icon am oberen Bildschirmrand um den ersten Beitrag zu verfassen.\n\nFühlst du dich einsam hier? Dann teile das Forum mit weiteren Kontakten!</string>
+  <string name="no_posts">Keine Beiträge</string>
+  <plurals name="posts">
+    <item quantity="one">%d Beitrag</item>
+    <item quantity="other">%d Beiträge</item>
+  </plurals>
+  <string name="forum_compose_post">Neuer Forenbeitrag</string>
+  <string name="forum_new_entry_posted">Forenbeitrag wurde veröffentlicht.</string>
+  <string name="forum_new_entry_received">Neuer Forenbeitrag</string>
+  <string name="forum_new_message_hint">Neuer Eintrag</string>
+  <string name="forum_message_reply_hint">Neue Antwort</string>
+  <string name="btn_reply">ANTWORTEN</string>
+  <plurals name="message_replies">
+    <item quantity="one">%1$d Antwort</item>
+    <item quantity="other">%1$d Antworten</item>
+  </plurals>
+  <string name="forum_leave">Forum verlassen</string>
+  <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
+  <string name="dialog_message_leave_forum">Bist du sicher, dass du dieses Forum verlassen willst? Kontakte, die du mit diesem Forum geteilt hast, werden keine Updates von diesem Forum mehr bekommen.</string>
+  <string name="dialog_button_leave">Verlassen</string>
+  <string name="forum_left_toast">Forum wurde verlassen</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Forum teilen</string>
+  <string name="forum_share_action">Teile dieses Forum mit den gewählten Kontakten</string>
+  <string name="activity_share_toolbar_header">Kontakte auswählen</string>
+  <string name="no_contacts_selector">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nBitte komm zurück, wenn du deinen ersten Kontakt hinzugefügt hast.</string>
+  <string name="forum_shared_snackbar">Forum mit gewählten Kontakten geteilt</string>
+  <string name="forum_share_message">Du kannst eine optionale Einladungsnachricht verfassen, die an die ausgewählten Kontakte geschickt wird.</string>
+  <string name="forum_share_error">Es gab einen Fehler beim Versuch, dieses Forum zu teilen.</string>
+  <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
+  <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
+  <string name="forum_show_invitations">Foreneinladungen anzeigen</string>
+  <string name="forum_invitations_title">Foreneinladungen</string>
+  <string name="forum_invitation_exists">Du hast bereits eine Einladung zu diesem Forum angenommen. Wenn du weitere Einladungen annimmst, wird die Kommunikation in dem Forum einfacher und das Forum wird wachsen.</string>
+  <string name="forum_joined_toast">Dem Forum beigetreten</string>
+  <string name="forum_declined_toast">Foreneinladung abgelehnt</string>
+  <string name="shared_by_format">Geteilt durch %s</string>
+  <string name="forum_invitation_already_sharing">Bereits geteilt.</string>
+  <string name="forum_invitation_response_accepted_sent">Du hast die Forumseinladung von %s akzeptiert.</string>
+  <string name="forum_invitation_response_declined_sent">Du hast die Forumeinladung von %s abgelehnt.</string>
+  <string name="forum_invitation_response_accepted_received">%s hat die Forumeinladung akzeptiert.</string>
+  <string name="forum_invitation_response_declined_received">%s hat die Forumseinladung abgelehnt.</string>
+  <string name="sharing_status">Sharing Status</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d Forum von Kontaken geteilt</item>
+    <item quantity="other">%d Foren von Kontakten geteilt</item>
+  </plurals>
+  <string name="forum_shared_by">Geteilt durch</string>
+  <string name="forum_shared_with">Geteilt mit</string>
+  <string name="nobody">Niemand</string>
+  <!--Blogs-->
+  <string name="blogs_feed">Feed</string>
+  <string name="blogs_my_blogs">Meine Blogs</string>
+  <string name="blogs_my_blogs_create">Blog erstellen</string>
+  <string name="blogs_my_blogs_label">Blog hinzufügen</string>
+  <string name="blogs_my_blogs_create_hint_title">Blog-Titel (kann nicht mehr geändert werden)</string>
+  <string name="blogs_my_blogs_create_hint_desc">Eine kurze Beschreibung deines neuen Blogs</string>
+  <string name="blogs_my_blogs_create_hint_desc_explanation">Der Inhalt der Beschreibung hilft möglichen Leserinnen und Lesern, sich zu entscheiden, ob sie dein Blog abonnieren möchten.</string>
+  <string name="blogs_my_blogs_empty_state">Du hast noch keine Blogs.\n\nWarum erstellst du nicht einfach selbst ein neues Blog, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?</string>
+  <string name="blogs_my_blogs_blog_empty_state">Das ist der Bereich für deinen Bloginhalt.\n\nlt es scheint als hättest du noch nichts geschrieben.\n\nBenutze das Stiftsymbol um einen neuen Blogeintrag zu erstellen.\n\nVergiss nicht deinen Blog zu veröffentlichen.</string>
+  <string name="blogs_my_blogs_created">Blog wurde erstellt</string>
+  <string name="blogs_blog_is_empty">Dieses Blog ist leer</string>
+  <string name="blogs_other_blog_empty_state">Dieser Blog ist momentan leer.\n\nEntweder hat der Autor noch nichts geschrieben, oder die Person, die diesen Blog mit dir geteilt hat, muss online kommen, sodass Beiträge synchronisiert werden können.</string>
+  <string name="tag_new">NEU</string>
+  <string name="blogs_write_blog_post">Blogbeitrag erstellen</string>
+  <string name="blogs_write_blog_post_title_hint">Titel hinzufügen (optional)</string>
+  <string name="blogs_write_blog_post_body_hint">Gib hier deinen Blogbeitrag ein</string>
+  <string name="blogs_publish_blog_post">Veröffentlichen</string>
+  <string name="blogs_blog_post_created">Blogbeitrag erstellt</string>
+  <string name="blogs_blog_post_received">Neuen Blogbeitrag empfangen</string>
+  <string name="blogs_blog_post_scroll_to">Scrolle zu</string>
+  <string name="blogs_blog_failed_to_load">Blog konnte nicht geladen werden</string>
+  <string name="blogs_blog_post_failed_to_load">Blogbeitrag konnte nicht geladen werden</string>
+  <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der erste und tipp auf das Stift-Icon, um einen neuen Blogbeitrag zu verfassen.</string>
+  <string name="blogs_personal_blog">%ss persönliches Blog</string>
+  <string name="blogs_remove_blog">Blog entfernen</string>
+  <string name="blogs_remove_blog_dialog_message">Bist du sicher, dass du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
+  <string name="blogs_remove_blog_ok">Blog entfernen</string>
+  <string name="blogs_blog_removed">Blog wurde entfernt</string>
+  <string name="blogs_blog_list">Blogliste</string>
+  <string name="blogs_available_blogs">Verfügbare Blogs</string>
+  <string name="blogs_drafts">Entwürfe</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Blog teilen</string>
+  <string name="blogs_sharing_error">Es gab einen Fehler beim Versuch, dieses Blog zu teilen</string>
+  <string name="blogs_sharing_button">Blog teilen</string>
+  <string name="blogs_sharing_snackbar">Blog wurde mit ausgewählten Kontakten geteilt</string>
+  <string name="blogs_sharing_response_accepted_sent">Du hast die Blogeinladung von %s akzeptiert.</string>
+  <string name="blogs_sharing_response_declined_sent">Du hast die Blogeinladung von %s abgelehnt.</string>
+  <string name="blogs_sharing_response_accepted_received">%s hat die Blogeinladung akzeptiert.</string>
+  <string name="blogs_sharing_response_declined_received">%s hat die Blogeinladung abgelehnt.</string>
+  <string name="blogs_sharing_invitation_received">%1$s hat das persönliche Blog von %2$s mit dir geteilt.</string>
+  <string name="blogs_sharing_invitation_sent">Du hast das persönliche Blog von %1$s mit %2$s geteilt.</string>
+  <string name="blogs_sharing_show_invitations">Blogeinladungen anzeigen</string>
+  <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
+  <string name="blogs_sharing_exists">Du hast dieses Blog bereits abonniert. Ein neues Abo anzunehmen kann dazu führen, dass neue Einträge schneller verfügbar werden.</string>
+  <string name="blogs_sharing_joined_toast">Blog abonniert</string>
+  <string name="blogs_sharing_declined_toast">Blogeinladung abgelehnt</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">RSS-Feed importieren</string>
+  <string name="blogs_rss_feeds_import_button">Importieren</string>
+  <string name="blogs_rss_feeds_import_hint">URL des RSS-Feeds eingeben</string>
+  <string name="blogs_rss_feeds_import_error">Es tut uns Leid! Es gab einen Fehler beim Importieren deines Feeds.</string>
+  <string name="blogs_rss_feeds_manage">RSS-Feeds verwalten</string>
+  <string name="blogs_rss_feeds_manage_imported">Importiert:</string>
+  <string name="blogs_rss_feeds_manage_author">Autor:</string>
+  <string name="blogs_rss_feeds_manage_updated">Zuletzt aktualisiert:</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Du hast bisher noch keine RSS Feeds importiert. Tippe auf das \"+\"-Icon am oberen Bildschirmrand um einen neuen Feed hinzuzufügen.</string>
+  <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
+  <!--Settings Network-->
   <string name="network_settings_title">Netzwerke</string>
   <string name="bluetooth_setting">Mit Bluetooth verbinden</string>
   <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
@@ -64,53 +250,68 @@
   <string name="tor_mobile_setting">Mit Tor verbinden</string>
   <string name="tor_mobile_setting_enabled">Wenn Wi-Fi oder Mobildaten verwendet werden</string>
   <string name="tor_mobile_setting_disabled">Nur wenn Wi-Fi verwendet wird</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Sicherheit</string>
+  <string name="change_password">Passwort ändern</string>
+  <string name="current_password">Jetziges Passwort eingeben:</string>
+  <string name="choose_new_password">Neues Passwort eingeben:</string>
+  <string name="confirm_new_password">Neues Passwort bestätigen:</string>
+  <string name="password_changed">Passwort wurde geändert.</string>
   <string name="panic_setting">Panik-Button einrichten</string>
   <string name="panic_setting_title">Panik-Button</string>
+  <string name="panic_setting_hint">Lege fest, wie Briar auf eine Panik-Button-App reagiert</string>
+  <string name="panic_app_setting_title">Panik-Button-App</string>
+  <string name="unknown_app">eine unbekannte App</string>
+  <string name="panic_app_setting_summary">Keine App wurde eingerichtet</string>
+  <string name="panic_app_setting_none">Keine</string>
+  <string name="dialog_title_connect_panic_app">Bestätige Panic App</string>
+  <string name="dialog_message_connect_panic_app">Bist du sicher, dass du %1$s ermöglichen willst, Panik-Button-Ereignisse auszulösen, die zum Löschen von Daten führen?</string>
+  <string name="lock_setting_title">Abmelden</string>
+  <string name="lock_setting_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
+  <string name="purge_setting_title">Konto löschen</string>
+  <string name="purge_setting_summary">Briar-Konto löschen, wenn der Panik-Button gedrückt wird. Vorsicht: Dies wird alle Identitäten, Kontakte und Nachrichten für immer löschen.</string>
+  <string name="uninstall_setting_title">Briar deinstallieren</string>
+  <string name="uninstall_setting_summary">Diese Aktion benötigt manuelle Bestätigung im Falle eines Panik-Ereignisses</string>
+  <!--Settings Notifications-->
   <string name="notification_settings_title">Benachrichtigungen</string>
   <string name="notify_private_messages_setting">Benachrichtigungen für private Nachrichten anzeigen</string>
   <string name="notify_forum_posts_setting">Benachrichtigungen für Forenbeiträge anzeigen</string>
+  <string name="notify_blog_posts_setting">Benachrichtigungen für Blog-Beiträge anzeigen</string>
   <string name="notify_vibration_setting">Vibrieren</string>
   <string name="notify_sound_setting">Tonsignal</string>
   <string name="notify_sound_setting_default">Standardklingelton</string>
   <string name="notify_sound_setting_disabled">Kein</string>
   <string name="choose_ringtone_title">Klingelton auswählen</string>
+  <!--Settings Crash reports and feedback-->
   <string name="crash_report_settings_title">Absturzberichte</string>
   <string name="enable_acra_setting">Absturzberichte aktivieren</string>
   <string name="acra_syslog_setting">Systemlogdateien senden</string>
   <string name="acra_user_email_setting">Optionale Kontaktemail</string>
   <string name="acra_alwaysaccept_setting">Berichte immer versenden</string>
-  <string name="panic_app_setting_title">Panik-Button-App</string>
-  <string name="unknown_app">eine unbekannte App</string>
-  <string name="panic_app_setting_summary">Keine App wurde eingerichtet</string>
-  <string name="panic_app_setting_none">Keine</string>
-  <string name="lock_setting_title">Abmelden</string>
-  <string name="lock_setting_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
-  <string name="purge_setting_title">Konto löschen</string>
-  <string name="uninstall_setting_title">Briar deinstallieren</string>
   <string name="feedback_settings_title">Feedback</string>
-  <string name="online">Online</string>
-  <string name="offline">Offline</string>
-  <string name="send">Senden</string>
-  <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
-  <string name="transport_lan">Wi-Fi</string>
-  <string name="no_data">Keine Daten</string>
-  <!--Introduction Client-->
-  <string name="introduction_activity_title">Kontakt auswählen</string>
-  <!--Forum-->
-  <!--Dialogs-->
-  <string name="dialog_title_lost_password">Passwort vergessen</string>
-  <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
-  <string name="dialog_title_welcome">Willkommen bei Briar</string>
-  <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
-  <string name="ok">OK</string>
-  <string name="dialog_button_leave">Verlassen</string>
-  <string name="accept">Annehmen</string>
-  <string name="decline">Ablehnen</string>
-  <!--Toolbar headers-->
-  <string name="contact_list_button">Kontakte</string>
-  <string name="forums_button">Foren</string>
-  <!--Progress titles-->
-  <string name="progress_title_please_wait">Bitte warten…</string>
-  <!--Blogs-->
+  <string name="send_feedback">Feedback abschicken</string>
+  <!--Multiple Identities-->
+  <string name="anonymous">Anonym</string>
+  <string name="new_identity_item">Neue Identität\u2026</string>
+  <string name="new_identity_title">Neue Identität</string>
+  <string name="create_identity_button">Identität erstellen</string>
+  <string name="identity_created_toast">Identität wurde erstellt</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Briar-Absturzbericht</string>
+  <string name="briar_crashed">Es tut uns leid, Briar ist abgestürzt.</string>
+  <string name="not_your_fault">Das ist nicht deine Schuld.</string>
+  <string name="please_send_report">Bitte hilf uns, Briar zu verbessern, indem du einen Absturzbericht sendest.</string>
+  <string name="report_is_encrypted">Wir versprechen, dass der Bericht verschlüsselt ist und über eine sichere Verbindung geschickt wird.</string>
+  <string name="feedback_title">Feedback</string>
+  <string name="describe_crash">Beschreibe was passiert ist (optional)</string>
+  <string name="enter_feedback">Gib dein Feedback ein</string>
+  <string name="optional_contact_email">Deine E-Mail-Adresse (optional)</string>
+  <string name="include_debug_report_crash">Anonymisierte Daten über den Absturz anhängen</string>
+  <string name="include_debug_report_feedback">Anonymisierte Daten über dieses Gerät anhängen</string>
+  <string name="could_not_load_report_data">Konnte Daten des Berichts nicht laden</string>
+  <string name="send_report">Bericht abschicken</string>
+  <string name="close">Schließen</string>
+  <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn du dich das nächste Mal bei Briar anmeldest</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Von Briar abmelden...</string>
 </resources>

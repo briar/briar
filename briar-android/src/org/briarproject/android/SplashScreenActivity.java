@@ -24,7 +24,7 @@ public class SplashScreenActivity extends BaseActivity {
 	private static final Logger LOG =
 			Logger.getLogger(SplashScreenActivity.class.getName());
 
-	// This build expires on 1 September 2016
+	// This build expires on 1 October 2016
 	private static final long EXPIRY_DATE = 1472684400 * 1000L;
 
 	@Inject

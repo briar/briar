@@ -1,17 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="nav_drawer_open_description">Abrir aba de navegação</string>
-  <string name="nav_drawer_close_description">Fechar aba de navegação</string>
-  <string name="app_name">Briar</string>
-  <string name="crash_report_title">Relatório de falhas do Briar</string>
-  <string name="feedback_title">Comentário</string>
-  <string name="describe_crash">Descreva o que aconteceu</string>
-  <string name="enter_feedback">Digite seu comentário</string>
-  <string name="optional_contact_email">Email de contato opcional</string>
-  <string name="could_not_load_report_data">Não foi possível carregar os dados do relatório.</string>
-  <string name="dev_report_saved">Relatório salvo. Ele será enviado na próxima vez em que você entrar no Briar.</string>
-  <string name="ongoing_notification_title">Conectado ao Briar</string>
-  <string name="ongoing_notification_text">Toque para abrir o Briar</string>
+  <!--Setup-->
   <string name="setup_title">Configuração de Briar</string>
   <string name="setup_explanation">Sua conta Briar é armazenada criptografada apenas no seu dispositivo, não na nuvem. Se você Desinstalar o Briar ou esquecer sua senha, não será possível recuperar sua conta e seus dados.</string>
   <string name="choose_nickname">Escolha seu apelido</string>
@@ -21,20 +10,71 @@
   <string name="password_too_weak">A senha está muito fraca</string>
   <string name="passwords_do_not_match">As senhas não conferem</string>
   <string name="create_account_button">Criar conta</string>
+  <string name="progress_title_please_wait">Por favor, aguarde</string>
+  <!--Login-->
   <string name="enter_password">Insira sua senha:</string>
-  <string name="forgotten_password">Esqueci minha senha</string>
   <string name="try_again">Senha Incorreta, tente novamente</string>
   <string name="sign_in_button">Entrar</string>
+  <string name="forgotten_password">Esqueci minha senha</string>
+  <string name="dialog_title_lost_password">Perdeu a senha</string>
+  <string name="dialog_message_lost_password">Sua conta Briar é armazenada em seu dispositivo e criptografada, não na Nuvem, assim não podemos recuperar a senha. 
+Você quer deletar sua conta e começar de novo?  
+Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
   <string name="startup_failed_notification_title">Briar não pode iniciar</string>
   <string name="startup_failed_notification_text">Você pode precisar reinstalar o Briar.</string>
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>
   <string name="startup_failed_db_error">Por alguma razão, seus dados do Briar estão corrompidos e não podem ser reparados. Sua conta, seus dados e todas suas conexões com contatos estão perdidas. Infelizmente você terá que resintalar o Briar e criar uma nova conta.</string>
   <string name="startup_failed_service_error">O Briar não pode iniciar devido a um plugin. Reinstalar o Briar geralmente resolve esse problema. Porém, note que ao fazer isso você perderá sua conta e todos os dados associados a ela,  já que o Briar não usa um servidor central para armazenar seus dados.</string>
   <string name="expiry_warning">Esse programa expirou.\nPor favor instale uma versão mais recente.</string>
-  <string name="delete_contact">Apagar contato</string>
-  <string name="contact_deleted_toast">Contato apagado</string>
+  <string name="dialog_title_welcome">Bem-vindo ao Briar</string>
+  <string name="dialog_welcome_message">Adicione um contato para começar uma comunicação segura ou pressione o ícone na parte superior direita da tela para mais opções.</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Abrir aba de navegação</string>
+  <string name="nav_drawer_close_description">Fechar aba de navegação</string>
+  <string name="contact_list_button">Contatos</string>
+  <string name="forums_button">Fóruns</string>
+  <string name="blogs_button">Micro Blogs</string>
+  <string name="settings_button">Configurações</string>
   <string name="sign_out_button">Sair</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Conectado ao Briar</string>
+  <string name="ongoing_notification_text">Toque para abrir o Briar</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Nova mensagem privada.</item>
+    <item quantity="other">%d novas mensagens privadas.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Nova postagem de fórum</item>
+    <item quantity="other">%d novas postagens em fóruns.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Novo post em Blog.</item>
+    <item quantity="other">%d novos posts em Blogs.</item>
+  </plurals>
+  <!--Misc-->
   <string name="now">agora</string>
+  <string name="show">Mostrar</string>
+  <string name="hide">Esconder</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Cancelar</string>
+  <string name="delete">Deletar</string>
+  <string name="accept">Aceitar</string>
+  <string name="decline">Recusar</string>
+  <string name="online">Online</string>
+  <string name="offline">Offline</string>
+  <string name="send">Enviar</string>
+  <string name="no_data">Nenhum dado</string>
+  <!--Contacts and Private Conversations-->
+  <string name="date_no_private_messages">Sem Mensagens</string>
+  <string name="delete_contact">Apagar contato</string>
+  <string name="dialog_title_delete_contact">Confirmar remoção do contato</string>
+  <string name="dialog_message_delete_contact">Você tem certeza que quer remover este contato e todas mensagens trocadas com ele?</string>
+  <string name="contact_deleted_toast">Contato apagado</string>
+  <!--Adding Contacts-->
   <string name="add_contact_title">Adicionar um contato</string>
   <string name="your_nickname">Escolha a identidade que você quer usar:</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoal que deseja adicionar como contato. Isso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
@@ -44,6 +84,7 @@
   <string name="searching_format">Procurando por contato com código de convite %06d\u2026</string>
   <string name="connection_failed">Conexão incompleta</string>
   <string name="could_not_find_contact">Briar não conseguiu achar nenhum contato por perto</string>
+  <string name="could_not_open_camera">Não foi possível acessar sua câmera. Por favor tente novamente!</string>
   <string name="try_again_button">Tente novamente</string>
   <string name="connected_to_contact">Conectado ao contato</string>
   <string name="calculating_confirmation_code">Calculando código de confirmação\u2026</string>
@@ -61,105 +102,7 @@
   <string name="authenticating_with_device">Autenticando com o dispositivo\u2026</string>
   <string name="connection_aborted_local">Conexão interrompida por nós! Isso pode disgnificar que alguém está tentando interferir na sua conexão</string>
   <string name="connection_aborted_remote">Conexão interrompida pelo seu contato! Isto pode significar que algúem está tentando interferir em sua conexão</string>
-  <string name="date_no_private_messages">Sem Mensagens</string>
-  <plurals name="forums_shared">
-    <item quantity="one">%d fórum compartilhado por contatos</item>
-    <item quantity="other">%d fóruns compartilhados por contatos</item>
-  </plurals>
-  <string name="show">Mostrar</string>
-  <string name="forum_leave">Sair do fórum</string>
-  <string name="forum_left_toast">Saiu do fórum</string>
-  <string name="sharing_status">Status de compartilhamento</string>
-  <string name="no_posts">Sem Posts</string>
-  <plurals name="posts">
-    <item quantity="one">%d Post</item>
-    <item quantity="other">%d Posts</item>
-  </plurals>
-  <string name="create_forum_title">Novo fórum</string>
-  <string name="choose_forum_name">Escolha um nome para o seu fórum:</string>
-  <string name="create_forum_button">Criar fórum</string>
-  <string name="forum_created_toast">Fórum criado</string>
-  <string name="forum_share_action">Compartilhar este fórum com os contatos escolhidos</string>
-  <string name="forum_share_button">Compartilhar fórum</string>
-  <string name="forum_shared_snackbar">Fòrum compartilhado com os contatos escolhidos</string>
-  <string name="forum_share_message">Você pode escrever um convite que será enviado aos contatos selecionados.</string>
-  <string name="forum_invitation_received">%1$s compartilhou o fórum \"%2$s\" com você.</string>
-  <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
-  <string name="forum_show_invitations">Mostrar os convites de Forum</string>
-  <string name="forum_compose_post">Nova postagem em fórum</string>
-  <string name="anonymous">Anônimo</string>
-  <string name="new_identity_item">Nova identidade\u2026</string>
-  <string name="new_identity_title">Nova identidade</string>
-  <string name="create_identity_button">Criar identidade</string>
-  <string name="identity_created_toast">Identidade criada</string>
-  <string name="forum_invitations_title">Convites para Foruns</string>
-  <string name="forum_joined_toast">Você entrou no fórum</string>
-  <string name="forum_declined_toast">Convite do fórum recusado</string>
-  <string name="shared_by_format">Compartilhado por %s</string>
-  <string name="forum_shared_by">Compartilhado por</string>
-  <string name="forum_shared_with">Compartilhado com</string>
-  <string name="nobody">Ninguém</string>
-  <string name="cancel">Cancelar</string>
-  <string name="delete">Apagar</string>
-  <plurals name="private_message_notification_text">
-    <item quantity="one">Nova mensagem privada.</item>
-    <item quantity="other">%d novas mensagens privadas.</item>
-  </plurals>
-  <plurals name="forum_post_notification_text">
-    <item quantity="one">Nova postagem de fórum</item>
-    <item quantity="other">%d novas postagens em fóruns.</item>
-  </plurals>
-  <!--Settings-->
-  <string name="settings_button">Configurações</string>
-  <string name="network_settings_title">Redes</string>
-  <string name="bluetooth_setting">Conectar via Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Sempre que estiver perto de contatos</string>
-  <string name="bluetooth_setting_disabled">Somente quando adicionando contatos</string>
-  <string name="tor_mobile_setting">Conectar via Tor</string>
-  <string name="tor_mobile_setting_enabled">Quando utilizar Wi-Fi ou rede de dados</string>
-  <string name="tor_mobile_setting_disabled">Somente quando utilizar Wi-Fi</string>
-  <string name="security_settings_title">Segurança</string>
-  <string name="change_password">Mudar Senha</string>
-  <string name="panic_setting">Configurações do botão de pânico</string>
-  <string name="panic_setting_title">Botão de pânico</string>
-  <string name="panic_setting_hint">Configurar como o Briar irá reagir quando você usar um aplicativo de botão de pânico</string>
-  <string name="notification_settings_title">Notificações</string>
-  <string name="notify_private_messages_setting">Mostrar alertas para mensagens privadas</string>
-  <string name="notify_forum_posts_setting">Mostrar alertas para postagens nos fórums</string>
-  <string name="notify_vibration_setting">Vibrar</string>
-  <string name="notify_sound_setting">Som</string>
-  <string name="notify_sound_setting_default">Toque padrão</string>
-  <string name="notify_sound_setting_disabled">Nenhum</string>
-  <string name="choose_ringtone_title">Escolher toque</string>
-  <string name="crash_report_settings_title">Relatórios de falhas</string>
-  <string name="enable_acra_setting">Ativar os relatórios de falhas</string>
-  <string name="acra_syslog_setting">Enviar registros do sistema</string>
-  <string name="acra_user_email_setting">Email de contato opcional</string>
-  <string name="acra_alwaysaccept_setting">Sempre enviar relatórios</string>
-  <string name="panic_app_setting_title">Aplicativo de botão de pânico</string>
-  <string name="unknown_app">um aplicativo desconhecido</string>
-  <string name="panic_app_setting_summary">Nenhum aplicativo foi selecionado</string>
-  <string name="panic_app_setting_none">Nenhum</string>
-  <string name="lock_setting_title">Desconectar</string>
-  <string name="lock_setting_summary">Desconectar do Briar se o botão de pânico for apertado</string>
-  <string name="purge_setting_title">Apagar conta</string>
-  <string name="purge_setting_summary">Apagar sua conta do Briar se o botão de pânico for apertado. Atenção: isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
-  <string name="uninstall_setting_title">Desinstalar o Briar</string>
-  <string name="uninstall_setting_summary">Isso requer configuração manual em um evento de pânico</string>
-  <string name="current_password">Digite a senha atual:</string>
-  <string name="choose_new_password">Escolha sua nova senha:</string>
-  <string name="confirm_new_password">Confirme a nova senha:</string>
-  <string name="password_changed">Senha alterada com sucesso.</string>
-  <string name="feedback_settings_title">Feedback</string>
-  <string name="send_feedback">Enviar feedback</string>
-  <string name="online">Online</string>
-  <string name="offline">Offline</string>
-  <string name="send">Enviar</string>
-  <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
-  <string name="transport_lan">Wi-fi</string>
-  <string name="no_data">Nenhum dado</string>
-  <!--Introduction Client-->
+  <!--Introductions-->
   <string name="introduction_activity_title">Selecionar contato</string>
   <string name="introduction_message_title">Apresentar contatos</string>
   <string name="introduction_message_text">Você pode escrever uma mensagem que será enviada para %1$s e %2$s junto com sua apresentação:</string>
@@ -170,51 +113,80 @@
   <string name="introduction_response_error">Erro ao responder à apresentação</string>
   <string name="introduction_warn_different_identities_title">Aviso: identidades diferentes</string>
   <string name="introduction_warn_different_identities_text">Você está tentando apresentar dois contatos que você adicionou com identidades diferentes. Isso pode revelar que ambas identidades são suas.</string>
+  <string name="dialog_button_introduce">Apresentar</string>
   <string name="introduction_request_sent">Você recebeu um pedido para apresentar %1$s a %2$s.</string>
   <string name="introduction_request_received">%1$s pediu para apresentar você a %2$s. Você quer adicionar %2$s a sua lista de contatos?</string>
   <string name="introduction_request_exists_received">%1$s pediu para apresentar você a %2$s, mas %2$s já está na sua lista de contatos. Já que %1$s não sabe disso, você ainda pode responder:</string>
   <string name="introduction_request_for_our_identity_received">%1$s pediu para apresentar você a %2$s, mas %2$s é uma outra identidade sua, então você não pode aceitar a apresentação.</string>
   <string name="introduction_request_answered_received">%1$s pediu para apresentar você a %2$s.</string>
   <string name="introduction_response_accepted_sent">Você aceitou ser apresentado a %1$s.</string>
-  <string name="introduction_response_declined_sent">Você rejeitou ser apresentado a %1$s.</string>
+  <string name="introduction_response_declined_sent">Você recusou ser apresentado a %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s aceitou ser apresentado a %2$s.</string>
-  <string name="introduction_response_declined_received">%1$s rejeitou ser apresentado a %2$s.</string>
-  <string name="introduction_response_declined_received_by_introducee">%1$s disse que %2$s rejeitou a apresentação.</string>
+  <string name="introduction_response_declined_received">%1$s recusou ser apresentado a %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s disse que %2$s recusou a apresentação.</string>
   <string name="introduction_success_title">O contato apresentado foi adicionado.</string>
   <string name="introduction_success_text">Você foi apresentado a %1$s.</string>
-  <!--Forum-->
+  <!--Forums-->
+  <string name="no_forums">Você não tem nenhum fórum.
+Por que não cria um novo você mesmo, Clicando o ícone + no topo?
+Você também pode pedir que seus contatos compartilhem fóruns com você.</string>
+  <string name="create_forum_title">Novo fórum</string>
+  <string name="choose_forum_name">Escolha um nome para o seu fórum:</string>
+  <string name="create_forum_button">Criar fórum</string>
+  <string name="forum_created_toast">Fórum criado</string>
+  <string name="no_forum_posts">Esse fórum está vazio.
+Use o ícone da caneta no topo para escrever o primeiro Post.
+Se sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
+  <string name="no_posts">Sem Posts</string>
+  <plurals name="posts">
+    <item quantity="one">%d Post</item>
+    <item quantity="other">%d Posts</item>
+  </plurals>
+  <string name="forum_compose_post">Nova postagem em fórum</string>
+  <string name="forum_new_entry_posted">postada com sucesso</string>
+  <string name="forum_new_entry_received">Novo tópico no fórum </string>
+  <string name="forum_new_message_hint">Novo tópico</string>
+  <string name="forum_message_reply_hint">Nova resposta</string>
   <string name="btn_reply">Responder</string>
   <plurals name="message_replies">
     <item quantity="one">%1$d resposta</item>
     <item quantity="other">%1$d respostas</item>
   </plurals>
-  <string name="forum_new_entry_posted">postada com sucesso</string>
-  <string name="forum_new_entry_received">Novo tópico no fórum </string>
-  <string name="forum_new_message_hint">Novo tópico</string>
-  <string name="forum_message_reply_hint">Nova resposta</string>
-  <!--Dialogs-->
-  <string name="dialog_title_lost_password">Perdeu a senha</string>
-  <string name="dialog_title_delete_contact">Confirmar remoção do contato</string>
-  <string name="dialog_message_delete_contact">Você tem certeza que quer remover este contato e todas mensagens trocadas com ele?</string>
-  <string name="dialog_title_connect_panic_app">Confirmar aplicativo de pânico</string>
-  <string name="dialog_message_connect_panic_app">Você tem certeza que quer permitir que %1$s ative ações destrutivas do botão de pânico?</string>
-  <string name="dialog_title_welcome">Bem-vindo ao Briar</string>
-  <string name="dialog_welcome_message">Adicione um contato para começar uma comunicação segura ou pressione o ícone na parte superior direita da tela para mais opções.</string>
+  <string name="forum_leave">Sair do fórum</string>
   <string name="dialog_title_leave_forum">Confirmar saída do fórum</string>
   <string name="dialog_message_leave_forum">Você tem certeza que deseja sair deste fórum? Seus contatos com quem você o compartilhou podem deixar de receber notificações dele.</string>
-  <string name="ok">OK</string>
   <string name="dialog_button_leave">Sair</string>
-  <string name="dialog_button_introduce">Apresentar</string>
-  <string name="accept">Aceitar</string>
-  <string name="decline">Negar</string>
-  <!--Toolbar headers-->
-  <string name="contact_list_button">Contatos</string>
-  <string name="forums_button">Fóruns</string>
-  <!--Progress titles-->
-  <string name="progress_title_logout">Desconectando do Briar…</string>
-  <string name="progress_title_please_wait">Por favor, aguarde</string>
+  <string name="forum_left_toast">Saiu do fórum</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Compartilhar fórum</string>
+  <string name="forum_share_action">Compartilhar este fórum com os contatos escolhidos</string>
+  <string name="activity_share_toolbar_header">Escolher contatos</string>
+  <string name="no_contacts_selector">Parece que você é novo aqui e não tem nenhum contato ainda.
+Por favor volte aqui depois de adicionar um contato.</string>
+  <string name="forum_shared_snackbar">Fòrum compartilhado com os contatos escolhidos</string>
+  <string name="forum_share_message">Você pode escrever um convite que será enviado aos contatos selecionados.</string>
+  <string name="forum_share_error">Houve um erro em compartilhar esse fórum.</string>
+  <string name="forum_invitation_received">%1$s compartilhou o fórum \"%2$s\" com você.</string>
+  <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
+  <string name="forum_show_invitations">Mostrar os convites de Forum</string>
+  <string name="forum_invitations_title">Convites para Foruns</string>
+  <string name="forum_joined_toast">Você entrou no fórum</string>
+  <string name="forum_declined_toast">Convite do fórum recusado</string>
+  <string name="shared_by_format">Compartilhado por %s</string>
+  <string name="forum_invitation_already_sharing">Já compartilhado</string>
+  <string name="forum_invitation_response_accepted_sent">Você aceitou o convite do fórum do %s.</string>
+  <string name="forum_invitation_response_declined_sent">Você recusou o convite de Fórum de %s.</string>
+  <string name="forum_invitation_response_accepted_received">%s aceitou o convite de fórum.</string>
+  <string name="forum_invitation_response_declined_received">%s recusou o convite de fórum.</string>
+  <string name="sharing_status">Status de compartilhamento</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d fórum compartilhado por contatos</item>
+    <item quantity="other">%d fóruns compartilhados por contatos</item>
+  </plurals>
+  <string name="forum_shared_by">Compartilhado por</string>
+  <string name="forum_shared_with">Compartilhado com</string>
+  <string name="nobody">Ninguém</string>
   <!--Blogs-->
-  <string name="blogs_button">Micro Blogs</string>
   <string name="blogs_feed">Feed</string>
   <string name="blogs_my_blogs">Meus Blogs</string>
   <string name="blogs_my_blogs_create">Criar Blog</string>
@@ -223,11 +195,11 @@
   <string name="blogs_my_blogs_create_hint_desc">Uma pequena descrição do seu novo Blog</string>
   <string name="blogs_my_blogs_create_hint_desc_explanation">Leitores Potenciais podem se inscrever ou não no seu Blog baseado no conteúdo da descrição. </string>
   <string name="blogs_my_blogs_empty_state">Você não tem nenhum Blog.
-Por que não cria um clicando no símbolo mais no topo direito da tela? </string>
+Por que não cria um clicando no simbolo mais no topo direito da tela? </string>
   <string name="blogs_my_blogs_created">Blog Criado</string>
   <string name="blogs_blog_is_empty">Esse blog está vazio</string>
   <string name="blogs_other_blog_empty_state">Esse Blog atualmente está vazio.
-Ou o autor não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
+Ou o autor não não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
   <string name="tag_new">Novo</string>
   <string name="blogs_write_blog_post">Escrever Post do Blog</string>
   <string name="blogs_write_blog_post_title_hint">Adicione um Título (opcional)</string>
@@ -241,12 +213,112 @@ Ou o autor não postou nada ainda, ou a pessoa que compartilhou esse Blog contig
   <string name="blogs_feed_empty_state">Esse é o feed de blog global.
 Parece que ninguém postou nada, ainda.
 Seja o primeiro a postar e clique no ícone da caneta para escrever um novo Post pro Blog.</string>
+  <string name="blogs_personal_blog">Blog pessoal do(a) %s</string>
   <string name="blogs_remove_blog">Remover Blog</string>
-  <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer deletar esse Blog e todos seus Posts?
-Note que isso não irá deletar o Blog dos dispositivos de outras pessoas. </string>
-  <string name="blogs_remove_blog_ok">Deletar Blog</string>
+  <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer remover esse Blog e todos seus Posts?
+Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </string>
+  <string name="blogs_remove_blog_ok">Remover Blog</string>
   <string name="blogs_blog_removed">Blog Deletado</string>
   <string name="blogs_blog_list">Lista de blogs</string>
   <string name="blogs_available_blogs">Blogs Disponíveis </string>
   <string name="blogs_drafts">Rascunhos</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Compartilhar Blog</string>
+  <string name="blogs_sharing_error">Houve um erro em compartilhar esse Blog.</string>
+  <string name="blogs_sharing_button">Compartilhar Blog</string>
+  <string name="blogs_sharing_snackbar">Blog compartilhado com os contatos escolhidos</string>
+  <string name="blogs_sharing_response_accepted_sent">Você aceitou o convite do Blog do %s.</string>
+  <string name="blogs_sharing_response_declined_sent">Você recusou o convite de Blog de %s.</string>
+  <string name="blogs_sharing_response_accepted_received">%s aceitou o convite de Blog.</string>
+  <string name="blogs_sharing_response_declined_received">%s recusou o convite de Fórum.</string>
+  <string name="blogs_sharing_invitation_received">%1$s compartilhou o blog %2$s com você.</string>
+  <string name="blogs_sharing_invitation_sent">Você compartilhou o blog de %1$s com %2$s.</string>
+  <string name="blogs_sharing_show_invitations">Mostrar os convites de Fórum</string>
+  <string name="blogs_sharing_invitations_title">Convites para Fóruns</string>
+  <string name="blogs_sharing_joined_toast">Inscrito neste Blog</string>
+  <string name="blogs_sharing_declined_toast">Convite do Blog recusado</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Importar Feed RSS</string>
+  <string name="blogs_rss_feeds_import_button">Importar</string>
+  <string name="blogs_rss_feeds_import_hint">Entre a URL do feed RSS</string>
+  <string name="blogs_rss_feeds_import_error">Nós lamentamos! Houve um erro ao importar seu Feed.</string>
+  <string name="blogs_rss_feeds_manage">Gerenciar Feeds RSS</string>
+  <string name="blogs_rss_feeds_manage_imported">Importado:</string>
+  <string name="blogs_rss_feeds_manage_author">Autor:</string>
+  <string name="blogs_rss_feeds_manage_updated">Ultima Atualização:</string>
+  <string name="blogs_rss_feeds_manage_delete_error">O Feed não pode ser deletado!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Você ainda não importou nenhum feed RSS. Por que não clica no simbolo de mais no canto superior direito para adicionar o primeiro? </string>
+  <string name="blogs_rss_feeds_manage_error">Houve um problema ao carregar seus Feeds. Por favor tente novamente.</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Redes</string>
+  <string name="bluetooth_setting">Conectar via Bluetooth</string>
+  <string name="bluetooth_setting_enabled">Sempre que estiver perto de contatos</string>
+  <string name="bluetooth_setting_disabled">Somente quando adicionando contatos</string>
+  <string name="tor_mobile_setting">Conectar via Tor</string>
+  <string name="tor_mobile_setting_enabled">Quando utilizar Wi-Fi ou rede de dados</string>
+  <string name="tor_mobile_setting_disabled">Somente quando utilizar Wi-Fi</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Segurança</string>
+  <string name="change_password">Mudar Senha</string>
+  <string name="current_password">Digite a senha atual:</string>
+  <string name="choose_new_password">Escolha sua nova senha:</string>
+  <string name="confirm_new_password">Confirme a nova senha:</string>
+  <string name="password_changed">Senha alterada com sucesso.</string>
+  <string name="panic_setting">Configurações do botão de pânico</string>
+  <string name="panic_setting_title">Botão de pânico</string>
+  <string name="panic_setting_hint">Configurar como o Briar irá reagir quando você usar um aplicativo de botão de pânico</string>
+  <string name="panic_app_setting_title">Aplicativo de botão de pânico</string>
+  <string name="unknown_app">um aplicativo desconhecido</string>
+  <string name="panic_app_setting_summary">Nenhum aplicativo foi selecionado</string>
+  <string name="panic_app_setting_none">Nenhum</string>
+  <string name="dialog_title_connect_panic_app">Confirmar aplicativo de pânico</string>
+  <string name="dialog_message_connect_panic_app">Você tem certeza que quer permitir que %1$s ative ações destrutivas do botão de pânico?</string>
+  <string name="lock_setting_title">Desconectar</string>
+  <string name="lock_setting_summary">Desconectar do Briar se o botão de pânico for apertado</string>
+  <string name="purge_setting_title">Apagar conta</string>
+  <string name="purge_setting_summary">Apagar sua conta do Briar se o botão de pânico for apertado. Atenção: isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
+  <string name="uninstall_setting_title">Desinstalar o Briar</string>
+  <string name="uninstall_setting_summary">Isso requer configuração manual em um evento de pânico</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Notificações</string>
+  <string name="notify_private_messages_setting">Mostrar alertas para mensagens privadas</string>
+  <string name="notify_forum_posts_setting">Mostrar alertas para postagens nos fórums</string>
+  <string name="notify_blog_posts_setting">Mostrar alertas para postagens nos blogs</string>
+  <string name="notify_vibration_setting">Vibrar</string>
+  <string name="notify_sound_setting">Som</string>
+  <string name="notify_sound_setting_default">Toque padrão</string>
+  <string name="notify_sound_setting_disabled">Nenhum</string>
+  <string name="choose_ringtone_title">Escolher toque</string>
+  <!--Settings Crash reports and feedback-->
+  <string name="crash_report_settings_title">Relatórios de falhas</string>
+  <string name="enable_acra_setting">Ativar os relatórios de falhas</string>
+  <string name="acra_syslog_setting">Enviar registros do sistema</string>
+  <string name="acra_user_email_setting">Email de contato opcional</string>
+  <string name="acra_alwaysaccept_setting">Sempre enviar relatórios</string>
+  <string name="feedback_settings_title">Feedback</string>
+  <string name="send_feedback">Enviar feedback</string>
+  <!--Multiple Identities-->
+  <string name="anonymous">Anônimo</string>
+  <string name="new_identity_item">Nova identidade\u2026</string>
+  <string name="new_identity_title">Nova identidade</string>
+  <string name="create_identity_button">Criar identidade</string>
+  <string name="identity_created_toast">Identidade criada</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Relatório de falhas do Briar</string>
+  <string name="briar_crashed">Briar encerrou de maneira inesperada</string>
+  <string name="not_your_fault">Isso não é sua culpa.</string>
+  <string name="please_send_report">Nós ajude a construir um Briar melhor enviando um relatório de falhas.</string>
+  <string name="report_is_encrypted">Nós prometemos que o relatório é encriptado e enviado de forma segura.</string>
+  <string name="feedback_title">Comentário</string>
+  <string name="describe_crash">Descreva o que aconteceu (opcional)</string>
+  <string name="enter_feedback">Digite seu comentário</string>
+  <string name="optional_contact_email">E-mail de contato (opcional)</string>
+  <string name="include_debug_report_crash">Incluir informações anonimas sobre o </string>
+  <string name="include_debug_report_feedback">Incluir dados anônimos sobre esse dispositivo </string>
+  <string name="could_not_load_report_data">Não foi possível carregar os dados do relatório.</string>
+  <string name="send_report">Enviar relatório </string>
+  <string name="close">Fechar</string>
+  <string name="dev_report_saved">Relatório salvo. Ele será enviado na próxima vez em que você entrar no Briar.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Saindo do Briar ...</string>
 </resources>
