@@ -83,14 +83,17 @@ public class Feed {
 				lastEntryTime);
 	}
 
+	@Nullable
 	public String getTitle() {
 		return title;
 	}
 
+	@Nullable
 	public String getDescription() {
 		return description;
 	}
 
+	@Nullable
 	public String getAuthor() {
 		return author;
 	}

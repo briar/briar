@@ -60,12 +60,18 @@ class IdentityManagerImpl implements IdentityManager {
 		LocalAuthor author;
 		Transaction txn = db.startTransaction(true);
 		try {
-			author = db.getLocalAuthor(txn, a);
+			author = getLocalAuthor(txn, a);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
 		}
 		return author;
+	}
+
+	@Override
+	public LocalAuthor getLocalAuthor(Transaction txn, AuthorId a)
+			throws DbException {
+		return db.getLocalAuthor(txn, a);
 	}
 
 	@Override

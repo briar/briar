@@ -20,6 +20,9 @@ public interface IdentityManager {
 	/** Returns the local pseudonym with the given ID. */
 	LocalAuthor getLocalAuthor(AuthorId a) throws DbException;
 
+	/** Returns the local pseudonym with the given ID. */
+	LocalAuthor getLocalAuthor(Transaction txn, AuthorId a) throws DbException;
+
 	/** Returns the main local identity. */
 	LocalAuthor getLocalAuthor() throws DbException;
 

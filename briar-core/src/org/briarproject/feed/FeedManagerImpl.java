@@ -149,19 +149,42 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 		LOG.info("Adding new RSS feed...");
 
 		// TODO check for existing feed?
+		// fetch feed to get its metadata
 		Feed feed = new Feed(url, g, clock.currentTimeMillis());
 		try {
-			feed = fetchFeed(feed);
+			feed = fetchFeed(feed, false);
 		} catch (FeedException e) {
 			throw new IOException(e);
 		}
 
+		// store feed
 		Transaction txn = db.startTransaction(false);
 		try {
 			List<Feed> feeds = getFeeds(txn);
 			feeds.add(feed);
 			storeFeeds(txn, feeds);
+			txn.setComplete();
 		} finally {
+			//noinspection ThrowFromFinallyBlock
+			db.endTransaction(txn);
+		}
+
+		// fetch feed again, post entries this time
+		try {
+			feed = fetchFeed(feed, true);
+		} catch (FeedException e) {
+			throw new IOException(e);
+		}
+
+		// store feed again to also store last added entry
+		txn = db.startTransaction(false);
+		try {
+			List<Feed> feeds = getFeeds(txn);
+			feeds.add(feed);
+			storeFeeds(txn, feeds);
+			txn.setComplete();
+		} finally {
+			//noinspection ThrowFromFinallyBlock
 			db.endTransaction(txn);
 		}
 	}
@@ -182,6 +205,7 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 			}
 			if (!found) throw new DbException();
 			storeFeeds(txn, feeds);
+			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -263,7 +287,7 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 		List<Feed> newFeeds = new ArrayList<Feed>(feeds.size());
 		for (Feed feed : feeds) {
 			try {
-				newFeeds.add(fetchFeed(feed));
+				newFeeds.add(fetchFeed(feed, true));
 			} catch (FeedException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
@@ -283,7 +307,8 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 		LOG.info("Done updating RSS feeds");
 	}
 
-	private Feed fetchFeed(Feed feed) throws FeedException, IOException {
+	private Feed fetchFeed(Feed feed, boolean post)
+			throws FeedException, IOException {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Fetching feed from " + feed.getUrl());
 
@@ -301,23 +326,28 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 				StringUtils.isNullOrEmpty(f.getAuthor()) ? null : f.getAuthor();
 		if (author != null) author = stripHTML(author);
 
+		if (f.getEntries().size() == 0)
+			throw new FeedException("Feed has no entries");
+
 		// sort and add new entries
-		Collections.sort(f.getEntries(), getEntryComparator());
-		for (SyndEntry entry : f.getEntries()) {
-			long entryTime;
-			if (entry.getPublishedDate() != null) {
-				entryTime = entry.getPublishedDate().getTime();
-			} else if (entry.getUpdatedDate() != null) {
-				entryTime = entry.getUpdatedDate().getTime();
-			} else {
-				// no time information available, ignore this entry
-				if (LOG.isLoggable(WARNING))
-					LOG.warning("Entry has no date: " + entry.getTitle());
-				continue;
-			}
-			if (entryTime > feed.getLastEntryTime()) {
-				postEntry(feed, entry);
-				if (entryTime > lastEntryTime) lastEntryTime = entryTime;
+		if (post) {
+			Collections.sort(f.getEntries(), getEntryComparator());
+			for (SyndEntry entry : f.getEntries()) {
+				long entryTime;
+				if (entry.getPublishedDate() != null) {
+					entryTime = entry.getPublishedDate().getTime();
+				} else if (entry.getUpdatedDate() != null) {
+					entryTime = entry.getUpdatedDate().getTime();
+				} else {
+					// no time information available, ignore this entry
+					if (LOG.isLoggable(WARNING))
+						LOG.warning("Entry has no date: " + entry.getTitle());
+					continue;
+				}
+				if (entryTime > feed.getLastEntryTime()) {
+					postEntry(feed, entry);
+					if (entryTime > lastEntryTime) lastEntryTime = entryTime;
+				}
 			}
 		}
 		return new Feed(feed.getUrl(), feed.getBlogId(), title, description,
@@ -356,9 +386,14 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 
 	private void postEntry(Feed feed, SyndEntry entry) {
 		LOG.info("Adding new entry...");
+		// TODO do this within one database transaction?
 
 		// build post body
 		StringBuilder b = new StringBuilder();
+		if (feed.getTitle() != null) {
+			// HTML in feed title was already stripped
+			b.append(feed.getTitle()).append("\n\n");
+		}
 		if (!StringUtils.isNullOrEmpty(entry.getTitle())) {
 			b.append(stripHTML(entry.getTitle())).append("\n\n");
 		}
@@ -416,7 +451,8 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 	}
 
 	private String stripHTML(String s) {
-		return StringUtils.trim(s.replaceAll("<.*?>", ""));
+		s = s.replaceAll("<script.*?>(?s).*?</script>", "");
+		return StringUtils.trim(s.replaceAll("<(?s).*?>", ""));
 	}
 
 	private byte[] getPostBody(String text) {
