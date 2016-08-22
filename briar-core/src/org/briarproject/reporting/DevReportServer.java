@@ -18,6 +18,7 @@ public class DevReportServer {
 	private static final int MAX_REPORT_LENGTH = 1024 * 1024;
 	private static final int MIN_REQUEST_INTERVAL_MS = 60 * 1000; // 1 minute
 	private static final int MAX_TOKENS = 1000;
+	private static final int SOCKET_TIMEOUT_MS = 60 * 1000; // 1 minute
 
 	private final InetSocketAddress listenAddress;
 	private final File reportDir;
@@ -105,6 +106,7 @@ public class DevReportServer {
 			File reportFile = null;
 			OutputStream out = null;
 			try {
+				socket.setSoTimeout(SOCKET_TIMEOUT_MS);
 				in = socket.getInputStream();
 				reportDir.mkdirs();
 				reportFile = File.createTempFile(FILE_PREFIX, FILE_SUFFIX,
