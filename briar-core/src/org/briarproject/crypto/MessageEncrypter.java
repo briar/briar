@@ -212,11 +212,12 @@ public class MessageEncrypter {
 	}
 
 	private static String readFully(InputStream in) throws IOException {
+		String newline = System.getProperty("line.separator");
 		StringBuilder stringBuilder = new StringBuilder();
 		Scanner scanner = new Scanner(in);
 		while (scanner.hasNextLine()) {
 			stringBuilder.append(scanner.nextLine());
-			stringBuilder.append(System.lineSeparator());
+			stringBuilder.append(newline);
 		}
 		scanner.close();
 		in.close();
