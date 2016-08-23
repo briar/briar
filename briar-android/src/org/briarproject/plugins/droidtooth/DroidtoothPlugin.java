@@ -172,7 +172,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				String address = AndroidUtils.getBluetoothAddress(appContext,
 						adapter);
 				if (LOG.isLoggable(INFO))
-					LOG.info("Local address " + address);
+					LOG.info("Local address " + scrub(address));
 				if (!StringUtils.isNullOrEmpty(address)) {
 					// Advertise the Bluetooth address to contacts
 					TransportProperties p = new TransportProperties();
@@ -237,7 +237,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			}
 			if (LOG.isLoggable(INFO)) {
 				String address = s.getRemoteDevice().getAddress();
-				LOG.info("Connection from " + address);
+				LOG.info("Connection from " + scrub(address));
 			}
 			backoff.reset();
 			callback.incomingConnectionCreated(wrapSocket(s));
@@ -307,6 +307,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Validate the address
 		if (!BluetoothAdapter.checkBluetoothAddress(address)) {
 			if (LOG.isLoggable(WARNING))
+				// not scrubbing here to be able to figure out the problem
 				LOG.warning("Invalid address " + address);
 			return null;
 		}
@@ -323,13 +324,15 @@ class DroidtoothPlugin implements DuplexPlugin {
 		BluetoothSocket s = null;
 		try {
 			s = d.createInsecureRfcommSocketToServiceRecord(u);
-			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + address);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connecting to " + scrub(address));
 			s.connect();
-			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + address);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connected to " + scrub(address));
 			return s;
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO))
-				LOG.info("Failed to connect to " + address);
+				LOG.info("Failed to connect to " + scrub(address));
 			tryToClose(s);
 			return null;
 		}
@@ -487,6 +490,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return new DroidtoothTransportConnection(this, s);
 	}
 
+	private static String scrub(String address) {
+		return address.substring(0, 3) +
+				"[scrubbed]" +
+				address.substring(14, 17);
+	}
+
 	private class BluetoothStateReceiver extends BroadcastReceiver {
 
 		@Override
@@ -567,7 +576,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			} else if (action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
 				if (LOG.isLoggable(INFO))
-					LOG.info("Discovered device: " + d.getAddress());
+					LOG.info("Discovered device: " + scrub(d.getAddress()));
 				addresses.add(d.getAddress());
 			}
 		}
