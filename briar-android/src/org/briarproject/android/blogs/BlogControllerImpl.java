@@ -43,6 +43,8 @@ public class BlogControllerImpl extends DbControllerImpl
 	protected volatile BlogManager blogManager;
 
 	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
+	private final Map<MessageId, BlogPostHeader> headerCache =
+			new ConcurrentHashMap<>();
 
 	private volatile BlogPostListener listener;
 	private volatile GroupId groupId = null;
@@ -127,6 +129,7 @@ public class BlogControllerImpl extends DbControllerImpl
 					List<BlogPostItem> items = new ArrayList<>(headers.size());
 					now = System.currentTimeMillis();
 					for (BlogPostHeader h : headers) {
+						headerCache.put(h.getId(), h);
 						byte[] body = getPostBody(h.getId());
 						items.add(new BlogPostItem(groupId, h, body));
 					}
@@ -147,6 +150,12 @@ public class BlogControllerImpl extends DbControllerImpl
 	public void loadBlogPost(final BlogPostHeader header,
 			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
+		byte[] body = bodyCache.get(header.getId());
+		if (body != null) {
+			LOG.info("Loaded body from cache");
+			handler.onResult(new BlogPostItem(groupId, header, body));
+			return;
+		}
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -170,12 +179,18 @@ public class BlogControllerImpl extends DbControllerImpl
 	public void loadBlogPost(final MessageId m,
 			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
+		BlogPostHeader header = headerCache.get(m);
+		if (header != null) {
+			LOG.info("Loaded header from cache");
+			loadBlogPost(header, handler);
+			return;
+		}
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					BlogPostHeader header = blogManager.getPostHeader(m);
+					BlogPostHeader header = getPostHeader(m);
 					byte[] body = getPostBody(m);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -188,6 +203,15 @@ public class BlogControllerImpl extends DbControllerImpl
 				}
 			}
 		});
+	}
+
+	private BlogPostHeader getPostHeader(MessageId m) throws DbException {
+		BlogPostHeader header = headerCache.get(m);
+		if (header == null) {
+			header = blogManager.getPostHeader(m);
+			headerCache.put(m, header);
+		}
+		return header;
 	}
 
 	private byte[] getPostBody(MessageId m) throws DbException {
