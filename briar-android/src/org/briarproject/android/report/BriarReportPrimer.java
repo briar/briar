@@ -36,7 +36,7 @@ import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
-import static org.briarproject.util.StringUtils.scrubMacAddress;
+import static org.briarproject.util.PrivacyUtils.scrubMacAddress;
 
 public class BriarReportPrimer implements ReportPrimer {
 
@@ -166,8 +166,10 @@ public class BriarReportPrimer implements ReportPrimer {
 				if (wifiInfo != null) {
 					int ip = wifiInfo.getIpAddress(); // Nice API, Google
 					int ip1 = ip & 0xFF;
+					int ip2 = (ip >> 8) & 0xFF;
+					int ip3 = (ip >> 16) & 0xFF;
 					int ip4 = (ip >> 24) & 0xFF;
-					String address = ip1 + ".[scrubbed]." + ip4;
+					String address = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
 					customData.put("Wi-Fi address", address);
 				}
 			}

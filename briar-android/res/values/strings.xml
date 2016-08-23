@@ -303,12 +303,7 @@
 	<string name="notify_sound_setting_disabled">None</string>
 	<string name="choose_ringtone_title">Choose ringtone</string>
 
-	<!-- Settings Crash reports and feedback -->
-	<string name="crash_report_settings_title">Crash reports</string>
-	<string name="enable_acra_setting">Enable crash reporter</string>
-	<string name="acra_syslog_setting">Send system logs</string>
-	<string name="acra_user_email_setting">Optional contact email</string>
-	<string name="acra_alwaysaccept_setting">Always send reports</string>
+	<!-- Settings Feedback -->
 	<string name="feedback_settings_title">Feedback</string>
 	<string name="send_feedback">Send feedback</string>
 
