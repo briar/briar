@@ -79,13 +79,14 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 
 		pager = (ViewPager) findViewById(R.id.pager);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
-		hideLoadingScreen();
 
 		blogPagerAdapter = new BlogPagerAdapter(getSupportFragmentManager());
 		postPagerAdapter = new BlogPostPagerAdapter(
 				getSupportFragmentManager());
 
 		if (state == null || state.getByteArray(POST_ID) == null) {
+			// The blog fragment has its own progress bar
+			hideLoadingScreen();
 			pager.setAdapter(blogPagerAdapter);
 			savedPostId = null;
 		} else {
@@ -133,10 +134,6 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 		progressBar.setVisibility(VISIBLE);
 	}
 
-	private void showLoadingScreen() {
-		showLoadingScreen(false, 0);
-	}
-
 	@Override
 	public void hideLoadingScreen() {
 		progressBar.setVisibility(GONE);
@@ -153,7 +150,6 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 	}
 
 	private void loadBlogPosts(final MessageId select) {
-		showLoadingScreen();
 		blogController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
 						this) {

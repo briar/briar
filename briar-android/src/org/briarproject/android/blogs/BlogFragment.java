@@ -98,6 +98,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 		list = (BriarRecyclerView) v.findViewById(R.id.postList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
+		list.showProgressBar();
 		if (myBlog) {
 			list.setEmptyText(
 					getString(R.string.blogs_my_blogs_blog_empty_state));
@@ -139,8 +140,6 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	@Override
 	public void onPause() {
 		super.onPause();
-		adapter.clear();
-		list.showProgressBar();
 		list.stopPeriodicUpdate();
 	}
 
