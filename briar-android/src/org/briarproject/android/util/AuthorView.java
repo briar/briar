@@ -1,13 +1,9 @@
 package org.briarproject.android.util;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatTextView;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -17,6 +13,8 @@ import org.briarproject.api.identity.Author.Status;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
+
+import static org.briarproject.api.identity.Author.Status.OURSELVES;
 
 public class AuthorView extends RelativeLayout {
 
@@ -51,6 +49,12 @@ public class AuthorView extends RelativeLayout {
 
 	public void setAuthorStatus(Status status) {
 		trustIndicator.setTrustLevel(status);
+		if (status == OURSELVES) {
+			authorName.setTypeface(authorName.getTypeface(), Typeface.BOLD);
+		}
+
+		invalidate();
+		requestLayout();
 	}
 
 	public void setDate(long date) {

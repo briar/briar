@@ -26,11 +26,6 @@ public class TrustIndicatorView extends ImageView {
 	}
 
 	public void setTrustLevel(Status status) {
-		if (status == OURSELVES) {
-			setVisibility(GONE);
-			return;
-		}
-
 		int res;
 		switch (status) {
 			case ANONYMOUS:
@@ -41,6 +36,9 @@ public class TrustIndicatorView extends ImageView {
 				break;
 			case VERIFIED:
 				res = R.drawable.trust_indicator_verified;
+				break;
+			case OURSELVES:
+				res = R.drawable.ic_our_identity_black;
 				break;
 			default:
 				res = R.drawable.trust_indicator_unknown;
