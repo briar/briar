@@ -110,4 +110,25 @@ public class Feed {
 		return lastEntryTime;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o instanceof Feed) {
+			Feed f = (Feed) o;
+			return url.equals(f.url) && blogId.equals(f.getBlogId()) &&
+					equalsWithNull(title, f.getTitle()) &&
+					equalsWithNull(description, f.getDescription()) &&
+					equalsWithNull(author, f.getAuthor()) &&
+					added == f.getAdded() &&
+					updated == f.getUpdated() &&
+					lastEntryTime == f.getLastEntryTime();
+		}
+		return false;
+	}
+
+	private boolean equalsWithNull(Object a, Object b) {
+		if (a == b) return true;
+		if (a == null || b==null) return false;
+		return a.equals(b);
+	}
 }

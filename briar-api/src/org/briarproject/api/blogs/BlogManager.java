@@ -29,6 +29,9 @@ public interface BlogManager {
 	/** Stores a local blog post. */
 	void addLocalPost(BlogPost p) throws DbException;
 
+	/** Stores a local blog post. */
+	void addLocalPost(Transaction txn, BlogPost p) throws DbException;
+
 	/** Returns the blog with the given ID. */
 	Blog getBlog(GroupId g) throws DbException;
 
