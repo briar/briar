@@ -36,6 +36,7 @@ import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
+import static org.briarproject.util.PrivacyUtils.scrubMacAddress;
 
 public class BriarReportPrimer implements ReportPrimer {
 
@@ -200,7 +201,8 @@ public class BriarReportPrimer implements ReportPrimer {
 			customData.put("Bluetooth status", btStatus);
 
 			if (bt != null)
-				customData.put("Bluetooth address", bt.getAddress());
+				customData.put("Bluetooth address",
+						scrubMacAddress(bt.getAddress()));
 			String btSettingsAddr;
 			try {
 				btSettingsAddr = Settings.Secure.getString(
@@ -208,7 +210,8 @@ public class BriarReportPrimer implements ReportPrimer {
 			} catch (SecurityException e) {
 				btSettingsAddr = "Could not get address from settings";
 			}
-			customData.put("Bluetooth address from settings", btSettingsAddr);
+			customData.put("Bluetooth address from settings",
+					scrubMacAddress(btSettingsAddr));
 
 			return Collections.unmodifiableMap(customData);
 		}

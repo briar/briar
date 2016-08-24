@@ -1,7 +1,6 @@
 package org.briarproject.android.report;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,12 +19,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.acra.ACRA;
 import org.acra.ReportField;
 import org.acra.collector.CrashReportData;
 import org.acra.dialog.BaseCrashReportDialog;
 import org.acra.file.CrashReportPersister;
-import org.acra.prefs.SharedPreferencesFactory;
 import org.briarproject.R;
 import org.briarproject.android.util.UserFeedback;
 
@@ -55,7 +52,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 	private static final Logger LOG =
 			Logger.getLogger(DevReportActivity.class.getName());
 
-	private static final String PREF_EXCLUDED_FIELDS = "excludedReportFields";
 	private static final String STATE_REVIEWING = "reviewing";
 	private static final Set<ReportField> requiredFields = new HashSet<>();
 
@@ -69,8 +65,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	private AppCompatDelegate delegate;
-	private SharedPreferencesFactory sharedPreferencesFactory;
-	private Set<ReportField> excludedFields;
+	private Set<ReportField> excludedFields = new HashSet<>();
 	private EditText userCommentView = null;
 	private EditText userEmailView = null;
 	private CheckBox includeDebugReport = null;
@@ -94,16 +89,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 		super.onCreate(state);
 
 		getDelegate().setContentView(R.layout.activity_dev_report);
-
-		sharedPreferencesFactory = new SharedPreferencesFactory(
-				getApplicationContext(), getConfig());
-
-		SharedPreferences prefs = sharedPreferencesFactory.create();
-		excludedFields = new HashSet<>();
-		for (String name : prefs.getStringSet(PREF_EXCLUDED_FIELDS,
-				new HashSet<String>())) {
-			excludedFields.add(ReportField.valueOf(name));
-		}
 
 		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
 		getDelegate().setSupportActionBar(tb);
@@ -163,9 +148,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 				}
 			}
 		});
-
-		String userEmail = prefs.getString(ACRA.PREF_USER_EMAIL_ADDRESS, "");
-		userEmailView.setText(userEmail);
 
 		if (state != null)
 			reviewing = state.getBoolean(STATE_REVIEWING, isFeedback());
@@ -362,25 +344,15 @@ public class DevReportActivity extends BaseCrashReportDialog
 
 			@Override
 			protected void onPostExecute(Boolean success) {
-				final SharedPreferences prefs =
-						sharedPreferencesFactory.create();
-				final SharedPreferences.Editor prefEditor =
-						prefs.edit();
-				Set<String> fields = new HashSet<>();
-				for (ReportField field : excludedFields) {
-					fields.add(field.name());
-				}
-				prefEditor.putStringSet(PREF_EXCLUDED_FIELDS, fields);
-				prefEditor.apply();
-
 				if (success) {
 					// Retrieve user's comment and email address, if any
 					String comment = "";
 					if (userCommentView != null)
 						comment = userCommentView.getText().toString();
 					String email = "";
-					if (userEmailView != null)
+					if (userEmailView != null) {
 						email = userEmailView.getText().toString();
+					}
 					sendCrash(comment, email);
 				}
 				finish();

@@ -88,35 +88,6 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory
-		android:title="@string/crash_report_settings_title">
-
-		<CheckBoxPreference
-			android:defaultValue="true"
-			android:key="acra.enable"
-			android:title="@string/enable_acra_setting"/>
-
-		<CheckBoxPreference
-			android:defaultValue="true"
-			android:dependency="acra.enable"
-			android:key="acra.syslog.enable"
-			android:title="@string/acra_syslog_setting"/>
-
-		<EditTextPreference
-			android:dependency="acra.enable"
-			android:key="acra.user.email"
-			android:inputType="textEmailAddress"
-			android:summary=""
-			android:title="@string/acra_user_email_setting"/>
-
-		<CheckBoxPreference
-			android:defaultValue="false"
-			android:dependency="acra.enable"
-			android:key="acra.alwaysaccept"
-			android:title="@string/acra_alwaysaccept_setting"/>
-
-	</PreferenceCategory>
-
-	<PreferenceCategory
 		android:title="@string/feedback_settings_title">
 
 		<Preference
