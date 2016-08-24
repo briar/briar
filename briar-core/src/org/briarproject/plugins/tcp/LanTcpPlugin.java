@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.util.PrivacyUtils.scrubSocketAddress;
 
 class LanTcpPlugin extends TcpPlugin {
 
@@ -177,7 +178,7 @@ class LanTcpPlugin extends TcpPlugin {
 				break;
 			} catch (IOException e) {
 				if (LOG.isLoggable(INFO))
-					LOG.info("Failed to bind " + addr);
+					LOG.info("Failed to bind " + scrubSocketAddress(addr));
 				tryToClose(ss);
 			}
 		}
@@ -205,20 +206,24 @@ class LanTcpPlugin extends TcpPlugin {
 		if (!isConnectable(remote)) {
 			if (LOG.isLoggable(INFO)) {
 				SocketAddress local = socket.getLocalSocketAddress();
-				LOG.info(remote + " is not connectable from " + local);
+				LOG.info(scrubSocketAddress(remote) +
+						" is not connectable from " +
+						scrubSocketAddress(local));
 			}
 			return null;
 		}
 		Socket s = new Socket();
 		try {
-			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connecting to " + scrubSocketAddress(remote));
 			s.connect(remote);
 			s.setSoTimeout(socketTimeout);
-			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connected to " + scrubSocketAddress(remote));
 			return new TcpTransportConnection(this, s);
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO))
-				LOG.info("Could not connect to " + remote);
+				LOG.info("Could not connect to " + scrubSocketAddress(remote));
 			return null;
 		}
 	}

@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.util.PrivacyUtils.scrubSocketAddress;
 
 abstract class TcpPlugin implements DuplexPlugin {
 
@@ -107,14 +108,15 @@ abstract class TcpPlugin implements DuplexPlugin {
 			public void run() {
 				if (!running) return;
 				ServerSocket ss = null;
-				for (SocketAddress addr : getLocalSocketAddresses()) {
+				for (InetSocketAddress addr : getLocalSocketAddresses()) {
 					try {
 						ss = new ServerSocket();
 						ss.bind(addr);
 						break;
 					} catch (IOException e) {
 						if (LOG.isLoggable(INFO))
-							LOG.info("Failed to bind " + addr);
+							LOG.info("Failed to bind " +
+									scrubSocketAddress(addr));
 						tryToClose(ss);
 					}
 				}
@@ -128,9 +130,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 				}
 				socket = ss;
 				backoff.reset();
-				SocketAddress local = ss.getLocalSocketAddress();
-				setLocalSocketAddress((InetSocketAddress) local);
-				if (LOG.isLoggable(INFO)) LOG.info("Listening on " + local);
+				InetSocketAddress local =
+						(InetSocketAddress) ss.getLocalSocketAddress();
+				setLocalSocketAddress(local);
+				if (LOG.isLoggable(INFO))
+					LOG.info("Listening on " + scrubSocketAddress(local));
 				callback.transportEnabled();
 				acceptContactConnections();
 			}
@@ -166,7 +170,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 				return;
 			}
 			if (LOG.isLoggable(INFO))
-				LOG.info("Connection from " + s.getRemoteSocketAddress());
+				LOG.info("Connection from " +
+						scrubSocketAddress(s.getRemoteSocketAddress()));
 			backoff.reset();
 			TcpTransportConnection conn = new TcpTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
@@ -223,20 +228,25 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if (!isConnectable(remote)) {
 				if (LOG.isLoggable(INFO)) {
 					SocketAddress local = socket.getLocalSocketAddress();
-					LOG.info(remote + " is not connectable from " + local);
+					LOG.info(scrubSocketAddress(remote) +
+							" is not connectable from " +
+							scrubSocketAddress(local));
 				}
 				continue;
 			}
 			Socket s = new Socket();
 			try {
-				if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + remote);
+				if (LOG.isLoggable(INFO))
+					LOG.info("Connecting to " + scrubSocketAddress(remote));
 				s.connect(remote);
 				s.setSoTimeout(socketTimeout);
-				if (LOG.isLoggable(INFO)) LOG.info("Connected to " + remote);
+				if (LOG.isLoggable(INFO))
+					LOG.info("Connected to " + scrubSocketAddress(remote));
 				return new TcpTransportConnection(this, s);
 			} catch (IOException e) {
 				if (LOG.isLoggable(INFO))
-					LOG.info("Could not connect to " + remote);
+					LOG.info("Could not connect to " +
+							scrubSocketAddress(remote));
 			}
 		}
 		return null;
@@ -255,6 +265,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			return new InetSocketAddress(a, p);
 		} catch (UnknownHostException e) {
 			if (LOG.isLoggable(WARNING))
+				// not scrubbing to enable us to find the problem
 				LOG.warning("Invalid address: " + addr);
 			return null;
 		} catch (NumberFormatException e) {

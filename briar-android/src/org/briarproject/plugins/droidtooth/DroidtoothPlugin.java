@@ -57,6 +57,7 @@ import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.util.PrivacyUtils.scrubMacAddress;
 
 class DroidtoothPlugin implements DuplexPlugin {
 
@@ -172,7 +173,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				String address = AndroidUtils.getBluetoothAddress(appContext,
 						adapter);
 				if (LOG.isLoggable(INFO))
-					LOG.info("Local address " + address);
+					LOG.info("Local address " + scrubMacAddress(address));
 				if (!StringUtils.isNullOrEmpty(address)) {
 					// Advertise the Bluetooth address to contacts
 					TransportProperties p = new TransportProperties();
@@ -237,7 +238,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			}
 			if (LOG.isLoggable(INFO)) {
 				String address = s.getRemoteDevice().getAddress();
-				LOG.info("Connection from " + address);
+				LOG.info("Connection from " + scrubMacAddress(address));
 			}
 			backoff.reset();
 			callback.incomingConnectionCreated(wrapSocket(s));
@@ -307,6 +308,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Validate the address
 		if (!BluetoothAdapter.checkBluetoothAddress(address)) {
 			if (LOG.isLoggable(WARNING))
+				// not scrubbing here to be able to figure out the problem
 				LOG.warning("Invalid address " + address);
 			return null;
 		}
@@ -323,13 +325,15 @@ class DroidtoothPlugin implements DuplexPlugin {
 		BluetoothSocket s = null;
 		try {
 			s = d.createInsecureRfcommSocketToServiceRecord(u);
-			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + address);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connecting to " + scrubMacAddress(address));
 			s.connect();
-			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + address);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connected to " + scrubMacAddress(address));
 			return s;
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO))
-				LOG.info("Failed to connect to " + address);
+				LOG.info("Failed to connect to " + scrubMacAddress(address));
 			tryToClose(s);
 			return null;
 		}
@@ -567,7 +571,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 			} else if (action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
 				if (LOG.isLoggable(INFO))
-					LOG.info("Discovered device: " + d.getAddress());
+					LOG.info("Discovered device: " +
+							scrubMacAddress(d.getAddress()));
 				addresses.add(d.getAddress());
 			}
 		}

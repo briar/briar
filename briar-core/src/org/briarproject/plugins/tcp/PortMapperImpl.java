@@ -1,7 +1,9 @@
 package org.briarproject.plugins.tcp;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
+import org.briarproject.api.lifecycle.ShutdownManager;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,10 +12,9 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.bitlet.weupnp.GatewayDevice;
-import org.bitlet.weupnp.GatewayDiscover;
-import org.briarproject.api.lifecycle.ShutdownManager;
-import org.xml.sax.SAXException;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.util.PrivacyUtils.scrubInetAddress;
 
 class PortMapperImpl implements PortMapper {
 
@@ -35,7 +36,7 @@ class PortMapperImpl implements PortMapper {
 		InetAddress internal = gateway.getLocalAddress();
 		if (internal == null) return null;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Internal address " + getHostAddress(internal));
+			LOG.info("Internal address " + scrubInetAddress(internal));
 		boolean succeeded = false;
 		InetAddress external = null;
 		try {
@@ -50,7 +51,8 @@ class PortMapperImpl implements PortMapper {
 			}
 			String externalString = gateway.getExternalIPAddress();
 			if (LOG.isLoggable(INFO))
-				LOG.info("External address " + externalString);
+				LOG.info(
+						"External address " + scrubInetAddress(externalString));
 			if (externalString != null)
 				external = InetAddress.getByName(externalString);
 		} catch (IOException e) {

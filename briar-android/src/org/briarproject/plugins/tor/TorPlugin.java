@@ -72,6 +72,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
+import static org.briarproject.util.PrivacyUtils.scrubOnion;
 
 class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
@@ -405,7 +406,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		// Publish the hidden service's onion hostname in transport properties
 		String hostname = response.get(HS_ADDRESS);
-		if (LOG.isLoggable(INFO)) LOG.info("Hidden service " + hostname);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Hidden service " + scrubOnion(hostname));
 		TransportProperties p = new TransportProperties();
 		p.put(PROP_ONION, hostname);
 		callback.mergeLocalProperties(p);
@@ -510,21 +512,25 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		String onion = p.get(PROP_ONION);
 		if (StringUtils.isNullOrEmpty(onion)) return null;
 		if (!ONION.matcher(onion).matches()) {
+			// not scrubbing this address, so we are able to find the problem
 			if (LOG.isLoggable(INFO)) LOG.info("Invalid hostname: " + onion);
 			return null;
 		}
 		try {
-			if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + onion);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connecting to " + scrubOnion(onion));
 			controlConnection.forgetHiddenService(onion);
 			Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", SOCKS_PORT);
 			proxy.resolveAddrLocally(false);
 			Socket s = new SocksSocket(proxy, onion + ".onion", 80);
 			s.setSoTimeout(socketTimeout);
-			if (LOG.isLoggable(INFO)) LOG.info("Connected to " + onion);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connected to " + scrubOnion(onion));
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO))
-				LOG.info("Could not connect to " + onion + ": " + e.toString());
+				LOG.info("Could not connect to " + scrubOnion(onion) + ": " +
+						e.toString());
 			return null;
 		}
 	}
