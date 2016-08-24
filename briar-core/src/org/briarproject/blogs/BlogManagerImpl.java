@@ -33,7 +33,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -341,10 +340,26 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	@Nullable
+	public BlogPostHeader getPostHeader(MessageId m) throws DbException {
+		Transaction txn = db.startTransaction(true);
+		try {
+			BdfDictionary meta =
+					clientHelper.getMessageMetadataAsDictionary(txn, m);
+			BlogPostHeader h = getPostHeaderFromMetadata(txn, m, meta);
+			txn.setComplete();
+			return h;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
 	public byte[] getPostBody(MessageId m) throws DbException {
 		try {
 			BdfList message = clientHelper.getMessageAsList(m);
+			if (message == null) throw new DbException();
 			return getPostBody(message);
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -362,24 +377,23 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	public Collection<BlogPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
 
-		Map<MessageId, BdfDictionary> metadata;
+		Transaction txn = db.startTransaction(true);
 		try {
-			metadata = clientHelper.getMessageMetadataAsDictionary(g);
+			Map<MessageId, BdfDictionary> metadata =
+					clientHelper.getMessageMetadataAsDictionary(txn, g);
+			List<BlogPostHeader> headers = new ArrayList<BlogPostHeader>();
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				BlogPostHeader h = getPostHeaderFromMetadata(txn,
+						entry.getKey(), entry.getValue());
+				headers.add(h);
+			}
+			txn.setComplete();
+			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
 		}
-		Collection<BlogPostHeader> headers = new ArrayList<BlogPostHeader>();
-		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-			try {
-				BdfDictionary meta = entry.getValue();
-				BlogPostHeader h =
-						getPostHeaderFromMetadata(null, entry.getKey(), meta);
-				headers.add(h);
-			} catch (FormatException e) {
-				throw new DbException(e);
-			}
-		}
-		return headers;
 	}
 
 	@Override
@@ -404,7 +418,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		return d.getString(KEY_DESCRIPTION, "");
 	}
 
-	private BlogPostHeader getPostHeaderFromMetadata(@Nullable Transaction txn,
+	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,
 			MessageId id, BdfDictionary meta)
 			throws DbException, FormatException {
 
@@ -418,11 +432,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		byte[] publicKey = d.getRaw(KEY_PUBLIC_KEY);
 		Author author = new Author(authorId, name, publicKey);
 		Status authorStatus;
-		if (txn == null)
-			authorStatus = identityManager.getAuthorStatus(authorId);
-		else {
-			authorStatus = identityManager.getAuthorStatus(txn, authorId);
-		}
+		authorStatus = identityManager.getAuthorStatus(txn, authorId);
 
 		String contentType = meta.getString(KEY_CONTENT_TYPE);
 		boolean read = meta.getBoolean(KEY_READ);

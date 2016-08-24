@@ -1,6 +1,7 @@
 package org.briarproject.android.blogs;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.identity.Author;
@@ -31,12 +32,9 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 		return groupId;
 	}
 
+	@Nullable
 	public String getTitle() {
 		return header.getTitle();
-	}
-
-	public byte[] getBody() {
-		return body;
 	}
 
 	public long getTimestamp() {
@@ -55,18 +53,22 @@ class BlogPostItem implements Comparable<BlogPostItem> {
 		return header.getAuthorStatus();
 	}
 
-	public void setRead(boolean read) {
-		this.read = read;
+	public byte[] getBody() {
+		return body;
 	}
 
 	public boolean isRead() {
 		return read;
 	}
 
+	public void setRead(boolean read) {
+		this.read = read;
+	}
+
 	@Override
 	public int compareTo(@NonNull BlogPostItem other) {
 		if (this == other) return 0;
-		// The blog with the newest message comes first
+		// The newest post comes first
 		long aTime = getTimeReceived(), bTime = other.getTimeReceived();
 		if (aTime > bTime) return -1;
 		if (aTime < bTime) return 1;

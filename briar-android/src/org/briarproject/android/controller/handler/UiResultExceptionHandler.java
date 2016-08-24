@@ -1,6 +1,7 @@
 package org.briarproject.android.controller.handler;
 
 import android.app.Activity;
+import android.support.annotation.UiThread;
 
 public abstract class UiResultExceptionHandler<R, E extends Exception>
 		implements ResultExceptionHandler<R, E> {
@@ -31,7 +32,9 @@ public abstract class UiResultExceptionHandler<R, E extends Exception>
 		});
 	}
 
+	@UiThread
 	public abstract void onResultUi(R result);
 
+	@UiThread
 	public abstract void onExceptionUi(E exception);
 }

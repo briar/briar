@@ -2,31 +2,36 @@ package org.briarproject.android.blogs;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.blogs.BlogController.BlogPostListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.api.blogs.BlogPostHeader;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.LENGTH_SHORT;
 
 public class BlogActivity extends BriarActivity implements BlogPostListener,
 		OnBlogPostClickListener, BaseFragmentListener {
@@ -37,17 +42,17 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 	static final String IS_MY_BLOG = "briar.IS_MY_BLOG";
 	static final String IS_NEW_BLOG = "briar.IS_NEW_BLOG";
 
-	private static final String BLOG_PAGER_ADAPTER = "briar.BLOG_PAGER_ADAPTER";
+	private static final String POST_ID = "briar.POST_ID";
 
+	private GroupId groupId;
 	private ProgressBar progressBar;
 	private ViewPager pager;
 	private BlogPagerAdapter blogPagerAdapter;
 	private BlogPostPagerAdapter postPagerAdapter;
 	private String blogName;
 	private boolean myBlog, isNew;
+	private MessageId savedPostId;
 
-	// Fields that are accessed from background threads must be volatile
-	private volatile GroupId groupId = null;
 	@Inject
 	BlogController blogController;
 
@@ -58,8 +63,9 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 		// GroupId from Intent
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No Group in intent.");
+		if (b == null) throw new IllegalStateException("No group ID in intent");
 		groupId = new GroupId(b);
+		blogController.setGroupId(groupId);
 
 		// Name of the Blog from Intent
 		blogName = i.getStringExtra(BLOG_NAME);
@@ -73,30 +79,46 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 
 		pager = (ViewPager) findViewById(R.id.pager);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
-		hideLoadingScreen();
 
 		blogPagerAdapter = new BlogPagerAdapter(getSupportFragmentManager());
-		if (state == null || state.getBoolean(BLOG_PAGER_ADAPTER, true)) {
+		postPagerAdapter = new BlogPostPagerAdapter(
+				getSupportFragmentManager());
+
+		if (state == null || state.getByteArray(POST_ID) == null) {
+			// The blog fragment has its own progress bar
+			hideLoadingScreen();
 			pager.setAdapter(blogPagerAdapter);
+			savedPostId = null;
 		} else {
-			// this initializes and restores the postPagerAdapter
-			loadBlogPosts();
+			// Adapter will be set in selectPostInPostPager()
+			savedPostId = new MessageId(state.getByteArray(POST_ID));
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (savedPostId == null) {
+			MessageId selected = getSelectedPostInPostPager();
+			if (selected != null) loadBlogPosts(selected);
+		} else {
+			loadBlogPosts(savedPostId);
 		}
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-
-		// remember which adapter we had active
-		outState.putBoolean(BLOG_PAGER_ADAPTER,
-				pager.getAdapter() == blogPagerAdapter);
+		MessageId selected = getSelectedPostInPostPager();
+		if (selected != null)
+			outState.putByteArray(POST_ID, selected.getBytes());
 	}
 
 	@Override
 	public void onBackPressed() {
 		if (pager.getAdapter() == postPagerAdapter) {
 			pager.setAdapter(blogPagerAdapter);
+			savedPostId = null;
 		} else {
 			super.onBackPressed();
 		}
@@ -112,10 +134,6 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 		progressBar.setVisibility(VISIBLE);
 	}
 
-	private void showLoadingScreen() {
-		showLoadingScreen(false, 0);
-	}
-
 	@Override
 	public void hideLoadingScreen() {
 		progressBar.setVisibility(GONE);
@@ -127,60 +145,79 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 	}
 
 	@Override
-	public void onBlogPostClick(int position, BlogPostItem post) {
-		loadBlogPosts(position, true);
+	public void onBlogPostClick(BlogPostItem post) {
+		loadBlogPosts(post.getId());
 	}
 
-	private void loadBlogPosts() {
-		loadBlogPosts(0, false);
-	}
-
-	private void loadBlogPosts(final int position, final boolean setItem) {
-		showLoadingScreen();
-		blogController.loadBlog(groupId, false,
-				new UiResultHandler<Boolean>(this) {
+	private void loadBlogPosts(final MessageId select) {
+		blogController.loadBlogPosts(
+				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
+						this) {
 					@Override
-					public void onResultUi(Boolean result) {
-						if (result) {
-							Collection<BlogPostItem> posts =
-									blogController.getBlogPosts();
+					public void onResultUi(Collection<BlogPostItem> posts) {
+						hideLoadingScreen();
+						savedPostId = null;
+						postPagerAdapter.setPosts(posts);
+						selectPostInPostPager(select);
+					}
 
-							if (postPagerAdapter == null) {
-								postPagerAdapter = new BlogPostPagerAdapter(
-										getSupportFragmentManager(),
-										posts.size());
-							} else {
-								postPagerAdapter.setSize(posts.size());
-							}
-							pager.setAdapter(postPagerAdapter);
-							if (setItem) pager.setCurrentItem(position);
-						} else {
-							Toast.makeText(BlogActivity.this,
-									R.string.blogs_blog_post_failed_to_load,
-									LENGTH_SHORT).show();
-						}
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						finish();
 					}
 				});
 	}
 
 	@Override
-	public void onBlogPostAdded(final BlogPostItem post, final boolean local) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (blogPagerAdapter != null) {
-					BlogFragment f = blogPagerAdapter.getFragment();
-					if (f != null && f.isVisible()) {
-						f.onBlogPostAdded(post, local);
-					}
-				}
+	public void onBlogPostAdded(BlogPostHeader header, boolean local) {
+		if (pager.getAdapter() == postPagerAdapter) {
+			loadBlogPost(header);
+		} else {
+			BlogFragment f = blogPagerAdapter.getFragment();
+			if (f != null && f.isVisible()) f.onBlogPostAdded(header, local);
+		}
+	}
 
-				if (postPagerAdapter != null) {
-					postPagerAdapter.onBlogPostAdded();
-					postPagerAdapter.notifyDataSetChanged();
-				}
+	private void loadBlogPost(BlogPostHeader header) {
+		blogController.loadBlogPost(header,
+				new UiResultExceptionHandler<BlogPostItem, DbException>(this) {
+					@Override
+					public void onResultUi(BlogPostItem post) {
+						addPostToPostPager(post);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						finish();
+					}
+				});
+	}
+
+	@Nullable
+	private MessageId getSelectedPostInPostPager() {
+		if (pager.getAdapter() != postPagerAdapter) return null;
+		if (postPagerAdapter.getCount() == 0) return null;
+		int position = pager.getCurrentItem();
+		return postPagerAdapter.getPost(position).getId();
+	}
+
+	private void selectPostInPostPager(MessageId m) {
+		int count = postPagerAdapter.getCount();
+		for (int i = 0; i < count; i++) {
+			if (postPagerAdapter.getPost(i).getId().equals(m)) {
+				pager.setAdapter(postPagerAdapter);
+				pager.setCurrentItem(i);
+				return;
 			}
-		});
+		}
+	}
+
+	private void addPostToPostPager(BlogPostItem post) {
+		MessageId selected = getSelectedPostInPostPager();
+		postPagerAdapter.addPost(post);
+		if (selected != null) selectPostInPostPager(selected);
 	}
 
 	@Override
@@ -191,18 +228,22 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 		// The BlogPostAddedEvent arrives when the controller is not listening,
 		// so we need to manually reload the blog posts :(
 		if (requestCode == REQUEST_WRITE_POST && resultCode == RESULT_OK) {
-			BlogFragment f = blogPagerAdapter.getFragment();
-			if (f != null && f.isVisible()) {
-				f.reload();
+			if (pager.getAdapter() == postPagerAdapter) {
+				MessageId selected = getSelectedPostInPostPager();
+				if (selected != null) loadBlogPosts(selected);
+			} else {
+				BlogFragment f = blogPagerAdapter.getFragment();
+				if (f != null && f.isVisible()) f.loadBlogPosts(true);
 			}
 		}
 	}
 
-
+	@UiThread
 	private class BlogPagerAdapter extends FragmentStatePagerAdapter {
+
 		private BlogFragment fragment = null;
 
-		BlogPagerAdapter(FragmentManager fm) {
+		private BlogPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
@@ -224,36 +265,46 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 			return fragment;
 		}
 
-		BlogFragment getFragment() {
+		private BlogFragment getFragment() {
 			return fragment;
 		}
 	}
 
-	private class BlogPostPagerAdapter extends FragmentStatePagerAdapter {
-		private int size;
+	@UiThread
+	private static class BlogPostPagerAdapter
+			extends FragmentStatePagerAdapter {
 
-		BlogPostPagerAdapter(FragmentManager fm, int size) {
+		private final List<BlogPostItem> posts = new ArrayList<>();
+
+		private BlogPostPagerAdapter(FragmentManager fm) {
 			super(fm);
-			this.size = size;
 		}
 
 		@Override
 		public int getCount() {
-			return size;
+			return posts.size();
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			MessageId postIdOfPos = blogController.getBlogPostId(position);
-			return BlogPostFragment.newInstance(groupId, postIdOfPos);
+			return BlogPostFragment.newInstance(posts.get(position).getId());
 		}
 
-		void onBlogPostAdded() {
-			size++;
+		private BlogPostItem getPost(int position) {
+			return posts.get(position);
 		}
 
-		void setSize(int size) {
-			this.size = size;
+		private void setPosts(Collection<BlogPostItem> posts) {
+			this.posts.clear();
+			this.posts.addAll(posts);
+			Collections.sort(this.posts);
+			notifyDataSetChanged();
+		}
+
+		private void addPost(BlogPostItem post) {
+			posts.add(post);
+			Collections.sort(posts);
+			notifyDataSetChanged();
 		}
 	}
 

@@ -182,7 +182,7 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onBlogPostClick(int position, BlogPostItem post) {
+	public void onBlogPostClick(BlogPostItem post) {
 		byte[] groupId = post.getGroupId().getBytes();
 		String name = getString(R.string.blogs_personal_blog,
 				post.getAuthor().getName());
