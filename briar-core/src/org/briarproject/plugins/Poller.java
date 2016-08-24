@@ -2,8 +2,6 @@ package org.briarproject.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.event.ConnectionClosedEvent;
-import org.briarproject.api.event.ConnectionOpenedEvent;
 import org.briarproject.api.event.ContactStatusChangedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
@@ -71,18 +69,6 @@ class Poller implements EventListener {
 				// Connect to the newly activated contact
 				connectToContact(c.getContactId());
 			}
-		} else if (e instanceof ConnectionClosedEvent) {
-			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
-			// Reschedule polling, the polling interval may have decreased
-			reschedule(c.getTransportId());
-			if (!c.isIncoming()) {
-				// Connect to the disconnected contact
-				connectToContact(c.getContactId(), c.getTransportId());
-			}
-		} else if (e instanceof ConnectionOpenedEvent) {
-			ConnectionOpenedEvent c = (ConnectionOpenedEvent) e;
-			// Reschedule polling, the polling interval may have decreased
-			reschedule(c.getTransportId());
 		} else if (e instanceof TransportEnabledEvent) {
 			TransportEnabledEvent t = (TransportEnabledEvent) e;
 			// Poll the newly enabled transport
@@ -95,14 +81,6 @@ class Poller implements EventListener {
 			if (s.shouldPoll()) connectToContact(c, s);
 		for (DuplexPlugin d : pluginManager.getDuplexPlugins())
 			if (d.shouldPoll()) connectToContact(c, d);
-	}
-
-	private void connectToContact(ContactId c, TransportId t) {
-		Plugin p = pluginManager.getPlugin(t);
-		if (p instanceof SimplexPlugin && p.shouldPoll())
-			connectToContact(c, (SimplexPlugin) p);
-		else if (p instanceof DuplexPlugin && p.shouldPoll())
-			connectToContact(c, (DuplexPlugin) p);
 	}
 
 	private void connectToContact(final ContactId c, final SimplexPlugin p) {
@@ -131,11 +109,6 @@ class Poller implements EventListener {
 				}
 			}
 		});
-	}
-
-	private void reschedule(TransportId t) {
-		Plugin p = pluginManager.getPlugin(t);
-		if (p.shouldPoll()) schedule(p, p.getPollingInterval(), false);
 	}
 
 	private void pollNow(TransportId t) {

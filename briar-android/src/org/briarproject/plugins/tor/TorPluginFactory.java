@@ -6,8 +6,6 @@ import android.os.Build;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.plugins.Backoff;
-import org.briarproject.api.plugins.BackoffFactory;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
@@ -24,26 +22,22 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
-	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
-	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
-	private static final double BACKOFF_BASE = 1.2;
+	private static final int POLLING_INTERVAL = 2 * 60 * 1000; // 2 minutes
 
 	private final Executor ioExecutor;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
 	private final EventBus eventBus;
-	private final BackoffFactory backoffFactory;
 
 	public TorPluginFactory(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils, DevReporter reporter,
-			EventBus eventBus, BackoffFactory backoffFactory) {
+			EventBus eventBus) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
 		this.eventBus = eventBus;
-		this.backoffFactory = backoffFactory;
 	}
 
 	@Override
@@ -77,11 +71,9 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		// Use position-independent executable for SDK >= 16
 		if (Build.VERSION.SDK_INT >= 16) architecture += "-pie";
 
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorPlugin plugin = new TorPlugin(ioExecutor, appContext, locationUtils,
-				reporter, backoff, callback, architecture, MAX_LATENCY,
-				MAX_IDLE_TIME);
+				reporter, callback, architecture, MAX_LATENCY, MAX_IDLE_TIME,
+				POLLING_INTERVAL);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

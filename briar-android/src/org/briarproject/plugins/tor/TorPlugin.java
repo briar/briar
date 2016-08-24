@@ -26,7 +26,6 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
 import org.briarproject.api.keyagreement.TransportDescriptor;
-import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -93,10 +92,10 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
-	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
 	private final int maxLatency, maxIdleTime, socketTimeout;
+	private final int pollingInterval;
 	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
@@ -110,18 +109,18 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, DevReporter reporter, Backoff backoff,
+			LocationUtils locationUtils, DevReporter reporter,
 			DuplexPluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime) {
+			int maxIdleTime, int pollingInterval) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
-		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
+		this.pollingInterval = pollingInterval;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
@@ -363,7 +362,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 						publishHiddenService(localPort);
 					}
 				});
-				backoff.reset();
 				// Accept incoming hidden service connections from Tor
 				acceptContactConnections(ss);
 			}
@@ -431,7 +429,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				return;
 			}
 			LOG.info("Connection received");
-			backoff.reset();
 			TorTransportConnection conn = new TorTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
 		}
@@ -479,14 +476,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public int getPollingInterval() {
-		return backoff.getPollingInterval();
+		return pollingInterval;
 	}
 
 	@Override
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
-		backoff.increment();
-		// TODO: Pass properties to connectAndCallBack()
 		for (ContactId c : callback.getRemoteProperties().keySet())
 			if (!connected.contains(c)) connectAndCallBack(c);
 	}
@@ -496,10 +491,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			@Override
 			public void run() {
 				DuplexTransportConnection d = createConnection(c);
-				if (d != null) {
-					backoff.reset();
-					callback.outgoingConnectionCreated(c, d);
-				}
+				if (d != null) callback.outgoingConnectionCreated(c, d);
 			}
 		});
 	}
@@ -519,7 +511,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		try {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connecting to " + scrubOnion(onion));
-			controlConnection.forgetHiddenService(onion);
 			Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", SOCKS_PORT);
 			proxy.resolveAddrLocally(false);
 			Socket s = new SocksSocket(proxy, onion + ".onion", 80);
@@ -528,9 +519,10 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Connected to " + scrubOnion(onion));
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
-			if (LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO)) {
 				LOG.info("Could not connect to " + scrubOnion(onion) + ": " +
 						e.toString());
+			}
 			return null;
 		}
 	}
@@ -567,7 +559,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (status.equals("BUILT") &&
 				connectionStatus.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
-			backoff.reset();
 			if (isRunning()) {
 				sendDevReports();
 				callback.transportEnabled();
@@ -597,7 +588,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			connectionStatus.setBootstrapped();
-			backoff.reset();
 			if (isRunning()) {
 				sendDevReports();
 				callback.transportEnabled();
