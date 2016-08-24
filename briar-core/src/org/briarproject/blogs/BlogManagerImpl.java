@@ -234,9 +234,20 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void addLocalPost(BlogPost p) throws DbException {
-		BdfDictionary meta;
+		Transaction txn = db.startTransaction(false);
 		try {
-			meta = new BdfDictionary();
+			addLocalPost(txn, p);
+			txn.setComplete();
+		} finally {
+			//noinspection ThrowFromFinallyBlock
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void addLocalPost(Transaction txn, BlogPost p) throws DbException {
+		try {
+			BdfDictionary meta = new BdfDictionary();
 			if (p.getTitle() != null) meta.put(KEY_TITLE, p.getTitle());
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
 
@@ -249,25 +260,18 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 			meta.put(KEY_CONTENT_TYPE, p.getContentType());
 			meta.put(KEY_READ, true);
-			clientHelper.addLocalMessage(p.getMessage(), CLIENT_ID, meta, true);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		}
+			clientHelper.addLocalMessage(txn, p.getMessage(), CLIENT_ID, meta,
+					true);
 
-		// broadcast event about new post
-		Transaction txn = db.startTransaction(true);
-		try {
+			// broadcast event about new post
 			GroupId groupId = p.getMessage().getGroupId();
 			MessageId postId = p.getMessage().getId();
 			BlogPostHeader h = getPostHeaderFromMetadata(txn, postId, meta);
 			BlogPostAddedEvent event =
 					new BlogPostAddedEvent(groupId, h, true);
 			txn.attach(event);
-			txn.setComplete();
 		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} finally {
-			db.endTransaction(txn);
+			throw new DbException(e);
 		}
 	}
 
