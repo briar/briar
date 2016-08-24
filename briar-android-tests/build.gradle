@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'witness'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
@@ -7,20 +6,15 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion 14
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), '../briar-android/proguard-rules.txt'
+        consumerProguardFiles getDefaultProguardFile('proguard-android.txt'), '../briar-android/proguard-rules.txt'
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+
     dexOptions {
         incremental true
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
@@ -28,23 +22,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':briar-api')
-    compile project(':briar-core')
+    testCompile project(':briar-api')
+    testCompile project(':briar-core')
     testCompile 'junit:junit:4.12'
     testCompile 'net.jodah:concurrentunit:0.4.2'
-    compile 'com.android.support:appcompat-v7:23.2.1'
+    testCompile 'com.android.support:appcompat-v7:23.2.1'
     testApt 'com.google.dagger:dagger-compiler:2.0.2'
     provided 'javax.annotation:jsr250-api:1.0'
     testCompile project(':briar-tests')
-}
-
-dependencyVerification {
-    verify = [
-            'com.android.support:appcompat-v7:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',
-            'com.android.support:support-v4:81ce890f26d35c75ad17d0f998a7e3230330c3b41e0b629566bc744bee89e448',
-            'com.android.support:animated-vector-drawable:06d1963b85aa917099d7757e6a7b3e4dc06889413dc747f625ae8683606db3a1',
-            'com.android.support:support-vector-drawable:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
-            'com.android.support:support-annotations:786ab0d060774fb95cfdaf4878771e14b85733b1af9d72a4aae762dc7c1dff9f',
-    ]
 }

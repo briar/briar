@@ -4,17 +4,16 @@
 -dontobfuscate
 -verbose
 -useuniqueclassmembernames
--optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+#-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 # For comfortability in case we do obfuscate
 # -renamesourcefileattribute SourceFile
--keepattributes SourceFile,LineNumberTable,*Annotation*,Signature, InnerClasses, EnclosingMethod
+-keepattributes SourceFile, LineNumberTable, *Annotation*, Signature, InnerClasses, EnclosingMethod
 
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
--keep public class com.android.vending.licensing.ILicensingService
 -keepclasseswithmembers class * { native <methods>; }
 -keepclasseswithmembers class * {  
 	public <init> (android.content.Context, android.util.AttributeSet); 
@@ -32,39 +31,30 @@
 -keepclassmembers class * extends android.app.Activity { 
 	public void *(android.view.View); 
 }
--keepclassmembers class * { 
-	@com.google.inject.Inject <init>(...);
-	@com.google.inject.Inject <fields>; 
-}
-# Just in case Roboguice events are used
--keepclassmembers class * {
-	void *(**On*Event);
-}
 
 -keep class org.h2.** { *; }
 -keep class org.briarproject.** { *; }
--keep class com.google.inject.** { *; }
 -keep class javax.inject.** { *; }
--keep class javax.annotation.** { *; }
--keep class roboguice.** { *; }
 -keep class dagger.** { *; }
--keep class com.google.** { *; }
+-keep class com.google.zxing.Result
 
 -dontwarn org.h2.**
 -dontnote org.h2.**
 -dontwarn net.sf.cglib.**
 -dontwarn org.briarproject.plugins.tcp.**
--dontwarn roboguice.**
+-dontnote org.briarproject.crypto.**
+-dontnote org.spongycastle.crypto.parsers.ECIESPublicKeyParser
 -dontwarn net.sourceforge.jsocks.**
 -dontnote android.support.**
 -dontnote dagger.**
 -dontwarn dagger.**
+-dontnote com.google.common.**
 -dontwarn com.google.common.**
-
 
 # RSS libraries
 -keep class com.rometools.rome.feed.synd.impl.** { *;}
 -keep class com.rometools.rome.io.impl.** { *;}
+-dontnote com.rometools.rome.**
 -dontwarn javax.xml.stream.**
 -dontwarn org.jaxen.**
 -dontwarn java.nio.**
