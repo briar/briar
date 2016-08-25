@@ -7,8 +7,8 @@ import net.sourceforge.jsocks.socks.SocksSocket;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.reporting.DevConfig;
 import org.briarproject.api.reporting.DevReporter;
+import org.briarproject.util.IoUtils;
 import org.briarproject.util.StringUtils;
-import org.h2.util.IOUtils;
 
 import java.io.Closeable;
 import java.io.File;
@@ -87,7 +87,7 @@ class DevReporterImpl implements DevReporter {
 				Socket s = connectToDevelopers(socksPort);
 				out = s.getOutputStream();
 				in = new FileInputStream(f);
-				IOUtils.copy(in, out);
+				IoUtils.copy(in, out);
 				f.delete();
 			} catch (IOException e) {
 				LOG.log(WARNING, "Failed to send reports", e);
