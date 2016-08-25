@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 
 import org.briarproject.R;
@@ -23,7 +24,6 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 
-import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -49,6 +49,7 @@ public class ChooseIdentityFragment extends BaseFragment
 
 	private IdentitySelectedListener lsnr;
 	private LocalAuthorSpinnerAdapter adapter;
+	private ScrollView scrollView;
 	private Spinner spinner;
 	private View button;
 	private AuthorId localAuthorId;
@@ -99,6 +100,8 @@ public class ChooseIdentityFragment extends BaseFragment
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
+		scrollView = (ScrollView) view;
+
 		adapter = new LocalAuthorSpinnerAdapter(getActivity(), false);
 		spinner = (Spinner) view.findViewById(R.id.spinner);
 		spinner.setAdapter(adapter);
@@ -127,12 +130,11 @@ public class ChooseIdentityFragment extends BaseFragment
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<LocalAuthor> authors =
-							identityManager.getLocalAuthors();
+					LocalAuthor author = identityManager.getLocalAuthor();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading authors took " + duration + " ms");
-					displayLocalAuthors(authors);
+						LOG.info("Loading author took " + duration + " ms");
+					displayLocalAuthor(author);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -141,11 +143,11 @@ public class ChooseIdentityFragment extends BaseFragment
 		});
 	}
 
-	private void displayLocalAuthors(final Collection<LocalAuthor> authors) {
+	private void displayLocalAuthor(final LocalAuthor author) {
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				setLocalAuthorId(authors.iterator().next().getId());
+				setLocalAuthorId(author.getId());
 				// TODO remove comment below when supporting multiple identities
 /*				adapter.clear();
 				for (LocalAuthor a : authors)
@@ -171,6 +173,7 @@ public class ChooseIdentityFragment extends BaseFragment
 			@Override
 			public void run() {
 				localAuthorId = authorId;
+				scrollView.fullScroll(View.FOCUS_DOWN);
 				button.setEnabled(localAuthorId != null);
 			}
 		});
