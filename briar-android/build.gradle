@@ -189,8 +189,8 @@ project.afterEvaluate {
     preBuild.dependsOn {
         [
                 'verifyTorGeoIp',
-                'verifyTorBinaryArm',
-                'verifyTorBinaryArmPie',
+                // 'verifyTorBinaryArm',
+                // 'verifyTorBinaryArmPie',
                 'verifyTorBinaryX86',
                 'verifyTorBinaryX86Pie'
         ]
