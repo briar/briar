@@ -2,11 +2,10 @@ package org.briarproject.api.data;
 
 import java.util.Map.Entry;
 
-// This class is not thread-safe
-public class BdfEntry implements Entry<String, Object> {
+public class BdfEntry implements Entry<String, Object>, Comparable<BdfEntry> {
 
 	private final String key;
-	private Object value;
+	private final Object value;
 
 	public BdfEntry(String key, Object value) {
 		this.key = key;
@@ -25,8 +24,12 @@ public class BdfEntry implements Entry<String, Object> {
 
 	@Override
 	public Object setValue(Object value) {
-		Object oldValue = this.value;
-		this.value = value;
-		return oldValue;
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int compareTo(BdfEntry e) {
+		if (e == this) return 0;
+		return key.compareTo(e.key);
 	}
 }

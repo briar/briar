@@ -3,11 +3,10 @@ package org.briarproject.api.data;
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 
-import java.util.Hashtable;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentSkipListMap;
 
-public class BdfDictionary extends Hashtable<String, Object> {
+public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 
 	public static final Object NULL_VALUE = new Object();
 
