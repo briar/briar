@@ -1,6 +1,5 @@
 package org.briarproject.util;
 
-import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -9,8 +8,7 @@ import java.net.SocketAddress;
 public class PrivacyUtils {
 
 	public static String scrubOnion(String onion) {
-		// keep first three characters of onion address
-		return onion.substring(0, 3) + "[_scrubbed_]";
+		return onion;
 	}
 
 	public static String scrubMacAddress(String address) {
