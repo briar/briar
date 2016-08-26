@@ -13,6 +13,7 @@ import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
@@ -23,6 +24,8 @@ import org.briarproject.api.event.IntroductionSucceededEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.GroupId;
@@ -32,6 +35,7 @@ import org.briarproject.api.system.Clock;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -53,13 +57,18 @@ import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
+import static org.briarproject.api.introduction.IntroductionConstants.NONCE;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_PRIVATE_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
@@ -92,6 +101,7 @@ class IntroduceeManager {
 	private final TransportPropertyManager transportPropertyManager;
 	private final AuthorFactory authorFactory;
 	private final ContactManager contactManager;
+	private final IdentityManager identityManager;
 	private final IntroductionGroupFactory introductionGroupFactory;
 
 	@Inject
@@ -100,6 +110,7 @@ class IntroduceeManager {
 			CryptoComponent cryptoComponent,
 			TransportPropertyManager transportPropertyManager,
 			AuthorFactory authorFactory, ContactManager contactManager,
+			IdentityManager identityManager,
 			IntroductionGroupFactory introductionGroupFactory) {
 
 		this.messageSender = messageSender;
@@ -110,6 +121,7 @@ class IntroduceeManager {
 		this.transportPropertyManager = transportPropertyManager;
 		this.authorFactory = authorFactory;
 		this.contactManager = contactManager;
+		this.identityManager = identityManager;
 		this.introductionGroupFactory = introductionGroupFactory;
 	}
 
@@ -189,18 +201,19 @@ class IntroduceeManager {
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		Map<TransportId, TransportProperties> transportProperties =
 				transportPropertyManager.getLocalProperties(txn);
+		BdfDictionary tp = encodeTransportProperties(transportProperties);
 
 		// update session state for later
 		state.put(ACCEPT, true);
 		state.put(OUR_TIME, now);
 		state.put(OUR_PUBLIC_KEY, publicKey);
 		state.put(OUR_PRIVATE_KEY, privateKey);
+		state.put(OUR_TRANSPORT, tp);
 
 		// define action
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_RESPONSE);
-		localAction.put(TRANSPORT,
-				encodeTransportProperties(transportProperties));
+		localAction.put(TRANSPORT, tp);
 		localAction.put(MESSAGE_TIME, timestamp);
 
 		// start engine and process its state update
@@ -311,24 +324,59 @@ class IntroduceeManager {
 				secretKey = cryptoComponent
 						.deriveMasterSecret(theirEphemeralKey, keyPair, alice);
 			} catch (GeneralSecurityException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
 				// we can not continue without the shared secret
-				throw new FormatException();
+				throw new DbException(e);
 			}
 
-			// TODO MAC and signature
-			localState.put(MAC, new byte[42]);
-			localState.put(SIGNATURE, new byte[42]);
+			// Derive two nonces and a MAC key from the secret master key
+			byte[] ourNonce =
+					cryptoComponent.deriveSignatureNonce(secretKey, alice);
+			byte[] theirNonce =
+					cryptoComponent.deriveSignatureNonce(secretKey, !alice);
+			SecretKey macKey = cryptoComponent.deriveMacKey(secretKey, alice);
+			SecretKey theirMacKey =
+					cryptoComponent.deriveMacKey(secretKey, !alice);
+
+			// Save the other nonce and MAC key for the verification
+			localState.put(NONCE, theirNonce);
+			localState.put(MAC_KEY, theirMacKey.getBytes());
+
+			// Sign our nonce with our long-term identity public key
+			AuthorId localAuthorId =
+					new AuthorId(localState.getRaw(LOCAL_AUTHOR_ID));
+			LocalAuthor author =
+					identityManager.getLocalAuthor(txn, localAuthorId);
+			Signature signature = cryptoComponent.getSignature();
+			KeyParser sigParser = cryptoComponent.getSignatureKeyParser();
+			try {
+				PrivateKey privKey =
+						sigParser.parsePrivateKey(author.getPrivateKey());
+				signature.initSign(privKey);
+			} catch (GeneralSecurityException e) {
+				// we can not continue without the signature
+				throw new DbException(e);
+			}
+			signature.update(ourNonce);
+			byte[] sig = signature.sign();
 
 			// The agreed timestamp is the minimum of the peers' timestamps
 			long ourTime = localState.getLong(OUR_TIME);
 			long theirTime = localState.getLong(TIME);
 			long timestamp = Math.min(ourTime, theirTime);
 
-			// Add the contact to the database
-			AuthorId localAuthorId =
-					new AuthorId(localState.getRaw(LOCAL_AUTHOR_ID));
+			// Calculate a MAC over identity public key, ephemeral public key,
+			// transport properties and timestamp.
+			BdfDictionary tp = localState.getDictionary(OUR_TRANSPORT);
+			BdfList toSignList = BdfList.of(author.getPublicKey(),
+					publicKeyBytes, tp, ourTime);
+			byte[] toSign = clientHelper.toByteArray(toSignList);
+			byte[] mac = cryptoComponent.mac(macKey, toSign);
+
+			// Add MAC and signature to localState, so it can be included in ACK
+			localState.put(OUR_MAC, mac);
+			localState.put(OUR_SIGNATURE, sig);
+
+			// Add the contact to the database as inactive
 			Author remoteAuthor = authorFactory
 					.createAuthor(localState.getString(NAME),
 							localState.getRaw(PUBLIC_KEY));
@@ -365,13 +413,57 @@ class IntroduceeManager {
 			if (!localState.getBoolean(EXISTS) &&
 					localState.containsKey(ADDED_CONTACT_ID)) {
 
+				LOG.info("Verifying Signature...");
+
+				byte[] nonce = localState.getRaw(NONCE);
+				byte[] sig = localState.getRaw(SIGNATURE);
+				byte[] keyBytes = localState.getRaw(PUBLIC_KEY);
+				try {
+					// Parse the public key
+					KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
+					PublicKey key = keyParser.parsePublicKey(keyBytes);
+					// Verify the signature
+					Signature signature = cryptoComponent.getSignature();
+					signature.initVerify(key);
+					signature.update(nonce);
+					if (!signature.verify(sig)) {
+						LOG.warning("Invalid nonce signature in ACK");
+						throw new GeneralSecurityException();
+					}
+				} catch (GeneralSecurityException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					// we can not continue without verifying the signature
+					throw new DbException(e);
+				}
+
+				LOG.info("Verifying MAC...");
+
+				// get MAC and MAC key from session state
+				byte[] mac = localState.getRaw(MAC);
+				byte[] macKeyBytes = localState.getRaw(MAC_KEY);
+				SecretKey macKey = new SecretKey(macKeyBytes);
+
+				// get MAC data and calculate a new MAC with stored key
+				byte[] pubKey = localState.getRaw(PUBLIC_KEY);
+				byte[] ePubKey = localState.getRaw(E_PUBLIC_KEY);
+				BdfDictionary tp = localState.getDictionary(TRANSPORT);
+				long timestamp = localState.getLong(TIME);
+				BdfList toSignList = BdfList.of(pubKey, ePubKey, tp, timestamp);
+				byte[] toSign = clientHelper.toByteArray(toSignList);
+				byte[] calculatedMac = cryptoComponent.mac(macKey, toSign);
+				if (!Arrays.equals(mac, calculatedMac)) {
+					LOG.warning("Received ACK with invalid MAC");
+					throw new DbException();
+				}
+
 				LOG.info("Activating Contact...");
 
 				ContactId contactId = new ContactId(
 						localState.getLong(ADDED_CONTACT_ID).intValue());
 
 				// activate and show contact in contact list
-				db.setContactActive(txn, contactId, true);
+				contactManager.setContactActive(txn, contactId, true);
 
 				// broadcast event informing of successful introduction
 				Contact contact = db.getContact(txn, contactId);
@@ -389,7 +481,7 @@ class IntroduceeManager {
 				LOG.info("Deleting added contact due to abort...");
 				ContactId contactId = new ContactId(
 						localState.getLong(ADDED_CONTACT_ID).intValue());
-				contactManager.removeContact(contactId);
+				contactManager.removeContact(txn, contactId);
 			}
 		}
 

@@ -46,7 +46,9 @@ import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TI
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
@@ -192,6 +194,7 @@ public class IntroduceeEngine
 			// we already sent our ACK and now received the other one
 			else if (currentState == AWAIT_ACK) {
 				localState.put(TASK, TASK_ACTIVATE_CONTACT);
+				addAckData(localState, msg);
 				messages = Collections.emptyList();
 				events = Collections.emptyList();
 			}
@@ -241,6 +244,13 @@ public class IntroduceeEngine
 		}
 	}
 
+	private void addAckData(BdfDictionary localState, BdfDictionary msg)
+			throws FormatException {
+
+		localState.put(MAC, msg.getRaw(MAC));
+		localState.put(SIGNATURE, msg.getRaw(SIGNATURE));
+	}
+
 	private BdfDictionary getAckMessage(BdfDictionary localState)
 			throws FormatException {
 
@@ -248,8 +258,8 @@ public class IntroduceeEngine
 		m.put(TYPE, TYPE_ACK);
 		m.put(GROUP_ID, localState.getRaw(GROUP_ID));
 		m.put(SESSION_ID, localState.getRaw(SESSION_ID));
-		m.put(MAC, localState.getRaw(MAC));
-		m.put(SIGNATURE, localState.getRaw(SIGNATURE));
+		m.put(MAC, localState.getRaw(OUR_MAC));
+		m.put(SIGNATURE, localState.getRaw(OUR_SIGNATURE));
 
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Sending ACK " + " to " +

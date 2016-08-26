@@ -1,5 +1,6 @@
 package org.briarproject;
 
+import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
@@ -84,6 +85,8 @@ public interface IntroductionIntegrationTestComponent {
 	/* the following methods are only needed to manually construct messages */
 
 	DatabaseComponent getDatabaseComponent();
+
+	ClientHelper getClientHelper();
 
 	MessageSender getMessageSender();
 

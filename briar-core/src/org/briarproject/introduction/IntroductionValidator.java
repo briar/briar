@@ -20,6 +20,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
@@ -157,7 +158,7 @@ class IntroductionValidator extends BdfMessageValidator {
 		checkSize(message, 4);
 
 		byte[] mac = message.getRaw(2);
-		// TODO length check?
+		checkLength(mac, 1, MAC_LENGTH);
 
 		byte[] sig = message.getRaw(3);
 		checkLength(sig, 1, MAX_SIGNATURE_LENGTH);

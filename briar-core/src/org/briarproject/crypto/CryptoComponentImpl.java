@@ -87,6 +87,9 @@ class CryptoComponentImpl implements CryptoComponent {
 	// KDF labels for header key derivation
 	private static final byte[] A_HEADER = ascii("ALICE_HEADER_KEY");
 	private static final byte[] B_HEADER = ascii("BOB_HEADER_KEY");
+	// KDF labels for MAC key derivation
+	private static final byte[] A_MAC = ascii("ALICE_MAC_KEY");
+	private static final byte[] B_MAC = ascii("BOB_MAC_KEY");
 	// KDF label for key rotation
 	private static final byte[] ROTATE = ascii("ROTATE");
 
@@ -231,6 +234,11 @@ class CryptoComponentImpl implements CryptoComponent {
 	public SecretKey deriveHeaderKey(SecretKey master,
 			boolean alice) {
 		return new SecretKey(macKdf(master, alice ? A_INVITE : B_INVITE));
+	}
+
+	@Override
+	public SecretKey deriveMacKey(SecretKey master, boolean alice) {
+		return new SecretKey(macKdf(master, alice ? A_MAC : B_MAC));
 	}
 
 	@Override

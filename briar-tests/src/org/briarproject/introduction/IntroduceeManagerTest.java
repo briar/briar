@@ -5,6 +5,7 @@ import org.briarproject.TestUtils;
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -18,8 +19,8 @@ import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.introduction.IntroduceeProtocolState;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -63,34 +64,33 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class IntroduceeManagerTest extends BriarTestCase {
 
-	final Mockery context;
-	final IntroduceeManager introduceeManager;
-	final DatabaseComponent db;
-	final CryptoComponent cryptoComponent;
-	final ClientHelper clientHelper;
-	final IntroductionGroupFactory introductionGroupFactory;
-	final MessageSender messageSender;
-	final TransportPropertyManager transportPropertyManager;
-	final AuthorFactory authorFactory;
-	final ContactManager contactManager;
-	final Clock clock;
-	final Contact introducer;
-	final Contact introducee1;
-	final Contact introducee2;
-	final Group localGroup1;
-	final Group introductionGroup1;
-	final Group introductionGroup2;
-	final Transaction txn;
-	final long time = 42L;
-	final Message localStateMessage;
-	final ClientId clientId;
-	final SessionId sessionId;
-	final Message message1;
+	private final Mockery context;
+	private final IntroduceeManager introduceeManager;
+	private final DatabaseComponent db;
+	private final CryptoComponent cryptoComponent;
+	private final ClientHelper clientHelper;
+	private final IntroductionGroupFactory introductionGroupFactory;
+	private final MessageSender messageSender;
+	private final TransportPropertyManager transportPropertyManager;
+	private final AuthorFactory authorFactory;
+	private final ContactManager contactManager;
+	private final IdentityManager identityManager;
+	private final Clock clock;
+	private final Contact introducer;
+	private final Contact introducee1;
+	private final Contact introducee2;
+	private final Group localGroup1;
+	private final Group introductionGroup1;
+	private final Transaction txn;
+	private final long time = 42L;
+	private final Message localStateMessage;
+	private final ClientId clientId;
+	private final SessionId sessionId;
+	private final Message message1;
 
 	public IntroduceeManagerTest() {
 		context = new Mockery();
@@ -105,10 +105,12 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		transportPropertyManager = context.mock(TransportPropertyManager.class);
 		authorFactory = context.mock(AuthorFactory.class);
 		contactManager = context.mock(ContactManager.class);
+		identityManager = context.mock(IdentityManager.class);
 
 		introduceeManager = new IntroduceeManager(messageSender, db,
 				clientHelper, clock, cryptoComponent, transportPropertyManager,
-				authorFactory, contactManager, introductionGroupFactory);
+				authorFactory, contactManager, identityManager,
+				introductionGroupFactory);
 
 		AuthorId authorId0 = new AuthorId(TestUtils.getRandomId());
 		Author author0 = new Author(authorId0, "Introducer",
@@ -137,8 +139,6 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		localGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
 				clientId, new byte[0]);
 		introductionGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
-				clientId, new byte[0]);
-		introductionGroup2 = new Group(new GroupId(TestUtils.getRandomId()),
 				clientId, new byte[0]);
 
 		sessionId = new SessionId(TestUtils.getRandomId());

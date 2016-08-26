@@ -29,6 +29,9 @@ public interface IntroductionConstants {
 	String MAC = "mac";
 	String SIGNATURE = "signature";
 
+	/* Validation Constants */
+	int MAC_LENGTH = 32;
+
 	/* Introducer Local State Metadata */
 	String STATE = "state";
 	String ROLE = "role";
@@ -61,6 +64,11 @@ public interface IntroductionConstants {
 	String EXISTS = "contactExists";
 	String REMOTE_AUTHOR_IS_US = "remoteAuthorIsUs";
 	String ANSWERED = "answered";
+	String NONCE = "nonce";
+	String MAC_KEY = "macKey";
+	String OUR_TRANSPORT = "ourTransport";
+	String OUR_MAC = "ourMac";
+	String OUR_SIGNATURE = "ourSignature";
 
 	String TASK = "task";
 	int TASK_ADD_CONTACT = 0;
