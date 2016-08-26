@@ -404,6 +404,20 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
+	public byte[] mac(SecretKey macKey, byte[]... inputs) {
+		Digest mac = new Blake2sDigest(macKey.getBytes());
+		byte[] length = new byte[INT_32_BYTES];
+		for (byte[] input : inputs) {
+			ByteUtils.writeUint32(input.length, length, 0);
+			mac.update(length, 0, length.length);
+			mac.update(input, 0, input.length);
+		}
+		byte[] output = new byte[mac.getDigestSize()];
+		mac.doFinal(output, 0);
+		return output;
+	}
+
+	@Override
 	public byte[] encryptWithPassword(byte[] input, String password) {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();

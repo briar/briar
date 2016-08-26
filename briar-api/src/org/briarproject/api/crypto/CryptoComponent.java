@@ -144,6 +144,13 @@ public interface CryptoComponent {
 	byte[] hash(byte[]... inputs);
 
 	/**
+	 * Returns a message authentication code with the given key over the
+	 * given inputs. The inputs are unambiguously combined by prefixing each
+	 * input with its length.
+	 */
+	byte[] mac(SecretKey macKey, byte[]... inputs);
+
+	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to
 	 * storage. The encryption and authentication keys are derived from the
 	 * given password. The ciphertext will be decryptable using the same
