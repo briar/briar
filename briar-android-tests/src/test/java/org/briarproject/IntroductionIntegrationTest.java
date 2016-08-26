@@ -34,7 +34,6 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.system.Clock;
 import org.briarproject.contact.ContactModule;
@@ -81,12 +80,12 @@ import static org.junit.Assert.assertTrue;
 
 public class IntroductionIntegrationTest extends BriarTestCase {
 
-	LifecycleManager lifecycleManager0, lifecycleManager1, lifecycleManager2;
-	SyncSessionFactory sync0, sync1, sync2;
-	ContactManager contactManager0, contactManager1, contactManager2;
-	ContactId contactId0, contactId1, contactId2;
-	IdentityManager identityManager0, identityManager1, identityManager2;
-	LocalAuthor author0, author1, author2;
+	private LifecycleManager lifecycleManager0, lifecycleManager1, lifecycleManager2;
+	private SyncSessionFactory sync0, sync1, sync2;
+	private ContactManager contactManager0, contactManager1, contactManager2;
+	private ContactId contactId0, contactId1, contactId2;
+	private IdentityManager identityManager0, identityManager1, identityManager2;
+	private LocalAuthor author0, author1, author2;
 
 	@Inject
 	Clock clock;
@@ -1050,14 +1049,14 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 	private class IntroduceeListener implements EventListener {
 
-		public volatile boolean requestReceived = false;
-		public volatile boolean succeeded = false;
-		public volatile boolean aborted = false;
+		private volatile boolean requestReceived = false;
+		private volatile boolean succeeded = false;
+		private volatile boolean aborted = false;
 
 		private final int introducee;
 		private final boolean accept;
 
-		IntroduceeListener(int introducee, boolean accept) {
+		private IntroduceeListener(int introducee, boolean accept) {
 			this.introducee = introducee;
 			this.accept = accept;
 		}
@@ -1126,9 +1125,9 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 
 	private class IntroducerListener implements EventListener {
 
-		public volatile boolean response1Received = false;
-		public volatile boolean response2Received = false;
-		public volatile boolean aborted = false;
+		private volatile boolean response1Received = false;
+		private volatile boolean response2Received = false;
+		private volatile boolean aborted = false;
 
 		@Override
 		public void eventOccurred(Event e) {

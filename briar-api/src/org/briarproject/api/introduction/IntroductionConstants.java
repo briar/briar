@@ -26,6 +26,8 @@ public interface IntroductionConstants {
 	String TRANSPORT = "transport";
 	String MESSAGE_ID = "messageId";
 	String MESSAGE_TIME = "timestamp";
+	String MAC = "mac";
+	String SIGNATURE = "signature";
 
 	/* Introducer Local State Metadata */
 	String STATE = "state";

@@ -5,11 +5,11 @@ import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -24,13 +24,16 @@ import java.io.IOException;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
@@ -40,6 +43,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -281,19 +285,18 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	@Test
 	public void testValidateProperIntroductionAck() throws IOException {
-		final byte[] sessionId = TestUtils.getRandomId();
-
-		BdfDictionary msg = new BdfDictionary();
-		msg.put(TYPE, TYPE_ACK);
-		msg.put(SESSION_ID, sessionId);
-
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID));
+		byte[] sessionId = TestUtils.getRandomId();
+		byte[] mac = TestUtils.getRandomBytes(42);
+		byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
+		BdfList body = BdfList.of(TYPE_ACK, sessionId, mac, sig);
 
 		BdfDictionary result =
 				validator.validateMessage(message, group, body).getDictionary();
 
 		assertEquals(Long.valueOf(TYPE_ACK), result.getLong(TYPE));
-		assertEquals(sessionId, result.getRaw(SESSION_ID));
+		assertArrayEquals(sessionId, result.getRaw(SESSION_ID));
+		assertArrayEquals(mac, result.getRaw(MAC));
+		assertArrayEquals(sig, result.getRaw(SIGNATURE));
 		context.assertIsSatisfied();
 	}
 

@@ -32,6 +32,7 @@ public enum IntroduceeAction {
 	public static IntroduceeAction getLocal(int type, boolean accept) {
 		if (type == TYPE_RESPONSE && accept) return LOCAL_ACCEPT;
 		if (type == TYPE_RESPONSE) return LOCAL_DECLINE;
+		if (type == TYPE_ACK) return ACK;
 		if (type == TYPE_ABORT) return LOCAL_ABORT;
 		return null;
 	}

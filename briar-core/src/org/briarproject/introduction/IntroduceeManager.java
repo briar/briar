@@ -40,6 +40,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.ADDED_CONTACT_ID;
@@ -51,6 +52,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_K
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
@@ -63,6 +65,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUT
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
+import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK;
@@ -73,6 +76,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 
 class IntroduceeManager {
@@ -258,11 +262,12 @@ class IntroduceeManager {
 	private void performTasks(Transaction txn, BdfDictionary localState)
 			throws FormatException, DbException {
 
-		if (!localState.containsKey(TASK)) return;
+		if (!localState.containsKey(TASK) || localState.get(TASK) == NULL_VALUE)
+			return;
 
 		// remember task and remove it from localState
 		long task = localState.getLong(TASK);
-		localState.put(TASK, BdfDictionary.NULL_VALUE);
+		localState.put(TASK, NULL_VALUE);
 
 		if (task == TASK_ADD_CONTACT) {
 			if (localState.getBoolean(EXISTS)) {
@@ -312,6 +317,10 @@ class IntroduceeManager {
 				throw new FormatException();
 			}
 
+			// TODO MAC and signature
+			localState.put(MAC, new byte[42]);
+			localState.put(SIGNATURE, new byte[42]);
+
 			// The agreed timestamp is the minimum of the peers' timestamps
 			long ourTime = localState.getLong(OUR_TIME);
 			long theirTime = localState.getLong(TIME);
@@ -339,7 +348,16 @@ class IntroduceeManager {
 			// delete the ephemeral private key by overwriting with NULL value
 			// this ensures future ephemeral keys can not be recovered when
 			// this device should gets compromised
-			localState.put(OUR_PRIVATE_KEY, BdfDictionary.NULL_VALUE);
+			localState.put(OUR_PRIVATE_KEY, NULL_VALUE);
+
+			// define next action: Send ACK
+			BdfDictionary localAction = new BdfDictionary();
+			localAction.put(TYPE, TYPE_ACK);
+
+			// start engine and process its state update
+			IntroduceeEngine engine = new IntroduceeEngine();
+			processStateUpdate(txn, null,
+					engine.onLocalAction(localState, localAction));
 		}
 
 		// we sent and received an ACK, so activate contact

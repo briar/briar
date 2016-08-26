@@ -1,9 +1,9 @@
 package org.briarproject.introduction;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.SessionId;
-import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -15,15 +15,18 @@ import org.briarproject.clients.BdfMessageValidator;
 import static org.briarproject.api.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
@@ -150,13 +153,20 @@ class IntroductionValidator extends BdfMessageValidator {
 		return d;
 	}
 
-	private BdfDictionary validateAck(BdfList message)
-			throws FormatException {
+	private BdfDictionary validateAck(BdfList message) throws FormatException {
+		checkSize(message, 4);
 
-		checkSize(message, 2);
+		byte[] mac = message.getRaw(2);
+		// TODO length check?
+
+		byte[] sig = message.getRaw(3);
+		checkLength(sig, 1, MAX_SIGNATURE_LENGTH);
 
 		// Return the metadata
-		return new BdfDictionary();
+		BdfDictionary d = new BdfDictionary();
+		d.put(MAC, mac);
+		d.put(SIGNATURE, sig);
+		return d;
 	}
 
 	private BdfDictionary validateAbort(BdfList message)
