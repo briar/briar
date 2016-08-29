@@ -173,6 +173,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void loadSettings() {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -195,6 +196,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void displaySettings() {
 		listener.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				enableBluetooth.setValue(Boolean.toString(bluetoothSetting));
 				torOverMobile.setValue(Boolean.toString(torSetting));
@@ -228,7 +230,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void triggerFeedback() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnBackgroundThread(new Runnable() {
+			@Override
 			public void run() {
 				ACRA.getErrorReporter().handleException(new UserFeedback(),
 						false);
@@ -268,7 +271,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private void enableOrDisableBluetooth(final boolean enable) {
 		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null) {
-			androidExecutor.execute(new Runnable() {
+			androidExecutor.runOnBackgroundThread(new Runnable() {
+				@Override
 				public void run() {
 					if (enable) adapter.enable();
 					else adapter.disable();
@@ -279,6 +283,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void storeTorSettings() {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Settings s = new Settings();
@@ -298,6 +303,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void storeBluetoothSettings() {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Settings s = new Settings();
@@ -317,6 +323,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void storeSettings(final Settings settings) {
 		listener.runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();

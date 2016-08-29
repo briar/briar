@@ -2,6 +2,7 @@ package org.briarproject.android.blogs;
 
 import android.app.Activity;
 
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.Blog;
@@ -38,6 +39,8 @@ public class BlogControllerImpl extends DbControllerImpl
 	protected Activity activity;
 	@Inject
 	protected EventBus eventBus;
+	@Inject
+	protected AndroidNotificationManager notificationManager;
 
 	@Inject
 	protected volatile BlogManager blogManager;
@@ -71,11 +74,14 @@ public class BlogControllerImpl extends DbControllerImpl
 
 	@Override
 	public void onActivityResume() {
+		notificationManager.blockNotification(groupId);
+		notificationManager.clearBlogPostNotification(groupId);
 		eventBus.addListener(this);
 	}
 
 	@Override
 	public void onActivityPause() {
+		notificationManager.unblockNotification(groupId);
 		eventBus.removeListener(this);
 	}
 

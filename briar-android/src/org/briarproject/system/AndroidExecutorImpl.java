@@ -1,5 +1,6 @@
 package org.briarproject.system;
 
+import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -16,18 +17,21 @@ import javax.inject.Inject;
 
 class AndroidExecutorImpl implements AndroidExecutor {
 
+	private final Handler uiHandler;
 	private final Runnable loop;
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	private final CountDownLatch startLatch = new CountDownLatch(1);
 
-	private volatile Handler handler = null;
+	private volatile Handler backgroundHandler = null;
 
 	@Inject
-	AndroidExecutorImpl() {
+	AndroidExecutorImpl(Application app) {
+		uiHandler = new Handler(app.getApplicationContext().getMainLooper());
 		loop = new Runnable() {
+			@Override
 			public void run() {
 				Looper.prepare();
-				handler = new Handler();
+				backgroundHandler = new Handler();
 				startLatch.countDown();
 				Looper.loop();
 			}
@@ -46,14 +50,28 @@ class AndroidExecutorImpl implements AndroidExecutor {
 		}
 	}
 
-	public <V> Future<V> submit(Callable<V> c) {
+	@Override
+	public <V> Future<V> runOnBackgroundThread(Callable<V> c) {
 		FutureTask<V> f = new FutureTask<>(c);
-		execute(f);
+		runOnBackgroundThread(f);
 		return f;
 	}
 
-	public void execute(Runnable r) {
+	@Override
+	public void runOnBackgroundThread(Runnable r) {
 		startIfNecessary();
-		handler.post(r);
+		backgroundHandler.post(r);
+	}
+
+	@Override
+	public <V> Future<V> runOnUiThread(Callable<V> c) {
+		FutureTask<V> f = new FutureTask<>(c);
+		runOnUiThread(f);
+		return f;
+	}
+
+	@Override
+	public void runOnUiThread(Runnable r) {
+		uiHandler.post(r);
 	}
 }

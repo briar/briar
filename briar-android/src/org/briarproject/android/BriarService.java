@@ -108,7 +108,8 @@ public class BriarService extends Service {
 	}
 
 	private void showStartupFailureNotification(final StartResult result) {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
 				NotificationCompat.Builder b =
 						new NotificationCompat.Builder(BriarService.this);
@@ -197,11 +198,13 @@ public class BriarService extends Service {
 
 		private volatile IBinder binder = null;
 
+		@Override
 		public void onServiceConnected(ComponentName name, IBinder binder) {
 			this.binder = binder;
 			binderLatch.countDown();
 		}
 
+		@Override
 		public void onServiceDisconnected(ComponentName name) {}
 
 		/** Waits for the service to connect and returns its binder. */

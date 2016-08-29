@@ -144,7 +144,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
-			androidExecutor.execute(new Runnable() {
+			androidExecutor.runOnBackgroundThread(new Runnable() {
 				@Override
 				public void run() {
 					adapter.enable();

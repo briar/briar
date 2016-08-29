@@ -87,7 +87,7 @@ public class SplashScreenActivity extends BaseActivity {
 	}
 
 	private void setPreferencesDefaults() {
-		androidExecutor.execute(new Runnable() {
+		androidExecutor.runOnBackgroundThread(new Runnable() {
 			@Override
 			public void run() {
 				PreferenceManager.setDefaultValues(SplashScreenActivity.this,

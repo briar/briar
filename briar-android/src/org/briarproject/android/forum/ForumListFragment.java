@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.sharing.InvitationsForumActivity;
 import org.briarproject.android.util.BriarRecyclerView;
@@ -55,9 +56,14 @@ public class ForumListFragment extends BaseEventFragment implements
 	private ForumListAdapter adapter;
 	private Snackbar snackbar;
 
+	@Inject
+	protected AndroidNotificationManager notificationManager;
+
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile ForumManager forumManager;
-	@Inject protected volatile ForumSharingManager forumSharingManager;
+	@Inject
+	protected volatile ForumManager forumManager;
+	@Inject
+	protected volatile ForumSharingManager forumSharingManager;
 
 	public static ForumListFragment newInstance() {
 
@@ -109,6 +115,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	public void onResume() {
 		super.onResume();
 
+		notificationManager.blockAllForumPostNotifications();
+		notificationManager.clearAllForumPostNotifications();
 		loadForumHeaders();
 		loadAvailableForums();
 		list.startPeriodicUpdate();
@@ -118,6 +126,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	public void onPause() {
 		super.onPause();
 
+		notificationManager.unblockAllForumPostNotifications();
 		adapter.clear();
 		list.showProgressBar();
 		list.stopPeriodicUpdate();

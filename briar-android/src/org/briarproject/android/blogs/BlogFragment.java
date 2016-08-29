@@ -122,6 +122,7 @@ public class BlogFragment extends BaseFragment implements BlogPostListener {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		blogController.setGroupId(groupId);
 	}
 
 	@Override

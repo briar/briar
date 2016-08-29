@@ -34,11 +34,12 @@ public class FeedControllerImpl extends DbControllerImpl
 	@Inject
 	AndroidNotificationManager notificationManager;
 	@Inject
+	protected EventBus eventBus;
+
+	@Inject
 	protected volatile BlogManager blogManager;
 	@Inject
 	protected volatile IdentityManager identityManager;
-	@Inject
-	protected volatile EventBus eventBus;
 
 	private volatile OnBlogPostAddedListener listener;
 
@@ -48,14 +49,14 @@ public class FeedControllerImpl extends DbControllerImpl
 
 	@Override
 	public void onResume() {
-		notificationManager.blockBlogNotification();
-		notificationManager.clearBlogPostNotification();
+		notificationManager.blockAllBlogPostNotifications();
+		notificationManager.clearAllBlogPostNotifications();
 		eventBus.addListener(this);
 	}
 
 	@Override
 	public void onPause() {
-		notificationManager.unblockBlogNotification();
+		notificationManager.unblockAllBlogPostNotifications();
 		eventBus.removeListener(this);
 	}
 
