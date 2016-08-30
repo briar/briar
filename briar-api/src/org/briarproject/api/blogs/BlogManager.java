@@ -7,6 +7,7 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -31,6 +32,11 @@ public interface BlogManager {
 	/** Stores a local blog post. */
 	void addLocalPost(Transaction txn, BlogPost p) throws DbException;
 
+	/** Add a comment to an existing blog post or reblog it. */
+	void addLocalComment(LocalAuthor author, GroupId groupId,
+			@Nullable String comment, BlogPostHeader wHeader)
+			throws DbException;
+
 	/** Returns the blog with the given ID. */
 	Blog getBlog(GroupId g) throws DbException;
 
@@ -47,7 +53,7 @@ public interface BlogManager {
 	Collection<Blog> getBlogs() throws DbException;
 
 	/** Returns the header of the blog post with the given ID. */
-	BlogPostHeader getPostHeader(MessageId m) throws DbException;
+	BlogPostHeader getPostHeader(GroupId g, MessageId m) throws DbException;
 
 	/** Returns the body of the blog post with the given ID. */
 	byte[] getPostBody(MessageId m) throws DbException;

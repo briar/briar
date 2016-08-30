@@ -44,7 +44,7 @@ class ForumPostFactoryImpl implements ForumPostFactory {
 		// Serialise the message
 		BdfList message = BdfList.of(parent, null, contentType, body, null);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);
-		return new ForumPost(m, parent, null, contentType);
+		return new ForumPost(m, parent, null);
 	}
 
 	@Override
@@ -71,6 +71,6 @@ class ForumPostFactoryImpl implements ForumPostFactory {
 		BdfList message = BdfList.of(parent, authorList, contentType, body,
 				sig);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);
-		return new ForumPost(m, parent, author, contentType);
+		return new ForumPost(m, parent, author);
 	}
 }

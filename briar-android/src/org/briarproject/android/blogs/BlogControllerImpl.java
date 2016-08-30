@@ -212,9 +212,10 @@ public class BlogControllerImpl extends DbControllerImpl
 	}
 
 	private BlogPostHeader getPostHeader(MessageId m) throws DbException {
+		if (groupId == null) throw new IllegalStateException();
 		BlogPostHeader header = headerCache.get(m);
 		if (header == null) {
-			header = blogManager.getPostHeader(m);
+			header = blogManager.getPostHeader(groupId, m);
 			headerCache.put(m, header);
 		}
 		return header;

@@ -2,6 +2,10 @@ package org.briarproject.clients;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.KeyParser;
+import org.briarproject.api.crypto.PrivateKey;
+import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.BdfReader;
@@ -23,6 +27,7 @@ import org.briarproject.api.sync.MessageId;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,18 +45,20 @@ class ClientHelperImpl implements ClientHelper {
 	private final BdfWriterFactory bdfWriterFactory;
 	private final MetadataParser metadataParser;
 	private final MetadataEncoder metadataEncoder;
+	private final CryptoComponent cryptoComponent;
 
 	@Inject
 	ClientHelperImpl(DatabaseComponent db, MessageFactory messageFactory,
 			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataParser metadataParser,
-			MetadataEncoder metadataEncoder) {
+			MetadataEncoder metadataEncoder, CryptoComponent cryptoComponent) {
 		this.db = db;
 		this.messageFactory = messageFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.bdfWriterFactory = bdfWriterFactory;
 		this.metadataParser = metadataParser;
 		this.metadataEncoder = metadataEncoder;
+		this.cryptoComponent = cryptoComponent;
 	}
 
 	@Override
@@ -240,7 +247,7 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public void setMessageShared(Transaction txn, Message m, boolean shared)
+	public void setMessageShared(Transaction txn, MessageId m, boolean shared)
 			throws DbException {
 		db.setMessageShared(txn, m, shared);
 	}
@@ -302,5 +309,22 @@ class ClientHelperImpl implements ClientHelper {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public BdfList toList(byte[] b) throws FormatException {
+		return toList(b, 0, b.length);
+	}
+
+	@Override
+	public byte[] sign(BdfList toSign, byte[] privateKey)
+			throws FormatException, GeneralSecurityException {
+		Signature signature = cryptoComponent.getSignature();
+		KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
+		PrivateKey key =
+				keyParser.parsePrivateKey(privateKey);
+		signature.initSign(key);
+		signature.update(toByteArray(toSign));
+		return signature.sign();
 	}
 }

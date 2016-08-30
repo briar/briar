@@ -23,10 +23,10 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.feed.Feed;
 import org.briarproject.api.feed.FeedManager;
-import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ServiceException;
 import org.briarproject.api.sync.ClientId;
@@ -41,7 +41,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -440,15 +439,14 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 		// get other information for post
 		GroupId groupId = feed.getBlogId();
 		long time = clock.currentTimeMillis();
-		byte[] body = getPostBody(b.toString());
+		String body = getPostBody(b.toString());
 		try {
 			// create and store post
 			Blog blog = blogManager.getBlog(txn, groupId);
 			AuthorId authorId = blog.getAuthor().getId();
 			LocalAuthor author = identityManager.getLocalAuthor(txn, authorId);
 			BlogPost post = blogPostFactory
-					.createBlogPost(groupId, null, time, null, author,
-							"text/plain", body);
+					.createBlogPost(groupId, time, null, author, body);
 			blogManager.addLocalPost(txn, post);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING))
@@ -472,10 +470,9 @@ class FeedManagerImpl implements FeedManager, Service, Client {
 		return StringUtils.trim(s.replaceAll("<(?s).*?>", ""));
 	}
 
-	private byte[] getPostBody(String text) {
-		byte[] body = StringUtils.toUtf8(text);
-		if (body.length <= MAX_BLOG_POST_BODY_LENGTH) return body;
-		else return Arrays.copyOfRange(body, 0, MAX_BLOG_POST_BODY_LENGTH - 1);
+	private String getPostBody(String text) {
+		if (text.length() <= MAX_BLOG_POST_BODY_LENGTH) return text;
+		else return text.substring(0, MAX_BLOG_POST_BODY_LENGTH);
 	}
 
 	/**

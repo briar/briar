@@ -199,7 +199,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			transaction.attach(new MessageAddedEvent(m, null));
 			transaction.attach(new MessageStateChangedEvent(m, c, true,
 					DELIVERED));
-			if (shared) transaction.attach(new MessageSharedEvent(m));
+			if (shared) transaction.attach(new MessageSharedEvent(m.getId()));
 		}
 		db.mergeMessageMetadata(txn, m.getId(), meta);
 	}
@@ -704,13 +704,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new ContactStatusChangedEvent(c, active));
 	}
 
-	public void setMessageShared(Transaction transaction, Message m,
+	public void setMessageShared(Transaction transaction, MessageId m,
 			boolean shared) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsMessage(txn, m.getId()))
+		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
-		db.setMessageShared(txn, m.getId(), shared);
+		db.setMessageShared(txn, m, shared);
 		if (shared) transaction.attach(new MessageSharedEvent(m));
 	}
 

@@ -27,7 +27,6 @@ public interface ForumConstants {
 	String KEY_NAME = "name";
 	String KEY_PUBLIC_NAME = "publicKey";
 	String KEY_AUTHOR = "author";
-	String KEY_CONTENT_TYPE = "contentType";
 	String KEY_LOCAL = "local";
 	String KEY_READ = "read";
 

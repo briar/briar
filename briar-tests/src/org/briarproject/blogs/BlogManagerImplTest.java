@@ -5,6 +5,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.BlogPost;
+import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.Contact;
@@ -33,17 +34,20 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.inject.Inject;
+
 import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.TestUtils.getRandomId;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
-import static org.briarproject.api.blogs.BlogConstants.KEY_CONTENT_TYPE;
 import static org.briarproject.api.blogs.BlogConstants.KEY_DESCRIPTION;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIME_RECEIVED;
+import static org.briarproject.api.blogs.BlogConstants.KEY_TYPE;
+import static org.briarproject.api.blogs.MessageType.POST;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.blogs.BlogManagerImpl.CLIENT_ID;
@@ -68,9 +72,13 @@ public class BlogManagerImplTest extends BriarTestCase {
 	private final Message message;
 	private final MessageId messageId;
 
+	@Inject
+	@SuppressWarnings("WeakerAccess")
+	BlogPostFactory blogPostFactory;
+
 	public BlogManagerImplTest() {
 		blogManager = new BlogManagerImpl(db, identityManager, clientHelper,
-				metadataParser, contactManager, blogFactory);
+				metadataParser, contactManager, blogFactory, blogPostFactory);
 
 		blog1 = getBlog("Test Blog 1", "Test Description 1");
 		blog2 = getBlog("Test Blog 2", "Test Description 2");
@@ -183,16 +191,15 @@ public class BlogManagerImplTest extends BriarTestCase {
 		BdfList list = new BdfList();
 		BdfDictionary author = authorToBdfDictionary(blog1.getAuthor());
 		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(KEY_TYPE, POST.getInt()),
 				new BdfEntry(KEY_TIMESTAMP, 0),
 				new BdfEntry(KEY_TIME_RECEIVED, 1),
 				new BdfEntry(KEY_AUTHOR, author),
-				new BdfEntry(KEY_CONTENT_TYPE, 0),
-				new BdfEntry(KEY_READ, false),
-				new BdfEntry(KEY_CONTENT_TYPE, "text/plain")
+				new BdfEntry(KEY_READ, false)
 		);
 
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).setMessageShared(txn, message, true);
+			oneOf(clientHelper).setMessageShared(txn, messageId, true);
 			oneOf(identityManager)
 					.getAuthorStatus(txn, blog1.getAuthor().getId());
 			will(returnValue(VERIFIED));
@@ -211,7 +218,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 		assertEquals(messageId, h.getId());
 		assertEquals(null, h.getParentId());
 		assertEquals(VERIFIED, h.getAuthorStatus());
-		assertEquals("text/plain", h.getContentType());
 		assertEquals(blog1.getAuthor(), h.getAuthor());
 	}
 
@@ -273,13 +279,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 	public void testAddLocalPost() throws DbException, FormatException {
 		final Transaction txn = new Transaction(null, true);
 		final BlogPost post =
-				new BlogPost(null, message, null, blog1.getAuthor(),
-						"text/plain");
+				new BlogPost(message, null, blog1.getAuthor());
 		BdfDictionary authorMeta = authorToBdfDictionary(blog1.getAuthor());
 		final BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(KEY_TYPE, POST.getInt()),
 				new BdfEntry(KEY_TIMESTAMP, message.getTimestamp()),
 				new BdfEntry(KEY_AUTHOR, authorMeta),
-				new BdfEntry(KEY_CONTENT_TYPE, "text/plain"),
 				new BdfEntry(KEY_READ, true)
 		);
 
@@ -308,7 +313,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 		assertEquals(messageId, h.getId());
 		assertEquals(null, h.getParentId());
 		assertEquals(VERIFIED, h.getAuthorStatus());
-		assertEquals("text/plain", h.getContentType());
 		assertEquals(blog1.getAuthor(), h.getAuthor());
 	}
 

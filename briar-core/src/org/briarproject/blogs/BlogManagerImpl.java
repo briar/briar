@@ -2,10 +2,13 @@ package org.briarproject.blogs;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.blogs.BlogCommentHeader;
 import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPost;
+import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.blogs.BlogPostHeader;
+import org.briarproject.api.blogs.MessageType;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.Contact;
@@ -33,10 +36,14 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,19 +52,26 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
-import static org.briarproject.api.blogs.BlogConstants.KEY_CONTENT_TYPE;
+import static org.briarproject.api.blogs.BlogConstants.KEY_COMMENT;
 import static org.briarproject.api.blogs.BlogConstants.KEY_DESCRIPTION;
+import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_MSG_ID;
+import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIME_RECEIVED;
-import static org.briarproject.api.blogs.BlogConstants.KEY_TITLE;
+import static org.briarproject.api.blogs.BlogConstants.KEY_TYPE;
+import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
+import static org.briarproject.api.blogs.MessageType.COMMENT;
+import static org.briarproject.api.blogs.MessageType.POST;
+import static org.briarproject.api.blogs.MessageType.WRAPPED_COMMENT;
+import static org.briarproject.api.blogs.MessageType.WRAPPED_POST;
 import static org.briarproject.api.contact.ContactManager.AddContactHook;
 import static org.briarproject.api.contact.ContactManager.RemoveContactHook;
+import static org.briarproject.blogs.BlogPostValidator.authorToBdfDictionary;
 
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		AddContactHook, RemoveContactHook, Client,
@@ -74,18 +88,21 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
 	private final BlogFactory blogFactory;
+	private final BlogPostFactory blogPostFactory;
 	private final List<RemoveBlogHook> removeHooks;
 
 	@Inject
 	BlogManagerImpl(DatabaseComponent db, IdentityManager identityManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
-			ContactManager contactManager, BlogFactory blogFactory) {
+			ContactManager contactManager, BlogFactory blogFactory,
+			BlogPostFactory blogPostFactory) {
 		super(clientHelper, metadataParser);
 
 		this.db = db;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
 		this.blogFactory = blogFactory;
+		this.blogPostFactory = blogPostFactory;
 		removeHooks = new CopyOnWriteArrayList<RemoveBlogHook>();
 	}
 
@@ -160,13 +177,43 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	protected void incomingMessage(Transaction txn, Message m, BdfList list,
 			BdfDictionary meta) throws DbException, FormatException {
 
-		clientHelper.setMessageShared(txn, m, true);
-
 		GroupId groupId = m.getGroupId();
-		BlogPostHeader h = getPostHeaderFromMetadata(txn, m.getId(), meta);
-		BlogPostAddedEvent event =
-				new BlogPostAddedEvent(groupId, h, false);
-		txn.attach(event);
+		MessageType type = getMessageType(meta);
+
+		if (type == POST || type == COMMENT) {
+			BlogPostHeader h =
+					getPostHeaderFromMetadata(txn, groupId, m.getId(), meta);
+
+			// check that original message IDs match
+			if (type == COMMENT) {
+				BdfDictionary d = clientHelper
+						.getMessageMetadataAsDictionary(txn, h.getParentId());
+				byte[] original1 = d.getRaw(KEY_ORIGINAL_MSG_ID);
+				byte[] original2 = meta.getRaw(KEY_ORIGINAL_PARENT_MSG_ID);
+				if (!Arrays.equals(original1, original2)) {
+					throw new FormatException();
+				}
+			}
+			// share dependencies recursively - TODO remove with #598
+			share(txn, h);
+
+			// broadcast event about new post or comment
+			BlogPostAddedEvent event =
+					new BlogPostAddedEvent(groupId, h, false);
+			txn.attach(event);
+		} else if (type == WRAPPED_COMMENT) {
+			// Check that the original message ID in the dependency's metadata
+			// matches the original parent ID of the wrapped comment
+			MessageId dependencyId =
+					new MessageId(meta.getRaw(KEY_PARENT_MSG_ID));
+			BdfDictionary d = clientHelper
+					.getMessageMetadataAsDictionary(txn, dependencyId);
+			byte[] original1 = d.getRaw(KEY_ORIGINAL_MSG_ID);
+			byte[] original2 = meta.getRaw(KEY_ORIGINAL_PARENT_MSG_ID);
+			if (!Arrays.equals(original1, original2)) {
+				throw new FormatException();
+			}
+		}
 	}
 
 	@Override
@@ -247,17 +294,9 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	public void addLocalPost(Transaction txn, BlogPost p) throws DbException {
 		try {
 			BdfDictionary meta = new BdfDictionary();
-			if (p.getTitle() != null) meta.put(KEY_TITLE, p.getTitle());
+			meta.put(KEY_TYPE, POST.getInt());
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-
-			Author a = p.getAuthor();
-			BdfDictionary authorMeta = new BdfDictionary();
-			authorMeta.put(KEY_AUTHOR_ID, a.getId());
-			authorMeta.put(KEY_AUTHOR_NAME, a.getName());
-			authorMeta.put(KEY_PUBLIC_KEY, a.getPublicKey());
-			meta.put(KEY_AUTHOR, authorMeta);
-
-			meta.put(KEY_CONTENT_TYPE, p.getContentType());
+			meta.put(KEY_AUTHOR, authorToBdfDictionary(p.getAuthor()));
 			meta.put(KEY_READ, true);
 			clientHelper.addLocalMessage(txn, p.getMessage(), CLIENT_ID, meta,
 					true);
@@ -265,13 +304,133 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			// broadcast event about new post
 			GroupId groupId = p.getMessage().getGroupId();
 			MessageId postId = p.getMessage().getId();
-			BlogPostHeader h = getPostHeaderFromMetadata(txn, postId, meta);
+			BlogPostHeader h =
+					getPostHeaderFromMetadata(txn, groupId, postId, meta);
 			BlogPostAddedEvent event =
 					new BlogPostAddedEvent(groupId, h, true);
 			txn.attach(event);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public void addLocalComment(LocalAuthor author, GroupId groupId,
+			@Nullable String comment, BlogPostHeader pOriginalHeader)
+			throws DbException {
+
+		MessageType type = pOriginalHeader.getType();
+		if (type != POST && type != COMMENT)
+			throw new IllegalArgumentException("Comment on unknown type!");
+
+		Transaction txn = db.startTransaction(false);
+		try {
+			// Wrap post that we are commenting on
+			MessageId parentId = wrapMessage(txn, groupId, pOriginalHeader);
+
+			// Get ID of new parent's original message.
+			// Assumes that pOriginalHeader is a POST or COMMENT
+			MessageId pOriginalId = pOriginalHeader.getId();
+
+			// Create actual comment
+			Message message = blogPostFactory
+					.createBlogComment(groupId, author, comment, pOriginalId,
+							parentId);
+			BdfDictionary meta = new BdfDictionary();
+			meta.put(KEY_TYPE, COMMENT.getInt());
+			if (comment != null) meta.put(KEY_COMMENT, comment);
+			meta.put(KEY_TIMESTAMP, message.getTimestamp());
+			meta.put(KEY_ORIGINAL_MSG_ID, message.getId());
+			meta.put(KEY_ORIGINAL_PARENT_MSG_ID, pOriginalId);
+			meta.put(KEY_PARENT_MSG_ID, parentId);
+			meta.put(KEY_AUTHOR, authorToBdfDictionary(author));
+
+			// Send comment
+			clientHelper.addLocalMessage(txn, message, CLIENT_ID, meta, true);
+
+			// broadcast event
+			BlogPostHeader h =
+					getPostHeaderFromMetadata(txn, groupId, message.getId(),
+							meta);
+			BlogPostAddedEvent event = new BlogPostAddedEvent(groupId, h, true);
+			txn.attach(event);
+			txn.setComplete();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} catch (GeneralSecurityException e) {
+			throw new IllegalArgumentException("Invalid key of author", e);
+		} finally {
+			//noinspection ThrowFromFinallyBlock
+			db.endTransaction(txn);
+		}
+	}
+
+	private MessageId wrapMessage(Transaction txn, GroupId groupId,
+			BlogPostHeader pOriginalHeader)
+			throws DbException, FormatException {
+
+		if (groupId.equals(pOriginalHeader.getGroupId())) {
+			// We are trying to wrap a post that is already in our group.
+			// This is unnecessary, so just return the post's MessageId
+			return pOriginalHeader.getId();
+		}
+
+		// Get body of message to be wrapped
+		BdfList body =
+				clientHelper.getMessageAsList(txn, pOriginalHeader.getId());
+		long wTimestamp = pOriginalHeader.getTimestamp();
+		Message wMessage;
+
+		BdfDictionary meta = new BdfDictionary();
+		MessageType type = pOriginalHeader.getType();
+		if (type == POST) {
+			Group wGroup = db.getGroup(txn, pOriginalHeader.getGroupId());
+			byte[] wDescriptor = wGroup.getDescriptor();
+			// Wrap post
+			wMessage = blogPostFactory
+					.wrapPost(groupId, wDescriptor, wTimestamp, body);
+			meta.put(KEY_TYPE, WRAPPED_POST.getInt());
+		} else if (type == COMMENT) {
+			Group wGroup = db.getGroup(txn, pOriginalHeader.getGroupId());
+			byte[] wDescriptor = wGroup.getDescriptor();
+			BlogCommentHeader wComment = (BlogCommentHeader) pOriginalHeader;
+			MessageId wrappedId =
+					wrapMessage(txn, groupId, wComment.getParent());
+			// Wrap comment
+			wMessage = blogPostFactory
+					.wrapComment(groupId, wDescriptor, wTimestamp,
+							body, wrappedId);
+			meta.put(KEY_TYPE, WRAPPED_COMMENT.getInt());
+			if(wComment.getComment() != null)
+				meta.put(KEY_COMMENT, wComment.getComment());
+			meta.put(KEY_PARENT_MSG_ID, wrappedId);
+		} else if (type == WRAPPED_POST) {
+			// Re-wrap wrapped post without adding another wrapping layer
+			wMessage = blogPostFactory.rewrapWrappedPost(groupId, body);
+			meta.put(KEY_TYPE, WRAPPED_POST.getInt());
+		} else if (type == WRAPPED_COMMENT) {
+			BlogCommentHeader wComment = (BlogCommentHeader) pOriginalHeader;
+			MessageId wrappedId =
+					wrapMessage(txn, groupId, wComment.getParent());
+			// Re-wrap wrapped comment
+			wMessage = blogPostFactory
+					.rewrapWrappedComment(groupId, body, wrappedId);
+			meta.put(KEY_TYPE, WRAPPED_COMMENT.getInt());
+			if(wComment.getComment() != null)
+				meta.put(KEY_COMMENT, wComment.getComment());
+			meta.put(KEY_PARENT_MSG_ID, wrappedId);
+		} else {
+			throw new IllegalArgumentException(
+					"Unknown Message Type: " + type);
+		}
+		meta.put(KEY_ORIGINAL_MSG_ID, pOriginalHeader.getId());
+		meta.put(KEY_AUTHOR, authorToBdfDictionary(pOriginalHeader.getAuthor()));
+		meta.put(KEY_TIMESTAMP, pOriginalHeader.getTimestamp());
+		meta.put(KEY_TIME_RECEIVED, pOriginalHeader.getTimeReceived());
+
+		// Send wrapped message and store metadata
+		clientHelper.addLocalMessage(txn, wMessage, CLIENT_ID, meta, true);
+		return wMessage.getId();
 	}
 
 	@Override
@@ -340,12 +499,13 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public BlogPostHeader getPostHeader(MessageId m) throws DbException {
+	public BlogPostHeader getPostHeader(GroupId g, MessageId m)
+			throws DbException {
 		Transaction txn = db.startTransaction(true);
 		try {
 			BdfDictionary meta =
 					clientHelper.getMessageMetadataAsDictionary(txn, m);
-			BlogPostHeader h = getPostHeaderFromMetadata(txn, m, meta);
+			BlogPostHeader h = getPostHeaderFromMetadata(txn, g, m, meta);
 			txn.setComplete();
 			return h;
 		} catch (FormatException e) {
@@ -366,25 +526,50 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 	}
 
+	// TODO directly return String (#598)
 	private byte[] getPostBody(BdfList message) throws FormatException {
-		// content, signature
-		// content: parent, contentType, title, body, attachments
-		BdfList content = message.getList(0);
-		return content.getRaw(3);
+		MessageType type = MessageType.valueOf(message.getLong(0).intValue());
+		if (type == POST) {
+			// type, body, signature
+			return StringUtils.toUtf8(message.getString(1));
+		} else if (type == WRAPPED_POST) {
+			// type, p_group descriptor, p_timestamp, p_content, p_signature
+			return StringUtils.toUtf8(message.getString(3));
+		} else {
+			throw new FormatException();
+		}
 	}
 
 	@Override
 	public Collection<BlogPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
 
+		// Query for posts and comments only
+		BdfDictionary query1 = BdfDictionary.of(
+				new BdfEntry(KEY_TYPE, POST.getInt())
+		);
+		BdfDictionary query2 = BdfDictionary.of(
+				new BdfEntry(KEY_TYPE, COMMENT.getInt())
+		);
+
+		// TODO this could be optimized by looking up author status once (#625)
+
+		Collection<BlogPostHeader> headers = new ArrayList<BlogPostHeader>();
 		Transaction txn = db.startTransaction(true);
 		try {
+			Map<MessageId, BdfDictionary> metadata1 =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query1);
+			Map<MessageId, BdfDictionary> metadata2 =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query2);
 			Map<MessageId, BdfDictionary> metadata =
-					clientHelper.getMessageMetadataAsDictionary(txn, g);
-			List<BlogPostHeader> headers = new ArrayList<BlogPostHeader>();
+					new HashMap<MessageId, BdfDictionary>(
+							metadata1.size() + metadata2.size());
+			metadata.putAll(metadata1);
+			metadata.putAll(metadata2);
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-				BlogPostHeader h = getPostHeaderFromMetadata(txn,
-						entry.getKey(), entry.getValue());
+				BdfDictionary meta = entry.getValue();
+				BlogPostHeader h =
+						getPostHeaderFromMetadata(txn, g, entry.getKey(), meta);
 				headers.add(h);
 			}
 			txn.setComplete();
@@ -419,10 +604,18 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,
-			MessageId id, BdfDictionary meta)
+			GroupId groupId, MessageId id) throws DbException, FormatException {
+		BdfDictionary meta =
+				clientHelper.getMessageMetadataAsDictionary(txn, id);
+		return getPostHeaderFromMetadata(txn, groupId, id, meta);
+	}
+
+	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,
+			GroupId groupId, MessageId id, BdfDictionary meta)
 			throws DbException, FormatException {
 
-		String title = meta.getOptionalString(KEY_TITLE);
+		MessageType type = getMessageType(meta);
+
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
 		long timeReceived = meta.getLong(KEY_TIME_RECEIVED, timestamp);
 
@@ -431,12 +624,35 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		String name = d.getString(KEY_AUTHOR_NAME);
 		byte[] publicKey = d.getRaw(KEY_PUBLIC_KEY);
 		Author author = new Author(authorId, name, publicKey);
-		Status authorStatus;
-		authorStatus = identityManager.getAuthorStatus(txn, authorId);
+		Status authorStatus = identityManager.getAuthorStatus(txn, authorId);
 
-		String contentType = meta.getString(KEY_CONTENT_TYPE);
-		boolean read = meta.getBoolean(KEY_READ);
-		return new BlogPostHeader(title, id, timestamp, timeReceived, author,
-				authorStatus, contentType, read);
+		boolean read = meta.getBoolean(KEY_READ, false);
+
+		if (type == COMMENT || type == WRAPPED_COMMENT) {
+			String comment = meta.getOptionalString(KEY_COMMENT);
+			MessageId parentId = new MessageId(meta.getRaw(KEY_PARENT_MSG_ID));
+			BlogPostHeader parent =
+					getPostHeaderFromMetadata(txn, groupId, parentId);
+			return new BlogCommentHeader(type, groupId, comment, parent, id,
+					timestamp, timeReceived, author, authorStatus, read);
+		} else {
+			return new BlogPostHeader(type, groupId, id, timestamp,
+					timeReceived, author, authorStatus, read);
+		}
+	}
+
+	private MessageType getMessageType(BdfDictionary d) throws FormatException {
+		Long longType = d.getLong(KEY_TYPE);
+		return MessageType.valueOf(longType.intValue());
+	}
+
+	// TODO remove when implementing #589
+	@Deprecated
+	private void share(Transaction txn, BlogPostHeader h) throws DbException {
+		clientHelper.setMessageShared(txn, h.getId(), true);
+		if (h instanceof BlogCommentHeader) {
+			BlogPostHeader h2 = ((BlogCommentHeader) h).getParent();
+			share(txn, h2);
+		}
 	}
 }

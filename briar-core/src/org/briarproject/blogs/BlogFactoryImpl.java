@@ -59,7 +59,7 @@ class BlogFactoryImpl implements BlogFactory {
 
 		byte[] descriptor = g.getDescriptor();
 		// Blog Name, Author Name, Public Key
-		BdfList blog = clientHelper.toList(descriptor, 0, descriptor.length);
+		BdfList blog = clientHelper.toList(descriptor);
 		String name = blog.getString(0);
 		Author a =
 				authorFactory.createAuthor(blog.getString(1), blog.getRaw(2));

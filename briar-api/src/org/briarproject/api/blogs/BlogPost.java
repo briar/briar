@@ -9,19 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class BlogPost extends ForumPost {
 
-	@Nullable
-	private final String title;
-
-	public BlogPost(@Nullable String title,	@NotNull Message message,
-			@Nullable MessageId parent,	@NotNull Author author,
-			@NotNull String contentType) {
-		super(message, parent, author, contentType);
-
-		this.title = title;
-	}
-
-	@Nullable
-	public String getTitle() {
-		return title;
+	public BlogPost(@NotNull Message message, @Nullable MessageId parent,
+			@NotNull Author author) {
+		super(message, parent, author);
 	}
 }

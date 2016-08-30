@@ -437,7 +437,7 @@ public interface DatabaseComponent {
 	/**
 	 * Marks the given message as shared or unshared.
 	 */
-	void setMessageShared(Transaction txn, Message m, boolean shared)
+	void setMessageShared(Transaction txn, MessageId m, boolean shared)
 			throws DbException;
 
 	/**

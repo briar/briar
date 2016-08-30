@@ -2,8 +2,6 @@ package org.briarproject.android.blogs;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -39,19 +37,16 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
-import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_TITLE_LENGTH;
 
 public class WriteBlogPostActivity extends BriarActivity
 		implements OnEditorActionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(WriteBlogPostActivity.class.getName());
-	private static final String contentType = "text/plain";
 
 	@Inject
 	protected AndroidNotificationManager notificationManager;
 
-	private TextInputEditText titleInput;
 	private EditText bodyInput;
 	private Button publishButton;
 	private ProgressBar progressBar;
@@ -75,16 +70,6 @@ public class WriteBlogPostActivity extends BriarActivity
 		groupId = new GroupId(b);
 
 		setContentView(R.layout.activity_write_blog_post);
-
-		TextInputLayout titleLayout =
-				(TextInputLayout) findViewById(R.id.titleLayout);
-		if (titleLayout != null) {
-			titleLayout.setCounterMaxLength(MAX_BLOG_POST_TITLE_LENGTH);
-		}
-		titleInput = (TextInputEditText) findViewById(R.id.titleInput);
-		if (titleInput != null) {
-			titleInput.setOnEditorActionListener(this);
-		}
 
 		bodyInput = (EditText) findViewById(R.id.bodyInput);
 		bodyInput.addTextChangedListener(new TextWatcher() {
@@ -152,30 +137,24 @@ public class WriteBlogPostActivity extends BriarActivity
 	private void enableOrDisablePublishButton() {
 		int bodyLength =
 				StringUtils.toUtf8(bodyInput.getText().toString()).length;
-		if (bodyLength > 0 && bodyLength <= MAX_BLOG_POST_BODY_LENGTH &&
-				titleInput.getText().length() <= MAX_BLOG_POST_TITLE_LENGTH)
+		if (bodyLength > 0 && bodyLength <= MAX_BLOG_POST_BODY_LENGTH)
 			publishButton.setEnabled(true);
 		else
 			publishButton.setEnabled(false);
 	}
 
 	private void publish() {
-		// title
-		String title = titleInput.getText().toString();
-		if (title.length() > MAX_BLOG_POST_TITLE_LENGTH) return;
-		if (title.length() == 0) title = null;
-
 		// body
-		byte[] body = StringUtils.toUtf8(bodyInput.getText().toString());
+		String body = bodyInput.getText().toString();
 
 		// hide publish button, show progress bar
 		publishButton.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
-		storePost(title, body);
+		storePost(body);
 	}
 
-	private void storePost(final String title, final byte[] body) {
+	private void storePost(final String body) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -185,8 +164,7 @@ public class WriteBlogPostActivity extends BriarActivity
 							identityManager.getLocalAuthors();
 					LocalAuthor author = authors.iterator().next();
 					BlogPost p = blogPostFactory
-							.createBlogPost(groupId, title, now, null, author,
-									contentType, body);
+							.createBlogPost(groupId, now, null, author, body);
 					blogManager.addLocalPost(p);
 					postPublished();
 				} catch (DbException | GeneralSecurityException | FormatException e) {

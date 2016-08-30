@@ -10,6 +10,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 public interface ClientHelper {
@@ -72,7 +73,7 @@ public interface ClientHelper {
 	/**
 	 * Marks the given message as shared or unshared with other contacts.
 	 */
-	void setMessageShared(Transaction txn, Message m, boolean shared)
+	void setMessageShared(Transaction txn, MessageId m, boolean shared)
 			throws DbException;
 
 	byte[] toByteArray(BdfDictionary dictionary) throws FormatException;
@@ -83,4 +84,9 @@ public interface ClientHelper {
 			throws FormatException;
 
 	BdfList toList(byte[] b, int off, int len) throws FormatException;
+
+	BdfList toList(byte[] b) throws FormatException;
+
+	byte[] sign(BdfList toSign, byte[] privateKey)
+			throws FormatException, GeneralSecurityException;
 }

@@ -404,7 +404,7 @@ public class ForumControllerImpl extends DbControllerImpl
 		ForumPostHeader h =
 				new ForumPostHeader(p.getMessage().getId(), p.getParent(),
 						p.getMessage().getTimestamp(), p.getAuthor(), VERIFIED,
-						p.getContentType(), false);
+						false);
 		addNewPost(h);
 	}
 
