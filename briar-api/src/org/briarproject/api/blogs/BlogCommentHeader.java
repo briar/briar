@@ -12,8 +12,8 @@ import static org.briarproject.api.blogs.MessageType.WRAPPED_COMMENT;
 
 public class BlogCommentHeader extends BlogPostHeader {
 
-	private String comment;
-	private BlogPostHeader parent;
+	private final String comment;
+	private final BlogPostHeader parent;
 
 	public BlogCommentHeader(@NotNull MessageType type,
 			@NotNull GroupId groupId, @Nullable String comment,
@@ -36,7 +36,6 @@ public class BlogCommentHeader extends BlogPostHeader {
 		return comment;
 	}
 
-	@NotNull
 	public BlogPostHeader getParent() {
 		return parent;
 	}

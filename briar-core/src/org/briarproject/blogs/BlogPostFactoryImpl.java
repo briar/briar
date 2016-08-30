@@ -3,6 +3,7 @@ package org.briarproject.blogs;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.BlogPost;
 import org.briarproject.api.blogs.BlogPostFactory;
+import org.briarproject.api.blogs.MessageType;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.LocalAuthor;
@@ -58,27 +59,30 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 
 	@Override
 	public Message createBlogComment(GroupId groupId, LocalAuthor author,
-			@Nullable String comment, MessageId originalId, MessageId wrappedId)
+			@Nullable String comment, MessageId pOriginalId, MessageId parentId)
 			throws FormatException, GeneralSecurityException {
 
 		long timestamp = clock.currentTimeMillis();
 
 		// Generate the signature
 		BdfList signed =
-				BdfList.of(groupId, timestamp, comment, originalId, wrappedId);
+				BdfList.of(groupId, timestamp, comment, pOriginalId, parentId);
 		byte[] sig = clientHelper.sign(signed, author.getPrivateKey());
 
 		// Serialise the signed message
 		BdfList message =
-				BdfList.of(COMMENT.getInt(), comment, originalId, wrappedId,
+				BdfList.of(COMMENT.getInt(), comment, pOriginalId, parentId,
 						sig);
 		return clientHelper.createMessage(groupId, timestamp, message);
 	}
 
 	@Override
-	public Message createWrappedPost(GroupId groupId, byte[] descriptor,
+	public Message wrapPost(GroupId groupId, byte[] descriptor,
 			long timestamp, BdfList body)
 			throws FormatException {
+
+		if (getType(body) != POST)
+			throw new IllegalArgumentException("Needs to wrap a POST");
 
 		// Serialise the message
 		String content = body.getString(1);
@@ -91,8 +95,11 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 	}
 
 	@Override
-	public Message createWrappedPost(GroupId groupId, BdfList body)
+	public Message rewrapWrappedPost(GroupId groupId, BdfList body)
 			throws FormatException {
+
+		if (getType(body) != WRAPPED_POST)
+			throw new IllegalArgumentException("Needs to wrap a WRAPPED_POST");
 
 		// Serialise the message
 		byte[] descriptor = body.getRaw(1);
@@ -107,38 +114,48 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 	}
 
 	@Override
-	public Message createWrappedComment(GroupId groupId, byte[] descriptor,
-			long timestamp, BdfList body, MessageId currentId)
+	public Message wrapComment(GroupId groupId, byte[] descriptor,
+			long timestamp, BdfList body, MessageId parentId)
 			throws FormatException {
+
+		if (getType(body) != COMMENT)
+			throw new IllegalArgumentException("Needs to wrap a COMMENT");
 
 		// Serialise the message
 		String comment = body.getOptionalString(1);
-		byte[] originalId = body.getRaw(2);
-		byte[] oldId = body.getRaw(3);
+		byte[] pOriginalId = body.getRaw(2);
+		byte[] oldParentId = body.getRaw(3);
 		byte[] signature = body.getRaw(4);
 		BdfList message =
 				BdfList.of(WRAPPED_COMMENT.getInt(), descriptor, timestamp,
-						comment, originalId, oldId, signature, currentId);
+						comment, pOriginalId, oldParentId, signature, parentId);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}
 
 	@Override
-	public Message createWrappedComment(GroupId groupId, BdfList body,
-			MessageId currentId) throws FormatException {
+	public Message rewrapWrappedComment(GroupId groupId, BdfList body,
+			MessageId parentId) throws FormatException {
+
+		if (getType(body) != WRAPPED_COMMENT)
+			throw new IllegalArgumentException(
+					"Needs to wrap a WRAPPED_COMMENT");
 
 		// Serialise the message
 		byte[] descriptor = body.getRaw(1);
 		long timestamp = body.getLong(2);
 		String comment = body.getOptionalString(3);
-		byte[] originalId = body.getRaw(4);
-		byte[] oldId = body.getRaw(5);
+		byte[] pOriginalId = body.getRaw(4);
+		byte[] oldParentId = body.getRaw(5);
 		byte[] signature = body.getRaw(6);
 		BdfList message =
 				BdfList.of(WRAPPED_COMMENT.getInt(), descriptor, timestamp,
-						comment, originalId, oldId, signature, currentId);
+						comment, pOriginalId, oldParentId, signature, parentId);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}
 
+	private MessageType getType(BdfList body) throws FormatException {
+		return MessageType.valueOf(body.getLong(0).intValue());
+	}
 }

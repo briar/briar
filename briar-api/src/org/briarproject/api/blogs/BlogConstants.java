@@ -35,6 +35,10 @@ public interface BlogConstants {
 	String KEY_COMMENT = "comment";
 	String KEY_ORIGINAL_MSG_ID = "originalMessageId";
 	String KEY_ORIGINAL_PARENT_MSG_ID = "originalParentMessageId";
-	String KEY_WRAPPED_MSG_ID = "wrappedMessageId";
+	/**
+	 * This is the ID of either a message wrapped from a different group
+	 * or of a message from the same group that therefore needed no wrapping.
+	 */
+	String KEY_PARENT_MSG_ID = "parentMessageId";
 
 }

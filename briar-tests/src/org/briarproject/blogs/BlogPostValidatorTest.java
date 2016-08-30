@@ -37,7 +37,7 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.KEY_COMMENT;
-import static org.briarproject.api.blogs.BlogConstants.KEY_WRAPPED_MSG_ID;
+import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
@@ -168,7 +168,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		assertEquals(comment, result.getString(KEY_COMMENT));
 		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
 		assertEquals(originalId.getBytes(), result.getRaw(KEY_ORIGINAL_MSG_ID));
-		assertEquals(currentId.getBytes(), result.getRaw(KEY_WRAPPED_MSG_ID));
+		assertEquals(currentId.getBytes(), result.getRaw(KEY_PARENT_MSG_ID));
 		assertFalse(result.getBoolean(KEY_READ));
 		context.assertIsSatisfied();
 	}
@@ -269,7 +269,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
 		assertEquals(
 				message.getId().getBytes(), result.getRaw(KEY_ORIGINAL_MSG_ID));
-		assertEquals(currentId.getBytes(), result.getRaw(KEY_WRAPPED_MSG_ID));
+		assertEquals(currentId.getBytes(), result.getRaw(KEY_PARENT_MSG_ID));
 		context.assertIsSatisfied();
 	}
 

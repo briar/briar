@@ -23,20 +23,20 @@ public interface BlogPostFactory {
 			throws FormatException, GeneralSecurityException;
 
 	/** Wraps a blog post */
-	Message createWrappedPost(GroupId groupId, byte[] descriptor,
+	Message wrapPost(GroupId groupId, byte[] descriptor,
 			long timestamp, BdfList body)
 			throws FormatException;
 
 	/** Re-wraps a previously wrapped post */
-	Message createWrappedPost(GroupId groupId, BdfList body)
+	Message rewrapWrappedPost(GroupId groupId, BdfList body)
 			throws FormatException;
 
 	/** Wraps a blog comment */
-	Message createWrappedComment(GroupId groupId, byte[] descriptor,
+	Message wrapComment(GroupId groupId, byte[] descriptor,
 			long timestamp, BdfList body, MessageId currentId)
 			throws FormatException;
 
 	/** Re-wraps a previously wrapped comment */
-	Message createWrappedComment(GroupId groupId, BdfList body,
+	Message rewrapWrappedComment(GroupId groupId, BdfList body,
 			MessageId currentId) throws FormatException;
 }
