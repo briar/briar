@@ -114,15 +114,9 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 	}
 
 	@Override
-	public void setContactActive(ContactId c, boolean active)
+	public void setContactActive(Transaction txn, ContactId c, boolean active)
 			throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			db.setContactActive(txn, c, active);
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
-		}
+		db.setContactActive(txn, c, active);
 	}
 
 	@Override
@@ -145,7 +139,8 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 		return exists;
 	}
 
-	private void removeContact(Transaction txn, ContactId c)
+	@Override
+	public void removeContact(Transaction txn, ContactId c)
 			throws DbException {
 		Contact contact = db.getContact(txn, c);
 		for (RemoveContactHook hook : removeHooks)

@@ -41,8 +41,12 @@ public interface ContactManager {
 	/** Removes a contact and all associated state. */
 	void removeContact(ContactId c) throws DbException;
 
+	/** Removes a contact and all associated state. */
+	void removeContact(Transaction txn, ContactId c) throws DbException;
+
 	/** Marks a contact as active or inactive. */
-	void setContactActive(ContactId c, boolean active) throws DbException;
+	void setContactActive(Transaction txn, ContactId c, boolean active)
+			throws DbException;
 
 	/** Return true if a contact with this name and public key already exists */
 	boolean contactExists(Transaction txn, AuthorId remoteAuthorId,

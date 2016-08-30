@@ -44,6 +44,12 @@ public interface CryptoComponent {
 	SecretKey deriveHeaderKey(SecretKey master, boolean alice);
 
 	/**
+	 * Derives a message authentication code key from the given master secret.
+	 * @param alice whether the key is for use by Alice or Bob.
+	 */
+	SecretKey deriveMacKey(SecretKey master, boolean alice);
+
+	/**
 	 * Derives a nonce from the given master secret for one of the parties to
 	 * sign.
 	 * @param alice whether the nonce is for use by Alice or Bob.

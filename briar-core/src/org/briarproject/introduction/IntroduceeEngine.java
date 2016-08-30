@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.introduction.IntroduceeAction.ACK;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ABORT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_ACCEPT;
 import static org.briarproject.api.introduction.IntroduceeAction.LOCAL_DECLINE;
@@ -39,18 +40,22 @@ import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.OUR_SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ABORT;
@@ -97,10 +102,10 @@ public class IntroduceeEngine
 				else return abortSession(currentState, localState);
 			}
 
+			List<BdfDictionary> messages = new ArrayList<BdfDictionary>(1);
 			if (action == LOCAL_ACCEPT || action == LOCAL_DECLINE) {
 				localState.put(STATE, nextState.getValue());
 				localState.put(ANSWERED, true);
-				List<BdfDictionary> messages = new ArrayList<BdfDictionary>(1);
 				// create the introduction response message
 				BdfDictionary msg = new BdfDictionary();
 				msg.put(TYPE, TYPE_RESPONSE);
@@ -118,17 +123,18 @@ public class IntroduceeEngine
 
 				if (nextState == AWAIT_ACK) {
 					localState.put(TASK, TASK_ADD_CONTACT);
-					// also send ACK, because we already have the other response
-					BdfDictionary ack = getAckMessage(localState);
-					messages.add(ack);
 				}
-				List<Event> events = Collections.emptyList();
-				return new StateUpdate<BdfDictionary, BdfDictionary>(false,
-						false,
-						localState, messages, events);
+			} else if (action == ACK) {
+				// just send ACK, don't update local state again
+				BdfDictionary ack = getAckMessage(localState);
+				messages.add(ack);
 			} else {
 				throw new IllegalArgumentException();
 			}
+			List<Event> events = Collections.emptyList();
+			return new StateUpdate<BdfDictionary, BdfDictionary>(false,
+					false,
+					localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -181,16 +187,14 @@ public class IntroduceeEngine
 				addResponseData(localState, msg);
 				if (nextState == AWAIT_ACK) {
 					localState.put(TASK, TASK_ADD_CONTACT);
-					messages = Collections
-							.singletonList(getAckMessage(localState));
-				} else {
-					messages = Collections.emptyList();
 				}
+				messages = Collections.emptyList();
 				events = Collections.emptyList();
 			}
 			// we already sent our ACK and now received the other one
 			else if (currentState == AWAIT_ACK) {
 				localState.put(TASK, TASK_ACTIVATE_CONTACT);
+				addAckData(localState, msg);
 				messages = Collections.emptyList();
 				events = Collections.emptyList();
 			}
@@ -240,6 +244,13 @@ public class IntroduceeEngine
 		}
 	}
 
+	private void addAckData(BdfDictionary localState, BdfDictionary msg)
+			throws FormatException {
+
+		localState.put(MAC, msg.getRaw(MAC));
+		localState.put(SIGNATURE, msg.getRaw(SIGNATURE));
+	}
+
 	private BdfDictionary getAckMessage(BdfDictionary localState)
 			throws FormatException {
 
@@ -247,6 +258,8 @@ public class IntroduceeEngine
 		m.put(TYPE, TYPE_ACK);
 		m.put(GROUP_ID, localState.getRaw(GROUP_ID));
 		m.put(SESSION_ID, localState.getRaw(SESSION_ID));
+		m.put(MAC, localState.getRaw(OUR_MAC));
+		m.put(SIGNATURE, localState.getRaw(OUR_SIGNATURE));
 
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Sending ACK " + " to " +
