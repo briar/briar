@@ -3,6 +3,7 @@ package org.briarproject.api.introduction;
 import static org.briarproject.api.introduction.IntroducerAction.ACK_1;
 import static org.briarproject.api.introduction.IntroducerAction.ACK_2;
 import static org.briarproject.api.introduction.IntroducerAction.LOCAL_REQUEST;
+import static org.briarproject.api.introduction.IntroducerAction.REMOTE_ABORT;
 import static org.briarproject.api.introduction.IntroducerAction.REMOTE_ACCEPT_1;
 import static org.briarproject.api.introduction.IntroducerAction.REMOTE_ACCEPT_2;
 import static org.briarproject.api.introduction.IntroducerAction.REMOTE_DECLINE_1;
@@ -65,7 +66,13 @@ public enum IntroducerProtocolState {
 			return ERROR;
 		}
 	},
-	FINISHED(8);
+	FINISHED(8) {
+		@Override
+		public IntroducerProtocolState next(IntroducerAction a) {
+			if (a == REMOTE_ABORT) return ERROR;
+			return FINISHED;
+		}
+	};
 
 	private final int value;
 
