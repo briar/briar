@@ -785,6 +785,33 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testGetContactsByAuthorId() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a local author - no contacts should be associated
+		db.addLocalAuthor(txn, localAuthor);
+
+		// Add a contact associated with the local author
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true, true));
+
+		// Ensure contact is returned from database by Author ID
+		Collection<Contact> contacts =
+				db.getContactsByAuthorId(txn, author.getId());
+		assertEquals(1, contacts.size());
+		assertEquals(contactId, contacts.iterator().next().getId());
+
+		// Ensure no contacts are returned after contact was deleted
+		db.removeContact(txn, contactId);
+		contacts = db.getContactsByAuthorId(txn, author.getId());
+		assertEquals(0, contacts.size());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testGetContactsByLocalAuthorId() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

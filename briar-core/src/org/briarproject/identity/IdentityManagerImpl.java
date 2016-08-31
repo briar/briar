@@ -130,17 +130,18 @@ class IdentityManagerImpl implements IdentityManager {
 	@Override
 	public Status getAuthorStatus(Transaction txn, AuthorId authorId)
 			throws DbException {
+
 		// Compare to the IDs of the user's identities
-		for (LocalAuthor a : db.getLocalAuthors(txn))
+		for (LocalAuthor a : db.getLocalAuthors(txn)) {
 			if (a.getId().equals(authorId)) return OURSELVES;
-		// Compare to the IDs of contacts' identities
-		for (Contact c : db.getContacts(txn)) {
-			if (c.getAuthor().getId().equals(authorId)) {
-				if (c.isVerified()) return VERIFIED;
-				else return UNVERIFIED;
-			}
 		}
-		return UNKNOWN;
+
+		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
+		if (contacts.isEmpty()) return UNKNOWN;
+		for (Contact c : contacts) {
+			if (c.isVerified()) return VERIFIED;
+		}
+		return UNVERIFIED;
 	}
 
 }

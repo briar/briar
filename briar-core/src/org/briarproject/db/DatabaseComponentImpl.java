@@ -359,6 +359,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getContacts(txn);
 	}
 
+	public Collection<Contact> getContactsByAuthorId(Transaction transaction,
+			AuthorId remote) throws DbException {
+		T txn = unbox(transaction);
+		return db.getContactsByAuthorId(txn, remote);
+	}
+
 	public Collection<ContactId> getContacts(Transaction transaction,
 			AuthorId a) throws DbException {
 		T txn = unbox(transaction);

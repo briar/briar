@@ -1020,7 +1020,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<ContactId> getContacts(Connection txn, AuthorId a)
+	public Collection<ContactId> getContacts(Connection txn, AuthorId local)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1028,13 +1028,47 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT contactId FROM contacts"
 					+ " WHERE localAuthorId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, a.getBytes());
+			ps.setBytes(1, local.getBytes());
 			rs = ps.executeQuery();
 			List<ContactId> ids = new ArrayList<ContactId>();
 			while (rs.next()) ids.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(ids);
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<Contact> getContactsByAuthorId(Connection txn,
+			AuthorId remote) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId, name, publicKey,"
+					+ " localAuthorId, verified, active"
+					+ " FROM contacts"
+					+ " WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, remote.getBytes());
+			rs = ps.executeQuery();
+			List<Contact> contacts = new ArrayList<Contact>();
+			while (rs.next()) {
+				ContactId c = new ContactId(rs.getInt(1));
+				String name = rs.getString(2);
+				byte[] publicKey = rs.getBytes(3);
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
+				boolean verified = rs.getBoolean(5);
+				boolean active = rs.getBoolean(6);
+				Author author = new Author(remote, name, publicKey);
+				contacts.add(new Contact(c, author, localAuthorId, verified,
+						active));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(contacts);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

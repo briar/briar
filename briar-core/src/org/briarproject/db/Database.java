@@ -217,6 +217,14 @@ interface Database<T> {
 	Collection<Contact> getContacts(T txn) throws DbException;
 
 	/**
+	 * Returns a possibly empty collection of contacts with the given author ID.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<Contact> getContactsByAuthorId(T txn, AuthorId remote)
+			throws DbException;
+
+	/**
 	 * Returns all contacts associated with the given local pseudonym.
 	 * <p/>
 	 * Read-only.
