@@ -37,6 +37,7 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.KEY_COMMENT;
+import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
@@ -151,23 +152,24 @@ public class BlogPostValidatorTest extends BriarTestCase {
 			throws IOException, GeneralSecurityException {
 		// comment, parent_original_id, parent_id, signature
 		String comment = "This is a blog comment";
-		MessageId originalId = new MessageId(TestUtils.getRandomId());
+		MessageId pOriginalId = new MessageId(TestUtils.getRandomId());
 		MessageId currentId = new MessageId(TestUtils.getRandomId());
 		final byte[] sigBytes = TestUtils.getRandomBytes(42);
 		BdfList m =
-				BdfList.of(COMMENT.getInt(), comment, originalId, currentId,
+				BdfList.of(COMMENT.getInt(), comment, pOriginalId, currentId,
 						sigBytes);
 
 		BdfList signed =
 				BdfList.of(blog.getId(), message.getTimestamp(), comment,
-						originalId, currentId);
+						pOriginalId, currentId);
 		expectCrypto(signed, sigBytes, true);
 		final BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertEquals(comment, result.getString(KEY_COMMENT));
 		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
-		assertEquals(originalId.getBytes(), result.getRaw(KEY_ORIGINAL_MSG_ID));
+		assertEquals(pOriginalId.getBytes(),
+				result.getRaw(KEY_ORIGINAL_PARENT_MSG_ID));
 		assertEquals(currentId.getBytes(), result.getRaw(KEY_PARENT_MSG_ID));
 		assertFalse(result.getBoolean(KEY_READ));
 		context.assertIsSatisfied();

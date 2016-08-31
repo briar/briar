@@ -29,6 +29,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
@@ -286,7 +287,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	@Test
 	public void testValidateProperIntroductionAck() throws IOException {
 		byte[] sessionId = TestUtils.getRandomId();
-		byte[] mac = TestUtils.getRandomBytes(42);
+		byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
 		byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
 		BdfList body = BdfList.of(TYPE_ACK, sessionId, mac, sig);
 
