@@ -176,7 +176,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	protected void incomingMessage(Transaction txn, Message m, BdfList list,
+	protected boolean incomingMessage(Transaction txn, Message m, BdfList list,
 			BdfDictionary meta) throws DbException, FormatException {
 
 		GroupId groupId = m.getGroupId();
@@ -196,13 +196,14 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 					throw new FormatException();
 				}
 			}
-			// share dependencies recursively - TODO remove with #598
-			share(txn, h);
 
 			// broadcast event about new post or comment
 			BlogPostAddedEvent event =
 					new BlogPostAddedEvent(groupId, h, false);
 			txn.attach(event);
+
+			// shares message and its dependencies
+			return true;
 		} else if (type == WRAPPED_COMMENT) {
 			// Check that the original message ID in the dependency's metadata
 			// matches the original parent ID of the wrapped comment
@@ -216,6 +217,8 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 				throw new FormatException();
 			}
 		}
+		// don't share message until parent arrives
+		return false;
 	}
 
 	@Override
@@ -671,15 +674,5 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	private MessageType getMessageType(BdfDictionary d) throws FormatException {
 		Long longType = d.getLong(KEY_TYPE);
 		return MessageType.valueOf(longType.intValue());
-	}
-
-	// TODO remove when implementing #589
-	@Deprecated
-	private void share(Transaction txn, BlogPostHeader h) throws DbException {
-		clientHelper.setMessageShared(txn, h.getId(), true);
-		if (h instanceof BlogCommentHeader) {
-			BlogPostHeader h2 = ((BlogCommentHeader) h).getParent();
-			share(txn, h2);
-		}
 	}
 }

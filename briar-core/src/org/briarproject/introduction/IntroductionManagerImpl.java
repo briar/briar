@@ -207,7 +207,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	 * in the introduction protocol and which engine we need to start.
 	 */
 	@Override
-	protected void incomingMessage(Transaction txn, Message m, BdfList body,
+	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary message)	throws DbException {
 
 		// Get message data and type
@@ -233,7 +233,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					LOG.log(WARNING, e.toString(), e);
 				}
 				deleteMessage(txn, m.getId());
-				return;
+				return false;
 			}
 			try {
 				introduceeManager.incomingMessage(txn, state, message);
@@ -254,7 +254,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			} catch (FormatException e) {
 				LOG.warning("Could not find state for message, deleting...");
 				deleteMessage(txn, m.getId());
-				return;
+				return false;
 			}
 
 			long role = state.getLong(ROLE, -1L);
@@ -285,6 +285,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 				LOG.warning("Unknown message type '" + type + "', deleting...");
 			}
 		}
+		return false;
 	}
 
 	@Override

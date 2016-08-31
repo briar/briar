@@ -192,7 +192,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	@Override
-	protected void incomingMessage(Transaction txn, Message m, BdfList body,
+	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary d) throws DbException, FormatException {
 
 		BaseMessage msg = BaseMessage.from(getIFactory(), m.getGroupId(), d);
@@ -263,6 +263,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			// message has passed validator, so that should never happen
 			throw new RuntimeException("Illegal Sharing Message");
 		}
+		// don't share message as other party already has it
+		return false;
 	}
 
 	@Override

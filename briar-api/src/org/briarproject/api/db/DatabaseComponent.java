@@ -259,6 +259,15 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Returns the IDs of any messages from the given client
+	 * that have a shared dependent, but are still not shared themselves.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessagesToShare(Transaction txn,
+			ClientId c) throws DbException;
+
+	/**
 	 * Returns the message with the given ID, in serialised form, or null if
 	 * the message has been deleted.
 	 * <p/>
@@ -456,10 +465,9 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Marks the given message as shared or unshared.
+	 * Marks the given message as shared.
 	 */
-	void setMessageShared(Transaction txn, MessageId m, boolean shared)
-			throws DbException;
+	void setMessageShared(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Sets the validation and delivery state of the given message.
