@@ -1,7 +1,10 @@
 package org.briarproject.android.blogs;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Bundle;
+import android.transition.Fade;
+import android.transition.Transition;
 import android.view.MenuItem;
 
 import org.briarproject.R;
@@ -11,6 +14,8 @@ import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static org.briarproject.android.blogs.BlogActivity.POST_ID;
 
 public class ReblogActivity extends BriarActivity implements
@@ -19,6 +24,10 @@ public class ReblogActivity extends BriarActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		if (SDK_INT >= LOLLIPOP) {
+			setTransition();
+		}
 
 		Intent intent = getIntent();
 		byte[] groupId = intent.getByteArrayExtra(GROUP_ID);
@@ -69,5 +78,15 @@ public class ReblogActivity extends BriarActivity implements
 	@Override
 	public void onFragmentCreated(String tag) {
 
+	}
+
+	@TargetApi(LOLLIPOP)
+	private void setTransition() {
+		Transition fade = new Fade();
+		fade.excludeTarget(android.R.id.statusBarBackground, true);
+		fade.excludeTarget(R.id.action_bar_container, true);
+		fade.excludeTarget(android.R.id.navigationBarBackground, true);
+		getWindow().setExitTransition(fade);
+		getWindow().setEnterTransition(fade);
 	}
 }

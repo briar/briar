@@ -85,9 +85,10 @@ public class ReblogFragment extends BaseFragment {
 		blogId = new GroupId(args.getByteArray(GROUP_ID));
 		postId = new MessageId(args.getByteArray(POST_ID));
 
-		View v = inflater.inflate(R.layout.fragment_reblog_dialog, container,
+		View v = inflater.inflate(R.layout.fragment_reblog, container,
 				false);
 		ui = new ViewHolder(v);
+		ui.post.setTransitionName(postId);
 		showProgressBar();
 
 		return v;
@@ -137,7 +138,6 @@ public class ReblogFragment extends BaseFragment {
 		ui.scrollView.post(new Runnable() {
 			@Override
 			public void run() {
-				//ui.scrollView.scrollTo(0, ui.scrollView.getBottom());
 				ui.scrollView.fullScroll(FOCUS_DOWN);
 			}
 		});
@@ -166,14 +166,12 @@ public class ReblogFragment extends BaseFragment {
 
 	private void showProgressBar() {
 		ui.progressBar.setVisibility(VISIBLE);
-		ui.post.setVisibility(GONE);
 		ui.input.setVisibility(GONE);
 		ui.publish.setVisibility(GONE);
 	}
 
 	private void hideProgressBar() {
 		ui.progressBar.setVisibility(INVISIBLE);
-		ui.post.setVisibility(VISIBLE);
 		ui.input.setVisibility(VISIBLE);
 		ui.publish.setVisibility(VISIBLE);
 	}

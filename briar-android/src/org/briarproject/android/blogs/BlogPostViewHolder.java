@@ -1,9 +1,11 @@
 package org.briarproject.android.blogs;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +19,9 @@ import org.briarproject.android.util.AuthorView;
 import org.briarproject.api.blogs.BlogCommentHeader;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.sync.MessageId;
 
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
+import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -62,7 +65,25 @@ public class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogButton.setVisibility(GONE);
 	}
 
+	void setTransitionName(MessageId id) {
+		ViewCompat.setTransitionName(layout, getTransitionName(id));
+	}
+
+	private String getTransitionName(MessageId id) {
+		return "blogPost" + id.hashCode();
+	}
+
 	void bindItem(final BlogPostItem item) {
+		setTransitionName(item.getId());
+		layout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (listener != null) {
+					listener.onBlogPostClick(item);
+				}
+			}
+		});
+
 		// author and date
 		BlogPostHeader post = item.getPostHeader();
 		Author a = post.getAuthor();
@@ -86,11 +107,12 @@ public class BlogPostViewHolder extends RecyclerView.ViewHolder {
 				Intent i = new Intent(ctx, ReblogActivity.class);
 				i.putExtra(GROUP_ID, item.getGroupId().getBytes());
 				i.putExtra(POST_ID, item.getId().getBytes());
+
 				ActivityOptionsCompat options =
-						makeCustomAnimation(ctx, android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
-				Intent[] intents = { i };
-				ContextCompat.startActivities(ctx, intents, options.toBundle());
+						makeSceneTransitionAnimation((Activity) ctx, layout,
+								getTransitionName(item.getId()));
+				ActivityCompat
+						.startActivity((Activity) ctx, i, options.toBundle());
 			}
 		});
 
@@ -101,15 +123,6 @@ public class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		} else {
 			reblogger.setVisibility(GONE);
 		}
-
-		layout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (listener != null) {
-					listener.onBlogPostClick(item);
-				}
-			}
-		});
 	}
 
 	private void onBindComment(final BlogCommentItem item) {
