@@ -18,7 +18,6 @@ import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 
-import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -31,10 +30,9 @@ import static org.briarproject.android.invitation.ConfirmationCodeView.Confirmat
 import static org.briarproject.android.invitation.ConfirmationCodeView.ConfirmationState.WAIT_FOR_CONTACT;
 
 public class AddContactActivity extends BriarActivity
-implements InvitationListener {
+		implements InvitationListener {
 
 	static final int REQUEST_BLUETOOTH = 1;
-	static final int REQUEST_CREATE_IDENTITY = 2;
 
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
@@ -181,11 +179,6 @@ implements InvitationListener {
 	public void onActivityResult(int request, int result, Intent data) {
 		if (request == REQUEST_BLUETOOTH) {
 			if (result != RESULT_CANCELED) reset(new InvitationCodeView(this));
-		} else if (request == REQUEST_CREATE_IDENTITY && result == RESULT_OK) {
-			byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
-			if (b == null) throw new IllegalStateException();
-			localAuthorId = new AuthorId(b);
-			setView(new ChooseIdentityView(this));
 		}
 	}
 
@@ -210,17 +203,16 @@ implements InvitationListener {
 		setView(view);
 	}
 
-	void loadLocalAuthors() {
+	void loadLocalAuthor() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					Collection<LocalAuthor> authors =
-							identityManager.getLocalAuthors();
+					LocalAuthor author = identityManager.getLocalAuthor();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading authors took " + duration + " ms");
-					displayLocalAuthors(authors);
+						LOG.info("Loading author took " + duration + " ms");
+					setLocalAuthorId(author.getId());
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -229,23 +221,13 @@ implements InvitationListener {
 		});
 	}
 
-	// FIXME: The interaction between views and the container is horrible
-	private void displayLocalAuthors(final Collection<LocalAuthor> authors) {
+	void setLocalAuthorId(final AuthorId localAuthorId) {
 		runOnUiThread(new Runnable() {
+			@Override
 			public void run() {
-				AddContactView view = AddContactActivity.this.view;
-				if (view instanceof ChooseIdentityView)
-					((ChooseIdentityView) view).displayLocalAuthors(authors);
+				AddContactActivity.this.localAuthorId = localAuthorId;
 			}
 		});
-	}
-
-	void setLocalAuthorId(AuthorId localAuthorId) {
-		this.localAuthorId = localAuthorId;
-	}
-
-	AuthorId getLocalAuthorId() {
-		return localAuthorId;
 	}
 
 	int getLocalInvitationCode() {
