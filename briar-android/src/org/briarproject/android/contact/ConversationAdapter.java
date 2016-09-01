@@ -37,7 +37,6 @@ import static org.briarproject.android.contact.ConversationItem.FORUM_INVITATION
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_IN;
 import static org.briarproject.android.contact.ConversationItem.INTRODUCTION_OUT;
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
-import static org.briarproject.android.contact.ConversationItem.MSG_IN;
 import static org.briarproject.android.contact.ConversationItem.MSG_IN_UNREAD;
 import static org.briarproject.android.contact.ConversationItem.MSG_OUT;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_IN;
@@ -140,7 +139,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	private void bindMessage(MessageHolder ui, ConversationMessageItem item) {
-
 		PrivateMessageHeader header = item.getHeader();
 
 		if (item instanceof ConversationItem.OutgoingItem) {
@@ -186,15 +184,24 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			final ConversationIntroductionItem item, final int position) {
 
 		final IntroductionRequest ir = item.getIntroductionRequest();
+		int backgroundRes;
 
 		String message = ir.getMessage();
 		if (StringUtils.isNullOrEmpty(message)) {
-			ui.messageLayout.setVisibility(GONE);
+			ui.message.setVisibility(GONE);
+			if (item instanceof ConversationIntroductionOutItem) {
+				backgroundRes = R.drawable.notice_out;
+			} else {
+				backgroundRes = R.drawable.notice_in;
+			}
 		} else {
-			ui.messageLayout.setVisibility(VISIBLE);
-			ui.message.body.setText(StringUtils.trim(message));
-			ui.message.date
-					.setText(AndroidUtils.formatDate(ctx, item.getTime()));
+			ui.message.setText(StringUtils.trim(message));
+			ui.message.setVisibility(VISIBLE);
+			if (item instanceof ConversationIntroductionOutItem) {
+				backgroundRes = R.drawable.notice_out_bottom;
+			} else {
+				backgroundRes = R.drawable.notice_in_bottom;
+			}
 		}
 
 		// Outgoing Introduction Request
@@ -204,17 +211,14 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ConversationIntroductionOutItem i =
 					(ConversationIntroductionOutItem) item;
 			if (i.isSeen()) {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_delivered);
-				ui.message.status.setImageResource(
-						R.drawable.message_delivered_white);
 			} else if (i.isSent()) {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_sent);
-				ui.message.status.setImageResource(
-						R.drawable.message_sent_white);
 			} else {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_stored);
-				ui.message.status.setImageResource(
-						R.drawable.message_stored_white);
 			}
 		}
 		// Incoming Introduction Request (Answered)
@@ -265,20 +269,23 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			});
 		}
 		ui.date.setText(AndroidUtils.formatDate(ctx, item.getTime()));
+		ui.notice.setBackgroundResource(backgroundRes);
 	}
 
 	private void bindNotice(NoticeHolder ui, ConversationNoticeItem item) {
-
 		ui.text.setText(item.getText());
 		ui.date.setText(AndroidUtils.formatDate(ctx, item.getTime()));
 
 		if (item instanceof ConversationNoticeOutItem) {
 			ConversationNoticeOutItem n = (ConversationNoticeOutItem) item;
 			if (n.isSeen()) {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_delivered);
 			} else if (n.isSent()) {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_sent);
 			} else {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_stored);
 			}
 		}
@@ -289,7 +296,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 		final InvitationRequest ir = item.getInvitationRequest();
 		String name = "";
-		int receivedRes =  0, sentRes = 0, buttonRes = 0;
+		int receivedRes =  0, sentRes = 0, buttonRes = 0, backgroundRes;
 		if (ir instanceof ForumInvitationRequest) {
 			name = ((ForumInvitationRequest) ir).getForumName();
 			receivedRes = R.string.forum_invitation_received;
@@ -304,12 +311,20 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 		String message = ir.getMessage();
 		if (StringUtils.isNullOrEmpty(message)) {
-			ui.messageLayout.setVisibility(GONE);
+			ui.message.setVisibility(GONE);
+			if (item instanceof ConversationShareableInvitationOutItem) {
+				backgroundRes = R.drawable.notice_out;
+			} else {
+				backgroundRes = R.drawable.notice_in;
+			}
 		} else {
-			ui.messageLayout.setVisibility(VISIBLE);
-			ui.message.body.setText(StringUtils.trim(message));
-			ui.message.date
-					.setText(AndroidUtils.formatDate(ctx, item.getTime()));
+			ui.message.setVisibility(VISIBLE);
+			ui.message.setText(StringUtils.trim(message));
+			if (item instanceof ConversationShareableInvitationOutItem) {
+				backgroundRes = R.drawable.notice_out_bottom;
+			} else {
+				backgroundRes = R.drawable.notice_in_bottom;
+			}
 		}
 
 		// Outgoing Invitation
@@ -318,17 +333,14 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			ConversationShareableInvitationOutItem i =
 					(ConversationShareableInvitationOutItem) item;
 			if (i.isSeen()) {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_delivered);
-				ui.message.status.setImageResource(
-						R.drawable.message_delivered_white);
 			} else if (i.isSent()) {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_sent);
-				ui.message.status.setImageResource(
-						R.drawable.message_sent_white);
 			} else {
+				//noinspection ConstantConditions
 				ui.status.setImageResource(R.drawable.message_stored);
-				ui.message.status.setImageResource(
-						R.drawable.message_stored_white);
 			}
 		}
 		// Incoming Invitation
@@ -354,6 +366,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			}
 		}
 		ui.date.setText(AndroidUtils.formatDate(ctx, item.getTime()));
+		ui.notice.setBackgroundResource(backgroundRes);
 	}
 
 	@Override
@@ -431,7 +444,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		public TextView date;
 		public ImageView status;
 
-		MessageHolder(View v, int type) {
+		private MessageHolder(View v, int type) {
 			super(v);
 
 			layout = (ViewGroup) v.findViewById(R.id.msgLayout);
@@ -447,20 +460,19 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	private static class IntroductionHolder extends RecyclerView.ViewHolder {
 
-		private final View messageLayout;
-		private final MessageHolder message;
+		private final TextView message;
+		private final ViewGroup notice;
 		private final TextView text;
 		private final Button acceptButton;
 		private final Button declineButton;
 		private final TextView date;
 		private final ImageView status;
 
-		IntroductionHolder(View v, int type) {
+		private IntroductionHolder(View v, int type) {
 			super(v);
 
-			messageLayout = v.findViewById(R.id.messageLayout);
-			message = new MessageHolder(messageLayout,
-					type == INTRODUCTION_IN ? MSG_IN : MSG_OUT);
+			message = (TextView) v.findViewById(R.id.msgBody);
+			notice = (ViewGroup) v.findViewById(R.id.noticeLayout);
 			text = (TextView) v.findViewById(R.id.introductionText);
 			acceptButton = (Button) v.findViewById(R.id.acceptButton);
 			declineButton = (Button) v.findViewById(R.id.declineButton);
@@ -480,7 +492,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		private final TextView date;
 		private final ImageView status;
 
-		NoticeHolder(View v, int type) {
+		private NoticeHolder(View v, int type) {
 			super(v);
 
 			text = (TextView) v.findViewById(R.id.noticeText);
@@ -496,20 +508,19 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	private static class InvitationHolder extends RecyclerView.ViewHolder {
 
-		private final View messageLayout;
-		private final MessageHolder message;
+		private final TextView message;
+		private final View notice;
 		private final TextView text;
 		private final Button showInvitationsButton;
 		private final TextView date;
 		private final ImageView status;
 
-		InvitationHolder(View v, int type) {
+		private InvitationHolder(View v, int type) {
 			super(v);
 
-			messageLayout = v.findViewById(R.id.messageLayout);
-			message = new MessageHolder(messageLayout,
-					type == FORUM_INVITATION_IN ? MSG_IN : MSG_OUT);
+			message = (TextView) v.findViewById(R.id.msgBody);
 			text = (TextView) v.findViewById(R.id.introductionText);
+			notice = v.findViewById(R.id.noticeLayout);
 			showInvitationsButton = (Button) v.findViewById(R.id.showInvitationsButton);
 			date = (TextView) v.findViewById(R.id.introductionTime);
 
