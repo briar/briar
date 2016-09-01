@@ -23,7 +23,7 @@ import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.introduction.IntroductionMessageFragment;
 import org.briarproject.android.invitation.AddContactActivity;
-import org.briarproject.android.keyagreement.ChooseIdentityFragment;
+import org.briarproject.android.keyagreement.IntroFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
@@ -110,7 +110,7 @@ public interface ActivityComponent {
 	void inject(BlogListFragment fragment);
 	void inject(FeedFragment fragment);
 	void inject(MyBlogsFragment fragment);
-	void inject(ChooseIdentityFragment fragment);
+	void inject(IntroFragment fragment);
 	void inject(ShowQrCodeFragment fragment);
 	void inject(ContactChooserFragment fragment);
 	void inject(ContactSelectorFragment fragment);

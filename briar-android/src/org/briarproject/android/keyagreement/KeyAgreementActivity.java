@@ -11,7 +11,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarFragmentActivity;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
-import org.briarproject.android.keyagreement.ChooseIdentityFragment.IdentitySelectedListener;
+import org.briarproject.android.keyagreement.IntroFragment.IntroScreenSeenListener;
 import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.contact.ContactExchangeListener;
 import org.briarproject.api.contact.ContactExchangeTask;
@@ -21,7 +21,6 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.KeyAgreementFinishedEvent;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.keyagreement.KeyAgreementResult;
@@ -34,15 +33,13 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 
 public class KeyAgreementActivity extends BriarFragmentActivity implements
-		BaseFragmentListener, IdentitySelectedListener, EventListener,
+		BaseFragmentListener, IntroScreenSeenListener, EventListener,
 		ContactExchangeListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementActivity.class.getName());
 
-	private static final String LOCAL_AUTHOR_ID = "briar.LOCAL_AUTHOR_ID";
-
-	private static final int STEP_ID = 1;
+	private static final int STEP_INTRO = 1;
 	private static final int STEP_QR = 2;
 
 	@Inject
@@ -51,8 +48,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	private Toolbar toolbar;
 	private View progressContainer;
 	private TextView progressTitle;
-
-	private AuthorId localAuthorId;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -78,13 +73,8 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		if (state != null) {
-			byte[] b = state.getByteArray(LOCAL_AUTHOR_ID);
-			if (b != null)
-				localAuthorId = new AuthorId(b);
-		}
 		getSupportActionBar().setTitle(R.string.add_contact_title);
-		showStep(localAuthorId == null ? STEP_ID : STEP_QR);
+		if (state == null) showStep(STEP_INTRO);
 	}
 
 	private void showStep(int step) {
@@ -92,9 +82,9 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 			case STEP_QR:
 				startFragment(ShowQrCodeFragment.newInstance(), true);
 				break;
-			case STEP_ID:
+			case STEP_INTRO:
 			default:
-				startFragment(ChooseIdentityFragment.newInstance(), true);
+				startFragment(IntroFragment.newInstance(), true);
 				break;
 		}
 	}
@@ -109,15 +99,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	protected void onPause() {
 		super.onPause();
 		eventBus.removeListener(this);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle state) {
-		super.onSaveInstanceState(state);
-		if (localAuthorId != null) {
-			byte[] b = localAuthorId.getBytes();
-			state.putByteArray(LOCAL_AUTHOR_ID, b);
-		}
 	}
 
 	@Override
@@ -156,8 +137,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	}
 
 	@Override
-	public void identitySelected(AuthorId localAuthorId) {
-		this.localAuthorId = localAuthorId;
+	public void showNextScreen() {
 		showStep(STEP_QR);
 	}
 
@@ -186,7 +166,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 				LocalAuthor localAuthor;
 				// Load the local pseudonym
 				try {
-					localAuthor = identityManager.getLocalAuthor(localAuthorId);
+					localAuthor = identityManager.getLocalAuthor();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
