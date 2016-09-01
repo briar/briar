@@ -8,6 +8,7 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.BackoffFactory;
+import org.briarproject.api.plugins.TorConstants;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
@@ -48,7 +49,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public TransportId getId() {
-		return TorPlugin.ID;
+		return TorConstants.ID;
 	}
 
 	@Override
