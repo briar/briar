@@ -3,7 +3,6 @@ package org.briarproject.android.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
-import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -25,6 +24,8 @@ import org.briarproject.api.sync.GroupId;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.graphics.Typeface.BOLD;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -42,9 +43,8 @@ public class AuthorView extends RelativeLayout {
 		super(context, attrs);
 
 		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater
-				.inflate(R.layout.author_view, this, true);
+				.getSystemService(LAYOUT_INFLATER_SERVICE);
+		inflater.inflate(R.layout.author_view, this, true);
 
 		avatar = (CircleImageView) findViewById(R.id.avatar);
 		avatarIcon = (ImageView) findViewById(R.id.avatarIcon);
@@ -75,7 +75,7 @@ public class AuthorView extends RelativeLayout {
 	public void setAuthorStatus(Status status) {
 		trustIndicator.setTrustLevel(status);
 		if (status == OURSELVES) {
-			authorName.setTypeface(authorName.getTypeface(), Typeface.BOLD);
+			authorName.setTypeface(authorName.getTypeface(), BOLD);
 		}
 
 		invalidate();
@@ -92,9 +92,8 @@ public class AuthorView extends RelativeLayout {
 	public void setBlogLink(final GroupId groupId) {
 		setClickable(true);
 		TypedValue outValue = new TypedValue();
-		getContext().getTheme()
-				.resolveAttribute(android.R.attr.selectableItemBackground,
-						outValue, true);
+		getContext().getTheme().resolveAttribute(
+				android.R.attr.selectableItemBackground, outValue, true);
 		setBackgroundResource(outValue.resourceId);
 		setOnClickListener(new OnClickListener() {
 			@Override
@@ -106,8 +105,7 @@ public class AuthorView extends RelativeLayout {
 								android.R.anim.slide_in_left,
 								android.R.anim.slide_out_right);
 				Intent[] intents = {i};
-				ContextCompat
-						.startActivities(getContext(), intents,
+				ContextCompat.startActivities(getContext(), intents,
 								options.toBundle());
 			}
 		});

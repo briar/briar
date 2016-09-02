@@ -13,13 +13,16 @@ import java.util.List;
 @UiThread
 class BlogCommentItem extends BlogPostItem {
 
+	private static final BlogCommentComparator COMPARATOR =
+			new BlogCommentComparator();
+
 	private final BlogPostHeader postHeader;
 	private final List<BlogCommentHeader> comments = new ArrayList<>();
 
 	BlogCommentItem(BlogCommentHeader header) {
 		super(header, null);
 		postHeader = collectComments(header);
-		Collections.sort(comments, new BlogCommentComparator());
+		Collections.sort(comments, COMPARATOR);
 	}
 
 	private BlogPostHeader collectComments(BlogPostHeader header) {
@@ -54,10 +57,9 @@ class BlogCommentItem extends BlogPostItem {
 	private static class BlogCommentComparator
 			implements Comparator<BlogCommentHeader> {
 		@Override
-		public int compare(org.briarproject.api.blogs.BlogCommentHeader h1,
-				org.briarproject.api.blogs.BlogCommentHeader h2) {
+		public int compare(BlogCommentHeader h1, BlogCommentHeader h2) {
 			// re-use same comparator used for blog posts, but reverse it
-			return BlogCommentItem.compare(h2, h1);
+			return BlogPostItem.compare(h2, h1);
 		}
 	}
 }

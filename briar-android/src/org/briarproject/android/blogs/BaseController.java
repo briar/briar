@@ -13,8 +13,10 @@ import java.util.Collection;
 
 public interface BaseController {
 
+	@UiThread
 	void onStart();
 
+	@UiThread
 	void onStop();
 
 	void loadBlogPosts(GroupId g,

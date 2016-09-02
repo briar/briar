@@ -2,6 +2,7 @@ package org.briarproject.android.blogs;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Transition;
@@ -14,8 +15,6 @@ import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static org.briarproject.android.blogs.BlogActivity.POST_ID;
 
 public class ReblogActivity extends BriarActivity implements
@@ -25,7 +24,7 @@ public class ReblogActivity extends BriarActivity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (SDK_INT >= LOLLIPOP) {
+		if (Build.VERSION.SDK_INT >= 21) {
 			setTransition();
 		}
 
@@ -80,7 +79,7 @@ public class ReblogActivity extends BriarActivity implements
 
 	}
 
-	@TargetApi(LOLLIPOP)
+	@TargetApi(21)
 	private void setTransition() {
 		Transition fade = new Fade();
 		fade.excludeTarget(android.R.id.statusBarBackground, true);

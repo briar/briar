@@ -67,11 +67,11 @@ public class BlogActivity extends BriarActivity implements
 		groupId = new GroupId(b);
 		blogController.setGroupId(groupId);
 
-		// Name of the Blog from Intent
+		// Name of the blog
 		blogName = i.getStringExtra(BLOG_NAME);
 		if (blogName != null) setTitle(blogName);
 
-		// Is this our blog and was it just created?
+		// Was this blog just created?
 		isNew = i.getBooleanExtra(IS_NEW_BLOG, false);
 
 		setContentView(R.layout.activity_blog);

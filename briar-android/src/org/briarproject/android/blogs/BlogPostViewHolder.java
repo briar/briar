@@ -3,6 +3,7 @@ package org.briarproject.android.blogs;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
@@ -28,17 +29,18 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.POST_ID;
 import static org.briarproject.api.blogs.MessageType.POST;
 
-public class BlogPostViewHolder extends RecyclerView.ViewHolder {
+@UiThread
+class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	private final Context ctx;
-	private OnBlogPostClickListener listener;
-
 	private final ViewGroup layout;
 	private final AuthorView reblogger;
 	private final AuthorView author;
 	private final ImageView reblogButton;
 	private final TextView body;
 	private final ViewGroup commentContainer;
+
+	private OnBlogPostClickListener listener;
 
 	BlogPostViewHolder(View v) {
 		super(v);

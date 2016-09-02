@@ -33,7 +33,6 @@ public class ReblogFragment extends BaseFragment {
 
 	public static final String TAG = ReblogFragment.class.getName();
 
-
 	private BaseFragmentListener listener;
 	private ViewHolder ui;
 	private GroupId blogId;
@@ -104,6 +103,7 @@ public class ReblogFragment extends BaseFragment {
 	public void onStart() {
 		super.onStart();
 
+		// TODO: Load blog post when fragment is created. #631
 		feedController.loadBlogPost(blogId, postId,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
 						getActivity()) {
@@ -112,6 +112,7 @@ public class ReblogFragment extends BaseFragment {
 						item = result;
 						bindViewHolder();
 					}
+
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO
@@ -122,6 +123,8 @@ public class ReblogFragment extends BaseFragment {
 
 	private void bindViewHolder() {
 		if (item == null) return;
+
+		hideProgressBar();
 
 		ui.post.bindItem(item);
 		ui.post.hideReblogButton();
@@ -134,7 +137,6 @@ public class ReblogFragment extends BaseFragment {
 			}
 		});
 		ui.publish.setEnabled(true);
-		hideProgressBar();
 		ui.scrollView.post(new Runnable() {
 			@Override
 			public void run() {
@@ -151,6 +153,7 @@ public class ReblogFragment extends BaseFragment {
 					public void onResultUi(Void result) {
 						// do nothing, this fragment is gone already
 					}
+
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// do nothing, this fragment is gone already
@@ -177,6 +180,7 @@ public class ReblogFragment extends BaseFragment {
 	}
 
 	private static class ViewHolder {
+
 		private final ScrollView scrollView;
 		private final ProgressBar progressBar;
 		private final BlogPostViewHolder post;

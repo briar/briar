@@ -38,20 +38,20 @@ public class BlogControllerImpl extends BaseControllerImpl
 		} else {
 			throw new IllegalStateException(
 					"An activity that injects the BlogController must " +
-							"implement the BlogPostListener");
+							"implement the OnBlogPostAddedListener");
 		}
 	}
 
 	@Override
 	public void onActivityResume() {
-		super.onStart();
+		super.onStart(); // TODO: Should be called when activity starts. #609
 		notificationManager.blockNotification(groupId);
 		notificationManager.clearBlogPostNotification(groupId);
 	}
 
 	@Override
 	public void onActivityPause() {
-		super.onStop();
+		super.onStop(); // TODO: Should be called when activity stops. #609
 		notificationManager.unblockNotification(groupId);
 	}
 
