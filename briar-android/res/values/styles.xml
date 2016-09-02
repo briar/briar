@@ -124,6 +124,11 @@
 		<item name="tabTextColor">@color/briar_text_primary_inverse</item>
 	</style>
 
+	<style name="BriarCard" parent="CardView">
+		<item name="cardUseCompatPadding">true</item>
+		<item name="android:layout_margin">@dimen/margin_small</item>
+	</style>
+
 	<!-- This fixes the missing TextAppearance.Design.Counter.Overflow style -->
 	<style name="BriarTextCounter.Overflow" parent="TextAppearance.Design.Counter">
 		<item name="android:textColor">@color/briar_button_negative</item>

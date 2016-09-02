@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	android:id="@+id/scrollView"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@color/window_background">
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/margin_small">
+
+		<include
+			android:id="@+id/postLayout"
+			layout="@layout/list_item_blog_post"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+
+		<ProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"/>
+
+		<EditText
+			android:id="@+id/inputText"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/postLayout"
+			android:layout_margin="@dimen/listitem_vertical_margin"
+			android:gravity="bottom"
+			android:hint="@string/blogs_reblog_comment_hint"
+			android:inputType="textShortMessage|textMultiLine|textCapSentences|textAutoCorrect"/>
+
+		<Button
+			android:id="@+id/publishButton"
+			style="@style/BriarButton"
+			android:layout_below="@+id/inputText"
+			android:enabled="false"
+			android:text="@string/blogs_reblog_button"/>
+
+	</RelativeLayout>
+
+</ScrollView>

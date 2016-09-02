@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.blogs.BlogController.BlogPostListener;
+import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
@@ -33,16 +33,16 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class BlogActivity extends BriarActivity implements BlogPostListener,
+public class BlogActivity extends BriarActivity implements
+		OnBlogPostAddedListener,
 		OnBlogPostClickListener, BaseFragmentListener {
 
 	static final int REQUEST_WRITE_POST = 1;
 	static final int REQUEST_SHARE = 2;
-	static final String BLOG_NAME = "briar.BLOG_NAME";
-	static final String IS_MY_BLOG = "briar.IS_MY_BLOG";
+	public static final String BLOG_NAME = "briar.BLOG_NAME";
 	static final String IS_NEW_BLOG = "briar.IS_NEW_BLOG";
 
-	private static final String POST_ID = "briar.POST_ID";
+	public static final String POST_ID = "briar.POST_ID";
 
 	private GroupId groupId;
 	private ProgressBar progressBar;
@@ -50,7 +50,7 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 	private BlogPagerAdapter blogPagerAdapter;
 	private BlogPostPagerAdapter postPagerAdapter;
 	private String blogName;
-	private boolean myBlog, isNew;
+	private boolean isNew;
 	private MessageId savedPostId;
 
 	@Inject
@@ -67,12 +67,11 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 		groupId = new GroupId(b);
 		blogController.setGroupId(groupId);
 
-		// Name of the Blog from Intent
+		// Name of the blog
 		blogName = i.getStringExtra(BLOG_NAME);
 		if (blogName != null) setTitle(blogName);
 
-		// Is this our blog and was it just created?
-		myBlog = i.getBooleanExtra(IS_MY_BLOG, false);
+		// Was this blog just created?
 		isNew = i.getBooleanExtra(IS_NEW_BLOG, false);
 
 		setContentView(R.layout.activity_blog);
@@ -254,7 +253,7 @@ public class BlogActivity extends BriarActivity implements BlogPostListener,
 
 		@Override
 		public Fragment getItem(int position) {
-			return BlogFragment.newInstance(groupId, blogName, myBlog, isNew);
+			return BlogFragment.newInstance(groupId, blogName, isNew);
 		}
 
 		@Override

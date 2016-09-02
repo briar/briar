@@ -32,12 +32,12 @@ public class IntroductionActivity extends BriarActivity implements
 		if (contactId == -1)
 			throw new IllegalArgumentException("Wrong ContactId");
 
-		setContentView(R.layout.activity_introduction);
+		setContentView(R.layout.activity_fragment_container);
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager()
 					.beginTransaction()
-					.add(R.id.introductionContainer,
+					.add(R.id.fragmentContainer,
 							ContactChooserFragment.newInstance())
 					.commit();
 		}
@@ -109,7 +109,7 @@ public class IntroductionActivity extends BriarActivity implements
 						android.R.anim.slide_in_left,
 						android.R.anim.slide_out_right)
 				.addSharedElement(view, "avatar")
-				.replace(R.id.introductionContainer, messageFragment,
+				.replace(R.id.fragmentContainer, messageFragment,
 						ContactChooserFragment.TAG)
 				.addToBackStack(null)
 				.commit();

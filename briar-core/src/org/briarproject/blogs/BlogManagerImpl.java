@@ -516,7 +516,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public byte[] getPostBody(MessageId m) throws DbException {
+	public String getPostBody(MessageId m) throws DbException {
 		try {
 			BdfList message = clientHelper.getMessageAsList(m);
 			if (message == null) throw new DbException();
@@ -526,15 +526,14 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 	}
 
-	// TODO directly return String (#598)
-	private byte[] getPostBody(BdfList message) throws FormatException {
+	private String getPostBody(BdfList message) throws FormatException {
 		MessageType type = MessageType.valueOf(message.getLong(0).intValue());
 		if (type == POST) {
 			// type, body, signature
-			return StringUtils.toUtf8(message.getString(1));
+			return message.getString(1);
 		} else if (type == WRAPPED_POST) {
 			// type, p_group descriptor, p_timestamp, p_content, p_signature
-			return StringUtils.toUtf8(message.getString(3));
+			return message.getString(3);
 		} else {
 			throw new FormatException();
 		}

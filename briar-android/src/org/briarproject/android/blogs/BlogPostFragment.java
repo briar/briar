@@ -19,7 +19,6 @@ import org.briarproject.android.util.TrustIndicatorView;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
 
@@ -27,7 +26,6 @@ import javax.inject.Inject;
 
 import im.delight.android.identicons.IdenticonDrawable;
 
-import static android.view.View.GONE;
 import static org.briarproject.android.util.AndroidUtils.MIN_RESOLUTION;
 
 public class BlogPostFragment extends BaseFragment {
@@ -135,11 +133,7 @@ public class BlogPostFragment extends BaseFragment {
 		if (ctx != null) {
 			ui.date.setText(AndroidUtils.formatDate(ctx, post.getTimestamp()));
 		}
-
-		// TODO remove #598
-		ui.title.setVisibility(GONE);
-
-		ui.body.setText(StringUtils.fromUtf8(post.getBody()));
+		ui.body.setText(post.getBody());
 	}
 
 	private static class BlogPostViewHolder {
@@ -148,7 +142,6 @@ public class BlogPostFragment extends BaseFragment {
 		private final TextView authorName;
 		private final TrustIndicatorView trust;
 		private final TextView date;
-		private final TextView title;
 		private final TextView body;
 
 		private BlogPostViewHolder(View v) {
@@ -156,7 +149,6 @@ public class BlogPostFragment extends BaseFragment {
 			authorName = (TextView) v.findViewById(R.id.authorName);
 			trust = (TrustIndicatorView) v.findViewById(R.id.trustIndicator);
 			date = (TextView) v.findViewById(R.id.date);
-			title = (TextView) v.findViewById(R.id.title);
 			body = (TextView) v.findViewById(R.id.body);
 		}
 	}

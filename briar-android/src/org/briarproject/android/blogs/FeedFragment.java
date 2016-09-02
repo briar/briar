@@ -17,11 +17,15 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.blogs.BlogPostHeader;
+import org.briarproject.api.db.DbException;
 
 import java.util.Collection;
 
@@ -32,11 +36,10 @@ import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
-import static org.briarproject.android.blogs.BlogActivity.IS_MY_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
 public class FeedFragment extends BaseFragment implements
-		OnBlogPostClickListener, FeedController.OnBlogPostAddedListener {
+		OnBlogPostClickListener, OnBlogPostAddedListener {
 
 	public final static String TAG = FeedFragment.class.getName();
 
@@ -48,7 +51,7 @@ public class FeedFragment extends BaseFragment implements
 	private BriarRecyclerView list;
 	private Blog personalBlog = null;
 
-	static FeedFragment newInstance() {
+	public static FeedFragment newInstance() {
 		FeedFragment f = new FeedFragment();
 
 		Bundle args = new Bundle();
@@ -95,6 +98,7 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
+		feedController.onStart();
 		feedController.loadPersonalBlog(
 				new UiResultHandler<Blog>(getActivity()) {
 					@Override
@@ -102,33 +106,30 @@ public class FeedFragment extends BaseFragment implements
 						personalBlog = b;
 					}
 				});
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		list.startPeriodicUpdate();
-		feedController.onResume();
-		feedController.loadPosts(
-				new UiResultHandler<Collection<BlogPostItem>>(getActivity()) {
+		feedController.loadBlogPosts(
+				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
+						getActivity()) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
-						if (posts == null) {
-							// TODO show error?
-						} else if (posts.isEmpty()) {
+						if (posts.isEmpty()) {
 							list.showData();
 						} else {
 							adapter.addAll(posts);
 						}
 					}
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO
+					}
 				});
+		list.startPeriodicUpdate();
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
+		feedController.onStop();
 		list.stopPeriodicUpdate();
-		feedController.onPause();
 		// TODO save list position in database/preferences?
 	}
 
@@ -171,33 +172,30 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onBlogPostAdded(final BlogPostItem post) {
-		listener.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				adapter.add(post);
-				showSnackBar(R.string.blogs_blog_post_received);
-			}
-		});
+	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
+		feedController.loadBlogPost(header,
+				new UiResultExceptionHandler<BlogPostItem, DbException>(
+						getActivity()) {
+					@Override
+					public void onResultUi(BlogPostItem post) {
+						adapter.add(post);
+						if (local) {
+							showSnackBar(R.string.blogs_blog_post_created);
+						} else {
+							showSnackBar(R.string.blogs_blog_post_received);
+						}
+					}
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+					}
+				}
+		);
 	}
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		byte[] groupId = post.getGroupId().getBytes();
-		String name = getString(R.string.blogs_personal_blog,
-				post.getAuthor().getName());
-		boolean myBlog = personalBlog != null &&
-				personalBlog.getId().equals(post.getGroupId());
-
-		Intent i = new Intent(getActivity(), BlogActivity.class);
-		i.putExtra(GROUP_ID, groupId);
-		i.putExtra(BLOG_NAME, name);
-		i.putExtra(IS_MY_BLOG, myBlog);
-		ActivityOptionsCompat options =
-				makeCustomAnimation(getActivity(),
-						android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right);
-		startActivity(i, options.toBundle());
+		// TODO Open detail view of post
 	}
 
 	@Override
@@ -228,5 +226,4 @@ public class FeedFragment extends BaseFragment implements
 		}
 		s.show();
 	}
-
 }

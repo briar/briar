@@ -43,4 +43,8 @@
 	<dimen name="forum_nested_indicator">24dp</dimen>
 	<dimen name="forum_avatar_size">20dp</dimen>
 
+	<dimen name="blogs_avatar_normal_size">30dp</dimen>
+	<dimen name="blogs_avatar_icon_size">15dp</dimen>
+	<dimen name="blogs_avatar_comment_size">20dp</dimen>
+
 </resources>

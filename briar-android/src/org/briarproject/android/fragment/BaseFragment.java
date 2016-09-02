@@ -3,6 +3,7 @@ package org.briarproject.android.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 
 import org.briarproject.android.ActivityComponent;
@@ -39,18 +40,27 @@ public abstract class BaseFragment extends Fragment {
 		listener.onFragmentCreated(getUniqueTag());
 	}
 
+	@UiThread
+	protected void finish() {
+		getActivity().supportFinishAfterTransition();
+	}
+
 	public interface BaseFragmentListener {
 
+		@UiThread
 		void showLoadingScreen(boolean isBlocking, int stringId);
 
+		@UiThread
 		void hideLoadingScreen();
 
 		void runOnUiThread(Runnable runnable);
 
 		void runOnDbThread(Runnable runnable);
 
+		@UiThread
 		ActivityComponent getActivityComponent();
 
+		@UiThread
 		void onFragmentCreated(String tag);
 	}
 }

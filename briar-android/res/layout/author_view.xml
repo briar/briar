@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:showIn="@layout/list_item_blog_post">
+
+	<de.hdodenhof.circleimageview.CircleImageView
+		android:id="@+id/avatar"
+		style="@style/BriarAvatar"
+		android:layout_width="@dimen/blogs_avatar_normal_size"
+		android:layout_height="@dimen/blogs_avatar_normal_size"
+		android:layout_centerVertical="true"
+		android:layout_marginRight="@dimen/margin_medium"
+		tools:src="@drawable/ic_launcher"/>
+
+	<ImageView
+		android:id="@+id/avatarIcon"
+		android:layout_width="@dimen/blogs_avatar_icon_size"
+		android:layout_height="@dimen/blogs_avatar_icon_size"
+		android:layout_alignBottom="@+id/avatar"
+		android:layout_alignRight="@+id/avatar"
+		android:background="@drawable/bubble_white"
+		android:padding="2dp"
+		android:scaleType="fitCenter"
+		android:src="@drawable/ic_repeat"
+		android:visibility="invisible"
+		tools:ignore="ContentDescription"/>
+
+	<TextView
+		android:id="@+id/authorName"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignTop="@+id/avatar"
+		android:layout_toEndOf="@+id/avatar"
+		android:layout_toRightOf="@+id/avatar"
+		android:textColor="@color/briar_text_primary"
+		android:textSize="@dimen/text_size_small"
+		tools:text="Author Name"/>
+
+	<org.briarproject.android.util.TrustIndicatorView
+		android:id="@+id/trustIndicator"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/authorName"
+		android:layout_alignTop="@+id/authorName"
+		android:layout_marginLeft="@dimen/margin_small"
+		android:layout_toRightOf="@id/authorName"
+		android:scaleType="center"
+		tools:src="@drawable/trust_indicator_verified"/>
+
+	<TextView
+		android:id="@+id/dateView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/authorName"
+		android:layout_toEndOf="@+id/avatar"
+		android:layout_toRightOf="@+id/avatar"
+		android:gravity="bottom"
+		android:textColor="@color/briar_text_secondary"
+		android:textSize="@dimen/text_size_tiny"
+		tools:text="yesterday"/>
+
+</merge>

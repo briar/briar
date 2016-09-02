@@ -1,118 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.v7.widget.CardView
+	style="@style/BriarCard"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-	android:layout_marginStart="@dimen/listitem_horizontal_margin"
-	android:layout_marginTop="@dimen/listitem_vertical_margin"
-	android:background="?attr/selectableItemBackground">
+	android:layout_height="wrap_content">
 
-	<de.hdodenhof.circleimageview.CircleImageView
-		android:id="@+id/avatar"
-		style="@style/BriarAvatar"
-		android:layout_width="30dp"
-		android:layout_height="30dp"
-		android:layout_marginBottom="@dimen/margin_medium"
-		android:layout_marginRight="@dimen/margin_medium"
-		tools:src="@drawable/ic_launcher"/>
-
-	<TextView
-		android:id="@+id/authorName"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignTop="@+id/avatar"
-		android:layout_toEndOf="@+id/avatar"
-		android:layout_toRightOf="@+id/avatar"
-		android:textColor="@color/briar_text_primary"
-		android:textSize="@dimen/text_size_tiny"
-		tools:text="Author Name"/>
-
-	<TextView
-		android:id="@+id/dateView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignBottom="@id/avatar"
-		android:layout_below="@+id/authorName"
-		android:layout_toEndOf="@+id/avatar"
-		android:layout_toRightOf="@+id/avatar"
-		android:gravity="bottom"
-		android:textColor="@color/briar_text_primary"
-		android:textSize="@dimen/text_size_tiny"
-		tools:text="yesterday"/>
-
-	<TextView
-		android:id="@+id/newView"
-		style="@style/BriarTag"
-		android:layout_alignBottom="@+id/dateView"
-		android:layout_marginLeft="@dimen/margin_small"
-		android:layout_toRightOf="@+id/dateView"
-		android:text="@string/tag_new"
-		android:visibility="gone"/>
-
-	<org.briarproject.android.util.TrustIndicatorView
-		android:id="@+id/trustIndicator"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/authorName"
-		android:layout_alignTop="@+id/authorName"
-		android:layout_marginLeft="@dimen/margin_small"
-		android:layout_toRightOf="@+id/authorName"
-		android:scaleType="center"
-		tools:src="@drawable/trust_indicator_verified"/>
-
-	<ImageView
-		android:id="@+id/chatView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_toLeftOf="@+id/commentView"
-		android:padding="@dimen/margin_small"
-		android:src="@drawable/ic_chat"
-		android:visibility="gone"/>
-
-	<ImageView
-		android:id="@+id/commentView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentRight="true"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"
-		android:padding="@dimen/margin_small"
-		android:src="@drawable/ic_repeat"
-		android:visibility="gone"/>
-
-	<TextView
-		android:id="@+id/titleView"
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/avatar"
-		android:layout_marginBottom="@dimen/margin_medium"
-		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"
-		android:ellipsize="end"
-		android:maxLines="3"
-		android:textColor="@color/briar_text_primary"
-		android:textSize="@dimen/text_size_large"
-		android:visibility="gone"
-		tools:text="This is a blog post title which can also be longer"/>
+		android:orientation="vertical">
 
-	<TextView
-		android:id="@+id/bodyView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/titleView"
-		android:layout_marginEnd="@dimen/margin_medium"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"
-		android:textColor="@color/briar_text_secondary"
-		android:textSize="@dimen/text_size_medium"
-		tools:text="This is a body text that shows the content of a blog post. This one is not short, but it is also not too long."/>
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/listitem_vertical_margin">
 
-	<View
-		style="@style/Divider.ForumList"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentStart="true"
-		android:layout_below="@+id/bodyView"
-		android:layout_marginTop="@dimen/listitem_vertical_margin"/>
+			<org.briarproject.android.util.AuthorView
+				android:id="@+id/rebloggerView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true"
+				android:layout_marginBottom="@dimen/listitem_horizontal_margin"
+				android:layout_toLeftOf="@+id/commentView"
+				app:persona="reblogger"/>
 
-</RelativeLayout>
+			<org.briarproject.android.util.AuthorView
+				android:id="@+id/authorView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/rebloggerView"
+				android:layout_marginBottom="@dimen/listitem_vertical_margin"
+				android:layout_toLeftOf="@+id/commentView"/>
 
+			<ImageView
+				android:id="@+id/commentView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
+				android:background="?attr/selectableItemBackground"
+				android:clickable="true"
+				android:contentDescription="@string/blogs_reblog_comment_hint"
+				android:padding="@dimen/margin_small"
+				android:src="@drawable/ic_repeat"/>
+
+			<TextView
+				android:id="@+id/bodyView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/authorView"
+				android:textColor="@color/briar_text_secondary"
+				android:textIsSelectable="true"
+				android:textSize="@dimen/text_size_medium"
+				tools:text="This is a body text that shows the content of a blog post.\n\nThis one is not short, but it is also not too long."/>
+
+		</RelativeLayout>
+
+		<LinearLayout
+			android:id="@+id/commentContainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<include
+				layout="@layout/list_item_blog_comment"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"/>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</android.support.v7.widget.CardView>

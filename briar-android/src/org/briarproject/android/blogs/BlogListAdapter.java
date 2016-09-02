@@ -1,7 +1,6 @@
 package org.briarproject.android.blogs;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -9,7 +8,6 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,12 +21,10 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
-import static org.briarproject.android.blogs.BlogActivity.IS_MY_BLOG;
 
 class BlogListAdapter extends
 		RecyclerView.Adapter<BlogListAdapter.BlogViewHolder> {
@@ -136,7 +132,6 @@ class BlogListAdapter extends
 				Blog b = item.getBlog();
 				i.putExtra(GROUP_ID, b.getId().getBytes());
 				i.putExtra(BLOG_NAME, b.getName());
-				i.putExtra(IS_MY_BLOG, item.isOurs());
 				ActivityOptionsCompat options = ActivityOptionsCompat
 						.makeCustomAnimation(ctx, android.R.anim.fade_in,
 								android.R.anim.fade_out);
