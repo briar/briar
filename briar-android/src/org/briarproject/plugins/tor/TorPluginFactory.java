@@ -18,6 +18,8 @@ import org.briarproject.api.system.LocationUtils;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.net.SocketFactory;
+
 public class TorPluginFactory implements DuplexPluginFactory {
 
 	private static final Logger LOG =
@@ -34,16 +36,19 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
 	private final EventBus eventBus;
+	private final SocketFactory torSocketFactory;
 	private final BackoffFactory backoffFactory;
 
 	public TorPluginFactory(Executor ioExecutor, Context appContext,
 			LocationUtils locationUtils, DevReporter reporter,
-			EventBus eventBus, BackoffFactory backoffFactory) {
+			EventBus eventBus, SocketFactory torSocketFactory,
+			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
 		this.eventBus = eventBus;
+		this.torSocketFactory = torSocketFactory;
 		this.backoffFactory = backoffFactory;
 	}
 
@@ -81,8 +86,8 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorPlugin plugin = new TorPlugin(ioExecutor, appContext, locationUtils,
-				reporter, backoff, callback, architecture, MAX_LATENCY,
-				MAX_IDLE_TIME);
+				reporter, torSocketFactory, backoff, callback, architecture,
+				MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

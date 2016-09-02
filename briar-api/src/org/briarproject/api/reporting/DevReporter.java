@@ -22,7 +22,6 @@ public interface DevReporter {
 	 * Send reports previously stored on-disk.
 	 *
 	 * @param reportDir the directory where reports are stored.
-	 * @param socksPort the SOCKS port of a Tor client.
 	 */
-	void sendReports(File reportDir, int socksPort);
+	void sendReports(File reportDir);
 }

@@ -4,6 +4,8 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.reporting.DevConfig;
 import org.briarproject.api.reporting.DevReporter;
 
+import javax.net.SocketFactory;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -12,7 +14,7 @@ public class ReportingModule {
 
 	@Provides
 	DevReporter provideDevReportTask(CryptoComponent crypto,
-			DevConfig devConfig) {
-		return new DevReporterImpl(crypto, devConfig);
+			DevConfig devConfig, SocketFactory torSocketFactory) {
+		return new DevReporterImpl(crypto, devConfig, torSocketFactory);
 	}
 }

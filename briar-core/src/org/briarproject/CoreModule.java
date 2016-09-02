@@ -22,6 +22,7 @@ import org.briarproject.reliability.ReliabilityModule;
 import org.briarproject.reporting.ReportingModule;
 import org.briarproject.settings.SettingsModule;
 import org.briarproject.sharing.SharingModule;
+import org.briarproject.socks.SocksModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
@@ -50,6 +51,7 @@ import dagger.Module;
 		ReportingModule.class,
 		SettingsModule.class,
 		SharingModule.class,
+		SocksModule.class,
 		SyncModule.class,
 		SystemModule.class,
 		TransportModule.class,

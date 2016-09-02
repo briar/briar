@@ -9,4 +9,5 @@ public interface TorConstants {
 	int SOCKS_PORT   = 59050;
 	int CONTROL_PORT = 59051;
 
+	int CONNECT_TO_PROXY_TIMEOUT = 5000; // Milliseconds
 }
