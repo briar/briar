@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -59,6 +59,7 @@ public class BlogFragment extends BaseFragment implements
 	private BlogPostAdapter adapter;
 	private BriarRecyclerView list;
 	private MenuItem writeButton, deleteButton;
+	private boolean isMyBlog = false, canDeleteBlog = false;
 
 	static BlogFragment newInstance(GroupId groupId, String name,
 			boolean isNew) {
@@ -114,7 +115,7 @@ public class BlogFragment extends BaseFragment implements
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		blogController.setGroupId(groupId);
+		blogController.setOnBlogPostAddedListener(this);
 	}
 
 	@Override
@@ -141,7 +142,9 @@ public class BlogFragment extends BaseFragment implements
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.blogs_blog_actions, menu);
 		writeButton = menu.findItem(R.id.action_write_blog_post);
+		if (isMyBlog) writeButton.setVisible(true);
 		deleteButton = menu.findItem(R.id.action_blog_delete);
+		if (canDeleteBlog) deleteButton.setVisible(true);
 
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -161,8 +164,8 @@ public class BlogFragment extends BaseFragment implements
 						new Intent(getActivity(), WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
 				i.putExtra(BLOG_NAME, blogName);
-				ActivityCompat.startActivityForResult(getActivity(), i,
-						REQUEST_WRITE_POST, options.toBundle());
+				startActivityForResult(i, REQUEST_WRITE_POST,
+						options.toBundle());
 				return true;
 			case R.id.action_blog_share:
 				Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
@@ -190,9 +193,10 @@ public class BlogFragment extends BaseFragment implements
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_WRITE_POST && result == RESULT_OK) {
-			displaySnackbar(R.string.blogs_blog_post_created);
+			displaySnackbar(R.string.blogs_blog_post_created, true);
+			loadBlogPosts(true);
 		} else if (request == REQUEST_SHARE && result == RESULT_OK) {
-			displaySnackbar(R.string.blogs_sharing_snackbar);
+			displaySnackbar(R.string.blogs_sharing_snackbar, true);
 		}
 	}
 
@@ -211,9 +215,9 @@ public class BlogFragment extends BaseFragment implements
 						adapter.add(post);
 						if (local) {
 							list.scrollToPosition(0);
-							displaySnackbar(R.string.blogs_blog_post_created);
+							displaySnackbar(R.string.blogs_blog_post_created, false);
 						} else {
-							displaySnackbar(R.string.blogs_blog_post_received);
+							displaySnackbar(R.string.blogs_blog_post_received, true);
 						}
 					}
 
@@ -243,13 +247,13 @@ public class BlogFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						getActivity().finish();
+						finish();
 					}
 				});
 	}
 
 	private void checkIfThisIsMyBlog() {
-		blogController.canDeleteBlog(
+		blogController.isMyBlog(
 				new UiResultExceptionHandler<Boolean, DbException>(
 						getActivity()) {
 					@Override
@@ -262,7 +266,7 @@ public class BlogFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						getActivity().finish();
+						finish();
 					}
 				});
 	}
@@ -281,25 +285,39 @@ public class BlogFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						getActivity().finish();
+						finish();
 					}
 				});
 	}
 
 	private void showWriteButton() {
+		isMyBlog = true;
 		if (writeButton != null)
 			writeButton.setVisible(true);
 	}
 
 	private void showDeleteButton() {
+		canDeleteBlog = true;
 		if (deleteButton != null)
 			deleteButton.setVisible(true);
 	}
 
-	private void displaySnackbar(int stringId) {
+	private void displaySnackbar(int stringId, boolean scroll) {
 		Snackbar snackbar =
-				Snackbar.make(list, stringId, Snackbar.LENGTH_SHORT);
+				Snackbar.make(list, stringId, Snackbar.LENGTH_LONG);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
+		if (scroll) {
+			View.OnClickListener onClick = new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					list.smoothScrollToPosition(0);
+				}
+			};
+			snackbar.setActionTextColor(ContextCompat
+					.getColor(getContext(),
+							R.color.briar_button_positive));
+			snackbar.setAction(R.string.blogs_blog_post_scroll_to, onClick);
+		}
 		snackbar.show();
 	}
 
@@ -335,7 +353,7 @@ public class BlogFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						getActivity().finish();
+						finish();
 					}
 				});
 	}

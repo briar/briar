@@ -6,7 +6,12 @@
 
 	<FrameLayout
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:descendantFocusability="beforeDescendants"
+		android:focusable="true"
+		android:focusableInTouchMode="true">
+		<!-- Above Focusability attributes prevent automatic scroll-down,
+		     because body text is selectable -->
 
 		<include
 			android:id="@+id/postLayout"

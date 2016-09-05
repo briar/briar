@@ -9,25 +9,29 @@ import android.view.ViewGroup;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import javax.inject.Inject;
 
+import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.POST_ID;
 
-public class BlogPostFragment extends BasePostFragment {
+public class FeedPostFragment extends BasePostFragment {
 
-	public final static String TAG = BlogPostFragment.class.getName();
+	public final static String TAG = FeedPostFragment.class.getName();
 
 	private MessageId postId;
+	private GroupId blogId;
 
 	@Inject
-	BlogController blogController;
+	FeedController feedController;
 
-	static BlogPostFragment newInstance(MessageId postId) {
-		BlogPostFragment f = new BlogPostFragment();
+	static FeedPostFragment newInstance(GroupId blogId, MessageId postId) {
+		FeedPostFragment f = new FeedPostFragment();
 
 		Bundle bundle = new Bundle();
+		bundle.putByteArray(GROUP_ID, blogId.getBytes());
 		bundle.putByteArray(POST_ID, postId.getBytes());
 
 		f.setArguments(bundle);
@@ -40,16 +44,15 @@ public class BlogPostFragment extends BasePostFragment {
 			Bundle savedInstanceState) {
 
 		Bundle args = getArguments();
+		byte[] b = args.getByteArray(GROUP_ID);
+		if (b == null) throw new IllegalStateException("No group ID in args");
+		blogId = new GroupId(b);
+
 		byte[] p = args.getByteArray(POST_ID);
 		if (p == null) throw new IllegalStateException("No post ID in args");
 		postId = new MessageId(p);
 
 		return super.onCreateView(inflater, container, savedInstanceState);
-	}
-
-	@Override
-	public String getUniqueTag() {
-		return TAG;
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class BlogPostFragment extends BasePostFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		blogController.loadBlogPost(postId,
+		feedController.loadBlogPost(blogId, postId,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
 						getActivity()) {
 					@Override
@@ -73,4 +76,10 @@ public class BlogPostFragment extends BasePostFragment {
 					}
 				});
 	}
+
+	@Override
+	public String getUniqueTag() {
+		return TAG;
+	}
+
 }
