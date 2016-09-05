@@ -10,6 +10,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -81,14 +82,15 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	void bindItem(final BlogPostItem item) {
 		setTransitionName(item.getId());
-		layout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (listener != null) {
+		if (listener != null) {
+			layout.setClickable(true);
+			layout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
 					listener.onBlogPostClick(item);
 				}
-			}
-		});
+			});
+		}
 
 		// author and date
 		BlogPostHeader post = item.getPostHeader();
@@ -105,9 +107,10 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 		// post body
 		body.setText(item.getBody());
+		if (listener == null) body.setTextIsSelectable(true);
 
 		// reblog button
-		reblogButton.setOnClickListener(new View.OnClickListener() {
+		reblogButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent i = new Intent(ctx, ReblogActivity.class);
@@ -154,6 +157,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			// TODO make author clickable #624
 
 			body.setText(c.getComment());
+			if (listener == null) body.setTextIsSelectable(true);
 
 			commentContainer.addView(v);
 		}
