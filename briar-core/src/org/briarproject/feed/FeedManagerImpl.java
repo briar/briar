@@ -40,9 +40,6 @@ import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.SocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,11 +52,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.net.SocketFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
@@ -67,7 +66,6 @@ import static org.briarproject.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
 import static org.briarproject.api.feed.FeedConstants.FETCH_INTERVAL;
 import static org.briarproject.api.feed.FeedConstants.FETCH_UNIT;
 import static org.briarproject.api.feed.FeedConstants.KEY_FEEDS;
-import static org.briarproject.api.plugins.TorConstants.SOCKS_PORT;
 
 class FeedManagerImpl implements FeedManager, Client, EventListener {
 
@@ -79,6 +77,8 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 					"466565644d616e6167657202fb797097"
 							+ "255af837abbf8c16e250b3c2ccc286eb"));
 
+	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
+
 	private final ScheduledExecutorService feedExecutor;
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
@@ -86,6 +86,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	private final ClientHelper clientHelper;
 	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
+	private final SocketFactory torSocketFactory;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
 
 	@Inject
@@ -99,7 +100,8 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	FeedManagerImpl(ScheduledExecutorService feedExecutor,
 			@IoExecutor Executor ioExecutor, DatabaseComponent db,
 			PrivateGroupFactory privateGroupFactory, ClientHelper clientHelper,
-			IdentityManager identityManager, BlogManager blogManager) {
+			IdentityManager identityManager, BlogManager blogManager,
+			SocketFactory torSocketFactory) {
 
 		this.feedExecutor = feedExecutor;
 		this.ioExecutor = ioExecutor;
@@ -108,6 +110,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		this.clientHelper = clientHelper;
 		this.identityManager = identityManager;
 		this.blogManager = blogManager;
+		this.torSocketFactory = torSocketFactory;
 	}
 
 	@Override
@@ -354,14 +357,10 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {
-		// Set proxy
-		SocketAddress socketAddress =
-				new InetSocketAddress("127.0.0.1", SOCKS_PORT);
-		Proxy proxy = new Proxy(Proxy.Type.SOCKS, socketAddress);
-
 		// Build HTTP Client
 		OkHttpClient client = new OkHttpClient.Builder()
-//				.proxy(proxy)
+				.socketFactory(torSocketFactory)
+				.connectTimeout(CONNECT_TIMEOUT, MILLISECONDS)
 				.build();
 
 		// Build Request

@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
+import javax.net.SocketFactory;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -30,15 +32,16 @@ public class AndroidPluginsModule {
 
 	@Provides
 	public PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
-			AndroidExecutor androidExecutor,
-			SecureRandom random, BackoffFactory backoffFactory, Application app,
-			LocationUtils locationUtils, DevReporter reporter,
+			AndroidExecutor androidExecutor, SecureRandom random,
+			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
+			Application app, LocationUtils locationUtils, DevReporter reporter,
 			EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
 				androidExecutor, appContext, random, backoffFactory);
 		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
-				locationUtils, reporter, eventBus, backoffFactory);
+				locationUtils, reporter, eventBus, torSocketFactory,
+				backoffFactory);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				backoffFactory, appContext);
 		final Collection<DuplexPluginFactory> duplex =

@@ -1,5 +1,7 @@
 package org.briarproject.util;
 
+import java.io.Closeable;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,19 +24,34 @@ public class IoUtils {
 			throws IOException {
 		byte[] buf = new byte[4096];
 		try {
-			try {
-				while (true) {
-					int read = in.read(buf);
-					if (read == -1) break;
-					out.write(buf, 0, read);
-				}
-				out.flush();
-			} finally {
-				in.close();
+			while (true) {
+				int read = in.read(buf);
+				if (read == -1) break;
+				out.write(buf, 0, read);
 			}
-		} finally {
+			in.close();
+			out.flush();
 			out.close();
+		} catch (IOException e) {
+			tryToClose(in);
+			tryToClose(out);
 		}
 	}
 
+	private static void tryToClose(Closeable c) {
+		try {
+			if (c != null) c.close();
+		} catch (IOException e) {
+			// We did our best
+		}
+	}
+
+	public static void read(InputStream in, byte[] b) throws IOException {
+		int offset = 0;
+		while (offset < b.length) {
+			int read = in.read(b, offset, b.length - offset);
+			if (read == -1) throw new EOFException();
+			offset += read;
+		}
+	}
 }

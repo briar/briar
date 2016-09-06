@@ -1,9 +1,5 @@
 package org.briarproject.reporting;
 
-import net.sourceforge.jsocks.socks.Socks5Proxy;
-import net.sourceforge.jsocks.socks.SocksException;
-import net.sourceforge.jsocks.socks.SocksSocket;
-
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.reporting.DevConfig;
 import org.briarproject.api.reporting.DevReporter;
@@ -21,9 +17,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.logging.Logger;
+
+import javax.net.SocketFactory;
 
 import static java.util.logging.Level.WARNING;
 
@@ -35,21 +31,28 @@ class DevReporterImpl implements DevReporter {
 	private static final int SOCKET_TIMEOUT = 30 * 1000; // 30 seconds
 	private static final int LINE_LENGTH = 70;
 
-	private CryptoComponent crypto;
-	private DevConfig devConfig;
+	private final CryptoComponent crypto;
+	private final DevConfig devConfig;
+	private final SocketFactory torSocketFactory;
 
-	public DevReporterImpl(CryptoComponent crypto, DevConfig devConfig) {
+	public DevReporterImpl(CryptoComponent crypto, DevConfig devConfig,
+			SocketFactory torSocketFactory) {
 		this.crypto = crypto;
 		this.devConfig = devConfig;
+		this.torSocketFactory = torSocketFactory;
 	}
 
-	private Socket connectToDevelopers(int socksPort)
-			throws UnknownHostException, SocksException, SocketException {
-		Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", socksPort);
-		proxy.resolveAddrLocally(false);
-		Socket s = new SocksSocket(proxy, devConfig.getDevOnionAddress(), 80);
-		s.setSoTimeout(SOCKET_TIMEOUT);
-		return s;
+	private Socket connectToDevelopers() throws IOException {
+		String onion = devConfig.getDevOnionAddress();
+		Socket s = null;
+		try {
+			s = torSocketFactory.createSocket(onion, 80);
+			s.setSoTimeout(SOCKET_TIMEOUT);
+			return s;
+		} catch (IOException e) {
+			tryToClose(s);
+			throw e;
+		}
 	}
 
 	@Override
@@ -74,7 +77,7 @@ class DevReporterImpl implements DevReporter {
 	}
 
 	@Override
-	public void sendReports(File reportDir, int socksPort) {
+	public void sendReports(File reportDir) {
 		File[] reports = reportDir.listFiles();
 		if (reports == null || reports.length == 0)
 			return; // No reports to send
@@ -84,7 +87,7 @@ class DevReporterImpl implements DevReporter {
 			OutputStream out = null;
 			InputStream in = null;
 			try {
-				Socket s = connectToDevelopers(socksPort);
+				Socket s = connectToDevelopers();
 				out = s.getOutputStream();
 				in = new FileInputStream(f);
 				IoUtils.copy(in, out);
@@ -102,6 +105,14 @@ class DevReporterImpl implements DevReporter {
 	private void tryToClose(Closeable c) {
 		try {
 			if (c != null) c.close();
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+	}
+
+	private void tryToClose(Socket s) {
+		try {
+			if (s != null) s.close();
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}

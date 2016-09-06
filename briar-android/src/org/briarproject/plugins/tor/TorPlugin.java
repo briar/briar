@@ -14,8 +14,6 @@ import android.os.PowerManager;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
-import net.sourceforge.jsocks.socks.Socks5Proxy;
-import net.sourceforge.jsocks.socks.SocksSocket;
 
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
@@ -62,6 +60,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
+import javax.net.SocketFactory;
+
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.POWER_SERVICE;
@@ -74,7 +74,6 @@ import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.api.plugins.TorConstants.CONTROL_PORT;
-import static org.briarproject.api.plugins.TorConstants.SOCKS_PORT;
 import static org.briarproject.util.PrivacyUtils.scrubOnion;
 
 class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
@@ -93,6 +92,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
+	private final SocketFactory torSocketFactory;
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
@@ -110,13 +110,15 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, DevReporter reporter, Backoff backoff,
+			LocationUtils locationUtils, DevReporter reporter,
+			SocketFactory torSocketFactory, Backoff backoff,
 			DuplexPluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
+		this.torSocketFactory = torSocketFactory;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
@@ -295,6 +297,14 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	private void tryToClose(Socket s) {
+		try {
+			if (s != null) s.close();
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+	}
+
 	private void listFiles(File f) {
 		if (f.isDirectory()) for (File child : f.listFiles()) listFiles(child);
 		else LOG.info(f.getAbsolutePath());
@@ -320,8 +330,9 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
+				// TODO: Trigger this with a TransportEnabledEvent
 				File reportDir = AndroidUtils.getReportDir(appContext);
-				reporter.sendReports(reportDir, SOCKS_PORT);
+				reporter.sendReports(reportDir);
 			}
 		});
 	}
@@ -516,21 +527,22 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("Invalid hostname: " + onion);
 			return null;
 		}
+		Socket s = null;
 		try {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connecting to " + scrubOnion(onion));
 			controlConnection.forgetHiddenService(onion);
-			Socks5Proxy proxy = new Socks5Proxy("127.0.0.1", SOCKS_PORT);
-			proxy.resolveAddrLocally(false);
-			Socket s = new SocksSocket(proxy, onion + ".onion", 80);
+			s = torSocketFactory.createSocket(onion + ".onion", 80);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connected to " + scrubOnion(onion));
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
-			if (LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO)) {
 				LOG.info("Could not connect to " + scrubOnion(onion) + ": " +
 						e.toString());
+			}
+			tryToClose(s);
 			return null;
 		}
 	}
