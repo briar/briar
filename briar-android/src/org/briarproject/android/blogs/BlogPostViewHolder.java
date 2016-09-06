@@ -30,6 +30,8 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 import static org.briarproject.android.util.AndroidUtils.TEASER_LENGTH;
 import static org.briarproject.android.util.AndroidUtils.getTeaser;
+import static org.briarproject.android.util.AndroidUtils.getSpanned;
+import static org.briarproject.android.util.AndroidUtils.makeLinksClickable;
 import static org.briarproject.api.blogs.MessageType.POST;
 
 @UiThread
@@ -108,15 +110,17 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		}
 
 		// post body
-		CharSequence bodyText = item.getBody();
 		if (listener == null) {
+			body.setText(getSpanned(item.getBody()));
+			makeLinksClickable(body);
 			body.setTextIsSelectable(true);
 		} else {
 			body.setTextIsSelectable(false);
 			if (item.getBody().length() > TEASER_LENGTH)
-				bodyText = getTeaser(ctx, item.getBody());
+				body.setText(getTeaser(ctx, item.getBody()));
+			else
+				body.setText(item.getBody());
 		}
-		body.setText(bodyText);
 
 		// reblog button
 		reblogButton.setOnClickListener(new OnClickListener() {

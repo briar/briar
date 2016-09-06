@@ -6,14 +6,24 @@ import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.URLSpan;
+import android.view.View;
+import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.widget.LinkDialogFragment;
 import org.briarproject.util.IoUtils;
 import org.briarproject.util.StringUtils;
 
@@ -140,6 +150,33 @@ public class AndroidUtils {
 		builder.append(readMore);
 
 		return builder;
+	}
+
+	public static Spanned getSpanned(String s) {
+		return Html.fromHtml(s);
+	}
+
+	public static void makeLinksClickable(TextView v) {
+		SpannableStringBuilder ssb = new SpannableStringBuilder(v.getText());
+		URLSpan[] spans = ssb.getSpans(0, ssb.length(), URLSpan.class);
+		for (URLSpan span : spans) {
+			int start = ssb.getSpanStart(span);
+			int end = ssb.getSpanEnd(span);
+			final String url = span.getURL();
+			ssb.removeSpan(span);
+			ClickableSpan cSpan = new ClickableSpan() {
+				@Override
+				public void onClick(View v2) {
+					LinkDialogFragment f = LinkDialogFragment.newInstance(url);
+					FragmentManager fm = ((AppCompatActivity) v2.getContext())
+							.getSupportFragmentManager();
+					f.show(fm, f.getUniqueTag());
+				}
+			};
+			ssb.setSpan(cSpan, start, end, 0);
+		}
+		v.setText(ssb);
+		v.setMovementMethod(LinkMovementMethod.getInstance());
 	}
 
 }

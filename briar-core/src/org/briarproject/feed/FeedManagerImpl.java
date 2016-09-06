@@ -66,6 +66,9 @@ import static org.briarproject.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
 import static org.briarproject.api.feed.FeedConstants.FETCH_INTERVAL;
 import static org.briarproject.api.feed.FeedConstants.FETCH_UNIT;
 import static org.briarproject.api.feed.FeedConstants.KEY_FEEDS;
+import static org.briarproject.util.HtmlUtils.article;
+import static org.briarproject.util.HtmlUtils.clean;
+import static org.briarproject.util.HtmlUtils.stripAll;
 
 class FeedManagerImpl implements FeedManager, Client, EventListener {
 
@@ -337,13 +340,13 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 		SyndFeed f = getSyndFeed(getFeedInputStream(feed.getUrl()));
 		title = StringUtils.isNullOrEmpty(f.getTitle()) ? null : f.getTitle();
-		if (title != null) title = stripHTML(title);
+		if (title != null) title = clean(title, stripAll);
 		description = StringUtils.isNullOrEmpty(f.getDescription()) ? null :
 				f.getDescription();
-		if (description != null) description = stripHTML(description);
+		if (description != null) description = clean(description, stripAll);
 		author =
 				StringUtils.isNullOrEmpty(f.getAuthor()) ? null : f.getAuthor();
-		if (author != null) author = stripHTML(author);
+		if (author != null) author = clean(author, stripAll);
 
 		if (f.getEntries().size() == 0)
 			throw new FeedException("Feed has no entries");
@@ -418,23 +421,23 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		// build post body
 		StringBuilder b = new StringBuilder();
 		if (feed.getTitle() != null) {
-			// HTML in feed title was already stripped
-			b.append(feed.getTitle()).append("\n\n");
+			b.append("<h3>").append(feed.getTitle()).append("</h3>");
 		}
 		if (!StringUtils.isNullOrEmpty(entry.getTitle())) {
-			b.append(stripHTML(entry.getTitle())).append("\n\n");
+			b.append("<h1>").append(entry.getTitle()).append("</h1>");
 		}
 		for (SyndContent content : entry.getContents()) {
-			// extract content and do a very simple HTML tag stripping
 			if (content.getValue() != null)
-				b.append(stripHTML(content.getValue()));
+				b.append(content.getValue());
 		}
 		if (entry.getContents().size() == 0) {
-			if (entry.getDescription().getValue() != null)
-				b.append(stripHTML(entry.getDescription().getValue()));
+			if (entry.getDescription() != null &&
+					entry.getDescription().getValue() != null)
+				b.append(entry.getDescription().getValue());
 		}
+		b.append("<p>");
 		if (!StringUtils.isNullOrEmpty(entry.getAuthor())) {
-			b.append("\n\n-- ").append(stripHTML(entry.getAuthor()));
+			b.append("\n\n-- ").append(clean(entry.getAuthor(), stripAll));
 		}
 		if (entry.getPublishedDate() != null) {
 			b.append(" (").append(entry.getPublishedDate().toString())
@@ -443,8 +446,11 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 			b.append(" (").append(entry.getUpdatedDate().toString())
 					.append(")");
 		}
-		if (!StringUtils.isNullOrEmpty(entry.getLink())) {
-			b.append("\n\n").append(stripHTML(entry.getLink()));
+		b.append("</p>");
+		String link = entry.getLink();
+		if (!StringUtils.isNullOrEmpty(link)) {
+			b.append("<a href=\"").append(link).append("\">").append(link)
+					.append("</a>");
 		}
 
 		// get other information for post
@@ -476,12 +482,8 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		}
 	}
 
-	private String stripHTML(String s) {
-		s = s.replaceAll("<script.*?>(?s).*?</script>", "");
-		return StringUtils.trim(s.replaceAll("<(?s).*?>", ""));
-	}
-
 	private String getPostBody(String text) {
+		text = clean(text, article);
 		if (text.length() <= MAX_BLOG_POST_BODY_LENGTH) return text;
 		else return text.substring(0, MAX_BLOG_POST_BODY_LENGTH);
 	}
