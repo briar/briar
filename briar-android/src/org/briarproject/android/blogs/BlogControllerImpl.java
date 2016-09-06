@@ -3,6 +3,7 @@ package org.briarproject.android.blogs;
 import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.event.Event;
@@ -13,6 +14,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -102,8 +104,8 @@ public class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
-	public void isMyBlog(
-			final ResultExceptionHandler<Boolean, DbException> handler) {
+	public void loadBlog(
+			final ResultExceptionHandler<BlogItem, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(new Runnable() {
 			@Override
@@ -111,7 +113,12 @@ public class BlogControllerImpl extends BaseControllerImpl
 				try {
 					LocalAuthor a = identityManager.getLocalAuthor();
 					Blog b = blogManager.getBlog(groupId);
-					handler.onResult(b.getAuthor().getId().equals(a.getId()));
+					boolean ours = a.getId().equals(b.getAuthor().getId());
+					boolean removable = blogManager.canBeRemoved(groupId);
+					BlogItem blog = new BlogItem(b,
+							Collections.<BlogPostHeader>emptyList(),
+							ours, removable);
+					handler.onResult(blog);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -120,24 +127,6 @@ public class BlogControllerImpl extends BaseControllerImpl
 			}
 		});
 
-	}
-
-	@Override
-	public void canDeleteBlog(
-			final ResultExceptionHandler<Boolean, DbException> handler) {
-		if (groupId == null) throw new IllegalStateException();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					handler.onResult(blogManager.canBeRemoved(groupId));
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
-			}
-		});
 	}
 
 	@Override

@@ -28,6 +28,7 @@ import org.briarproject.android.sharing.SharingStatusBlogActivity;
 import org.briarproject.android.util.BriarRecyclerView;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
@@ -121,8 +122,7 @@ public class BlogFragment extends BaseFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		checkIfThisIsMyBlog();
-		checkIfBlogCanBeDeleted();
+		loadBlog();
 	}
 
 	@Override
@@ -252,15 +252,17 @@ public class BlogFragment extends BaseFragment implements
 				});
 	}
 
-	private void checkIfThisIsMyBlog() {
-		blogController.isMyBlog(
-				new UiResultExceptionHandler<Boolean, DbException>(
+	private void loadBlog() {
+		blogController.loadBlog(
+				new UiResultExceptionHandler<BlogItem, DbException>(
 						getActivity()) {
 					@Override
-					public void onResultUi(Boolean isMyBlog) {
-						if (isMyBlog) {
+					public void onResultUi(BlogItem blog) {
+						setToolbarTitle(blog.getBlog().getAuthor());
+						if (blog.isOurs())
 							showWriteButton();
-						}
+						if (blog.canBeRemoved())
+							showDeleteButton();
 					}
 
 					@Override
@@ -271,23 +273,13 @@ public class BlogFragment extends BaseFragment implements
 				});
 	}
 
-	private void checkIfBlogCanBeDeleted() {
-		blogController.canDeleteBlog(
-				new UiResultExceptionHandler<Boolean, DbException>(
-						getActivity()) {
-					@Override
-					public void onResultUi(Boolean canBeDeleted) {
-						if (canBeDeleted) {
-							showDeleteButton();
-						}
-					}
+	private void setToolbarTitle(Author a) {
+		String title = getString(R.string.blogs_personal_blog, a.getName());
+		getActivity().setTitle(title);
 
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO: Decide how to handle errors in the UI
-						finish();
-					}
-				});
+		// safe title in intent, so it can be restored automatically
+		Intent intent = getActivity().getIntent();
+		intent.putExtra(BLOG_NAME, title);
 	}
 
 	private void showWriteButton() {

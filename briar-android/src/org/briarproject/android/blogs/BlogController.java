@@ -21,9 +21,7 @@ public interface BlogController extends BaseController {
 	void loadBlogPost(MessageId m,
 			ResultExceptionHandler<BlogPostItem, DbException> handler);
 
-	void isMyBlog(ResultExceptionHandler<Boolean, DbException> handler);
-
-	void canDeleteBlog(ResultExceptionHandler<Boolean, DbException> handler);
+	void loadBlog(ResultExceptionHandler<BlogItem, DbException> handler);
 
 	void deleteBlog(ResultExceptionHandler<Void, DbException> handler);
 
