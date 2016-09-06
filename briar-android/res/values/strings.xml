@@ -199,14 +199,11 @@
 	<string name="nobody">Nobody</string>
 
 	<!-- Blogs -->
-	<string name="blogs_feed">Feed</string>
-	<string name="blogs_my_blogs">My Blogs</string>
 	<string name="blogs_my_blogs_create">Create Blog</string>
 	<string name="blogs_my_blogs_label">Add new Blog</string>
 	<string name="blogs_my_blogs_create_hint_title">Blog title (cannot be changed later)</string>
 	<string name="blogs_my_blogs_create_hint_desc">A short description of your new blog</string>
 	<string name="blogs_my_blogs_create_hint_desc_explanation">Potential readers may or may not subscribe to your blog based on the content of the description.</string>
-	<string name="blogs_my_blogs_empty_state">You don\'t have any blogs.\n\nWhy don\'t you create one now by clicking the plus in the top right screen corner?</string>
 	<string name="blogs_my_blogs_created">Blog created</string>
 	<string name="blogs_blog_is_empty">This blog is empty</string>
 	<string name="blogs_other_blog_empty_state">This blog is currently empty.\n\nEither the author hasn\'t written anything yet, or the person who shared this blog with you needs to come online, so posts can be synchronized.</string>
@@ -232,7 +229,6 @@
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>
-	<string name="blogs_drafts">Drafts</string>
 
 	<!-- Blog Sharing -->
 	<string name="blogs_sharing_share">Share Blog</string>
@@ -313,7 +309,6 @@
 
 	<!-- Multiple Identities -->
 	<string name="anonymous">Anonymous</string>
-	<string name="new_identity_item">New identity\u2026</string>
 	<string name="new_identity_title">New Identity</string>
 	<string name="create_identity_button">Create Identity</string>
 	<string name="identity_created_toast">Identity created</string>
