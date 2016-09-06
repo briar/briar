@@ -6,8 +6,13 @@ import android.content.Intent;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +37,8 @@ import static org.briarproject.api.blogs.MessageType.POST;
 
 @UiThread
 class BlogPostViewHolder extends RecyclerView.ViewHolder {
+
+	private static final int TEASER_LENGTH = 240;
 
 	private final Context ctx;
 	private final ViewGroup layout;
@@ -106,8 +113,15 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		}
 
 		// post body
-		body.setText(item.getBody());
-		if (listener == null) body.setTextIsSelectable(true);
+		CharSequence bodyText = item.getBody();
+		if (listener == null) {
+			body.setTextIsSelectable(true);
+		} else {
+			body.setTextIsSelectable(false);
+			if (item.getBody().length() > TEASER_LENGTH)
+				bodyText = getTeaser(item.getBody());
+		}
+		body.setText(bodyText);
 
 		// reblog button
 		reblogButton.setOnClickListener(new OnClickListener() {
@@ -161,5 +175,21 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 			commentContainer.addView(v);
 		}
+	}
+
+	private SpannableStringBuilder getTeaser(String body) {
+		SpannableStringBuilder builder =
+				new SpannableStringBuilder(body.substring(0, TEASER_LENGTH));
+		builder.append("… ");
+
+		Spannable readMore =
+				new SpannableString(ctx.getString(R.string.read_more) + "…");
+		ForegroundColorSpan fg = new ForegroundColorSpan(
+				ContextCompat.getColor(ctx, R.color.briar_text_link));
+		readMore.setSpan(fg, 0, readMore.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		builder.append(readMore);
+
+		return builder;
 	}
 }
