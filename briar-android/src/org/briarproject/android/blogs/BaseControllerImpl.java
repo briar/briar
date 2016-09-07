@@ -85,8 +85,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 
 	@Override
 	public void setOnBlogPostAddedListener(OnBlogPostAddedListener listener) {
-		if (this.listener != null)
-			throw new IllegalStateException("Listener was already set");
 		this.listener = listener;
 	}
 
