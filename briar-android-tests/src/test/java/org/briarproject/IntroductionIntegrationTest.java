@@ -1,7 +1,10 @@
 package org.briarproject;
 
+import android.support.annotation.Nullable;
+
 import net.jodah.concurrentunit.Waiter;
 
+import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
@@ -35,6 +38,7 @@ import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
@@ -59,6 +63,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -69,22 +74,15 @@ import javax.inject.Inject;
 
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.TestPluginsModule.TRANSPORT_ID;
+import static org.briarproject.api.clients.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.MAC;
-import static org.briarproject.api.introduction.IntroductionConstants.MAC_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
-import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
-import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
@@ -95,11 +93,13 @@ import static org.junit.Assert.assertTrue;
 
 public class IntroductionIntegrationTest extends BriarTestCase {
 
-	private LifecycleManager lifecycleManager0, lifecycleManager1, lifecycleManager2;
+	private LifecycleManager lifecycleManager0, lifecycleManager1,
+			lifecycleManager2;
 	private SyncSessionFactory sync0, sync1, sync2;
 	private ContactManager contactManager0, contactManager1, contactManager2;
 	private ContactId contactId0, contactId1, contactId2;
-	private IdentityManager identityManager0, identityManager1, identityManager2;
+	private IdentityManager identityManager0, identityManager1,
+			identityManager2;
 	private LocalAuthor author0, author1, author2;
 
 	@Inject
@@ -108,6 +108,8 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 	CryptoComponent crypto;
 	@Inject
 	AuthorFactory authorFactory;
+	@Inject
+	IntroductionGroupFactory introductionGroupFactory;
 
 	// objects accessed from background threads need to be volatile
 	private volatile IntroductionManager introductionManager0;
@@ -834,7 +836,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testFakeResponse() throws Exception {
+	public void testModifiedResponse() throws Exception {
 		startLifecycles();
 		try {
 			addDefaultIdentities();
@@ -856,122 +858,106 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			introductionManager0
 					.makeIntroduction(introducee1, introducee2, "Hi!", time);
 
-			// sync first request message
+			// sync request messages
 			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
-			eventWaiter.await(TIMEOUT, 1);
-			assertTrue(listener1.requestReceived);
+			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
+			eventWaiter.await(TIMEOUT, 2);
 
 			// sync first response
 			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
 			eventWaiter.await(TIMEOUT, 1);
-			assertTrue(listener0.response1Received);
 
-			// get SessionId
-			List<IntroductionMessage> list = new ArrayList<>(
-					introductionManager1.getIntroductionMessages(contactId0));
-			assertEquals(2, list.size());
-			assertTrue(list.get(0) instanceof IntroductionRequest);
-			IntroductionRequest msg = (IntroductionRequest) list.get(0);
-			SessionId sessionId = msg.getSessionId();
+			// get response to be forwarded
+			MessageId responseId = null;
+			BdfDictionary response = null;
+			Group g2 = introductionGroupFactory
+					.createIntroductionGroup(introducee2);
+			ClientHelper clientHelper0 = t0.getClientHelper();
+			Map<MessageId, BdfDictionary> map =
+					clientHelper0.getMessageMetadataAsDictionary(g2.getId());
+			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
+				if (entry.getValue().getLong(TYPE) == TYPE_RESPONSE) {
+					responseId = entry.getKey();
+					response = entry.getValue();
+				}
+			}
+			assertTrue(responseId != null && response != null);
 
-			// get contact group
-			IntroductionGroupFactory groupFactory =
-					t0.getIntroductionGroupFactory();
-			Group group = groupFactory.createIntroductionGroup(introducee1);
+			// adapt outgoing message queue to removed message
+			decreaseOutgoingMessageCounter(clientHelper0, g2.getId(), 1);
 
-			// get data for contact2
-			long timestamp = clock.currentTimeMillis();
-			KeyPair eKeyPair = crypto.generateAgreementKeyPair();
-			byte[] ePublicKey = eKeyPair.getPublic().getEncoded();
-			TransportProperties tp = new TransportProperties(
-					Collections.singletonMap("key", "value"));
-			BdfDictionary tpDict = BdfDictionary.of(new BdfEntry("fake", tp));
+			// modify response by changing transport properties
+			BdfDictionary tp = response.getDictionary(TRANSPORT);
+			tp.put("fakeId", BdfDictionary.of(new BdfEntry("fake", "fake")));
+			response.put(TRANSPORT, tp);
 
-			// create a fake response
-			BdfDictionary d = BdfDictionary.of(
-					new BdfEntry(TYPE, TYPE_RESPONSE),
-					new BdfEntry(SESSION_ID, sessionId),
-					new BdfEntry(GROUP_ID, group.getId()),
-					new BdfEntry(ACCEPT, true),
-					new BdfEntry(TIME, timestamp),
-					new BdfEntry(E_PUBLIC_KEY, ePublicKey),
-					new BdfEntry(TRANSPORT, tpDict)
-			);
-
-			// add the message to the queue
-			DatabaseComponent db0 = t0.getDatabaseComponent();
+			// replace original response with modified one
 			MessageSender sender0 = t0.getMessageSender();
+			DatabaseComponent db0 = t0.getDatabaseComponent();
 			Transaction txn = db0.startTransaction(false);
 			try {
-				sender0.sendMessage(txn, d);
+				db0.deleteMessage(txn, responseId);
+				sender0.sendMessage(txn, response);
 				txn.setComplete();
 			} finally {
 				db0.endTransaction(txn);
 			}
 
-			// send the fake response
+			// sync second response
+			deliverMessage(sync2, contactId2, sync0, contactId0, "2 to 0");
+			eventWaiter.await(TIMEOUT, 1);
+
+			// sync forwarded responses to introducees
+			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
+			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
+
+			// sync first ACK and its forward
+			deliverMessage(sync2, contactId2, sync0, contactId0, "2 to 0");
 			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
 
-			// fake session state for introducer, so she doesn't abort
-			ClientHelper clientHelper0 = t0.getClientHelper();
-			BdfDictionary state =
-					clientHelper0.getMessageMetadataAsDictionary(sessionId);
-			state.put(STATE, IntroducerProtocolState.AWAIT_ACKS.getValue());
-			clientHelper0.mergeMessageMetadata(sessionId, state);
-
-			// sync back the ACK
+			// sync second ACK and forward it
 			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
+			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
 
-			// create a fake ACK
-			// TODO do we need to actually calculate a MAC and signature here?
-			byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
-			byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
-			d = BdfDictionary.of(
-					new BdfEntry(TYPE, TYPE_ACK),
-					new BdfEntry(SESSION_ID, sessionId),
-					new BdfEntry(GROUP_ID, group.getId()),
-					new BdfEntry(MAC, mac),
-					new BdfEntry(SIGNATURE, sig)
-			);
-
-			// add the fake ACK to the message queue
-			txn = db0.startTransaction(false);
+			// introducee2 should have detected the fake now
+			// and deleted introducee1 again
+			Collection<Contact> contacts2;
+			DatabaseComponent db2 = t2.getDatabaseComponent();
+			txn = db2.startTransaction(true);
 			try {
-				sender0.sendMessage(txn, d);
+				contacts2 = db2.getContacts(txn);
 				txn.setComplete();
 			} finally {
-				db0.endTransaction(txn);
+				db2.endTransaction(txn);
 			}
+			assertEquals(1, contacts2.size());
 
-			// make sure the contact was already added (as inactive)
+			// sync abort message to introducer
+			deliverMessage(sync2, contactId2, sync0, contactId0, "2 to 0");
+
+			// ensure introducer got the abort
+			SessionId sessionId = new SessionId(response.getRaw(SESSION_ID));
+			BdfDictionary state =
+					clientHelper0.getMessageMetadataAsDictionary(sessionId);
+			assertEquals(IntroducerProtocolState.ERROR.getValue(),
+					state.getLong(STATE).intValue());
+
+			// sync abort messages to introducees
+			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
+			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
+
+			// although aborted, introducee1 keeps the contact,
+			// so introducer can not make contacts disappear by sending abort
+			Collection<Contact> contacts1;
 			DatabaseComponent db1 = t1.getDatabaseComponent();
 			txn = db1.startTransaction(true);
 			try {
-				assertEquals(2, db1.getContacts(txn).size());
+				contacts1 = db1.getContacts(txn);
 				txn.setComplete();
 			} finally {
 				db1.endTransaction(txn);
 			}
-
-			// send the fake ACK
-			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
-
-			// make sure session was aborted and contact deleted again
-			txn = db1.startTransaction(true);
-			try {
-				assertEquals(1, db1.getContacts(txn).size());
-				txn.setComplete();
-			} finally {
-				db1.endTransaction(txn);
-			}
-
-			// there should now be an abort message to sync back
-			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
-
-			// ensure introducer got the abort
-			state = clientHelper0.getMessageMetadataAsDictionary(sessionId);
-			assertEquals(IntroducerProtocolState.ERROR.getValue(),
-					state.getLong(STATE).intValue());
+			assertEquals(2, contacts1.size());
 		} finally {
 			stopLifecycles();
 		}
@@ -1067,7 +1053,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 	}
 
 	private void deliverMessage(SyncSessionFactory fromSync, ContactId fromId,
-			SyncSessionFactory toSync, ContactId toId, String debug)
+			SyncSessionFactory toSync, ContactId toId, @Nullable String debug)
 			throws IOException, TimeoutException {
 
 		if (debug != null) LOG.info("TEST: Sending message from " + debug);
@@ -1212,6 +1198,16 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 				eventWaiter.resume();
 			}
 		}
+	}
+
+	private void decreaseOutgoingMessageCounter(ClientHelper clientHelper,
+			GroupId g, int num) throws FormatException, DbException {
+		BdfDictionary gD = clientHelper.getGroupMetadataAsDictionary(g);
+		LOG.warning(gD.toString());
+		BdfDictionary queue = gD.getDictionary(QUEUE_STATE_KEY);
+		queue.put("nextOut", queue.getLong("nextOut") - num);
+		gD.put(QUEUE_STATE_KEY, queue);
+		clientHelper.mergeGroupMetadata(g, gD);
 	}
 
 	private void injectEagerSingletons(
