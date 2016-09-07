@@ -494,6 +494,11 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		return new Comparator<SyndEntry>() {
 			@Override
 			public int compare(SyndEntry e1, SyndEntry e2) {
+				if (e1.getPublishedDate() == null &&
+						e1.getUpdatedDate() == null) {
+					// we will be ignoring such entries anyway
+					return 0;
+				}
 				Date d1 =
 						e1.getPublishedDate() != null ? e1.getPublishedDate() :
 								e1.getUpdatedDate();
