@@ -2,6 +2,7 @@ package org.briarproject.android.widget;
 
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 
+import java.util.List;
 
 public class LinkDialogFragment extends DialogFragment {
 
@@ -50,12 +52,21 @@ public class LinkDialogFragment extends DialogFragment {
 		TextView urlView = (TextView) v.findViewById(R.id.urlView);
 		urlView.setText(url);
 
+		// prepare normal intent or intent chooser
+		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+		PackageManager packageManager = getContext().getPackageManager();
+		List activities = packageManager.queryIntentActivities(i,
+				PackageManager.MATCH_DEFAULT_ONLY);
+		boolean choice = activities.size() > 1;
+		final Intent intent = choice ? Intent.createChooser(i,
+				getString(R.string.link_warning_open_link)) : i;
+
 		Button openButton = (Button) v.findViewById(R.id.openButton);
 		openButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-				startActivity(i);
+				startActivity(intent);
+				getDialog().dismiss();
 			}
 		});
 
