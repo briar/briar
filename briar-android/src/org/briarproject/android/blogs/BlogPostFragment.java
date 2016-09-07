@@ -62,7 +62,7 @@ public class BlogPostFragment extends BasePostFragment {
 		super.onStart();
 		blogController.loadBlogPost(postId,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						getActivity()) {
+						listener) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						onBlogPostLoaded(post);

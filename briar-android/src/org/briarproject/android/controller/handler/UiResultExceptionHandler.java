@@ -1,33 +1,36 @@
 package org.briarproject.android.controller.handler;
 
-import android.app.Activity;
 import android.support.annotation.UiThread;
+
+import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 
 public abstract class UiResultExceptionHandler<R, E extends Exception>
 		implements ResultExceptionHandler<R, E> {
 
-	private final Activity activity;
+	private final BaseFragmentListener listener;
 
-	public UiResultExceptionHandler(Activity activity) {
-		this.activity = activity;
+	protected UiResultExceptionHandler(BaseFragmentListener listener) {
+		this.listener = listener;
 	}
 
 	@Override
 	public void onResult(final R result) {
-		activity.runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				onResultUi(result);
+				if (!listener.hasBeenDestroyed())
+					onResultUi(result);
 			}
 		});
 	}
 
 	@Override
 	public void onException(final E exception) {
-		activity.runOnUiThread(new Runnable() {
+		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				onExceptionUi(exception);
+				if (!listener.hasBeenDestroyed())
+					onExceptionUi(exception);
 			}
 		});
 	}
