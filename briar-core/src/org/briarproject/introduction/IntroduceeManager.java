@@ -288,92 +288,39 @@ class IntroduceeManager {
 				return;
 			}
 
-			LOG.info("Adding contact in inactive state");
-
-			// get all keys
-			KeyParser keyParser = cryptoComponent.getAgreementKeyParser();
-			byte[] publicKeyBytes;
-			PublicKey publicKey;
-			PrivateKey privateKey;
-			try {
-				publicKeyBytes = localState.getRaw(OUR_PUBLIC_KEY);
-				publicKey = keyParser
-						.parsePublicKey(publicKeyBytes);
-				privateKey = keyParser.parsePrivateKey(
-						localState.getRaw(OUR_PRIVATE_KEY));
-			} catch (GeneralSecurityException e) {
-				if (LOG.isLoggable(WARNING)) {
-					LOG.log(WARNING, e.toString(), e);
-				}
-				// we can not continue without the keys
-				throw new RuntimeException("Our own ephemeral key is invalid");
-			}
-			KeyPair keyPair = new KeyPair(publicKey, privateKey);
-			byte[] theirEphemeralKey = localState.getRaw(E_PUBLIC_KEY);
-
 			// figure out who takes which role by comparing public keys
+			byte[] publicKeyBytes = localState.getRaw(OUR_PUBLIC_KEY);
+			byte[] theirEphemeralKey = localState.getRaw(E_PUBLIC_KEY);
 			int comp = Bytes.COMPARATOR.compare(new Bytes(publicKeyBytes),
 					new Bytes(theirEphemeralKey));
 			boolean alice = comp < 0;
 
-			// The master secret is derived from the local ephemeral key pair
-			// and the remote ephemeral public key
-			SecretKey secretKey;
-			try {
-				secretKey = cryptoComponent
-						.deriveMasterSecret(theirEphemeralKey, keyPair, alice);
-			} catch (GeneralSecurityException e) {
-				// we can not continue without the shared secret
-				throw new DbException(e);
-			}
-
-			// Derive two nonces and a MAC key from the secret master key
-			byte[] ourNonce =
-					cryptoComponent.deriveSignatureNonce(secretKey, alice);
-			byte[] theirNonce =
-					cryptoComponent.deriveSignatureNonce(secretKey, !alice);
-			SecretKey macKey = cryptoComponent.deriveMacKey(secretKey, alice);
-			SecretKey theirMacKey =
-					cryptoComponent.deriveMacKey(secretKey, !alice);
-
-			// Save the other nonce and MAC key for the verification
-			localState.put(NONCE, theirNonce);
-			localState.put(MAC_KEY, theirMacKey.getBytes());
-
-			// Sign our nonce with our long-term identity public key
+			// get our local author
 			AuthorId localAuthorId =
 					new AuthorId(localState.getRaw(LOCAL_AUTHOR_ID));
 			LocalAuthor author =
 					identityManager.getLocalAuthor(txn, localAuthorId);
-			Signature signature = cryptoComponent.getSignature();
-			KeyParser sigParser = cryptoComponent.getSignatureKeyParser();
+
+			SecretKey secretKey;
+			byte[] privateKeyBytes = localState.getRaw(OUR_PRIVATE_KEY);
 			try {
-				PrivateKey privKey =
-						sigParser.parsePrivateKey(author.getPrivateKey());
-				signature.initSign(privKey);
+				// derive secret master key
+				secretKey =
+					deriveSecretKey(publicKeyBytes, privateKeyBytes, alice,
+							theirEphemeralKey);
+				// derive MAC keys and nonces, sign our nonce and calculate MAC
+				deriveMacKeysAndNonces(localState, author, secretKey, alice);
 			} catch (GeneralSecurityException e) {
 				// we can not continue without the signature
 				throw new DbException(e);
 			}
-			signature.update(ourNonce);
-			byte[] sig = signature.sign();
+
+			LOG.info("Adding contact in inactive state");
 
 			// The agreed timestamp is the minimum of the peers' timestamps
 			long ourTime = localState.getLong(OUR_TIME);
 			long theirTime = localState.getLong(TIME);
 			long timestamp = Math.min(ourTime, theirTime);
-
-			// Calculate a MAC over identity public key, ephemeral public key,
-			// transport properties and timestamp.
-			BdfDictionary tp = localState.getDictionary(OUR_TRANSPORT);
-			BdfList toSignList = BdfList.of(author.getPublicKey(),
-					publicKeyBytes, tp, ourTime);
-			byte[] toSign = clientHelper.toByteArray(toSignList);
-			byte[] mac = cryptoComponent.mac(macKey, toSign);
-
-			// Add MAC and signature to localState, so it can be included in ACK
-			localState.put(OUR_MAC, mac);
-			localState.put(OUR_SIGNATURE, sig);
 
 			// Add the contact to the database as inactive
 			Author remoteAuthor = authorFactory
@@ -411,49 +358,13 @@ class IntroduceeManager {
 		if (task == TASK_ACTIVATE_CONTACT) {
 			if (!localState.getBoolean(EXISTS) &&
 					localState.containsKey(ADDED_CONTACT_ID)) {
-
-				LOG.info("Verifying Signature...");
-
-				byte[] nonce = localState.getRaw(NONCE);
-				byte[] sig = localState.getRaw(SIGNATURE);
-				byte[] keyBytes = localState.getRaw(PUBLIC_KEY);
 				try {
-					// Parse the public key
-					KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
-					PublicKey key = keyParser.parsePublicKey(keyBytes);
-					// Verify the signature
-					Signature signature = cryptoComponent.getSignature();
-					signature.initVerify(key);
-					signature.update(nonce);
-					if (!signature.verify(sig)) {
-						LOG.warning("Invalid nonce signature in ACK");
-						throw new GeneralSecurityException();
-					}
+					LOG.info("Verifying Signature...");
+					verifySignature(localState);
+					LOG.info("Verifying MAC...");
+					verifyMac(localState);
 				} catch (GeneralSecurityException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					// we can not continue without verifying the signature
 					throw new DbException(e);
-				}
-
-				LOG.info("Verifying MAC...");
-
-				// get MAC and MAC key from session state
-				byte[] mac = localState.getRaw(MAC);
-				byte[] macKeyBytes = localState.getRaw(MAC_KEY);
-				SecretKey macKey = new SecretKey(macKeyBytes);
-
-				// get MAC data and calculate a new MAC with stored key
-				byte[] pubKey = localState.getRaw(PUBLIC_KEY);
-				byte[] ePubKey = localState.getRaw(E_PUBLIC_KEY);
-				BdfDictionary tp = localState.getDictionary(TRANSPORT);
-				long timestamp = localState.getLong(TIME);
-				BdfList toSignList = BdfList.of(pubKey, ePubKey, tp, timestamp);
-				byte[] toSign = clientHelper.toByteArray(toSignList);
-				byte[] calculatedMac = cryptoComponent.mac(macKey, toSign);
-				if (!Arrays.equals(mac, calculatedMac)) {
-					LOG.warning("Received ACK with invalid MAC");
-					throw new DbException();
 				}
 
 				LOG.info("Activating Contact...");
@@ -483,11 +394,122 @@ class IntroduceeManager {
 				contactManager.removeContact(txn, contactId);
 			}
 		}
+	}
 
+	private SecretKey deriveSecretKey(byte[] publicKeyBytes,
+			byte[] privateKeyBytes, boolean alice, byte[] theirPublicKey)
+			throws GeneralSecurityException {
+		// parse the local ephemeral key pair
+		KeyParser keyParser = cryptoComponent.getAgreementKeyParser();
+		PublicKey publicKey;
+		PrivateKey privateKey;
+		try {
+			publicKey = keyParser.parsePublicKey(publicKeyBytes);
+			privateKey = keyParser.parsePrivateKey(privateKeyBytes);
+		} catch (GeneralSecurityException e) {
+			if (LOG.isLoggable(WARNING)) {
+				LOG.log(WARNING, e.toString(), e);
+			}
+			throw new RuntimeException("Our own ephemeral key is invalid");
+		}
+		KeyPair keyPair = new KeyPair(publicKey, privateKey);
+
+		// The master secret is derived from the local ephemeral key pair
+		// and the remote ephemeral public key
+		return cryptoComponent
+				.deriveMasterSecret(theirPublicKey, keyPair, alice);
+	}
+
+	/**
+	 * Derives nonces, signs our nonce and calculates MAC
+	 *
+	 * Derives two nonces and two mac keys from the secret master key.
+	 * The other introducee's nonce and MAC key are added to the localState.
+	 *
+	 * Our nonce is signed with the local author's long-term private key.
+	 * The signature is added to the localState.
+	 *
+	 * Calculates a MAC and stores it in the localState.
+	 */
+	private void deriveMacKeysAndNonces(BdfDictionary localState,
+			LocalAuthor author, SecretKey secretKey, boolean alice)
+			throws FormatException, GeneralSecurityException {
+		// Derive two nonces and a MAC key from the secret master key
+		byte[] ourNonce =
+				cryptoComponent.deriveSignatureNonce(secretKey, alice);
+		byte[] theirNonce =
+				cryptoComponent.deriveSignatureNonce(secretKey, !alice);
+		SecretKey macKey = cryptoComponent.deriveMacKey(secretKey, alice);
+		SecretKey theirMacKey = cryptoComponent.deriveMacKey(secretKey, !alice);
+
+		// Save the other nonce and MAC key for the verification
+		localState.put(NONCE, theirNonce);
+		localState.put(MAC_KEY, theirMacKey.getBytes());
+
+		// Sign our nonce with our long-term identity public key
+		Signature signature = cryptoComponent.getSignature();
+		KeyParser sigParser = cryptoComponent.getSignatureKeyParser();
+		PrivateKey privKey = sigParser.parsePrivateKey(author.getPrivateKey());
+		signature.initSign(privKey);
+		signature.update(ourNonce);
+		byte[] sig = signature.sign();
+
+		// Calculate a MAC over identity public key, ephemeral public key,
+		// transport properties and timestamp.
+		byte[] publicKeyBytes = localState.getRaw(OUR_PUBLIC_KEY);
+		BdfDictionary tp = localState.getDictionary(OUR_TRANSPORT);
+		long ourTime = localState.getLong(OUR_TIME);
+		BdfList toMacList = BdfList.of(author.getPublicKey(),
+				publicKeyBytes, tp, ourTime);
+		byte[] toMac = clientHelper.toByteArray(toMacList);
+		byte[] mac = cryptoComponent.mac(macKey, toMac);
+
+		// Add MAC and signature to localState, so it can be included in ACK
+		localState.put(OUR_MAC, mac);
+		localState.put(OUR_SIGNATURE, sig);
+	}
+
+	void verifySignature(BdfDictionary localState)
+			throws FormatException, GeneralSecurityException {
+		byte[] nonce = localState.getRaw(NONCE);
+		byte[] sig = localState.getRaw(SIGNATURE);
+		byte[] keyBytes = localState.getRaw(PUBLIC_KEY);
+
+		// Parse the public key
+		KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
+		PublicKey key = keyParser.parsePublicKey(keyBytes);
+		// Verify the signature
+		Signature signature = cryptoComponent.getSignature();
+		signature.initVerify(key);
+		signature.update(nonce);
+		if (!signature.verify(sig)) {
+			LOG.warning("Invalid nonce signature in ACK");
+			throw new GeneralSecurityException();
+		}
+	}
+
+	void verifyMac(BdfDictionary localState)
+			throws FormatException, GeneralSecurityException {
+		// get MAC and MAC key from session state
+		byte[] mac = localState.getRaw(MAC);
+		byte[] macKeyBytes = localState.getRaw(MAC_KEY);
+		SecretKey macKey = new SecretKey(macKeyBytes);
+
+		// get MAC data and calculate a new MAC with stored key
+		byte[] pubKey = localState.getRaw(PUBLIC_KEY);
+		byte[] ePubKey = localState.getRaw(E_PUBLIC_KEY);
+		BdfDictionary tp = localState.getDictionary(TRANSPORT);
+		long timestamp = localState.getLong(TIME);
+		BdfList toMacList = BdfList.of(pubKey, ePubKey, tp, timestamp);
+		byte[] toMac = clientHelper.toByteArray(toMacList);
+		byte[] calculatedMac = cryptoComponent.mac(macKey, toMac);
+		if (!Arrays.equals(mac, calculatedMac)) {
+			LOG.warning("Received ACK with invalid MAC");
+			throw new GeneralSecurityException();
+		}
 	}
 
 	public void abort(Transaction txn, BdfDictionary state) {
-
 		IntroduceeEngine engine = new IntroduceeEngine();
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_ABORT);

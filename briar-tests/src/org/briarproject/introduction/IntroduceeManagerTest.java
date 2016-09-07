@@ -10,6 +10,10 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.KeyParser;
+import org.briarproject.api.crypto.PublicKey;
+import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -33,11 +37,14 @@ import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
+import static org.briarproject.api.introduction.IntroductionConstants.ADDED_CONTACT_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
@@ -46,9 +53,13 @@ import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_K
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.MAC_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
+import static org.briarproject.api.introduction.IntroductionConstants.NONCE;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
@@ -56,15 +67,21 @@ import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUT
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
+import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.hamcrest.Matchers.array;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class IntroduceeManagerTest extends BriarTestCase {
 
@@ -221,6 +238,152 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		assertFalse(txn.isComplete());
 	}
 
+	@Test
+	public void testDetectReplacedEphemeralPublicKey()
+			throws DbException, FormatException, GeneralSecurityException {
+
+		// TODO MR !237 should use its new default initialization method here
+		final BdfDictionary msg = new BdfDictionary();
+		msg.put(TYPE, TYPE_RESPONSE);
+		msg.put(GROUP_ID, introductionGroup1.getId());
+		msg.put(SESSION_ID, sessionId);
+		msg.put(MESSAGE_ID, message1.getId());
+		msg.put(MESSAGE_TIME, time);
+		msg.put(NAME, introducee2.getAuthor().getName());
+		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
+		final BdfDictionary state =
+				initializeSessionState(txn, introductionGroup1.getId(), msg);
+
+		// prepare state for incoming ACK
+		state.put(STATE, IntroduceeProtocolState.AWAIT_ACK.ordinal());
+		state.put(ADDED_CONTACT_ID, 2);
+		final byte[] nonce = TestUtils.getRandomBytes(42);
+		state.put(NONCE, nonce);
+		state.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
+
+		// create incoming ACK message
+		final byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
+		final byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
+		BdfDictionary ack = BdfDictionary.of(
+				new BdfEntry(TYPE, TYPE_ACK),
+				new BdfEntry(SESSION_ID, sessionId),
+				new BdfEntry(GROUP_ID, introductionGroup1.getId()),
+				new BdfEntry(MAC, mac),
+				new BdfEntry(SIGNATURE, sig)
+		);
+
+		final KeyParser keyParser = context.mock(KeyParser.class);
+		final PublicKey publicKey = context.mock(PublicKey.class);
+		final Signature signature = context.mock(Signature.class);
+		context.checking(new Expectations() {{
+			oneOf(cryptoComponent).getSignatureKeyParser();
+			will(returnValue(keyParser));
+			oneOf(keyParser)
+					.parsePublicKey(introducee2.getAuthor().getPublicKey());
+			will(returnValue(publicKey));
+			oneOf(cryptoComponent).getSignature();
+			will(returnValue(signature));
+			oneOf(signature).initVerify(publicKey);
+			oneOf(signature).update(nonce);
+			oneOf(signature).verify(sig);
+			will(returnValue(false));
+		}});
+
+		try {
+			introduceeManager.incomingMessage(txn, state, ack);
+			fail();
+		} catch (DbException e) {
+			// expected
+			assertTrue(e.getCause() instanceof GeneralSecurityException);
+		}
+		context.assertIsSatisfied();
+		assertFalse(txn.isComplete());
+	}
+
+	@Test
+	public void testSignatureVerification()
+			throws FormatException, DbException, GeneralSecurityException {
+
+		final byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
+		final byte[] nonce = TestUtils.getRandomBytes(MAC_LENGTH);
+		final byte[] sig = TestUtils.getRandomBytes(MAC_LENGTH);
+
+		BdfDictionary state = new BdfDictionary();
+		state.put(PUBLIC_KEY, publicKeyBytes);
+		state.put(NONCE, nonce);
+		state.put(SIGNATURE, sig);
+
+		final KeyParser keyParser = context.mock(KeyParser.class);
+		final Signature signature = context.mock(Signature.class);
+		final PublicKey publicKey = context.mock(PublicKey.class);
+		context.checking(new Expectations() {{
+			oneOf(cryptoComponent).getSignatureKeyParser();
+			will(returnValue(keyParser));
+			oneOf(keyParser).parsePublicKey(publicKeyBytes);
+			will(returnValue(publicKey));
+			oneOf(cryptoComponent).getSignature();
+			will(returnValue(signature));
+			oneOf(signature).initVerify(publicKey);
+			oneOf(signature).update(nonce);
+			oneOf(signature).verify(sig);
+			will(returnValue(true));
+		}});
+		introduceeManager.verifySignature(state);
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testMacVerification()
+			throws FormatException, DbException, GeneralSecurityException {
+
+		final byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
+		final BdfDictionary tp = BdfDictionary.of(new BdfEntry("fake", "fake"));
+		final byte[] ePublicKeyBytes =
+				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		final byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
+		final SecretKey macKey = TestUtils.getSecretKey();
+
+		// move state to where it would be after an ACK arrived
+		BdfDictionary state = new BdfDictionary();
+		state.put(PUBLIC_KEY, publicKeyBytes);
+		state.put(TRANSPORT, tp);
+		state.put(TIME, time);
+		state.put(E_PUBLIC_KEY, ePublicKeyBytes);
+		state.put(MAC, mac);
+		state.put(MAC_KEY, macKey.getBytes());
+
+		final byte[] signBytes = TestUtils.getRandomBytes(42);
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).toByteArray(
+					BdfList.of(publicKeyBytes, ePublicKeyBytes, tp, time));
+			will(returnValue(signBytes));
+			//noinspection unchecked
+			oneOf(cryptoComponent).mac(with(samePropertyValuesAs(macKey)),
+					with(array(equal(signBytes))));
+			will(returnValue(mac));
+		}});
+		introduceeManager.verifyMac(state);
+		context.assertIsSatisfied();
+
+		// now produce wrong MAC
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).toByteArray(
+					BdfList.of(publicKeyBytes, ePublicKeyBytes, tp, time));
+			will(returnValue(signBytes));
+			//noinspection unchecked
+			oneOf(cryptoComponent).mac(with(samePropertyValuesAs(macKey)),
+					with(array(equal(signBytes))));
+			will(returnValue(TestUtils.getRandomBytes(MAC_LENGTH)));
+		}});
+		try {
+			introduceeManager.verifyMac(state);
+			fail();
+		} catch(GeneralSecurityException e) {
+			// expected
+		}
+		context.assertIsSatisfied();
+	}
+
 	private BdfDictionary initializeSessionState(final Transaction txn,
 			final GroupId groupId, final BdfDictionary msg)
 			throws DbException, FormatException {
@@ -230,7 +393,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		final BdfDictionary groupMetadata = BdfDictionary.of(
 				new BdfEntry(CONTACT, introducee1.getId().getInt())
 		);
-		final boolean contactExists = true;
+		final boolean contactExists = false;
 		final BdfDictionary state = new BdfDictionary();
 		state.put(STORAGE_ID, localStateMessage.getId());
 		state.put(STATE, AWAIT_REQUEST.getValue());
@@ -241,7 +404,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.put(LOCAL_AUTHOR_ID, introducer.getLocalAuthorId().getBytes());
 		state.put(NOT_OUR_RESPONSE, localStateMessage.getId());
 		state.put(ANSWERED, false);
-		state.put(EXISTS, true);
+		state.put(EXISTS, contactExists);
 		state.put(REMOTE_AUTHOR_ID, introducee2.getAuthor().getId());
 		state.put(REMOTE_AUTHOR_IS_US, false);
 
