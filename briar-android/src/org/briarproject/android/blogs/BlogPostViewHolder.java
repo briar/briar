@@ -46,7 +46,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		super(v);
 
 		ctx = v.getContext();
-		layout = (ViewGroup) v;
+		layout = (ViewGroup) v.findViewById(R.id.postLayout);
 		reblogger = (AuthorView) v.findViewById(R.id.rebloggerView);
 		author = (AuthorView) v.findViewById(R.id.authorView);
 		reblogButton = (ImageView) v.findViewById(R.id.commentView);
@@ -65,6 +65,10 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	void hideReblogButton() {
 		reblogButton.setVisibility(GONE);
+	}
+
+	void updateDate(long time) {
+		author.setDate(time);
 	}
 
 	void setTransitionName(MessageId id) {
