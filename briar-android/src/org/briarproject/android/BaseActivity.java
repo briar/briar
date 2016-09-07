@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -16,12 +17,14 @@ import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity
+		implements Destroyable {
 
 	protected ActivityComponent activityComponent;
 
 	private final List<ActivityLifecycleController> lifecycleControllers =
 			new ArrayList<>();
+	private boolean destroyed = false;
 
 	public abstract void injectActivity(ActivityComponent component);
 
@@ -78,9 +81,15 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		destroyed = true;
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityDestroy();
 		}
+	}
+
+	@UiThread
+	public boolean hasBeenDestroyed() {
+		return destroyed;
 	}
 
 	public void showSoftKeyboardForced(View view) {

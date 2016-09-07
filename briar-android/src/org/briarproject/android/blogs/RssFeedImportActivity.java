@@ -151,6 +151,8 @@ public class RssFeedImportActivity extends BriarActivity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				if (RssFeedImportActivity.this.hasBeenDestroyed()) return;
+
 				// hide progress bar, show publish button
 				progressBar.setVisibility(GONE);
 				importButton.setVisibility(VISIBLE);
