@@ -4,14 +4,13 @@ import android.os.Bundle;
 
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
 import javax.inject.Inject;
-
-import static org.briarproject.android.blogs.BlogActivity.POST_ID;
 
 
 public class BlogPostPagerFragment extends BasePostPagerFragment {
@@ -42,10 +41,6 @@ public class BlogPostPagerFragment extends BasePostPagerFragment {
 		return TAG;
 	}
 
-	@Override
-	BaseController getController() {
-		return blogController;
-	}
 
 	void loadBlogPosts(final MessageId select) {
 		blogController.loadBlogPosts(
@@ -59,6 +54,23 @@ public class BlogPostPagerFragment extends BasePostPagerFragment {
 					@Override
 					public void onExceptionUi(DbException exception) {
 						onBlogPostsLoadedException(exception);
+					}
+				});
+	}
+
+	void loadBlogPost(BlogPostHeader header) {
+		blogController.loadBlogPost(header,
+				new UiResultExceptionHandler<BlogPostItem, DbException>(
+						getActivity()) {
+					@Override
+					public void onResultUi(BlogPostItem post) {
+						addPost(post);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						finish();
 					}
 				});
 	}

@@ -27,7 +27,7 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.blogs.BlogActivity.POST_ID;
+import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 
 public class ReblogFragment extends BaseFragment {
 

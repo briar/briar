@@ -35,13 +35,6 @@ public class BlogControllerImpl extends BaseControllerImpl
 
 	@Override
 	public void onActivityCreate() {
-		if (activity instanceof OnBlogPostAddedListener) {
-			listener = (OnBlogPostAddedListener) activity;
-		} else {
-			throw new IllegalStateException(
-					"An activity that injects the BlogController must " +
-							"implement the OnBlogPostAddedListener");
-		}
 	}
 
 	@Override

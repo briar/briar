@@ -59,6 +59,9 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	@Override
 	@CallSuper
 	public void onStart() {
+		if (listener == null)
+			throw new IllegalStateException(
+					"OnBlogPostAddedListener needs to be attached");
 		eventBus.addListener(this);
 	}
 

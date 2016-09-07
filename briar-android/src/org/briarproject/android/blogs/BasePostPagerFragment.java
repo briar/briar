@@ -10,10 +10,10 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import org.briarproject.R;
 import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
-import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
@@ -24,13 +24,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.android.blogs.BasePostPagerFragment.BlogPostPagerAdapter.INVALID_POSITION;
-import static org.briarproject.android.blogs.BlogActivity.POST_ID;
 
 abstract class BasePostPagerFragment extends BaseFragment
 		implements OnBlogPostAddedListener {
 
+	static final String POST_ID = "briar.POST_ID";
+
 	private ViewPager pager;
+	private ProgressBar progressBar;
 	private BlogPostPagerAdapter postPagerAdapter;
 	private MessageId postId;
 
@@ -49,9 +53,11 @@ abstract class BasePostPagerFragment extends BaseFragment
 
 		View v = inflater.inflate(R.layout.fragment_blog_post_pager, container,
 				false);
+		progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
+		progressBar.setVisibility(VISIBLE);
+
 		pager = (ViewPager) v.findViewById(R.id.pager);
 		postPagerAdapter = new BlogPostPagerAdapter(getChildFragmentManager());
-		listener.showLoadingScreen(false, R.string.progress_title_please_wait);
 
 		return v;
 	}
@@ -82,7 +88,7 @@ abstract class BasePostPagerFragment extends BaseFragment
 
 	abstract void loadBlogPosts(final MessageId select);
 
-	abstract BaseController getController();
+	abstract void loadBlogPost(BlogPostHeader header);
 
 	protected void onBlogPostsLoaded(MessageId select,
 			Collection<BlogPostItem> posts) {
@@ -97,23 +103,6 @@ abstract class BasePostPagerFragment extends BaseFragment
 		finish();
 	}
 
-	private void loadBlogPost(BlogPostHeader header) {
-		getController().loadBlogPost(header,
-				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						getActivity()) {
-					@Override
-					public void onResultUi(BlogPostItem post) {
-						addPost(post);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO: Decide how to handle errors in the UI
-						finish();
-					}
-				});
-	}
-
 	@Nullable
 	private MessageId getSelectedPost() {
 		if (postPagerAdapter.getCount() == 0) return null;
@@ -124,6 +113,7 @@ abstract class BasePostPagerFragment extends BaseFragment
 	private void selectPost(MessageId m) {
 		int pos = postPagerAdapter.getPostPosition(m);
 		if (pos != INVALID_POSITION) {
+			progressBar.setVisibility(INVISIBLE);
 			pager.setAdapter(postPagerAdapter);
 			pager.setCurrentItem(pos);
 		}

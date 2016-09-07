@@ -3,10 +3,12 @@ package org.briarproject.android.blogs;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import org.briarproject.R;
 import org.briarproject.android.fragment.BaseFragment;
@@ -14,6 +16,8 @@ import org.briarproject.api.db.DbException;
 
 import java.util.logging.Logger;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.android.util.AndroidUtils.MIN_RESOLUTION;
 
 public abstract class BasePostFragment extends BaseFragment {
@@ -22,6 +26,7 @@ public abstract class BasePostFragment extends BaseFragment {
 			Logger.getLogger(BasePostFragment.class.getName());
 
 	private View view;
+	private ProgressBar progressBar;
 	private BlogPostViewHolder ui;
 	private BlogPostItem post;
 	private Runnable refresher;
@@ -35,6 +40,8 @@ public abstract class BasePostFragment extends BaseFragment {
 
 		view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
+		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+		progressBar.setVisibility(VISIBLE);
 		ui = new BlogPostViewHolder(view);
 		return view;
 	}
@@ -46,6 +53,7 @@ public abstract class BasePostFragment extends BaseFragment {
 		startPeriodicUpdate();
 	}
 
+	@CallSuper
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -63,12 +71,14 @@ public abstract class BasePostFragment extends BaseFragment {
 		}
 	}
 
+	@UiThread
 	protected void onBlogPostLoaded(BlogPostItem post) {
-		listener.hideLoadingScreen();
+		progressBar.setVisibility(INVISIBLE);
 		this.post = post;
 		ui.bindItem(post);
 	}
 
+	@UiThread
 	protected void onBlogPostLoadException(DbException exception) {
 		// TODO: Decide how to handle errors in the UI
 		finish();

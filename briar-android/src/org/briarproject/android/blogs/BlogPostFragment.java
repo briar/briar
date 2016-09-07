@@ -13,7 +13,7 @@ import org.briarproject.api.sync.MessageId;
 
 import javax.inject.Inject;
 
-import static org.briarproject.android.blogs.BlogActivity.POST_ID;
+import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 
 public class BlogPostFragment extends BasePostFragment {
 
