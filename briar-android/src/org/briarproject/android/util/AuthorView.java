@@ -3,6 +3,7 @@ package org.briarproject.android.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +27,7 @@ import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.graphics.Typeface.BOLD;
+import static android.graphics.Typeface.NORMAL;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -36,6 +38,7 @@ public class AuthorView extends RelativeLayout {
 	private final CircleImageView avatar;
 	private final ImageView avatarIcon;
 	private final TextView authorName;
+	private final Typeface authorNameTypeface;
 	private final TextView date;
 	private final TrustIndicatorView trustIndicator;
 
@@ -49,6 +52,7 @@ public class AuthorView extends RelativeLayout {
 		avatar = (CircleImageView) findViewById(R.id.avatar);
 		avatarIcon = (ImageView) findViewById(R.id.avatarIcon);
 		authorName = (TextView) findViewById(R.id.authorName);
+		authorNameTypeface = authorName.getTypeface();
 		date = (TextView) findViewById(R.id.dateView);
 		trustIndicator = (TrustIndicatorView) findViewById(R.id.trustIndicator);
 
@@ -75,7 +79,9 @@ public class AuthorView extends RelativeLayout {
 	public void setAuthorStatus(Status status) {
 		trustIndicator.setTrustLevel(status);
 		if (status == OURSELVES) {
-			authorName.setTypeface(authorName.getTypeface(), BOLD);
+			authorName.setTypeface(authorNameTypeface, BOLD);
+		} else {
+			authorName.setTypeface(authorNameTypeface, NORMAL);
 		}
 
 		invalidate();
