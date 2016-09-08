@@ -74,7 +74,9 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		super.onNewIntent(intent);
 		exitIfStartupFailed(intent);
 		checkAuthorHandle(intent);
-		clearBackStack();
+		// FIXME why was the stack cleared here?
+		// This prevents state from being restored properly
+//		clearBackStack();
 		if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
 			startFragment(ForumListFragment.newInstance());
 		}
@@ -248,7 +250,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	@Override
 	public void hideLoadingScreen() {
 		drawerLayout.setDrawerLockMode(LOCK_MODE_UNLOCKED);
-		CustomAnimations.animateHeight(toolbar, true, 250);
 		progressViewGroup.setVisibility(INVISIBLE);
 	}
 

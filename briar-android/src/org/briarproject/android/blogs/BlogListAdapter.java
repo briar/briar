@@ -29,11 +29,11 @@ import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
 class BlogListAdapter extends
 		RecyclerView.Adapter<BlogListAdapter.BlogViewHolder> {
 
-	private SortedList<BlogListItem> blogs = new SortedList<>(
-			BlogListItem.class, new SortedList.Callback<BlogListItem>() {
+	private SortedList<BlogItem> blogs = new SortedList<>(
+			BlogItem.class, new SortedList.Callback<BlogItem>() {
 
 		@Override
-		public int compare(BlogListItem a, BlogListItem b) {
+		public int compare(BlogItem a, BlogItem b) {
 			if (a == b) return 0;
 			// The blog with the newest message comes first
 			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
@@ -66,14 +66,14 @@ class BlogListAdapter extends
 		}
 
 		@Override
-		public boolean areContentsTheSame(BlogListItem a, BlogListItem b) {
+		public boolean areContentsTheSame(BlogItem a, BlogItem b) {
 			return a.getBlog().equals(b.getBlog()) &&
 					a.getTimestamp() == b.getTimestamp() &&
 					a.getUnreadCount() == b.getUnreadCount();
 		}
 
 		@Override
-		public boolean areItemsTheSame(BlogListItem a, BlogListItem b) {
+		public boolean areItemsTheSame(BlogItem a, BlogItem b) {
 			return a.getBlog().equals(b.getBlog());
 		}
 	});
@@ -93,7 +93,7 @@ class BlogListAdapter extends
 
 	@Override
 	public void onBindViewHolder(BlogViewHolder ui, int position) {
-		final BlogListItem item = getItem(position);
+		final BlogItem item = getItem(position);
 
 		// Avatar
 		ui.avatar.setText(item.getName().substring(0, 1));
@@ -145,14 +145,14 @@ class BlogListAdapter extends
 		return blogs.size();
 	}
 
-	public BlogListItem getItem(int position) {
+	public BlogItem getItem(int position) {
 		return blogs.get(position);
 	}
 
 	@Nullable
-	public BlogListItem getItem(GroupId g) {
+	public BlogItem getItem(GroupId g) {
 		for (int i = 0; i < blogs.size(); i++) {
-			BlogListItem item = blogs.get(i);
+			BlogItem item = blogs.get(i);
 			if (item.getBlog().getGroup().getId().equals(g)) {
 				return item;
 			}
@@ -160,17 +160,17 @@ class BlogListAdapter extends
 		return null;
 	}
 
-	public void addAll(Collection<BlogListItem> items) {
+	public void addAll(Collection<BlogItem> items) {
 		blogs.addAll(items);
 	}
 
-	void updateItem(BlogListItem item) {
-		BlogListItem oldItem = getItem(item.getBlog().getGroup().getId());
+	void updateItem(BlogItem item) {
+		BlogItem oldItem = getItem(item.getBlog().getGroup().getId());
 		int position = blogs.indexOf(oldItem);
 		blogs.updateItemAt(position, item);
 	}
 
-	public void remove(BlogListItem item) {
+	public void remove(BlogItem item) {
 		blogs.remove(item);
 	}
 

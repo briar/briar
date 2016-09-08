@@ -5,15 +5,16 @@ import org.briarproject.api.blogs.BlogPostHeader;
 
 import java.util.Collection;
 
-class BlogListItem {
+class BlogItem {
 
 	private final Blog blog;
 	private final int postCount;
 	private final long timestamp;
 	private final int unread;
-	private final boolean ours;
+	private final boolean ours, removable;
 
-	BlogListItem(Blog blog, Collection<BlogPostHeader> headers, boolean ours) {
+	BlogItem(Blog blog, Collection<BlogPostHeader> headers, boolean ours,
+			boolean removable) {
 		this.blog = blog;
 		if (headers.isEmpty()) {
 			postCount = 0;
@@ -35,6 +36,7 @@ class BlogListItem {
 			this.unread = unread;
 		}
 		this.ours = ours;
+		this.removable = removable;
 	}
 
 	Blog getBlog() {
@@ -63,5 +65,9 @@ class BlogListItem {
 
 	boolean isOurs() {
 		return ours;
+	}
+
+	boolean canBeRemoved() {
+		return removable;
 	}
 }

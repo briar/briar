@@ -10,6 +10,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,7 +27,9 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.blogs.BlogActivity.POST_ID;
+import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
+import static org.briarproject.android.util.AndroidUtils.TEASER_LENGTH;
+import static org.briarproject.android.util.AndroidUtils.getTeaser;
 import static org.briarproject.api.blogs.MessageType.POST;
 
 @UiThread
@@ -81,14 +84,15 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	void bindItem(final BlogPostItem item) {
 		setTransitionName(item.getId());
-		layout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (listener != null) {
+		if (listener != null) {
+			layout.setClickable(true);
+			layout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
 					listener.onBlogPostClick(item);
 				}
-			}
-		});
+			});
+		}
 
 		// author and date
 		BlogPostHeader post = item.getPostHeader();
@@ -104,10 +108,18 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		}
 
 		// post body
-		body.setText(item.getBody());
+		CharSequence bodyText = item.getBody();
+		if (listener == null) {
+			body.setTextIsSelectable(true);
+		} else {
+			body.setTextIsSelectable(false);
+			if (item.getBody().length() > TEASER_LENGTH)
+				bodyText = getTeaser(ctx, item.getBody());
+		}
+		body.setText(bodyText);
 
 		// reblog button
-		reblogButton.setOnClickListener(new View.OnClickListener() {
+		reblogButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent i = new Intent(ctx, ReblogActivity.class);
@@ -154,6 +166,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			// TODO make author clickable #624
 
 			body.setText(c.getComment());
+			if (listener == null) body.setTextIsSelectable(true);
 
 			commentContainer.addView(v);
 		}

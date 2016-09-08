@@ -27,7 +27,6 @@
 	<dimen name="listitem_picture_frame_size">53dp</dimen>
 	<dimen name="listitem_picture_frame_offset">2dp</dimen>
 	<dimen name="listitem_selectable_picture_size">40dp</dimen>
-	<dimen name="dropdown_picture_size">32dp</dimen>
 	<dimen name="avatar_forum_size">48dp</dimen>
 	<dimen name="avatar_border_width">2dp</dimen>
 	<dimen name="avatar_text_size">30sp</dimen>

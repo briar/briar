@@ -6,7 +6,8 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:foreground="?android:attr/selectableItemBackground">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -55,7 +56,6 @@
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/authorView"
 				android:textColor="@color/briar_text_secondary"
-				android:textIsSelectable="true"
 				android:textSize="@dimen/text_size_medium"
 				tools:text="This is a body text that shows the content of a blog post.\n\nThis one is not short, but it is also not too long."/>
 

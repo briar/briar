@@ -26,6 +26,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.graphics.Typeface.BOLD;
 import static android.graphics.Typeface.NORMAL;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
@@ -106,6 +107,7 @@ public class AuthorView extends RelativeLayout {
 			public void onClick(View v) {
 				Intent i = new Intent(getContext(), BlogActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				ActivityOptionsCompat options =
 						makeCustomAnimation(getContext(),
 								android.R.anim.slide_in_left,

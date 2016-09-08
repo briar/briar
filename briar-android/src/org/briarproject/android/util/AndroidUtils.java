@@ -6,7 +6,12 @@ import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
+import android.text.style.ForegroundColorSpan;
 
 import org.briarproject.R;
 import org.briarproject.util.IoUtils;
@@ -31,6 +36,7 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 public class AndroidUtils {
 
 	public static final long MIN_RESOLUTION = MINUTE_IN_MILLIS;
+	public static final int TEASER_LENGTH = 240;
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
@@ -113,6 +119,27 @@ public class AndroidUtils {
 		return DateUtils
 				.getRelativeTimeSpanString(time, System.currentTimeMillis(),
 						MIN_RESOLUTION, flags).toString();
+	}
+
+	public static SpannableStringBuilder getTeaser(Context ctx, String body) {
+		if (body.length() < TEASER_LENGTH)
+			throw new IllegalArgumentException(
+					"String is shorter than TEASER_LENGTH");
+
+		SpannableStringBuilder builder =
+				new SpannableStringBuilder(body.substring(0, TEASER_LENGTH));
+		String ellipsis = ctx.getString(R.string.ellipsis);
+		builder.append(ellipsis).append(" ");
+
+		Spannable readMore = new SpannableString(
+				ctx.getString(R.string.read_more) + ellipsis);
+		ForegroundColorSpan fg = new ForegroundColorSpan(
+				ContextCompat.getColor(ctx, R.color.briar_text_link));
+		readMore.setSpan(fg, 0, readMore.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		builder.append(readMore);
+
+		return builder;
 	}
 
 }

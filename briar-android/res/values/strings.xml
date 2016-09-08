@@ -73,6 +73,7 @@
 	<string name="offline">Offline</string>
 	<string name="send">Send</string>
 	<string name="no_data">No data</string>
+	<string name="ellipsis">…</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
@@ -199,18 +200,16 @@
 	<string name="nobody">Nobody</string>
 
 	<!-- Blogs -->
-	<string name="blogs_feed">Feed</string>
-	<string name="blogs_my_blogs">My Blogs</string>
 	<string name="blogs_my_blogs_create">Create Blog</string>
 	<string name="blogs_my_blogs_label">Add new Blog</string>
 	<string name="blogs_my_blogs_create_hint_title">Blog title (cannot be changed later)</string>
 	<string name="blogs_my_blogs_create_hint_desc">A short description of your new blog</string>
 	<string name="blogs_my_blogs_create_hint_desc_explanation">Potential readers may or may not subscribe to your blog based on the content of the description.</string>
-	<string name="blogs_my_blogs_empty_state">You don\'t have any blogs.\n\nWhy don\'t you create one now by clicking the plus in the top right screen corner?</string>
 	<string name="blogs_my_blogs_created">Blog created</string>
 	<string name="blogs_blog_is_empty">This blog is empty</string>
 	<string name="blogs_other_blog_empty_state">This blog is currently empty.\n\nEither the author hasn\'t written anything yet, or the person who shared this blog with you needs to come online, so posts can be synchronized.</string>
 	<string name="tag_new">NEW</string>
+	<string name="read_more">read more</string>
 	<string name="blogs_write_blog_post">Write Blog Post</string>
 	<string name="blogs_write_blog_post_title_hint">Add a title (optional)</string>
 	<string name="blogs_write_blog_post_body_hint">Type your blog post here</string>
@@ -231,7 +230,6 @@
 
 	<string name="blogs_blog_list">Blog List</string>
 	<string name="blogs_available_blogs">Available Blogs</string>
-	<string name="blogs_drafts">Drafts</string>
 
 	<!-- Blog Sharing -->
 	<string name="blogs_sharing_share">Share Blog</string>
@@ -312,7 +310,6 @@
 
 	<!-- Multiple Identities -->
 	<string name="anonymous">Anonymous</string>
-	<string name="new_identity_item">New identity\u2026</string>
 	<string name="new_identity_title">New Identity</string>
 	<string name="create_identity_button">Create Identity</string>
 	<string name="identity_created_toast">Identity created</string>
