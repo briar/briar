@@ -59,7 +59,6 @@ public abstract class BriarActivity extends BaseActivity {
 
 	protected void signOut(final boolean removeFromRecentApps) {
 		briarController.signOut(new UiResultHandler<Void>(this) {
-
 			@Override
 			public void onResultUi(Void result) {
 				if (removeFromRecentApps) startExitActivity();

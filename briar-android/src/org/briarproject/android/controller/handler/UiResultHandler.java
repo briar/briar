@@ -2,13 +2,14 @@ package org.briarproject.android.controller.handler;
 
 import android.support.annotation.UiThread;
 
+import org.briarproject.android.DestroyableActivity;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 
 public abstract class UiResultHandler<R> implements ResultHandler<R> {
 
-	private final BaseFragmentListener listener;
+	private final DestroyableActivity listener;
 
-	protected UiResultHandler(BaseFragmentListener listener) {
+	protected UiResultHandler(DestroyableActivity listener) {
 		this.listener = listener;
 	}
 

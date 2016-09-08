@@ -7,7 +7,7 @@ import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.Destroyable;
+import org.briarproject.android.DestroyableActivity;
 
 public abstract class BaseFragment extends Fragment {
 
@@ -46,15 +46,13 @@ public abstract class BaseFragment extends Fragment {
 		getActivity().supportFinishAfterTransition();
 	}
 
-	public interface BaseFragmentListener extends Destroyable {
+	public interface BaseFragmentListener extends DestroyableActivity {
 
 		@UiThread
 		void showLoadingScreen(boolean isBlocking, int stringId);
 
 		@UiThread
 		void hideLoadingScreen();
-
-		void runOnUiThread(Runnable runnable);
 
 		void runOnDbThread(Runnable runnable);
 

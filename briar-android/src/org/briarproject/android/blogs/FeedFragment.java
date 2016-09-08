@@ -100,7 +100,7 @@ public class FeedFragment extends BaseFragment implements
 		super.onStart();
 		feedController.onStart();
 		feedController.loadPersonalBlog(
-				new UiResultHandler<Blog>(getActivity()) {
+				new UiResultHandler<Blog>(listener) {
 					@Override
 					public void onResultUi(Blog b) {
 						personalBlog = b;

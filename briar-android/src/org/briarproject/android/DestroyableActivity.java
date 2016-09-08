@@ -2,7 +2,9 @@ package org.briarproject.android;
 
 import android.support.annotation.UiThread;
 
-public interface Destroyable {
+public interface DestroyableActivity {
+
+	void runOnUiThread(Runnable runnable);
 
 	@UiThread
 	boolean hasBeenDestroyed();
