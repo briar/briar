@@ -65,7 +65,7 @@ public class FeedPostFragment extends BasePostFragment {
 		super.onStart();
 		feedController.loadBlogPost(blogId, postId,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						getActivity()) {
+						listener) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						onBlogPostLoaded(post);

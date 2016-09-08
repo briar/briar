@@ -108,7 +108,7 @@ public class FeedFragment extends BaseFragment implements
 				});
 		feedController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						getActivity()) {
+						listener) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
 						if (posts.isEmpty()) {
@@ -175,7 +175,7 @@ public class FeedFragment extends BaseFragment implements
 	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
 		feedController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						getActivity()) {
+						listener) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						adapter.add(post);

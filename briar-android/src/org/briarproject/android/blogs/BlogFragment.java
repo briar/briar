@@ -209,7 +209,7 @@ public class BlogFragment extends BaseFragment implements
 	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
 		blogController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						getActivity()) {
+						listener) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						adapter.add(post);
@@ -233,7 +233,7 @@ public class BlogFragment extends BaseFragment implements
 	void loadBlogPosts(final boolean reload) {
 		blogController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						getActivity()) {
+						listener) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
 						if (posts.size() > 0) {
@@ -254,8 +254,7 @@ public class BlogFragment extends BaseFragment implements
 
 	private void loadBlog() {
 		blogController.loadBlog(
-				new UiResultExceptionHandler<BlogItem, DbException>(
-						getActivity()) {
+				new UiResultExceptionHandler<BlogItem, DbException>(listener) {
 					@Override
 					public void onResultUi(BlogItem blog) {
 						setToolbarTitle(blog.getBlog().getAuthor());
@@ -333,7 +332,7 @@ public class BlogFragment extends BaseFragment implements
 
 	private void deleteBlog() {
 		blogController.deleteBlog(
-				new UiResultExceptionHandler<Void, DbException>(getActivity()) {
+				new UiResultExceptionHandler<Void, DbException>(listener) {
 					@Override
 					public void onResultUi(Void result) {
 						Toast.makeText(getActivity(),
