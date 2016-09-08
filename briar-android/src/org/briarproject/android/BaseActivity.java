@@ -18,7 +18,7 @@ import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 public abstract class BaseActivity extends AppCompatActivity
-		implements Destroyable {
+		implements DestroyableActivity {
 
 	protected ActivityComponent activityComponent;
 
