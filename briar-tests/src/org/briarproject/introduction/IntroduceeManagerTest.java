@@ -279,8 +279,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 
 			// store session state
 			oneOf(clientHelper)
-					.addLocalMessage(txn, localStateMessage, clientId, state,
-							false);
+					.addLocalMessage(txn, localStateMessage, state, false);
 		}});
 
 		BdfDictionary result = introduceeManager.initialize(txn, groupId, msg);

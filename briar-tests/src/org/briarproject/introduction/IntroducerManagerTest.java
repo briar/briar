@@ -167,8 +167,7 @@ public class IntroducerManagerTest extends BriarTestCase {
 			oneOf(introductionGroupFactory)
 					.createIntroductionGroup(introducee2);
 			will(returnValue(introductionGroup2));
-			oneOf(clientHelper).addLocalMessage(txn, msg, getClientId(), state,
-					false);
+			oneOf(clientHelper).addLocalMessage(txn, msg, state, false);
 
 			// send message
 			oneOf(clientHelper).mergeMessageMetadata(txn, msg.getId(), state2);

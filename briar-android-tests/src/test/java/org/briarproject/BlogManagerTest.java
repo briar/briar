@@ -58,7 +58,6 @@ import static org.briarproject.api.blogs.MessageType.WRAPPED_POST;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
-import static org.briarproject.api.sync.ValidationManager.State.VALID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -536,14 +535,14 @@ public class BlogManagerTest {
 	}
 
 	private class Listener implements EventListener {
+		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
 				if (!event.isLocal()) {
 					if (event.getState() == DELIVERED) {
 						deliveryWaiter.resume();
-					} else if (event.getState() == VALID ||
-							event.getState() == INVALID ||
+					} else if (event.getState() == INVALID ||
 							event.getState() == PENDING) {
 						validationWaiter.resume();
 					}

@@ -1,8 +1,7 @@
 package org.briarproject.api.event;
 
-import org.briarproject.api.sync.ClientId;
-import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.ValidationManager;
+import org.briarproject.api.sync.MessageId;
+
 import static org.briarproject.api.sync.ValidationManager.State;
 
 /**
@@ -10,25 +9,19 @@ import static org.briarproject.api.sync.ValidationManager.State;
  */
 public class MessageStateChangedEvent extends Event {
 
-	private final Message message;
-	private final ClientId clientId;
+	private final MessageId messageId;
 	private final boolean local;
 	private final State state;
 
-	public MessageStateChangedEvent(Message message, ClientId clientId,
-			boolean local, State state) {
-		this.message = message;
-		this.clientId = clientId;
+	public MessageStateChangedEvent(MessageId messageId, boolean local,
+			State state) {
+		this.messageId = messageId;
 		this.local = local;
 		this.state = state;
 	}
 
-	public Message getMessage() {
-		return message;
-	}
-
-	public ClientId getClientId() {
-		return clientId;
+	public MessageId getMessageId() {
+		return messageId;
 	}
 
 	public boolean isLocal() {

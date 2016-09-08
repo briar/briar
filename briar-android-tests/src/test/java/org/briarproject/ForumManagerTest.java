@@ -57,7 +57,6 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGT
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
-import static org.briarproject.api.sync.ValidationManager.State.VALID;
 import static org.junit.Assert.assertTrue;
 
 public class ForumManagerTest {
@@ -298,7 +297,7 @@ public class ForumManagerTest {
 		assertEquals(1, forumManager0.getPostHeaders(g).size());
 		assertEquals(0, forumManager1.getPostHeaders(g).size());
 
-		// send posts to 1
+		// send the child post to 1
 		sync0To1();
 		validationWaiter.await(TIMEOUT, 1);
 		assertEquals(1, forumManager0.getPostHeaders(g).size());
@@ -327,14 +326,14 @@ public class ForumManagerTest {
 	}
 
 	private class Listener implements EventListener {
+		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
 				if (!event.isLocal()) {
 					if (event.getState() == DELIVERED) {
 						deliveryWaiter.resume();
-					} else if (event.getState() == VALID ||
-							event.getState() == INVALID ||
+					} else if (event.getState() == INVALID ||
 							event.getState() == PENDING) {
 						validationWaiter.resume();
 					}

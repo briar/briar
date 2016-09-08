@@ -177,8 +177,7 @@ class IntroduceeManager {
 		d.put(REMOTE_AUTHOR_IS_US, introducesOtherIdentity);
 
 		// save local state to database
-		clientHelper.addLocalMessage(txn, localMsg,
-				IntroductionManagerImpl.CLIENT_ID, d, false);
+		clientHelper.addLocalMessage(txn, localMsg, d, false);
 
 		return d;
 	}

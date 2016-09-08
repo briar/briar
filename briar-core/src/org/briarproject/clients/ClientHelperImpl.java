@@ -18,7 +18,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
@@ -62,11 +61,11 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public void addLocalMessage(Message m, ClientId c, BdfDictionary metadata,
+	public void addLocalMessage(Message m, BdfDictionary metadata,
 			boolean shared) throws DbException, FormatException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			addLocalMessage(txn, m, c, metadata, shared);
+			addLocalMessage(txn, m, metadata, shared);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -74,10 +73,10 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public void addLocalMessage(Transaction txn, Message m, ClientId c,
+	public void addLocalMessage(Transaction txn, Message m,
 			BdfDictionary metadata, boolean shared)
 			throws DbException, FormatException {
-		db.addLocalMessage(txn, m, c, metadataEncoder.encode(metadata), shared);
+		db.addLocalMessage(txn, m, metadataEncoder.encode(metadata), shared);
 	}
 
 	@Override

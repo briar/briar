@@ -50,7 +50,6 @@ import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
-import static org.briarproject.api.sync.ValidationManager.State.VALID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -67,6 +66,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final GroupId groupId;
+	private final ClientId clientId;
 	private final Group group;
 	private final Author author;
 	private final AuthorId localAuthorId;
@@ -81,7 +81,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	public H2DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
-		ClientId clientId = new ClientId(TestUtils.getRandomId());
+		clientId = new ClientId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[0];
 		group = new Group(groupId, clientId, descriptor);
 		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
@@ -239,16 +239,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertTrue(ids.isEmpty());
 
-		// Marking the message valid should make it unsendable
-		// TODO do we maybe want to already send valid messages? If we do, we need also to call db.setMessageShared() earlier.
-		db.setMessageState(txn, messageId, VALID);
-		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertTrue(ids.isEmpty());
-		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertTrue(ids.isEmpty());
-
 		// Marking the message pending should make it unsendable
-		// TODO do we maybe want to already send pending messages? If we do, we need also to call db.setMessageShared() earlier.
 		db.setMessageState(txn, messageId, PENDING);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertTrue(ids.isEmpty());
@@ -1019,13 +1010,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		map = db.getMessageMetadata(txn, groupId);
 		assertTrue(map.isEmpty());
 
-		// No metadata for valid messages
-		db.setMessageState(txn, messageId, VALID);
-		retrieved = db.getMessageMetadata(txn, messageId);
-		assertTrue(retrieved.isEmpty());
-		map = db.getMessageMetadata(txn, groupId);
-		assertTrue(map.isEmpty());
-
 		// No metadata for pending messages
 		db.setMessageState(txn, messageId, PENDING);
 		retrieved = db.getMessageMetadata(txn, messageId);
@@ -1033,7 +1017,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		map = db.getMessageMetadata(txn, groupId);
 		assertTrue(map.isEmpty());
 
-		// validator gets also metadata for pending messages
+		// Validator can get metadata for pending messages
 		retrieved = db.getMessageMetadataForValidator(txn, messageId);
 		assertFalse(retrieved.isEmpty());
 
@@ -1198,12 +1182,6 @@ public class H2DatabaseTest extends BriarTestCase {
 			all = db.getMessageMetadata(txn, groupId, query);
 			assertTrue(all.isEmpty());
 
-			// No metadata for valid messages
-			db.setMessageState(txn, messageId, VALID);
-			db.setMessageState(txn, messageId1, VALID);
-			all = db.getMessageMetadata(txn, groupId, query);
-			assertTrue(all.isEmpty());
-
 			// No metadata for pending messages
 			db.setMessageState(txn, messageId, PENDING);
 			db.setMessageState(txn, messageId1, PENDING);
@@ -1217,149 +1195,139 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testMessageDependencies() throws Exception {
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId4 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new Message(messageId1, groupId, timestamp, raw);
+		Message message2 = new Message(messageId2, groupId, timestamp, raw);
+
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a group and a message
+		// Add a group and some messages
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
-
-		// Create more messages
-		MessageId mId1 = new MessageId(TestUtils.getRandomId());
-		MessageId mId2 = new MessageId(TestUtils.getRandomId());
-		MessageId dId1 = new MessageId(TestUtils.getRandomId());
-		MessageId dId2 = new MessageId(TestUtils.getRandomId());
-		Message m1 = new Message(mId1, groupId, timestamp, raw);
-		Message m2 = new Message(mId2, groupId, timestamp, raw);
-
-		// Add new messages
-		db.addMessage(txn, m1, VALID, true);
-		db.addMessage(txn, m2, INVALID, true);
+		db.addMessage(txn, message, PENDING, true);
+		db.addMessage(txn, message1, DELIVERED, true);
+		db.addMessage(txn, message2, INVALID, true);
 
 		// Add dependencies
-		db.addMessageDependency(txn, messageId, mId1);
-		db.addMessageDependency(txn, messageId, mId2);
-		db.addMessageDependency(txn, mId1, dId1);
-		db.addMessageDependency(txn, mId2, dId2);
+		db.addMessageDependency(txn, groupId, messageId, messageId1);
+		db.addMessageDependency(txn, groupId, messageId, messageId2);
+		db.addMessageDependency(txn, groupId, messageId1, messageId3);
+		db.addMessageDependency(txn, groupId, messageId2, messageId4);
 
 		Map<MessageId, State> dependencies;
 
 		// Retrieve dependencies for root
 		dependencies = db.getMessageDependencies(txn, messageId);
 		assertEquals(2, dependencies.size());
-		assertEquals(VALID, dependencies.get(mId1));
-		assertEquals(INVALID, dependencies.get(mId2));
+		assertEquals(DELIVERED, dependencies.get(messageId1));
+		assertEquals(INVALID, dependencies.get(messageId2));
 
-		// Retrieve dependencies for m1
-		dependencies = db.getMessageDependencies(txn, mId1);
+		// Retrieve dependencies for message 1
+		dependencies = db.getMessageDependencies(txn, messageId1);
 		assertEquals(1, dependencies.size());
-		assertEquals(UNKNOWN, dependencies.get(dId1));
+		assertEquals(UNKNOWN, dependencies.get(messageId3)); // Missing
 
-		// Retrieve dependencies for m2
-		dependencies = db.getMessageDependencies(txn, mId2);
+		// Retrieve dependencies for message 2
+		dependencies = db.getMessageDependencies(txn, messageId2);
 		assertEquals(1, dependencies.size());
-		assertEquals(UNKNOWN, dependencies.get(dId2));
+		assertEquals(UNKNOWN, dependencies.get(messageId4)); // Missing
 
-		// Make sure d's have no dependencies
-		dependencies = db.getMessageDependencies(txn, dId1);
-		assertTrue(dependencies.isEmpty());
-		dependencies = db.getMessageDependencies(txn, dId2);
-		assertTrue(dependencies.isEmpty());
+		// Make sure leaves have no dependencies
+		dependencies = db.getMessageDependencies(txn, messageId3);
+		assertEquals(0, dependencies.size());
+		dependencies = db.getMessageDependencies(txn, messageId4);
+		assertEquals(0, dependencies.size());
 
 		Map<MessageId, State> dependents;
 
 		// Root message does not have dependents
 		dependents = db.getMessageDependents(txn, messageId);
-		assertTrue(dependents.isEmpty());
+		assertEquals(0, dependents.size());
 
-		// The root message depends on both m's
-		dependents = db.getMessageDependents(txn, mId1);
+		// Messages 1 and 2 have the root as a dependent
+		dependents = db.getMessageDependents(txn, messageId1);
 		assertEquals(1, dependents.size());
-		assertEquals(VALID, dependents.get(messageId));
-		dependents = db.getMessageDependents(txn, mId2);
+		assertEquals(PENDING, dependents.get(messageId));
+		dependents = db.getMessageDependents(txn, messageId2);
 		assertEquals(1, dependents.size());
-		assertEquals(VALID, dependents.get(messageId));
+		assertEquals(PENDING, dependents.get(messageId));
 
-		// Both m's depend on the d's
-		dependents = db.getMessageDependents(txn, dId1);
+		// Message 3 has message 1 as a dependent
+		dependents = db.getMessageDependents(txn, messageId3);
 		assertEquals(1, dependents.size());
-		assertEquals(VALID, dependents.get(mId1));
-		dependents = db.getMessageDependents(txn, dId2);
+		assertEquals(DELIVERED, dependents.get(messageId1));
+
+		// Message 4 has message 2 as a dependent
+		dependents = db.getMessageDependents(txn, messageId4);
 		assertEquals(1, dependents.size());
-		assertEquals(INVALID, dependents.get(mId2));
+		assertEquals(INVALID, dependents.get(messageId2));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testMessageDependenciesInSameGroup() throws Exception {
+	public void testMessageDependenciesAcrossGroups() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true);
+		db.addMessage(txn, message, PENDING, true);
 
 		// Add a second group
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, group.getClientId(),
+		Group group1 = new Group(groupId1, clientId,
 				TestUtils.getRandomBytes(42));
 		db.addGroup(txn, group1);
 
 		// Add a message to the second group
-		MessageId mId1 = new MessageId(TestUtils.getRandomId());
-		Message m1 = new Message(mId1, groupId1, timestamp, raw);
-		db.addMessage(txn, m1, DELIVERED, true);
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new Message(messageId1, groupId1, timestamp, raw);
+		db.addMessage(txn, message1, DELIVERED, true);
 
-		// Create a fake dependency as well
-		MessageId mId2 = new MessageId(TestUtils.getRandomId());
+		// Create an ID for a missing message
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 
-		// Create and add a real and proper dependency
-		MessageId mId3 = new MessageId(TestUtils.getRandomId());
-		Message m3 = new Message(mId3, groupId, timestamp, raw);
-		db.addMessage(txn, m3, PENDING, true);
+		// Add another message to the first group
+		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
+		Message message3 = new Message(messageId3, groupId, timestamp, raw);
+		db.addMessage(txn, message3, DELIVERED, true);
 
-		// Add dependencies
-		db.addMessageDependency(txn, messageId, mId1);
-		db.addMessageDependency(txn, messageId, mId2);
-		db.addMessageDependency(txn, messageId, mId3);
+		// Add dependencies between the messages
+		db.addMessageDependency(txn, groupId, messageId, messageId1);
+		db.addMessageDependency(txn, groupId, messageId, messageId2);
+		db.addMessageDependency(txn, groupId, messageId, messageId3);
 
-		// Return invalid dependencies for delivered message m1
+		// Retrieve the dependencies for the root
 		Map<MessageId, State> dependencies;
 		dependencies = db.getMessageDependencies(txn, messageId);
-		assertEquals(INVALID, dependencies.get(mId1));
-		assertEquals(UNKNOWN, dependencies.get(mId2));
-		assertEquals(PENDING, dependencies.get(mId3));
 
-		// Return invalid dependencies for valid message m1
-		db.setMessageState(txn, mId1, VALID);
-		dependencies = db.getMessageDependencies(txn, messageId);
-		assertEquals(INVALID, dependencies.get(mId1));
-		assertEquals(UNKNOWN, dependencies.get(mId2));
-		assertEquals(PENDING, dependencies.get(mId3));
+		// The cross-group dependency should have state INVALID
+		assertEquals(INVALID, dependencies.get(messageId1));
 
-		// Return invalid dependencies for pending message m1
-		db.setMessageState(txn, mId1, PENDING);
-		dependencies = db.getMessageDependencies(txn, messageId);
-		assertEquals(INVALID, dependencies.get(mId1));
-		assertEquals(UNKNOWN, dependencies.get(mId2));
-		assertEquals(PENDING, dependencies.get(mId3));
+		// The missing dependency should have state UNKNOWN
+		assertEquals(UNKNOWN, dependencies.get(messageId2));
+
+		// The valid dependency should have its real state
+		assertEquals(DELIVERED, dependencies.get(messageId3));
+
+		// Retrieve the dependents for the message in the second group
+		Map<MessageId, State> dependents;
+		dependents = db.getMessageDependents(txn, messageId1);
+
+		// The cross-group dependent should have its real state
+		assertEquals(PENDING, dependents.get(messageId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testGetMessagesForValidationAndDelivery() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a group and a message
-		db.addGroup(txn, group);
-		db.addMessage(txn, message, VALID, true);
-
-		// Create more messages
+	public void testGetPendingMessagesForDelivery() throws Exception {
 		MessageId mId1 = new MessageId(TestUtils.getRandomId());
 		MessageId mId2 = new MessageId(TestUtils.getRandomId());
 		MessageId mId3 = new MessageId(TestUtils.getRandomId());
@@ -1369,7 +1337,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		Message m3 = new Message(mId3, groupId, timestamp, raw);
 		Message m4 = new Message(mId4, groupId, timestamp, raw);
 
-		// Add new messages with different states
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and some messages with different states
+		db.addGroup(txn, group);
 		db.addMessage(txn, m1, UNKNOWN, true);
 		db.addMessage(txn, m2, INVALID, true);
 		db.addMessage(txn, m3, PENDING, true);
@@ -1378,17 +1350,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Collection<MessageId> result;
 
 		// Retrieve messages to be validated
-		result = db.getMessagesToValidate(txn, group.getClientId());
+		result = db.getMessagesToValidate(txn, clientId);
 		assertEquals(1, result.size());
 		assertTrue(result.contains(mId1));
 
-		// Retrieve messages to be delivered
-		result = db.getMessagesToDeliver(txn, group.getClientId());
-		assertEquals(1, result.size());
-		assertTrue(result.contains(messageId));
-
 		// Retrieve pending messages
-		result = db.getPendingMessages(txn, group.getClientId());
+		result = db.getPendingMessages(txn, clientId);
 		assertEquals(1, result.size());
 		assertTrue(result.contains(mId3));
 
@@ -1602,6 +1569,29 @@ public class H2DatabaseTest extends BriarTestCase {
 		// The contact should be active
 		contact = db.getContact(txn, contactId);
 		assertTrue(contact.isActive());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetMessageState() throws Exception {
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and a message
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, UNKNOWN, false);
+
+		// Walk the message through the validation and delivery states
+		assertEquals(UNKNOWN, db.getMessageState(txn, messageId));
+		db.setMessageState(txn, messageId, INVALID);
+		assertEquals(INVALID, db.getMessageState(txn, messageId));
+		db.setMessageState(txn, messageId, PENDING);
+		assertEquals(PENDING, db.getMessageState(txn, messageId));
+		db.setMessageState(txn, messageId, DELIVERED);
+		assertEquals(DELIVERED, db.getMessageState(txn, messageId));
 
 		db.commitTransaction(txn);
 		db.close();

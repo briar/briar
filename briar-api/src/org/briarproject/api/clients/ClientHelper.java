@@ -5,7 +5,6 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -15,12 +14,11 @@ import java.util.Map;
 
 public interface ClientHelper {
 
-	void addLocalMessage(Message m, ClientId c, BdfDictionary metadata,
-			boolean shared) throws DbException, FormatException;
+	void addLocalMessage(Message m, BdfDictionary metadata, boolean shared)
+			throws DbException, FormatException;
 
-	void addLocalMessage(Transaction txn, Message m, ClientId c,
-			BdfDictionary metadata, boolean shared) throws DbException,
-			FormatException;
+	void addLocalMessage(Transaction txn, Message m, BdfDictionary metadata,
+			boolean shared) throws DbException, FormatException;
 
 	Message createMessage(GroupId g, long timestamp, BdfDictionary body)
 			throws FormatException;

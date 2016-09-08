@@ -18,6 +18,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.transport.TransportKeys;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -83,10 +84,10 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Adds a dependency between two MessageIds
+	 * Adds a dependency between two messages in the given group.
 	 */
-	void addMessageDependency(T txn, MessageId dependentId,
-			MessageId dependencyId) throws DbException;
+	void addMessageDependency(T txn, GroupId g, MessageId dependent,
+			MessageId dependency) throws DbException;
 
 	/**
 	 * Records that a message has been offered by the given contact.
@@ -281,11 +282,13 @@ interface Database<T> {
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
-	 * Returns the dependencies of the given message.
-	 * This method makes sure that dependencies in different groups
-	 * are returned as {@link ValidationManager.State.INVALID}. Note that this
-	 * is not set on the dependencies themselves; the returned states should
-	 * only be taken in the context of the given message.
+	 * Returns the IDs and states of all dependencies of the given message.
+	 * Missing dependencies have the state {@link
+	 * org.briarproject.api.sync.ValidationManager.State UNKNOWN}.
+	 * Dependencies in other groups have the state {@link
+	 * org.briarproject.api.sync.ValidationManager.State INVALID}.
+	 * Note that these states are not set on the dependencies themselves; the
+	 * returned states should only be taken in the context of the given message.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -293,7 +296,9 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns all IDs of messages that depend on the given message.
+	 * Returns all IDs and states of all dependents of the given message.
+	 * Messages in other groups that declare a dependency on the given message
+	 * will be returned even though such dependencies are invalid.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -351,6 +356,13 @@ interface Database<T> {
 	Metadata getMessageMetadata(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns the validation and delivery state of the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	State getMessageState(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the status of all messages in the given group with respect
 	 * to the given contact.
 	 * <p/>
@@ -375,15 +387,6 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
-			throws DbException;
-
-	/**
-	 * Returns the IDs of any messages that need to be delivered to the given
-	 * client.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<MessageId> getMessagesToDeliver(T txn, ClientId c)
 			throws DbException;
 
 	/**
@@ -437,6 +440,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
+	@Nullable
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
 
 	/**
@@ -592,7 +596,7 @@ interface Database<T> {
 	 * Marks the given contact as active or inactive.
 	 */
 	void setContactActive(T txn, ContactId c, boolean active)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Marks the given message as shared or unshared.
@@ -601,10 +605,9 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Marks the given message as valid or invalid.
+	 * Sets the validation and delivery state of the given message.
 	 */
-	void setMessageState(T txn, MessageId m, State state)
-			throws DbException;
+	void setMessageState(T txn, MessageId m, State state) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given contact and transport in the

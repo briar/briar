@@ -246,7 +246,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			meta.put("transportId", t.getString());
 			meta.put("version", version);
 			meta.put("local", local);
-			clientHelper.addLocalMessage(txn, m, CLIENT_ID, meta, shared);
+			clientHelper.addLocalMessage(txn, m, meta, shared);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

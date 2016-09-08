@@ -18,6 +18,7 @@ import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.transport.TransportKeys;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -77,7 +78,7 @@ public interface DatabaseComponent {
 	/**
 	 * Stores a local message.
 	 */
-	void addLocalMessage(Transaction txn, Message m, ClientId c, Metadata meta,
+	void addLocalMessage(Transaction txn, Message m, Metadata meta,
 			boolean shared) throws DbException;
 
 	/**
@@ -125,6 +126,7 @@ public interface DatabaseComponent {
 	 * Returns an acknowledgement for the given contact, or null if there are
 	 * no messages to acknowledge.
 	 */
+	@Nullable
 	Ack generateAck(Transaction txn, ContactId c, int maxMessages)
 			throws DbException;
 
@@ -134,6 +136,7 @@ public interface DatabaseComponent {
 	 * transport with the given maximum latency. Returns null if there are no
 	 * sendable messages that fit in the given length.
 	 */
+	@Nullable
 	Collection<byte[]> generateBatch(Transaction txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException;
 
@@ -142,6 +145,7 @@ public interface DatabaseComponent {
 	 * transport with the given maximum latency, or null if there are no
 	 * messages to offer.
 	 */
+	@Nullable
 	Offer generateOffer(Transaction txn, ContactId c, int maxMessages,
 			int maxLatency) throws DbException;
 
@@ -149,6 +153,7 @@ public interface DatabaseComponent {
 	 * Returns a request for the given contact, or null if there are no
 	 * messages to request.
 	 */
+	@Nullable
 	Request generateRequest(Transaction txn, ContactId c, int maxMessages)
 			throws DbException;
 
@@ -159,6 +164,7 @@ public interface DatabaseComponent {
 	 * requested by the contact are returned. Returns null if there are no
 	 * sendable messages that fit in the given length.
 	 */
+	@Nullable
 	Collection<byte[]> generateRequestedBatch(Transaction txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException;
 
@@ -244,17 +250,8 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns the IDs of any messages that need to be delivered to the given
-	 * client.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<MessageId> getMessagesToDeliver(Transaction txn, ClientId c)
-			throws DbException;
-
-	/**
-	 * Returns the IDs of any messages that are still pending due to
-	 * dependencies to other messages for the given client.
+	 * Returns the IDs of any messages that are valid but pending delivery due
+	 * to dependencies on other messages for the given client.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -267,6 +264,7 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
+	@Nullable
 	byte[] getRawMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
@@ -314,7 +312,13 @@ public interface DatabaseComponent {
 			GroupId g) throws DbException;
 
 	/**
-	 * Returns the dependencies of the given message.
+	 * Returns the IDs and states of all dependencies of the given message.
+	 * Missing dependencies have the state {@link
+	 * org.briarproject.api.sync.ValidationManager.State UNKNOWN}.
+	 * Dependencies in other groups have the state {@link
+	 * org.briarproject.api.sync.ValidationManager.State INVALID}.
+	 * Note that these states are not set on the dependencies themselves; the
+	 * returned states should only be taken in the context of the given message.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -323,11 +327,20 @@ public interface DatabaseComponent {
 
 	/**
 	 * Returns all IDs of messages that depend on the given message.
+	 * Messages in other groups that declare a dependency on the given message
+	 * will be returned even though such dependencies are invalid.
 	 * <p/>
 	 * Read-only.
 	 */
 	Map<MessageId, State> getMessageDependents(Transaction txn, MessageId m)
 			throws DbException;
+
+	/**
+	 * Gets the validation and delivery state of the given message.
+	 * <p/>
+	 * Read-only.
+	 */
+	State getMessageState(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the status of the given message with respect to the given
@@ -449,9 +462,9 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Sets the state of the message with respect to validation and delivery.
+	 * Sets the validation and delivery state of the given message.
 	 */
-	void setMessageState(Transaction txn, Message m, ClientId c, State valid)
+	void setMessageState(Transaction txn, MessageId m, State state)
 			throws DbException;
 
 	/**

@@ -25,7 +25,6 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sharing.InvitationMessage;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.sync.ValidationManager.State;
@@ -424,7 +423,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.responseReceived);
 
-		// blog was added successfully and is shard both ways
+		// blog was added successfully and is shared both ways
 		assertEquals(3, blogManager1.getBlogs().size());
 		Collection<Contact> sharedWith =
 				blogSharingManager0.getSharedWith(blog2.getId());
@@ -514,20 +513,13 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		volatile boolean requestReceived = false;
 		volatile boolean responseReceived = false;
 
+		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
 				State s = event.getState();
-				ClientId c = event.getClientId();
-				if ((s == DELIVERED || s == INVALID) &&
-						c.equals(blogSharingManager0.getClientId()) &&
-						!event.isLocal()) {
-					LOG.info("TEST: Sharer received message in group " +
-							event.getMessage().getGroupId().hashCode());
-					msgWaiter.resume();
-				} else if (s == DELIVERED && !event.isLocal() &&
-						c.equals(blogManager0.getClientId())) {
-					LOG.info("TEST: Sharer received blog post");
+				if ((s == DELIVERED || s == INVALID) && !event.isLocal()) {
+					LOG.info("TEST: Sharer received message");
 					msgWaiter.resume();
 				}
 			} else if (e instanceof BlogInvitationResponseReceivedEvent) {
@@ -572,20 +564,13 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 			this(accept, true);
 		}
 
+		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
 				State s = event.getState();
-				ClientId c = event.getClientId();
-				if ((s == DELIVERED || s == INVALID) &&
-						c.equals(blogSharingManager0.getClientId()) &&
-						!event.isLocal()) {
-					LOG.info("TEST: Invitee received message in group " +
-							event.getMessage().getGroupId().hashCode());
-					msgWaiter.resume();
-				} else if (s == DELIVERED && !event.isLocal() &&
-						c.equals(blogManager0.getClientId())) {
-					LOG.info("TEST: Invitee received blog post");
+				if ((s == DELIVERED || s == INVALID) && !event.isLocal()) {
+					LOG.info("TEST: Invitee received message");
 					msgWaiter.resume();
 				}
 			} else if (e instanceof BlogInvitationReceivedEvent) {

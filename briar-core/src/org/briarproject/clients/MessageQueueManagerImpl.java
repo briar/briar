@@ -16,10 +16,10 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
-import org.briarproject.api.sync.MessageContext;
 import org.briarproject.util.ByteUtils;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		saveQueueState(txn, queue.getId(), queueState);
 		QueueMessage q = queueMessageFactory.createMessage(queue.getId(),
 				timestamp, queuePosition, body);
-		db.addLocalMessage(txn, q, queue.getClientId(), meta, true);
+		db.addLocalMessage(txn, q, meta, true);
 		return q;
 	}
 

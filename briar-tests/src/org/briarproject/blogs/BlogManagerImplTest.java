@@ -292,7 +292,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
 			oneOf(clientHelper)
-					.addLocalMessage(txn, message, CLIENT_ID, meta, true);
+					.addLocalMessage(txn, message, meta, true);
 			oneOf(identityManager)
 					.getAuthorStatus(txn, blog1.getAuthor().getId());
 			will(returnValue(VERIFIED));

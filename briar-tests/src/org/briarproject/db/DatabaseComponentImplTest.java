@@ -27,9 +27,9 @@ import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
-import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
@@ -62,7 +62,6 @@ import java.util.Map;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
-import static org.briarproject.api.sync.ValidationManager.State.VALID;
 import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.junit.Assert.assertEquals;
@@ -241,7 +240,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addLocalMessage(transaction, message, clientId, metadata, true);
+			db.addLocalMessage(transaction, message, metadata, true);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
@@ -284,7 +283,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addLocalMessage(transaction, message, clientId, metadata, true);
+			db.addLocalMessage(transaction, message, metadata, true);
 			transaction.setComplete();
 		} finally {
 			db.endTransaction(transaction);
@@ -677,11 +676,11 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the message is in the DB (which it's not)
-			exactly(10).of(database).startTransaction();
+			exactly(11).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(10).of(database).containsMessage(txn, messageId);
+			exactly(11).of(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			exactly(10).of(database).abortTransaction(txn);
+			exactly(11).of(database).abortTransaction(txn);
 			// This is needed for getMessageStatus() to proceed
 			exactly(1).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -731,6 +730,16 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
+			db.getMessageState(transaction, messageId);
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		transaction = db.startTransaction(false);
+		try {
 			db.getMessageStatus(transaction, contactId, messageId);
 			fail();
 		} catch (NoSuchMessageException expected) {
@@ -761,7 +770,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			db.setMessageState(transaction, message, clientId, VALID);
+			db.setMessageState(transaction, messageId, DELIVERED);
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
@@ -1652,8 +1661,10 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
-			oneOf(database).addMessageDependency(txn, messageId, messageId1);
-			oneOf(database).addMessageDependency(txn, messageId, messageId2);
+			oneOf(database).addMessageDependency(txn, groupId, messageId,
+					messageId1);
+			oneOf(database).addMessageDependency(txn, groupId, messageId,
+					messageId2);
 			// getMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
@@ -1664,7 +1675,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).getMessageDependents(txn, messageId);
 			// broadcast for message added event
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(MessageStateChangedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(
+					MessageStateChangedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
 			// endTransaction()
 			oneOf(database).commitTransaction(txn);
@@ -1678,7 +1690,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		assertFalse(db.open());
 		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addLocalMessage(transaction, message, clientId, metadata, true);
+			db.addLocalMessage(transaction, message, metadata, true);
 			Collection<MessageId> dependencies = new ArrayList<>(2);
 			dependencies.add(messageId1);
 			dependencies.add(messageId2);

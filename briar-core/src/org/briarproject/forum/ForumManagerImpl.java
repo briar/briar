@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -48,9 +47,6 @@ import static org.briarproject.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
 
 class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
-
-	private static final Logger LOG =
-			Logger.getLogger(ForumManagerImpl.class.getName());
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"859a7be50dca035b64bd6902fb797097"
@@ -133,7 +129,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			}
 			meta.put(KEY_LOCAL, true);
 			meta.put(KEY_READ, true);
-			clientHelper.addLocalMessage(p.getMessage(), CLIENT_ID, meta, true);
+			clientHelper.addLocalMessage(p.getMessage(), meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
