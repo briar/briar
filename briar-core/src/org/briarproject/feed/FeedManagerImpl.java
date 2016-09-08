@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -437,7 +438,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		}
 		b.append("<p>");
 		if (!StringUtils.isNullOrEmpty(entry.getAuthor())) {
-			b.append("\n\n-- ").append(clean(entry.getAuthor(), stripAll));
+			b.append("-- ").append(entry.getAuthor());
 		}
 		if (entry.getPublishedDate() != null) {
 			b.append(" (").append(entry.getPublishedDate().toString())
@@ -484,8 +485,10 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 	private String getPostBody(String text) {
 		text = clean(text, article);
-		if (text.length() <= MAX_BLOG_POST_BODY_LENGTH) return text;
-		else return text.substring(0, MAX_BLOG_POST_BODY_LENGTH);
+		byte[] textBytes = StringUtils.toUtf8(text);
+		if (textBytes.length <= MAX_BLOG_POST_BODY_LENGTH)
+			return text;
+		return StringUtils.fromUtf8(textBytes, 0, MAX_BLOG_POST_BODY_LENGTH);
 	}
 
 	/**

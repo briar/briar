@@ -46,7 +46,7 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 public class AndroidUtils {
 
 	public static final long MIN_RESOLUTION = MINUTE_IN_MILLIS;
-	public static final int TEASER_LENGTH = 240;
+	public static final int TEASER_LENGTH = 320;
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
@@ -131,13 +131,13 @@ public class AndroidUtils {
 						MIN_RESOLUTION, flags).toString();
 	}
 
-	public static SpannableStringBuilder getTeaser(Context ctx, String body) {
+	public static SpannableStringBuilder getTeaser(Context ctx, Spanned body) {
 		if (body.length() < TEASER_LENGTH)
 			throw new IllegalArgumentException(
 					"String is shorter than TEASER_LENGTH");
 
 		SpannableStringBuilder builder =
-				new SpannableStringBuilder(body.substring(0, TEASER_LENGTH));
+				new SpannableStringBuilder(body.subSequence(0, TEASER_LENGTH));
 		String ellipsis = ctx.getString(R.string.ellipsis);
 		builder.append(ellipsis).append(" ");
 
@@ -176,7 +176,7 @@ public class AndroidUtils {
 			ssb.setSpan(cSpan, start, end, 0);
 		}
 		v.setText(ssb);
-		v.setMovementMethod(LinkMovementMethod.getInstance());
+		v.setMovementMethod(ArticleMovementMethod.getInstance());
 	}
 
 }
