@@ -205,10 +205,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						if (e.getValue() != DELIVERED) allDelivered = false;
 					}
 					if (anyInvalid) {
-						if (db.getMessageState(txn, id) != INVALID) {
-							invalidateMessage(txn, id);
-							invalidate = getDependentsToInvalidate(txn, id);
-						}
+						invalidateMessage(txn, id);
+						invalidate = getDependentsToInvalidate(txn, id);
 					} else if (allDelivered) {
 						Message m = parseMessage(id, db.getRawMessage(txn, id));
 						Group g = db.getGroup(txn, m.getGroupId());
