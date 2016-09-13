@@ -14,7 +14,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.blogs.RssFeedAdapter.RssFeedListener;
-import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.feed.Feed;
 import org.briarproject.api.feed.FeedManager;

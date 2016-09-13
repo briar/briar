@@ -3,9 +3,9 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:orientation="vertical"
 	tools:context=".android.contact.ConversationActivity">
 
 	<android.support.v7.widget.Toolbar
@@ -38,17 +38,18 @@
 
 	</android.support.v7.widget.Toolbar>
 
-	<org.briarproject.android.util.BriarRecyclerView
+	<org.briarproject.android.view.BriarRecyclerView
 		android:id="@+id/conversationView"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_weight="1"/>
+		android:layout_weight="1"
+		android:background="@color/window_background"/>
 
-	<View style="@style/Divider.Horizontal"/>
-
-	<include
-		layout="@layout/text_input_field"
+	<org.briarproject.android.view.TextInputView
+		android:id="@+id/text_input_container"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"/>
+		android:layout_height="wrap_content"
+		android:background="@color/button_bar_background"
+		android:elevation="@dimen/margin_tiny"/>
 
 </LinearLayout>

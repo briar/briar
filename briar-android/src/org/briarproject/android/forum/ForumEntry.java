@@ -1,6 +1,7 @@
 package org.briarproject.android.forum;
 
 import org.briarproject.api.forum.ForumPostHeader;
+import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.MessageId;
@@ -11,26 +12,24 @@ public class ForumEntry {
 	private final String text;
 	private final int level;
 	private final long timestamp;
-	private final String author;
-	private final AuthorId authorId;
+	private final Author author;
 	private Status status;
 	private boolean isShowingDescendants = true;
 	private boolean isRead = true;
 
 	ForumEntry(ForumPostHeader h, String text, int level) {
-		this(h.getId(), text, level, h.getTimestamp(), h.getAuthor().getName(),
-				h.getAuthor().getId(), h.getAuthorStatus());
+		this(h.getId(), text, level, h.getTimestamp(), h.getAuthor(),
+				h.getAuthorStatus());
 		this.isRead = h.isRead();
 	}
 
 	public ForumEntry(MessageId messageId, String text, int level,
-			long timestamp, String author, AuthorId authorId, Status status) {
+			long timestamp, Author author, Status status) {
 		this.messageId = messageId;
 		this.text = text;
 		this.level = level;
 		this.timestamp = timestamp;
 		this.author = author;
-		this.authorId = authorId;
 		this.status = status;
 	}
 
@@ -46,12 +45,8 @@ public class ForumEntry {
 		return timestamp;
 	}
 
-	public String getAuthor() {
+	public Author getAuthor() {
 		return author;
-	}
-
-	AuthorId getAuthorId() {
-		return authorId;
 	}
 
 	public Status getStatus() {

@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.android.util.TextAvatarView;
+import org.briarproject.android.view.TextAvatarView;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.sync.GroupId;
 

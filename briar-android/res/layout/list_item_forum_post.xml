@@ -72,7 +72,7 @@
 		android:layout_marginLeft="@dimen/margin_medium"
 		android:layout_weight="1">
 
-		<TextView
+		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -85,59 +85,13 @@
 			android:textColor="@color/briar_text_primary"
 			tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
-		<de.hdodenhof.circleimageview.CircleImageView
-			android:id="@+id/avatar"
-			android:layout_width="@dimen/forum_avatar_size"
-			android:layout_height="@dimen/forum_avatar_size"
-			android:layout_alignLeft="@id/text"
-			android:layout_below="@id/text"
-			android:layout_marginRight="@dimen/margin_small"
-			android:layout_marginTop="@dimen/margin_small"
-			android:src="@drawable/ic_launcher"
-			app:civ_border_color="@color/briar_primary"
-			app:civ_border_width="@dimen/avatar_border_width"
-			tools:src="@drawable/ic_launcher"
-			/>
-
-		<TextView
+		<org.briarproject.android.view.AuthorView
 			android:id="@+id/author"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/avatar"
-			android:layout_alignBottom="@+id/avatar"
-			android:layout_alignTop="@+id/avatar"
-			android:gravity="center"
-			android:ellipsize="end"
-			android:maxLines="1"
-			android:textSize="@dimen/text_size_tiny"
-			tools:text="John Smith"/>
-
-		<org.briarproject.android.util.TrustIndicatorView
-			android:id="@+id/trustIndicator"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignBottom="@+id/avatar"
-			android:layout_alignTop="@+id/avatar"
-			android:scaleType="center"
-			android:layout_marginLeft="@dimen/margin_small"
-			android:layout_marginStart="@dimen/margin_small"
-			android:layout_toRightOf="@+id/author"
-			tools:src="@drawable/trust_indicator_verified"/>
-
-		<TextView
-			android:id="@+id/date"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignBottom="@+id/avatar"
-			android:layout_alignTop="@+id/avatar"
-			android:gravity="center"
-			android:layout_toRightOf="@+id/trustIndicator"
-			android:layout_marginLeft="@dimen/margin_small"
-			android:layout_marginStart="@dimen/margin_small"
-			android:ellipsize="end"
-			android:maxLines="1"
-			android:textSize="@dimen/text_size_tiny"
-			tools:text="09:09"/>
+			android:layout_alignLeft="@id/text"
+			android:layout_below="@id/text"
+			app:persona="commenter"/>
 
 		<ImageView
 			android:id="@+id/chevron"

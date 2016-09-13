@@ -1,8 +1,10 @@
-package org.briarproject.android.util;
+package org.briarproject.android.view;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
@@ -16,6 +18,7 @@ import org.briarproject.api.identity.Author;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 
+@UiThread
 public class TextAvatarView extends FrameLayout {
 
 	final private AppCompatTextView character;
@@ -23,7 +26,7 @@ public class TextAvatarView extends FrameLayout {
 	final private TextView badge;
 	private int unreadCount;
 
-	public TextAvatarView(Context context, AttributeSet attrs) {
+	public TextAvatarView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 
 		LayoutInflater inflater = (LayoutInflater) context

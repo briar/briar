@@ -27,6 +27,9 @@
 	<color name="briar_text_tertiary_inverse">#80ffffff</color>
 	<color name="briar_button_positive">#06b9ff</color>
 	<color name="briar_button_negative">#ff0000</color>
+	<color name="emoji_text_color">#ff000000</color>
+
+	<color name="emoji_pager_background">@color/window_background</color>
 
 	<!-- this is needed as preference_category_material layout uses this color as the text color -->
 	<color name="preference_fallback_accent_color">@color/briar_accent</color>

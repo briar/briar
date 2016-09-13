@@ -37,7 +37,7 @@
 		android:textSize="@dimen/text_size_small"
 		tools:text="Author Name"/>
 
-	<org.briarproject.android.util.TrustIndicatorView
+	<org.briarproject.android.view.TrustIndicatorView
 		android:id="@+id/trustIndicator"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

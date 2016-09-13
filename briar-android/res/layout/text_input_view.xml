@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:showIn="@layout/activity_conversation">
+
+	<View
+		style="@style/Divider.Horizontal"
+		android:layout_alignParentTop="true"/>
+
+	<org.thoughtcrime.securesms.components.emoji.EmojiToggle
+		android:id="@+id/emoji_toggle"
+		android:layout_width="42dp"
+		android:layout_height="42dp"
+		android:layout_above="@+id/emoji_drawer"
+		android:layout_alignBottom="@+id/input_text"
+		android:layout_alignParentLeft="true"
+		android:background="?attr/selectableItemBackground"
+		android:padding="@dimen/margin_small"
+		android:scaleType="center"/>
+
+	<org.thoughtcrime.securesms.components.emoji.EmojiEditText
+		android:id="@+id/input_text"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@+id/btn_send"
+		android:layout_toRightOf="@+id/emoji_toggle"
+		android:inputType="textMultiLine|textCapSentences"
+		android:maxLines="5"
+		android:minHeight="42dp"/>
+
+	<ImageButton
+		android:id="@+id/btn_send"
+		android:layout_width="wrap_content"
+		android:layout_height="42dp"
+		android:layout_above="@+id/emoji_drawer"
+		android:layout_alignBottom="@+id/input_text"
+		android:layout_alignParentRight="true"
+		android:background="?attr/selectableItemBackground"
+		android:clickable="true"
+		android:contentDescription="@string/send"
+		android:enabled="false"
+		android:padding="@dimen/margin_small"
+		android:src="@drawable/social_send_now_white"
+		android:tint="@color/briar_primary"/>
+
+	<org.thoughtcrime.securesms.components.emoji.EmojiDrawer
+		android:id="@+id/emoji_drawer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/input_text"
+		android:visibility="gone"/>
+
+</merge>

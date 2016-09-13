@@ -21,8 +21,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,11 +29,13 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.forum.ForumController.ForumPostListener;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.SharingStatusForumActivity;
-import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.android.util.BriarRecyclerView;
-import org.briarproject.android.util.TrustIndicatorView;
+import org.briarproject.android.view.AuthorView;
+import org.briarproject.android.view.BriarRecyclerView;
+import org.briarproject.android.view.TextInputView;
+import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -48,8 +48,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import im.delight.android.identicons.IdenticonDrawable;
-
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
@@ -59,7 +57,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class ForumActivity extends BriarActivity implements
-		ForumController.ForumPostListener {
+		ForumPostListener, TextInputListener {
 
 	static final String FORUM_NAME = "briar.FORUM_NAME";
 
@@ -80,8 +78,7 @@ public class ForumActivity extends BriarActivity implements
 	protected ForumAdapter forumAdapter;
 
 	private BriarRecyclerView recyclerView;
-	private EditText textInput;
-	private ViewGroup inputContainer;
+	private TextInputView textInput;
 	private LinearLayoutManager linearLayoutManager;
 
 	private volatile GroupId groupId = null;
@@ -101,9 +98,9 @@ public class ForumActivity extends BriarActivity implements
 
 		forumAdapter = new ForumAdapter();
 
-		inputContainer = (ViewGroup) findViewById(R.id.text_input_container);
-		inputContainer.setVisibility(GONE);
-		textInput = (EditText) findViewById(R.id.input_text);
+		textInput = (TextInputView) findViewById(R.id.text_input_container);
+		textInput.setVisibility(GONE);
+		textInput.setListener(this);
 		recyclerView =
 				(BriarRecyclerView) findViewById(R.id.forum_discussion_list);
 		recyclerView.setAdapter(forumAdapter);
@@ -140,7 +137,7 @@ public class ForumActivity extends BriarActivity implements
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		inputContainer.setVisibility(
+		textInput.setVisibility(
 				savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY) ?
 						VISIBLE : GONE);
 	}
@@ -150,7 +147,7 @@ public class ForumActivity extends BriarActivity implements
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_INPUT_VISIBILITY,
-				inputContainer.getVisibility() == VISIBLE);
+				textInput.getVisibility() == VISIBLE);
 		ForumEntry replyEntry = forumAdapter.getReplyEntry();
 		if (replyEntry != null) {
 			outState.putByteArray(KEY_REPLY_ID,
@@ -190,8 +187,10 @@ public class ForumActivity extends BriarActivity implements
 
 	@Override
 	public void onBackPressed() {
-		if (inputContainer.getVisibility() == VISIBLE) {
-			inputContainer.setVisibility(GONE);
+		if (textInput.isEmojiDrawerOpen()) {
+			textInput.hideEmojiDrawer();
+		} else if (textInput.getVisibility() == VISIBLE) {
+			textInput.setVisibility(GONE);
 			forumAdapter.setReplyEntry(null);
 		} else {
 			super.onBackPressed();
@@ -202,8 +201,8 @@ public class ForumActivity extends BriarActivity implements
 		// An animation here would be an overkill because of the keyboard
 		// popping up.
 		// only clear the text when the input container was not visible
-		if (inputContainer.getVisibility() != VISIBLE) {
-			inputContainer.setVisibility(VISIBLE);
+		if (textInput.getVisibility() != VISIBLE) {
+			textInput.setVisibility(VISIBLE);
 			textInput.setText("");
 		}
 		textInput.requestFocus();
@@ -260,8 +259,8 @@ public class ForumActivity extends BriarActivity implements
 		recyclerView.stopPeriodicUpdate();
 	}
 
-	public void sendMessage(View view) {
-		String text = textInput.getText().toString();
+	@Override
+	public void onSendClick(String text) {
 		if (text.trim().length() == 0)
 			return;
 		if (forumController.getForum() == null) return;
@@ -274,7 +273,7 @@ public class ForumActivity extends BriarActivity implements
 					replyEntry.getMessageId());
 		}
 		hideSoftKeyboard(textInput);
-		inputContainer.setVisibility(GONE);
+		textInput.setVisibility(GONE);
 		forumAdapter.setReplyEntry(null);
 	}
 
@@ -334,10 +333,9 @@ public class ForumActivity extends BriarActivity implements
 
 	static class ForumViewHolder extends RecyclerView.ViewHolder {
 
-		final TextView textView, lvlText, authorText, dateText, repliesText;
+		final TextView textView, lvlText, repliesText;
+		final AuthorView author;
 		final View[] lvls;
-		public final ImageView avatar;
-		final TrustIndicatorView trust;
 		final View chevron, replyButton;
 		final ViewGroup cell;
 		final View topDivider;
@@ -347,8 +345,7 @@ public class ForumActivity extends BriarActivity implements
 
 			textView = (TextView) v.findViewById(R.id.text);
 			lvlText = (TextView) v.findViewById(R.id.nested_line_text);
-			authorText = (TextView) v.findViewById(R.id.author);
-			dateText = (TextView) v.findViewById(R.id.date);
+			author = (AuthorView) v.findViewById(R.id.author);
 			repliesText = (TextView) v.findViewById(R.id.replies);
 			int[] nestedLineIds = {
 					R.id.nested_line_1, R.id.nested_line_2, R.id.nested_line_3,
@@ -358,8 +355,6 @@ public class ForumActivity extends BriarActivity implements
 			for (int i = 0; i < lvls.length; i++) {
 				lvls[i] = v.findViewById(nestedLineIds[i]);
 			}
-			avatar = (ImageView) v.findViewById(R.id.avatar);
-			trust = (TrustIndicatorView) v.findViewById(R.id.trustIndicator);
 			chevron = v.findViewById(R.id.chevron);
 			replyButton = v.findViewById(R.id.btn_reply);
 			cell = (ViewGroup) v.findViewById(R.id.forum_cell);
@@ -604,7 +599,7 @@ public class ForumActivity extends BriarActivity implements
 		public ForumViewHolder onCreateViewHolder(ViewGroup parent,
 				int viewType) {
 			View v = LayoutInflater.from(parent.getContext())
-					.inflate(R.layout.forum_discussion_cell, parent, false);
+					.inflate(R.layout.list_item_forum_post, parent, false);
 			return new ForumViewHolder(v);
 		}
 
@@ -635,10 +630,9 @@ public class ForumActivity extends BriarActivity implements
 			} else {
 				ui.lvlText.setVisibility(GONE);
 			}
-			ui.authorText.setText(data.getAuthor());
-			ui.dateText.setText(AndroidUtils
-					.formatDate(ForumActivity.this, data.getTimestamp()));
-			ui.trust.setTrustLevel(data.getStatus());
+			ui.author.setAuthor(data.getAuthor());
+			ui.author.setDate(data.getTimestamp());
+			ui.author.setAuthorStatus(data.getStatus());
 
 			int replies = getReplyCount(data);
 			if (replies == 0) {
@@ -648,8 +642,6 @@ public class ForumActivity extends BriarActivity implements
 						.getQuantityString(R.plurals.message_replies, replies,
 								replies));
 			}
-			ui.avatar.setImageDrawable(
-					new IdenticonDrawable(data.getAuthorId().getBytes()));
 
 			if (hasDescendants(data)) {
 				ui.chevron.setVisibility(VISIBLE);

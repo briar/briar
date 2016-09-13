@@ -16,9 +16,6 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,8 +24,11 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.contact.ConversationAdapter.IntroductionHandler;
 import org.briarproject.android.introduction.IntroductionActivity;
-import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.view.BriarRecyclerView;
+import org.briarproject.android.view.TextInputView;
+import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.clients.SessionId;
@@ -93,8 +93,7 @@ import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
 
 public class ConversationActivity extends BriarActivity
-		implements EventListener, OnClickListener,
-		ConversationAdapter.IntroductionHandler {
+		implements EventListener, IntroductionHandler, TextInputListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
@@ -113,8 +112,7 @@ public class ConversationActivity extends BriarActivity
 	private ImageView toolbarStatus;
 	private TextView toolbarTitle;
 	private BriarRecyclerView list;
-	private EditText content;
-	private View sendButton;
+	private TextInputView textInputView;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -139,6 +137,7 @@ public class ConversationActivity extends BriarActivity
 	private volatile boolean connected = false;
 	private volatile Map<MessageId, byte[]> bodyCache = new HashMap<>();
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
@@ -177,13 +176,8 @@ public class ConversationActivity extends BriarActivity
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
 
-		content = (EditText) findViewById(R.id.input_text);
-		sendButton = findViewById(R.id.btn_send);
-		if (sendButton != null) {
-			// Enabled after loading the conversation
-			sendButton.setEnabled(false);
-			sendButton.setOnClickListener(this);
-		}
+		textInputView = (TextInputView) findViewById(R.id.text_input_container);
+		textInputView.setListener(this);
 	}
 
 	@Override
@@ -262,6 +256,10 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onBackPressed() {
+		if (textInputView.isEmojiDrawerOpen()) {
+			textInputView.hideEmojiDrawer();
+			return;
+		}
 		// FIXME disabled exit transition, because it doesn't work for some reason #318
 		//supportFinishAfterTransition();
 		finish();
@@ -367,7 +365,7 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				sendButton.setEnabled(true);
+				textInputView.setSendButtonEnabled(true);
 				if (headers.isEmpty() && introductions.isEmpty() &&
 						invitations.isEmpty()) {
 					// we have no messages,
@@ -637,14 +635,12 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onClick(View view) {
+	public void onSendClick(String text) {
 		markMessagesRead();
-		String message = content.getText().toString();
-		if (message.equals("")) return;
+		if (text.equals("")) return;
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		createMessage(StringUtils.toUtf8(message), timestamp);
-		content.setText("");
+		createMessage(StringUtils.toUtf8(text), timestamp);
 	}
 
 	private long getMinTimestampForNewMessage() {

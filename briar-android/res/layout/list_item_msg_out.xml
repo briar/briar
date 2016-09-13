@@ -15,7 +15,7 @@
 		android:layout_marginRight="@dimen/message_bubble_margin_tail"
 		android:background="@drawable/msg_out">
 
-		<TextView
+		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/msgBody"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

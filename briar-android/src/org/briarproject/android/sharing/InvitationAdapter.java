@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.R;
-import org.briarproject.android.util.TextAvatarView;
+import org.briarproject.android.view.TextAvatarView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.util.StringUtils;

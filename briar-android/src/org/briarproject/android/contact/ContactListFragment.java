@@ -20,7 +20,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
-import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
