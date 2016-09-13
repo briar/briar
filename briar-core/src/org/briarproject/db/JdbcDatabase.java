@@ -25,6 +25,7 @@ import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -53,7 +54,6 @@ import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
-import static org.briarproject.api.sync.ValidationManager.State.VALID;
 import static org.briarproject.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.db.DatabaseConstants.DEVICE_ID_KEY;
 import static org.briarproject.db.DatabaseConstants.DEVICE_SETTINGS_NAMESPACE;
@@ -67,8 +67,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 26;
-	private static final int MIN_SCHEMA_VERSION = 26;
+	private static final int SCHEMA_VERSION = 27;
+	private static final int MIN_SCHEMA_VERSION = 27;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -155,8 +155,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_MESSAGE_DEPENDENCIES =
 			"CREATE TABLE messageDependencies"
-					+ " (messageId HASH NOT NULL,"
+					+ " (groupId HASH NOT NULL,"
+					+ " messageId HASH NOT NULL,"
 					+ " dependencyId HASH NOT NULL," // Not a foreign key
+					+ " FOREIGN KEY (groupId)"
+					+ " REFERENCES groups (groupId)"
+					+ " ON DELETE CASCADE,"
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
 					+ " ON DELETE CASCADE)";
@@ -609,16 +613,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addMessageDependency(Connection txn, MessageId dependentId,
-			MessageId dependencyId) throws DbException {
+	public void addMessageDependency(Connection txn, GroupId g,
+			MessageId dependent, MessageId dependency) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql =
-					"INSERT INTO messageDependencies (messageId, dependencyId)"
-							+ " VALUES (?, ?)";
+			String sql = "INSERT INTO messageDependencies"
+					+ " (groupId, messageId, dependencyId)"
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, dependentId.getBytes());
-			ps.setBytes(2, dependencyId.getBytes());
+			ps.setBytes(1, g.getBytes());
+			ps.setBytes(2, dependent.getBytes());
+			ps.setBytes(3, dependency.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1453,7 +1458,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT d.dependencyId, m.state, m.groupId"
+			String sql = "SELECT d.dependencyId, m.state, d.groupId, m.groupId"
 					+ " FROM messageDependencies AS d"
 					+ " LEFT OUTER JOIN messages AS m"
 					+ " ON d.dependencyId = m.messageId"
@@ -1463,40 +1468,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			Map<MessageId, State> dependencies = new HashMap<MessageId, State>();
 			while (rs.next()) {
-				MessageId messageId = new MessageId(rs.getBytes(1));
+				MessageId dependency = new MessageId(rs.getBytes(1));
 				State state = State.fromValue(rs.getInt(2));
-				if (state != UNKNOWN) {
-					// set dependency invalid if it is in a different group
-					if (!hasGroupId(txn, m, rs.getBytes(3))) state = INVALID;
+				if (rs.wasNull()) {
+					state = UNKNOWN; // Missing dependency
+				} else {
+					GroupId dependentGroupId = new GroupId(rs.getBytes(3));
+					GroupId dependencyGroupId = new GroupId(rs.getBytes(4));
+					if (!dependentGroupId.equals(dependencyGroupId))
+						state = INVALID; // Dependency in another group
 				}
-				dependencies.put(messageId, state);
+				dependencies.put(dependency, state);
 			}
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableMap(dependencies);
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	private boolean hasGroupId(Connection txn, MessageId m, byte[] g)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT NULL FROM messages"
-					+ " WHERE messageId = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setBytes(2, g);
-			rs = ps.executeQuery();
-			boolean same = rs.next();
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return same;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1511,7 +1497,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT d.messageId, m.state"
 					+ " FROM messageDependencies AS d"
-					+ " LEFT OUTER JOIN messages AS m"
+					+ " JOIN messages AS m"
 					+ " ON d.messageId = m.messageId"
 					+ " WHERE dependencyId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1519,13 +1505,35 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			Map<MessageId, State> dependents = new HashMap<MessageId, State>();
 			while (rs.next()) {
-				MessageId messageId = new MessageId(rs.getBytes(1));
+				MessageId dependent = new MessageId(rs.getBytes(1));
 				State state = State.fromValue(rs.getInt(2));
-				dependents.put(messageId, state);
+				dependents.put(dependent, state);
 			}
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableMap(dependents);
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public State getMessageState(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT state FROM messages WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			State state = State.fromValue(rs.getInt(1));
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return state;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1655,11 +1663,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return getMessagesInState(txn, c, UNKNOWN);
 	}
 
-	public Collection<MessageId> getMessagesToDeliver(Connection txn,
-			ClientId c) throws DbException {
-		return getMessagesInState(txn, c, VALID);
-	}
-
 	public Collection<MessageId> getPendingMessages(Connection txn,
 			ClientId c) throws DbException {
 		return getMessagesInState(txn, c, PENDING);
@@ -1689,6 +1692,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Nullable
 	public byte[] getRawMessage(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;

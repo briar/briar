@@ -32,9 +32,9 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.KEY_COMMENT;
+import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
-import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
@@ -114,7 +114,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(KEY_ORIGINAL_MSG_ID, m.getId());
 		meta.put(KEY_AUTHOR, authorToBdfDictionary(a));
-		return new BdfMessageContext(meta, null);
+		return new BdfMessageContext(meta);
 	}
 
 	private BdfMessageContext validateComment(Message m, Group g, BdfList body)
@@ -197,7 +197,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		meta.put(KEY_ORIGINAL_MSG_ID, wMessage.getId());
 		meta.put(KEY_TIMESTAMP, wTimestamp);
 		meta.put(KEY_AUTHOR, c.getDictionary().getDictionary(KEY_AUTHOR));
-		return new BdfMessageContext(meta, null);
+		return new BdfMessageContext(meta);
 	}
 
 	private BdfMessageContext validateWrappedComment(Message m, Group g,

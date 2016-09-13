@@ -117,7 +117,7 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 			meta.put("contentType", m.getContentType());
 			meta.put("local", true);
 			meta.put("read", true);
-			clientHelper.addLocalMessage(m.getMessage(), CLIENT_ID, meta, true);
+			clientHelper.addLocalMessage(m.getMessage(), meta, true);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

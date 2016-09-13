@@ -101,7 +101,7 @@ class ForumPostValidator extends BdfMessageValidator {
 		}
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
-		Collection<MessageId> dependencies = null;
+		Collection<MessageId> dependencies = Collections.emptyList();
 		meta.put("timestamp", m.getTimestamp());
 		if (parent != null) {
 			meta.put("parent", parent);

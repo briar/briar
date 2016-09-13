@@ -36,7 +36,6 @@ import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -1107,13 +1106,9 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
 				State s = event.getState();
-				ClientId c = event.getClientId();
-				if ((s == DELIVERED || s == INVALID) &&
-						c.equals(introductionManager0.getClientId()) &&
-						!event.isLocal()) {
+				if ((s == DELIVERED || s == INVALID) && !event.isLocal()) {
 					LOG.info("TEST: Introducee" + introducee +
-							" received message in group " +
-							event.getMessage().getGroupId().hashCode());
+							" received message");
 					msgWaiter.resume();
 				}
 			} else if (e instanceof IntroductionRequestReceivedEvent) {
@@ -1174,11 +1169,8 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
-				if (event.getState() == DELIVERED && event.getClientId()
-						.equals(introductionManager0.getClientId()) &&
-						!event.isLocal()) {
-					LOG.info("TEST: Introducer received message in group " +
-							event.getMessage().getGroupId().hashCode());
+				if (event.getState() == DELIVERED && !event.isLocal()) {
+					LOG.info("TEST: Introducer received message");
 					msgWaiter.resume();
 				}
 			} else if (e instanceof IntroductionResponseReceivedEvent) {

@@ -16,11 +16,11 @@ import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
+import org.briarproject.api.sync.MessageContext;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.api.sync.ValidationManager.MessageValidator;
-import org.briarproject.api.sync.MessageContext;
 import org.briarproject.util.ByteUtils;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -77,7 +77,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 					body);
 			will(new CreateMessageAction());
 			oneOf(db).addLocalMessage(with(txn), with(any(QueueMessage.class)),
-					with(clientId), with(messageMetadata), with(true));
+					with(messageMetadata), with(true));
 			// Second message: queue state exists
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata1));
@@ -91,7 +91,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 					body);
 			will(new CreateMessageAction());
 			oneOf(db).addLocalMessage(with(txn), with(any(QueueMessage.class)),
-					with(clientId), with(messageMetadata), with(true));
+					with(messageMetadata), with(true));
 		}});
 
 		MessageQueueManagerImpl mqm = new MessageQueueManagerImpl(db,

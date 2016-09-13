@@ -28,10 +28,10 @@ import org.briarproject.api.event.LocalAuthorRemovedEvent;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageRequestedEvent;
 import org.briarproject.api.event.MessageSharedEvent;
+import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessageToAckEvent;
 import org.briarproject.api.event.MessageToRequestEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
-import org.briarproject.api.event.MessageStateChangedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.identity.Author;
@@ -50,6 +50,7 @@ import org.briarproject.api.sync.Offer;
 import org.briarproject.api.sync.Request;
 import org.briarproject.api.sync.ValidationManager.State;
 import org.briarproject.api.transport.TransportKeys;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -188,7 +189,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
-	public void addLocalMessage(Transaction transaction, Message m, ClientId c,
+	public void addLocalMessage(Transaction transaction, Message m,
 			Metadata meta, boolean shared) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
@@ -197,7 +198,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsMessage(txn, m.getId())) {
 			addMessage(txn, m, DELIVERED, shared);
 			transaction.attach(new MessageAddedEvent(m, null));
-			transaction.attach(new MessageStateChangedEvent(m, c, true,
+			transaction.attach(new MessageStateChangedEvent(m.getId(), true,
 					DELIVERED));
 			if (shared) transaction.attach(new MessageSharedEvent(m.getId()));
 		}
@@ -271,6 +272,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.deleteMessageMetadata(txn, m);
 	}
 
+	@Nullable
 	public Ack generateAck(Transaction transaction, ContactId c,
 			int maxMessages) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -283,6 +285,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return new Ack(ids);
 	}
 
+	@Nullable
 	public Collection<byte[]> generateBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -301,6 +304,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return Collections.unmodifiableList(messages);
 	}
 
+	@Nullable
 	public Offer generateOffer(Transaction transaction, ContactId c,
 			int maxMessages, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -313,6 +317,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return new Offer(ids);
 	}
 
+	@Nullable
 	public Request generateRequest(Transaction transaction, ContactId c,
 			int maxMessages) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -326,6 +331,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return new Request(ids);
 	}
 
+	@Nullable
 	public Collection<byte[]> generateRequestedBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -420,18 +426,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessagesToValidate(txn, c);
 	}
 
-	public Collection<MessageId> getMessagesToDeliver(Transaction transaction,
-			ClientId c) throws DbException {
-		T txn = unbox(transaction);
-		return db.getMessagesToDeliver(txn, c);
-	}
-
 	public Collection<MessageId> getPendingMessages(Transaction transaction,
 			ClientId c) throws DbException {
 		T txn = unbox(transaction);
 		return db.getPendingMessages(txn, c);
 	}
 
+	@Nullable
 	public byte[] getRawMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -471,6 +472,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
 		return db.getMessageMetadataForValidator(txn, m);
+	}
+
+	public State getMessageState(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessageState(txn, m);
 	}
 
 	public Collection<MessageStatus> getMessageStatus(Transaction transaction,
@@ -720,14 +729,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (shared) transaction.attach(new MessageSharedEvent(m));
 	}
 
-	public void setMessageState(Transaction transaction, Message m, ClientId c,
+	public void setMessageState(Transaction transaction, MessageId m,
 			State state) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsMessage(txn, m.getId()))
+		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
-		db.setMessageState(txn, m.getId(), state);
-		transaction.attach(new MessageStateChangedEvent(m, c, false, state));
+		db.setMessageState(txn, m, state);
+		transaction.attach(new MessageStateChangedEvent(m, false, state));
 	}
 
 	public void addMessageDependencies(Transaction transaction,
@@ -737,8 +746,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, dependent.getId()))
 			throw new NoSuchMessageException();
-		for (MessageId dependencyId : dependencies) {
-			db.addMessageDependency(txn, dependent.getId(), dependencyId);
+		for (MessageId dependency : dependencies) {
+			db.addMessageDependency(txn, dependent.getGroupId(),
+					dependent.getId(), dependency);
 		}
 	}
 

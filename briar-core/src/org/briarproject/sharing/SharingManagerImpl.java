@@ -626,7 +626,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 		// save local state to database
 		BdfDictionary d = s.toBdfDictionary();
-		clientHelper.addLocalMessage(txn, m, getClientId(), d, false);
+		clientHelper.addLocalMessage(txn, m, d, false);
 
 		return s;
 	}
@@ -652,7 +652,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 		// save local state to database
 		BdfDictionary d = s.toBdfDictionary();
-		clientHelper.addLocalMessage(txn, m, getClientId(), d, false);
+		clientHelper.addLocalMessage(txn, m, d, false);
 
 		return s;
 	}

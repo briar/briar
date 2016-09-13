@@ -12,7 +12,7 @@ public interface ValidationManager {
 
 	enum State {
 
-		UNKNOWN(0), INVALID(1), PENDING(2), VALID(3), DELIVERED(4);
+		UNKNOWN(0), INVALID(1), PENDING(2), DELIVERED(3);
 
 		private final int value;
 

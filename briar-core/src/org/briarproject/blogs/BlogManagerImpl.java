@@ -59,12 +59,12 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_COMMENT;
 import static org.briarproject.api.blogs.BlogConstants.KEY_DESCRIPTION;
 import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
+import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TYPE;
-import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.MessageType.COMMENT;
 import static org.briarproject.api.blogs.MessageType.POST;
 import static org.briarproject.api.blogs.MessageType.WRAPPED_COMMENT;
@@ -298,8 +298,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
 			meta.put(KEY_AUTHOR, authorToBdfDictionary(p.getAuthor()));
 			meta.put(KEY_READ, true);
-			clientHelper.addLocalMessage(txn, p.getMessage(), CLIENT_ID, meta,
-					true);
+			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
 
 			// broadcast event about new post
 			GroupId groupId = p.getMessage().getGroupId();
@@ -346,7 +345,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta.put(KEY_AUTHOR, authorToBdfDictionary(author));
 
 			// Send comment
-			clientHelper.addLocalMessage(txn, message, CLIENT_ID, meta, true);
+			clientHelper.addLocalMessage(txn, message, meta, true);
 
 			// broadcast event
 			BlogPostHeader h =
@@ -429,7 +428,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		meta.put(KEY_TIME_RECEIVED, pOriginalHeader.getTimeReceived());
 
 		// Send wrapped message and store metadata
-		clientHelper.addLocalMessage(txn, wMessage, CLIENT_ID, meta, true);
+		clientHelper.addLocalMessage(txn, wMessage, meta, true);
 		return wMessage.getId();
 	}
 

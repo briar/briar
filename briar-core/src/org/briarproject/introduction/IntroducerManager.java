@@ -98,9 +98,7 @@ class IntroducerManager {
 		d.put(AUTHOR_ID_2, c2.getAuthor().getId());
 
 		// save local state to database
-		clientHelper
-				.addLocalMessage(txn, m, IntroductionManagerImpl.CLIENT_ID, d,
-						false);
+		clientHelper.addLocalMessage(txn, m, d, false);
 
 		return d;
 	}
