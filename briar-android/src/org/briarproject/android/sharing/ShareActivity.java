@@ -90,16 +90,6 @@ public abstract class ShareActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void showLoadingScreen(boolean isBlocking, int stringId) {
-		// this is handled by the recycler view in ContactSelectorFragment
-	}
-
-	@Override
-	public void hideLoadingScreen() {
-		// this is handled by the recycler view in ContactSelectorFragment
-	}
-
-	@Override
 	public void onFragmentCreated(String tag) {
 
 	}

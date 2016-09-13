@@ -48,12 +48,6 @@ public abstract class BaseFragment extends Fragment {
 
 	public interface BaseFragmentListener extends DestroyableActivity {
 
-		@UiThread
-		void showLoadingScreen(boolean isBlocking, int stringId);
-
-		@UiThread
-		void hideLoadingScreen();
-
 		void runOnDbThread(Runnable runnable);
 
 		@UiThread

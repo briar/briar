@@ -11,9 +11,11 @@
 		android:layout_height="match_parent"/>
 
 	<LinearLayout
+		android:id="@+id/camera_overlay"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:orientation="vertical">
+		android:orientation="vertical"
+		android:weightSum="2">
 
 		<FrameLayout
 			android:layout_width="match_parent"
@@ -64,4 +66,30 @@
 				android:scaleType="fitCenter"/>
 		</RelativeLayout>
 	</LinearLayout>
+
+	<RelativeLayout
+		android:id="@+id/container_progress"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@android:color/white"
+		android:visibility="invisible">
+
+		<ProgressBar
+			android:id="@+id/progress_bar"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"/>
+
+		<TextView
+			android:id="@+id/title_progress_bar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/progress_bar"
+			android:gravity="center"
+			android:paddingTop="@dimen/margin_large"
+			tools:text="progress bar title"
+			/>
+	</RelativeLayout>
+
 </FrameLayout>

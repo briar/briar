@@ -7,14 +7,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +34,7 @@ import org.briarproject.android.view.CameraView;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.KeyAgreementAbortedEvent;
 import org.briarproject.api.event.KeyAgreementFailedEvent;
+import org.briarproject.api.event.KeyAgreementFinishedEvent;
 import org.briarproject.api.event.KeyAgreementListeningEvent;
 import org.briarproject.api.event.KeyAgreementStartedEvent;
 import org.briarproject.api.event.KeyAgreementWaitingEvent;
@@ -74,9 +79,13 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	protected Executor ioExecutor;
 
 	private CameraView cameraView;
+	private ViewGroup cameraOverlay;
 	private View statusView;
 	private TextView status;
 	private ImageView qrCode;
+	private ProgressBar mainProgressBar;
+	private TextView mainProgressTitle;
+	private ViewGroup mainProgressContainer;
 
 	private BluetoothStateReceiver receiver;
 	private QrCodeDecoder decoder;
@@ -117,9 +126,15 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		super.onViewCreated(view, savedInstanceState);
 
 		cameraView = (CameraView) view.findViewById(R.id.camera_view);
+		cameraOverlay = (ViewGroup) view.findViewById(R.id.camera_overlay);
 		statusView = view.findViewById(R.id.status_container);
 		status = (TextView) view.findViewById(R.id.connect_status);
 		qrCode = (ImageView) view.findViewById(R.id.qr_code);
+		mainProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+		mainProgressTitle =
+				(TextView) view.findViewById(R.id.title_progress_bar);
+		mainProgressContainer =
+				(ViewGroup) view.findViewById(R.id.container_progress);
 	}
 
 	@Override
@@ -262,23 +277,54 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} else if (e instanceof KeyAgreementAbortedEvent) {
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
+		} else if (e instanceof KeyAgreementFinishedEvent) {
+			listener.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mainProgressContainer.setVisibility(VISIBLE);
+					mainProgressTitle.setText(R.string.exchanging_contact_details);
+				}
+			});
 		}
 	}
 
+	@UiThread
+	private void generateBitmapQR(final Payload payload) {
+		// Get narrowest screen dimension
+		Context context = getContext();
+		if (context == null) return;
+		final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		new AsyncTask<Void, Void, Bitmap>() {
+
+			@Override
+			protected Bitmap doInBackground(Void... params) {
+				String input =
+						Base64.encodeToString(payloadEncoder.encode(payload),
+								0);
+				Bitmap bitmap =
+						QrCodeUtils.createQrCode(dm, input);
+				return bitmap;
+			}
+
+			@Override
+			protected void onPostExecute(Bitmap bitmap) {
+				if (bitmap != null && !isDetached()) {
+					qrCode.setImageBitmap(bitmap);
+					// Simple fade-in animation
+					AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+					anim.setDuration(200);
+					qrCode.startAnimation(anim);
+				}
+			}
+		}.execute();
+	}
+
 	private void setQrCode(final Payload localPayload) {
+
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				String input = Base64.encodeToString(
-						payloadEncoder.encode(localPayload), 0);
-				Bitmap bitmap =
-						QrCodeUtils.createQrCode((Context) listener, input);
-				if (bitmap == null) return;
-				qrCode.setImageBitmap(bitmap);
-				// Simple fade-in animation
-				AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-				anim.setDuration(200);
-				qrCode.startAnimation(anim);
+				generateBitmapQR(localPayload);
 			}
 		});
 	}
@@ -308,8 +354,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				listener.showLoadingScreen(false,
-						R.string.authenticating_with_device);
+				mainProgressContainer.setVisibility(VISIBLE);
+				mainProgressTitle.setText(R.string.authenticating_with_device);
 			}
 		});
 	}
@@ -319,7 +365,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			@Override
 			public void run() {
 				reset();
-				listener.hideLoadingScreen();
+				mainProgressContainer.setVisibility(INVISIBLE);
+				mainProgressTitle.setText("");
 				// TODO show abort somewhere persistent?
 				Toast.makeText(getActivity(),
 						remoteAborted ? R.string.connection_aborted_remote :

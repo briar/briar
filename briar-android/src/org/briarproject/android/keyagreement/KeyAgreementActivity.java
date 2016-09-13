@@ -3,8 +3,6 @@ package org.briarproject.android.keyagreement;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
@@ -45,8 +43,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	protected EventBus eventBus;
 
 	private Toolbar toolbar;
-	private View progressContainer;
-	private TextView progressTitle;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -63,11 +59,9 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setContentView(R.layout.activity_with_loading);
+		setContentView(R.layout.activity_plain);
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
-		progressContainer = findViewById(R.id.container_progress);
-		progressTitle = (TextView) findViewById(R.id.title_progress_bar);
 
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -121,17 +115,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	}
 
 	@Override
-	public void showLoadingScreen(boolean isBlocking, int stringId) {
-		progressTitle.setText(stringId);
-		progressContainer.setVisibility(View.VISIBLE);
-	}
-
-	@Override
-	public void hideLoadingScreen() {
-		progressContainer.setVisibility(View.INVISIBLE);
-	}
-
-	@Override
 	public void showNextScreen() {
 		showStep(STEP_QR);
 	}
@@ -148,7 +131,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				showLoadingScreen(false, R.string.exchanging_contact_details);
 				startContactExchange(result);
 			}
 		});

@@ -1,6 +1,5 @@
 package org.briarproject.android.util;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 
@@ -24,9 +23,7 @@ public class QrCodeUtils {
 			Logger.getLogger(QrCodeUtils.class.getName());
 
 	@Nullable
-	public static Bitmap createQrCode(Context context, String input) {
-		// Get narrowest screen dimension
-		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+	public static Bitmap createQrCode(DisplayMetrics dm, String input) {
 		int smallestDimen = Math.min(dm.widthPixels, dm.heightPixels);
 		try {
 			// Generate QR code

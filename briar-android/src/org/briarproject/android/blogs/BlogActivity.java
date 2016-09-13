@@ -13,9 +13,6 @@ import org.briarproject.api.sync.GroupId;
 
 import javax.inject.Inject;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-
 public class BlogActivity extends BriarActivity implements
 		OnBlogPostClickListener, BaseFragmentListener {
 
@@ -70,16 +67,6 @@ public class BlogActivity extends BriarActivity implements
 				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 				.addToBackStack(f.getUniqueTag())
 				.commit();
-	}
-
-	@Override
-	public void showLoadingScreen(boolean isBlocking, int stringId) {
-		progressBar.setVisibility(VISIBLE);
-	}
-
-	@Override
-	public void hideLoadingScreen() {
-		progressBar.setVisibility(INVISIBLE);
 	}
 
 	@Override

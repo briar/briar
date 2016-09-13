@@ -49,16 +49,6 @@ public class IntroductionActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void showLoadingScreen(boolean isBlocking, int stringId) {
-		// this is handled by the recycler view in ContactChooserFragment
-	}
-
-	@Override
-	public void hideLoadingScreen() {
-		// this is handled by the recycler view in ContactChooserFragment
-	}
-
-	@Override
 	public void onFragmentCreated(String tag) {
 
 	}

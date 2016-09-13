@@ -235,7 +235,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		super.signOut();
 	}
 
-	@Override
 	public void showLoadingScreen(boolean isBlocking, int stringId) {
 		if (isBlocking) {
 			// Disable navigation drawer slide to open
@@ -245,7 +244,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		progressViewGroup.setVisibility(View.VISIBLE);
 	}
 
-	@Override
 	public void hideLoadingScreen() {
 		drawerLayout.setDrawerLockMode(LOCK_MODE_UNLOCKED);
 		progressViewGroup.setVisibility(INVISIBLE);
