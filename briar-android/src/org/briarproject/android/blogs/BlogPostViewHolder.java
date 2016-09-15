@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +31,8 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 import static org.briarproject.android.util.AndroidUtils.TEASER_LENGTH;
 import static org.briarproject.android.util.AndroidUtils.getTeaser;
+import static org.briarproject.android.util.AndroidUtils.getSpanned;
+import static org.briarproject.android.util.AndroidUtils.makeLinksClickable;
 import static org.briarproject.api.blogs.MessageType.POST;
 
 @UiThread
@@ -108,15 +111,17 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		}
 
 		// post body
-		CharSequence bodyText = item.getBody();
+		Spanned bodyText = getSpanned(item.getBody());
 		if (listener == null) {
+			body.setText(bodyText);
 			body.setTextIsSelectable(true);
+			makeLinksClickable(body);
 		} else {
 			body.setTextIsSelectable(false);
 			if (item.getBody().length() > TEASER_LENGTH)
-				bodyText = getTeaser(ctx, item.getBody());
+				bodyText = getTeaser(ctx, bodyText);
+			body.setText(bodyText);
 		}
-		body.setText(bodyText);
 
 		// reblog button
 		reblogButton.setOnClickListener(new OnClickListener() {

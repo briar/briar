@@ -308,6 +308,12 @@
 	<string name="feedback_settings_title">Feedback</string>
 	<string name="send_feedback">Send feedback</string>
 
+	<!-- Link Warning -->
+	<string name="link_warning_title">Link Warning</string>
+	<string name="link_warning_intro">You are about to open the following link with an external app.</string>
+	<string name="link_warning_text">This can be used to identify you. Think about whether you trust the person that sent you this link and consider opening it with Orfox.</string>
+	<string name="link_warning_open_link">Open Link</string>
+
 	<!-- Multiple Identities -->
 	<string name="anonymous">Anonymous</string>
 	<string name="new_identity_title">New Identity</string>

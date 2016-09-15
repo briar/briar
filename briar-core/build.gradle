@@ -13,6 +13,7 @@ dependencies {
 	compile 'org.jdom:jdom2:2.0.6'
 	compile 'org.slf4j:slf4j-api:1.7.21'
 	compile 'com.squareup.okhttp3:okhttp:3.3.1'
+	compile 'org.jsoup:jsoup:1.9.2'
 }
 
 dependencyVerification {
@@ -25,6 +26,7 @@ dependencyVerification {
 			'com.squareup.okhttp3:okhttp:a47f4efa166551cd5acc04f1071d82dafbf05638c21f9ca13068bc6633e3bff6',
 			'com.rometools:rome-utils:2be18a1edc601c31fe49c2000bb5484dd75182309270c2a2561d71888d81587a',
 			'com.squareup.okio:okio:5cfea5afe6c6e441a4dbf6053a07a733b1249d1009382eb44ac2255ccedd0c15',
+			'org.jsoup:jsoup:9c1885f1b182256e06f1e30b8451caed0c0dee96299d6348f968d18b54d0a46a',
 	]
 }
 
