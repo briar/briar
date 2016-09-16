@@ -339,9 +339,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private boolean deliverMessage(Transaction txn, Message m, ClientId c,
 			Metadata meta) throws DbException {
+		// Deliver the message to the client if it's registered a hook
 		IncomingMessageHook hook = hooks.get(c);
-		if (hook == null) throw new DbException();
-		hook.incomingMessage(txn, m, meta);
+		if (hook != null) hook.incomingMessage(txn, m, meta);
 		// TODO: Find a better way for clients to signal validity, #643
 		if (db.getRawMessage(txn, m.getId()) == null) {
 			db.setMessageState(txn, m.getId(), INVALID);
