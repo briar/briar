@@ -67,7 +67,8 @@ public class ForumControllerImpl extends DbControllerImpl
 	protected volatile IdentityManager identityManager;
 
 	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
-	private volatile AtomicLong newestTimeStamp = new AtomicLong();
+	private final AtomicLong newestTimeStamp = new AtomicLong();
+
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Forum forum = null;
 
@@ -109,15 +110,12 @@ public class ForumControllerImpl extends DbControllerImpl
 		if (e instanceof ForumPostReceivedEvent) {
 			final ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
 			if (pe.getGroupId().equals(forum.getId())) {
-				LOG.info("Forum Post received, adding...");
+				LOG.info("Forum post received, adding...");
 				final ForumPostHeader fph = pe.getForumPostHeader();
+				updateNewestTimestamp(fph.getTimestamp());
 				activity.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						synchronized (this) {
-							if (fph.getTimestamp() > newestTimeStamp.get())
-								newestTimeStamp.set(fph.getTimestamp());
-						}
 						listener.onExternalEntryAdded(fph);
 					}
 				});
@@ -147,8 +145,7 @@ public class ForumControllerImpl extends DbControllerImpl
 		forum = forumManager.getForum(groupId);
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Loading forum took " + duration +
-					" ms");
+			LOG.info("Loading forum took " + duration + " ms");
 
 		// Get First Identity
 		now = System.currentTimeMillis();
@@ -157,8 +154,7 @@ public class ForumControllerImpl extends DbControllerImpl
 						.next();
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Loading author took " + duration +
-					" ms");
+			LOG.info("Loading author took " + duration + " ms");
 	}
 
 	/**
@@ -210,11 +206,9 @@ public class ForumControllerImpl extends DbControllerImpl
 		return entries;
 	}
 
-	private synchronized void checkNewestTimeStamp(
-			Collection<ForumPostHeader> headers) {
+	private void updateNewestTimeStamp(Collection<ForumPostHeader> headers) {
 		for (ForumPostHeader h : headers) {
-			if (h.getTimestamp() > newestTimeStamp.get())
-				newestTimeStamp.set(h.getTimestamp());
+			updateNewestTimestamp(h.getTimestamp());
 		}
 	}
 
@@ -224,15 +218,14 @@ public class ForumControllerImpl extends DbControllerImpl
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading forum...");
+				LOG.info("Loading forum...");
 				try {
 					if (forum == null) {
 						loadForum(groupId);
 					}
 					// Get Forum Posts and Bodies
 					Collection<ForumPostHeader> headers = loadHeaders();
-					checkNewestTimeStamp(headers);
+					updateNewestTimeStamp(headers);
 					loadBodies(headers);
 					resultHandler.onResult(buildForumEntries(headers));
 				} catch (DbException e) {
@@ -328,14 +321,9 @@ public class ForumControllerImpl extends DbControllerImpl
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (LOG.isLoggable(INFO))
-					LOG.info("create post..");
+				LOG.info("Create post...");
 				long timestamp = System.currentTimeMillis();
-				// FIXME next two lines Synchronized ?
-				// Only reading the atomic value, and even if it is changed
-				// between the first and second get, the condition will hold
-				if (timestamp < newestTimeStamp.get())
-					timestamp = newestTimeStamp.get();
+				timestamp = Math.max(timestamp, newestTimeStamp.get());
 				ForumPost p;
 				try {
 					KeyParser keyParser = crypto.getSignatureKeyParser();
@@ -353,20 +341,19 @@ public class ForumControllerImpl extends DbControllerImpl
 		});
 	}
 
+	@Override
 	public void storePost(final ForumPost p,
 			final ResultHandler<ForumEntry> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					if (LOG.isLoggable(INFO))
-						LOG.info("Store post...");
+					LOG.info("Store post...");
 					long now = System.currentTimeMillis();
 					forumManager.addLocalPost(p);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info(
-								"Storing message took " + duration + " ms");
+						LOG.info("Storing message took " + duration + " ms");
 
 					ForumPostHeader h =
 							new ForumPostHeader(p.getMessage().getId(),
@@ -386,4 +373,11 @@ public class ForumControllerImpl extends DbControllerImpl
 		});
 	}
 
+	private void updateNewestTimestamp(long update) {
+		long newest = newestTimeStamp.get();
+		while (newest < update) {
+			if (newestTimeStamp.compareAndSet(newest, update)) return;
+			newest = newestTimeStamp.get();
+		}
+	}
 }
