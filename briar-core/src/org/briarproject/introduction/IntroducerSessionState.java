@@ -27,6 +27,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID
 import static org.briarproject.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
 
+// This class is not thread-safe
 class IntroducerSessionState extends IntroductionState {
 
 	private IntroducerProtocolState state;
@@ -45,12 +46,12 @@ class IntroducerSessionState extends IntroductionState {
 	private final AuthorId contact2AuthorId;
 	private final String contact2Name;
 
-
 	IntroducerSessionState(MessageId storageId, SessionId sessionId,
 			GroupId group1Id, GroupId group2Id, ContactId contact1Id,
 			AuthorId contact1AuthorId, String contact1Name,
-			ContactId contact2Id, AuthorId contact2AuthorId, String contact2Name,
-			IntroducerProtocolState state){
+			ContactId contact2Id, AuthorId contact2AuthorId,
+			String contact2Name,
+			IntroducerProtocolState state) {
 
 		super(sessionId, storageId);
 
@@ -74,7 +75,7 @@ class IntroducerSessionState extends IntroductionState {
 
 	}
 
-	public BdfDictionary toBdfDictionary() {
+	BdfDictionary toBdfDictionary() {
 		BdfDictionary d = super.toBdfDictionary();
 		d.put(ROLE, ROLE_INTRODUCER);
 
@@ -93,6 +94,7 @@ class IntroducerSessionState extends IntroductionState {
 
 		if (publicKey1 != null)
 			d.put(PUBLIC_KEY1, publicKey1);
+
 		if (publicKey2 != null)
 			d.put(PUBLIC_KEY2, publicKey2);
 
@@ -104,53 +106,58 @@ class IntroducerSessionState extends IntroductionState {
 		return d;
 	}
 
-	public static IntroducerSessionState fromBdfDictionary(BdfDictionary d)
-			throws FormatException{
+	static IntroducerSessionState fromBdfDictionary(BdfDictionary d)
+			throws FormatException {
 
 		MessageId storageId = new MessageId(d.getRaw(STORAGE_ID));
 		SessionId sessionId = new SessionId(d.getRaw(SESSION_ID));
 
-		AuthorId aid1 = new AuthorId(d.getRaw(AUTHOR_ID_1));
-		AuthorId aid2 = new AuthorId(d.getRaw(AUTHOR_ID_2));
+		AuthorId authorId1 = new AuthorId(d.getRaw(AUTHOR_ID_1));
+		AuthorId authorId2 = new AuthorId(d.getRaw(AUTHOR_ID_2));
 
 		String author1 = d.getString(CONTACT_1);
 		String author2 = d.getString(CONTACT_2);
-		ContactId cid1 = new ContactId(d.getLong(CONTACT_ID_1).intValue());
-		ContactId cid2 = new ContactId(d.getLong(CONTACT_ID_2).intValue());
+		ContactId contactId1 =
+				new ContactId(d.getLong(CONTACT_ID_1).intValue());
+		ContactId contactId2 =
+				new ContactId(d.getLong(CONTACT_ID_2).intValue());
 
 		GroupId group1Id = new GroupId(d.getRaw(GROUP_ID_1));
 		GroupId group2Id = new GroupId(d.getRaw(GROUP_ID_2));
 
 
-		int stateno = d.getLong(STATE).intValue();
-		IntroducerProtocolState state = IntroducerProtocolState.fromValue(stateno);
-		IntroducerSessionState newstate = new IntroducerSessionState(storageId,
-				sessionId, group1Id, group2Id, cid1, aid1, author1, cid2, aid2,
+		int stateNumber = d.getLong(STATE).intValue();
+		IntroducerProtocolState state = IntroducerProtocolState.fromValue(
+				stateNumber);
+		IntroducerSessionState newState = new IntroducerSessionState(storageId,
+				sessionId, group1Id, group2Id, contactId1, authorId1, author1,
+				contactId2,
+				authorId2,
 				author2, state);
 
 		if (d.containsKey(PUBLIC_KEY1))
-			newstate.setPublicKey1(d.getRaw(PUBLIC_KEY1));
+			newState.setPublicKey1(d.getRaw(PUBLIC_KEY1));
 
 		if (d.containsKey(PUBLIC_KEY2))
-			newstate.setPublicKey2(d.getRaw(PUBLIC_KEY2));
+			newState.setPublicKey2(d.getRaw(PUBLIC_KEY2));
 
 		if (d.containsKey(RESPONSE_1))
-			newstate.setResponse1(new MessageId(d.getRaw(RESPONSE_1)));
+			newState.setResponse1(new MessageId(d.getRaw(RESPONSE_1)));
 		if (d.containsKey(RESPONSE_2))
-			newstate.setResponse2(new MessageId(d.getRaw(RESPONSE_2)));
+			newState.setResponse2(new MessageId(d.getRaw(RESPONSE_2)));
 
-		return newstate;
+		return newState;
 	}
 
 	GroupId getGroup2Id() {
 		return group2Id;
 	}
 
-	public IntroducerProtocolState getState() {
+	IntroducerProtocolState getState() {
 		return state;
 	}
 
-	public void setState(IntroducerProtocolState state) {
+	void setState(IntroducerProtocolState state) {
 		this.state = state;
 	}
 
@@ -170,40 +177,42 @@ class IntroducerSessionState extends IntroductionState {
 		this.response2 = response2;
 	}
 
-	public void setPublicKey1(byte[] publicKey1) {
+	void setPublicKey1(byte[] publicKey1) {
 		this.publicKey1 = publicKey1;
 	}
 
-	public void setPublicKey2(byte[] publicKey2) {
+	void setPublicKey2(byte[] publicKey2) {
 		this.publicKey2 = publicKey2;
 	}
 
-	public GroupId getGroup1Id() {
+	GroupId getGroup1Id() {
 		return this.group1Id;
 	}
-	public ContactId getContact2Id() {
+
+	ContactId getContact2Id() {
 		return contact2Id;
 	}
 
-	public AuthorId getContact2AuthorId() {
+	AuthorId getContact2AuthorId() {
 		return contact2AuthorId;
 	}
 
-	public String getContact2Name() {
+	String getContact2Name() {
 		return contact2Name;
 	}
 
-	public String getContact1Name() {
+	String getContact1Name() {
 		return contact1Name;
 	}
 
-	public ContactId getContact1Id() {
+	ContactId getContact1Id() {
 		return contact1Id;
 	}
 
-	public AuthorId getContact1AuthorId() {
+	AuthorId getContact1AuthorId() {
 		return contact1AuthorId;
 	}
+
 
 }
 

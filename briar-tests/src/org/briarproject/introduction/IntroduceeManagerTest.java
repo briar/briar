@@ -171,11 +171,11 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		final IntroduceeSessionState state =
 				initializeSessionState(txn, sessionId,
 						introductionGroup1.getId(), msg);
+		state.setIntroducedName(msg.getString(NAME));
+		state.setIntroducedPublicKey(msg.getRaw(PUBLIC_KEY));
 
 		final BdfDictionary statedict = state.toBdfDictionary();
 		statedict.put(STATE, AWAIT_RESPONSES.getValue());
-		statedict.put(SESSION_ID, sessionId);
-		statedict.put(PUBLIC_KEY, msg.getRaw(PUBLIC_KEY));
 
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).mergeMessageMetadata(txn,
@@ -207,7 +207,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 				initializeSessionState(txn, sessionId,
 						introductionGroup1.getId(), msg);
 		state.setTheirTime(time);
-		state.setTransport(new BdfDictionary());
+		state.setOurTransportProperties(new BdfDictionary());
 		final BdfDictionary statedict = state.toBdfDictionary();
 		state.setState(AWAIT_RESPONSES);
 		statedict.put(STATE, AWAIT_LOCAL_RESPONSE.getValue());
@@ -242,7 +242,6 @@ public class IntroduceeManagerTest extends BriarTestCase {
 
 		BdfDictionary statedict = state.toBdfDictionary();
 		assertEquals(statedict, fromBdfDictionary(statedict).toBdfDictionary());
-//		assertEquals(state, fromBdfDictionary(statedict));
 	}
 
 	@Test
@@ -257,24 +256,23 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.setOurTime(-1L);
 		state.setTheirTime(-2L);
 		state.setMessage("");
-		state.setEPublicKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
-		state.setTransport(new BdfDictionary());
+		state.setTheirEphemeralPublicKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		state.setOurTransportProperties(new BdfDictionary());
 		state.setContactExists(false);
 		state.setRemoteAuthorId(new AuthorId(TestUtils.getRandomId()));
 		state.setRemoteAuthorIsUs(false);
-		state.setOtherResponseId(TestUtils.getRandomId());
+		state.setTheirResponseId(TestUtils.getRandomId());
 		state.setTask(-1);
-		state.setName(TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH));
+		state.setIntroducedName(TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH));
 		state.setOurPublicKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
 		state.setOurPrivateKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
 		state.setIntroducedPublicKey(TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
-		state.setIntroducedName(TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH));
 		state.setMac(TestUtils.getRandomBytes(MAC_LENGTH));
 		state.setSignature(TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH));
 		state.setOurSignature(TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH));
 		state.setOurTransport(new BdfDictionary());
-		state.setNonce(TestUtils.getRandomBytes(32));
-		state.setMacKey(TestUtils.getRandomBytes(32));
+		state.setTheirNonce(TestUtils.getRandomBytes(32));
+		state.setTheirMacKey(TestUtils.getRandomBytes(32));
 
 		BdfDictionary statedict = state.toBdfDictionary();
 		assertEquals(statedict, fromBdfDictionary(statedict).toBdfDictionary());
@@ -312,10 +310,10 @@ public class IntroduceeManagerTest extends BriarTestCase {
 				introducer.getAuthor().getId(), introducer.getAuthor().getName(),
 				introducer.getLocalAuthorId(), AWAIT_REQUEST);
 
-		state.setName(msg.getString(NAME));
 		state.setContactExists(true);
 		state.setRemoteAuthorIsUs(false);
 		state.setRemoteAuthorId(introducee2.getAuthor().getId());
+		state.setIntroducedPublicKey(introducee2.getAuthor().getPublicKey());
 		final BdfDictionary statedict = state.toBdfDictionary();
 
 		context.checking(new Expectations() {{

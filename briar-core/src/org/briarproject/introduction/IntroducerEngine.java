@@ -66,7 +66,8 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 
 public class IntroducerEngine
-		implements ProtocolEngine<BdfDictionary, IntroducerSessionState, BdfDictionary> {
+		implements
+		ProtocolEngine<BdfDictionary, IntroducerSessionState, BdfDictionary> {
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroducerEngine.class.getName());
@@ -100,8 +101,8 @@ public class IntroducerEngine
 				List<BdfDictionary> messages = new ArrayList<BdfDictionary>(2);
 				BdfDictionary msg1 = new BdfDictionary();
 				msg1.put(TYPE, TYPE_REQUEST);
-				msg1.put(SESSION_ID, localState.getSessionId().getBytes());
-				msg1.put(GROUP_ID, localState.getGroup1Id().getBytes());
+				msg1.put(SESSION_ID, localState.getSessionId());
+				msg1.put(GROUP_ID, localState.getGroup1Id());
 				msg1.put(NAME, localState.getContact2Name());
 				msg1.put(PUBLIC_KEY, localAction.getRaw(PUBLIC_KEY2));
 				if (localAction.containsKey(MSG)) {
@@ -112,8 +113,8 @@ public class IntroducerEngine
 				logLocalAction(currentState, localState, msg1);
 				BdfDictionary msg2 = new BdfDictionary();
 				msg2.put(TYPE, TYPE_REQUEST);
-				msg2.put(SESSION_ID, localState.getSessionId().getBytes());
-				msg2.put(GROUP_ID, localState.getGroup2Id().getBytes());
+				msg2.put(SESSION_ID, localState.getSessionId());
+				msg2.put(GROUP_ID, localState.getGroup2Id());
 				msg2.put(NAME, localState.getContact1Name());
 				msg2.put(PUBLIC_KEY, localAction.getRaw(PUBLIC_KEY1));
 				if (localAction.containsKey(MSG)) {
@@ -125,7 +126,7 @@ public class IntroducerEngine
 
 				List<Event> events = Collections.emptyList();
 				return new StateUpdate<IntroducerSessionState, BdfDictionary>(
-						false, false,localState, messages, events);
+						false, false, localState, messages, events);
 			} else {
 				throw new IllegalArgumentException("Unknown Local Action");
 			}
@@ -187,19 +188,23 @@ public class IntroducerEngine
 			else if (currentState == FINISHED) {
 				// if it was a response store it to be found later
 				if (action == REMOTE_ACCEPT_1 || action == REMOTE_DECLINE_1) {
-					localState.setResponse1(new MessageId(msg.getRaw(MESSAGE_ID)));
+					localState.setResponse1(
+							new MessageId(msg.getRaw(MESSAGE_ID)));
 					messages = Collections.emptyList();
-					events = Collections.singletonList(getEvent(localState, msg));
+					events = Collections
+							.singletonList(getEvent(localState, msg));
 				} else if (action == REMOTE_ACCEPT_2 ||
 						action == REMOTE_DECLINE_2) {
-					localState.setResponse2(new MessageId(msg.getRaw(MESSAGE_ID)));
+					localState.setResponse2(
+							new MessageId(msg.getRaw(MESSAGE_ID)));
 					messages = Collections.emptyList();
-					events = Collections.singletonList(getEvent(localState, msg));
+					events = Collections
+							.singletonList(getEvent(localState, msg));
 				} else return noUpdate(localState);
 			} else {
 				throw new IllegalArgumentException("Bad state");
 			}
-			return new StateUpdate<IntroducerSessionState, BdfDictionary>(false, 
+			return new StateUpdate<IntroducerSessionState, BdfDictionary>(false,
 					false, localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
@@ -240,7 +245,8 @@ public class IntroducerEngine
 			String from = getMessagePartner(localState, msg);
 			String to = getOtherContact(localState, msg);
 
-			LOG.info("Received " + t + " in state " + currentState.name() + " from " +
+			LOG.info("Received " + t + " in state " + currentState.name() +
+					" from " +
 					from + " to " + to + " with session ID " +
 					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
@@ -251,7 +257,8 @@ public class IntroducerEngine
 		}
 	}
 
-	private List<BdfDictionary> forwardMessage(IntroducerSessionState localState,
+	private List<BdfDictionary> forwardMessage(
+			IntroducerSessionState localState,
 			BdfDictionary message) throws FormatException {
 
 		// clone the message here, because we still need the original
@@ -275,20 +282,19 @@ public class IntroducerEngine
 			IntroducerSessionState localState, BdfDictionary delivered) {
 		try {
 			return noUpdate(localState);
-		}
-		catch (FormatException e) {
+		} catch (FormatException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 	}
 
-	private Event getEvent(IntroducerSessionState localState, 
+	private Event getEvent(IntroducerSessionState localState,
 			BdfDictionary msg) throws FormatException {
 
 		ContactId contactId = localState.getContact1Id();
 		AuthorId authorId = localState.getContact1AuthorId();
-		if (Arrays.equals(msg.getRaw(GROUP_ID), 
-					localState.getGroup2Id().getBytes())) {
+		if (Arrays.equals(msg.getRaw(GROUP_ID),
+				localState.getGroup2Id().getBytes())) {
 			contactId = localState.getContact2Id();
 			authorId = localState.getContact2AuthorId();
 		}
@@ -306,7 +312,7 @@ public class IntroducerEngine
 		return new IntroductionResponseReceivedEvent(contactId, ir);
 	}
 
-	private boolean isContact1(IntroducerSessionState localState, 
+	private boolean isContact1(IntroducerSessionState localState,
 			BdfDictionary msg) throws FormatException {
 
 		byte[] group = msg.getRaw(GROUP_ID);
@@ -326,31 +332,31 @@ public class IntroducerEngine
 			BdfDictionary msg) throws FormatException {
 
 		String from = localState.getContact1Name();
-		if (Arrays.equals(msg.getRaw(GROUP_ID), 
-					localState.getGroup2Id().getBytes())) {
+		if (Arrays.equals(msg.getRaw(GROUP_ID),
+				localState.getGroup2Id().getBytes())) {
 			from = localState.getContact2Name();
 		}
 		return from;
 	}
 
-	private String getOtherContact(IntroducerSessionState localState, 
+	private String getOtherContact(IntroducerSessionState localState,
 			BdfDictionary msg) throws FormatException {
 
 		String to = localState.getContact2Name();
-		if (Arrays.equals(msg.getRaw(GROUP_ID), 
-					localState.getGroup2Id().getBytes())) {
+		if (Arrays.equals(msg.getRaw(GROUP_ID),
+				localState.getGroup2Id().getBytes())) {
 			to = localState.getContact1Name();
 		}
 		return to;
 	}
 
 	private StateUpdate<IntroducerSessionState, BdfDictionary> abortSession(
-			IntroducerProtocolState currentState, 
+			IntroducerProtocolState currentState,
 			IntroducerSessionState localState) throws FormatException {
 
 		if (LOG.isLoggable(WARNING)) {
 			LOG.warning("Aborting protocol session " +
-					Arrays.hashCode(localState.getSessionId().getBytes()) +
+					localState.getSessionId().hashCode() +
 					" in state " + currentState.name());
 		}
 
@@ -377,14 +383,15 @@ public class IntroducerEngine
 		Event event2 = new IntroductionAbortedEvent(contactId2, sessionId);
 		events.add(event2);
 
-		return new StateUpdate<IntroducerSessionState, BdfDictionary>(false, 
+		return new StateUpdate<IntroducerSessionState, BdfDictionary>(false,
 				false, localState, messages, events);
 	}
 
 	private StateUpdate<IntroducerSessionState, BdfDictionary> noUpdate(
 			IntroducerSessionState localState) throws FormatException {
 
-		return new StateUpdate<IntroducerSessionState, BdfDictionary>(false, false,
+		return new StateUpdate<IntroducerSessionState, BdfDictionary>(false,
+				false,
 				localState, Collections.<BdfDictionary>emptyList(),
 				Collections.<Event>emptyList());
 	}

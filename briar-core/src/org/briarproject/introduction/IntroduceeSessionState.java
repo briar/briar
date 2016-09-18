@@ -15,7 +15,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.ANSWERED;
 import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.AUTHOR_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_1;
-import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_2;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
@@ -26,7 +25,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK;
-import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
@@ -50,7 +48,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.OUR_SIGNAT
 import static org.briarproject.api.introduction.IntroductionConstants.OUR_MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC_KEY;
 
-
+// This class is not thread-safe
 class IntroduceeSessionState extends IntroductionState {
 
 	private IntroduceeProtocolState state;
@@ -67,20 +65,21 @@ class IntroduceeSessionState extends IntroductionState {
 	private byte[] ourPrivateKey;
 	private byte[] ourPublicKey;
 	private byte[] introducedPublicKey;
-	private byte[] ePublicKey;
+	private byte[] theirEphemeralPublicKey;
 
 	private byte[] mac;
 	private byte[] signature;
 	private byte[] ourMac;
 	private byte[] ourSignature;
 	private BdfDictionary ourTransport;
-	private byte[] nonce;
-	private byte[] macKey;
+	private byte[] theirNonce;
+	private byte[] theirMacKey;
 
 	private int task;
 
 	private String message;
-	private BdfDictionary transport; // FIXME should not be a dictionary
+	private BdfDictionary ourTransportProperties;
+			// FIXME should not be a dictionary
 
 	private boolean answered;
 	private boolean accept;
@@ -93,17 +92,17 @@ class IntroduceeSessionState extends IntroductionState {
 	private AuthorId remoteAuthorId;
 	private boolean remoteAuthorIsUs;
 
-	private String name;
+	private String introducedName;
 	private GroupId introductionGroupId;
 	private ContactId introducedId;
-	private String introducedName;
+	//	private String introducedName;
 	private AuthorId introducedAuthorId;
 
 	IntroduceeSessionState(MessageId storageId, SessionId sessionId,
 			GroupId groupId,
 			ContactId introducerId, AuthorId introducerAuthorId,
-			String introducerName,  AuthorId introducerLocalAuthorId,
-			IntroduceeProtocolState state){
+			String introducerName, AuthorId introducerLocalAuthorId,
+			IntroduceeProtocolState state) {
 
 		super(sessionId, storageId);
 
@@ -116,32 +115,15 @@ class IntroduceeSessionState extends IntroductionState {
 		this.answered = false;
 		this.accept = false;
 		this.accepted = false;
-		this.contactAlreadyExists= false;
+		this.contactAlreadyExists = false;
 		this.otherResponseId = null;
 		this.task = NO_TASK;
-		this.transport = null;
+		this.ourTransportProperties = null;
 		this.introductionGroupId = groupId;
 
-		// these are not set during initialization, so we default them to null
-		this.introducedName = null;
-		this.introducedAuthorId = null;
-		this.introducedId = null;
-		this.introducedPublicKey = null;
-		this.ourPublicKey = null;
-		this.ourPrivateKey = null;
-		this.ePublicKey = null;
-		this.introducedPublicKey = null;
-		this.message = null;
-		this.mac = null;
-		this.signature = null;
-		this.ourMac = null;
-		this.ourSignature = null;
-		this.ourTransport = null;
-		this.nonce = null;
-		this.macKey = null;
 	}
 
-	public BdfDictionary toBdfDictionary() {
+	BdfDictionary toBdfDictionary() {
 		BdfDictionary d = super.toBdfDictionary();
 		d.put(ROLE, ROLE_INTRODUCEE);
 		d.put(STATE, getState().getValue());
@@ -158,7 +140,6 @@ class IntroduceeSessionState extends IntroductionState {
 		if (introducedId != null)
 			d.put(ADDED_CONTACT_ID, introducedId.getInt());
 
-		d.put(GROUP_ID_1, introductionGroupId);
 		d.put(GROUP_ID, introductionGroupId);
 
 		d.put(AUTHOR_ID_1, introducerAuthorId);
@@ -167,33 +148,36 @@ class IntroduceeSessionState extends IntroductionState {
 
 		if (introducedAuthorId != null) {
 			d.put(AUTHOR_ID_2, introducedAuthorId);
-			d.put(CONTACT_2, introducedName);
 			d.put(CONTACT_ID_2, introducedId);
 		}
-		// TODO check if we really need three names and what this name refers to
-		if (name != null) d.put(NAME, name);
+		// TODO check if we really need three names and what this introducedName refers to
+		if (introducedName != null) d.put(NAME, introducedName);
 
 		if (remoteAuthorId != null)
 			d.put(REMOTE_AUTHOR_ID, remoteAuthorId);
 
 		d.put(LOCAL_AUTHOR_ID, localAuthorId);
 
-		if (transport != null)
-			d.put(TRANSPORT, transport);
+		if (ourTransportProperties != null)
+			d.put(TRANSPORT, ourTransportProperties);
 
 		if (ourPublicKey != null)
 			d.put(OUR_PUBLIC_KEY, ourPublicKey);
 
 		if (ourPrivateKey != null)
 			d.put(OUR_PRIVATE_KEY, ourPrivateKey);
+		else
+			d.put(OUR_PRIVATE_KEY, BdfDictionary.NULL_VALUE);
 
-		if (ePublicKey != null)
-			d.put(E_PUBLIC_KEY, ePublicKey);
+		if (theirEphemeralPublicKey != null)
+			d.put(E_PUBLIC_KEY, theirEphemeralPublicKey);
+		else
+			d.put(E_PUBLIC_KEY, BdfDictionary.NULL_VALUE);
 
 		if (introducedPublicKey != null)
 			d.put(PUBLIC_KEY, introducedPublicKey);
 
-		if (otherResponseId  != null)
+		if (otherResponseId != null)
 			d.put(NOT_OUR_RESPONSE, getOtherResponseId());
 
 		if (mac != null)
@@ -211,13 +195,12 @@ class IntroduceeSessionState extends IntroductionState {
 		if (ourTransport != null)
 			d.put(OUR_TRANSPORT, ourTransport);
 
-		if (nonce != null)
-			d.put(NONCE, nonce);
+		if (theirNonce != null)
+			d.put(NONCE, theirNonce);
 
-		if (macKey != null) {
-			d.put(MAC_KEY, macKey);
-		}
-		
+		if (theirMacKey != null)
+			d.put(MAC_KEY, theirMacKey);
+
 		d.put(TIME, theirTime);
 		d.put(OUR_TIME, ourTime);
 		d.put(EXISTS, contactAlreadyExists);
@@ -226,8 +209,8 @@ class IntroduceeSessionState extends IntroductionState {
 		return d;
 	}
 
-	public static IntroduceeSessionState fromBdfDictionary(BdfDictionary d)
-			throws FormatException{
+	static IntroduceeSessionState fromBdfDictionary(BdfDictionary d)
+			throws FormatException {
 
 		if (d.getLong(ROLE).intValue() != ROLE_INTRODUCEE)
 			throw new FormatException();
@@ -235,23 +218,25 @@ class IntroduceeSessionState extends IntroductionState {
 		MessageId storageId = new MessageId(d.getRaw(STORAGE_ID));
 		SessionId sessionId = new SessionId(d.getRaw(SESSION_ID));
 
-		// FIXME: do we need both GROUP_ID and GROUP_ID_1?
-		GroupId groupId = new GroupId(d.getRaw(GROUP_ID_1));
+		GroupId groupId = new GroupId(d.getRaw(GROUP_ID));
 
-		AuthorId iaid = new AuthorId(d.getRaw(AUTHOR_ID_1));
-		String iname = d.getString(INTRODUCER);
-		ContactId iid = new ContactId(d.getLong(CONTACT_ID_1).intValue());
-		AuthorId liaid = new AuthorId(d.getRaw(LOCAL_AUTHOR_ID));
+		AuthorId authorId1 = new AuthorId(d.getRaw(AUTHOR_ID_1));
+		String introducerName = d.getString(INTRODUCER);
+		ContactId introducerId =
+				new ContactId(d.getLong(CONTACT_ID_1).intValue());
+		AuthorId introducerLocalAuthorId =
+				new AuthorId(d.getRaw(LOCAL_AUTHOR_ID));
 
-		int stateno = d.getLong(STATE).intValue();
+		int stateNumber = d.getLong(STATE).intValue();
 		IntroduceeProtocolState state =
-				IntroduceeProtocolState.fromValue(stateno);
+				IntroduceeProtocolState.fromValue(stateNumber);
 
-		IntroduceeSessionState sessionState = new IntroduceeSessionState(storageId,
-				sessionId, groupId, iid, iaid, iname, liaid, state);
+		IntroduceeSessionState sessionState =
+				new IntroduceeSessionState(storageId,
+						sessionId, groupId, introducerId, authorId1,
+						introducerName, introducerLocalAuthorId, state);
 
-		if (d.containsKey(CONTACT_2)) {
-			sessionState.setIntroducedName(d.getString(CONTACT_2));
+		if (d.containsKey(AUTHOR_ID_2)) {
 			sessionState
 					.setIntroducedAuthorId(new AuthorId(d.getRaw(AUTHOR_ID_2)));
 			sessionState.setIntroducedId(
@@ -259,19 +244,22 @@ class IntroduceeSessionState extends IntroductionState {
 		}
 
 		if (d.containsKey(REMOTE_AUTHOR_ID))
-			sessionState.setRemoteAuthorId(new AuthorId(d.getRaw(REMOTE_AUTHOR_ID)));
+			sessionState.setRemoteAuthorId(
+					new AuthorId(d.getRaw(REMOTE_AUTHOR_ID)));
 
 		if (d.containsKey(TRANSPORT))
-			sessionState.setTransport(d.getDictionary(TRANSPORT));
+			sessionState.setOurTransportProperties(d.getDictionary(TRANSPORT));
 
 		if (d.containsKey(OUR_PUBLIC_KEY))
 			sessionState.ourPublicKey = d.getRaw(OUR_PUBLIC_KEY);
 
-		if (d.containsKey(OUR_PRIVATE_KEY))
+		if (d.containsKey(OUR_PRIVATE_KEY)&&
+				d.get(OUR_PRIVATE_KEY) != BdfDictionary.NULL_VALUE)
 			sessionState.ourPrivateKey = d.getRaw(OUR_PRIVATE_KEY);
 
-		if (d.containsKey(E_PUBLIC_KEY))
-			sessionState.ePublicKey = d.getRaw(E_PUBLIC_KEY);
+		if (d.containsKey(E_PUBLIC_KEY) &&
+				d.get(E_PUBLIC_KEY) !=  BdfDictionary.NULL_VALUE)
+			sessionState.theirEphemeralPublicKey = d.getRaw(E_PUBLIC_KEY);
 
 		if (d.containsKey(PUBLIC_KEY))
 			sessionState.setIntroducedPublicKey(d.getRaw(PUBLIC_KEY));
@@ -280,7 +268,7 @@ class IntroduceeSessionState extends IntroductionState {
 			sessionState.setAccept(d.getBoolean(ACCEPT));
 
 		if (d.containsKey(NOT_OUR_RESPONSE))
-			sessionState.setOtherResponseId(d.getRaw(NOT_OUR_RESPONSE));
+			sessionState.setTheirResponseId(d.getRaw(NOT_OUR_RESPONSE));
 
 		if (d.containsKey(MAC))
 			sessionState.setMac(d.getRaw(MAC));
@@ -293,7 +281,10 @@ class IntroduceeSessionState extends IntroductionState {
 
 		sessionState.setTheirTime(d.getLong(TIME));
 		sessionState.setOurTime(d.getLong(OUR_TIME));
-		sessionState.setName(d.getString(NAME));
+
+		if (d.containsKey(NAME))
+			sessionState.setIntroducedName(d.getString(NAME));
+
 		sessionState.setContactExists(d.getBoolean(EXISTS));
 		sessionState.setTask(d.getLong(TASK).intValue());
 		sessionState.setRemoteAuthorIsUs(d.getBoolean(REMOTE_AUTHOR_IS_US));
@@ -305,16 +296,16 @@ class IntroduceeSessionState extends IntroductionState {
 		}
 
 		if (d.containsKey(ANSWERED))
-				sessionState.setAnswered(d.getBoolean(ANSWERED));
+			sessionState.setAnswered(d.getBoolean(ANSWERED));
 
 		if (d.containsKey(MSG))
 			sessionState.setMessage(d.getString(MSG));
 
 		if (d.containsKey(NONCE))
-			sessionState.setNonce(d.getRaw(NONCE));
+			sessionState.setTheirNonce(d.getRaw(NONCE));
 
 		if (d.containsKey(MAC_KEY))
-			sessionState.setMacKey(d.getRaw(MAC_KEY));
+			sessionState.setTheirMacKey(d.getRaw(MAC_KEY));
 
 		if (d.containsKey(OUR_MAC)) {
 			sessionState.setOurMac(d.getRaw(OUR_MAC));
@@ -326,21 +317,21 @@ class IntroduceeSessionState extends IntroductionState {
 
 		return sessionState;
 	}
-	
 
-	public IntroduceeProtocolState getState() {
+
+	IntroduceeProtocolState getState() {
 		return state;
 	}
 
-	public void setState(IntroduceeProtocolState state) {
+	void setState(IntroduceeProtocolState state) {
 		this.state = state;
 	}
 
-	public boolean getAccept() {
+	boolean wasLocallyAccepted() {
 		return accept;
 	}
 
-	public void setAccept(boolean accept) {
+	void setAccept(boolean accept) {
 		if (accepted) {
 			this.accept &= accept;
 		} else {
@@ -377,16 +368,16 @@ class IntroduceeSessionState extends IntroductionState {
 		this.message = message;
 	}
 
-	byte[] getEPublicKey() {
-		return ePublicKey;
+	byte[] getTheirEphemeralPublicKey() {
+		return theirEphemeralPublicKey;
 	}
 
-	void setEPublicKey(byte[] ePublicKey) {
-		this.ePublicKey = ePublicKey;
+	void setTheirEphemeralPublicKey(byte[] theirEphemeralPublicKey) {
+		this.theirEphemeralPublicKey = theirEphemeralPublicKey;
 	}
 
-	public void setTransport(BdfDictionary transport) {
-		this.transport = transport;
+	void setOurTransportProperties(BdfDictionary ourTransportProperties) {
+		this.ourTransportProperties = ourTransportProperties;
 	}
 
 	boolean getContactExists() {
@@ -422,163 +413,151 @@ class IntroduceeSessionState extends IntroductionState {
 		return this.otherResponseId;
 	}
 
-	void setOtherResponseId(byte[] otherResponse) {
+	void setTheirResponseId(byte[] otherResponse) {
 		this.otherResponseId = otherResponse;
 	}
 
-	public String getMessage() {
+	String getMessage() {
 		return message;
 	}
 
-	public void setTask(int task) {
+	void setTask(int task) {
 		this.task = task;
 	}
 
-	public int getTask() {
+	int getTask() {
 		return task;
 	}
 
-	boolean wasAccepted() {
+	boolean wasLocallyAcceptedOrDeclined() {
 		return accepted;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getIntroducerName() {
-		return introducerName;
-	}
-
-	public byte[] getOurPublicKey() {
-		return ourPublicKey;
-	}
-
-	public void setOurPublicKey(byte[] ourPublicKey) {
-		this.ourPublicKey = ourPublicKey;
-	}
-
-	public byte[] getOurPrivateKey() {
-		return ourPrivateKey;
-	}
-
-	public void setOurPrivateKey(byte[] ourPrivateKey) {
-		this.ourPrivateKey = ourPrivateKey;
-	}
-
-	public GroupId getIntroductionGroupId() {
-		return introductionGroupId;
-	}
-
-	public void setIntroductionGroupId(
-			GroupId introductionGroupId) {
-		this.introductionGroupId = introductionGroupId;
-	}
-
-	public byte[] getIntroducedPublicKey() {
-		return introducedPublicKey;
-	}
-
-	public void setIntroducedPublicKey(byte[] introducedPublicKey) {
-		this.introducedPublicKey = introducedPublicKey;
-	}
-
-	public String getIntroducedName() {
-		return introducedName;
-	}
-
-	public void setIntroducedName(String introducedName) {
+	void setIntroducedName(String introducedName) {
 		this.introducedName = introducedName;
 	}
 
-	public ContactId getIntroducedId() {
+	String getIntroducedName() {
+		return introducedName;
+	}
+
+	byte[] getOurPublicKey() {
+		return ourPublicKey;
+	}
+
+	void setOurPublicKey(byte[] ourPublicKey) {
+		this.ourPublicKey = ourPublicKey;
+	}
+
+	byte[] getOurPrivateKey() {
+		return ourPrivateKey;
+	}
+
+	void setOurPrivateKey(byte[] ourPrivateKey) {
+		this.ourPrivateKey = ourPrivateKey;
+	}
+
+	GroupId getIntroductionGroupId() {
+		return introductionGroupId;
+	}
+
+	byte[] getIntroducedPublicKey() {
+		return introducedPublicKey;
+	}
+
+	void setIntroducedPublicKey(byte[] introducedPublicKey) {
+		this.introducedPublicKey = introducedPublicKey;
+	}
+
+
+	ContactId getIntroducedId() {
 		return introducedId;
 	}
 
-	public void setIntroducedId(
+	void setIntroducedId(
 			ContactId introducedId) {
 		this.introducedId = introducedId;
 	}
 
-	public void setIntroducedAuthorId(
+	void setIntroducedAuthorId(
 			AuthorId introducedAuthorId) {
 		this.introducedAuthorId = introducedAuthorId;
 	}
 
-	public AuthorId getLocalAuthorId() {
+	AuthorId getLocalAuthorId() {
 		return localAuthorId;
 	}
 
-	public void setLocalAuthorId(
+	void setLocalAuthorId(
 			AuthorId localAuthorId) {
 		this.localAuthorId = localAuthorId;
 	}
 
-	public ContactId getIntroducerId() {
+	ContactId getIntroducerId() {
 		return introducerId;
 	}
 
-	public void setMac(byte[] mac) {
+	void setMac(byte[] mac) {
 		this.mac = mac;
 	}
 
-	public byte[] getMac() {
+	byte[] getMac() {
 		return mac;
 	}
 
-	public void setSignature(byte[] signature) {
+	void setSignature(byte[] signature) {
 		this.signature = signature;
 	}
 
-	public byte[] getSignature() {
+	byte[] getSignature() {
 		return signature;
 	}
 
-	public void setOurMac(byte[] ourMac) {
+	void setOurMac(byte[] ourMac) {
 		this.ourMac = ourMac;
 	}
 
-	public byte[] getOurMac() {
+	byte[] getOurMac() {
 		return ourMac;
 	}
 
-	public void setOurSignature(byte[] ourSignature) {
+	void setOurSignature(byte[] ourSignature) {
 		this.ourSignature = ourSignature;
 	}
 
-	public byte[] getOurSignature() {
+	byte[] getOurSignature() {
 		return ourSignature;
 	}
 
-	public void setOurTransport(BdfDictionary ourTransport) {
+	void setOurTransport(BdfDictionary ourTransport) {
 		this.ourTransport = ourTransport;
 	}
 
-	public BdfDictionary getOurTransport() {
+	BdfDictionary getOurTransport() {
 		return ourTransport;
 	}
 
-	public void setNonce(byte[] nonce) {
-		this.nonce = nonce;
+	void setTheirNonce(byte[] theirNonce) {
+		this.theirNonce = theirNonce;
 	}
 
-	public byte[] getNonce() {
-		return nonce;
+	byte[] getTheirNonce() {
+		return theirNonce;
 	}
 
-	public void setMacKey(byte[] macKey) {
-		this.macKey = macKey;
+	void setTheirMacKey(byte[] theirMacKey) {
+		this.theirMacKey = theirMacKey;
 	}
 
-	public byte[] getMacKey() {
-		return this.macKey;
+	byte[] getTheirMacKey() {
+		return this.theirMacKey;
 	}
 
-	public BdfDictionary getTransport() {
-		return transport;
+	BdfDictionary getOurTransportProperties() {
+		return ourTransportProperties;
+	}
+
+	String getIntroducerName() {
+		return introducerName;
 	}
 }

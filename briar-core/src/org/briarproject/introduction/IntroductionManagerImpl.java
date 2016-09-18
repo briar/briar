@@ -19,6 +19,7 @@ import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroducerProtocolState;
+import org.briarproject.introduction.IntroducerSessionState;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
@@ -193,7 +194,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	 */
 	@Override
 	protected void incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary message) throws DbException {
+			BdfDictionary message) throws DbException, FormatException{
 
 		// Get message data and type
 		GroupId groupId = m.getGroupId();
@@ -204,13 +205,8 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			boolean stateExists = true;
 			SessionId sessionId;
 			IntroduceeSessionState state;
-			try {
 				sessionId = new SessionId(message.getRaw(SESSION_ID));
-			} catch (FormatException e) {
-				LOG.warning("Introduction without SessionId received.");
-				deleteMessage(txn, m.getId());
-				return;
-			}
+
 			try {
 				getSessionState(txn, groupId, sessionId.getBytes(), false);
 			} catch (FormatException e) {
@@ -256,7 +252,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							(IntroducerSessionState)state, message);
 				} else if (state instanceof IntroduceeSessionState) {
 					introduceeManager.incomingMessage(txn, 
-							(IntroduceeSessionState)state, message);
+							(IntroduceeSessionState) state, message);
 				} else {
 					if(LOG.isLoggable(WARNING)) {
 						LOG.warning("Unknown role '" 
@@ -264,6 +260,8 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 								+ "'. Deleting message...");
 						deleteMessage(txn, m.getId());
 					}
+					throw new RuntimeException("Unknown role" +
+												state.getClass().getName());
 				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -271,13 +269,13 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					introducerManager.abort(txn, 
 							(IntroducerSessionState)state);
 				else introduceeManager.abort(txn, 
-							(IntroduceeSessionState)state);
+							(IntroduceeSessionState) state);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (state instanceof IntroducerSessionState)
 					introducerManager.abort(txn, (IntroducerSessionState)state);
 				else introduceeManager.abort(txn, 
-						(IntroduceeSessionState)state);
+						(IntroduceeSessionState) state);
 			}
 		} else {
 			// the message has been validated, so this should not happen
@@ -311,7 +309,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			Contact c = db.getContact(txn, contactId);
 			Group g = introductionGroupFactory.createIntroductionGroup(c);
 			IntroduceeSessionState state =
-					(IntroduceeSessionState)getSessionState(txn, g.getId(), 
+					(IntroduceeSessionState) getSessionState(txn, g.getId(),
 							sessionId.getBytes());
 
 			introduceeManager.acceptIntroduction(txn, state, timestamp);
@@ -334,7 +332,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
 			introduceeManager.declineIntroduction(txn, 
-					(IntroduceeSessionState)state, timestamp);
+					(IntroduceeSessionState) state, timestamp);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -401,7 +399,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							name = getNameForIntroducer(contactId, iss);
 						} else {
 							IntroduceeSessionState iss = 
-								(IntroduceeSessionState)state;
+								(IntroduceeSessionState) state;
 							if (Arrays.equals(iss.getOtherResponseId(),
 											  messageId.getBytes())) {
 								// this response is not ours,
@@ -417,7 +415,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							}
 
 							authorId = iss.getRemoteAuthorId();
-							name = iss.getName();
+							name = iss.getIntroducedName();
 						}
 						IntroductionResponse ir = new IntroductionResponse(
 								sessionId, messageId, role, time, local,
@@ -439,10 +437,10 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							introducesOtherIdentity = false;
 						} else {
 							IntroduceeSessionState iss =
-								(IntroduceeSessionState)state;
+								(IntroduceeSessionState) state;
 							local = false;
 							authorId = iss.getRemoteAuthorId();
-							name = iss.getName();
+							name = iss.getIntroducedName();
 							message = iss.getMessage();
 							boolean finished = iss.getState() == FINISHED;
 							answered = finished || iss.getAnswered();

@@ -36,23 +36,15 @@ import static org.briarproject.api.introduction.IntroduceeProtocolState.FINISHED
 import static org.briarproject.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
-import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_MAC;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC_KEY;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_SIGNATURE;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
-import static org.briarproject.api.introduction.IntroductionConstants.STATE;
-import static org.briarproject.api.introduction.IntroductionConstants.TASK;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ACTIVATE_CONTACT;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ADD_CONTACT;
@@ -65,7 +57,8 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 
 class IntroduceeEngine
-		implements ProtocolEngine<BdfDictionary, IntroduceeSessionState, BdfDictionary> {
+		implements
+		ProtocolEngine<BdfDictionary, IntroduceeSessionState, BdfDictionary> {
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroduceeEngine.class.getName());
@@ -79,8 +72,8 @@ class IntroduceeEngine
 			int type = localAction.getLong(TYPE).intValue();
 			IntroduceeAction action;
 			// FIXME: discuss? used to be: if has key ACCEPT:
-			if (localState.wasAccepted()) action = IntroduceeAction
-					.getLocal(type, localState.getAccept());
+			if (localState.wasLocallyAcceptedOrDeclined()) action = IntroduceeAction
+					.getLocal(type, localState.wasLocallyAccepted());
 			else action = IntroduceeAction.getLocal(type);
 			IntroduceeProtocolState nextState = currentState.next(action);
 
@@ -106,8 +99,8 @@ class IntroduceeEngine
 				msg.put(TYPE, TYPE_RESPONSE);
 				msg.put(GROUP_ID, localState.getIntroductionGroupId());
 				msg.put(SESSION_ID, localState.getSessionId());
-				msg.put(ACCEPT, localState.getAccept());
-				if (localState.getAccept()) {
+				msg.put(ACCEPT, localState.wasLocallyAccepted());
+				if (localState.wasLocallyAccepted()) {
 					msg.put(TIME, localState.getOurTime());
 					msg.put(E_PUBLIC_KEY, localState.getOurPublicKey());
 					msg.put(TRANSPORT, localAction.getDictionary(TRANSPORT));
@@ -181,8 +174,6 @@ class IntroduceeEngine
 				addResponseData(localState, msg);
 				if (nextState == AWAIT_ACK) {
 					localState.setTask(TASK_ADD_CONTACT);
-//						messages = Collections
-//								.singletonList(getAckMessage(localState));
 				}
 				messages = Collections.emptyList();
 				events = Collections.emptyList();
@@ -197,7 +188,8 @@ class IntroduceeEngine
 			}
 			// we are done (probably declined response), ignore & delete message
 			else if (currentState == FINISHED) {
-				return new StateUpdate<IntroduceeSessionState, BdfDictionary>(true,
+				return new StateUpdate<IntroduceeSessionState, BdfDictionary>(
+						true,
 						false, localState,
 						Collections.<BdfDictionary>emptyList(),
 						Collections.<Event>emptyList());
@@ -206,7 +198,7 @@ class IntroduceeEngine
 			else {
 				throw new IllegalArgumentException();
 			}
-			return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false, 
+			return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false,
 					false, localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
@@ -216,7 +208,7 @@ class IntroduceeEngine
 	private void addRequestData(IntroduceeSessionState localState,
 			BdfDictionary msg) throws FormatException {
 
-		localState.setName(msg.getString(NAME));
+		localState.setIntroducedName(msg.getString(NAME));
 		localState.setIntroducedPublicKey(msg.getRaw(PUBLIC_KEY));
 		if (msg.containsKey(MSG)) {
 			localState.setMessage(msg.getString(MSG));
@@ -227,16 +219,17 @@ class IntroduceeEngine
 			BdfDictionary msg) throws FormatException {
 
 		localState.setAccept(msg.getBoolean(ACCEPT));
-		localState.setOtherResponseId(msg.getRaw(MESSAGE_ID));
+		localState.setTheirResponseId(msg.getRaw(MESSAGE_ID));
 
 		if (msg.getBoolean(ACCEPT)) {
 			localState.setTheirTime(msg.getLong(TIME));
-			localState.setEPublicKey(msg.getRaw(E_PUBLIC_KEY));
-			localState.setTransport(msg.getDictionary(TRANSPORT));
+			localState.setTheirEphemeralPublicKey(msg.getRaw(E_PUBLIC_KEY));
+			localState.setOurTransportProperties(msg.getDictionary(TRANSPORT));
 		}
 	}
 
-	private void addAckData(IntroduceeSessionState localState, BdfDictionary msg)
+	private void addAckData(IntroduceeSessionState localState,
+			BdfDictionary msg)
 			throws FormatException {
 
 		localState.setMac(msg.getRaw(MAC));
@@ -256,7 +249,7 @@ class IntroduceeEngine
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Sending ACK " + " to " +
 					localState.getIntroducerName() + " for " +
-					localState.getName() +
+					localState.getIntroducedName() +
 					" with session ID " +
 					Arrays.hashCode(m.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(m.getRaw(GROUP_ID)));
@@ -271,10 +264,10 @@ class IntroduceeEngine
 
 		try {
 			LOG.info("Sending " +
-					(localState.getAccept() ? "accept " : "decline ") +
+					(localState.wasLocallyAccepted() ? "accept " : "decline ") +
 					"response in state " + state.name() +
-					" to " + localState.getName() +
-					" for " + localState.getIntroducerName() +
+					" to " + localState.getIntroducerName() +
+					" for " + localState.getIntroducedName() +
 					" with session ID " +
 					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
@@ -287,7 +280,7 @@ class IntroduceeEngine
 	}
 
 	private void logMessageReceived(IntroduceeProtocolState currentState,
-			IntroduceeProtocolState nextState, 
+			IntroduceeProtocolState nextState,
 			IntroduceeSessionState localState, int type, BdfDictionary msg) {
 
 		if (!LOG.isLoggable(INFO)) return;
@@ -301,8 +294,9 @@ class IntroduceeEngine
 
 			LOG.info("Received " + t + " in state " + currentState.name() +
 					" from " + localState.getIntroducerName() +
-					(localState.getName() != null ?
-							" related to " + localState.getName() : "") +
+					(localState.getIntroducedName() != null ?
+							" related to " + localState.getIntroducedName() :
+							"") +
 					" with session ID " +
 					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
 					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
@@ -344,14 +338,14 @@ class IntroduceeEngine
 	}
 
 	private StateUpdate<IntroduceeSessionState, BdfDictionary> abortSession(
-			IntroduceeProtocolState currentState, 
+			IntroduceeProtocolState currentState,
 			IntroduceeSessionState localState) throws FormatException {
 
 		if (LOG.isLoggable(WARNING)) {
 			LOG.warning("Aborting protocol session " +
-					Arrays.hashCode(localState.getSessionId().getBytes()) +
+					localState.getSessionId().hashCode() +
 					" in state " + currentState.name()
-					);
+			);
 		}
 
 		localState.setState(ERROR);
@@ -368,14 +362,15 @@ class IntroduceeEngine
 		Event event = new IntroductionAbortedEvent(contactId, sessionId);
 		List<Event> events = Collections.singletonList(event);
 
-		return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false, 
+		return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false,
 				false, localState, messages, events);
 	}
 
 	private StateUpdate<IntroduceeSessionState, BdfDictionary> noUpdate(
 			IntroduceeSessionState localState) throws FormatException {
 
-		return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false, false,
+		return new StateUpdate<IntroduceeSessionState, BdfDictionary>(false,
+				false,
 				localState, Collections.<BdfDictionary>emptyList(),
 				Collections.<Event>emptyList());
 	}

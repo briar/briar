@@ -43,6 +43,8 @@ import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
+import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY1;
+import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY2;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCER;
 import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID;
@@ -124,6 +126,9 @@ public class IntroducerManagerTest extends BriarTestCase {
 		final IntroducerSessionState state =
 				getState(msg, introducee1, introducee2);
 
+		state.setPublicKey1(introducee1.getAuthor().getPublicKey());
+		state.setPublicKey2(introducee2.getAuthor().getPublicKey());
+
 		checkInitialisation(time, salt, msg, txn, state);
 
 		IntroducerSessionState result = introducerManager.initialize(txn,
@@ -145,6 +150,9 @@ public class IntroducerManagerTest extends BriarTestCase {
 		final IntroducerSessionState state =
 				getState(msg, introducee1, introducee2);
 
+		state.setPublicKey1(introducee1.getAuthor().getPublicKey());
+		state.setPublicKey2(introducee2.getAuthor().getPublicKey());
+
 		checkInitialisation(time, salt, msg, txn, state);
 
 		final IntroducerSessionState state2 = state;
@@ -152,8 +160,8 @@ public class IntroducerManagerTest extends BriarTestCase {
 
 		final BdfDictionary msg1 = new BdfDictionary();
 		msg1.put(TYPE, TYPE_REQUEST);
-		msg1.put(SESSION_ID, state.getSessionId().getBytes());
-		msg1.put(GROUP_ID, state.getGroup1Id().getBytes());
+		msg1.put(SESSION_ID, state.getSessionId());
+		msg1.put(GROUP_ID, state.getGroup1Id());
 		msg1.put(NAME, state.getContact2Name());
 		msg1.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 		final BdfDictionary msg1send = (BdfDictionary) msg1.clone();
@@ -161,8 +169,8 @@ public class IntroducerManagerTest extends BriarTestCase {
 
 		final BdfDictionary msg2 = new BdfDictionary();
 		msg2.put(TYPE, TYPE_REQUEST);
-		msg2.put(SESSION_ID, state.getSessionId().getBytes());
-		msg2.put(GROUP_ID, state.getGroup2Id().getBytes());
+		msg2.put(SESSION_ID, state.getSessionId());
+		msg2.put(GROUP_ID, state.getGroup2Id());
 		msg2.put(NAME, state.getContact1Name());
 		msg2.put(PUBLIC_KEY, introducee1.getAuthor().getPublicKey());
 		final BdfDictionary msg2send = (BdfDictionary) msg2.clone();
@@ -184,8 +192,13 @@ public class IntroducerManagerTest extends BriarTestCase {
 		assertFalse(txn.isComplete());
 	}
 
-	private IntroducerSessionState getState(Message msg, Contact c1, Contact c2)
-			throws FormatException {
+	@Test
+	public void testFullSerialization() throws FormatException {
+
+		final Message msg = new Message(new MessageId(TestUtils.getRandomId()),
+				localGroup0.getId(), 0L, TestUtils.getRandomBytes(64));
+
+		IntroducerSessionState state = getState(msg, introducee1, introducee2);
 
 		final BdfDictionary d = new BdfDictionary();
 		d.put(SESSION_ID, new SessionId(msg.getId().getBytes()));
@@ -201,10 +214,20 @@ public class IntroducerManagerTest extends BriarTestCase {
 		d.put(AUTHOR_ID_1, introducee1.getAuthor().getId());
 		d.put(AUTHOR_ID_2, introducee2.getAuthor().getId());
 
-		IntroducerSessionState state =
-				IntroducerSessionState.fromBdfDictionary(d);
-
 		assertEquals(d, state.toBdfDictionary());
+	}
+
+
+	private IntroducerSessionState getState(Message msg, Contact c1, Contact c2)
+			throws FormatException {
+
+		IntroducerSessionState state = new IntroducerSessionState(msg.getId(),
+				new SessionId(msg.getId().getBytes()),
+				introductionGroup1.getId(),
+				introductionGroup2.getId(), c1.getId(), c1.getAuthor().getId(),
+				c1.getAuthor().getName(), c2.getId(), c2.getAuthor().getId(),
+				c2.getAuthor().getName(), PREPARE_REQUESTS);
+
 
 		return state;
 	}
@@ -235,10 +258,6 @@ public class IntroducerManagerTest extends BriarTestCase {
 
 			oneOf(clientHelper).addLocalMessage(txn, msg,
 					state.toBdfDictionary(), false);
-			// send message
-////		oneOf(clientHelper).mergeMessageMetadata(txn, msg.getId(), state2);
-////		oneOf(messageSender).sendMessage(txn, msg1send);
-////		oneOf(messageSender).sendMessage(txn, msg2send);
 		}});
 	}
 

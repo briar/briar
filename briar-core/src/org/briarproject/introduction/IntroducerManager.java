@@ -36,7 +36,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 class IntroducerManager {
 
 	private static final Logger LOG =
-		Logger.getLogger(IntroducerManager.class.getName());
+			Logger.getLogger(IntroducerManager.class.getName());
 
 	private final MessageSender messageSender;
 	private final ClientHelper clientHelper;
@@ -71,10 +71,15 @@ class IntroducerManager {
 
 		Group g1 = introductionGroupFactory.createIntroductionGroup(c1);
 		Group g2 = introductionGroupFactory.createIntroductionGroup(c2);
-		IntroducerProtocolState state_value = IntroducerProtocolState.PREPARE_REQUESTS;
+		IntroducerProtocolState stateValue =
+				IntroducerProtocolState.PREPARE_REQUESTS;
 		IntroducerSessionState state = new IntroducerSessionState(m.getId(),
-				sessionId, g1.getId(), g2.getId(), c1.getId(), c1.getAuthor().getId(), c1.getAuthor().getName(),
-				c2.getId(), c2.getAuthor().getId(), c2.getAuthor().getName(), state_value);
+				sessionId, g1.getId(), g2.getId(), c1.getId(),
+				c1.getAuthor().getId(), c1.getAuthor().getName(),
+				c2.getId(), c2.getAuthor().getId(), c2.getAuthor().getName(),
+				stateValue);
+		state.setPublicKey1(c1.getAuthor().getPublicKey());
+		state.setPublicKey2(c2.getAuthor().getPublicKey());
 
 		BdfDictionary d = state.toBdfDictionary();
 
@@ -122,7 +127,7 @@ class IntroducerManager {
 
 		// save new local state
 		MessageId storageId = result.localState.getStorageId();
-		clientHelper.mergeMessageMetadata(txn, storageId, 
+		clientHelper.mergeMessageMetadata(txn, storageId,
 				result.localState.toBdfDictionary());
 
 		// send messages

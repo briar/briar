@@ -45,42 +45,13 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT;
-import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_1;
-import static org.briarproject.api.introduction.IntroductionConstants.EXISTS;
-import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
-import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.INTRODUCER;
-import static org.briarproject.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.MAC;
-import static org.briarproject.api.introduction.IntroductionConstants.MAC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
-import static org.briarproject.api.introduction.IntroductionConstants.NONCE;
-import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_MAC;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_PRIVATE_KEY;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_PUBLIC_KEY;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_SIGNATURE;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_TIME;
-import static org.briarproject.api.introduction.IntroductionConstants.OUR_TRANSPORT;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
-import static org.briarproject.api.introduction.IntroductionConstants.ROLE;
-import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
-import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
-import static org.briarproject.api.introduction.IntroductionConstants.STATE;
-import static org.briarproject.api.introduction.IntroductionConstants.STORAGE_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.TASK;
-import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
-import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
-import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NO_TASK;
-import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ACTIVATE_CONTACT;
 import static org.briarproject.api.introduction.IntroductionConstants.TASK_ADD_CONTACT;
@@ -148,10 +119,12 @@ class IntroduceeManager {
 				new ContactId(gd.getLong(CONTACT).intValue());
 		Contact introducer = db.getContact(txn, introducerId);
 
-		IntroduceeSessionState localState = new IntroduceeSessionState(storageId,
-				sessionId, groupId, introducer.getId(),
-				introducer.getAuthor().getId(), introducer.getAuthor().getName(),
-				introducer.getLocalAuthorId(), AWAIT_REQUEST);
+		IntroduceeSessionState localState =
+				new IntroduceeSessionState(storageId,
+						sessionId, groupId, introducer.getId(),
+						introducer.getAuthor().getId(),
+						introducer.getAuthor().getName(),
+						introducer.getLocalAuthorId(), AWAIT_REQUEST);
 
 		// check if the contact we are introduced to does already exist
 		AuthorId remoteAuthorId = authorFactory
@@ -161,11 +134,10 @@ class IntroduceeManager {
 				introducer.getLocalAuthorId());
 		localState.setContactExists(exists);
 		localState.setRemoteAuthorId(remoteAuthorId);
-		localState.setLocalAuthorId((introducer.getLocalAuthorId()));
-		localState.setName(message.getString(NAME));
+		localState.setIntroducedPublicKey(message.getRaw(PUBLIC_KEY));
 
 		// check if someone is trying to introduce us to ourselves
-		if(remoteAuthorId.equals(introducer.getLocalAuthorId())) {
+		if (remoteAuthorId.equals(introducer.getLocalAuthorId())) {
 			LOG.warning("Received Introduction Request to Ourselves");
 			throw new FormatException();
 		}
@@ -186,7 +158,8 @@ class IntroduceeManager {
 			BdfDictionary message) throws DbException, FormatException {
 
 		IntroduceeEngine engine = new IntroduceeEngine();
-		processStateUpdate(txn, message, engine.onMessageReceived(state, message));
+		processStateUpdate(txn, message,
+				engine.onMessageReceived(state, message));
 	}
 
 	void acceptIntroduction(Transaction txn,
@@ -205,7 +178,7 @@ class IntroduceeManager {
 		state.setOurTime(now);
 		state.setOurPrivateKey(keyPair.getPrivate().getEncoded());
 		state.setOurPublicKey(keyPair.getPublic().getEncoded());
-        state.setOurTransport(tp);
+		state.setOurTransport(tp);
 
 		// define action
 		BdfDictionary localAction = new BdfDictionary();
@@ -245,7 +218,7 @@ class IntroduceeManager {
 
 		// save new local state
 		MessageId storageId = result.localState.getStorageId();
-		clientHelper.mergeMessageMetadata(txn, storageId, 
+		clientHelper.mergeMessageMetadata(txn, storageId,
 				result.localState.toBdfDictionary());
 
 		// send messages
@@ -269,7 +242,7 @@ class IntroduceeManager {
 		}
 	}
 
-	private void performTasks(Transaction txn, 
+	private void performTasks(Transaction txn,
 			IntroduceeSessionState localState)
 			throws FormatException, DbException {
 
@@ -308,7 +281,7 @@ class IntroduceeManager {
 
 			KeyPair ourEphemeralKeyPair;
 			ourEphemeralKeyPair = new KeyPair(publicKey, privateKey);
-			byte[] theirEphemeralKey = localState.getEPublicKey();
+			byte[] theirEphemeralKey = localState.getTheirEphemeralPublicKey();
 
 			// figure out who takes which role by comparing public keys
 			int comp = new Bytes(publicKeyBytes).compareTo(
@@ -337,8 +310,8 @@ class IntroduceeManager {
 					cryptoComponent.deriveMacKey(secretKey, !alice);
 
 			// Save the other nonce and MAC key for the verification
-			localState.setNonce(theirNonce);
-			localState.setMacKey(theirMacKey.getBytes());
+			localState.setTheirNonce(theirNonce);
+			localState.setTheirMacKey(theirMacKey.getBytes());
 
 			// Sign our nonce with our long-term identity public key
 			AuthorId localAuthorId = localState.getLocalAuthorId();
@@ -377,7 +350,7 @@ class IntroduceeManager {
 
 			// Add the contact to the database as inactive
 			Author remoteAuthor = authorFactory
-					.createAuthor(localState.getName(),
+					.createAuthor(localState.getIntroducedName(),
 							localState.getIntroducedPublicKey());
 			ContactId contactId = contactManager
 					.addContact(txn, remoteAuthor, localAuthorId, secretKey,
@@ -409,17 +382,19 @@ class IntroduceeManager {
 
 		// we sent and received an ACK, so activate contact
 		if (task == TASK_ACTIVATE_CONTACT) {
-			if (!localState.getContactExists() && localState.getIntroducedId() != null) {
+			if (!localState.getContactExists() &&
+					localState.getIntroducedId() != null) {
 
 				LOG.info("Verifying Signature...");
 
-				byte[] nonce = localState.getNonce();
+				byte[] nonce = localState.getTheirNonce();
 				byte[] sig = localState.getSignature();
-				byte[] keyBytes = localState.getIntroducedPublicKey();
+				byte[] introducedPubKey = localState.getIntroducedPublicKey();
 				try {
 					// Parse the public key
-					KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
-					PublicKey key = keyParser.parsePublicKey(keyBytes);
+					KeyParser keyParser =
+							cryptoComponent.getSignatureKeyParser();
+					PublicKey key = keyParser.parsePublicKey(introducedPubKey);
 					// Verify the signature
 					Signature signature = cryptoComponent.getSignature();
 					signature.initVerify(key);
@@ -439,15 +414,15 @@ class IntroduceeManager {
 
 				// get MAC and MAC key from session state
 				byte[] mac = localState.getMac();
-				byte[] macKeyBytes = localState.getMacKey();
+				byte[] macKeyBytes = localState.getTheirMacKey();
 				SecretKey macKey = new SecretKey(macKeyBytes);
 
 				// get MAC data and calculate a new MAC with stored key
-				byte[] pubKey = localState.getIntroducedPublicKey();
-				byte[] ePubKey = localState.getEPublicKey();
-				BdfDictionary tp = localState.getTransport();
+				byte[] ePubKey = localState.getTheirEphemeralPublicKey();
+				BdfDictionary tp = localState.getOurTransportProperties();
 				long timestamp = localState.getTheirTime();
-				BdfList toSignList = BdfList.of(pubKey, ePubKey, tp, timestamp);
+				BdfList toSignList = BdfList.of(introducedPubKey, ePubKey, tp,
+						timestamp);
 				byte[] toSign = clientHelper.toByteArray(toSignList);
 				byte[] calculatedMac = cryptoComponent.mac(macKey, toSign);
 				if (!Arrays.equals(mac, calculatedMac)) {

@@ -27,7 +27,7 @@ abstract class IntroductionState {
 		this.storageId = storageId;
 	}
 
-	public BdfDictionary toBdfDictionary() {
+	BdfDictionary toBdfDictionary() {
 		BdfDictionary d = new BdfDictionary();
 		d.put(SESSION_ID, sessionId);
 		d.put(STORAGE_ID, getStorageId());
@@ -35,12 +35,12 @@ abstract class IntroductionState {
 	}
 
 	static IntroductionState fromBdfDictionary(BdfDictionary state)
-		throws FormatException {
+			throws FormatException {
 
 		int role = state.getLong(ROLE).intValue();
 		if (role == ROLE_INTRODUCER) {
 			return IntroducerSessionState.fromBdfDictionary(state);
-		} else if(role == ROLE_INTRODUCEE) {
+		} else if (role == ROLE_INTRODUCEE) {
 			return IntroduceeSessionState.fromBdfDictionary(state);
 		} else {
 			throw new FormatException();

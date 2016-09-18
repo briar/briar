@@ -1141,7 +1141,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 											time);
 						}
 					}
-				} catch (DbException | IOException | NullPointerException exception) {
+				} catch (DbException | IOException exception) {
 					msgWaiter.rethrow(exception);
 					eventWaiter.rethrow(exception);
 				} finally {
