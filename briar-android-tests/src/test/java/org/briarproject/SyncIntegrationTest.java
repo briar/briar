@@ -122,7 +122,7 @@ public class SyncIntegrationTest extends BriarTestCase {
 
 		// Create the readers
 		StreamContext ctx = new StreamContext(contactId, transportId, tagKey,
-				headerKey, 0);
+				headerKey, streamNumber);
 		InputStream streamReader = streamReaderFactory.createStreamReader(in,
 				ctx);
 		PacketReader packetReader = packetReaderFactory.createPacketReader(

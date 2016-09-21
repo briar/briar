@@ -2,6 +2,8 @@ package org.briarproject.crypto;
 
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.crypto.StreamEncrypter;
+import org.briarproject.util.ByteUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,23 +17,28 @@ import static org.briarproject.api.transport.TransportConstants.MAX_FRAME_LENGTH
 import static org.briarproject.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
+import static org.briarproject.api.transport.TransportConstants.STREAM_HEADER_NONCE_LENGTH;
+import static org.briarproject.util.ByteUtils.INT_64_BYTES;
 
 class StreamEncrypterImpl implements StreamEncrypter {
 
 	private final OutputStream out;
 	private final AuthenticatedCipher cipher;
 	private final SecretKey streamHeaderKey, frameKey;
+	private final long streamNumber;
 	private final byte[] tag, streamHeaderIv;
-	private final byte[] frameNonce, frameHeader, framePlaintext, frameCiphertext;
+	private final byte[] frameNonce, frameHeader;
+	private final byte[] framePlaintext, frameCiphertext;
 
 	private long frameNumber;
 	private boolean writeTag, writeStreamHeader;
 
 	StreamEncrypterImpl(OutputStream out, AuthenticatedCipher cipher,
-			byte[] tag, byte[] streamHeaderIv, SecretKey streamHeaderKey,
-			SecretKey frameKey) {
+			long streamNumber, @Nullable byte[] tag, byte[] streamHeaderIv,
+			SecretKey streamHeaderKey, SecretKey frameKey) {
 		this.out = out;
 		this.cipher = cipher;
+		this.streamNumber = streamNumber;
 		this.tag = tag;
 		this.streamHeaderIv = streamHeaderIv;
 		this.streamHeaderKey = streamHeaderKey;
@@ -45,6 +52,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		writeStreamHeader = true;
 	}
 
+	@Override
 	public void writeFrame(byte[] payload, int payloadLength,
 			int paddingLength, boolean finalFrame) throws IOException {
 		if (payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
@@ -91,18 +99,24 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	}
 
 	private void writeTag() throws IOException {
+		if (tag == null) throw new IllegalStateException();
 		out.write(tag, 0, tag.length);
 		writeTag = false;
 	}
 
 	private void writeStreamHeader() throws IOException {
+		// The nonce consists of the stream number followed by the IV
+		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
+		ByteUtils.writeUint64(streamNumber, streamHeaderNonce, 0);
+		System.arraycopy(streamHeaderIv, 0, streamHeaderNonce, INT_64_BYTES,
+				STREAM_HEADER_IV_LENGTH);
 		byte[] streamHeaderPlaintext = frameKey.getBytes();
 		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];
 		System.arraycopy(streamHeaderIv, 0, streamHeaderCiphertext, 0,
 				STREAM_HEADER_IV_LENGTH);
 		// Encrypt and authenticate the frame key
 		try {
-			cipher.init(true, streamHeaderKey, streamHeaderIv);
+			cipher.init(true, streamHeaderKey, streamHeaderNonce);
 			int encrypted = cipher.process(streamHeaderPlaintext, 0,
 					SecretKey.LENGTH, streamHeaderCiphertext,
 					STREAM_HEADER_IV_LENGTH);
@@ -115,6 +129,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		writeStreamHeader = false;
 	}
 
+	@Override
 	public void flush() throws IOException {
 		// Write the tag if required
 		if (writeTag) writeTag();

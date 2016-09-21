@@ -17,7 +17,9 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 
 	private final AuthenticatedCipher cipher;
 	private final SecretKey streamHeaderKey, frameKey;
-	private final byte[] tag, streamHeaderIv;
+	private final byte[] tag, streamHeaderIv, payload;
+	private final long streamNumber = 1234;
+	private final int payloadLength = 123, paddingLength = 234;
 
 	public StreamEncrypterImplTest() {
 		cipher = new TestAuthenticatedCipher(); // Null cipher
@@ -25,15 +27,14 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 		frameKey = TestUtils.getSecretKey();
 		tag = TestUtils.getRandomBytes(TAG_LENGTH);
 		streamHeaderIv = TestUtils.getRandomBytes(STREAM_HEADER_IV_LENGTH);
+		payload = TestUtils.getRandomBytes(payloadLength);
 	}
 
 	@Test
 	public void testWriteUnpaddedNonFinalFrameWithTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, 0, false);
 
@@ -55,10 +56,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWriteUnpaddedFinalFrameWithTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, 0, true);
 
@@ -80,10 +79,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWriteUnpaddedNonFinalFrameWithoutTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, null, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, 0, false);
 
@@ -104,10 +101,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWriteUnpaddedFinalFrameWithoutTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, null, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, 0, true);
 
@@ -128,10 +123,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWritePaddedNonFinalFrameWithTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, paddingLength, false);
 
@@ -155,10 +148,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWritePaddedFinalFrameWithTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, paddingLength, true);
 
@@ -182,10 +173,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWritePaddedNonFinalFrameWithoutTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, null, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, paddingLength, false);
 
@@ -208,10 +197,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWritePaddedFinalFrameWithoutTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, null, streamHeaderIv, streamHeaderKey, frameKey);
 
 		s.writeFrame(payload, payloadLength, paddingLength, true);
 
@@ -234,10 +221,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testWriteTwoFramesWithTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
-				streamHeaderIv, streamHeaderKey, frameKey);
-		int payloadLength = 123, paddingLength = 234;
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
 		int payloadLength1 = 345, paddingLength1 = 456;
 		byte[] payload1 = TestUtils.getRandomBytes(payloadLength1);
 
@@ -273,8 +258,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	public void testFlushWritesTagAndStreamHeaderIfNotAlreadyWritten()
 			throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
-				streamHeaderIv, streamHeaderKey, frameKey);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
 
 		// Flush the stream once
 		s.flush();
@@ -293,8 +278,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	public void testFlushDoesNotWriteTagOrStreamHeaderIfAlreadyWritten()
 			throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, tag,
-				streamHeaderIv, streamHeaderKey, frameKey);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
 
 		// Flush the stream twice
 		s.flush();
@@ -313,8 +298,8 @@ public class StreamEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testFlushDoesNotWriteTagIfNull() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher, null,
-				streamHeaderIv, streamHeaderKey, frameKey);
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, null, streamHeaderIv, streamHeaderKey, frameKey);
 
 		// Flush the stream once
 		s.flush();

@@ -22,22 +22,23 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 	private final AuthenticatedCipher cipher;
 	private final SecretKey streamHeaderKey, frameKey;
-	private final byte[] streamHeaderIv;
+	private final byte[] streamHeaderIv, payload;
+	private final int payloadLength = 123, paddingLength = 234;
+	private final long streamNumber = 1234;
 
 	public StreamDecrypterImplTest() {
 		cipher = new TestAuthenticatedCipher(); // Null cipher
 		streamHeaderKey = TestUtils.getSecretKey();
 		frameKey = TestUtils.getSecretKey();
 		streamHeaderIv = TestUtils.getRandomBytes(STREAM_HEADER_IV_LENGTH);
+		payload = TestUtils.getRandomBytes(payloadLength);
 	}
 
 	@Test
 	public void testReadValidFrames() throws Exception {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
-		int payloadLength = 123, paddingLength = 234;
 		FrameEncoder.encodeHeader(frameHeader, false, payloadLength,
 				paddingLength);
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		byte[] frameHeader1 = new byte[FRAME_HEADER_LENGTH];
 		int payloadLength1 = 345, paddingLength1 = 456;
@@ -60,7 +61,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		StreamDecrypterImpl s = new StreamDecrypterImpl(in, cipher,
-				streamHeaderKey);
+				streamNumber, streamHeaderKey);
 
 		// Read the first frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];
@@ -78,10 +79,9 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test(expected = IOException.class)
 	public void testTruncatedFrameThrowsException() throws Exception {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
-		int payloadLength = 123, paddingLength = 234;
 		FrameEncoder.encodeHeader(frameHeader, false, payloadLength,
 				paddingLength);
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(streamHeaderIv);
 		out.write(frameKey.getBytes());
@@ -93,7 +93,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		StreamDecrypterImpl s = new StreamDecrypterImpl(in, cipher,
-				streamHeaderKey);
+				streamNumber, streamHeaderKey);
 
 		// Try to read the truncated frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];
@@ -121,7 +121,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		StreamDecrypterImpl s = new StreamDecrypterImpl(in, cipher,
-				streamHeaderKey);
+				streamNumber, streamHeaderKey);
 
 		// Try to read the invalid frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];
@@ -131,10 +131,8 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test(expected = IOException.class)
 	public void testNonZeroPaddingThrowsException() throws Exception {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
-		int payloadLength = 123, paddingLength = 234;
 		FrameEncoder.encodeHeader(frameHeader, false, payloadLength,
 				paddingLength);
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 		// Set one of the padding bytes non-zero
 		byte[] padding = new byte[paddingLength];
 		padding[paddingLength - 1] = 1;
@@ -150,7 +148,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		StreamDecrypterImpl s = new StreamDecrypterImpl(in, cipher,
-				streamHeaderKey);
+				streamNumber, streamHeaderKey);
 
 		// Try to read the invalid frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];
@@ -160,10 +158,8 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 	@Test
 	public void testCannotReadBeyondFinalFrame() throws Exception {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
-		int payloadLength = 123, paddingLength = 234;
 		FrameEncoder.encodeHeader(frameHeader, true, payloadLength,
 				paddingLength);
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(streamHeaderIv);
@@ -178,7 +174,7 @@ public class StreamDecrypterImplTest extends BriarTestCase {
 
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		StreamDecrypterImpl s = new StreamDecrypterImpl(in, cipher,
-				streamHeaderKey);
+				streamNumber, streamHeaderKey);
 
 		// Read the first frame
 		byte[] buffer = new byte[MAX_PAYLOAD_LENGTH];

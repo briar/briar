@@ -26,25 +26,28 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		this.cipherProvider = cipherProvider;
 	}
 
+	@Override
 	public StreamEncrypter createStreamEncrypter(OutputStream out,
 			StreamContext ctx) {
 		AuthenticatedCipher cipher = cipherProvider.get();
+		long streamNumber = ctx.getStreamNumber();
 		byte[] tag = new byte[TAG_LENGTH];
-		crypto.encodeTag(tag, ctx.getTagKey(), ctx.getStreamNumber());
+		crypto.encodeTag(tag, ctx.getTagKey(), streamNumber);
 		byte[] streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
 		crypto.getSecureRandom().nextBytes(streamHeaderIv);
 		SecretKey frameKey = crypto.generateSecretKey();
-		return new StreamEncrypterImpl(out, cipher, tag, streamHeaderIv,
-				ctx.getHeaderKey(), frameKey);
+		return new StreamEncrypterImpl(out, cipher, streamNumber, tag,
+				streamHeaderIv, ctx.getHeaderKey(), frameKey);
 	}
 
+	@Override
 	public StreamEncrypter createInvitationStreamEncrypter(OutputStream out,
 			SecretKey headerKey) {
 		AuthenticatedCipher cipher = cipherProvider.get();
 		byte[] streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
 		crypto.getSecureRandom().nextBytes(streamHeaderIv);
 		SecretKey frameKey = crypto.generateSecretKey();
-		return new StreamEncrypterImpl(out, cipher, null, streamHeaderIv,
+		return new StreamEncrypterImpl(out, cipher, 0, null, streamHeaderIv,
 				headerKey, frameKey);
 	}
 }

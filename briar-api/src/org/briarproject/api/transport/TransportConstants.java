@@ -8,11 +8,14 @@ public interface TransportConstants {
 	/** The length of the pseudo-random tag in bytes. */
 	int TAG_LENGTH = 16;
 
-	/** The length of the message authentication code (MAC) in bytes. */
-	int MAC_LENGTH = 16;
+	/** The length of the stream header nonce in bytes. */
+	int STREAM_HEADER_NONCE_LENGTH = 24;
 
 	/** The length of the stream header initialisation vector (IV) in bytes. */
-	int STREAM_HEADER_IV_LENGTH = 24;
+	int STREAM_HEADER_IV_LENGTH = STREAM_HEADER_NONCE_LENGTH - 8;
+
+	/** The length of the message authentication code (MAC) in bytes. */
+	int MAC_LENGTH = 16;
 
 	/** The length of the stream header in bytes. */
 	int STREAM_HEADER_LENGTH = STREAM_HEADER_IV_LENGTH + SecretKey.LENGTH
@@ -42,7 +45,8 @@ public interface TransportConstants {
 	 * support. Streams may be shorter than this length, but all transport
 	 * plugins must support streams of at least this length.
 	 */
-	int MIN_STREAM_LENGTH = 64 * 1024; // 64 KiB
+	int MIN_STREAM_LENGTH = STREAM_HEADER_LENGTH + FRAME_HEADER_LENGTH
+			+ MAC_LENGTH;
 
 	/** The maximum difference in milliseconds between two peers' clocks. */
 	int MAX_CLOCK_DIFFERENCE = 24 * 60 * 60 * 1000; // 24 hours
