@@ -196,7 +196,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsGroup(txn, m.getGroupId()))
 			throw new NoSuchGroupException();
 		if (!db.containsMessage(txn, m.getId())) {
-			addMessage(txn, m, DELIVERED, shared);
+			addMessage(txn, m, DELIVERED, shared, null);
 			transaction.attach(new MessageAddedEvent(m, null));
 			transaction.attach(new MessageStateChangedEvent(m.getId(), true,
 					DELIVERED));
@@ -205,12 +205,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.mergeMessageMetadata(txn, m.getId(), meta);
 	}
 
-	private void addMessage(T txn, Message m, State state, boolean shared)
-			throws DbException {
+	private void addMessage(T txn, Message m, State state, boolean shared,
+			@Nullable ContactId sender) throws DbException {
 		db.addMessage(txn, m, state, shared);
 		for (ContactId c : db.getVisibility(txn, m.getGroupId())) {
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
-			db.addStatus(txn, c, m.getId(), offered, offered);
+			boolean seen = offered || c.equals(sender);
+			db.addStatus(txn, c, m.getId(), seen, seen);
 		}
 	}
 
@@ -608,11 +609,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		if (db.containsVisibleGroup(txn, c, m.getGroupId())) {
-			if (!db.containsMessage(txn, m.getId())) {
-				addMessage(txn, m, UNKNOWN, false);
+			if (db.containsMessage(txn, m.getId())) {
+				db.raiseSeenFlag(txn, c, m.getId());
+				db.raiseAckFlag(txn, c, m.getId());
+			} else {
+				addMessage(txn, m, UNKNOWN, false, c);
 				transaction.attach(new MessageAddedEvent(m, c));
 			}
-			db.raiseAckFlag(txn, c, m.getId());
 			transaction.attach(new MessageToAckEvent(c));
 		}
 	}

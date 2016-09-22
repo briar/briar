@@ -1136,29 +1136,42 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			// First time
 			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
 			will(returnValue(true));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
-			will(returnValue(true));
 			oneOf(database).addMessage(txn, message, UNKNOWN, false);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, false);
+			oneOf(database).addStatus(txn, contactId, messageId, true, true);
+			// Second time
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
+			will(returnValue(true));
+			oneOf(database).containsMessage(txn, messageId);
+			will(returnValue(true));
+			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
-			// The message was received and added
+			// First time: the message was received and added
 			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
+			// Second time: the message needs to be acked
+			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
 		Transaction transaction = db.startTransaction(false);
 		try {
+			// Receive the message twice
+			db.receiveMessage(transaction, contactId, message);
 			db.receiveMessage(transaction, contactId, message);
 			transaction.setComplete();
 		} finally {
