@@ -44,9 +44,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
@@ -550,8 +552,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 				new BdfEntry(KEY_TYPE, COMMENT.getInt())
 		);
 
-		// TODO this could be optimized by looking up author status once (#625)
-
 		Collection<BlogPostHeader> headers = new ArrayList<BlogPostHeader>();
 		Transaction txn = db.startTransaction(true);
 		try {
@@ -564,10 +564,26 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 							metadata1.size() + metadata2.size());
 			metadata.putAll(metadata1);
 			metadata.putAll(metadata2);
+			// get all authors we need to get the status for
+			Set<AuthorId> authors = new HashSet<AuthorId>();
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				authors.add(new AuthorId(
+						entry.getValue().getDictionary(KEY_AUTHOR)
+								.getRaw(KEY_AUTHOR_ID)));
+			}
+			// get statuses for all authors
+			Map<AuthorId, Status> authorStatuses =
+					new HashMap<AuthorId, Status>();
+			for (AuthorId authorId : authors) {
+				authorStatuses.put(authorId,
+						identityManager.getAuthorStatus(txn, authorId));
+			}
+			// get post headers
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfDictionary meta = entry.getValue();
 				BlogPostHeader h =
-						getPostHeaderFromMetadata(txn, g, entry.getKey(), meta);
+						getPostHeaderFromMetadata(txn, g, entry.getKey(), meta,
+								authorStatuses);
 				headers.add(h);
 			}
 			txn.setComplete();
@@ -611,6 +627,14 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,
 			GroupId groupId, MessageId id, BdfDictionary meta)
 			throws DbException, FormatException {
+		return getPostHeaderFromMetadata(txn, groupId, id, meta,
+				Collections.<AuthorId, Status>emptyMap());
+	}
+
+	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,
+			GroupId groupId, MessageId id, BdfDictionary meta,
+			Map<AuthorId, Status> authorStatuses)
+			throws DbException, FormatException {
 
 		MessageType type = getMessageType(meta);
 
@@ -622,7 +646,12 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		String name = d.getString(KEY_AUTHOR_NAME);
 		byte[] publicKey = d.getRaw(KEY_PUBLIC_KEY);
 		Author author = new Author(authorId, name, publicKey);
-		Status authorStatus = identityManager.getAuthorStatus(txn, authorId);
+		Status authorStatus;
+		if (authorStatuses.containsKey(authorId)) {
+			authorStatus = authorStatuses.get(authorId);
+		} else {
+			authorStatus = identityManager.getAuthorStatus(txn, authorId);
+		}
 
 		boolean read = meta.getBoolean(KEY_READ, false);
 

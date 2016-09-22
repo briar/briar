@@ -29,9 +29,12 @@ import org.briarproject.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.inject.Inject;
@@ -192,23 +195,38 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
 
-		Map<MessageId, BdfDictionary> metadata;
+		Collection<ForumPostHeader> headers = new ArrayList<ForumPostHeader>();
+		Transaction txn = db.startTransaction(true);
 		try {
-			metadata = clientHelper.getMessageMetadataAsDictionary(g);
+			Map<MessageId, BdfDictionary> metadata =
+					clientHelper.getMessageMetadataAsDictionary(txn, g);
+			// get all authors we need to get the status for
+			Set<AuthorId> authors = new HashSet<AuthorId>();
+			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+				BdfDictionary d =
+						entry.getValue().getDictionary(KEY_AUTHOR, null);
+				if (d != null)
+					authors.add(new AuthorId(d.getRaw(KEY_ID)));
+			}
+			// get statuses for all authors
+			Map<AuthorId, Status> statuses = new HashMap<AuthorId, Status>();
+			for (AuthorId id : authors) {
+				statuses.put(id, identityManager.getAuthorStatus(txn, id));
+			}
+			// Parse the metadata
+			for (Entry<MessageId, BdfDictionary> entry : metadata
+					.entrySet()) {
+				BdfDictionary meta = entry.getValue();
+				headers.add(getForumPostHeader(txn, entry.getKey(), meta,
+						statuses));
+			}
+			txn.setComplete();
+			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
 		}
-		// Parse the metadata
-		Collection<ForumPostHeader> headers = new ArrayList<ForumPostHeader>();
-		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-			try {
-				BdfDictionary meta = entry.getValue();
-				headers.add(getForumPostHeader(entry.getKey(), meta));
-			} catch (FormatException e) {
-				throw new DbException(e);
-			}
-		}
-		return headers;
 	}
 
 	@Override
@@ -236,10 +254,17 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	private ForumPostHeader getForumPostHeader(Transaction txn, MessageId id,
 			BdfDictionary meta) throws DbException, FormatException {
+		return getForumPostHeader(txn, id, meta,
+				Collections.<AuthorId, Status>emptyMap());
+	}
+
+	private ForumPostHeader getForumPostHeader(Transaction txn, MessageId id,
+			BdfDictionary meta, Map<AuthorId, Status> statuses)
+			throws DbException, FormatException {
 
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
 		Author author = null;
-		Status authorStatus = ANONYMOUS;
+		Status status = ANONYMOUS;
 		MessageId parentId = null;
 		if (meta.containsKey(KEY_PARENT))
 			parentId = new MessageId(meta.getRaw(KEY_PARENT));
@@ -249,23 +274,16 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			String name = d1.getString(KEY_NAME);
 			byte[] publicKey = d1.getRaw(KEY_PUBLIC_NAME);
 			author = new Author(authorId, name, publicKey);
-			if (txn == null) {
-				authorStatus = identityManager.getAuthorStatus(author.getId());
+			if (statuses.containsKey(authorId)) {
+				status = statuses.get(authorId);
 			} else {
-				authorStatus =
-						identityManager.getAuthorStatus(txn, author.getId());
+				status = identityManager.getAuthorStatus(txn, author.getId());
 			}
 		}
 		boolean read = meta.getBoolean(KEY_READ);
 
-		return new ForumPostHeader(id, parentId, timestamp, author,
-				authorStatus, read);
-	}
-
-	private ForumPostHeader getForumPostHeader(MessageId id,
-			BdfDictionary meta) throws DbException, FormatException {
-
-		return getForumPostHeader(null, id, meta);
+		return new ForumPostHeader(id, parentId, timestamp, author, status,
+				read);
 	}
 
 }
