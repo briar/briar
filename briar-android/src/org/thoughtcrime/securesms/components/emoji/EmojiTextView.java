@@ -7,11 +7,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.text.TextUtils;
-import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider.EmojiDrawable;
+
+import static android.text.TextUtils.TruncateAt.END;
+import static android.view.View.MeasureSpec.AT_MOST;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.widget.TextView.BufferType.SPANNABLE;
 
 @UiThread
 public class EmojiTextView extends TextView {
@@ -41,9 +45,7 @@ public class EmojiTextView extends TextView {
 	}
 
 	private void setTextEllipsized(final @Nullable CharSequence source) {
-		super.setText(
-				needsEllipsizing ? ellipsize(source) : source,
-				BufferType.SPANNABLE);
+		super.setText(needsEllipsizing ? ellipsize(source) : source, SPANNABLE);
 	}
 
 	@Override
@@ -56,18 +58,16 @@ public class EmojiTextView extends TextView {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		final int size = MeasureSpec.getSize(widthMeasureSpec);
 		final int mode = MeasureSpec.getMode(widthMeasureSpec);
-		if (getEllipsize() == TruncateAt.END &&
+		if (getEllipsize() == END &&
 				!TextUtils.isEmpty(source) &&
-				(mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) &&
+				(mode == AT_MOST || mode == EXACTLY) &&
 				getPaint().breakText(source, 0, source.length() - 1, true, size,
 						null) != source.length()) {
 			needsEllipsizing = true;
 			FontMetricsInt font = getPaint().getFontMetricsInt();
-			super.onMeasure(
-					MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY),
-					MeasureSpec
-							.makeMeasureSpec(Math.abs(font.top - font.bottom),
-									MeasureSpec.EXACTLY));
+			int height = Math.abs(font.top - font.bottom);
+			super.onMeasure(MeasureSpec.makeMeasureSpec(size, EXACTLY),
+					MeasureSpec.makeMeasureSpec(height, EXACTLY));
 		} else {
 			needsEllipsizing = false;
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -84,13 +84,11 @@ public class EmojiTextView extends TextView {
 	@Nullable
 	public CharSequence ellipsize(@Nullable CharSequence text) {
 		if (TextUtils.isEmpty(text) || getWidth() == 0 ||
-				getEllipsize() != TruncateAt.END) {
+				getEllipsize() != END) {
 			return text;
 		} else {
-			return TextUtils.ellipsize(text,
-					getPaint(),
-					getWidth() - getPaddingRight() - getPaddingLeft(),
-					TruncateAt.END);
+			return TextUtils.ellipsize(text, getPaint(),
+					getWidth() - getPaddingRight() - getPaddingLeft(), END);
 		}
 	}
 

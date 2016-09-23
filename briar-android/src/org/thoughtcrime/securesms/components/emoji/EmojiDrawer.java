@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
 import com.astuetz.PagerSlidingTabStrip;
@@ -27,15 +26,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static android.view.KeyEvent.ACTION_DOWN;
+import static android.view.KeyEvent.KEYCODE_DEL;
+import static android.widget.ImageView.ScaleType.CENTER_INSIDE;
 import static java.util.logging.Level.INFO;
 
 @UiThread
 public class EmojiDrawer extends LinearLayout {
 
-	private static final String TAG = EmojiDrawer.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+	private static final Logger LOG =
+			Logger.getLogger(EmojiDrawer.class.getName());
 	private static final KeyEvent DELETE_KEY_EVENT =
-			new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL);
+			new KeyEvent(ACTION_DOWN, KEYCODE_DEL);
 
 	private ViewPager pager;
 	private List<EmojiPageModel> models;
@@ -70,7 +72,6 @@ public class EmojiDrawer extends LinearLayout {
 	}
 
 	private void initializeResources(View v) {
-		LOG.info("initializeResources()");
 		this.pager = (ViewPager) v.findViewById(R.id.emoji_pager);
 		this.strip = (PagerSlidingTabStrip) v.findViewById(R.id.tabs);
 
@@ -93,7 +94,7 @@ public class EmojiDrawer extends LinearLayout {
 		ViewGroup.LayoutParams params = getLayoutParams();
 		params.height = height;
 		if (LOG.isLoggable(INFO))
-			LOG.info("showing emoji drawer with height " + params.height);
+			LOG.info("Showing emoji drawer with height " + params.height);
 		setLayoutParams(params);
 		setVisibility(VISIBLE);
 		if (drawerListener != null) drawerListener.onShown();
@@ -102,7 +103,6 @@ public class EmojiDrawer extends LinearLayout {
 	public void hide() {
 		setVisibility(GONE);
 		if (drawerListener != null) drawerListener.onHidden();
-		LOG.info("hide()");
 	}
 
 	private void initializeEmojiGrid() {
@@ -111,7 +111,6 @@ public class EmojiDrawer extends LinearLayout {
 				new EmojiSelectionListener() {
 					@Override
 					public void onEmojiSelected(String emoji) {
-						LOG.info("onEmojiSelected()");
 						recentModel.onCodePointSelected(emoji);
 						if (listener != null) listener.onEmojiSelected(emoji);
 					}
@@ -174,7 +173,7 @@ public class EmojiDrawer extends LinearLayout {
 		@Override
 		public View getCustomTabView(ViewGroup viewGroup, int i) {
 			ImageView image = new ImageView(context);
-			image.setScaleType(ScaleType.CENTER_INSIDE);
+			image.setScaleType(CENTER_INSIDE);
 			image.setImageResource(pages.get(i).getIcon());
 			return image;
 		}

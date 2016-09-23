@@ -2,11 +2,11 @@ package org.thoughtcrime.securesms.util;
 
 public class BitmapDecodingException extends Exception {
 
-	public BitmapDecodingException(String s) {
+	BitmapDecodingException(String s) {
 		super(s);
 	}
 
-	public BitmapDecodingException(Exception nested) {
+	BitmapDecodingException(Exception nested) {
 		super(nested);
 	}
 }

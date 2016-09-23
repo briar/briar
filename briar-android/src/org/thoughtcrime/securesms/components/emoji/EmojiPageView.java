@@ -20,6 +20,7 @@ import org.briarproject.R;
 public class EmojiPageView extends FrameLayout {
 
 	private final GridView grid;
+
 	private EmojiSelectionListener listener;
 
 	public EmojiPageView(Context context) {
@@ -60,15 +61,15 @@ public class EmojiPageView extends FrameLayout {
 
 	private static class EmojiGridAdapter extends BaseAdapter {
 
-		protected final Context context;
-		private final int emojiSize;
+		private final Context context;
 		private final EmojiPageModel model;
+		private final int emojiSize;
 
 		private EmojiGridAdapter(Context context, EmojiPageModel model) {
 			this.context = context;
-			this.emojiSize = (int) context.getResources()
-					.getDimension(R.dimen.emoji_drawer_size);
 			this.model = model;
+			emojiSize = (int) context.getResources()
+					.getDimension(R.dimen.emoji_drawer_size);
 		}
 
 		@Override
@@ -88,15 +89,14 @@ public class EmojiPageView extends FrameLayout {
 		}
 
 		@Override
-		public View getView(final int position, final View convertView,
-				final ViewGroup parent) {
-			final EmojiView view;
-			final int pad = context.getResources()
+		public View getView(int position, View convertView, ViewGroup parent) {
+			EmojiView view;
+			int pad = context.getResources()
 					.getDimensionPixelSize(R.dimen.emoji_drawer_item_padding);
 			if (convertView != null && convertView instanceof EmojiView) {
 				view = (EmojiView) convertView;
 			} else {
-				final EmojiView emojiView = new EmojiView(context);
+				EmojiView emojiView = new EmojiView(context);
 				emojiView.setPadding(pad, pad, pad, pad);
 				emojiView.setLayoutParams(
 						new AbsListView.LayoutParams(emojiSize + 2 * pad,
@@ -109,7 +109,7 @@ public class EmojiPageView extends FrameLayout {
 		}
 	}
 
-	public interface EmojiSelectionListener {
+	interface EmojiSelectionListener {
 		void onEmojiSelected(String emoji);
 	}
 }

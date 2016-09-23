@@ -20,16 +20,14 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 
 @UiThread
 public class RecentEmojiPageModel implements EmojiPageModel {
 
-	private static final String TAG =
-			RecentEmojiPageModel.class.getSimpleName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+	private static final Logger LOG =
+			Logger.getLogger(RecentEmojiPageModel.class.getName());
 
 	private static final String EMOJI_LRU_PREFERENCE = "pref_emoji_recent";
 	private static final int EMOJI_LRU_SIZE = 50;
@@ -38,11 +36,11 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 	private Settings settings;
 
 	@Inject
-	protected SettingsManager settingsManager;
+	SettingsManager settingsManager;
 	@Inject
-	protected DbController dbController;
+	DbController dbController;
 
-	public RecentEmojiPageModel(Context context) {
+	RecentEmojiPageModel(Context context) {
 		if (!(context instanceof BaseActivity)) {
 			throw new IllegalArgumentException(
 					"Needs to be created from BaseActivity");
@@ -85,9 +83,7 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 		return null;
 	}
 
-	public void onCodePointSelected(String emoji) {
-		if (LOG.isLoggable(INFO))
-			LOG.info("onCodePointSelected(" + emoji + ")");
+	void onCodePointSelected(String emoji) {
 		recentlyUsed.remove(emoji);
 		recentlyUsed.add(emoji);
 
@@ -105,7 +101,7 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 			result += emoji + ";";
 		}
 		if (!emojis.isEmpty())
-			result = result.substring(0, result.length()-1);
+			result = result.substring(0, result.length() - 1);
 		return result;
 	}
 

@@ -3,7 +3,6 @@ package org.thoughtcrime.securesms.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.util.Pair;
 
 import com.bumptech.glide.Glide;
@@ -17,10 +16,14 @@ import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.WARNING;
 
 public class BitmapUtil {
 
-	private static final String TAG = BitmapUtil.class.getSimpleName();
+	private static final Logger LOG =
+			Logger.getLogger(BitmapUtil.class.getName());
 
 	private static <T> InputStream getInputStreamForModel(Context context,
 			T model)
@@ -40,8 +43,7 @@ public class BitmapUtil {
 		final Bitmap rough = Downsampler.AT_LEAST
 				.decode(getInputStreamForModel(context, model),
 						Glide.get(context).getBitmapPool(),
-						width, height,
-						DecodeFormat.PREFER_RGB_565);
+						width, height, DecodeFormat.PREFER_RGB_565);
 
 		final Resource<Bitmap> resource = BitmapResource
 				.obtain(rough, Glide.get(context).getBitmapPool());
@@ -55,8 +57,7 @@ public class BitmapUtil {
 	}
 
 	public static <T> Bitmap createScaledBitmap(Context context, T model,
-			float scale)
-			throws BitmapDecodingException {
+			float scale) throws BitmapDecodingException {
 		Pair<Integer, Integer> dimens =
 				getDimensions(getInputStreamForModel(context, model));
 		return createScaledBitmapInto(context, model,
@@ -72,9 +73,8 @@ public class BitmapUtil {
 		BitmapFactory.decodeStream(fis, null, options);
 		try {
 			fis.close();
-		} catch (IOException ioe) {
-			Log.w(TAG,
-					"failed to close the InputStream after reading image dimensions");
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 
 		if (options.outWidth == -1 || options.outHeight == -1) {

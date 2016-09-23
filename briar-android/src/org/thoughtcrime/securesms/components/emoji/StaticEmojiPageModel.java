@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
 @UiThread
-public class StaticEmojiPageModel implements EmojiPageModel {
+class StaticEmojiPageModel implements EmojiPageModel {
 
 	@DrawableRes
 	private final int icon;
@@ -17,14 +17,14 @@ public class StaticEmojiPageModel implements EmojiPageModel {
 	@Nullable
 	private final String sprite;
 
-	public StaticEmojiPageModel(@DrawableRes int icon, @NonNull String[] emoji,
+	StaticEmojiPageModel(@DrawableRes int icon, @NonNull String[] emoji,
 			@Nullable String sprite) {
 		this.icon = icon;
 		this.emoji = emoji;
 		this.sprite = sprite;
 	}
 
-	public StaticEmojiPageModel(Context ctx, @DrawableRes int icon,
+	StaticEmojiPageModel(Context ctx, @DrawableRes int icon,
 			@ArrayRes int res, @Nullable String sprite) {
 		this(icon, getEmoji(ctx, res), sprite);
 	}
@@ -35,6 +35,7 @@ public class StaticEmojiPageModel implements EmojiPageModel {
 		return icon;
 	}
 
+	@Override
 	@NonNull
 	public String[] getEmoji() {
 		return emoji;

@@ -1,15 +1,17 @@
 package org.thoughtcrime.securesms.components;
 
 import android.content.Context;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
-import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.ImageButton;
+
+import static android.view.HapticFeedbackConstants.KEYBOARD_TAP;
+import static android.view.MotionEvent.ACTION_CANCEL;
+import static android.view.MotionEvent.ACTION_DOWN;
+import static android.view.MotionEvent.ACTION_UP;
 
 @UiThread
 public class RepeatableImageKey extends ImageButton {
@@ -42,7 +44,7 @@ public class RepeatableImageKey extends ImageButton {
 	}
 
 	private void notifyListener() {
-		if (this.listener != null) this.listener.onKeyEvent();
+		if (listener != null) listener.onKeyEvent();
 	}
 
 	private class RepeaterClickListener implements OnClickListener {
@@ -56,31 +58,28 @@ public class RepeatableImageKey extends ImageButton {
 		@Override
 		public void run() {
 			notifyListener();
-			postDelayed(this, VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1
-					? ViewConfiguration.getKeyRepeatDelay()
-					: 50);
+			postDelayed(this, ViewConfiguration.getKeyRepeatDelay());
 		}
 	}
 
 	private class RepeaterTouchListener implements OnTouchListener {
-		private Repeater repeater;
+
+		private final Repeater repeater;
 
 		private RepeaterTouchListener() {
-			this.repeater = new Repeater();
+			repeater = new Repeater();
 		}
 
 		@Override
 		public boolean onTouch(View view, MotionEvent motionEvent) {
 			switch (motionEvent.getAction()) {
-				case MotionEvent.ACTION_DOWN:
+				case ACTION_DOWN:
 					view.postDelayed(repeater,
-							VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1
-									? ViewConfiguration.getKeyRepeatTimeout()
-									: ViewConfiguration.getLongPressTimeout());
-					performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
+							ViewConfiguration.getKeyRepeatTimeout());
+					performHapticFeedback(KEYBOARD_TAP);
 					return false;
-				case MotionEvent.ACTION_CANCEL:
-				case MotionEvent.ACTION_UP:
+				case ACTION_CANCEL:
+				case ACTION_UP:
 					view.removeCallbacks(repeater);
 					return false;
 				default:

@@ -8,12 +8,14 @@ import java.util.Arrays;
 import java.util.List;
 
 class EmojiPages {
+
 	static List<EmojiPageModel> getPages(Context ctx) {
 		return Arrays.<EmojiPageModel>asList(
 				new StaticEmojiPageModel(ctx, R.drawable.ic_emoji_smiley_people,
 						R.array.emoji_smiley_people,
 						"emoji_smiley_people.png"),
-				new StaticEmojiPageModel(ctx, R.drawable.ic_emoji_animals_nature,
+				new StaticEmojiPageModel(ctx,
+						R.drawable.ic_emoji_animals_nature,
 						R.array.emoji_animals_nature,
 						"emoji_animals_nature.png"),
 				new StaticEmojiPageModel(ctx, R.drawable.ic_emoji_food_drink,

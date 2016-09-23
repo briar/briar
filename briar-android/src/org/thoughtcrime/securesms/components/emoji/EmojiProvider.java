@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -34,25 +33,30 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import static android.graphics.PixelFormat.TRANSLUCENT;
+import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 public class EmojiProvider {
-	private static final String TAG = EmojiProvider.class.getSimpleName();
-	private static volatile EmojiProvider instance = null;
-	private static final Paint paint =
+
+	private static volatile EmojiProvider INSTANCE = null;
+
+	private static final Paint PAINT =
 			new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
 
 	@Inject
 	AndroidExecutor androidExecutor;
 
-	private static final Logger LOG = Logger.getLogger(TAG);
+	private static final Logger LOG =
+			Logger.getLogger(EmojiProvider.class.getName());
 
 	private final SparseArray<DrawInfo> offsets = new SparseArray<>();
 
 	private static final Pattern EMOJI_RANGE = Pattern.compile(
-	//     0x203c,0x2049  0x20a0-0x32ff          0x1f00-0x1fff              0xfe4e5-0xfe4ee
-	//   |=== !!, ?! ===||==== misc ===||========= emoticons =======||========== flags ==========|
-		"[\\u203c\\u2049\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83f\\udfff\\udbb9\\udce5-\\udbb9\\udcee]");
+			//     0x203c,0x2049  0x20a0-0x32ff          0x1f00-0x1fff              0xfe4e5-0xfe4ee
+			//   |=== !!, ?! ===||==== misc ===||========= emoticons =======||========== flags ==========|
+			"[\\u203c\\u2049\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83f\\udfff\\udbb9\\udce5-\\udbb9\\udcee]");
 
 	private static final int EMOJI_RAW_HEIGHT = 64;
 	private static final int EMOJI_RAW_WIDTH = 64;
@@ -60,30 +64,29 @@ public class EmojiProvider {
 	private static final int EMOJI_PER_ROW = 32;
 
 	private final Context context;
-	private final float decodeScale;
-	private final float verticalPad;
+	private final float decodeScale, verticalPad;
 	private final List<EmojiPageModel> staticPages;
 
-	public static EmojiProvider getInstance(Context context) {
-		if (instance == null) {
+	static EmojiProvider getInstance(Context context) {
+		if (INSTANCE == null) {
 			synchronized (EmojiProvider.class) {
-				if (instance == null) {
+				if (INSTANCE == null) {
 					LOG.info("Creating new instance of EmojiProvider");
-					instance = new EmojiProvider(context);
+					INSTANCE = new EmojiProvider(context);
 					((BaseActivity) context).getActivityComponent()
-							.inject(instance);
+							.inject(INSTANCE);
 				}
 			}
 		}
-		return instance;
+		return INSTANCE;
 	}
 
 	private EmojiProvider(Context context) {
 		this.context = context.getApplicationContext();
-		this.decodeScale = Math.min(1f,
-				context.getResources().getDimension(R.dimen.emoji_drawer_size) /
-						EMOJI_RAW_HEIGHT);
-		this.verticalPad = EMOJI_VERT_PAD * this.decodeScale;
+		float drawerSize =
+				context.getResources().getDimension(R.dimen.emoji_drawer_size);
+		decodeScale = Math.min(1f, drawerSize / EMOJI_RAW_HEIGHT);
+		verticalPad = EMOJI_VERT_PAD * this.decodeScale;
 		staticPages = EmojiPages.getPages(context);
 		for (EmojiPageModel page : staticPages) {
 			if (page.hasSpriteMap()) {
@@ -97,7 +100,8 @@ public class EmojiProvider {
 	}
 
 	@Nullable
-	public Spannable emojify(@Nullable CharSequence text, @NonNull TextView tv) {
+	Spannable emojify(@Nullable CharSequence text,
+			@NonNull TextView tv) {
 		if (text == null) return null;
 		Matcher matches = EMOJI_RANGE.matcher(text);
 		SpannableStringBuilder builder = new SpannableStringBuilder(text);
@@ -107,15 +111,14 @@ public class EmojiProvider {
 			Drawable drawable = getEmojiDrawable(codePoint);
 			if (drawable != null) {
 				builder.setSpan(new EmojiSpan(drawable, tv), matches.start(),
-						matches.end(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						matches.end(), SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
 		return builder;
 	}
 
 	@Nullable
-	public Drawable getEmojiDrawable(int emojiCode) {
+	Drawable getEmojiDrawable(int emojiCode) {
 		return getEmojiDrawable(offsets.get(emojiCode));
 	}
 
@@ -139,22 +142,30 @@ public class EmojiProvider {
 
 			@Override
 			public void onFailure(Throwable error) {
-				LOG.log(WARNING, error.toString(), error);
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, error.toString(), error);
 			}
 		});
 		return drawable;
 	}
 
-	public List<EmojiPageModel> getStaticPages() {
+	List<EmojiPageModel> getStaticPages() {
 		return staticPages;
 	}
 
 
-	public class EmojiDrawable extends Drawable {
+	class EmojiDrawable extends Drawable {
+
 		private final DrawInfo info;
+		private final float intrinsicWidth, intrinsicHeight;
+
 		private Bitmap bmp;
-		private float intrinsicWidth;
-		private float intrinsicHeight;
+
+		private EmojiDrawable(DrawInfo info, float decodeScale) {
+			this.info = info;
+			intrinsicWidth = EMOJI_RAW_WIDTH * decodeScale;
+			intrinsicHeight = EMOJI_RAW_HEIGHT * decodeScale;
+		}
 
 		@Override
 		public int getIntrinsicWidth() {
@@ -166,32 +177,25 @@ public class EmojiProvider {
 			return (int) intrinsicHeight;
 		}
 
-		private EmojiDrawable(DrawInfo info, float decodeScale) {
-			this.info = info;
-			this.intrinsicWidth = EMOJI_RAW_WIDTH * decodeScale;
-			this.intrinsicHeight = EMOJI_RAW_HEIGHT * decodeScale;
-		}
-
 		@Override
 		public void draw(@NonNull Canvas canvas) {
 			if (bmp == null) {
 				return;
 			}
 
-			final int row = info.index / EMOJI_PER_ROW;
-			final int row_index = info.index % EMOJI_PER_ROW;
+			int row = info.index / EMOJI_PER_ROW;
+			int rowIndex = info.index % EMOJI_PER_ROW;
 
-			canvas.drawBitmap(bmp,
-					new Rect((int) (row_index * intrinsicWidth),
-							(int) (row * intrinsicHeight + row * verticalPad),
-							(int) ((row_index + 1) * intrinsicWidth),
-							(int) ((row + 1) * intrinsicHeight +
-									row * verticalPad)),
-					getBounds(),
-					paint);
+			int left = (int) (rowIndex * intrinsicWidth);
+			int top = (int) (row * intrinsicHeight + row * verticalPad);
+			int right = (int) ((rowIndex + 1) * intrinsicWidth);
+			int bottom =
+					(int) ((row + 1) * intrinsicHeight + row * verticalPad);
+			canvas.drawBitmap(bmp, new Rect(left, top, right, bottom),
+					getBounds(), PAINT);
 		}
 
-		public void setBitmap(Bitmap bitmap) {
+		void setBitmap(Bitmap bitmap) {
 			if (bmp == null || !bmp.sameAs(bitmap)) {
 				bmp = bitmap;
 				invalidateSelf();
@@ -200,7 +204,7 @@ public class EmojiProvider {
 
 		@Override
 		public int getOpacity() {
-			return PixelFormat.TRANSLUCENT;
+			return TRANSLUCENT;
 		}
 
 		@Override
@@ -214,25 +218,28 @@ public class EmojiProvider {
 
 
 	private static class DrawInfo {
-		private EmojiPageBitmap page;
-		int index;
 
-		private DrawInfo(final EmojiPageBitmap page, final int index) {
+		private final EmojiPageBitmap page;
+		private final int index;
+
+		private DrawInfo(EmojiPageBitmap page, int index) {
 			this.page = page;
 			this.index = index;
 		}
 
 		@Override
 		public String toString() {
-			return "DrawInfo{ " +"page = " + page +", index = " + index + '}';
+			return "DrawInfo{ " + "page = " + page + ", index = " + index + '}';
 		}
 	}
 
-
 	private class EmojiPageBitmap {
-		private EmojiPageModel model;
-		private SoftReference<Bitmap> bitmapReference;
+
+		private final EmojiPageModel model;
+
 		private ListenableFutureTask<Bitmap> task;
+
+		private volatile SoftReference<Bitmap> bitmapReference;
 
 		private EmojiPageBitmap(EmojiPageModel model) {
 			this.model = model;
@@ -249,7 +256,8 @@ public class EmojiProvider {
 					@Nullable
 					public Bitmap call() throws Exception {
 						try {
-							LOG.info("loading page " + model.getSprite());
+							if (LOG.isLoggable(INFO))
+								LOG.info("Loading page " + model.getSprite());
 							return loadPage();
 						} catch (IOException ioe) {
 							LOG.log(WARNING, ioe.toString(), ioe);
@@ -283,7 +291,8 @@ public class EmojiProvider {
 						"file:///android_asset/" + model.getSprite(),
 						decodeScale);
 				bitmapReference = new SoftReference<>(bitmap);
-				LOG.info("onPageLoaded(" + model.getSprite() + ")");
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loaded page " + model.getSprite());
 				return bitmap;
 			} catch (BitmapDecodingException e) {
 				LOG.log(WARNING, e.toString(), e);

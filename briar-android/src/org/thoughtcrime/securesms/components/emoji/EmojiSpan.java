@@ -10,11 +10,12 @@ import android.widget.TextView;
 import org.briarproject.R;
 
 @UiThread
-public class EmojiSpan extends AnimatingImageSpan {
+class EmojiSpan extends AnimatingImageSpan {
+
 	private final int size;
 	private final FontMetricsInt fm;
 
-	public EmojiSpan(@NonNull Drawable drawable, @NonNull TextView tv) {
+	EmojiSpan(@NonNull Drawable drawable, @NonNull TextView tv) {
 		super(drawable, tv);
 		fm = tv.getPaint().getFontMetricsInt();
 		size = fm != null ? Math.abs(fm.descent) + Math.abs(fm.ascent)

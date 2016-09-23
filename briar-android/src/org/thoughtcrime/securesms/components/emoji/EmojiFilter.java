@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.widget.TextView;
 
 @UiThread
-public class EmojiFilter implements InputFilter {
+class EmojiFilter implements InputFilter {
 
 	private final TextView view;
 

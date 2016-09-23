@@ -13,13 +13,17 @@ import android.view.View;
 
 import org.briarproject.R;
 
+import static android.graphics.Paint.ANTI_ALIAS_FLAG;
+import static android.graphics.Paint.Align.CENTER;
+import static android.graphics.Paint.FILTER_BITMAP_FLAG;
+
 @UiThread
 public class EmojiView extends View implements Drawable.Callback {
+
+	private final Paint paint = new Paint(ANTI_ALIAS_FLAG | FILTER_BITMAP_FLAG);
+
 	private String emoji;
 	private Drawable drawable;
-
-	private final Paint paint =
-			new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
 	public EmojiView(Context context) {
 		this(context, null);
@@ -60,7 +64,7 @@ public class EmojiView extends View implements Drawable.Callback {
 			paint.setTextSize(targetFontSize);
 			paint.setColor(ContextCompat
 					.getColor(getContext(), R.color.emoji_text_color));
-			paint.setTextAlign(Paint.Align.CENTER);
+			paint.setTextAlign(CENTER);
 			int xPos = (canvas.getWidth() / 2);
 			int yPos = (int) ((canvas.getHeight() / 2) -
 					((paint.descent() + paint.ascent()) / 2));
@@ -80,10 +84,5 @@ public class EmojiView extends View implements Drawable.Callback {
 	public void invalidateDrawable(@NonNull Drawable drawable) {
 		super.invalidateDrawable(drawable);
 		postInvalidate();
-	}
-
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 }
