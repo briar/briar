@@ -1198,6 +1198,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
 			will(returnValue(true));
 			// The message wasn't stored but it must still be acked
+			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			// The message was received but not added
