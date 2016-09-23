@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;

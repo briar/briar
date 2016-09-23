@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<View
+		style="@style/Divider.Horizontal"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="40dp"
+		android:background="@color/emoji_pager_background"
+		android:orientation="horizontal">
+
+		<com.astuetz.PagerSlidingTabStrip
+			android:id="@+id/tabs"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			app:pstsIndicatorColor="@color/briar_accent"
+			app:pstsIndicatorHeight="@dimen/emoji_drawer_indicator_height"
+			app:pstsShouldExpand="true"
+			app:pstsTabPaddingLeftRight="@dimen/emoji_drawer_left_right_padding"/>
+
+		<View
+			android:layout_width="@dimen/margin_separator"
+			android:layout_height="match_parent"
+			android:layout_marginBottom="10dp"
+			android:layout_marginTop="10dp"
+			android:background="@color/divider"/>
+
+		<org.thoughtcrime.securesms.components.RepeatableImageKey
+			android:id="@+id/backspace"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:background="@color/emoji_pager_background"
+			android:paddingLeft="@dimen/margin_medium"
+			android:paddingRight="@dimen/margin_medium"
+			android:src="@drawable/ic_backspace_black"/>
+
+	</LinearLayout>
+
+	<View
+		style="@style/Divider.Horizontal"/>
+
+	<android.support.v4.view.ViewPager
+		android:id="@+id/emoji_pager"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@color/window_background"
+		android:visibility="visible"/>
+
+</merge>

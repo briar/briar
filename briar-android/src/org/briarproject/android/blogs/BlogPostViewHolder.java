@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
-import org.briarproject.android.util.AuthorView;
+import org.briarproject.android.view.AuthorView;
 import org.briarproject.api.blogs.BlogCommentHeader;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.identity.Author;

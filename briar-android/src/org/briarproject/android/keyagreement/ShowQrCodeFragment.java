@@ -23,7 +23,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.fragment.BaseEventFragment;
-import org.briarproject.android.util.CameraView;
+import org.briarproject.android.view.CameraView;
 import org.briarproject.android.util.QrCodeDecoder;
 import org.briarproject.android.util.QrCodeUtils;
 import org.briarproject.api.event.Event;

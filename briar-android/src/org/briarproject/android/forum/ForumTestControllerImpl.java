@@ -3,7 +3,8 @@ package org.briarproject.android.forum;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
@@ -20,33 +21,26 @@ import static org.briarproject.api.identity.Author.Status.UNVERIFIED;
 
 public class ForumTestControllerImpl implements ForumController {
 
+	@Inject
+	AuthorFactory authorFactory;
+
 	private static final Logger LOG =
 			Logger.getLogger(ForumControllerImpl.class.getName());
 
-	private final static String[] AUTHORS = {
-			"Guðmundur",
-			"Jónas",
-			"Geir Þorsteinn Gísli Máni Halldórsson Guðjónsson Mogensen",
-			"Baldur Friðrik",
-			"Anna Katrín",
-			"Þór",
-			"Anna Þorbjörg",
-			"Guðrún",
-			"Helga",
-			"Haraldur"
+	private final Author[] AUTHORS = {
+			authorFactory.createAuthor("Guðmundur", new byte[42]),
+			authorFactory.createAuthor("Jónas", new byte[42]),
+			authorFactory.createAuthor(
+					"Geir Þorsteinn Gísli Máni Halldórsson Guðjónsson Mogensen",
+					new byte[42]),
+			authorFactory.createAuthor("Baldur Friðrik", new byte[42]),
+			authorFactory.createAuthor("Anna Katrín", new byte[42]),
+			authorFactory.createAuthor("Þór", new byte[42]),
+			authorFactory.createAuthor("Anna Þorbjörg", new byte[42]),
+			authorFactory.createAuthor("Guðrún", new byte[42]),
+			authorFactory.createAuthor("Helga", new byte[42]),
+			authorFactory.createAuthor("Haraldur", new byte[42])
 	};
-
-	private final static AuthorId[] AUTHOR_ID = new AuthorId[AUTHORS.length];
-
-	static {
-		SecureRandom random = new SecureRandom();
-		for (int i = 0; i < AUTHOR_ID.length; i++) {
-			byte[] b = new byte[UniqueId.LENGTH];
-			random.nextBytes(b);
-			AUTHOR_ID[i] = new AuthorId(b);
-
-		}
-	}
 
 	private final static String SAGA =
 			"Það er upphaf á sögu þessari að Hákon konungur " +
@@ -117,8 +111,7 @@ public class ForumTestControllerImpl implements ForumController {
 			random.nextBytes(b);
 			forumEntries[e] =
 					new ForumEntry(new MessageId(b), SAGA.substring(0, i[e]),
-							l[e], timestamp, AUTHORS[authorIndex],
-							AUTHOR_ID[authorIndex], UNVERIFIED);
+							l[e], timestamp, AUTHORS[authorIndex], UNVERIFIED);
 		}
 		LOG.info("forum entries: " + forumEntries.length);
 		resultHandler.onResult(true);

@@ -19,7 +19,7 @@
 			android:layout_height="wrap_content"
 			android:padding="@dimen/listitem_vertical_margin">
 
-			<org.briarproject.android.util.AuthorView
+			<org.briarproject.android.view.AuthorView
 				android:id="@+id/rebloggerView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
 				android:layout_toLeftOf="@+id/commentView"
 				app:persona="reblogger"/>
 
-			<org.briarproject.android.util.AuthorView
+			<org.briarproject.android.view.AuthorView
 				android:id="@+id/authorView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

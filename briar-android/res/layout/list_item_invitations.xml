@@ -9,7 +9,7 @@
 	android:background="?attr/selectableItemBackground"
 	android:paddingTop="@dimen/listitem_horizontal_margin">
 
-	<org.briarproject.android.util.TextAvatarView
+	<org.briarproject.android.view.TextAvatarView
 		android:id="@+id/avatarView"
 		android:layout_width="@dimen/listitem_picture_frame_size"
 		android:layout_height="@dimen/listitem_picture_frame_size"

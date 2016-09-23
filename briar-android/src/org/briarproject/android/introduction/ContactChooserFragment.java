@@ -17,7 +17,7 @@ import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.contact.ConversationItem;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;

@@ -15,7 +15,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateUtils;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
@@ -23,6 +22,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.view.ArticleMovementMethod;
 import org.briarproject.android.widget.LinkDialogFragment;
 import org.briarproject.util.IoUtils;
 import org.briarproject.util.StringUtils;

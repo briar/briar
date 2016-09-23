@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.contact.ContactListItem;
-import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.IdentityManager;

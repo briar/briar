@@ -1,6 +1,7 @@
-package org.briarproject.android.util;
+package org.briarproject.android.view;
 
 import android.content.Context;
+import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -10,6 +11,7 @@ import org.briarproject.api.identity.Author.Status;
 
 import static org.briarproject.api.identity.Author.Status.OURSELVES;
 
+@UiThread
 public class TrustIndicatorView extends ImageView {
 
 	public TrustIndicatorView(Context context) {

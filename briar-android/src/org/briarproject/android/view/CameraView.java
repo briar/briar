@@ -1,4 +1,4 @@
-package org.briarproject.android.util;
+package org.briarproject.android.view;
 
 import android.content.Context;
 import android.hardware.Camera;
@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import org.briarproject.android.util.PreviewConsumer;
 
 import java.io.IOException;
 import java.util.Collections;

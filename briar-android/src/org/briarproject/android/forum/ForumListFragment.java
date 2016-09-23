@@ -18,7 +18,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.sharing.InvitationsForumActivity;
-import org.briarproject.android.util.BriarRecyclerView;
+import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.ContactRemovedEvent;

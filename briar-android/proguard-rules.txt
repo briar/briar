@@ -60,3 +60,8 @@
 -dontwarn java.nio.**
 -dontwarn org.codehaus.mojo.animal_sniffer.**
 -dontwarn org.slf4j.impl.**
+
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+    **[] $VALUES;
+    public *;
+}

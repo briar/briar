@@ -5,11 +5,11 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<org.briarproject.android.util.BriarRecyclerView
+	<org.briarproject.android.view.BriarRecyclerView
 		android:id="@+id/forumList"
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		app:layout_behavior="org.briarproject.android.util.BriarRecyclerViewBehavior"/>
+		app:layout_behavior="org.briarproject.android.view.BriarRecyclerViewBehavior"/>
 
 </android.support.design.widget.CoordinatorLayout>

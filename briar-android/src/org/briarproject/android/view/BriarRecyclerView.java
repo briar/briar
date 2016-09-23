@@ -1,7 +1,8 @@
-package org.briarproject.android.util;
+package org.briarproject.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.util.AttributeSet;
@@ -34,11 +35,11 @@ public class BriarRecyclerView extends FrameLayout {
 		this(context, null, 0);
 	}
 
-	public BriarRecyclerView(Context context, AttributeSet attrs) {
+	public BriarRecyclerView(Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public BriarRecyclerView(Context context, AttributeSet attrs,
+	public BriarRecyclerView(Context context, @Nullable AttributeSet attrs,
 			int defStyle) {
 		super(context, attrs, defStyle);
 

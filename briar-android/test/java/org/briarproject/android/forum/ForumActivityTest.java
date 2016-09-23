@@ -29,6 +29,8 @@ import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.briarproject.api.identity.Author.Status.UNKNOWN;
+import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -77,11 +79,12 @@ public class ForumActivityTest {
 	private List<ForumEntry> getDummyData() {
 		ForumEntry[] forumEntries = new ForumEntry[6];
 		for (int i = 0; i < forumEntries.length; i++) {
-			forumEntries[i] =
-					new ForumEntry(new MessageId(TestUtils.getRandomId()),
-							AUTHORS[i], LEVELS[i], System.currentTimeMillis(),
-							AUTHORS[i], new AuthorId(TestUtils.getRandomId()),
-							Author.Status.UNKNOWN);
+			AuthorId authorId = new AuthorId(TestUtils.getRandomId());
+			byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+			Author author = new Author(authorId, AUTHORS[i], publicKey);
+			forumEntries[i] = new ForumEntry(
+					new MessageId(TestUtils.getRandomId()), AUTHORS[i],
+					LEVELS[i], System.currentTimeMillis(), author, UNKNOWN);
 		}
 		return new ArrayList<>(Arrays.asList(forumEntries));
 	}

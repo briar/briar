@@ -1,4 +1,4 @@
-package org.briarproject.android.util;
+package org.briarproject.android.view;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;

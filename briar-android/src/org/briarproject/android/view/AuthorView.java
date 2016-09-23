@@ -1,10 +1,11 @@
-package org.briarproject.android.util;
+package org.briarproject.android.view;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -18,6 +19,8 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.blogs.BlogActivity;
+import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.android.view.TrustIndicatorView;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.GroupId;
@@ -34,6 +37,7 @@ import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.api.identity.Author.Status.OURSELVES;
 
+@UiThread
 public class AuthorView extends RelativeLayout {
 
 	private final CircleImageView avatar;
