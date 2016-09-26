@@ -1,5 +1,8 @@
-package org.briarproject;
+package org.briarproject.introduction;
 
+import org.briarproject.TestDatabaseModule;
+import org.briarproject.TestPluginsModule;
+import org.briarproject.TestSeedProviderModule;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseComponent;
@@ -16,9 +19,6 @@ import org.briarproject.data.DataModule;
 import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.identity.IdentityModule;
-import org.briarproject.introduction.IntroductionGroupFactory;
-import org.briarproject.introduction.IntroductionModule;
-import org.briarproject.introduction.MessageSender;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
