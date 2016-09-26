@@ -1,56 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical"
-	android:padding="@dimen/margin_small"
 	tools:context=".android.blogs.WriteBlogPostActivity">
 
-	<android.support.design.widget.TextInputLayout
-		android:id="@+id/titleLayout"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:visibility="gone"
-		app:counterEnabled="true"
-		app:counterOverflowTextAppearance="@style/BriarTextCounter.Overflow">
-
-		<android.support.design.widget.TextInputEditText
-			android:id="@+id/titleInput"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/blogs_write_blog_post_title_hint"
-			android:inputType="textCapWords|textCapSentences|textAutoCorrect"/>
-
-	</android.support.design.widget.TextInputLayout>
-
-	<EditText
+	<org.briarproject.android.view.LargeTextInputView
 		android:id="@+id/bodyInput"
 		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1"
+		android:layout_height="match_parent"
 		android:gravity="bottom"
-		android:hint="@string/blogs_write_blog_post_body_hint"
-		android:inputType="textMultiLine|textLongMessage|textCapSentences|textAutoCorrect">
-
-		<requestFocus/>
-
-	</EditText>
-
-	<Button
-		android:id="@+id/publishButton"
-		style="@style/BriarButton"
-		android:enabled="false"
-		android:text="@string/blogs_publish_blog_post"/>
+		app:buttonText="@string/blogs_publish_blog_post"
+		app:hint="@string/blogs_write_blog_post_body_hint"
+		app:fillHeight="true"/>
 
 	<ProgressBar
 		android:id="@+id/progressBar"
-		style="?android:attr/progressBarStyle"
+		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:visibility="gone"/>
+		android:visibility="invisible"/>
 
-</LinearLayout>
+</FrameLayout>

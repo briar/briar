@@ -11,7 +11,7 @@ import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import org.briarproject.R;
 
@@ -31,10 +31,10 @@ import static java.util.logging.Level.WARNING;
  * a soft keyboard has been opened and what its height would be.
  */
 @UiThread
-public class KeyboardAwareRelativeLayout extends RelativeLayout {
+public class KeyboardAwareLinearLayout extends LinearLayout {
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyboardAwareRelativeLayout.class.getName());
+			Logger.getLogger(KeyboardAwareLinearLayout.class.getName());
 
 	private final Rect rect = new Rect();
 	private final Set<OnKeyboardHiddenListener> hiddenListeners =
@@ -51,16 +51,16 @@ public class KeyboardAwareRelativeLayout extends RelativeLayout {
 	private boolean keyboardOpen = false;
 	private int rotation = -1;
 
-	public KeyboardAwareRelativeLayout(Context context) {
+	public KeyboardAwareLinearLayout(Context context) {
 		this(context, null);
 	}
 
-	public KeyboardAwareRelativeLayout(Context context,
+	public KeyboardAwareLinearLayout(Context context,
 			@Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public KeyboardAwareRelativeLayout(Context context,
+	public KeyboardAwareLinearLayout(Context context,
 			@Nullable AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		final int statusBarRes = getResources()

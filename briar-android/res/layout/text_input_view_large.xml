@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	tools:showIn="@layout/fragment_reblog">
+
+	<LinearLayout
+		android:id="@+id/input_layout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginRight="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
+		android:layout_marginTop="@dimen/margin_medium"
+		android:background="@android:color/white"
+		android:elevation="@dimen/cardview_default_elevation"
+		android:minHeight="@dimen/text_input_height"
+		android:orientation="horizontal">
+
+		<org.thoughtcrime.securesms.components.emoji.EmojiToggle
+			android:id="@+id/emoji_toggle"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/selectableItemBackground"
+			android:padding="@dimen/margin_small"
+			android:scaleType="center"/>
+
+		<org.thoughtcrime.securesms.components.emoji.EmojiEditText
+			android:id="@+id/input_text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@android:color/transparent"
+			android:gravity="bottom"
+			android:inputType="textMultiLine|textLongMessage|textCapSentences|textAutoCorrect"
+			android:minHeight="@dimen/text_input_height"
+			android:paddingBottom="10dp"
+			android:paddingEnd="@dimen/margin_small"
+			android:paddingRight="@dimen/margin_small"
+			android:paddingTop="@dimen/margin_small"
+			android:textColor="@color/briar_text_primary"
+			android:textColorHint="@color/briar_text_tertiary"
+			tools:ignore="RtlSymmetry"/>
+
+	</LinearLayout>
+
+	<Button
+		android:id="@+id/btn_send"
+		style="@style/BriarButton"
+		android:layout_marginEnd="@dimen/margin_small"
+		android:layout_marginLeft="@dimen/margin_small"
+		android:layout_marginRight="@dimen/margin_small"
+		android:layout_marginStart="@dimen/margin_small"/>
+
+	<org.thoughtcrime.securesms.components.emoji.EmojiDrawer
+		android:id="@+id/emoji_drawer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:visibility="gone"/>
+
+</merge>

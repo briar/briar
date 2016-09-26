@@ -10,41 +10,43 @@
 		style="@style/Divider.Horizontal"
 		android:layout_alignParentTop="true"/>
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiToggle
-		android:id="@+id/emoji_toggle"
-		android:layout_width="42dp"
-		android:layout_height="42dp"
-		android:layout_above="@+id/emoji_drawer"
-		android:layout_alignBottom="@+id/input_text"
-		android:layout_alignParentLeft="true"
-		android:background="?attr/selectableItemBackground"
-		android:padding="@dimen/margin_small"
-		android:scaleType="center"/>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiEditText
-		android:id="@+id/input_text"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_toLeftOf="@+id/btn_send"
-		android:layout_toRightOf="@+id/emoji_toggle"
-		android:inputType="textMultiLine|textCapSentences"
-		android:maxLines="5"
-		android:minHeight="42dp"/>
+		<org.thoughtcrime.securesms.components.emoji.EmojiToggle
+			android:id="@+id/emoji_toggle"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:padding="@dimen/margin_small"
+			android:scaleType="center"/>
 
-	<ImageButton
-		android:id="@+id/btn_send"
-		android:layout_width="wrap_content"
-		android:layout_height="42dp"
-		android:layout_above="@+id/emoji_drawer"
-		android:layout_alignBottom="@+id/input_text"
-		android:layout_alignParentRight="true"
-		android:background="?attr/selectableItemBackground"
-		android:clickable="true"
-		android:contentDescription="@string/send"
-		android:enabled="false"
-		android:padding="@dimen/margin_small"
-		android:src="@drawable/social_send_now_white"
-		android:tint="@color/briar_primary"/>
+		<org.thoughtcrime.securesms.components.emoji.EmojiEditText
+			android:id="@+id/input_text"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:background="@android:color/transparent"
+			android:inputType="textMultiLine|textCapSentences"
+			android:maxLines="5"
+			android:minHeight="@dimen/text_input_height"
+			android:textColor="@color/briar_text_primary"
+			android:textColorHint="@color/briar_text_tertiary"/>
+
+		<ImageButton
+			android:id="@+id/btn_send"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:contentDescription="@string/send"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/social_send_now_white"
+			android:tint="@color/briar_primary"/>
+
+	</LinearLayout>
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiDrawer
 		android:id="@+id/emoji_drawer"

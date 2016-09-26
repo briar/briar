@@ -235,7 +235,7 @@ public class ConversationActivity extends BriarActivity
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.conversation_actions, menu);
 
-		showIntroductionActionIfAvailable(
+		enableIntroductionActionIfAvailable(
 				menu.findItem(R.id.action_introduction));
 
 		return super.onCreateOptionsMenu(menu);
@@ -269,10 +269,6 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onBackPressed() {
-		if (textInputView.isEmojiDrawerOpen()) {
-			textInputView.hideEmojiDrawer();
-			return;
-		}
 		// FIXME disabled exit transition, because it doesn't work for some reason #318
 		//supportFinishAfterTransition();
 		finish();
@@ -755,13 +751,13 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void showIntroductionActionIfAvailable(final MenuItem item) {
+	private void enableIntroductionActionIfAvailable(final MenuItem item) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					if (contactManager.getActiveContacts().size() > 1) {
-						showIntroductionAction(item);
+						enableIntroductionAction(item);
 						Settings settings =
 								settingsManager.getSettings(SETTINGS_NAMESPACE);
 						if (settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION,
@@ -777,11 +773,11 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void showIntroductionAction(final MenuItem item) {
+	private void enableIntroductionAction(final MenuItem item) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				item.setVisible(true);
+				item.setEnabled(true);
 			}
 		});
 	}

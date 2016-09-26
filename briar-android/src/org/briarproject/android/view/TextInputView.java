@@ -1,18 +1,29 @@
 package org.briarproject.android.view;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.os.IBinder;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
+import android.support.v7.widget.AppCompatImageButton;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import org.briarproject.R;
-import org.thoughtcrime.securesms.components.KeyboardAwareRelativeLayout;
+import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiEventListener;
 import org.thoughtcrime.securesms.components.emoji.EmojiEditText;
@@ -21,19 +32,17 @@ import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 import java.util.logging.Logger;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 @UiThread
-public class TextInputView extends KeyboardAwareRelativeLayout
+public class TextInputView extends KeyboardAwareLinearLayout
 		implements EmojiEventListener {
 
 	private static final String TAG = TextInputView.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
 
-	private EmojiEditText editText;
-	private View sendButton;
-	private EmojiDrawer emojiDrawer;
-
-	private TextInputListener listener;
+	protected final ViewHolder ui;
+	protected TextInputListener listener;
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -46,50 +55,80 @@ public class TextInputView extends KeyboardAwareRelativeLayout
 	public TextInputView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+		setOrientation(VERTICAL);
+		setLayoutTransition(new LayoutTransition());
 
+		inflateLayout(context);
+		ui = new ViewHolder();
+		setUpViews(context, attrs);
+	}
+
+	protected void inflateLayout(Context context) {
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.text_input_view, this, true);
+	}
 
-		// find views
-		EmojiToggle emojiToggle = (EmojiToggle) findViewById(R.id.emoji_toggle);
-		editText = (EmojiEditText) findViewById(R.id.input_text);
-		emojiDrawer = (EmojiDrawer) findViewById(R.id.emoji_drawer);
-		sendButton = findViewById(R.id.btn_send);
+	@CallSuper
+	protected void setUpViews(Context context, @Nullable AttributeSet attrs) {
+		// get attributes
+		TypedArray attributes = context.obtainStyledAttributes(attrs,
+				R.styleable.TextInputView);
+		String hint = attributes.getString(R.styleable.TextInputView_hint);
+		attributes.recycle();
 
-		emojiToggle.attach(emojiDrawer);
-		emojiToggle.setOnClickListener(new OnClickListener() {
+		if (hint != null) {
+			ui.editText.setHint(hint);
+		}
+
+		ui.emojiToggle.attach(ui.emojiDrawer);
+		ui.emojiToggle.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onEmojiToggleClicked();
 			}
 		});
-		editText.setOnClickListener(new OnClickListener() {
+		ui.editText.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				showSoftKeyboard();
 			}
 		});
-		sendButton.setOnClickListener(new OnClickListener() {
+		ui.editText.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_BACK && isEmojiDrawerOpen()) {
+					hideEmojiDrawer();
+					return true;
+				}
+				return false;
+			}
+		});
+		ui.sendButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (listener != null) {
-					listener.onSendClick(editText.getText().toString());
-					editText.setText("");
+					listener.onSendClick(ui.editText.getText().toString());
+					ui.editText.setText("");
 				}
 			}
 		});
-		emojiDrawer.setEmojiEventListener(this);
+		ui.emojiDrawer.setEmojiEventListener(this);
 	}
 
 	@Override
 	public void onKeyEvent(KeyEvent keyEvent) {
-		editText.dispatchKeyEvent(keyEvent);
+		ui.editText.dispatchKeyEvent(keyEvent);
 	}
 
 	@Override
 	public void onEmojiSelected(String emoji) {
-		editText.insertEmoji(emoji);
+		ui.editText.insertEmoji(emoji);
+	}
+
+	@Override
+	public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
+		return ui.editText.requestFocus(direction, previouslyFocusedRect);
 	}
 
 	private void onEmojiToggleClicked() {
@@ -101,29 +140,33 @@ public class TextInputView extends KeyboardAwareRelativeLayout
 	}
 
 	public void setText(String text) {
-		editText.setText(text);
+		ui.editText.setText(text);
+	}
+
+	public Editable getText() {
+		return ui.editText.getText();
 	}
 
 	public void setHint(@StringRes int res) {
-		editText.setHint(res);
+		ui.editText.setHint(res);
 	}
 
 	public void setSendButtonEnabled(boolean enabled) {
-		sendButton.setEnabled(enabled);
+		ui.sendButton.setEnabled(enabled);
+	}
+
+	public void addTextChangedListener(TextWatcher watcher) {
+		ui.editText.addTextChangedListener(watcher);
 	}
 
 	public void setListener(TextInputListener listener) {
 		this.listener = listener;
 	}
 
-	public interface TextInputListener {
-		void onSendClick(String text);
-	}
-
 	public void showSoftKeyboard() {
 		if (isKeyboardOpen()) return;
 
-		if (emojiDrawer.isShowing()) {
+		if (ui.emojiDrawer.isShowing()) {
 			postOnKeyboardOpen(new Runnable() {
 				@Override
 				public void run() {
@@ -131,18 +174,18 @@ public class TextInputView extends KeyboardAwareRelativeLayout
 				}
 			});
 		}
-		editText.post(new Runnable() {
+		ui.editText.post(new Runnable() {
 			@Override
 			public void run() {
-				editText.requestFocus();
+				ui.editText.requestFocus();
 				Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-				((InputMethodManager) o).showSoftInput(editText, 0);
+				((InputMethodManager) o).showSoftInput(ui.editText, 0);
 			}
 		});
 	}
 
 	public void hideSoftKeyboard() {
-		IBinder token = editText.getWindowToken();
+		IBinder token = ui.editText.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
@@ -151,21 +194,40 @@ public class TextInputView extends KeyboardAwareRelativeLayout
 		if (isKeyboardOpen()) {
 			postOnKeyboardClose(new Runnable() {
 				@Override public void run() {
-					emojiDrawer.show(getKeyboardHeight());
+					ui.emojiDrawer.show(getKeyboardHeight());
 				}
 			});
 			hideSoftKeyboard();
 		} else {
-			emojiDrawer.show(getKeyboardHeight());
+			ui.emojiDrawer.show(getKeyboardHeight());
+			ui.editText.requestFocus();
 		}
 	}
 
 	public void hideEmojiDrawer() {
-		emojiDrawer.hide();
+		ui.emojiDrawer.hide();
 	}
 
 	public boolean isEmojiDrawerOpen() {
-		return emojiDrawer.isShowing();
+		return ui.emojiDrawer.isShowing();
+	}
+
+	protected class ViewHolder {
+		private final EmojiToggle emojiToggle;
+		protected final EmojiEditText editText;
+		protected final View sendButton;
+		protected final EmojiDrawer emojiDrawer;
+
+		private ViewHolder() {
+			emojiToggle = (EmojiToggle) findViewById(R.id.emoji_toggle);
+			editText = (EmojiEditText) findViewById(R.id.input_text);
+			emojiDrawer = (EmojiDrawer) findViewById(R.id.emoji_drawer);
+			sendButton = findViewById(R.id.btn_send);
+		}
+	}
+
+	public interface TextInputListener {
+		void onSendClick(String text);
 	}
 
 }

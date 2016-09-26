@@ -17,7 +17,7 @@
 		android:layout_marginStart="@dimen/listitem_horizontal_margin"
 		tools:src="@drawable/ic_launcher"/>
 
-	<TextView
+	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/nameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

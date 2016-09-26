@@ -6,9 +6,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -17,6 +14,8 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.view.TextInputView;
+import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPost;
@@ -39,7 +38,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
 
 public class WriteBlogPostActivity extends BriarActivity
-		implements OnEditorActionListener {
+		implements OnEditorActionListener, TextInputListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(WriteBlogPostActivity.class.getName());
@@ -47,8 +46,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	@Inject
 	protected AndroidNotificationManager notificationManager;
 
-	private EditText bodyInput;
-	private Button publishButton;
+	private TextInputView input;
 	private ProgressBar progressBar;
 
 	// Fields that are accessed from background threads must be volatile
@@ -60,6 +58,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	@Inject
 	volatile BlogManager blogManager;
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
@@ -71,8 +70,9 @@ public class WriteBlogPostActivity extends BriarActivity
 
 		setContentView(R.layout.activity_write_blog_post);
 
-		bodyInput = (EditText) findViewById(R.id.bodyInput);
-		bodyInput.addTextChangedListener(new TextWatcher() {
+		input = (TextInputView) findViewById(R.id.bodyInput);
+		input.setSendButtonEnabled(false);
+		input.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
@@ -88,14 +88,7 @@ public class WriteBlogPostActivity extends BriarActivity
 				enableOrDisablePublishButton();
 			}
 		});
-
-		publishButton = (Button) findViewById(R.id.publishButton);
-		publishButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				publish();
-			}
-		});
+		input.setListener(this);
 
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 	}
@@ -130,25 +123,23 @@ public class WriteBlogPostActivity extends BriarActivity
 
 	@Override
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		bodyInput.requestFocus();
+		input.requestFocus();
 		return true;
 	}
 
 	private void enableOrDisablePublishButton() {
 		int bodyLength =
-				StringUtils.toUtf8(bodyInput.getText().toString()).length;
+				StringUtils.toUtf8(input.getText().toString()).length;
 		if (bodyLength > 0 && bodyLength <= MAX_BLOG_POST_BODY_LENGTH)
-			publishButton.setEnabled(true);
+			input.setSendButtonEnabled(true);
 		else
-			publishButton.setEnabled(false);
+			input.setSendButtonEnabled(false);
 	}
 
-	private void publish() {
-		// body
-		String body = bodyInput.getText().toString();
-
+	@Override
+	public void onSendClick(String body) {
 		// hide publish button, show progress bar
-		publishButton.setVisibility(GONE);
+		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
 		storePost(body);
@@ -192,10 +183,9 @@ public class WriteBlogPostActivity extends BriarActivity
 			public void run() {
 				// hide progress bar, show publish button
 				progressBar.setVisibility(GONE);
-				publishButton.setVisibility(VISIBLE);
+				input.setVisibility(VISIBLE);
 				// TODO show error
 			}
 		});
 	}
-
 }

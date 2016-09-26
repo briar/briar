@@ -18,7 +18,7 @@
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		/>
 
-	<TextView
+	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/forumNameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
 		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a name of a forum that is available"/>
 
-	<TextView
+	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/sharedByView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

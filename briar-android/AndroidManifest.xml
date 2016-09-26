@@ -93,7 +93,7 @@
 			android:label="@string/app_name"
 			android:theme="@style/BriarThemeNoActionBar.Default"
 			android:parentActivityName=".android.NavDrawerActivity"
-			android:windowSoftInputMode="stateHidden">
+			android:windowSoftInputMode="stateHidden|adjustResize">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.NavDrawerActivity"
@@ -145,7 +145,8 @@
 		<activity
 			android:name=".android.sharing.ShareForumActivity"
 			android:label="@string/activity_share_toolbar_header"
-			android:parentActivityName=".android.forum.ForumActivity">
+			android:parentActivityName=".android.forum.ForumActivity"
+			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.forum.ForumActivity"
@@ -155,7 +156,8 @@
 		<activity
 			android:name=".android.sharing.ShareBlogActivity"
 			android:label="@string/activity_share_toolbar_header"
-			android:parentActivityName=".android.blogs.BlogActivity">
+			android:parentActivityName=".android.blogs.BlogActivity"
+			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.blogs.BlogActivity"

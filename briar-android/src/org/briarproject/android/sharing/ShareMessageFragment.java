@@ -6,11 +6,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 
 import org.briarproject.R;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.view.LargeTextInputView;
+import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.forum.ForumSharingManager;
@@ -26,7 +26,8 @@ import static org.briarproject.android.sharing.ShareActivity.CONTACTS;
 import static org.briarproject.android.sharing.ShareActivity.getContactsFromIds;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
-abstract class ShareMessageFragment extends BaseFragment {
+abstract class ShareMessageFragment extends BaseFragment
+		implements TextInputListener {
 
 	public final static String TAG = ShareMessageFragment.class.getName();
 
@@ -81,14 +82,15 @@ abstract class ShareMessageFragment extends BaseFragment {
 		View v = inflater.inflate(R.layout.fragment_share_message, container,
 				false);
 		ui = new ViewHolder(v);
-		ui.button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onButtonClick();
-			}
-		});
+		ui.message.setListener(this);
 
 		return v;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		ui.message.showSoftKeyboard();
 	}
 
 	@Override
@@ -111,11 +113,11 @@ abstract class ShareMessageFragment extends BaseFragment {
 		shareActivity.setTitle(res);
 	}
 
-	private void onButtonClick() {
+	@Override
+	public void onSendClick(String msg) {
 		// disable button to prevent accidental double invitations
-		ui.button.setEnabled(false);
+		ui.message.setSendButtonEnabled(false);
 
-		String msg = ui.message.getText().toString();
 		share(msg);
 
 		// don't wait for the invitation to be made before finishing activity
@@ -139,12 +141,11 @@ abstract class ShareMessageFragment extends BaseFragment {
 	}
 
 	protected static class ViewHolder {
-		protected final EditText message;
-		protected final Button button;
+		protected final LargeTextInputView message;
 
-		ViewHolder(View v) {
-			message = (EditText) v.findViewById(R.id.invitationMessageView);
-			button = (Button) v.findViewById(R.id.shareForumButton);
+		private ViewHolder(View v) {
+			message = (LargeTextInputView) v
+					.findViewById(R.id.invitationMessageView);
 		}
 	}
 }

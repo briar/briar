@@ -6,8 +6,6 @@ import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +13,7 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.view.TextInputView;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -35,7 +34,8 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 
-public class IntroductionMessageFragment extends BaseFragment {
+public class IntroductionMessageFragment extends BaseFragment
+		implements TextInputView.TextInputListener {
 
 	public final static String TAG = "IntroductionMessageFragment";
 
@@ -46,6 +46,7 @@ public class IntroductionMessageFragment extends BaseFragment {
 
 	private IntroductionActivity introductionActivity;
 	private ViewHolder ui;
+	private Contact contact1, contact2;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -96,7 +97,7 @@ public class IntroductionMessageFragment extends BaseFragment {
 		// show progress bar until contacts have been loaded
 		ui = new ViewHolder(v);
 		ui.text.setVisibility(GONE);
-		ui.button.setEnabled(false);
+		ui.message.setSendButtonEnabled(false);
 
 		return v;
 	}
@@ -144,6 +145,9 @@ public class IntroductionMessageFragment extends BaseFragment {
 		introductionActivity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				contact1 = c1;
+				contact2 = c2;
+
 				// set avatars
 				ui.avatar1.setImageDrawable(new IdenticonDrawable(
 						c1.getAuthor().getId().getBytes()));
@@ -160,27 +164,24 @@ public class IntroductionMessageFragment extends BaseFragment {
 						c1.getAuthor().getName(), c2.getAuthor().getName()));
 
 				// set button action
-				ui.button.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						onButtonClick(c1, c2);
-					}
-				});
+				ui.message.setListener(IntroductionMessageFragment.this);
 
 				// hide progress bar and show views
 				ui.progressBar.setVisibility(GONE);
 				ui.text.setVisibility(VISIBLE);
-				ui.button.setEnabled(true);
+				ui.message.setSendButtonEnabled(true);
+				ui.message.showSoftKeyboard();
 			}
 		});
 	}
 
-	private void onButtonClick(final Contact c1, final Contact c2) {
+	@Override
+	public void onSendClick(String text) {
 		// disable button to prevent accidental double invitations
-		ui.button.setEnabled(false);
+		ui.message.setSendButtonEnabled(false);
 
 		String msg = ui.message.getText().toString();
-		makeIntroduction(c1, c2, msg);
+		makeIntroduction(contact1, contact2, msg);
 
 		// don't wait for the introduction to be made before finishing activity
 		introductionActivity.hideSoftKeyboard(ui.message);
@@ -223,18 +224,17 @@ public class IntroductionMessageFragment extends BaseFragment {
 		private final CircleImageView avatar1, avatar2;
 		private final TextView contactName1, contactName2;
 		private final TextView text;
-		private final EditText message;
-		private final Button button;
+		private final TextInputView message;
 
-		ViewHolder(View v) {
+		private ViewHolder(View v) {
 			progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
 			avatar1 = (CircleImageView) v.findViewById(R.id.avatarContact1);
 			avatar2 = (CircleImageView) v.findViewById(R.id.avatarContact2);
 			contactName1 = (TextView) v.findViewById(R.id.nameContact1);
 			contactName2 = (TextView) v.findViewById(R.id.nameContact2);
 			text = (TextView) v.findViewById(R.id.introductionText);
-			message = (EditText) v.findViewById(R.id.introductionMessageView);
-			button = (Button) v.findViewById(R.id.makeIntroductionButton);
+			message = (TextInputView) v
+					.findViewById(R.id.introductionMessageView);
 		}
 	}
 }
