@@ -10,12 +10,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +65,8 @@ import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.settings.Settings;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sharing.InvitationResponse;
@@ -84,6 +89,8 @@ import javax.inject.Inject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.OnHidePromptListener;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
@@ -91,6 +98,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
+import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 
 public class ConversationActivity extends BriarActivity
 		implements EventListener, IntroductionHandler, TextInputListener {
@@ -98,6 +106,8 @@ public class ConversationActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 	private static final int REQUEST_CODE_INTRODUCTION = 1;
+	public static final String SHOW_ONBOARDING_INTRODUCTION =
+			"showOnboardingIntroduction";
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -108,6 +118,7 @@ public class ConversationActivity extends BriarActivity
 	protected Executor cryptoExecutor;
 
 	private ConversationAdapter adapter;
+	private Toolbar toolbar;
 	private CircleImageView toolbarAvatar;
 	private ImageView toolbarStatus;
 	private TextView toolbarTitle;
@@ -121,6 +132,8 @@ public class ConversationActivity extends BriarActivity
 	protected volatile MessagingManager messagingManager;
 	@Inject
 	protected volatile EventBus eventBus;
+	@Inject
+	protected volatile SettingsManager settingsManager;
 	@Inject
 	volatile PrivateMessageFactory privateMessageFactory;
 	@Inject
@@ -150,13 +163,13 @@ public class ConversationActivity extends BriarActivity
 		setContentView(R.layout.activity_conversation);
 
 		// Custom Toolbar
-		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
-		if (tb != null) {
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		if (toolbar != null) {
 			toolbarAvatar =
-					(CircleImageView) tb.findViewById(R.id.contactAvatar);
-			toolbarStatus = (ImageView) tb.findViewById(R.id.contactStatus);
-			toolbarTitle = (TextView) tb.findViewById(R.id.contactName);
-			setSupportActionBar(tb);
+					(CircleImageView) toolbar.findViewById(R.id.contactAvatar);
+			toolbarStatus = (ImageView) toolbar.findViewById(R.id.contactStatus);
+			toolbarTitle = (TextView) toolbar.findViewById(R.id.contactName);
+			setSupportActionBar(toolbar);
 		}
 		ActionBar ab = getSupportActionBar();
 		if (ab != null) {
@@ -222,7 +235,7 @@ public class ConversationActivity extends BriarActivity
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.conversation_actions, menu);
 
-		hideIntroductionActionWhenOneContact(
+		showIntroductionActionIfAvailable(
 				menu.findItem(R.id.action_introduction));
 
 		return super.onCreateOptionsMenu(menu);
@@ -742,13 +755,19 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void hideIntroductionActionWhenOneContact(final MenuItem item) {
+	private void showIntroductionActionIfAvailable(final MenuItem item) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					if (contactManager.getActiveContacts().size() < 2) {
-						hideIntroductionAction(item);
+					if (contactManager.getActiveContacts().size() > 1) {
+						showIntroductionAction(item);
+						Settings settings =
+								settingsManager.getSettings(SETTINGS_NAMESPACE);
+						if (settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION,
+								true)) {
+							showIntroductionOnboarding();
+						}
 					}
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -758,11 +777,69 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void hideIntroductionAction(final MenuItem item) {
+	private void showIntroductionAction(final MenuItem item) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				item.setVisible(false);
+				item.setVisible(true);
+			}
+		});
+	}
+
+	private void showIntroductionOnboarding() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				// find view of overflow icon
+				View target = null;
+				for (int i = 0; i < toolbar.getChildCount(); i++) {
+					if (toolbar.getChildAt(i) instanceof ActionMenuView) {
+						ActionMenuView menu =
+								(ActionMenuView) toolbar.getChildAt(i);
+						target = menu.getChildAt(menu.getChildCount() - 1);
+						break;
+					}
+				}
+				if (target == null) {
+					LOG.warning("No Overflow Icon found!");
+					return;
+				}
+
+				OnHidePromptListener listener = new OnHidePromptListener() {
+					@Override
+					public void onHidePrompt(MotionEvent motionEvent,
+							boolean focalClicked) {
+						if (focalClicked) introductionOnboardingSeen();
+					}
+
+					@Override
+					public void onHidePromptComplete() {
+					}
+				};
+				new MaterialTapTargetPrompt.Builder(ConversationActivity.this)
+						.setTarget(target)
+						.setPrimaryText(R.string.introduction_onboarding_title)
+						.setSecondaryText(R.string.introduction_onboarding_text)
+						.setBackgroundColourFromRes(R.color.briar_primary)
+						.setIcon(R.drawable.ic_more_vert_accent)
+						.setOnHidePromptListener(listener)
+						.show();
+			}
+		});
+	}
+
+	private void introductionOnboardingSeen() {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Settings settings = new Settings();
+					settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
+					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
 			}
 		});
 	}

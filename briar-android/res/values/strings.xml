@@ -114,6 +114,8 @@
 	<string name="connection_aborted_remote">Connection aborted by your contact! This could mean that someone is trying to interfere with your connection</string>
 
 	<!-- Introductions -->
+	<string name="introduction_onboarding_title">Introduce your contacts</string>
+	<string name="introduction_onboarding_text">You can introduce your contacts to each other, so they don\'t need to meet in person to connect on Briar.</string>
 	<string name="introduction_activity_title">Select Contact</string>
 	<string name="introduction_message_title">Introduce Contacts</string>
 	<string name="introduction_message_text">You can compose a message that will be sent to %1$s and %2$s along with your introduction:</string>

@@ -25,6 +25,7 @@ dependencies {
 		exclude module: 'recyclerview-v7'
 	}
 	compile "com.android.support:cardview-v7:$supportVersion"
+	compile 'com.android.support:support-annotations:23.4.0'
 	compile('ch.acra:acra:4.8.5') {
 		exclude module: 'support-v4'
 		exclude module: 'support-annotations'
@@ -37,6 +38,7 @@ dependencies {
 	provided 'javax.annotation:jsr250-api:1.0'
 	compile 'com.jpardogo.materialtabstrip:library:1.1.0'
 	compile 'com.github.bumptech.glide:glide:3.7.0'
+	compile 'uk.co.samuelwall:material-tap-target-prompt:1.3.0'
 
 	testCompile 'junit:junit:4.12'
 	testCompile 'net.jodah:concurrentunit:0.4.2'
@@ -57,13 +59,14 @@ dependencyVerification {
 			'com.android.support:appcompat-v7:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',
 			'com.android.support:preference-v14:44881bb46094e86d0bc2426f205419674a5b4eb514b44b5a4659b5de29f71eb7',
 			'com.android.support:design:003e0c0bea0a6891f8b2bc43f20ae7af2a49a17363e5bb10df5ee0bae12fa686',
-			'com.android.support:support-annotations:786ab0d060774fb95cfdaf4878771e14b85733b1af9d72a4aae762dc7c1dff9f',
+			'com.android.support:support-annotations:e91a88dd0c5e99069b7f09d4a46b5e06f1e9c4c72fc0a8e987e25d86af480f01',
 			'com.android.support:animated-vector-drawable:06d1963b85aa917099d7757e6a7b3e4dc06889413dc747f625ae8683606db3a1',
 			'com.android.support:support-vector-drawable:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
 			'com.android.support:recyclerview-v7:44040a888e23e0c93162a3377cfe06751080e3c22d369ab0d4301ef60d63b0fe',
 			'com.android.support:cardview-v7:4595f1c4a28cfa083b6c0920ad4d49e1c2ca4b8302a955e548f68eb63b74931b',
 			'com.jpardogo.materialtabstrip:library:24d19232b319f8c73e25793432357919a7ed972186f57a3b2c9093ea74ad8311',
 			'com.github.bumptech.glide:glide:76ef123957b5fbaebb05fcbe6606dd58c3bc3fcdadb257f99811d0ac9ea9b88b',
+			'uk.co.samuelwall:material-tap-target-prompt:f67e1caead12a914525b32cbf6da52a96b93ff89573f93cb41102ef3130fb64a',
 	]
 }
 
@@ -121,10 +124,6 @@ android {
 	lintOptions {
 		warning 'MissingTranslation'
 		warning 'ImpliedQuantity'
-	}
-
-	dexOptions {
-		incremental true
 	}
 }
 
