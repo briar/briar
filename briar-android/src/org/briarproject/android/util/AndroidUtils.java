@@ -1,6 +1,5 @@
 package org.briarproject.android.util;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.os.Build;
@@ -53,10 +52,9 @@ public class AndroidUtils {
 
 	private static final String STORED_REPORTS = "dev-reports";
 
-	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	public static Collection<String> getSupportedArchitectures() {
-		List<String> abis = new ArrayList<String>();
+		List<String> abis = new ArrayList<>();
 		if (Build.VERSION.SDK_INT >= 21) {
 			abis.addAll(Arrays.asList(Build.SUPPORTED_ABIS));
 		} else {
@@ -67,17 +65,12 @@ public class AndroidUtils {
 	}
 
 	public static void setError(TextInputLayout til, String error,
-			boolean condition) {
-		if (condition) {
-			if (til.getError() == null)
-				til.setError(error);
-		} else
+			boolean set) {
+		if (set) {
+			if (til.getError() == null) til.setError(error);
+		} else {
 			til.setError(null);
-	}
-
-	public static void setError(TextInputLayout til, int res,
-			boolean condition) {
-		setError(til, til.getContext().getString(res), condition);
+		}
 	}
 
 	public static String getBluetoothAddress(Context ctx,
@@ -108,6 +101,8 @@ public class AndroidUtils {
 					IoUtils.deleteFileOrDir(child);
 			}
 		}
+		// Recreate the cache dir as some OpenGL drivers expect it to exist
+		new File(dataDir, "cache").mkdir();
 	}
 
 	public static File getReportDir(Context ctx) {
@@ -126,9 +121,8 @@ public class AndroidUtils {
 					MIN_RESOLUTION, WEEK_IN_MILLIS, flags).toString();
 		}
 		// otherwise just show "...ago" or date string
-		return DateUtils
-				.getRelativeTimeSpanString(time, System.currentTimeMillis(),
-						MIN_RESOLUTION, flags).toString();
+		return DateUtils.getRelativeTimeSpanString(time,
+				System.currentTimeMillis(), MIN_RESOLUTION, flags).toString();
 	}
 
 	public static SpannableStringBuilder getTeaser(Context ctx, Spanned body) {
