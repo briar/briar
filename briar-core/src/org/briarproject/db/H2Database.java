@@ -35,6 +35,7 @@ class H2Database extends JdbcDatabase {
 				+ ";WRITE_DELAY=0;DB_CLOSE_ON_EXIT=false";
 	}
 
+	@Override
 	public boolean open() throws DbException {
 		boolean reopen = config.databaseExists();
 		if (!reopen) config.getDatabaseDirectory().mkdirs();
@@ -42,6 +43,7 @@ class H2Database extends JdbcDatabase {
 		return reopen;
 	}
 
+	@Override
 	public void close() throws DbException {
 		// H2 will close the database when the last connection closes
 		try {
@@ -51,6 +53,7 @@ class H2Database extends JdbcDatabase {
 		}
 	}
 
+	@Override
 	public long getFreeSpace() throws DbException {
 		File dir = config.getDatabaseDirectory();
 		long maxSize = config.getMaxSize();
@@ -63,7 +66,9 @@ class H2Database extends JdbcDatabase {
 	private long getDiskSpace(File f) {
 		if (f.isDirectory()) {
 			long total = 0;
-			for (File child : f.listFiles()) total += getDiskSpace(child);
+			File[] children = f.listFiles();
+			if (children != null)
+				for (File child : children) total += getDiskSpace(child);
 			return total;
 		} else if (f.isFile()) {
 			return f.length();

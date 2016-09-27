@@ -248,17 +248,17 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Unzip the Tor binary to the filesystem
 			in = getTorInputStream();
 			out = new FileOutputStream(torFile);
-			IoUtils.copy(in, out);
+			IoUtils.copyAndClose(in, out);
 			// Make the Tor binary executable
 			if (!torFile.setExecutable(true, true)) throw new IOException();
 			// Unzip the GeoIP database to the filesystem
 			in = getGeoIpInputStream();
 			out = new FileOutputStream(geoIpFile);
-			IoUtils.copy(in, out);
+			IoUtils.copyAndClose(in, out);
 			// Copy the config file to the filesystem
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
-			IoUtils.copy(in, out);
+			IoUtils.copyAndClose(in, out);
 			doneFile.createNewFile();
 		} catch (IOException e) {
 			tryToClose(in);
@@ -306,8 +306,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void listFiles(File f) {
-		if (f.isDirectory()) for (File child : f.listFiles()) listFiles(child);
-		else LOG.info(f.getAbsolutePath());
+		if (f.isDirectory()) {
+			File[] children = f.listFiles();
+			if (children != null) for (File child : children) listFiles(child);
+		} else {
+			LOG.info(f.getAbsolutePath());
+		}
 	}
 
 	private byte[] read(File f) throws IOException {
@@ -322,7 +326,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 			return b;
 		} finally {
-			in.close();
+			tryToClose(in);
 		}
 	}
 

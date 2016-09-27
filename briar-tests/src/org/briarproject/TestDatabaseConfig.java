@@ -16,24 +16,29 @@ public class TestDatabaseConfig implements DatabaseConfig {
 		this.maxSize = maxSize;
 	}
 
+	@Override
 	public boolean databaseExists() {
 		if (!dir.isDirectory()) return false;
 		File[] files = dir.listFiles();
 		return files != null && files.length > 0;
 	}
 
+	@Override
 	public File getDatabaseDirectory() {
 		return dir;
 	}
 
+	@Override
 	public void setEncryptionKey(SecretKey key) {
 		this.key = key;
 	}
 
+	@Override
 	public SecretKey getEncryptionKey() {
 		return key;
 	}
 
+	@Override
 	public long getMaxSize() {
 		return maxSize;
 	}

@@ -35,7 +35,7 @@ class DevReporterImpl implements DevReporter {
 	private final DevConfig devConfig;
 	private final SocketFactory torSocketFactory;
 
-	public DevReporterImpl(CryptoComponent crypto, DevConfig devConfig,
+	DevReporterImpl(CryptoComponent crypto, DevConfig devConfig,
 			SocketFactory torSocketFactory) {
 		this.crypto = crypto;
 		this.devConfig = devConfig;
@@ -90,7 +90,7 @@ class DevReporterImpl implements DevReporter {
 				Socket s = connectToDevelopers();
 				out = s.getOutputStream();
 				in = new FileInputStream(f);
-				IoUtils.copy(in, out);
+				IoUtils.copyAndClose(in, out);
 				f.delete();
 			} catch (IOException e) {
 				LOG.log(WARNING, "Failed to send reports", e);

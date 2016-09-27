@@ -20,7 +20,7 @@ public class IoUtils {
 		}
 	}
 
-	public static void copy(InputStream in, OutputStream out)
+	public static void copyAndClose(InputStream in, OutputStream out)
 			throws IOException {
 		byte[] buf = new byte[4096];
 		try {
