@@ -42,14 +42,17 @@ public class AppModule {
 		this.application = application;
 		uiCallback = new UiCallback() {
 
+			@Override
 			public int showChoice(String[] options, String... message) {
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public boolean showConfirmationMessage(String... message) {
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public void showMessage(String... message) {
 				throw new UnsupportedOperationException();
 			}
@@ -75,24 +78,29 @@ public class AppModule {
 
 			private volatile SecretKey key = null;
 
+			@Override
 			public boolean databaseExists() {
 				if (!dir.isDirectory()) return false;
 				File[] files = dir.listFiles();
 				return files != null && files.length > 0;
 			}
 
+			@Override
 			public File getDatabaseDirectory() {
 				return dir;
 			}
 
+			@Override
 			public void setEncryptionKey(SecretKey key) {
 				this.key = key;
 			}
 
+			@Override
 			public SecretKey getEncryptionKey() {
 				return key;
 			}
 
+			@Override
 			public long getMaxSize() {
 				return Long.MAX_VALUE;
 			}
