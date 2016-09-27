@@ -7,7 +7,8 @@ import junit.framework.Assert;
 import org.briarproject.BuildConfig;
 import org.briarproject.TestUtils;
 import org.briarproject.android.TestBriarApplication;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
@@ -80,7 +81,8 @@ public class ForumActivityTest {
 
 	private TestForumActivity forumActivity;
 	@Captor
-	private ArgumentCaptor<UiResultHandler<List<ForumEntry>>> rc;
+	private ArgumentCaptor<UiResultExceptionHandler<List<ForumEntry>, DbException>>
+			rc;
 
 	@Before
 	public void setUp() {
@@ -90,7 +92,6 @@ public class ForumActivityTest {
 		forumActivity = Robolectric.buildActivity(TestForumActivity.class)
 				.withIntent(intent).create().resume().get();
 	}
-
 
 	private List<ForumEntry> getDummyData() {
 		ForumEntry[] forumEntries = new ForumEntry[6];

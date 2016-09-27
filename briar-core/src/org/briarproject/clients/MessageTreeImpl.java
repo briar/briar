@@ -77,10 +77,13 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	}
 
 
-	private void traverse(List<T> list, T node) {
+	private void traverse(List<T> list, T node, int level) {
 		list.add(node);
-		for (T child : nodeMap.get(node.getId())) {
-			traverse(list, child);
+		List<T> children = nodeMap.get(node.getId());
+		node.setLevel(level);
+		node.setDescendantCount(children.size());
+		for (T child : children) {
+			traverse(list, child, level+1);
 		}
 	}
 
@@ -98,7 +101,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	public synchronized Collection<T> depthFirstOrder() {
 		List<T> orderedList = new ArrayList<T>();
 		for (T root : roots) {
-			traverse(orderedList, root);
+			traverse(orderedList, root, 0);
 		}
 		return Collections.unmodifiableList(orderedList);
 	}

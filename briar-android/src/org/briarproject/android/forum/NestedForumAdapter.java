@@ -3,10 +3,8 @@ package org.briarproject.android.forum;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.view.View.GONE;
@@ -61,90 +58,80 @@ public class NestedForumAdapter
 		return replyEntry;
 	}
 
-	private void setForumEntryLevels() {
-		Stack<MessageId> idStack = new Stack<>();
-		for (ForumEntry forumEntry : forumEntries) {
-			if (forumEntry.getParentId() == null) {
-				idStack.clear();
-			} else if (idStack.isEmpty() ||
-					!idStack.contains(forumEntry.getParentId())) {
-				idStack.push(forumEntry.getParentId());
-			} else if (!forumEntry.getParentId().equals(idStack.peek())) {
-				do {
-					idStack.pop();
-				} while (!forumEntry.getParentId().equals(idStack.peek()));
-			}
-			forumEntry.setLevel(idStack.size());
-		}
-	}
-
 	void setEntries(List<ForumEntry> entries) {
 		forumEntries.clear();
 		forumEntries.addAll(entries);
-		setForumEntryLevels();
 		notifyItemRangeInserted(0, entries.size());
 	}
 
 	void addEntry(ForumEntry entry) {
-		boolean isShowingDescendants = false;
 		forumEntries.add(entry);
-		setForumEntryLevels();
-		if (entry.getLevel() > 0) {
-			// update parent and make sure descendants are visible
-			// Note that the parent's visibility is guaranteed (otherwise
-			// the reply button would not be visible)
+		addedEntry = entry;
+		if (entry.getParentId() == null) {
+			notifyItemInserted(getVisiblePos(entry));
+		} else {
+			// Try to find the entry's parent and perform the proper ui update if
+			// it's present and visible.
 			for (int i = forumEntries.indexOf(entry) - 1; i >= 0; i--) {
 				ForumEntry higherEntry = forumEntries.get(i);
 				if (higherEntry.getLevel() < entry.getLevel()) {
 					// parent found
-					if (!higherEntry.isShowingDescendants()) {
-						isShowingDescendants = true;
-						showDescendants(higherEntry);
+					if (higherEntry.isShowingDescendants()) {
+						int parentVisiblePos = getVisiblePos(higherEntry);
+						if (parentVisiblePos != NO_POSITION) {
+							// parent is visible, we need to update its ui
+							notifyItemChanged(parentVisiblePos);
+							// new entry insert ui
+							int visiblePos = getVisiblePos(entry);
+							notifyItemInserted(visiblePos);
+							break;
+						}
+					} else {
+						// do not show the new entry if its parent is not showing
+						// descendants (this can be overridden by the user by
+						// pressing the snack bar)
+						break;
 					}
-					notifyItemChanged(getVisiblePos(higherEntry));
-					break;
 				}
 			}
 		}
-		if (!isShowingDescendants) {
-			int visiblePos = getVisiblePos(entry);
-			notifyItemInserted(visiblePos);
-		}
-		addedEntry = entry;
 	}
 
 	void scrollToEntry(ForumEntry entry) {
-		layoutManager
-				.scrollToPositionWithOffset(getVisiblePos(entry), 0);
-	}
-
-	private boolean hasDescendants(ForumEntry forumEntry) {
-		int i = forumEntries.indexOf(forumEntry);
-		if (i >= 0 && i < forumEntries.size() - 1) {
-			if (forumEntries.get(i + 1).getLevel() >
-					forumEntry.getLevel()) {
-				return true;
+		int visiblePos = getVisiblePos(entry);
+		if (visiblePos == NO_POSITION && entry.getParentId() != null) {
+			// The entry is not visible due to being hidden by its parent entry.
+			// Find the parent and make it visible and traverse up the parent
+			// chain if necessary to make the entry visible
+			MessageId parentId = entry.getParentId();
+			for (int i = forumEntries.indexOf(entry) - 1; i >= 0; i--) {
+				ForumEntry higherEntry = forumEntries.get(i);
+				if (higherEntry.getId().equals(parentId)) {
+					// parent found
+					showDescendants(higherEntry);
+					int parentPos = getVisiblePos(higherEntry);
+					if (parentPos != NO_POSITION) {
+						// parent or ancestor is visible, entry's visibility
+						// is ensured
+						notifyItemChanged(parentPos);
+						visiblePos = parentPos;
+						break;
+					}
+					// parent or ancestor is hidden, we need to continue up the
+					// dependency chain
+					parentId = higherEntry.getParentId();
+				}
 			}
 		}
-		return false;
-	}
-
-	private boolean hasVisibleDescendants(ForumEntry forumEntry) {
-		int visiblePos = getVisiblePos(forumEntry);
-		int levelLimit = forumEntry.getLevel();
-		if (visiblePos + 1 < getItemCount()) {
-			ForumEntry entry = getVisibleEntry(visiblePos + 1);
-			if (entry == null || entry.getLevel() > levelLimit)
-				return true;
-		}
-		return false;
+		if (visiblePos != NO_POSITION)
+			layoutManager.scrollToPositionWithOffset(visiblePos, 0);
 	}
 
 	private int getReplyCount(ForumEntry entry) {
 		int counter = 0;
 		int pos = forumEntries.indexOf(entry);
 		if (pos >= 0) {
-			int ancestorLvl = forumEntries.get(pos).getLevel();
+			int ancestorLvl = entry.getLevel();
 			for (int i = pos + 1; i < forumEntries.size(); i++) {
 				int descendantLvl = forumEntries.get(i).getLevel();
 				if (descendantLvl <= ancestorLvl)
@@ -210,14 +197,12 @@ public class NestedForumAdapter
 		List<Integer> indexList =
 				getSubTreeIndexes(visiblePos, forumEntry.getLevel());
 		if (!indexList.isEmpty()) {
-			if (Build.VERSION.SDK_INT >= 11) {
-				// stop animating children
-				for (int index : indexList) {
-					ValueAnimator anim =
-							animatingEntries.get(forumEntries.get(index));
-					if (anim != null && anim.isRunning()) {
-						anim.cancel();
-					}
+			// stop animating children
+			for (int index : indexList) {
+				ValueAnimator anim =
+						animatingEntries.get(forumEntries.get(index));
+				if (anim != null && anim.isRunning()) {
+					anim.cancel();
 				}
 			}
 			if (indexList.size() == 1) {
@@ -231,11 +216,18 @@ public class NestedForumAdapter
 	}
 
 
+	/**
+	 *
+	 * @param position is visible entry index
+	 * @return the visible entry at index position from an ordered list of visible
+	 * entries, or null if position is larger then the number of visible entries.
+	 */
 	@Nullable
 	ForumEntry getVisibleEntry(int position) {
 		int levelLimit = UNDEFINED;
 		for (ForumEntry forumEntry : forumEntries) {
 			if (levelLimit >= 0) {
+				// skip hidden entries that their parent is hiding
 				if (forumEntry.getLevel() > levelLimit) {
 					continue;
 				}
@@ -251,7 +243,6 @@ public class NestedForumAdapter
 		return null;
 	}
 
-	@TargetApi(11)
 	private void animateFadeOut(final NestedForumHolder ui,
 			final ForumEntry addedEntry) {
 		ui.setIsRecyclable(false);
@@ -341,9 +332,9 @@ public class NestedForumAdapter
 									replies, replies));
 		}
 
-		if (hasDescendants(entry)) {
+		if (entry.hasDescendants()) {
 			ui.chevron.setVisibility(VISIBLE);
-			if (hasVisibleDescendants(entry)) {
+			if (entry.isShowingDescendants()) {
 				ui.chevron.setSelected(false);
 			} else {
 				ui.chevron.setSelected(true);
@@ -369,9 +360,7 @@ public class NestedForumAdapter
 
 			ui.cell.setBackgroundColor(ContextCompat
 					.getColor(ctx, R.color.forum_cell_highlight));
-			if (Build.VERSION.SDK_INT >= 11) {
-				animateFadeOut(ui, addedEntry);
-			}
+			animateFadeOut(ui, addedEntry);
 			addedEntry = null;
 		} else {
 			ui.cell.setBackgroundColor(ContextCompat
@@ -386,12 +375,24 @@ public class NestedForumAdapter
 		});
 	}
 
+	public boolean isVisible(ForumEntry entry) {
+		return getVisiblePos(entry) != NO_POSITION;
+	}
+
+	/**
+	 * @param sEntry the ForumEntry to find the visible positoin of, or null to
+	 *               return the total cound of visible elements
+	 * @return the visible position of sEntry, or the total number of visible
+	 * elements if sEntry is null. If sEntry is not visible a NO_POSITION is
+	 * returned.
+	 */
 	private int getVisiblePos(ForumEntry sEntry) {
 		int visibleCounter = 0;
 		int levelLimit = UNDEFINED;
 		for (ForumEntry fEntry : forumEntries) {
 			if (levelLimit >= 0) {
 				if (fEntry.getLevel() > levelLimit) {
+					// skip all the entries below a non visible branch
 					continue;
 				}
 				levelLimit = UNDEFINED;
@@ -440,6 +441,7 @@ public class NestedForumAdapter
 			cell = (ViewGroup) v.findViewById(R.id.forum_cell);
 			topDivider = v.findViewById(R.id.top_divider);
 		}
+
 	}
 
 	interface OnNestedForumListener {

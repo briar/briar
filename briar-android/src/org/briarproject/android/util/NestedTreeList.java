@@ -1,5 +1,7 @@
 package org.briarproject.android.util;
 
+import android.support.annotation.UiThread;
+
 import org.briarproject.api.clients.MessageTree;
 import org.briarproject.clients.MessageTreeImpl;
 
@@ -8,7 +10,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-/* This class is not thread safe */
+@UiThread
 public class NestedTreeList<T extends MessageTree.MessageNode>
 		implements Iterable<T> {
 

@@ -87,6 +87,16 @@ public class MessageTreeTest {
 		}
 
 		@Override
+		public void setLevel(int level) {
+
+		}
+
+		@Override
+		public void setDescendantCount(int descendantCount) {
+
+		}
+
+		@Override
 		public long getTimestamp() {
 			return timestamp;
 		}

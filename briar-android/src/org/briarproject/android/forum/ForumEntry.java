@@ -6,6 +6,7 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.MessageId;
 
+/* This class is not thread safe */
 public class ForumEntry implements MessageTree.MessageNode {
 
 	public final static int LEVEL_UNDEFINED = -1;
@@ -18,6 +19,7 @@ public class ForumEntry implements MessageTree.MessageNode {
 	private Status status;
 	private int level = LEVEL_UNDEFINED;
 	private boolean isShowingDescendants = true;
+	private int descendantCount = 0;
 	private boolean isRead = true;
 
 	ForumEntry(ForumPostHeader h, String text) {
@@ -70,7 +72,7 @@ public class ForumEntry implements MessageTree.MessageNode {
 		return isShowingDescendants;
 	}
 
-	void setLevel(int level) {
+	public void setLevel(int level) {
 		this.level = level;
 	}
 
@@ -88,5 +90,13 @@ public class ForumEntry implements MessageTree.MessageNode {
 
 	void setRead(boolean read) {
 		isRead = read;
+	}
+
+	public boolean hasDescendants() {
+		return descendantCount > 0;
+	}
+
+	public void setDescendantCount(int descendantCount) {
+		this.descendantCount = descendantCount;
 	}
 }

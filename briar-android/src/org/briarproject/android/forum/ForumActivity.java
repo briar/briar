@@ -19,6 +19,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumController.ForumPostListener;
 import org.briarproject.android.forum.NestedForumAdapter.OnNestedForumListener;
@@ -27,8 +28,8 @@ import org.briarproject.android.sharing.SharingStatusForumActivity;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
@@ -64,7 +65,6 @@ public class ForumActivity extends BriarActivity implements
 
 	private BriarRecyclerView recyclerView;
 	private TextInputView textInput;
-	private LinearLayoutManager linearLayoutManager;
 
 	private volatile GroupId groupId = null;
 
@@ -93,28 +93,30 @@ public class ForumActivity extends BriarActivity implements
 		recyclerView.setEmptyText(R.string.no_forum_posts);
 
 		forumController.loadForum(groupId,
-				new UiResultHandler<List<ForumEntry>>(this) {
+				new UiResultExceptionHandler<List<ForumEntry>, DbException>(
+						this) {
 					@Override
 					public void onResultUi(List<ForumEntry> result) {
-						if (result != null) {
-							Forum forum = forumController.getForum();
-							if (forum != null) setTitle(forum.getName());
-							List<ForumEntry> entries = new ArrayList<>(result);
-							if (entries.isEmpty()) {
-								recyclerView.showData();
-							} else {
-								forumAdapter.setEntries(entries);
-								if (state != null) {
-									byte[] replyId =
-											state.getByteArray(KEY_REPLY_ID);
-									if (replyId != null)
-										forumAdapter.setReplyEntryById(replyId);
-								}
-							}
+						Forum forum = forumController.getForum();
+						if (forum != null) setTitle(forum.getName());
+						List<ForumEntry> entries = new ArrayList<>(result);
+						if (entries.isEmpty()) {
+							recyclerView.showData();
 						} else {
-							// TODO Improve UX ?
-							finish();
+							forumAdapter.setEntries(entries);
+							if (state != null) {
+								byte[] replyId =
+										state.getByteArray(KEY_REPLY_ID);
+								if (replyId != null)
+									forumAdapter.setReplyEntryById(replyId);
+							}
 						}
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO Improve UX ?
+						finish();
 					}
 				});
 	}
@@ -248,22 +250,21 @@ public class ForumActivity extends BriarActivity implements
 	public void onSendClick(String text) {
 		if (text.trim().length() == 0)
 			return;
-		if (forumController.getForum() == null) return;
 		ForumEntry replyEntry = forumAdapter.getReplyEntry();
-		UiResultHandler<ForumPost> resultHandler =
-				new UiResultHandler<ForumPost>(this) {
+		UiResultExceptionHandler<ForumEntry, DbException> resultHandler =
+				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
 					@Override
-					public void onResultUi(ForumPost result) {
-						forumController.storePost(result,
-								new UiResultHandler<ForumEntry>(
-										ForumActivity.this) {
-									@Override
-									public void onResultUi(ForumEntry result) {
-										onForumEntryAdded(result, true);
-									}
-								});
+					public void onResultUi(ForumEntry result) {
+						onForumEntryAdded(result, true);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO Improve UX ?
+						finish();
 					}
 				};
+
 		if (replyEntry == null) {
 			// root post
 			forumController.createPost(StringUtils.toUtf8(text), resultHandler);
@@ -322,11 +323,14 @@ public class ForumActivity extends BriarActivity implements
 
 	private void onForumEntryAdded(final ForumEntry entry, boolean isLocal) {
 		forumAdapter.addEntry(entry);
-		if (isLocal) {
+		if (isLocal && forumAdapter.isVisible(entry)) {
 			displaySnackbarShort(R.string.forum_new_entry_posted);
 		} else {
 			Snackbar snackbar = Snackbar.make(recyclerView,
-					R.string.forum_new_entry_received, Snackbar.LENGTH_LONG);
+					isLocal ? R.string.forum_new_entry_posted :
+							R.string.forum_new_entry_received,
+					Snackbar.LENGTH_LONG);
+			snackbar.getView().setBackgroundResource(R.color.briar_primary);
 			snackbar.setActionTextColor(ContextCompat
 					.getColor(ForumActivity.this,
 							R.color.briar_button_positive));
@@ -343,12 +347,18 @@ public class ForumActivity extends BriarActivity implements
 
 	@Override
 	public void onExternalEntryAdded(ForumPostHeader header) {
-		forumController.loadPost(header, new UiResultHandler<ForumEntry>(this) {
-			@Override
-			public void onResultUi(final ForumEntry result) {
-				onForumEntryAdded(result, false);
-			}
-		});
+		forumController.loadPost(header,
+				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
+					@Override
+					public void onResultUi(final ForumEntry result) {
+						onForumEntryAdded(result, false);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO add proper exception handling
+					}
+				});
 
 	}
 }

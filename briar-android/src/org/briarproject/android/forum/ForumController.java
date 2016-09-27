@@ -4,9 +4,10 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
 import org.briarproject.android.controller.ActivityLifecycleController;
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -17,13 +18,13 @@ import java.util.List;
 public interface ForumController extends ActivityLifecycleController {
 
 	void loadForum(GroupId groupId,
-			ResultHandler<List<ForumEntry>> resultHandler);
+			ResultExceptionHandler<List<ForumEntry>, DbException> resultHandler);
 
 	@Nullable
 	Forum getForum();
 
 	void loadPost(ForumPostHeader header,
-			ResultHandler<ForumEntry> resultHandler);
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler);
 
 	void unsubscribe(ResultHandler<Boolean> resultHandler);
 
@@ -31,12 +32,11 @@ public interface ForumController extends ActivityLifecycleController {
 
 	void entriesRead(Collection<ForumEntry> messageIds);
 
-	void createPost(byte[] body, ResultHandler<ForumPost> resultHandler);
+	void createPost(byte[] body,
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler);
 
 	void createPost(byte[] body, MessageId parentId,
-			ResultHandler<ForumPost> resultHandler);
-
-	void storePost(ForumPost post, ResultHandler<ForumEntry> resultHandler);
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler);
 
 	interface ForumPostListener {
 		@UiThread

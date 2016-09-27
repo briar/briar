@@ -16,6 +16,8 @@ public interface MessageTree<T extends MessageTree.MessageNode> {
 	interface MessageNode {
 		MessageId getId();
 		MessageId getParentId();
+		void setLevel(int level);
+		void setDescendantCount(int descendantCount);
 		long getTimestamp();
 	}
 

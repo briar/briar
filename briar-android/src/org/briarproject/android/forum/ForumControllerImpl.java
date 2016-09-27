@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.support.annotation.Nullable;
 
 import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -42,7 +43,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.identity.Author.Status.VERIFIED;
+import static org.briarproject.api.identity.Author.Status.OURSELVES;
 
 public class ForumControllerImpl extends DbControllerImpl
 		implements ForumController, EventListener {
@@ -149,9 +150,7 @@ public class ForumControllerImpl extends DbControllerImpl
 
 		// Get First Identity
 		now = System.currentTimeMillis();
-		localAuthor =
-				identityManager.getLocalAuthors().iterator()
-						.next();
+		localAuthor = identityManager.getLocalAuthor();
 		duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loading author took " + duration + " ms");
@@ -214,7 +213,7 @@ public class ForumControllerImpl extends DbControllerImpl
 
 	@Override
 	public void loadForum(final GroupId groupId,
-			final ResultHandler<List<ForumEntry>> resultHandler) {
+			final ResultExceptionHandler<List<ForumEntry>, DbException> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -231,7 +230,7 @@ public class ForumControllerImpl extends DbControllerImpl
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onResult(null);
+					resultHandler.onException(e);
 				}
 			}
 		});
@@ -245,7 +244,7 @@ public class ForumControllerImpl extends DbControllerImpl
 
 	@Override
 	public void loadPost(final ForumPostHeader header,
-			final ResultHandler<ForumEntry> resultHandler) {
+			final ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -255,7 +254,9 @@ public class ForumControllerImpl extends DbControllerImpl
 					resultHandler.onResult(new ForumEntry(header, StringUtils
 							.fromUtf8(bodyCache.get(header.getId()))));
 				} catch (DbException e) {
-					e.printStackTrace();
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					resultHandler.onException(e);
 				}
 			}
 		});
@@ -311,13 +312,13 @@ public class ForumControllerImpl extends DbControllerImpl
 
 	@Override
 	public void createPost(byte[] body,
-			ResultHandler<ForumPost> resultHandler) {
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
 		createPost(body, null, resultHandler);
 	}
 
 	@Override
 	public void createPost(final byte[] body, final MessageId parentId,
-			final ResultHandler<ForumPost> resultHandler) {
+			final ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -336,14 +337,13 @@ public class ForumControllerImpl extends DbControllerImpl
 					throw new RuntimeException(e);
 				}
 				bodyCache.put(p.getMessage().getId(), body);
-				resultHandler.onResult(p);
+				storePost(p, resultHandler);
 			}
 		});
 	}
 
-	@Override
-	public void storePost(final ForumPost p,
-			final ResultHandler<ForumEntry> resultHandler) {
+	private void storePost(final ForumPost p,
+			final ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -359,8 +359,7 @@ public class ForumControllerImpl extends DbControllerImpl
 							new ForumPostHeader(p.getMessage().getId(),
 									p.getParent(),
 									p.getMessage().getTimestamp(),
-									p.getAuthor(), VERIFIED,
-									true);
+									p.getAuthor(), OURSELVES, true);
 
 					resultHandler.onResult(new ForumEntry(h, StringUtils
 							.fromUtf8(bodyCache.get(p.getMessage().getId()))));
@@ -368,6 +367,7 @@ public class ForumControllerImpl extends DbControllerImpl
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
+					resultHandler.onException(e);
 				}
 			}
 		});
