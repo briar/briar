@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,9 +24,9 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.fragment.BaseEventFragment;
-import org.briarproject.android.view.CameraView;
 import org.briarproject.android.util.QrCodeDecoder;
 import org.briarproject.android.util.QrCodeUtils;
+import org.briarproject.android.view.CameraView;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.KeyAgreementAbortedEvent;
 import org.briarproject.api.event.KeyAgreementFailedEvent;
@@ -49,16 +50,16 @@ import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
 
-	public static final String TAG = "ShowQrCodeFragment";
-
-	private static final Logger LOG =
-			Logger.getLogger(ShowQrCodeFragment.class.getName());
+	private static final String TAG = ShowQrCodeFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
 	protected KeyAgreementTaskFactory keyAgreementTaskFactory;
@@ -85,9 +86,9 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private volatile boolean waitingForBluetooth;
 
 	public static ShowQrCodeFragment newInstance() {
-		
+
 		Bundle args = new Bundle();
-		
+
 		ShowQrCodeFragment fragment = new ShowQrCodeFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -225,8 +226,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void reset() {
-		statusView.setVisibility(View.INVISIBLE);
-		cameraView.setVisibility(View.VISIBLE);
+		statusView.setVisibility(INVISIBLE);
+		cameraView.setVisibility(VISIBLE);
 		gotRemotePayload = false;
 		cameraView.startConsumer();
 		startListening();
@@ -234,11 +235,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	private void qrCodeScanned(String content) {
 		try {
-			// TODO use Base32
 			Payload remotePayload = payloadParser.parse(
 					Base64.decode(content, 0));
-			cameraView.setVisibility(View.INVISIBLE);
-			statusView.setVisibility(View.VISIBLE);
+			cameraView.setVisibility(INVISIBLE);
+			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
 			task.connectAndRunProtocol(remotePayload);
 		} catch (IOException e) {
@@ -269,11 +269,12 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				// TODO use Base32
 				String input = Base64.encodeToString(
 						payloadEncoder.encode(localPayload), 0);
-				qrCode.setImageBitmap(
-						QrCodeUtils.createQrCode((Context) listener, input));
+				Bitmap bitmap =
+						QrCodeUtils.createQrCode((Context) listener, input);
+				if (bitmap == null) return;
+				qrCode.setImageBitmap(bitmap);
 				// Simple fade-in animation
 				AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
 				anim.setDuration(200);
