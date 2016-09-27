@@ -108,6 +108,8 @@ public class AndroidUtils {
 					IoUtils.deleteFileOrDir(child);
 			}
 		}
+		// Recreate the cache dir as some OpenGL drivers expect it to exist
+		new File(dataDir, "cache").mkdir();
 	}
 
 	public static File getReportDir(Context ctx) {
