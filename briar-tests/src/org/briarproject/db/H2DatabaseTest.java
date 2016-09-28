@@ -272,18 +272,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(ids.isEmpty());
 
 		// Sharing the message should make it sendable
-		db.setMessageShared(txn, messageId, true);
+		db.setMessageShared(txn, messageId);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertEquals(Collections.singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertEquals(Collections.singletonList(messageId), ids);
-
-		// Unsharing the message should make it unsendable
-		db.setMessageShared(txn, messageId, false);
-		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertTrue(ids.isEmpty());
-		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertTrue(ids.isEmpty());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1357,6 +1350,43 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Retrieve pending messages
 		result = db.getPendingMessages(txn, clientId);
 		assertEquals(1, result.size());
+		assertTrue(result.contains(mId3));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessagesToShare() throws Exception {
+		MessageId mId1 = new MessageId(TestUtils.getRandomId());
+		MessageId mId2 = new MessageId(TestUtils.getRandomId());
+		MessageId mId3 = new MessageId(TestUtils.getRandomId());
+		MessageId mId4 = new MessageId(TestUtils.getRandomId());
+		Message m1 = new Message(mId1, groupId, timestamp, raw);
+		Message m2 = new Message(mId2, groupId, timestamp, raw);
+		Message m3 = new Message(mId3, groupId, timestamp, raw);
+		Message m4 = new Message(mId4, groupId, timestamp, raw);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and some messages
+		db.addGroup(txn, group);
+		db.addMessage(txn, m1, DELIVERED, true);
+		db.addMessage(txn, m2, DELIVERED, false);
+		db.addMessage(txn, m3, DELIVERED, false);
+		db.addMessage(txn, m4, DELIVERED, true);
+
+		// Introduce dependencies between the messages
+		db.addMessageDependency(txn, groupId, mId1, mId2);
+		db.addMessageDependency(txn, groupId, mId3, mId1);
+		db.addMessageDependency(txn, groupId, mId4, mId3);
+
+		// Retrieve messages to be shared
+		Collection<MessageId> result =
+				db.getMessagesToShare(txn, clientId);
+		assertEquals(2, result.size());
+		assertTrue(result.contains(mId2));
 		assertTrue(result.contains(mId3));
 
 		db.commitTransaction(txn);

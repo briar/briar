@@ -1692,6 +1692,35 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<MessageId> getMessagesToShare(
+			Connection txn, ClientId c) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN messageDependencies AS d"
+					+ " ON m.messageId = d.dependencyId"
+					+ " JOIN messages AS m1"
+					+ " ON d.messageId = m1.messageId"
+					+ " JOIN groups AS g"
+					+ " ON m.groupId = g.groupId"
+					+ " WHERE m.shared = FALSE AND m1.shared = TRUE"
+					+ " AND g.clientId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, c.getBytes());
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<MessageId>();
+			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(ids);
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	@Nullable
 	public byte[] getRawMessage(Connection txn, MessageId m)
 			throws DbException {
@@ -2321,14 +2350,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setMessageShared(Connection txn, MessageId m, boolean shared)
-			throws DbException {
+	public void setMessageShared(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE messages SET shared = ? WHERE messageId = ?";
+			String sql = "UPDATE messages SET shared = TRUE"
+					+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, shared);
-			ps.setBytes(2, m.getBytes());
+			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

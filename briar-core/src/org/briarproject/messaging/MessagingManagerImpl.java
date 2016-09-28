@@ -93,7 +93,7 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	protected void incomingMessage(Transaction txn, Message m, BdfList body,
+	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 
 		GroupId groupId = m.getGroupId();
@@ -106,6 +106,9 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, groupId);
 		txn.attach(event);
+
+		// don't share message
+		return false;
 	}
 
 	@Override

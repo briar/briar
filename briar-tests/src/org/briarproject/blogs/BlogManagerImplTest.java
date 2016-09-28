@@ -199,7 +199,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 		);
 
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).setMessageShared(txn, messageId, true);
 			oneOf(identityManager)
 					.getAuthorStatus(txn, blog1.getAuthor().getId());
 			will(returnValue(VERIFIED));

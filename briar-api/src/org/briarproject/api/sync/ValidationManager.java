@@ -55,8 +55,9 @@ public interface ValidationManager {
 
 		/**
 		 * Called once for each incoming message that passes validation.
+		 * @return whether or not this message should be shared
 		 */
-		void incomingMessage(Transaction txn, Message m, Metadata meta)
+		boolean incomingMessage(Transaction txn, Message m, Metadata meta)
 				throws DbException;
 	}
 }

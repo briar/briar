@@ -68,12 +68,6 @@ public interface ClientHelper {
 	void mergeMessageMetadata(Transaction txn, MessageId m,
 			BdfDictionary metadata) throws DbException, FormatException;
 
-	/**
-	 * Marks the given message as shared or unshared with other contacts.
-	 */
-	void setMessageShared(Transaction txn, MessageId m, boolean shared)
-			throws DbException;
-
 	byte[] toByteArray(BdfDictionary dictionary) throws FormatException;
 
 	byte[] toByteArray(BdfList list) throws FormatException;

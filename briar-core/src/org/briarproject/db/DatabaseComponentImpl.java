@@ -94,6 +94,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		this.shutdown = shutdown;
 	}
 
+	@Override
 	public boolean open() throws DbException {
 		Runnable shutdownHook = new Runnable() {
 			public void run() {
@@ -110,12 +111,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return reopened;
 	}
 
+	@Override
 	public void close() throws DbException {
 		if (closed.getAndSet(true)) return;
 		shutdown.removeShutdownHook(shutdownHandle);
 		db.close();
 	}
 
+	@Override
 	public Transaction startTransaction(boolean readOnly) throws DbException {
 		// Don't allow reentrant locking
 		if (lock.getReadHoldCount() > 0) throw new IllegalStateException();
@@ -135,6 +138,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void endTransaction(Transaction transaction) throws DbException {
 		try {
 			T txn = txnClass.cast(transaction.unbox());
@@ -153,6 +157,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return txnClass.cast(transaction.unbox());
 	}
 
+	@Override
 	public ContactId addContact(Transaction transaction, Author remote,
 			AuthorId local, boolean verified, boolean active)
 			throws DbException {
@@ -170,6 +175,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return c;
 	}
 
+	@Override
 	public void addGroup(Transaction transaction, Group g) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
@@ -179,6 +185,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void addLocalAuthor(Transaction transaction, LocalAuthor a)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -189,6 +196,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void addLocalMessage(Transaction transaction, Message m,
 			Metadata meta, boolean shared) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -215,6 +223,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void addTransport(Transaction transaction, TransportId t,
 			int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -223,6 +232,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			db.addTransport(txn, t, maxLatency);
 	}
 
+	@Override
 	public void addTransportKeys(Transaction transaction, ContactId c,
 			TransportKeys k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -234,6 +244,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.addTransportKeys(txn, c, k);
 	}
 
+	@Override
 	public boolean containsContact(Transaction transaction, AuthorId remote,
 			AuthorId local) throws DbException {
 		T txn = unbox(transaction);
@@ -242,6 +253,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.containsContact(txn, remote, local);
 	}
 
+	@Override
 	public boolean containsGroup(Transaction transaction, GroupId g)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -255,6 +267,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.containsLocalAuthor(txn, local);
 	}
 
+	@Override
 	public void deleteMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -264,6 +277,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.deleteMessage(txn, m);
 	}
 
+	@Override
 	public void deleteMessageMetadata(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -274,6 +288,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Nullable
+	@Override
 	public Ack generateAck(Transaction transaction, ContactId c,
 			int maxMessages) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -287,6 +302,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Nullable
+	@Override
 	public Collection<byte[]> generateBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -306,6 +322,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Nullable
+	@Override
 	public Offer generateOffer(Transaction transaction, ContactId c,
 			int maxMessages, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -319,6 +336,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Nullable
+	@Override
 	public Request generateRequest(Transaction transaction, ContactId c,
 			int maxMessages) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -333,6 +351,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Nullable
+	@Override
 	public Collection<byte[]> generateRequestedBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -352,6 +371,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return Collections.unmodifiableList(messages);
 	}
 
+	@Override
 	public Contact getContact(Transaction transaction, ContactId c)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -360,18 +380,21 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getContact(txn, c);
 	}
 
+	@Override
 	public Collection<Contact> getContacts(Transaction transaction)
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.getContacts(txn);
 	}
 
+	@Override
 	public Collection<Contact> getContactsByAuthorId(Transaction transaction,
 			AuthorId remote) throws DbException {
 		T txn = unbox(transaction);
 		return db.getContactsByAuthorId(txn, remote);
 	}
 
+	@Override
 	public Collection<ContactId> getContacts(Transaction transaction,
 			AuthorId a) throws DbException {
 		T txn = unbox(transaction);
@@ -380,11 +403,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getContacts(txn, a);
 	}
 
+	@Override
 	public DeviceId getDeviceId(Transaction transaction) throws DbException {
 		T txn = unbox(transaction);
 		return db.getDeviceId(txn);
 	}
 
+	@Override
 	public Group getGroup(Transaction transaction, GroupId g)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -393,6 +418,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getGroup(txn, g);
 	}
 
+	@Override
 	public Metadata getGroupMetadata(Transaction transaction, GroupId g)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -401,12 +427,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getGroupMetadata(txn, g);
 	}
 
+	@Override
 	public Collection<Group> getGroups(Transaction transaction, ClientId c)
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.getGroups(txn, c);
 	}
 
+	@Override
 	public LocalAuthor getLocalAuthor(Transaction transaction, AuthorId a)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -415,25 +443,36 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getLocalAuthor(txn, a);
 	}
 
+	@Override
 	public Collection<LocalAuthor> getLocalAuthors(Transaction transaction)
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.getLocalAuthors(txn);
 	}
 
+	@Override
 	public Collection<MessageId> getMessagesToValidate(Transaction transaction,
 			ClientId c) throws DbException {
 		T txn = unbox(transaction);
 		return db.getMessagesToValidate(txn, c);
 	}
 
+	@Override
 	public Collection<MessageId> getPendingMessages(Transaction transaction,
 			ClientId c) throws DbException {
 		T txn = unbox(transaction);
 		return db.getPendingMessages(txn, c);
 	}
 
+	@Override
+	public Collection<MessageId> getMessagesToShare(
+			Transaction transaction, ClientId c) throws DbException {
+		T txn = unbox(transaction);
+		return db.getMessagesToShare(txn, c);
+	}
+
 	@Nullable
+	@Override
 	public byte[] getRawMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -442,6 +481,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getRawMessage(txn, m);
 	}
 
+	@Override
 	public Map<MessageId, Metadata> getMessageMetadata(Transaction transaction,
 			GroupId g) throws DbException {
 		T txn = unbox(transaction);
@@ -450,6 +490,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageMetadata(txn, g);
 	}
 
+	@Override
 	public Map<MessageId, Metadata> getMessageMetadata(Transaction transaction,
 			GroupId g, Metadata query) throws DbException {
 		T txn = unbox(transaction);
@@ -458,6 +499,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageMetadata(txn, g, query);
 	}
 
+	@Override
 	public Metadata getMessageMetadata(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -466,6 +508,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageMetadata(txn, m);
 	}
 
+	@Override
 	public Metadata getMessageMetadataForValidator(Transaction transaction,
 			MessageId m)
 			throws DbException {
@@ -475,6 +518,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageMetadataForValidator(txn, m);
 	}
 
+	@Override
 	public State getMessageState(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -483,6 +527,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageState(txn, m);
 	}
 
+	@Override
 	public Collection<MessageStatus> getMessageStatus(Transaction transaction,
 			ContactId c, GroupId g) throws DbException {
 		T txn = unbox(transaction);
@@ -493,6 +538,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageStatus(txn, c, g);
 	}
 
+	@Override
 	public MessageStatus getMessageStatus(Transaction transaction, ContactId c,
 			MessageId m) throws DbException {
 		T txn = unbox(transaction);
@@ -503,6 +549,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageStatus(txn, c, m);
 	}
 
+	@Override
 	public Map<MessageId, State> getMessageDependencies(Transaction transaction,
 			MessageId m) throws DbException {
 		T txn = unbox(transaction);
@@ -511,6 +558,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageDependencies(txn, m);
 	}
 
+	@Override
 	public Map<MessageId, State> getMessageDependents(Transaction transaction,
 			MessageId m) throws DbException {
 		T txn = unbox(transaction);
@@ -519,12 +567,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessageDependents(txn, m);
 	}
 
+	@Override
 	public Settings getSettings(Transaction transaction, String namespace)
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.getSettings(txn, namespace);
 	}
 
+	@Override
 	public Map<ContactId, TransportKeys> getTransportKeys(
 			Transaction transaction, TransportId t) throws DbException {
 		T txn = unbox(transaction);
@@ -533,6 +583,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getTransportKeys(txn, t);
 	}
 
+	@Override
 	public void incrementStreamCounter(Transaction transaction, ContactId c,
 			TransportId t, long rotationPeriod) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -544,6 +595,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.incrementStreamCounter(txn, c, t, rotationPeriod);
 	}
 
+	@Override
 	public boolean isVisibleToContact(Transaction transaction, ContactId c,
 			GroupId g) throws DbException {
 		T txn = unbox(transaction);
@@ -554,6 +606,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.containsVisibleGroup(txn, c, g);
 	}
 
+	@Override
 	public void mergeGroupMetadata(Transaction transaction, GroupId g,
 			Metadata meta) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -563,6 +616,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.mergeGroupMetadata(txn, g, meta);
 	}
 
+	@Override
 	public void mergeMessageMetadata(Transaction transaction, MessageId m,
 			Metadata meta) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -572,6 +626,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.mergeMessageMetadata(txn, m, meta);
 	}
 
+	@Override
 	public void mergeSettings(Transaction transaction, Settings s,
 			String namespace) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -586,6 +641,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void receiveAck(Transaction transaction, ContactId c, Ack a)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -602,6 +658,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new MessagesAckedEvent(c, acked));
 	}
 
+	@Override
 	public void receiveMessage(Transaction transaction, ContactId c, Message m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -620,6 +677,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void receiveOffer(Transaction transaction, ContactId c, Offer o)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -643,6 +701,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (request) transaction.attach(new MessageToRequestEvent(c));
 	}
 
+	@Override
 	public void receiveRequest(Transaction transaction, ContactId c, Request r)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -660,6 +719,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (requested) transaction.attach(new MessageRequestedEvent(c));
 	}
 
+	@Override
 	public void removeContact(Transaction transaction, ContactId c)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -670,6 +730,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new ContactRemovedEvent(c));
 	}
 
+	@Override
 	public void removeGroup(Transaction transaction, Group g)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -683,6 +744,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
 	}
 
+	@Override
 	public void removeLocalAuthor(Transaction transaction, AuthorId a)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -693,6 +755,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new LocalAuthorRemovedEvent(a));
 	}
 
+	@Override
 	public void removeTransport(Transaction transaction, TransportId t)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -702,6 +765,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.removeTransport(txn, t);
 	}
 
+	@Override
 	public void setContactVerified(Transaction transaction, ContactId c)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -712,6 +776,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new ContactVerifiedEvent(c));
 	}
 
+	@Override
 	public void setContactActive(Transaction transaction, ContactId c,
 			boolean active) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -722,16 +787,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new ContactStatusChangedEvent(c, active));
 	}
 
-	public void setMessageShared(Transaction transaction, MessageId m,
-			boolean shared) throws DbException {
+	@Override
+	public void setMessageShared(Transaction transaction, MessageId m)
+			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
-		db.setMessageShared(txn, m, shared);
-		if (shared) transaction.attach(new MessageSharedEvent(m));
+		if (db.getMessageState(txn, m) != DELIVERED)
+			throw new IllegalArgumentException("Shared undelivered message");
+		db.setMessageShared(txn, m);
+		transaction.attach(new MessageSharedEvent(m));
 	}
 
+	@Override
 	public void setMessageState(Transaction transaction, MessageId m,
 			State state) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -742,6 +811,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		transaction.attach(new MessageStateChangedEvent(m, false, state));
 	}
 
+	@Override
 	public void addMessageDependencies(Transaction transaction,
 			Message dependent, Collection<MessageId> dependencies)
 			throws DbException {
@@ -755,6 +825,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void setReorderingWindow(Transaction transaction, ContactId c,
 			TransportId t, long rotationPeriod, long base, byte[] bitmap)
 			throws DbException {
@@ -767,6 +838,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.setReorderingWindow(txn, c, t, rotationPeriod, base, bitmap);
 	}
 
+	@Override
 	public void setVisibleToContact(Transaction transaction, ContactId c,
 			GroupId g, boolean visible) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -793,6 +865,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	@Override
 	public void updateTransportKeys(Transaction transaction,
 			Map<ContactId, TransportKeys> keys) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

@@ -84,6 +84,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Transaction txn3 = new Transaction(null, true);
 		final Transaction txn4 = new Transaction(null, false);
 		final Transaction txn5 = new Transaction(null, true);
+		final Transaction txn6 = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
@@ -108,6 +109,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).mergeMessageMetadata(txn2, messageId, metadata);
 			// Deliver the first message
 			oneOf(hook).incomingMessage(txn2, message, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn2, messageId);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn2, messageId, DELIVERED);
@@ -144,6 +146,12 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).getPendingMessages(txn5, clientId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).endTransaction(txn5);
+			// Get messages to share
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn6));
+			oneOf(db).getMessagesToShare(txn6, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).endTransaction(txn6);
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
@@ -160,6 +168,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		assertTrue(txn3.isComplete());
 		assertTrue(txn4.isComplete());
 		assertTrue(txn5.isComplete());
+		assertTrue(txn6.isComplete());
 	}
 
 	@Test
@@ -175,6 +184,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Transaction txn1 = new Transaction(null, true);
 		final Transaction txn2 = new Transaction(null, false);
 		final Transaction txn3 = new Transaction(null, false);
+		final Transaction txn4 = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			// Get messages to validate
@@ -205,6 +215,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(new Metadata()));
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn2, message, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn2, messageId);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn2, messageId, DELIVERED);
@@ -228,6 +239,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(metadata));
 			// Deliver the dependent
 			oneOf(hook).incomingMessage(txn3, message2, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn3, messageId2);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn3, messageId2, DELIVERED);
@@ -235,6 +247,13 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).getMessageDependents(txn3, messageId2);
 			will(returnValue(Collections.emptyMap()));
 			oneOf(db).endTransaction(txn3);
+
+			// Get messages to share
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn4));
+			oneOf(db).getMessagesToShare(txn4, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).endTransaction(txn4);
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
@@ -249,6 +268,137 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		assertTrue(txn1.isComplete());
 		assertTrue(txn2.isComplete());
 		assertTrue(txn3.isComplete());
+		assertTrue(txn4.isComplete());
+	}
+
+	@Test
+	public void testMessagesAreSharedAtStartup() throws Exception {
+		Mockery context = new Mockery();
+		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final Executor dbExecutor = new ImmediateExecutor();
+		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageValidator validator = context.mock(MessageValidator.class);
+		final IncomingMessageHook hook =
+				context.mock(IncomingMessageHook.class);
+		final Transaction txn = new Transaction(null, true);
+		final Transaction txn1 = new Transaction(null, true);
+		final Transaction txn2 = new Transaction(null, true);
+		final Transaction txn3 = new Transaction(null, false);
+		final Transaction txn4 = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			// No messages to validate
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getMessagesToValidate(txn, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).endTransaction(txn);
+			// No pending messages to deliver
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn1));
+			oneOf(db).getPendingMessages(txn1, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).endTransaction(txn1);
+
+			// Get messages to share
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn2));
+			oneOf(db).getMessagesToShare(txn2, clientId);
+			will(returnValue(Collections.singletonList(messageId)));
+			oneOf(db).endTransaction(txn2);
+			// Share message and get dependencies
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn3));
+			oneOf(db).setMessageShared(txn3, messageId);
+			oneOf(db).getMessageDependencies(txn3, messageId);
+			will(returnValue(Collections.singletonMap(messageId2, DELIVERED)));
+			oneOf(db).endTransaction(txn3);
+			// Share dependency
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn4));
+			oneOf(db).setMessageShared(txn4, messageId2);
+			oneOf(db).getMessageDependencies(txn4, messageId2);
+			will(returnValue(Collections.emptyMap()));
+			oneOf(db).endTransaction(txn4);
+		}});
+
+		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
+				cryptoExecutor);
+		vm.registerMessageValidator(clientId, validator);
+		vm.registerIncomingMessageHook(clientId, hook);
+		vm.startService();
+
+		context.assertIsSatisfied();
+
+		assertTrue(txn.isComplete());
+		assertTrue(txn1.isComplete());
+		assertTrue(txn2.isComplete());
+		assertTrue(txn3.isComplete());
+		assertTrue(txn4.isComplete());
+	}
+
+	@Test
+	public void testIncomingMessagesAreShared() throws Exception {
+		Mockery context = new Mockery();
+		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		final Executor dbExecutor = new ImmediateExecutor();
+		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageValidator validator = context.mock(MessageValidator.class);
+		final IncomingMessageHook hook =
+				context.mock(IncomingMessageHook.class);
+		final Transaction txn = new Transaction(null, true);
+		final Transaction txn1 = new Transaction(null, false);
+		final Transaction txn2 = new Transaction(null, false);
+		context.checking(new Expectations() {{
+			// Load the group
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getGroup(txn, groupId);
+			will(returnValue(group));
+			oneOf(db).endTransaction(txn);
+			// Validate the message: valid
+			oneOf(validator).validateMessage(message, group);
+			will(returnValue(validResultWithDependencies));
+			// Store the validation result
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn1));
+			oneOf(db).addMessageDependencies(txn1, message,
+					validResultWithDependencies.getDependencies());
+			oneOf(db).getMessageDependencies(txn1, messageId);
+			will(returnValue(Collections.singletonMap(messageId1, DELIVERED)));
+			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
+			// Deliver the message
+			oneOf(hook).incomingMessage(txn1, message, metadata);
+			will(returnValue(true));
+			oneOf(db).getRawMessage(txn1, messageId);
+			will(returnValue(raw));
+			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
+			// Get any pending dependents
+			oneOf(db).getMessageDependents(txn1, messageId);
+			will(returnValue(Collections.emptyMap()));
+			// Share message
+			oneOf(db).setMessageShared(txn1, messageId);
+			oneOf(db).endTransaction(txn1);
+			// Share dependencies
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn2));
+			oneOf(db).setMessageShared(txn2, messageId1);
+			oneOf(db).getMessageDependencies(txn2, messageId1);
+			will(returnValue(Collections.emptyMap()));
+			oneOf(db).endTransaction(txn2);
+		}});
+
+		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
+				cryptoExecutor);
+		vm.registerMessageValidator(clientId, validator);
+		vm.registerIncomingMessageHook(clientId, hook);
+		vm.eventOccurred(new MessageAddedEvent(message, contactId));
+
+		context.assertIsSatisfied();
+
+		assertTrue(txn.isComplete());
+		assertTrue(txn1.isComplete());
+		assertTrue(txn2.isComplete());
 	}
 
 	@Test
@@ -266,6 +416,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Transaction txn2 = new Transaction(null, true);
 		final Transaction txn3 = new Transaction(null, false);
 		final Transaction txn4 = new Transaction(null, true);
+		final Transaction txn5 = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
@@ -308,6 +459,12 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).getPendingMessages(txn4, clientId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).endTransaction(txn4);
+			// Get messages to share
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn5));
+			oneOf(db).getMessagesToShare(txn5, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).endTransaction(txn5);
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
@@ -323,6 +480,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		assertTrue(txn2.isComplete());
 		assertTrue(txn3.isComplete());
 		assertTrue(txn4.isComplete());
+		assertTrue(txn5.isComplete());
 	}
 
 	@Test
@@ -340,6 +498,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final Transaction txn2 = new Transaction(null, true);
 		final Transaction txn3 = new Transaction(null, false);
 		final Transaction txn4 = new Transaction(null, true);
+		final Transaction txn5 = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
@@ -385,6 +544,12 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).getPendingMessages(txn4, clientId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).endTransaction(txn4);
+			// Get messages to share
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn5));
+			oneOf(db).getMessagesToShare(txn5, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).endTransaction(txn5);
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
@@ -400,6 +565,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		assertTrue(txn2.isComplete());
 		assertTrue(txn3.isComplete());
 		assertTrue(txn4.isComplete());
+		assertTrue(txn5.isComplete());
 	}
 
 	@Test
@@ -429,6 +595,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
@@ -548,6 +715,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
@@ -792,6 +960,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
@@ -815,6 +984,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(metadata));
 			// Deliver message 1
 			oneOf(hook).incomingMessage(txn2, message1, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn2, messageId1);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn2, messageId1, DELIVERED);
@@ -838,6 +1008,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(metadata));
 			// Deliver message 2
 			oneOf(hook).incomingMessage(txn3, message2, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn3, messageId2);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn3, messageId2, DELIVERED);
@@ -890,6 +1061,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(metadata));
 			// Deliver message 4
 			oneOf(hook).incomingMessage(txn6, message4, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn6, messageId4);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn6, messageId4, DELIVERED);
@@ -947,6 +1119,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
+			will(returnValue(false));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);

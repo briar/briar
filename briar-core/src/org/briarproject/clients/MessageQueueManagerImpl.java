@@ -188,12 +188,12 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 
 		private final IncomingQueueMessageHook delegate;
 
-		DelegatingIncomingMessageHook(IncomingQueueMessageHook delegate) {
+		private DelegatingIncomingMessageHook(IncomingQueueMessageHook delegate) {
 			this.delegate = delegate;
 		}
 
 		@Override
-		public void incomingMessage(Transaction txn, Message m, Metadata meta)
+		public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
 				throws DbException {
 			long queuePosition = ByteUtils.readUint64(m.getRaw(),
 					MESSAGE_HEADER_LENGTH);
@@ -239,6 +239,9 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 					delegate.incomingMessage(txn, q, meta);
 				}
 			}
+			// message queues are only useful for groups with two members
+			// so messages don't need to be shared
+			return false;
 		}
 	}
 }
