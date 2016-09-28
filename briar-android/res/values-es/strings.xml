@@ -31,7 +31,7 @@
   <string name="nav_drawer_close_description">Cierra el panel de navegación</string>
   <string name="contact_list_button">Contactos</string>
   <string name="forums_button">Foros</string>
-  <string name="blogs_button">Micro blogs</string>
+  <string name="blogs_button">Blogs</string>
   <string name="settings_button">Configuración</string>
   <string name="sign_out_button">Cerrar la sesión</string>
   <!--Transports-->
@@ -66,6 +66,7 @@
   <string name="offline">Desconectado</string>
   <string name="send">Enviar</string>
   <string name="no_data">Sin datos</string>
+  <string name="ellipsis">…</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el icono + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
   <string name="date_no_private_messages">Sin mensajes.</string>
@@ -84,6 +85,7 @@
   <string name="searching_format">Buscando el contacto con el código de invitación %06d\u2026</string>
   <string name="connection_failed">La conexión falló</string>
   <string name="could_not_find_contact">Briar no pudo encontrar a tu contacto cerca</string>
+  <string name="could_not_open_camera">No se pudo acceder a la cámara. ¡Prueba de nuevo, por favor!</string>
   <string name="try_again_button">Prueba de nuevo</string>
   <string name="connected_to_contact">Conectado con el contacto</string>
   <string name="calculating_confirmation_code">Calculando código de confirmación\u2026</string>
@@ -123,8 +125,10 @@
   <string name="introduction_response_accepted_received">%1$s aceptó la presentación de %2$s.</string>
   <string name="introduction_response_declined_received">%1$s rechazó la presentación a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s dice que %2$s rechazó la presentación.</string>
-  <string name="introduction_success_title">Se ha añadido al contacto presentado</string>
-  <string name="introduction_success_text">Te han presentado a %1$s.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">nuevo contacto añadido.</item>
+    <item quantity="other">%d nuevos contactos añadido</item>
+  </plurals>
   <!--Forums-->
   <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el icono + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
   <string name="create_forum_title">Nuevo foro</string>
@@ -182,19 +186,16 @@
   <string name="forum_shared_with">Compartido con</string>
   <string name="nobody">Nadie</string>
   <!--Blogs-->
-  <string name="blogs_feed">Lista de entradas</string>
-  <string name="blogs_my_blogs">Mis blogs</string>
   <string name="blogs_my_blogs_create">Crear blog</string>
   <string name="blogs_my_blogs_label">Añadir nuevo blog</string>
   <string name="blogs_my_blogs_create_hint_title">Título del blog (no se podrá cambiar más tarde)</string>
   <string name="blogs_my_blogs_create_hint_desc">Pequeña descripción de tu nuevo blog</string>
   <string name="blogs_my_blogs_create_hint_desc_explanation">Los lectores en potencia podrán o no suscribirse a tu blog en función de la descripción</string>
-  <string name="blogs_my_blogs_empty_state">No tienes blogs.\n\n¿Por qué no creas uno ahora pulsando en el más de la esquina superior derecha de la pantalla?</string>
-  <string name="blogs_my_blogs_blog_empty_state">Este es el espacio para el contenido de tu blog.\n\nParece que no has escrito nada aún.\n\nPor favor, pulsa el icono del lápiz para redactar un nuevo artículo.\n\nNo olvides hacerlo público y compartir tu blog.</string>
   <string name="blogs_my_blogs_created">Blog creado</string>
   <string name="blogs_blog_is_empty">Este blog está vacío</string>
   <string name="blogs_other_blog_empty_state">Este blog está vacío.\n\nO el autor no ha escrito aún, o la persona que compartió este blog contigo necesita conectarse para que se puedan sincronizar los artículos.</string>
   <string name="tag_new">NUEVO</string>
+  <string name="read_more">leer más</string>
   <string name="blogs_write_blog_post">Escribir artículo del blog</string>
   <string name="blogs_write_blog_post_title_hint">Añade un título (opcional)</string>
   <string name="blogs_write_blog_post_body_hint">Escribe tu artículo aquí</string>
@@ -210,9 +211,10 @@
   <string name="blogs_remove_blog_dialog_message">¿Seguro que quieres eliminar este blog y todos sus artículos?\nTen en cuenta que no se eliminará el blog de los dispositivos de otras personas.</string>
   <string name="blogs_remove_blog_ok">Eliminar blog</string>
   <string name="blogs_blog_removed">Blog eliminado</string>
+  <string name="blogs_reblog_comment_hint">Añade un comentario opcional</string>
+  <string name="blogs_reblog_button">Rebloguear</string>
   <string name="blogs_blog_list">Lista de blogs</string>
   <string name="blogs_available_blogs">Blogs disponibles</string>
-  <string name="blogs_drafts">Borradores</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Compartir blog</string>
   <string name="blogs_sharing_error">Hubo un error compartiendo este blog.</string>
@@ -281,17 +283,16 @@
   <string name="notify_sound_setting_default">Alerta sonora predeterminada</string>
   <string name="notify_sound_setting_disabled">Ninguna</string>
   <string name="choose_ringtone_title">Elegir alerta sonora</string>
-  <!--Settings Crash reports and feedback-->
-  <string name="crash_report_settings_title">Informes de error</string>
-  <string name="enable_acra_setting">Activar el envío de informes de error</string>
-  <string name="acra_syslog_setting">Enviar trazas del sistema</string>
-  <string name="acra_user_email_setting">Correo electrónico opcional de contacto</string>
-  <string name="acra_alwaysaccept_setting">Siempre enviar informes</string>
+  <!--Settings Feedback-->
   <string name="feedback_settings_title">Retroalimentación</string>
   <string name="send_feedback">Enviar comentario</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Advertencia sobre el enlace</string>
+  <string name="link_warning_intro">Estás a punto de abrir el siguiente enlace con otra aplicación</string>
+  <string name="link_warning_text">Eso puede usarse para identificarte. Piensa si confías en la persona que te envió el enlace y considera la opción de abrirlo con Orfox.</string>
+  <string name="link_warning_open_link">Abrir enlace</string>
   <!--Multiple Identities-->
   <string name="anonymous">Anónimo</string>
-  <string name="new_identity_item">Nueva identidad\u2026</string>
   <string name="new_identity_title">Nueva identidad</string>
   <string name="create_identity_button">Crear identidad</string>
   <string name="identity_created_toast">Identidad creada</string>

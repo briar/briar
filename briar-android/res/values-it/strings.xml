@@ -1,0 +1,256 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Impostazione Briar</string>
+  <string name="setup_explanation">Il tuo account Briar si trova criptato sul tuo dispositivo e non nel cloud. Se disinstalli Briar o dimentichi la tua password, non c\'è modo di recuperare il tuo account o i tuoi dati.</string>
+  <string name="choose_nickname">Scegli il tuo nickname</string>
+  <string name="choose_password">Scegli la tua password</string>
+  <string name="confirm_password">Conferma la tua password</string>
+  <string name="name_too_long">Nome troppo lungo</string>
+  <string name="password_too_weak">La password è troppo debole</string>
+  <string name="passwords_do_not_match">La password non corrisponde</string>
+  <string name="create_account_button">Creare Account</string>
+  <string name="progress_title_please_wait">Attendi per favore...</string>
+  <!--Login-->
+  <string name="enter_password">Inserisci la tua password:</string>
+  <string name="try_again">Password sbagliata, riprova</string>
+  <string name="sign_in_button">Entra</string>
+  <string name="forgotten_password">Ho dimenticato la password</string>
+  <string name="dialog_title_lost_password">Password persa</string>
+  <string name="dialog_message_lost_password">Il tuo account Briar si trova cifrato sul tuo dispositivo e non nel cloud, quindi non possiamo resettarti la tua password. Vorresti cancellare il tuo account e partire di nuovo?\n\nAttenzione: Le tue identità, contatti e messaggi verranno persi permanentemente.</string>
+  <string name="startup_failed_notification_title">Briar non è riuscito a partire</string>
+  <string name="startup_failed_notification_text">Potresti dover reinstallare Briar</string>
+  <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
+  <string name="startup_failed_db_error">Per alcune reagioni, il tuo database Briar si è corrotto in modo irreparabile. Il tuo account, i tuoi dati e tutte le connessioni ai tuoi contatti sono andati persi. Sfortunatamente, devi reinstallare Briar per creare un nuovo account.</string>
+  <string name="expiry_warning">Questo software è scaduto.\nSi prega di installare una nuova versione.</string>
+  <string name="dialog_title_welcome">Benvenuti su Briar</string>
+  <string name="dialog_welcome_message">Aggiungi un contatto per iniziare a comunicare in modo sicuro oppure premi l\'icona in alto a sinistra dello schermo per vedere le altre opzioni.</string>
+  <!--Navigation Drawer-->
+  <string name="contact_list_button">Contatti</string>
+  <string name="forums_button">Forum</string>
+  <string name="blogs_button">Blog</string>
+  <string name="settings_button">Impostazioni</string>
+  <string name="sign_out_button">Esci</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Entrato in Briar</string>
+  <string name="ongoing_notification_text">Tocca per aprire Briar.</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Nuovo messaggio privato.</item>
+    <item quantity="other">%d nuovi messaggi privati.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Nuovo messaggio sul forum.</item>
+    <item quantity="other">%d nuovi messaggi sul forum.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Nuovo post sul blog.</item>
+    <item quantity="other">%d nuovi post sul blog</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">ora</string>
+  <string name="show">Mostra</string>
+  <string name="hide">Nascondi</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Annulla</string>
+  <string name="delete">Cancella</string>
+  <string name="accept">Accetta</string>
+  <string name="decline">Declina</string>
+  <string name="online">Connesso</string>
+  <string name="offline">Disconnesso</string>
+  <string name="send">Invia</string>
+  <string name="no_data">Nessun dato</string>
+  <string name="ellipsis">...</string>
+  <!--Contacts and Private Conversations-->
+  <string name="date_no_private_messages">Nessun messaggio.</string>
+  <string name="delete_contact">Elimina contatto</string>
+  <string name="dialog_title_delete_contact">Conferma cancellazione contatto</string>
+  <string name="contact_deleted_toast">Contatto cancellato</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Aggiungi un Contatto</string>
+  <string name="your_nickname">Scegli l\'identità che vuoi usare:</string>
+  <string name="continue_button">Continua</string>
+  <string name="your_invitation_code">Il tuo codice di invito è</string>
+  <string name="enter_invitation_code">Si prega di inserire il vostro codice di invito di contatto:</string>
+  <string name="searching_format">Sto cercando i contatti con codice di invito %06d\u2026</string>
+  <string name="connection_failed">Connessione fallita</string>
+  <string name="could_not_find_contact">Briar non è stato in grado di trovare il vostro contatto vicino</string>
+  <string name="could_not_open_camera">Impossibile accedere alla tua fotocamera. Si prega di ritentare!</string>
+  <string name="try_again_button">Riprova</string>
+  <string name="connected_to_contact">Connesso al contatto</string>
+  <string name="calculating_confirmation_code">Calcolazione codice di conferma\u2026</string>
+  <string name="your_confirmation_code">Il tuo codice di conferma è</string>
+  <string name="enter_confirmation_code">Si prega di inserire il vostro codice di conferma di contatto:</string>
+  <string name="waiting_for_contact">In attesa del contatto\u2026</string>
+  <string name="exchanging_contact_details">Scambio dettagli contatto\u2026</string>
+  <string name="codes_do_not_match">I codici non corrispondono</string>
+  <string name="contact_added_toast">Contatto aggiunto: %s</string>
+  <string name="contact_already_exists">Il contatto %s esiste già</string>
+  <string name="contact_exchange_failed">Scambio di contatto fallito</string>
+  <string name="qr_code_invalid">Il codice QR non è valido</string>
+  <string name="connecting_to_device">Connessione al dispositivo\u2026</string>
+  <string name="authenticating_with_device">Autenticazione con il dispositivo\u2026</string>
+  <!--Introductions-->
+  <string name="introduction_activity_title">Seleziona Contatto</string>
+  <string name="introduction_message_title">Introduzione Contatti</string>
+  <string name="introduction_message_hint">Scrivi messaggio (facoltativo)</string>
+  <string name="introduction_button">Crea l\'introduzione</string>
+  <string name="introduction_sent">La tua introduzione è stata inviata.</string>
+  <string name="introduction_error">C\'è stato un errore nella creazione dell\'introduzione</string>
+  <string name="introduction_warn_different_identities_title">Attenzione: differenti identità</string>
+  <string name="dialog_button_introduce">Introduci</string>
+  <string name="introduction_request_sent">Hai richiesto di introdurre %1$s a %2$s.</string>
+  <string name="introduction_request_answered_received">%1$s ha richiesto di introdurti a %2$s.</string>
+  <string name="introduction_response_accepted_sent">Hai accettato l\'introduzione a %1$s.</string>
+  <string name="introduction_response_declined_sent">Hai declinato l\'introduzione a %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s ha accettato l\'introduzione a %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s ha declinato l\'introduzione a %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s dice che %2$s ha declinato l\'introduzione.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">Aggiunto nuovo contatto</item>
+    <item quantity="other">Aggiunti %d nuovi contatti.</item>
+  </plurals>
+  <!--Forums-->
+  <string name="create_forum_title">Nuovo Forum</string>
+  <string name="choose_forum_name">Scegli un nome per il tuo forum:</string>
+  <string name="create_forum_button">Crea Forum</string>
+  <string name="forum_created_toast">Forum creato</string>
+  <string name="no_posts">Nessun post.</string>
+  <plurals name="posts">
+    <item quantity="one">%d post</item>
+    <item quantity="other">%d post</item>
+  </plurals>
+  <string name="forum_message_reply_hint">Nuova Risposta</string>
+  <string name="btn_reply">RISPOSTA</string>
+  <plurals name="message_replies">
+    <item quantity="one">risposta di %1$d</item>
+    <item quantity="other">risposte di %1$d</item>
+  </plurals>
+  <string name="forum_leave">Lascia Forum</string>
+  <string name="dialog_title_leave_forum">Conferma l\'abbandono del forum</string>
+  <string name="dialog_button_leave">Lascia</string>
+  <string name="forum_left_toast">Forum lasciato</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Condividi Forum</string>
+  <string name="forum_share_action">Condividi questo forum con i contatti scelti</string>
+  <string name="activity_share_toolbar_header">Scegli Contatti</string>
+  <string name="forum_shared_snackbar">Forum condiviso con i contatti scelti</string>
+  <string name="forum_share_error">C\'è stato un errore nella condivisione di questo forum.</string>
+  <string name="forum_invitation_received">%1$s ha condiviso il forum \"%2$s\" con te.</string>
+  <string name="forum_invitation_sent">Hai condiviso il forum \"%1$s\" con %2$s.</string>
+  <string name="forum_show_invitations">Mostra Inviti Forum</string>
+  <string name="forum_invitations_title">Inviti Forum</string>
+  <string name="forum_declined_toast">Invito al forum declinato</string>
+  <string name="shared_by_format">Condiviso da %s</string>
+  <string name="forum_invitation_already_sharing">Già in condivisione</string>
+  <string name="forum_invitation_response_accepted_sent">Hai accettato l\'invito al forum da %s</string>
+  <string name="forum_invitation_response_declined_sent">Hai declinato l\'invito al forum da %s</string>
+  <string name="forum_invitation_response_accepted_received">%s ha accettato il tuo invito al forum.</string>
+  <string name="forum_invitation_response_declined_received">%s ha declinato il tuo invito al forum.</string>
+  <string name="sharing_status">Stato Condivisione</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d forum condiviso dai contatti</item>
+    <item quantity="other">%d forum condivisi dai contatti</item>
+  </plurals>
+  <string name="forum_shared_by">Condiviso da</string>
+  <string name="forum_shared_with">Condiviso con</string>
+  <string name="nobody">Nessuno</string>
+  <!--Blogs-->
+  <string name="blogs_my_blogs_create">Crea Blog</string>
+  <string name="blogs_my_blogs_label">Aggiungi nuovo Blog</string>
+  <string name="blogs_my_blogs_create_hint_title">Titolo blog (non può essere cambiato dopo)</string>
+  <string name="blogs_my_blogs_create_hint_desc">Una descrizione corta del tuo nuovo blog</string>
+  <string name="blogs_my_blogs_created">Blog creato</string>
+  <string name="blogs_blog_is_empty">Questo blog è vuoto</string>
+  <string name="tag_new">NUOVO</string>
+  <string name="read_more">leggi ancora</string>
+  <string name="blogs_write_blog_post">Scrivere un post sul blog</string>
+  <string name="blogs_write_blog_post_title_hint">Aggiungere un titolo (facoltativo)</string>
+  <string name="blogs_publish_blog_post">Pubblica</string>
+  <string name="blogs_blog_post_created">Post blog creato</string>
+  <string name="blogs_blog_post_received">Ricevuto nuovo post del blog</string>
+  <string name="blogs_blog_failed_to_load">Fallito caricamento blog</string>
+  <string name="blogs_blog_post_failed_to_load">Fallito caricamento messaggio del blog</string>
+  <string name="blogs_personal_blog">Il blog personale di %s</string>
+  <string name="blogs_remove_blog">Rimuovi Blog</string>
+  <string name="blogs_remove_blog_ok">Rimuovi Blog</string>
+  <string name="blogs_blog_removed">Blog Rimosso</string>
+  <string name="blogs_reblog_comment_hint">Aggiungi un commento facoltativo</string>
+  <string name="blogs_blog_list">Lista Blog</string>
+  <string name="blogs_available_blogs">Blog disponibili</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Condividi Blog</string>
+  <string name="blogs_sharing_error">C\'è stato un errore nella condivisione di questo blog.</string>
+  <string name="blogs_sharing_button">Condividi Blog</string>
+  <string name="blogs_sharing_snackbar">Blog condiviso con i contatti selezionati</string>
+  <string name="blogs_sharing_response_accepted_sent">Hai accettato l\'invito al blog da %s.</string>
+  <string name="blogs_sharing_response_declined_sent">Hai declinato l\'invito al blog da %s.</string>
+  <string name="blogs_sharing_response_accepted_received">%s ha accettato l\'invito al blog.</string>
+  <string name="blogs_sharing_response_declined_received">%s ha declinato l\'invito al blog.</string>
+  <string name="blogs_sharing_invitation_received">%1$s ha condiviso il blog personale di %2$s con te.</string>
+  <string name="blogs_sharing_invitation_sent">Hai condiviso il tuo blog personale di %1$s con %2$s.</string>
+  <string name="blogs_sharing_show_invitations">Mostra inviti del Blog</string>
+  <string name="blogs_sharing_invitations_title">Inviti Blog</string>
+  <string name="blogs_sharing_joined_toast">Iscritto al Blog</string>
+  <string name="blogs_sharing_declined_toast">Invito al blog declinato</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Importa RSS Fee</string>
+  <string name="blogs_rss_feeds_import_button">Importa</string>
+  <string name="blogs_rss_feeds_import_hint">Inserire l\'URL dell\'RSS feed</string>
+  <string name="blogs_rss_feeds_import_error">Ci dispiace! C\'è stato un errore nell\'importazione del tuo feed.</string>
+  <string name="blogs_rss_feeds_manage">Gestisci gli RSS Feed</string>
+  <string name="blogs_rss_feeds_manage_imported">Importato:</string>
+  <string name="blogs_rss_feeds_manage_author">Autore:</string>
+  <string name="blogs_rss_feeds_manage_updated">Ultimo Aggiornamento:</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Non è stato possibile cancellare il feed!</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Network</string>
+  <string name="bluetooth_setting">Connessione attraverso Bluetooth</string>
+  <string name="bluetooth_setting_disabled">Solo con l\'aggiunta di contatti</string>
+  <string name="tor_mobile_setting">Connetti via Tor</string>
+  <string name="tor_mobile_setting_enabled">Nel caso di uso Wi-Fi o dati mobile</string>
+  <string name="tor_mobile_setting_disabled">Solo quando in uso il Wi-Fi</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Sicurezza</string>
+  <string name="change_password">Cambia password</string>
+  <string name="current_password">Inserisci la tua password corrente:</string>
+  <string name="choose_new_password">Scegli la tua password:</string>
+  <string name="confirm_new_password">Conferma la tua nuova password:</string>
+  <string name="password_changed">La password è stata cambiata.</string>
+  <string name="unknown_app">un\'app sconosciuta</string>
+  <string name="panic_app_setting_summary">Nessun app è stata impostata</string>
+  <string name="purge_setting_title">Elimina Account</string>
+  <string name="uninstall_setting_title">Disinstalla Briar</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Notifiche</string>
+  <string name="notify_private_messages_setting">Mostra avvertenze per i messaggi privati</string>
+  <string name="notify_forum_posts_setting">Mostra avvertenze per post di forum</string>
+  <string name="notify_blog_posts_setting">Mostra avvertenze per post di blog</string>
+  <string name="notify_vibration_setting">Vibrazione</string>
+  <string name="notify_sound_setting">Suono</string>
+  <string name="notify_sound_setting_default">Suoneria di default</string>
+  <string name="choose_ringtone_title">Scegli suoneria</string>
+  <!--Settings Feedback-->
+  <!--Link Warning-->
+  <string name="link_warning_title">Attenzione Link</string>
+  <string name="link_warning_open_link">Apri Link</string>
+  <!--Multiple Identities-->
+  <string name="anonymous">Anonimo</string>
+  <string name="new_identity_title">Nuova Identità</string>
+  <string name="create_identity_button">Crea Identità</string>
+  <string name="identity_created_toast">Identità creata</string>
+  <!--Crash Reporter-->
+  <string name="briar_crashed">Spiacenti, Briar è crashato</string>
+  <string name="not_your_fault">Questo non è colpa tua.</string>
+  <string name="describe_crash">Descrivi cosa è successo (facoltativo)</string>
+  <string name="optional_contact_email">Il tuo indirizzo email (facoltativo)</string>
+  <string name="include_debug_report_crash">Includere dati anonimi riguardo al crash</string>
+  <string name="include_debug_report_feedback">Includere dati anonimi riguardo al tuo dispositivo</string>
+  <string name="could_not_load_report_data">Non è stato possibile caricare i dati del report.</string>
+  <string name="send_report">Invia report</string>
+  <string name="close">Chiudi</string>
+  <!--Sign Out-->
+</resources>

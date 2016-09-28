@@ -33,7 +33,7 @@ Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensage
   <string name="nav_drawer_close_description">Fechar aba de navegação</string>
   <string name="contact_list_button">Contatos</string>
   <string name="forums_button">Fóruns</string>
-  <string name="blogs_button">Micro Blogs</string>
+  <string name="blogs_button">Blogs</string>
   <string name="settings_button">Configurações</string>
   <string name="sign_out_button">Sair</string>
   <!--Transports-->
@@ -68,8 +68,15 @@ Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensage
   <string name="offline">Offline</string>
   <string name="send">Enviar</string>
   <string name="no_data">Nenhum dado</string>
+  <string name="ellipsis">...</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Parece que você é novo aqui e ainda não tem contatos.
+Clique no ícone + no topo e siga as instruções para adicionar alguns amigos para sua lista.
+Por favor lembre: você só pode adicionar contatos pessoalmente para prevenir alguém se passar por você ou ler suas mensagens no futuro. </string>
   <string name="date_no_private_messages">Sem Mensagens</string>
+  <string name="no_private_messages">Essa é vista das conversas.
+Aparentemente não há conversas.
+Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
   <string name="delete_contact">Apagar contato</string>
   <string name="dialog_title_delete_contact">Confirmar remoção do contato</string>
   <string name="dialog_message_delete_contact">Você tem certeza que quer remover este contato e todas mensagens trocadas com ele?</string>
@@ -124,8 +131,10 @@ Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensage
   <string name="introduction_response_accepted_received">%1$s aceitou ser apresentado a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s recusou ser apresentado a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s disse que %2$s recusou a apresentação.</string>
-  <string name="introduction_success_title">O contato apresentado foi adicionado.</string>
-  <string name="introduction_success_text">Você foi apresentado a %1$s.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">Novo contato adicionado.</item>
+    <item quantity="other">%d novos contatos adicionados.</item>
+  </plurals>
   <!--Forums-->
   <string name="no_forums">Você não tem nenhum fórum.
 Por que não cria um novo você mesmo, Clicando o ícone + no topo?
@@ -170,6 +179,7 @@ Por favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
   <string name="forum_show_invitations">Mostrar os convites de Forum</string>
   <string name="forum_invitations_title">Convites para Foruns</string>
+  <string name="forum_invitation_exists">Você já aceitou o convite deste fórum. Aceitando mais convites fortalecerá a comunicação no fórum.</string>
   <string name="forum_joined_toast">Você entrou no fórum</string>
   <string name="forum_declined_toast">Convite do fórum recusado</string>
   <string name="shared_by_format">Compartilhado por %s</string>
@@ -187,20 +197,17 @@ Por favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_shared_with">Compartilhado com</string>
   <string name="nobody">Ninguém</string>
   <!--Blogs-->
-  <string name="blogs_feed">Feed</string>
-  <string name="blogs_my_blogs">Meus Blogs</string>
   <string name="blogs_my_blogs_create">Criar Blog</string>
   <string name="blogs_my_blogs_label">Adicionar novo Blog</string>
   <string name="blogs_my_blogs_create_hint_title">Título do Blog (não pode ser mudado depois)</string>
   <string name="blogs_my_blogs_create_hint_desc">Uma pequena descrição do seu novo Blog</string>
   <string name="blogs_my_blogs_create_hint_desc_explanation">Leitores Potenciais podem se inscrever ou não no seu Blog baseado no conteúdo da descrição. </string>
-  <string name="blogs_my_blogs_empty_state">Você não tem nenhum Blog.
-Por que não cria um clicando no simbolo mais no topo direito da tela? </string>
   <string name="blogs_my_blogs_created">Blog Criado</string>
   <string name="blogs_blog_is_empty">Esse blog está vazio</string>
   <string name="blogs_other_blog_empty_state">Esse Blog atualmente está vazio.
 Ou o autor não não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
   <string name="tag_new">Novo</string>
+  <string name="read_more">leia mais</string>
   <string name="blogs_write_blog_post">Escrever Post do Blog</string>
   <string name="blogs_write_blog_post_title_hint">Adicione um Título (opcional)</string>
   <string name="blogs_write_blog_post_body_hint">Digite aqui seu post do blog</string>
@@ -219,9 +226,10 @@ Seja o primeiro a postar e clique no ícone da caneta para escrever um novo Post
 Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </string>
   <string name="blogs_remove_blog_ok">Remover Blog</string>
   <string name="blogs_blog_removed">Blog Deletado</string>
+  <string name="blogs_reblog_comment_hint">Adicione um comentario (opcional)</string>
+  <string name="blogs_reblog_button">Reblog</string>
   <string name="blogs_blog_list">Lista de blogs</string>
   <string name="blogs_available_blogs">Blogs Disponíveis </string>
-  <string name="blogs_drafts">Rascunhos</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Compartilhar Blog</string>
   <string name="blogs_sharing_error">Houve um erro em compartilhar esse Blog.</string>
@@ -235,6 +243,7 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="blogs_sharing_invitation_sent">Você compartilhou o blog de %1$s com %2$s.</string>
   <string name="blogs_sharing_show_invitations">Mostrar os convites de Fórum</string>
   <string name="blogs_sharing_invitations_title">Convites para Fóruns</string>
+  <string name="blogs_sharing_exists">Você já está inscrito neste blog. Aceitando novamente pode tornar mais rápida a entrega dos posts.</string>
   <string name="blogs_sharing_joined_toast">Inscrito neste Blog</string>
   <string name="blogs_sharing_declined_toast">Convite do Blog recusado</string>
   <!--RSS Feeds-->
@@ -289,17 +298,12 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="notify_sound_setting_default">Toque padrão</string>
   <string name="notify_sound_setting_disabled">Nenhum</string>
   <string name="choose_ringtone_title">Escolher toque</string>
-  <!--Settings Crash reports and feedback-->
-  <string name="crash_report_settings_title">Relatórios de falhas</string>
-  <string name="enable_acra_setting">Ativar os relatórios de falhas</string>
-  <string name="acra_syslog_setting">Enviar registros do sistema</string>
-  <string name="acra_user_email_setting">Email de contato opcional</string>
-  <string name="acra_alwaysaccept_setting">Sempre enviar relatórios</string>
+  <!--Settings Feedback-->
   <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Enviar feedback</string>
+  <!--Link Warning-->
   <!--Multiple Identities-->
   <string name="anonymous">Anônimo</string>
-  <string name="new_identity_item">Nova identidade\u2026</string>
   <string name="new_identity_title">Nova identidade</string>
   <string name="create_identity_button">Criar identidade</string>
   <string name="identity_created_toast">Identidade criada</string>

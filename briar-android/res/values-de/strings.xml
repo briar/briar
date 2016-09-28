@@ -31,7 +31,7 @@
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
   <string name="contact_list_button">Kontakte</string>
   <string name="forums_button">Foren</string>
-  <string name="blogs_button">Mikroblogs</string>
+  <string name="blogs_button">Blogs</string>
   <string name="settings_button">Einstellungen</string>
   <string name="sign_out_button">Abmelden</string>
   <!--Transports-->
@@ -66,6 +66,7 @@
   <string name="offline">Offline</string>
   <string name="send">Senden</string>
   <string name="no_data">Keine Daten</string>
+  <string name="ellipsis">…</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nTipp das \"+\"-Icon am oberen Bildschirmrand an und folge den Anweisungen, um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenk daran: Du kannst neue Kontakte nur dann hinzufügen, wenn du ihnen physisch begegnest. Das hindert andere daran, sich als dich auszugeben oder deine Nachrichten abzufangen.</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
@@ -124,8 +125,10 @@
   <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
   <string name="introduction_response_declined_received">%1$s hat deine Kontaktempfehlung von %2$s abgelehnt.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s meldet, dass %2$s die Kontaktempfehlung abgelehnt hat.</string>
-  <string name="introduction_success_title">Empfohlener Kontakt wurde hinzugefügt.</string>
-  <string name="introduction_success_text">%1$s wurde dir als Kontakt empfohlen.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">neuer Kontakt hinzugefügt.</item>
+    <item quantity="other">%d neue Kontakte hinzugefügt.</item>
+  </plurals>
   <!--Forums-->
   <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
   <string name="create_forum_title">Neues Forum</string>
@@ -183,19 +186,16 @@
   <string name="forum_shared_with">Geteilt mit</string>
   <string name="nobody">Niemand</string>
   <!--Blogs-->
-  <string name="blogs_feed">Feed</string>
-  <string name="blogs_my_blogs">Meine Blogs</string>
   <string name="blogs_my_blogs_create">Blog erstellen</string>
   <string name="blogs_my_blogs_label">Blog hinzufügen</string>
   <string name="blogs_my_blogs_create_hint_title">Blog-Titel (kann nicht mehr geändert werden)</string>
   <string name="blogs_my_blogs_create_hint_desc">Eine kurze Beschreibung deines neuen Blogs</string>
   <string name="blogs_my_blogs_create_hint_desc_explanation">Der Inhalt der Beschreibung hilft möglichen Leserinnen und Lesern, sich zu entscheiden, ob sie dein Blog abonnieren möchten.</string>
-  <string name="blogs_my_blogs_empty_state">Du hast noch keine Blogs.\n\nWarum erstellst du nicht einfach selbst ein neues Blog, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?</string>
-  <string name="blogs_my_blogs_blog_empty_state">Das ist der Bereich für deinen Bloginhalt.\n\nlt es scheint als hättest du noch nichts geschrieben.\n\nBenutze das Stiftsymbol um einen neuen Blogeintrag zu erstellen.\n\nVergiss nicht deinen Blog zu veröffentlichen.</string>
   <string name="blogs_my_blogs_created">Blog wurde erstellt</string>
   <string name="blogs_blog_is_empty">Dieses Blog ist leer</string>
   <string name="blogs_other_blog_empty_state">Dieser Blog ist momentan leer.\n\nEntweder hat der Autor noch nichts geschrieben, oder die Person, die diesen Blog mit dir geteilt hat, muss online kommen, sodass Beiträge synchronisiert werden können.</string>
   <string name="tag_new">NEU</string>
+  <string name="read_more">weiterlesen</string>
   <string name="blogs_write_blog_post">Blogbeitrag erstellen</string>
   <string name="blogs_write_blog_post_title_hint">Titel hinzufügen (optional)</string>
   <string name="blogs_write_blog_post_body_hint">Gib hier deinen Blogbeitrag ein</string>
@@ -211,9 +211,10 @@
   <string name="blogs_remove_blog_dialog_message">Bist du sicher, dass du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
   <string name="blogs_remove_blog_ok">Blog entfernen</string>
   <string name="blogs_blog_removed">Blog wurde entfernt</string>
+  <string name="blogs_reblog_comment_hint">Füge optionalen Kommentar hinzu</string>
+  <string name="blogs_reblog_button">Rebloggen</string>
   <string name="blogs_blog_list">Blogliste</string>
   <string name="blogs_available_blogs">Verfügbare Blogs</string>
-  <string name="blogs_drafts">Entwürfe</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Blog teilen</string>
   <string name="blogs_sharing_error">Es gab einen Fehler beim Versuch, dieses Blog zu teilen</string>
@@ -282,17 +283,16 @@
   <string name="notify_sound_setting_default">Standardklingelton</string>
   <string name="notify_sound_setting_disabled">Kein</string>
   <string name="choose_ringtone_title">Klingelton auswählen</string>
-  <!--Settings Crash reports and feedback-->
-  <string name="crash_report_settings_title">Absturzberichte</string>
-  <string name="enable_acra_setting">Absturzberichte aktivieren</string>
-  <string name="acra_syslog_setting">Systemlogdateien senden</string>
-  <string name="acra_user_email_setting">Optionale Kontaktemail</string>
-  <string name="acra_alwaysaccept_setting">Berichte immer versenden</string>
+  <!--Settings Feedback-->
   <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Feedback abschicken</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Link-Warnung</string>
+  <string name="link_warning_intro">Du willst folgenden Link mit einer externen App öffnen.</string>
+  <string name="link_warning_text">Dies kann benutzt werden, dich zu identifizieren. Denke darüber nach, ob du der Person, die dir diesen Link geschickt hat, vertraust und überlege, ihn mit Orfox zu öffnen.</string>
+  <string name="link_warning_open_link">Link öffnen</string>
   <!--Multiple Identities-->
   <string name="anonymous">Anonym</string>
-  <string name="new_identity_item">Neue Identität\u2026</string>
   <string name="new_identity_title">Neue Identität</string>
   <string name="create_identity_button">Identität erstellen</string>
   <string name="identity_created_toast">Identität wurde erstellt</string>
