@@ -52,6 +52,7 @@ import static org.briarproject.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.blogs.BlogManagerImpl.CLIENT_ID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class BlogManagerImplTest extends BriarTestCase {
@@ -132,6 +133,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.createLocalState(txn);
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -149,6 +151,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.removingContact(txn, contact);
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -166,6 +169,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.addingIdentity(txn, localAuthor);
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -183,6 +187,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.removingIdentity(txn, localAuthor);
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -206,6 +211,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.incomingMessage(txn, message, list, meta);
+		context.assertIsSatisfied();
 
 		assertEquals(1, txn.getEvents().size());
 		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
@@ -246,22 +252,16 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 		blogManager
 				.addBlog(localAuthor, blog1.getName(), blog1.getDescription());
+		context.assertIsSatisfied();
 		assertTrue(txn.isComplete());
 	}
 
 	@Test
-	public void testRemoveBlog() throws DbException, FormatException {
+	public void testRemoveBlog() throws Exception {
 		final Transaction txn = new Transaction(null, false);
 
+		checkGetBlogExpectations(txn, false, blog1);
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
-			oneOf(db).getGroup(txn, blog1.getId());
-			will(returnValue(blog1.getGroup()));
-			oneOf(clientHelper)
-					.getGroupMetadataAsDictionary(txn, blog1.getId());
-			oneOf(blogFactory).parseBlog(blog1.getGroup(), "");
-			will(returnValue(blog1));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(blog2.getAuthor()));
 			oneOf(contactManager).contactExists(txn, blog1.getAuthor().getId(),
@@ -272,12 +272,13 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.removeBlog(blog1);
+		context.assertIsSatisfied();
 		assertTrue(txn.isComplete());
 	}
 
 	@Test
 	public void testAddLocalPost() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, true);
+		final Transaction txn = new Transaction(null, false);
 		final BlogPost post =
 				new BlogPost(message, null, blog1.getAuthor());
 		BdfDictionary authorMeta = authorToBdfDictionary(blog1.getAuthor());
@@ -300,6 +301,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.addLocalPost(post);
+		context.assertIsSatisfied();
 		assertTrue(txn.isComplete());
 
 		assertEquals(1, txn.getEvents().size());
@@ -314,6 +316,66 @@ public class BlogManagerImplTest extends BriarTestCase {
 		assertEquals(null, h.getParentId());
 		assertEquals(VERIFIED, h.getAuthorStatus());
 		assertEquals(blog1.getAuthor(), h.getAuthor());
+	}
+
+	@Test
+	public void testBlogCanBeRemoved() throws Exception {
+		// check that own personal blogs can not be removed
+		final Transaction txn = new Transaction(null, true);
+		checkGetBlogExpectations(txn, true, blog1);
+		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(blog1.getAuthor()));
+			oneOf(db).endTransaction(txn);
+		}});
+		assertFalse(blogManager.canBeRemoved(blog1.getId()));
+		context.assertIsSatisfied();
+		assertTrue(txn.isComplete());
+
+		// check that blogs of contacts can not be removed
+		final Transaction txn2 = new Transaction(null, true);
+		checkGetBlogExpectations(txn2, true, blog1);
+		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn2);
+			will(returnValue(blog2.getAuthor()));
+			oneOf(contactManager).contactExists(txn2, blog1.getAuthor().getId(),
+					blog2.getAuthor().getId());
+			will(returnValue(true));
+			oneOf(db).endTransaction(txn2);
+		}});
+		assertFalse(blogManager.canBeRemoved(blog1.getId()));
+		context.assertIsSatisfied();
+		assertTrue(txn2.isComplete());
+
+		// check that blogs can be removed if they don't belong to a contact
+		final Transaction txn3 = new Transaction(null, true);
+		checkGetBlogExpectations(txn3, true, blog1);
+		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn3);
+			will(returnValue(blog2.getAuthor()));
+			oneOf(contactManager).contactExists(txn3, blog1.getAuthor().getId(),
+					blog2.getAuthor().getId());
+			will(returnValue(false));
+			oneOf(db).endTransaction(txn3);
+		}});
+		assertTrue(blogManager.canBeRemoved(blog1.getId()));
+		context.assertIsSatisfied();
+		assertTrue(txn3.isComplete());
+	}
+
+	private void checkGetBlogExpectations(final Transaction txn,
+			final boolean readOnly, final Blog blog) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(readOnly);
+			will(returnValue(txn));
+			oneOf(db).getGroup(txn, blog.getId());
+			will(returnValue(blog.getGroup()));
+			oneOf(clientHelper)
+					.getGroupMetadataAsDictionary(txn, blog.getId());
+			will(returnValue(new BdfDictionary()));
+			oneOf(blogFactory).parseBlog(blog.getGroup(), "");
+			will(returnValue(blog));
+		}});
 	}
 
 	private Blog getBlog(String name, String desc) {
