@@ -28,7 +28,6 @@ import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.identity.LocalAuthor;
 
@@ -241,7 +240,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		if (isBlocking) {
 			// Disable navigation drawer slide to open
 			drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED);
-			CustomAnimations.animateHeight(toolbar, false, 250);
 		}
 		progressTitle.setText(stringId);
 		progressViewGroup.setVisibility(View.VISIBLE);

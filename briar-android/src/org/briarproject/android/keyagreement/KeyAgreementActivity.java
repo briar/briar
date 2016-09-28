@@ -12,7 +12,6 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarFragmentActivity;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.android.keyagreement.IntroFragment.IntroScreenSeenListener;
-import org.briarproject.android.util.CustomAnimations;
 import org.briarproject.api.contact.ContactExchangeListener;
 import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.db.DbException;
@@ -123,16 +122,12 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	@Override
 	public void showLoadingScreen(boolean isBlocking, int stringId) {
-		if (isBlocking) {
-			CustomAnimations.animateHeight(toolbar, false, 250);
-		}
 		progressTitle.setText(stringId);
 		progressContainer.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void hideLoadingScreen() {
-		CustomAnimations.animateHeight(toolbar, true, 250);
 		progressContainer.setVisibility(View.INVISIBLE);
 	}
 
