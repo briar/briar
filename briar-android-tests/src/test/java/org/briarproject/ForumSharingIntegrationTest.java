@@ -4,7 +4,7 @@ import net.jodah.concurrentunit.Waiter;
 
 import org.briarproject.api.Bytes;
 import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -497,9 +497,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			DatabaseComponent db = t0.getDatabaseComponent();
 			MessageQueueManager queue = t0.getMessageQueueManager();
 			Contact c1 = contactManager0.getContact(contactId1);
-			PrivateGroupFactory groupFactory = t0.getPrivateGroupFactory();
+			ContactGroupFactory groupFactory = t0.getContactGroupFactory();
 			Group group = groupFactory
-					.createPrivateGroup(forumSharingManager0.getClientId(), c1);
+					.createContactGroup(forumSharingManager0.getClientId(), c1);
 			long time = clock.currentTimeMillis();
 			BdfList bodyList = BdfList.of(SHARE_MSG_TYPE_INVITATION,
 					sessionId.getBytes(),
@@ -693,9 +693,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			DatabaseComponent db = t0.getDatabaseComponent();
 			MessageQueueManager queue = t0.getMessageQueueManager();
 			Contact c1 = contactManager0.getContact(contactId1);
-			PrivateGroupFactory groupFactory = t0.getPrivateGroupFactory();
+			ContactGroupFactory groupFactory = t0.getContactGroupFactory();
 			Group group = groupFactory
-					.createPrivateGroup(forumSharingManager0.getClientId(), c1);
+					.createContactGroup(forumSharingManager0.getClientId(), c1);
 			long time = clock.currentTimeMillis();
 
 			// construct a new message re-using the old SessionId

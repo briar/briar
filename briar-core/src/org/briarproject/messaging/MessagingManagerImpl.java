@@ -3,7 +3,7 @@ package org.briarproject.messaging;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -41,16 +41,16 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 					+ "8bf9a6d6021d40d219c86b731b903070"));
 
 	private final DatabaseComponent db;
-	private final PrivateGroupFactory privateGroupFactory;
+	private final ContactGroupFactory contactGroupFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			MetadataParser metadataParser,
-			PrivateGroupFactory privateGroupFactory) {
+			ContactGroupFactory contactGroupFactory) {
 		super(clientHelper, metadataParser);
 
 		this.db = db;
-		this.privateGroupFactory = privateGroupFactory;
+		this.contactGroupFactory = contactGroupFactory;
 	}
 
 	@Override
@@ -79,7 +79,7 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private Group getContactGroup(Contact c) {
-		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
+		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
 	}
 
 	@Override

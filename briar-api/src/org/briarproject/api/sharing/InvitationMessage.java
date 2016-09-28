@@ -2,10 +2,10 @@ package org.briarproject.api.sharing;
 
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.messaging.BaseMessage;
+import org.briarproject.api.clients.BaseMessageHeader;
 import org.briarproject.api.sync.MessageId;
 
-public abstract class InvitationMessage extends BaseMessage {
+public abstract class InvitationMessage extends BaseMessageHeader {
 
 	private final SessionId sessionId;
 	private final ContactId contactId;

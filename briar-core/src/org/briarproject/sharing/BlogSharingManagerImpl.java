@@ -11,7 +11,7 @@ import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.blogs.BlogSharingMessage.BlogInvitation;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -68,10 +68,10 @@ class BlogSharingManagerImpl extends
 			BlogManager blogManager, ClientHelper clientHelper, Clock clock,
 			DatabaseComponent db, MessageQueueManager messageQueueManager,
 			MetadataEncoder metadataEncoder, MetadataParser metadataParser,
-			PrivateGroupFactory privateGroupFactory, SecureRandom random) {
+			ContactGroupFactory contactGroupFactory, SecureRandom random) {
 
 		super(db, messageQueueManager, clientHelper, metadataParser,
-				metadataEncoder, random, privateGroupFactory, clock);
+				metadataEncoder, random, contactGroupFactory, clock);
 
 		this.blogManager = blogManager;
 		sFactory = new SFactory(authorFactory, blogFactory, blogManager);

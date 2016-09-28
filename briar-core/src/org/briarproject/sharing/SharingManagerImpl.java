@@ -5,7 +5,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -97,14 +97,14 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	private final MessageQueueManager messageQueueManager;
 	private final MetadataEncoder metadataEncoder;
 	private final SecureRandom random;
-	private final PrivateGroupFactory privateGroupFactory;
+	private final ContactGroupFactory contactGroupFactory;
 	private final Clock clock;
 	private final Group localGroup;
 
 	SharingManagerImpl(DatabaseComponent db,
 			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
 			MetadataParser metadataParser, MetadataEncoder metadataEncoder,
-			SecureRandom random, PrivateGroupFactory privateGroupFactory,
+			SecureRandom random, ContactGroupFactory contactGroupFactory,
 			Clock clock) {
 
 		super(clientHelper, metadataParser);
@@ -112,9 +112,9 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		this.messageQueueManager = messageQueueManager;
 		this.metadataEncoder = metadataEncoder;
 		this.random = random;
-		this.privateGroupFactory = privateGroupFactory;
+		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
-		localGroup = privateGroupFactory.createLocalGroup(getClientId());
+		localGroup = contactGroupFactory.createLocalGroup(getClientId());
 	}
 
 	public abstract ClientId getClientId();
@@ -903,7 +903,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	private Group getContactGroup(Contact c) {
-		return privateGroupFactory.createPrivateGroup(getClientId(), c);
+		return contactGroupFactory.createContactGroup(getClientId(), c);
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId contactGroupId)

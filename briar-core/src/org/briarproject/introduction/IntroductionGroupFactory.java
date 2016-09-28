@@ -1,6 +1,6 @@
 package org.briarproject.introduction;
 
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.sync.Group;
 
@@ -8,19 +8,19 @@ import javax.inject.Inject;
 
 public class IntroductionGroupFactory {
 
-	final private PrivateGroupFactory privateGroupFactory;
+	final private ContactGroupFactory contactGroupFactory;
 	final private Group localGroup;
 
 	@Inject
-	IntroductionGroupFactory(PrivateGroupFactory privateGroupFactory) {
-		this.privateGroupFactory = privateGroupFactory;
-		localGroup = privateGroupFactory
+	IntroductionGroupFactory(ContactGroupFactory contactGroupFactory) {
+		this.contactGroupFactory = contactGroupFactory;
+		localGroup = contactGroupFactory
 				.createLocalGroup(IntroductionManagerImpl.CLIENT_ID);
 	}
 
 	public Group createIntroductionGroup(Contact c) {
-		return privateGroupFactory
-				.createPrivateGroup(IntroductionManagerImpl.CLIENT_ID, c);
+		return contactGroupFactory
+				.createContactGroup(IntroductionManagerImpl.CLIENT_ID, c);
 	}
 
 	public Group createLocalGroup() {

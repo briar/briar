@@ -1,13 +1,13 @@
 package org.briarproject.api.introduction;
 
 import org.briarproject.api.clients.SessionId;
-import org.briarproject.api.messaging.BaseMessage;
+import org.briarproject.api.clients.BaseMessageHeader;
 import org.briarproject.api.sync.MessageId;
 
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.api.introduction.IntroductionConstants.ROLE_INTRODUCER;
 
- public class IntroductionMessage extends BaseMessage {
+ public class IntroductionMessage extends BaseMessageHeader {
 
 	private final SessionId sessionId;
 	private final MessageId messageId;

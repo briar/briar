@@ -4,7 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -40,19 +40,19 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
-	private final PrivateGroupFactory privateGroupFactory;
+	private final ContactGroupFactory contactGroupFactory;
 	private final Clock clock;
 	private final Group localGroup;
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, PrivateGroupFactory privateGroupFactory,
+			ClientHelper clientHelper, ContactGroupFactory contactGroupFactory,
 			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
-		this.privateGroupFactory = privateGroupFactory;
+		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
-		localGroup = privateGroupFactory.createLocalGroup(CLIENT_ID);
+		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID);
 	}
 
 	@Override
@@ -232,7 +232,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	private Group getContactGroup(Contact c) {
-		return privateGroupFactory.createPrivateGroup(CLIENT_ID, c);
+		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, TransportId t,
