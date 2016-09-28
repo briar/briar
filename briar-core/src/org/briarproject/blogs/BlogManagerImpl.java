@@ -262,6 +262,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		Blog b = getBlog(txn, g);
 		AuthorId authorId = b.getAuthor().getId();
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		if (localAuthor.getId().equals(authorId)) return false;
 		canBeRemoved = !contactManager
 				.contactExists(txn, authorId, localAuthor.getId());
 		return canBeRemoved;
