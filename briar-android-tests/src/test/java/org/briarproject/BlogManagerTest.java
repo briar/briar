@@ -242,32 +242,6 @@ public class BlogManagerTest {
 	}
 
 	@Test
-	public void testAddAndRemoveBlog() throws Exception {
-		startLifecycles();
-		defaultInit();
-
-		String name = "Test Blog";
-		String desc = "Description";
-
-		// add blog
-		Blog blog = blogManager0.addBlog(author0, name, desc);
-		Collection<Blog> blogs0 = blogManager0.getBlogs();
-		assertEquals(3, blogs0.size());
-		assertTrue(blogs0.contains(blog));
-		assertEquals(2, blogManager0.getBlogs(author0).size());
-		assertTrue(blogManager0.canBeRemoved(blog.getId()));
-
-		// remove blog
-		blogManager0.removeBlog(blog);
-		blogs0 = blogManager0.getBlogs();
-		assertEquals(2, blogs0.size());
-		assertFalse(blogs0.contains(blog));
-		assertEquals(1, blogManager0.getBlogs(author0).size());
-
-		stopLifecycles();
-	}
-
-	@Test
 	public void testCanNotRemoveContactsPersonalBlog() throws Exception {
 		startLifecycles();
 		defaultInit();

@@ -423,12 +423,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			respond = false;
 
 			// sync first request message and leave message
-			syncToInvitee();
+			deliverMessage(sync0, contactId0, sync1, contactId1, 2,
+					"Sharer to Invitee");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener1.requestReceived);
-
-			// wait also for second message to arrive
-			msgWaiter.await(TIMEOUT, 1);
 
 			// ensure that invitee has no forum invitations available
 			assertEquals(0, forumSharingManager1.getInvitations().size());
@@ -446,12 +444,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			forumManager0.removeForum(forum0);
 
 			// sync first request message and leave message
-			syncToInvitee();
+			deliverMessage(sync0, contactId0, sync1, contactId1, 2,
+					"Sharer to Invitee");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener1.requestReceived);
-
-			// wait also for second message to arrive
-			msgWaiter.await(TIMEOUT, 1);
 
 			// ensure that invitee has no forum invitations available
 			assertEquals(0, forumSharingManager1.getInvitations().size());
@@ -764,7 +760,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			forumSharingManager2
 					.sendInvitation(forum0.getId(), contactId1, null);
 			// sync second request message
-			deliverMessage(sync2, contactId2, sync1, contactId1,
+			deliverMessage(sync2, contactId2, sync1, contactId1, 1,
 					"Sharer2 to Invitee");
 
 			// make sure we now have two invitations to the same forum available
@@ -785,7 +781,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			Contact c2 = contactManager1.getContact(contactId2);
 			forumSharingManager1.respondToInvitation(forum0, c2, true);
 			// sync response
-			deliverMessage(sync1, contactId21, sync2, contactId2,
+			deliverMessage(sync1, contactId21, sync2, contactId2, 1,
 					"Invitee to Sharer2");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener2.responseReceived);
@@ -924,8 +920,8 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 	private class SharerListener implements EventListener {
 
-		volatile boolean requestReceived = false;
-		volatile boolean responseReceived = false;
+		private volatile boolean requestReceived = false;
+		private volatile boolean responseReceived = false;
 
 		@Override
 		public void eventOccurred(Event e) {
@@ -964,17 +960,17 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 	private class InviteeListener implements EventListener {
 
-		volatile boolean requestReceived = false;
-		volatile boolean responseReceived = false;
+		private volatile boolean requestReceived = false;
+		private volatile boolean responseReceived = false;
 
 		private final boolean accept, answer;
 
-		InviteeListener(boolean accept, boolean answer) {
+		private InviteeListener(boolean accept, boolean answer) {
 			this.accept = accept;
 			this.answer = answer;
 		}
 
-		InviteeListener(boolean accept) {
+		private InviteeListener(boolean accept) {
 			this(accept, true);
 		}
 
@@ -1109,17 +1105,17 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	}
 
 	private void syncToInvitee() throws IOException, TimeoutException {
-		deliverMessage(sync0, contactId0, sync1, contactId1,
+		deliverMessage(sync0, contactId0, sync1, contactId1, 1,
 				"Sharer to Invitee");
 	}
 
 	private void syncToSharer() throws IOException, TimeoutException {
-		deliverMessage(sync1, contactId1, sync0, contactId0,
+		deliverMessage(sync1, contactId1, sync0, contactId0, 1,
 				"Invitee to Sharer");
 	}
 
 	private void deliverMessage(SyncSessionFactory fromSync, ContactId fromId,
-			SyncSessionFactory toSync, ContactId toId, String debug)
+			SyncSessionFactory toSync, ContactId toId, int num, String debug)
 			throws IOException, TimeoutException {
 
 		if (debug != null) LOG.info("TEST: Sending message from " + debug);
@@ -1140,7 +1136,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		in.close();
 
 		// wait for message to actually arrive
-		msgWaiter.await(TIMEOUT, 1);
+		msgWaiter.await(TIMEOUT, num);
 	}
 
 	private void injectEagerSingletons(
