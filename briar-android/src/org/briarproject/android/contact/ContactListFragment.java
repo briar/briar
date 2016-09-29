@@ -109,7 +109,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		setHasOptionsMenu(true);
 
 		View contentView =
-				inflater.inflate(R.layout.fragment_contact_list, container,
+				inflater.inflate(R.layout.list, container,
 						false);
 
 		BaseContactListAdapter.OnItemClickListener onItemClickListener =
@@ -141,7 +141,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				};
 
 		adapter = new ContactListAdapter(getContext(), onItemClickListener);
-		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
+		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));

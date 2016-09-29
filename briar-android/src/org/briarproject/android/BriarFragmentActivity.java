@@ -10,6 +10,7 @@ import org.briarproject.android.blogs.FeedFragment;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.privategroup.list.GroupListFragment;
 
 import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 
@@ -26,6 +27,8 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 
 		if (fragmentTag.equals(ContactListFragment.TAG)) {
 			actionBar.setTitle(R.string.contact_list_button);
+		} else if (fragmentTag.equals(GroupListFragment.TAG)) {
+			actionBar.setTitle(R.string.groups_button);
 		} else if (fragmentTag.equals(ForumListFragment.TAG)) {
 			actionBar.setTitle(R.string.forums_button);
 		} else if (fragmentTag.equals(FeedFragment.TAG)) {

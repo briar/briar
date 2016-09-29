@@ -16,14 +16,17 @@ public abstract class BaseGroup {
 		this.salt = salt;
 	}
 
+	@NotNull
 	public GroupId getId() {
 		return group.getId();
 	}
 
+	@NotNull
 	public Group getGroup() {
 		return group;
 	}
 
+	@NotNull
 	public String getName() {
 		return name;
 	}

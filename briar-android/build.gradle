@@ -32,7 +32,7 @@ dependencies {
 	}
 	compile 'info.guardianproject.panic:panic:0.5'
 	compile 'info.guardianproject.trustedintents:trustedintents:0.2'
-	compile 'de.hdodenhof:circleimageview:2.0.0'
+	compile 'de.hdodenhof:circleimageview:2.1.0'
 	compile 'com.google.zxing:core:3.2.1'
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 	provided 'javax.annotation:jsr250-api:1.0'
@@ -53,7 +53,7 @@ dependencyVerification {
 			'ch.acra:acra:afd5b28934d5166b55f261c85685ad59e8a4ebe9ca1960906afaa8c76d8dc9eb',
 			'info.guardianproject.panic:panic:a7ed9439826db2e9901649892cf9afbe76f00991b768d8f4c26332d7c9406cb2',
 			'info.guardianproject.trustedintents:trustedintents:6221456d8821a8d974c2acf86306900237cf6afaaa94a4c9c44e161350f80f3e',
-			'de.hdodenhof:circleimageview:c76d936395b50705a3f98c9220c22d2599aeb9e609f559f6048975cfc1f686b8',
+			'de.hdodenhof:circleimageview:bcbc588e19e6dcf8c120b1957776bfe229efba5d2fbe5da7156372eeacf65503',
 			'com.google.zxing:core:b4d82452e7a6bf6ec2698904b332431717ed8f9a850224f295aec89de80f2259',
 			'com.android.support:support-v4:81ce890f26d35c75ad17d0f998a7e3230330c3b41e0b629566bc744bee89e448',
 			'com.android.support:appcompat-v7:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',

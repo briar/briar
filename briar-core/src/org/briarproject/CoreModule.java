@@ -17,6 +17,7 @@ import org.briarproject.keyagreement.KeyAgreementModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
+import org.briarproject.privategroup.PrivateGroupModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.reliability.ReliabilityModule;
 import org.briarproject.reporting.ReportingModule;
@@ -46,6 +47,7 @@ import dagger.Module;
 		LifecycleModule.class,
 		MessagingModule.class,
 		PluginsModule.class,
+		PrivateGroupModule.class,
 		PropertiesModule.class,
 		ReliabilityModule.class,
 		ReportingModule.class,
@@ -69,6 +71,7 @@ public class CoreModule {
 		c.inject(new LifecycleModule.EagerSingletons());
 		c.inject(new MessagingModule.EagerSingletons());
 		c.inject(new PluginsModule.EagerSingletons());
+		c.inject(new PrivateGroupModule.EagerSingletons());
 		c.inject(new PropertiesModule.EagerSingletons());
 		c.inject(new SharingModule.EagerSingletons());
 		c.inject(new SyncModule.EagerSingletons());

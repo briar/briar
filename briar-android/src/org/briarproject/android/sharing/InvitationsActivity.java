@@ -38,12 +38,12 @@ abstract class InvitationsActivity extends BriarActivity
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		setContentView(R.layout.activity_invitations);
+		setContentView(R.layout.list);
 
 		adapter = getAdapter(this, this);
 
 
-		list = (BriarRecyclerView) findViewById(R.id.invitationsView);
+		list = (BriarRecyclerView) findViewById(R.id.list);
 		if (list != null) {
 			list.setLayoutManager(new LinearLayoutManager(this));
 			list.setAdapter(adapter);

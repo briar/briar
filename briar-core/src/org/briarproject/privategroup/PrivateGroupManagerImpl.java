@@ -25,12 +25,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		PrivateGroupManager {
 
+	private static final Logger LOG =
+			Logger.getLogger(PrivateGroupManagerImpl.class.getName());
 	static final ClientId CLIENT_ID = new ClientId(
 			StringUtils.fromHexString("5072697661746547726f75704d616e61"
 					+ "67657220627920546f727374656e2047"));
@@ -53,6 +56,11 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	@Override
 	public ClientId getClientId() {
 		return CLIENT_ID;
+	}
+
+	@Override
+	public void removePrivateGroup(GroupId g) throws DbException {
+
 	}
 
 	@Override
@@ -89,6 +97,11 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	@Override
 	public Collection<PrivateGroup> getPrivateGroups() throws DbException {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean isDissolved(GroupId g) throws DbException {
+		return false;
 	}
 
 	@NotNull

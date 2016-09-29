@@ -16,6 +16,9 @@ public interface PrivateGroupManager extends MessageTracker {
 	@NotNull
 	ClientId getClientId();
 
+	/** Removes a dissolved private group. */
+	void removePrivateGroup(GroupId g) throws DbException;
+
 	/** Stores (and sends) a local group message. */
 	void addLocalMessage(GroupMessage p) throws DbException;
 
@@ -32,6 +35,9 @@ public interface PrivateGroupManager extends MessageTracker {
 	/** Returns all private groups the user is a member of. */
 	@NotNull
 	Collection<PrivateGroup> getPrivateGroups() throws DbException;
+
+	/** Returns true if the private group has been dissolved. */
+	boolean isDissolved(GroupId g) throws DbException;
 
 	/** Returns the body of the group message with the given ID. */
 	@NotNull

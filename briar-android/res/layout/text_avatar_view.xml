@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:showIn="@layout/list_item_forum">
 
@@ -11,16 +10,15 @@
 		android:layout_width="@dimen/avatar_forum_size"
 		android:layout_height="@dimen/avatar_forum_size"
 		android:layout_gravity="bottom|left"
-		android:src="@android:color/transparent"
-		app:civ_fill_color="@color/briar_button_positive"/>
+		android:src="@color/briar_button_positive"/>
 
 	<android.support.v7.widget.AppCompatTextView
 		android:id="@+id/textAvatarView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:layout_marginRight="@dimen/listitem_picture_frame_offset"
-		android:layout_marginTop="@dimen/listitem_picture_frame_offset"
+		android:layout_marginRight="@dimen/listitem_picture_frame_offset_horizontal"
+		android:layout_marginTop="@dimen/listitem_picture_frame_offset_vertical"
 		android:maxLength="1"
 		android:shadowColor="@color/forum_avatar_shadow"
 		android:shadowDx="0"

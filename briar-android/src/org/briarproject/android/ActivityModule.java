@@ -22,6 +22,8 @@ import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.SetupControllerImpl;
 import org.briarproject.android.forum.ForumController;
 import org.briarproject.android.forum.ForumControllerImpl;
+import org.briarproject.android.privategroup.list.GroupListController;
+import org.briarproject.android.privategroup.list.GroupListControllerImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -88,6 +90,13 @@ public class ActivityModule {
 	@Provides
 	DbController provideDBController(DbControllerImpl dbController) {
 		return dbController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected GroupListController provideGroupListController(
+			GroupListControllerImpl groupListController) {
+		return groupListController;
 	}
 
 	@ActivityScope

@@ -35,6 +35,7 @@ import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.plugins.AndroidPluginsModule;
 import org.briarproject.system.AndroidSystemModule;
@@ -92,6 +93,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	MessagingManager messagingManager();
 
 	PrivateMessageFactory privateMessageFactory();
+
+	PrivateGroupManager privateGroupManager();
 
 	ForumManager forumManager();
 
