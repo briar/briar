@@ -124,7 +124,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@id/btn_reply"
 			android:layout_toLeftOf="@id/btn_reply"
-			android:layout_toRightOf="@+id/date"
+			android:layout_toRightOf="@+id/author"
 			android:gravity="right|end"
 			android:maxLines="1"
 			android:padding="@dimen/margin_medium"
