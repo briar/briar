@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.support.annotation.Nullable;
 
 import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.FormatException;
-import org.briarproject.api.clients.MessageTree;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyParser;
@@ -26,7 +26,6 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.clients.MessageTreeImpl;
 import org.briarproject.util.StringUtils;
 
 import java.security.GeneralSecurityException;
@@ -35,16 +34,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.identity.Author.Status.VERIFIED;
+import static org.briarproject.api.identity.Author.Status.OURSELVES;
 
 public class ForumControllerImpl extends DbControllerImpl
 		implements ForumController, EventListener {
@@ -69,12 +68,10 @@ public class ForumControllerImpl extends DbControllerImpl
 	protected volatile IdentityManager identityManager;
 
 	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
-	private final MessageTree<ForumPostHeader> tree = new MessageTreeImpl<>();
+	private final AtomicLong newestTimeStamp = new AtomicLong();
 
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Forum forum = null;
-	// FIXME: This collection isn't thread-safe, isn't updated atomically
-	private volatile List<ForumEntry> forumEntries = null;
 
 	private ForumPostListener listener;
 
@@ -111,13 +108,18 @@ public class ForumControllerImpl extends DbControllerImpl
 	@Override
 	public void eventOccurred(Event e) {
 		if (forum == null) return;
-
 		if (e instanceof ForumPostReceivedEvent) {
-			ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
+			final ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
 			if (pe.getGroupId().equals(forum.getId())) {
-				LOG.info("Forum Post received, adding...");
-				// FIXME: Don't make blocking calls in event handlers
-				addNewPost(pe.getForumPostHeader());
+				LOG.info("Forum post received, adding...");
+				final ForumPostHeader fph = pe.getForumPostHeader();
+				updateNewestTimestamp(fph.getTimestamp());
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						listener.onExternalEntryAdded(fph);
+					}
+				});
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
@@ -133,46 +135,33 @@ public class ForumControllerImpl extends DbControllerImpl
 		}
 	}
 
-	private void addNewPost(final ForumPostHeader h) {
-		if (forum == null) return;
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				if (!bodyCache.containsKey(h.getId())) {
-					try {
-						byte[] body = forumManager.getPostBody(h.getId());
-						bodyCache.put(h.getId(), body);
-					} catch (DbException e) {
-						if (LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-						return;
-					}
-				}
+	/**
+	 * This should only be run from the DbThread.
+	 *
+	 * @throws DbException
+	 */
+	private void loadForum(GroupId groupId) throws DbException {
+		// Get Forum
+		long now = System.currentTimeMillis();
+		forum = forumManager.getForum(groupId);
+		long duration = System.currentTimeMillis() - now;
+		if (LOG.isLoggable(INFO))
+			LOG.info("Loading forum took " + duration + " ms");
 
-				tree.add(h);
-				forumEntries = null;
-				// FIXME we should not need to calculate the index here
-				//       the index is essentially stored in two different locations
-				int i = 0;
-				for (ForumEntry entry : getForumEntries()) {
-					if (entry.getMessageId().equals(h.getId())) {
-						if (localAuthor != null && localAuthor.equals(h.getAuthor())) {
-							addLocalEntry(i, entry);
-						} else {
-							addForeignEntry(i, entry);
-						}
-					}
-					i++;
-				}
-			}
-		});
+		// Get First Identity
+		now = System.currentTimeMillis();
+		localAuthor = identityManager.getLocalAuthor();
+		duration = System.currentTimeMillis() - now;
+		if (LOG.isLoggable(INFO))
+			LOG.info("Loading author took " + duration + " ms");
 	}
 
 	/**
 	 * This should only be run from the DbThread.
+	 *
 	 * @throws DbException
 	 */
-	private void loadPosts() throws DbException {
+	private Collection<ForumPostHeader> loadHeaders() throws DbException {
 		if (forum == null)
 			throw new RuntimeException("Forum has not been initialized");
 
@@ -180,59 +169,68 @@ public class ForumControllerImpl extends DbControllerImpl
 		long now = System.currentTimeMillis();
 		Collection<ForumPostHeader> headers =
 				forumManager.getPostHeaders(forum.getId());
-		tree.add(headers);
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loading headers took " + duration + " ms");
+		return headers;
+	}
 
+	/**
+	 * This should only be run from the DbThread.
+	 *
+	 * @throws DbException
+	 */
+	private void loadBodies(Collection<ForumPostHeader> headers)
+			throws DbException {
 		// Get Bodies
-		now = System.currentTimeMillis();
+		long now = System.currentTimeMillis();
 		for (ForumPostHeader header : headers) {
 			if (!bodyCache.containsKey(header.getId())) {
 				byte[] body = forumManager.getPostBody(header.getId());
 				bodyCache.put(header.getId(), body);
 			}
 		}
-		duration = System.currentTimeMillis() - now;
+		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loading bodies took " + duration + " ms");
 	}
 
+	private List<ForumEntry> buildForumEntries(
+			Collection<ForumPostHeader> headers) {
+		List<ForumEntry> entries = new ArrayList<>();
+		for (ForumPostHeader h : headers) {
+			byte[] body = bodyCache.get(h.getId());
+			entries.add(new ForumEntry(h, StringUtils.fromUtf8(body)));
+		}
+		return entries;
+	}
+
+	private void updateNewestTimeStamp(Collection<ForumPostHeader> headers) {
+		for (ForumPostHeader h : headers) {
+			updateNewestTimestamp(h.getTimestamp());
+		}
+	}
+
 	@Override
 	public void loadForum(final GroupId groupId,
-			final ResultHandler<Boolean> resultHandler) {
+			final ResultExceptionHandler<List<ForumEntry>, DbException> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				LOG.info("Loading forum...");
 				try {
 					if (forum == null) {
-						// Get Forum
-						long now = System.currentTimeMillis();
-						forum = forumManager.getForum(groupId);
-						long duration = System.currentTimeMillis() - now;
-						if (LOG.isLoggable(INFO))
-							LOG.info("Loading forum took " + duration +
-									" ms");
-
-						// Get First Identity
-						now = System.currentTimeMillis();
-						localAuthor =
-								identityManager.getLocalAuthors().iterator()
-										.next();
-						duration = System.currentTimeMillis() - now;
-						if (LOG.isLoggable(INFO))
-							LOG.info("Loading author took " + duration +
-									" ms");
-
-						// Get Forum Posts and Bodies
-						loadPosts();
+						loadForum(groupId);
 					}
-					resultHandler.onResult(true);
+					// Get Forum Posts and Bodies
+					Collection<ForumPostHeader> headers = loadHeaders();
+					updateNewestTimeStamp(headers);
+					loadBodies(headers);
+					resultHandler.onResult(buildForumEntries(headers));
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onResult(false);
+					resultHandler.onException(e);
 				}
 			}
 		});
@@ -245,31 +243,23 @@ public class ForumControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public List<ForumEntry> getForumEntries() {
-		if (forumEntries != null) {
-			return forumEntries;
-		}
-		Collection<ForumPostHeader> headers = getHeaders();
-		List<ForumEntry> entries = new ArrayList<>();
-		Stack<MessageId> idStack = new Stack<>();
-
-		for (ForumPostHeader h : headers) {
-			if (h.getParentId() == null) {
-				idStack.clear();
-			} else if (idStack.isEmpty() ||
-					!idStack.contains(h.getParentId())) {
-				idStack.push(h.getParentId());
-			} else if (!h.getParentId().equals(idStack.peek())) {
-				do {
-					idStack.pop();
-				} while (!h.getParentId().equals(idStack.peek()));
+	public void loadPost(final ForumPostHeader header,
+			final ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				LOG.info("Loading post...");
+				try {
+					loadBodies(Collections.singletonList(header));
+					resultHandler.onResult(new ForumEntry(header, StringUtils
+							.fromUtf8(bodyCache.get(header.getId()))));
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					resultHandler.onException(e);
+				}
 			}
-			byte[] body = bodyCache.get(h.getId());
-			entries.add(new ForumEntry(h, StringUtils.fromUtf8(body),
-						idStack.size()));
-		}
-		forumEntries = entries;
-		return entries;
+		});
 	}
 
 	@Override
@@ -307,7 +297,7 @@ public class ForumControllerImpl extends DbControllerImpl
 				try {
 					long now = System.currentTimeMillis();
 					for (ForumEntry fe : forumEntries) {
-						forumManager.setReadFlag(fe.getMessageId(), true);
+						forumManager.setReadFlag(fe.getId(), true);
 					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -321,95 +311,73 @@ public class ForumControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void createPost(byte[] body) {
-		createPost(body, null);
+	public void createPost(byte[] body,
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
+		createPost(body, null, resultHandler);
 	}
 
 	@Override
-	public void createPost(final byte[] body, final MessageId parentId) {
+	public void createPost(final byte[] body, final MessageId parentId,
+			final ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
+				LOG.info("Create post...");
 				long timestamp = System.currentTimeMillis();
-				long newestTimeStamp = 0;
-				Collection<ForumPostHeader> headers = getHeaders();
-				if (headers != null) {
-					for (ForumPostHeader h : headers) {
-						if (h.getTimestamp() > newestTimeStamp)
-							newestTimeStamp = h.getTimestamp();
-					}
-				}
-				// Don't use an earlier timestamp than the newest post
-				if (timestamp < newestTimeStamp) {
-					timestamp = newestTimeStamp;
-				}
+				timestamp = Math.max(timestamp, newestTimeStamp.get());
 				ForumPost p;
 				try {
 					KeyParser keyParser = crypto.getSignatureKeyParser();
 					byte[] b = localAuthor.getPrivateKey();
 					PrivateKey authorKey = keyParser.parsePrivateKey(b);
 					p = forumPostFactory.createPseudonymousPost(
-							forum.getId(), timestamp, parentId,
-							localAuthor, "text/plain", body,
-							authorKey);
+							forum.getId(), timestamp, parentId, localAuthor,
+							"text/plain", body, authorKey);
 				} catch (GeneralSecurityException | FormatException e) {
 					throw new RuntimeException(e);
 				}
 				bodyCache.put(p.getMessage().getId(), body);
-				storePost(p);
-				// FIXME: Don't make DB calls on the crypto executor
-				addNewPost(p);
+				storePost(p, resultHandler);
 			}
 		});
 	}
 
-	private void addLocalEntry(final int index, final ForumEntry entry) {
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				listener.addLocalEntry(index, entry);
-			}
-		});
-	}
-
-	private void addForeignEntry(final int index, final ForumEntry entry) {
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				listener.addForeignEntry(index, entry);
-			}
-		});
-	}
-
-	private void storePost(final ForumPost p) {
+	private void storePost(final ForumPost p,
+			final ResultExceptionHandler<ForumEntry, DbException> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
+					LOG.info("Store post...");
 					long now = System.currentTimeMillis();
 					forumManager.addLocalPost(p);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info(
-								"Storing message took " + duration + " ms");
+						LOG.info("Storing message took " + duration + " ms");
+
+					ForumPostHeader h =
+							new ForumPostHeader(p.getMessage().getId(),
+									p.getParent(),
+									p.getMessage().getTimestamp(),
+									p.getAuthor(), OURSELVES, true);
+
+					resultHandler.onResult(new ForumEntry(h, StringUtils
+							.fromUtf8(bodyCache.get(p.getMessage().getId()))));
+
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
+					resultHandler.onException(e);
 				}
 			}
 		});
 	}
 
-	private void addNewPost(final ForumPost p) {
-		ForumPostHeader h =
-				new ForumPostHeader(p.getMessage().getId(), p.getParent(),
-						p.getMessage().getTimestamp(), p.getAuthor(), VERIFIED,
-						false);
-		addNewPost(h);
+	private void updateNewestTimestamp(long update) {
+		long newest = newestTimeStamp.get();
+		while (newest < update) {
+			if (newestTimeStamp.compareAndSet(newest, update)) return;
+			newest = newestTimeStamp.get();
+		}
 	}
-
-	private Collection<ForumPostHeader> getHeaders() {
-		return tree.depthFirstOrder();
-	}
-
 }

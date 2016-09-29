@@ -1,85 +1,70 @@
 package org.briarproject.android.forum;
 
-import android.animation.Animator;
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumController.ForumPostListener;
+import org.briarproject.android.forum.NestedForumAdapter.OnNestedForumListener;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.SharingStatusForumActivity;
-import org.briarproject.android.view.AuthorView;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class ForumActivity extends BriarActivity implements
-		ForumPostListener, TextInputListener {
+		ForumPostListener, TextInputListener, OnNestedForumListener {
 
 	static final String FORUM_NAME = "briar.FORUM_NAME";
 
 	private static final int REQUEST_FORUM_SHARED = 3;
-	private static final int UNDEFINED = -1;
 	private static final String KEY_INPUT_VISIBILITY = "inputVisibility";
 	private static final String KEY_REPLY_ID = "replyId";
 
 	@Inject
 	AndroidNotificationManager notificationManager;
 
-	// uncomment the next line for a test component with dummy data
-//	@Named("ForumTestController")
 	@Inject
 	protected ForumController forumController;
 
 	// Protected access for testing
-	protected ForumAdapter forumAdapter;
+	protected NestedForumAdapter forumAdapter;
 
 	private BriarRecyclerView recyclerView;
 	private TextInputView textInput;
-	private LinearLayoutManager linearLayoutManager;
 
 	private volatile GroupId groupId = null;
 
@@ -96,42 +81,44 @@ public class ForumActivity extends BriarActivity implements
 		String forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName != null) setTitle(forumName);
 
-		forumAdapter = new ForumAdapter();
-
 		textInput = (TextInputView) findViewById(R.id.text_input_container);
 		textInput.setVisibility(GONE);
 		textInput.setListener(this);
 		recyclerView =
 				(BriarRecyclerView) findViewById(R.id.forum_discussion_list);
-		recyclerView.setAdapter(forumAdapter);
-		linearLayoutManager = new LinearLayoutManager(this);
+		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 		recyclerView.setLayoutManager(linearLayoutManager);
+		forumAdapter = new NestedForumAdapter(this, this, linearLayoutManager);
+		recyclerView.setAdapter(forumAdapter);
 		recyclerView.setEmptyText(R.string.no_forum_posts);
 
-		forumController.loadForum(groupId, new UiResultHandler<Boolean>(this) {
-			@Override
-			public void onResultUi(Boolean result) {
-				if (result) {
-					Forum forum = forumController.getForum();
-					if (forum != null) setTitle(forum.getName());
-					List<ForumEntry> entries =
-							forumController.getForumEntries();
-					if (entries.isEmpty()) {
-						recyclerView.showData();
-					} else {
-						forumAdapter.setEntries(entries);
-						if (state != null) {
-							byte[] replyId = state.getByteArray(KEY_REPLY_ID);
-							if (replyId != null)
-								forumAdapter.setReplyEntryById(replyId);
+		forumController.loadForum(groupId,
+				new UiResultExceptionHandler<List<ForumEntry>, DbException>(
+						this) {
+					@Override
+					public void onResultUi(List<ForumEntry> result) {
+						Forum forum = forumController.getForum();
+						if (forum != null) setTitle(forum.getName());
+						List<ForumEntry> entries = new ArrayList<>(result);
+						if (entries.isEmpty()) {
+							recyclerView.showData();
+						} else {
+							forumAdapter.setEntries(entries);
+							if (state != null) {
+								byte[] replyId =
+										state.getByteArray(KEY_REPLY_ID);
+								if (replyId != null)
+									forumAdapter.setReplyEntryById(replyId);
+							}
 						}
 					}
-				} else {
-					// TODO Maybe an error dialog ?
-					finish();
-				}
-			}
-		});
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO Improve UX ?
+						finish();
+					}
+				});
 	}
 
 	@Override
@@ -263,14 +250,28 @@ public class ForumActivity extends BriarActivity implements
 	public void onSendClick(String text) {
 		if (text.trim().length() == 0)
 			return;
-		if (forumController.getForum() == null) return;
 		ForumEntry replyEntry = forumAdapter.getReplyEntry();
+		UiResultExceptionHandler<ForumEntry, DbException> resultHandler =
+				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
+					@Override
+					public void onResultUi(ForumEntry result) {
+						onForumEntryAdded(result, true);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO Improve UX ?
+						finish();
+					}
+				};
+
 		if (replyEntry == null) {
 			// root post
-			forumController.createPost(StringUtils.toUtf8(text));
+			forumController.createPost(StringUtils.toUtf8(text), resultHandler);
 		} else {
-			forumController.createPost(StringUtils.toUtf8(text),
-					replyEntry.getMessageId());
+			forumController
+					.createPost(StringUtils.toUtf8(text), replyEntry.getId(),
+							resultHandler);
 		}
 		hideSoftKeyboard(textInput);
 		textInput.setVisibility(GONE);
@@ -308,412 +309,56 @@ public class ForumActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void addLocalEntry(int index, ForumEntry entry) {
-		forumAdapter.addEntry(index, entry, true);
-		displaySnackbarShort(R.string.forum_new_entry_posted);
+	public void onEntryVisible(ForumEntry forumEntry) {
+		if (!forumEntry.isRead()) {
+			forumEntry.setRead(true);
+			forumController.entryRead(forumEntry);
+		}
 	}
 
 	@Override
-	public void addForeignEntry(final int index, final ForumEntry entry) {
-		forumAdapter.addEntry(index, entry, false);
-		Snackbar snackbar =
-				Snackbar.make(recyclerView, R.string.forum_new_entry_received,
-						Snackbar.LENGTH_LONG);
-		snackbar.setActionTextColor(
-				ContextCompat.getColor(this, R.color.briar_button_positive));
-		snackbar.setAction(R.string.show, new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				forumAdapter.scrollToEntry(entry);
-			}
-		});
-		snackbar.getView().setBackgroundResource(R.color.briar_primary);
-		snackbar.show();
+	public void onReplyClick(ForumEntry forumEntry) {
+		showTextInput(forumEntry);
 	}
 
-	static class ForumViewHolder extends RecyclerView.ViewHolder {
-
-		final TextView textView, lvlText, repliesText;
-		final AuthorView author;
-		final View[] lvls;
-		final View chevron, replyButton;
-		final ViewGroup cell;
-		final View topDivider;
-
-		ForumViewHolder(View v) {
-			super(v);
-
-			textView = (TextView) v.findViewById(R.id.text);
-			lvlText = (TextView) v.findViewById(R.id.nested_line_text);
-			author = (AuthorView) v.findViewById(R.id.author);
-			repliesText = (TextView) v.findViewById(R.id.replies);
-			int[] nestedLineIds = {
-					R.id.nested_line_1, R.id.nested_line_2, R.id.nested_line_3,
-					R.id.nested_line_4, R.id.nested_line_5
-			};
-			lvls = new View[nestedLineIds.length];
-			for (int i = 0; i < lvls.length; i++) {
-				lvls[i] = v.findViewById(nestedLineIds[i]);
-			}
-			chevron = v.findViewById(R.id.chevron);
-			replyButton = v.findViewById(R.id.btn_reply);
-			cell = (ViewGroup) v.findViewById(R.id.forum_cell);
-			topDivider = v.findViewById(R.id.top_divider);
-		}
-	}
-
-	public class ForumAdapter extends RecyclerView.Adapter<ForumViewHolder> {
-
-		private final List<ForumEntry> forumEntries = new ArrayList<>();
-		private final Map<ForumEntry, ValueAnimator> animatingEntries =
-				new HashMap<>();
-
-		// highlight not dependant on time
-		private ForumEntry replyEntry;
-		// temporary highlight
-		private ForumEntry addedEntry;
-
-		private ForumEntry getReplyEntry() {
-			return replyEntry;
-		}
-
-		void setEntries(List<ForumEntry> entries) {
-			forumEntries.clear();
-			forumEntries.addAll(entries);
-			notifyItemRangeInserted(0, entries.size());
-		}
-
-		void addEntry(int index, ForumEntry entry, boolean isScrolling) {
-			forumEntries.add(index, entry);
-			boolean isShowingDescendants = false;
-			if (entry.getLevel() > 0) {
-				// update parent and make sure descendants are visible
-				// Note that the parent's visibility is guaranteed (otherwise
-				// the reply button would not be visible)
-				for (int i = index - 1; i >= 0; i--) {
-					ForumEntry higherEntry = forumEntries.get(i);
-					if (higherEntry.getLevel() < entry.getLevel()) {
-						// parent found
-						if (!higherEntry.isShowingDescendants()) {
-							isShowingDescendants = true;
-							showDescendants(higherEntry);
-						}
-						notifyItemChanged(getVisiblePos(higherEntry));
-						break;
-					}
-				}
-			}
-			if (!isShowingDescendants) {
-				int visiblePos = getVisiblePos(entry);
-				notifyItemInserted(visiblePos);
-				if (isScrolling)
-					linearLayoutManager
-							.scrollToPositionWithOffset(visiblePos, 0);
-			}
-			addedEntry = entry;
-		}
-
-		void scrollToEntry(ForumEntry entry) {
-			int visiblePos = getVisiblePos(entry);
-			linearLayoutManager.scrollToPositionWithOffset(visiblePos, 0);
-		}
-
-		private boolean hasDescendants(ForumEntry forumEntry) {
-			int i = forumEntries.indexOf(forumEntry);
-			if (i >= 0 && i < forumEntries.size() - 1) {
-				if (forumEntries.get(i + 1).getLevel() >
-						forumEntry.getLevel()) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		private boolean hasVisibleDescendants(ForumEntry forumEntry) {
-			int visiblePos = getVisiblePos(forumEntry);
-			int levelLimit = forumEntry.getLevel();
-			// FIXME This loop doesn't really loop. @ernir please review!
-			for (int i = visiblePos + 1; i < getItemCount(); i++) {
-				ForumEntry entry = getVisibleEntry(i);
-				if (entry != null && entry.getLevel() <= levelLimit)
-					break;
-				return true;
-			}
-			return false;
-		}
-
-		private int getReplyCount(ForumEntry entry) {
-			int counter = 0;
-			int pos = forumEntries.indexOf(entry);
-			if (pos >= 0) {
-				int ancestorLvl = forumEntries.get(pos).getLevel();
-				for (int i = pos + 1; i < forumEntries.size(); i++) {
-					int descendantLvl = forumEntries.get(i).getLevel();
-					if (descendantLvl <= ancestorLvl)
-						break;
-					if (descendantLvl == ancestorLvl + 1)
-						counter++;
-				}
-			}
-			return counter;
-		}
-
-		void setReplyEntryById(byte[] id) {
-			MessageId messageId = new MessageId(id);
-			for (ForumEntry entry : forumEntries) {
-				if (entry.getMessageId().equals(messageId)) {
-					setReplyEntry(entry);
-					break;
-				}
-			}
-		}
-
-		void setReplyEntry(ForumEntry entry) {
-			if (replyEntry != null) {
-				notifyItemChanged(getVisiblePos(replyEntry));
-			}
-			replyEntry = entry;
-			if (replyEntry != null) {
-				notifyItemChanged(getVisiblePos(replyEntry));
-			}
-		}
-
-		private List<Integer> getSubTreeIndexes(int pos, int levelLimit) {
-			List<Integer> indexList = new ArrayList<>();
-
-			for (int i = pos + 1; i < getItemCount(); i++) {
-				ForumEntry entry = getVisibleEntry(i);
-				if (entry != null && entry.getLevel() > levelLimit) {
-					indexList.add(i);
-				} else {
-					break;
-				}
-			}
-			return indexList;
-		}
-
-		void showDescendants(ForumEntry forumEntry) {
-			forumEntry.setShowingDescendants(true);
-			int visiblePos = getVisiblePos(forumEntry);
-			List<Integer> indexList =
-					getSubTreeIndexes(visiblePos, forumEntry.getLevel());
-			if (!indexList.isEmpty()) {
-				if (indexList.size() == 1) {
-					notifyItemInserted(indexList.get(0));
-				} else {
-					notifyItemRangeInserted(indexList.get(0),
-							indexList.size());
-				}
-			}
-		}
-
-		void hideDescendants(ForumEntry forumEntry) {
-			int visiblePos = getVisiblePos(forumEntry);
-			List<Integer> indexList =
-					getSubTreeIndexes(visiblePos, forumEntry.getLevel());
-			if (!indexList.isEmpty()) {
-				// stop animating children
-				for (int index : indexList) {
-					ValueAnimator anim =
-							animatingEntries.get(forumEntries.get(index));
-					if (anim != null && anim.isRunning()) {
-						anim.cancel();
-					}
-				}
-				if (indexList.size() == 1) {
-					notifyItemRemoved(indexList.get(0));
-				} else {
-					notifyItemRangeRemoved(indexList.get(0),
-							indexList.size());
-				}
-			}
-			forumEntry.setShowingDescendants(false);
-		}
-
-
-		@Nullable
-		ForumEntry getVisibleEntry(int position) {
-			int levelLimit = UNDEFINED;
-			for (ForumEntry forumEntry : forumEntries) {
-				if (levelLimit >= 0) {
-					if (forumEntry.getLevel() > levelLimit) {
-						continue;
-					}
-					levelLimit = UNDEFINED;
-				}
-				if (!forumEntry.isShowingDescendants()) {
-					levelLimit = forumEntry.getLevel();
-				}
-				if (position-- == 0) {
-					return forumEntry;
-				}
-			}
-			return null;
-		}
-
-		private void animateFadeOut(final ForumViewHolder ui,
-				final ForumEntry addedEntry) {
-			ui.setIsRecyclable(false);
-			ValueAnimator anim = new ValueAnimator();
-			animatingEntries.put(addedEntry, anim);
-			ColorDrawable viewColor = (ColorDrawable) ui.cell.getBackground();
-			anim.setIntValues(viewColor.getColor(), ContextCompat
+	private void onForumEntryAdded(final ForumEntry entry, boolean isLocal) {
+		forumAdapter.addEntry(entry);
+		if (isLocal && forumAdapter.isVisible(entry)) {
+			displaySnackbarShort(R.string.forum_new_entry_posted);
+		} else {
+			Snackbar snackbar = Snackbar.make(recyclerView,
+					isLocal ? R.string.forum_new_entry_posted :
+							R.string.forum_new_entry_received,
+					Snackbar.LENGTH_LONG);
+			snackbar.getView().setBackgroundResource(R.color.briar_primary);
+			snackbar.setActionTextColor(ContextCompat
 					.getColor(ForumActivity.this,
-							R.color.window_background));
-			anim.setEvaluator(new ArgbEvaluator());
-			anim.addListener(new Animator.AnimatorListener() {
-				@Override
-				public void onAnimationStart(Animator animation) {
-
-				}
-
-				@Override
-				public void onAnimationEnd(Animator animation) {
-					ui.setIsRecyclable(true);
-					animatingEntries.remove(addedEntry);
-				}
-
-				@Override
-				public void onAnimationCancel(Animator animation) {
-					ui.setIsRecyclable(true);
-					animatingEntries.remove(addedEntry);
-				}
-
-				@Override
-				public void onAnimationRepeat(Animator animation) {
-
-				}
-			});
-			anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-				@Override
-				public void onAnimationUpdate(ValueAnimator valueAnimator) {
-					ui.cell.setBackgroundColor(
-							(Integer) valueAnimator.getAnimatedValue());
-				}
-			});
-			anim.setDuration(5000);
-			anim.start();
-		}
-
-		@Override
-		public ForumViewHolder onCreateViewHolder(ViewGroup parent,
-				int viewType) {
-			View v = LayoutInflater.from(parent.getContext())
-					.inflate(R.layout.list_item_forum_post, parent, false);
-			return new ForumViewHolder(v);
-		}
-
-		@Override
-		public void onBindViewHolder(
-				final ForumViewHolder ui, final int position) {
-			final ForumEntry data = getVisibleEntry(position);
-			if (data == null) return;
-
-			if (!data.isRead()) {
-				data.setRead(true);
-				forumController.entryRead(data);
-			}
-			ui.textView.setText(StringUtils.trim(data.getText()));
-
-			if (position == 0) {
-				ui.topDivider.setVisibility(View.INVISIBLE);
-			} else {
-				ui.topDivider.setVisibility(View.VISIBLE);
-			}
-
-			for (int i = 0; i < ui.lvls.length; i++) {
-				ui.lvls[i].setVisibility(i < data.getLevel() ? VISIBLE : GONE);
-			}
-			if (data.getLevel() > 5) {
-				ui.lvlText.setVisibility(VISIBLE);
-				ui.lvlText.setText("" + data.getLevel());
-			} else {
-				ui.lvlText.setVisibility(GONE);
-			}
-			ui.author.setAuthor(data.getAuthor());
-			ui.author.setDate(data.getTimestamp());
-			ui.author.setAuthorStatus(data.getStatus());
-
-			int replies = getReplyCount(data);
-			if (replies == 0) {
-				ui.repliesText.setText("");
-			} else {
-				ui.repliesText.setText(getResources()
-						.getQuantityString(R.plurals.message_replies, replies,
-								replies));
-			}
-
-			if (hasDescendants(data)) {
-				ui.chevron.setVisibility(VISIBLE);
-				if (hasVisibleDescendants(data)) {
-					ui.chevron.setSelected(false);
-				} else {
-					ui.chevron.setSelected(true);
-				}
-				ui.chevron.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						ui.chevron.setSelected(!ui.chevron.isSelected());
-						if (ui.chevron.isSelected()) {
-							hideDescendants(data);
-						} else {
-							showDescendants(data);
-						}
-					}
-				});
-			} else {
-				ui.chevron.setVisibility(INVISIBLE);
-			}
-			if (data.equals(replyEntry)) {
-				ui.cell.setBackgroundColor(ContextCompat
-						.getColor(ForumActivity.this,
-								R.color.forum_cell_highlight));
-			} else if (data.equals(addedEntry)) {
-
-				ui.cell.setBackgroundColor(ContextCompat
-						.getColor(ForumActivity.this,
-								R.color.forum_cell_highlight));
-				animateFadeOut(ui, addedEntry);
-				addedEntry = null;
-			} else {
-				ui.cell.setBackgroundColor(ContextCompat
-						.getColor(ForumActivity.this,
-								R.color.window_background));
-			}
-			ui.replyButton.setOnClickListener(new View.OnClickListener() {
+							R.color.briar_button_positive));
+			snackbar.setAction(R.string.show, new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					showTextInput(data);
-					linearLayoutManager
-							.scrollToPositionWithOffset(getVisiblePos(data), 0);
+					forumAdapter.scrollToEntry(entry);
 				}
 			});
-		}
-
-		private int getVisiblePos(ForumEntry sEntry) {
-			int visibleCounter = 0;
-			int levelLimit = UNDEFINED;
-			for (ForumEntry fEntry : forumEntries) {
-				if (levelLimit >= 0) {
-					if (fEntry.getLevel() > levelLimit) {
-						continue;
-					}
-					levelLimit = UNDEFINED;
-				}
-				if (sEntry != null && sEntry.equals(fEntry)) {
-					return visibleCounter;
-				} else if (!fEntry.isShowingDescendants()) {
-					levelLimit = fEntry.getLevel();
-				}
-				visibleCounter++;
-			}
-			return sEntry == null ? visibleCounter : NO_POSITION;
-		}
-
-		@Override
-		public int getItemCount() {
-			return getVisiblePos(null);
+			snackbar.getView().setBackgroundResource(R.color.briar_primary);
+			snackbar.show();
 		}
 	}
 
+	@Override
+	public void onExternalEntryAdded(ForumPostHeader header) {
+		forumController.loadPost(header,
+				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
+					@Override
+					public void onResultUi(final ForumEntry result) {
+						onForumEntryAdded(result, false);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO add proper exception handling
+					}
+				});
+
+	}
 }

@@ -1,10 +1,14 @@
 package org.briarproject.android.forum;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 
 import org.briarproject.android.controller.ActivityLifecycleController;
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
@@ -13,12 +17,14 @@ import java.util.List;
 
 public interface ForumController extends ActivityLifecycleController {
 
-	void loadForum(GroupId groupId, ResultHandler<Boolean> resultHandler);
+	void loadForum(GroupId groupId,
+			ResultExceptionHandler<List<ForumEntry>, DbException> resultHandler);
 
 	@Nullable
 	Forum getForum();
 
-	List<ForumEntry> getForumEntries();
+	void loadPost(ForumPostHeader header,
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler);
 
 	void unsubscribe(ResultHandler<Boolean> resultHandler);
 
@@ -26,14 +32,15 @@ public interface ForumController extends ActivityLifecycleController {
 
 	void entriesRead(Collection<ForumEntry> messageIds);
 
-	void createPost(byte[] body);
+	void createPost(byte[] body,
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler);
 
-	void createPost(byte[] body, MessageId parentId);
+	void createPost(byte[] body, MessageId parentId,
+			ResultExceptionHandler<ForumEntry, DbException> resultHandler);
 
 	interface ForumPostListener {
-		void addLocalEntry(int index, ForumEntry entry);
-
-		void addForeignEntry(int index, ForumEntry entry);
+		@UiThread
+		void onExternalEntryAdded(ForumPostHeader header);
 	}
 
 }
