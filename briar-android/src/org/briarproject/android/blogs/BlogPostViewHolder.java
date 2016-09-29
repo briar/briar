@@ -30,8 +30,8 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 import static org.briarproject.android.util.AndroidUtils.TEASER_LENGTH;
-import static org.briarproject.android.util.AndroidUtils.getTeaser;
 import static org.briarproject.android.util.AndroidUtils.getSpanned;
+import static org.briarproject.android.util.AndroidUtils.getTeaser;
 import static org.briarproject.android.util.AndroidUtils.makeLinksClickable;
 import static org.briarproject.api.blogs.MessageType.POST;
 
@@ -118,7 +118,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			makeLinksClickable(body);
 		} else {
 			body.setTextIsSelectable(false);
-			if (item.getBody().length() > TEASER_LENGTH)
+			if (bodyText.length() > TEASER_LENGTH)
 				bodyText = getTeaser(ctx, bodyText);
 			body.setText(bodyText);
 		}
