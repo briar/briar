@@ -14,6 +14,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -23,6 +24,7 @@ import static java.util.logging.Level.WARNING;
 public class ShareBlogMessageFragment extends ShareMessageFragment {
 
 	public final static String TAG = ShareBlogMessageFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -52,6 +54,12 @@ public class ShareBlogMessageFragment extends ShareMessageFragment {
 		component.inject(this);
 	}
 
+	@Override
+	public String getUniqueTag() {
+		return TAG;
+	}
+
+	@Override
 	protected void share(final String msg) {
 		listener.runOnDbThread(new Runnable() {
 			@Override
@@ -69,8 +77,9 @@ public class ShareBlogMessageFragment extends ShareMessageFragment {
 		});
 	}
 
+	@Override
 	protected void sharingError() {
-		runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				int res = R.string.blogs_sharing_error;

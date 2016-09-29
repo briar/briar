@@ -37,12 +37,12 @@ import static java.util.logging.Level.WARNING;
 public class IntroductionMessageFragment extends BaseFragment
 		implements TextInputView.TextInputListener {
 
-	public final static String TAG = "IntroductionMessageFragment";
+	public static final String TAG =
+			IntroductionMessageFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	private final static String CONTACT_ID_1 = "contact1";
 	private final static String CONTACT_ID_2 = "contact2";
-	private static final Logger LOG =
-			Logger.getLogger(IntroductionMessageFragment.class.getName());
 
 	private IntroductionActivity introductionActivity;
 	private ViewHolder ui;
@@ -72,12 +72,7 @@ public class IntroductionMessageFragment extends BaseFragment
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		try {
-			introductionActivity = (IntroductionActivity) context;
-		} catch (ClassCastException e) {
-			throw new java.lang.InstantiationError(
-					"This fragment is only meant to be attached to the IntroductionActivity");
-		}
+		introductionActivity = (IntroductionActivity) context;
 	}
 
 	@Override
@@ -142,7 +137,7 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	private void setUpViews(final Contact c1, final Contact c2) {
-		introductionActivity.runOnUiThread(new Runnable() {
+		introductionActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				contact1 = c1;
@@ -209,7 +204,7 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	private void introductionError() {
-		introductionActivity.runOnUiThread(new Runnable() {
+		introductionActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				Toast.makeText(introductionActivity,

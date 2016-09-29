@@ -32,7 +32,7 @@ abstract class InvitationsActivity extends BriarActivity
 	private BriarRecyclerView list;
 
 	@Inject
-	protected EventBus eventBus;
+	EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -103,7 +103,7 @@ abstract class InvitationsActivity extends BriarActivity
 
 	protected void displayInvitations(
 			final Collection<InvitationItem> invitations, final boolean clear) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (invitations.isEmpty()) {

@@ -20,7 +20,6 @@ import org.briarproject.android.controller.PasswordController;
 import org.briarproject.android.controller.PasswordControllerImpl;
 import org.briarproject.android.controller.SetupController;
 import org.briarproject.android.controller.SetupControllerImpl;
-import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.forum.ForumController;
 import org.briarproject.android.forum.ForumControllerImpl;
 
@@ -52,27 +51,27 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	protected SetupController provideSetupController(
+	SetupController provideSetupController(
 			SetupControllerImpl setupControllerImpl) {
 		return setupControllerImpl;
 	}
 
 	@ActivityScope
 	@Provides
-	protected ConfigController provideConfigController(
+	ConfigController provideConfigController(
 			ConfigControllerImpl configControllerImpl) {
 		return configControllerImpl;
 	}
 
 	@ActivityScope
 	@Provides
-	protected SharedPreferences provideSharedPreferences(Activity activity) {
+	SharedPreferences provideSharedPreferences(Activity activity) {
 		return activity.getSharedPreferences("db", Context.MODE_PRIVATE);
 	}
 
 	@ActivityScope
 	@Provides
-	protected PasswordController providePasswordController(
+	PasswordController providePasswordController(
 			PasswordControllerImpl passwordControllerImpl) {
 		return passwordControllerImpl;
 	}
@@ -87,8 +86,7 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	protected DbController provideDBController(
-			DbControllerImpl dbController) {
+	DbController provideDBController(DbControllerImpl dbController) {
 		return dbController;
 	}
 
@@ -109,26 +107,21 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	protected FeedController provideFeedController(
-			FeedControllerImpl feedController) {
+	FeedController provideFeedController(FeedControllerImpl feedController) {
 		return feedController;
 	}
 
 	@ActivityScope
 	@Provides
-	protected NavDrawerController provideNavDrawerController(
-			NavDrawerControllerImpl navDrawerControllerImpl) {
-		activity.addLifecycleController(navDrawerControllerImpl);
-		if (activity instanceof TransportStateListener) {
-			navDrawerControllerImpl.setTransportListener(
-					(TransportStateListener) activity);
-		}
-		return navDrawerControllerImpl;
+	NavDrawerController provideNavDrawerController(
+			NavDrawerControllerImpl navDrawerController) {
+		activity.addLifecycleController(navDrawerController);
+		return navDrawerController;
 	}
 
 	@ActivityScope
 	@Provides
-	protected BriarServiceConnection provideBriarServiceConnection() {
+	BriarServiceConnection provideBriarServiceConnection() {
 		return new BriarServiceConnection();
 	}
 

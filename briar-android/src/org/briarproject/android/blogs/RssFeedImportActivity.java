@@ -42,10 +42,11 @@ public class RssFeedImportActivity extends BriarActivity {
 
 	@Inject
 	@IoExecutor
-	protected Executor ioExecutor;
+	Executor ioExecutor;
 
 	// Fields that are accessed from background threads must be volatile
 	private volatile GroupId groupId = null;
+
 	@Inject
 	@SuppressWarnings("WeakerAccess")
 	volatile FeedManager feedManager;
@@ -139,7 +140,7 @@ public class RssFeedImportActivity extends BriarActivity {
 	}
 
 	private void feedImported() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				supportFinishAfterTransition();
@@ -148,11 +149,9 @@ public class RssFeedImportActivity extends BriarActivity {
 	}
 
 	private void importFailed() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (RssFeedImportActivity.this.hasBeenDestroyed()) return;
-
 				// hide progress bar, show publish button
 				progressBar.setVisibility(GONE);
 				importButton.setVisibility(VISIBLE);

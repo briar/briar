@@ -22,7 +22,7 @@ import static org.briarproject.android.util.AndroidUtils.MIN_RESOLUTION;
 
 abstract class BasePostFragment extends BaseFragment {
 
-	private final Logger LOG =
+	private static final Logger LOG =
 			Logger.getLogger(BasePostFragment.class.getName());
 
 	private View view;

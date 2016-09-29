@@ -30,19 +30,17 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			Logger.getLogger(NavDrawerControllerImpl.class.getName());
 
 	@Inject
-	protected ReferenceManager referenceManager;
+	ReferenceManager referenceManager;
 	@Inject
-	protected PluginManager pluginManager;
+	PluginManager pluginManager;
 	@Inject
-	protected EventBus eventBus;
-	@Inject
-	protected Activity activity;
+	EventBus eventBus;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
 	protected volatile IdentityManager identityManager;
 
-	private TransportStateListener transportStateListener;
+	private TransportStateListener listener;
 
 	@Inject
 	public NavDrawerControllerImpl() {
@@ -50,8 +48,8 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void onActivityCreate() {
-
+	public void onActivityCreate(Activity activity) {
+		listener = (TransportStateListener) activity;
 	}
 
 	@Override
@@ -88,19 +86,12 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	private void transportStateUpdate(final TransportId id,
 			final boolean enabled) {
-		activity.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (transportStateListener != null) {
-					transportStateListener.stateUpdate(id, enabled);
-				}
+				listener.stateUpdate(id, enabled);
 			}
 		});
-	}
-
-	@Override
-	public void setTransportListener(TransportStateListener transportListener) {
-		this.transportStateListener = transportListener;
 	}
 
 	@Override

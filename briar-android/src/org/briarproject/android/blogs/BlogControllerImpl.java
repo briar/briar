@@ -1,5 +1,7 @@
 package org.briarproject.android.blogs;
 
+import android.app.Activity;
+
 import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.Blog;
@@ -32,7 +34,7 @@ public class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
-	public void onActivityCreate() {
+	public void onActivityCreate(Activity activity) {
 	}
 
 	@Override
@@ -69,11 +71,10 @@ public class BlogControllerImpl extends BaseControllerImpl
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
 			if (s.getGroup().getId().equals(groupId)) {
 				LOG.info("Blog removed");
-				activity.runOnUiThread(new Runnable() {
+				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 					@Override
 					public void run() {
-						// TODO: Not the controller's job, add a listener method
-						activity.finish();
+						listener.onBlogRemoved();
 					}
 				});
 			}

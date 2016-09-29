@@ -41,6 +41,7 @@ public class BlogPostPagerFragment extends BasePostPagerFragment {
 	}
 
 
+	@Override
 	void loadBlogPosts(final MessageId select) {
 		blogController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
@@ -57,6 +58,7 @@ public class BlogPostPagerFragment extends BasePostPagerFragment {
 				});
 	}
 
+	@Override
 	void loadBlogPost(BlogPostHeader header) {
 		blogController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
@@ -73,5 +75,4 @@ public class BlogPostPagerFragment extends BasePostPagerFragment {
 					}
 				});
 	}
-
 }

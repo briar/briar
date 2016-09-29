@@ -130,21 +130,21 @@ public class ConversationActivity extends BriarActivity
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ContactManager contactManager;
+	volatile ContactManager contactManager;
 	@Inject
-	protected volatile MessagingManager messagingManager;
+	volatile MessagingManager messagingManager;
 	@Inject
-	protected volatile EventBus eventBus;
+	volatile EventBus eventBus;
 	@Inject
-	protected volatile SettingsManager settingsManager;
+	volatile SettingsManager settingsManager;
 	@Inject
 	volatile PrivateMessageFactory privateMessageFactory;
 	@Inject
-	protected volatile IntroductionManager introductionManager;
+	volatile IntroductionManager introductionManager;
 	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
+	volatile ForumSharingManager forumSharingManager;
 	@Inject
-	protected volatile BlogSharingManager blogSharingManager;
+	volatile BlogSharingManager blogSharingManager;
 
 	private volatile GroupId groupId = null;
 	private volatile ContactId contactId = null;
@@ -309,7 +309,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void displayContactDetails() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				toolbarAvatar.setImageDrawable(
@@ -374,7 +374,7 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessages(final Collection<PrivateMessageHeader> headers,
 			final Collection<IntroductionMessage> introductions,
 			final Collection<InvitationMessage> invitations) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				textInputView.setSendButtonEnabled(true);
@@ -446,7 +446,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void displayMessageBody(final MessageId m, final byte[] body) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				bodyCache.put(m, body);
@@ -466,7 +466,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void addConversationItem(final ConversationItem item) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.add(item);
@@ -599,7 +599,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void markMessageReadIfNew(final BaseMessageHeader h) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				ConversationItem item = adapter.getLastItem();
@@ -635,7 +635,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void markMessages(final Collection<MessageId> messageIds,
 			final boolean sent, final boolean seen) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				Set<MessageId> messages = new HashSet<>(messageIds);
@@ -747,7 +747,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void finishAfterContactRemoved() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				String deleted = getString(R.string.contact_deleted_toast);
@@ -781,7 +781,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void enableIntroductionAction(final MenuItem item) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				item.setEnabled(true);
@@ -790,7 +790,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void showIntroductionOnboarding() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				// find view of overflow icon
@@ -877,7 +877,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void introductionResponseError() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				Toast.makeText(ConversationActivity.this,

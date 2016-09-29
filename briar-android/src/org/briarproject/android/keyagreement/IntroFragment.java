@@ -43,12 +43,7 @@ public class IntroFragment extends BaseFragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		try {
-			screenSeenListener = (IntroScreenSeenListener) context;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(
-					"Using class must implement IntroScreenSeenListener");
-		}
+		screenSeenListener = (IntroScreenSeenListener) context;
 	}
 
 	@Override

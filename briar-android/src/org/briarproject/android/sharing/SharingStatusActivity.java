@@ -27,16 +27,16 @@ import static java.util.logging.Level.WARNING;
 
 abstract class SharingStatusActivity extends BriarActivity {
 
+	private static final Logger LOG =
+			Logger.getLogger(SharingStatusActivity.class.getName());
+
 	private GroupId groupId;
 	private BriarRecyclerView sharedByList, sharedWithList;
 	private SharingStatusAdapter sharedByAdapter, sharedWithAdapter;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile IdentityManager identityManager;
-
-	public final static String TAG = SharingStatusActivity.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+	volatile IdentityManager identityManager;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -120,7 +120,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 	}
 
 	private void displaySharedBy(final List<ContactListItem> contacts) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (contacts.isEmpty()) {
@@ -156,7 +156,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 	}
 
 	private void displaySharedWith(final List<ContactListItem> contacts) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (contacts.isEmpty()) {

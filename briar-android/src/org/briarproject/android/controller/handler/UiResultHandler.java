@@ -2,24 +2,22 @@ package org.briarproject.android.controller.handler;
 
 import android.support.annotation.UiThread;
 
-import org.briarproject.android.DestroyableActivity;
-import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.android.DestroyableContext;
 
 public abstract class UiResultHandler<R> implements ResultHandler<R> {
 
-	private final DestroyableActivity listener;
+	private final DestroyableContext listener;
 
-	protected UiResultHandler(DestroyableActivity listener) {
+	protected UiResultHandler(DestroyableContext listener) {
 		this.listener = listener;
 	}
 
 	@Override
 	public void onResult(final R result) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (!listener.hasBeenDestroyed())
-					onResultUi(result);
+				onResultUi(result);
 			}
 		});
 	}

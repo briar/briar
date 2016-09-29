@@ -65,12 +65,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		try {
-			listener = (BaseFragmentListener) context;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(
-					"Using class must implement BaseFragmentListener");
-		}
+		listener = (BaseFragmentListener) context;
 	}
 
 	@Override
@@ -91,12 +86,6 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 		showProgressBar();
 
 		return v;
-	}
-
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		listener.getActivityComponent().inject(this);
 	}
 
 	@Override

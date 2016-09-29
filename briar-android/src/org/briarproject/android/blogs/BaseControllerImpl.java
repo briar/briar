@@ -1,6 +1,5 @@
 package org.briarproject.android.blogs;
 
-import android.app.Activity;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 
@@ -39,16 +38,14 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			Logger.getLogger(BaseControllerImpl.class.getName());
 
 	@Inject
-	protected Activity activity;
+	EventBus eventBus;
 	@Inject
-	protected EventBus eventBus;
+	AndroidNotificationManager notificationManager;
 	@Inject
-	protected AndroidNotificationManager notificationManager;
-	@Inject
-	protected IdentityManager identityManager;
+	IdentityManager identityManager;
 
 	@Inject
-	protected volatile BlogManager blogManager;
+	volatile BlogManager blogManager;
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 	private final Map<MessageId, BlogPostHeader> headerCache =
@@ -75,12 +72,12 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	@CallSuper
 	public void eventOccurred(Event e) {
 		if (e instanceof BlogPostAddedEvent) {
-			final BlogPostAddedEvent m = (BlogPostAddedEvent) e;
+			final BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			LOG.info("New blog post added");
-			activity.runOnUiThread(new Runnable() {
+			listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 				@Override
 				public void run() {
-					listener.onBlogPostAdded(m.getHeader(), m.isLocal());
+					listener.onBlogPostAdded(b.getHeader(), b.isLocal());
 				}
 			});
 		}
@@ -110,8 +107,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		});
 	}
 
-	protected Collection<BlogPostItem> loadItems(GroupId groupId)
-			throws DbException {
+	Collection<BlogPostItem> loadItems(GroupId groupId) throws DbException {
 		long now = System.currentTimeMillis();
 		Collection<BlogPostHeader> headers =
 				blogManager.getPostHeaders(groupId);

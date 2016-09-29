@@ -63,33 +63,29 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 
 public class ContactListFragment extends BaseFragment implements EventListener {
 
-	public final static String TAG = "ContactListFragment";
-
-	private static final Logger LOG =
-			Logger.getLogger(ContactListFragment.class.getName());
+	public static final String TAG = ContactListFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
 	ConnectionRegistry connectionRegistry;
 	@Inject
-	protected EventBus eventBus;
+	EventBus eventBus;
 	@Inject
-	protected AndroidNotificationManager notificationManager;
+	AndroidNotificationManager notificationManager;
 
-	private ContactListAdapter adapter = null;
-	private BriarRecyclerView list = null;
+	private ContactListAdapter adapter;
+	private BriarRecyclerView list;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ContactManager contactManager;
+	volatile ContactManager contactManager;
 	@Inject
-	protected volatile IdentityManager identityManager;
+	volatile IdentityManager identityManager;
 	@Inject
-	protected volatile ConversationManager conversationManager;
+	volatile ConversationManager conversationManager;
 
 	public static ContactListFragment newInstance() {
-
 		Bundle args = new Bundle();
-
 		ContactListFragment fragment = new ContactListFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -230,7 +226,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void displayContacts(final List<ContactListItem> contacts) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (contacts.size() == 0) list.showData();
@@ -284,7 +280,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void updateItem(final ContactId c, final ConversationItem m) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
@@ -298,7 +294,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void updateItem(final GroupId g, final ConversationItem m) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(g);
@@ -312,7 +308,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void removeItem(final ContactId c) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
@@ -323,7 +319,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void setConnected(final ContactId c, final boolean connected) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);

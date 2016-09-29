@@ -27,7 +27,7 @@ import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumListFragment;
-import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.identity.LocalAuthor;
 
@@ -43,7 +43,7 @@ import static android.support.v4.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
 import static android.view.View.INVISIBLE;
 
 public class NavDrawerActivity extends BriarFragmentActivity implements
-		BaseFragment.BaseFragmentListener, TransportStateListener,
+		BaseFragmentListener, TransportStateListener,
 		OnNavigationItemSelectedListener {
 
 	static final String INTENT_CONTACTS = "intent_contacts";
@@ -58,9 +58,8 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Inject
-	protected NavDrawerController controller;
+	NavDrawerController controller;
 
-	private Toolbar toolbar;
 	private DrawerLayout drawerLayout;
 	private TextView progressTitle;
 	private ViewGroup progressViewGroup;
@@ -78,11 +77,9 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 //		clearBackStack();
 		if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
 			startFragment(ForumListFragment.newInstance());
-		}
-		else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
+		} else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
 			startFragment(ContactListFragment.newInstance());
-		}
-		else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
+		} else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
 			startFragment(FeedFragment.newInstance());
 		}
 		setIntent(null);
@@ -100,7 +97,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		NavigationView navigation =
 				(NavigationView) findViewById(R.id.navigation);
@@ -318,7 +315,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	private void setTransport(final TransportId id, final boolean enabled) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (transports == null || transportsAdapter == null) return;

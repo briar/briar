@@ -24,16 +24,13 @@ import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiEventListene
 import org.thoughtcrime.securesms.components.emoji.EmojiEditText;
 import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 
-import java.util.logging.Logger;
-
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.view.KeyEvent.KEYCODE_BACK;
 
 @UiThread
 public class TextInputView extends KeyboardAwareLinearLayout
 		implements EmojiEventListener {
-
-	private static final String TAG = TextInputView.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
 
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
@@ -59,7 +56,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	protected void inflateLayout(Context context) {
 		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				.getSystemService(LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.text_input_view, this, true);
 	}
 
@@ -91,7 +88,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		ui.editText.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (keyCode == KeyEvent.KEYCODE_BACK && isEmojiDrawerOpen()) {
+				if (keyCode == KEYCODE_BACK && isEmojiDrawerOpen()) {
 					hideEmojiDrawer();
 					return true;
 				}
@@ -207,10 +204,11 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	}
 
 	protected class ViewHolder {
+
 		private final EmojiToggle emojiToggle;
-		protected final EmojiEditText editText;
-		protected final View sendButton;
-		protected final EmojiDrawer emojiDrawer;
+		final EmojiEditText editText;
+		final View sendButton;
+		final EmojiDrawer emojiDrawer;
 
 		private ViewHolder() {
 			emojiToggle = (EmojiToggle) findViewById(R.id.emoji_toggle);

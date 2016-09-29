@@ -128,7 +128,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	}
 
 	private void keyAgreementFinished(final KeyAgreementResult result) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				startContactExchange(result);
@@ -162,7 +162,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	@Override
 	public void contactExchangeSucceeded(final Author remoteAuthor) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				String contactName = remoteAuthor.getName();
@@ -177,7 +177,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	@Override
 	public void duplicateContact(final Author remoteAuthor) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				String contactName = remoteAuthor.getName();
@@ -192,7 +192,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	@Override
 	public void contactExchangeFailed() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				Toast.makeText(KeyAgreementActivity.this,

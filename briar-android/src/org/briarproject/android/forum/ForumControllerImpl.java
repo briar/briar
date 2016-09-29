@@ -52,20 +52,18 @@ public class ForumControllerImpl extends DbControllerImpl
 			Logger.getLogger(ForumControllerImpl.class.getName());
 
 	@Inject
-	protected Activity activity;
-	@Inject
 	@CryptoExecutor
-	protected Executor cryptoExecutor;
+	Executor cryptoExecutor;
 	@Inject
 	volatile ForumPostFactory forumPostFactory;
 	@Inject
-	protected volatile CryptoComponent crypto;
+	volatile CryptoComponent crypto;
 	@Inject
-	protected volatile ForumManager forumManager;
+	volatile ForumManager forumManager;
 	@Inject
-	protected volatile EventBus eventBus;
+	volatile EventBus eventBus;
 	@Inject
-	protected volatile IdentityManager identityManager;
+	volatile IdentityManager identityManager;
 
 	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
 	private final AtomicLong newestTimeStamp = new AtomicLong();
@@ -81,7 +79,7 @@ public class ForumControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void onActivityCreate() {
+	public void onActivityCreate(Activity activity) {
 		if (activity instanceof ForumPostListener) {
 			listener = (ForumPostListener) activity;
 		} else {
@@ -114,10 +112,10 @@ public class ForumControllerImpl extends DbControllerImpl
 				LOG.info("Forum post received, adding...");
 				final ForumPostHeader fph = pe.getForumPostHeader();
 				updateNewestTimestamp(fph.getTimestamp());
-				activity.runOnUiThread(new Runnable() {
+				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 					@Override
 					public void run() {
-						listener.onExternalEntryAdded(fph);
+						listener.onForumPostReceived(fph);
 					}
 				});
 			}
@@ -125,10 +123,10 @@ public class ForumControllerImpl extends DbControllerImpl
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
 			if (s.getGroup().getId().equals(forum.getId())) {
 				LOG.info("Forum removed");
-				activity.runOnUiThread(new Runnable() {
+				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 					@Override
 					public void run() {
-						activity.finish();
+						listener.onForumRemoved();
 					}
 				});
 			}
