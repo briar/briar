@@ -21,7 +21,8 @@ public class ContactChooserAdapter extends ContactListAdapter {
 	public void onBindViewHolder(final ContactHolder ui, final int position) {
 		super.onBindViewHolder(ui, position);
 
-		final ContactListItem item = getItem(position);
+		final ContactListItem item = getItemAt(position);
+		if (item == null) return;
 
 		ui.name.setText(item.getContact().getAuthor().getName());
 
@@ -34,7 +35,7 @@ public class ContactChooserAdapter extends ContactListAdapter {
 	}
 
 	@Override
-	public int compareContactListItems(ContactListItem c1, ContactListItem c2) {
+	public int compare(ContactListItem c1, ContactListItem c2) {
 		return compareByName(c1, c2);
 	}
 

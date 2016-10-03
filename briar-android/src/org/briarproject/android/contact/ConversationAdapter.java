@@ -2,7 +2,7 @@ package org.briarproject.android.contact;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.util.SortedList;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -16,6 +16,7 @@ import org.briarproject.R;
 import org.briarproject.android.sharing.InvitationsBlogActivity;
 import org.briarproject.android.sharing.InvitationsForumActivity;
 import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.android.util.BriarAdapter;
 import org.briarproject.api.blogs.BlogInvitationRequest;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.forum.ForumInvitationRequest;
@@ -24,9 +25,6 @@ import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.util.StringUtils;
 
-import java.util.List;
-
-import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.support.v7.widget.RecyclerView.ViewHolder;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -43,18 +41,13 @@ import static org.briarproject.android.contact.ConversationItem.NOTICE_IN;
 import static org.briarproject.android.contact.ConversationItem.NOTICE_OUT;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
 
-class ConversationAdapter extends RecyclerView.Adapter {
+class ConversationAdapter extends BriarAdapter<ConversationItem, ViewHolder> {
 
-	private final SortedList<ConversationItem> items =
-			new SortedList<>(ConversationItem.class, new ListCallbacks());
-
-	private Context ctx;
 	private IntroductionHandler intro;
 	private String contactName;
 
-	ConversationAdapter(Context context,
-			IntroductionHandler introductionHandler) {
-		ctx = context;
+	ConversationAdapter(Context ctx, IntroductionHandler introductionHandler) {
+		super(ctx, ConversationItem.class);
 		intro = introductionHandler;
 	}
 
@@ -65,7 +58,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	@Override
 	public int getItemViewType(int position) {
-		return getItem(position).getType();
+		return items.get(position).getType();
 	}
 
 	@Override
@@ -114,7 +107,7 @@ class ConversationAdapter extends RecyclerView.Adapter {
 
 	@Override
 	public void onBindViewHolder(ViewHolder ui, int position) {
-		ConversationItem item = getItem(position);
+		ConversationItem item = getItemAt(position);
 		if (item instanceof ConversationMessageItem) {
 			bindMessage((MessageHolder) ui, (ConversationMessageItem) item);
 		} else if (item instanceof ConversationIntroductionOutItem) {
@@ -370,17 +363,28 @@ class ConversationAdapter extends RecyclerView.Adapter {
 	}
 
 	@Override
-	public int getItemCount() {
-		return items.size();
+	public int compare(ConversationItem c1,
+			ConversationItem c2) {
+		long time1 = c1.getTime();
+		long time2 = c2.getTime();
+		if (time1 < time2) return -1;
+		if (time1 > time2) return 1;
+		return 0;
 	}
 
-	public ConversationItem getItem(int position) {
-		if (position == INVALID_POSITION || items.size() <= position) {
-			return null; // Not found
-		}
-		return items.get(position);
+	@Override
+	public boolean areItemsTheSame(ConversationItem c1,
+			ConversationItem c2) {
+		return c1.getId().equals(c2.getId());
 	}
 
+	@Override
+	public boolean areContentsTheSame(ConversationItem c1,
+			ConversationItem c2) {
+		return c1.equals(c2);
+	}
+
+	@Nullable
 	ConversationItem getLastItem() {
 		if (items.size() > 0) {
 			return items.get(items.size() - 1);
@@ -425,23 +429,11 @@ class ConversationAdapter extends RecyclerView.Adapter {
 		return messages;
 	}
 
-	public void add(final ConversationItem message) {
-		this.items.add(message);
-	}
-
-	public void clear() {
-		items.clear();
-	}
-
-	public void addAll(List<ConversationItem> items) {
-		this.items.addAll(items);
-	}
-
 	private static class MessageHolder extends RecyclerView.ViewHolder {
 
 		public ViewGroup layout;
 		public TextView body;
-		public TextView date;
+		private TextView date;
 		public ImageView status;
 
 		private MessageHolder(View v, int type) {
@@ -529,51 +521,6 @@ class ConversationAdapter extends RecyclerView.Adapter {
 			} else {
 				status = null;
 			}
-		}
-	}
-
-	private class ListCallbacks extends SortedList.Callback<ConversationItem> {
-
-		@Override
-		public void onInserted(int position, int count) {
-			notifyItemRangeInserted(position, count);
-		}
-
-		@Override
-		public void onChanged(int position, int count) {
-			notifyItemRangeChanged(position, count);
-		}
-
-		@Override
-		public void onMoved(int fromPosition, int toPosition) {
-			notifyItemMoved(fromPosition, toPosition);
-		}
-
-		@Override
-		public void onRemoved(int position, int count) {
-			notifyItemRangeRemoved(position, count);
-		}
-
-		@Override
-		public int compare(ConversationItem c1,
-				ConversationItem c2) {
-			long time1 = c1.getTime();
-			long time2 = c2.getTime();
-			if (time1 < time2) return -1;
-			if (time1 > time2) return 1;
-			return 0;
-		}
-
-		@Override
-		public boolean areItemsTheSame(ConversationItem c1,
-				ConversationItem c2) {
-			return c1.getId().equals(c2.getId());
-		}
-
-		@Override
-		public boolean areContentsTheSame(ConversationItem c1,
-				ConversationItem c2) {
-			return c1.equals(c2);
 		}
 	}
 

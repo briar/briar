@@ -20,7 +20,6 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.blogs.BlogActivity;
 import org.briarproject.android.util.AndroidUtils;
-import org.briarproject.android.view.TrustIndicatorView;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.GroupId;

@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.BaseContactListAdapter;
-import org.briarproject.android.contact.ContactListItem;
 
 class SharingStatusAdapter
 		extends BaseContactListAdapter<BaseContactListAdapter.BaseContactHolder> {
@@ -22,11 +21,6 @@ class SharingStatusAdapter
 				R.layout.list_item_contact_small, viewGroup, false);
 
 		return new BaseContactHolder(v);
-	}
-
-	@Override
-	public int compareContactListItems(ContactListItem c1, ContactListItem c2) {
-		return compareByName(c1, c2);
 	}
 
 }

@@ -62,7 +62,7 @@ public class BlogFragment extends BaseFragment implements
 	private MenuItem writeButton, deleteButton;
 	private boolean isMyBlog = false, canDeleteBlog = false;
 
-	static BlogFragment newInstance(GroupId groupId, String name,
+	static BlogFragment newInstance(GroupId groupId, @Nullable String name,
 			boolean isNew) {
 
 		BlogFragment f = new BlogFragment();

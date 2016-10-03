@@ -3,7 +3,6 @@ package org.briarproject.android.blogs;
 import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.Blog;
-import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.event.Event;
@@ -14,7 +13,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -108,9 +106,7 @@ public class BlogControllerImpl extends BaseControllerImpl
 					Blog b = blogManager.getBlog(groupId);
 					boolean ours = a.getId().equals(b.getAuthor().getId());
 					boolean removable = blogManager.canBeRemoved(groupId);
-					BlogItem blog = new BlogItem(b,
-							Collections.<BlogPostHeader>emptyList(),
-							ours, removable);
+					BlogItem blog = new BlogItem(b, ours, removable);
 					handler.onResult(blog);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -119,7 +115,6 @@ public class BlogControllerImpl extends BaseControllerImpl
 				}
 			}
 		});
-
 	}
 
 	@Override

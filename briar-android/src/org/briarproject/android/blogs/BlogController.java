@@ -1,10 +1,6 @@
 package org.briarproject.android.blogs;
 
-import android.support.annotation.UiThread;
-
-import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;

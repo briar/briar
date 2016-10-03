@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.BaseContactListAdapter;
-import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.api.contact.ContactId;
 
 import java.util.ArrayList;
@@ -41,7 +40,8 @@ class ContactSelectorAdapter
 		super.onBindViewHolder(ui, position);
 
 		SelectableContactListItem item =
-				(SelectableContactListItem) getItem(position);
+				(SelectableContactListItem) getItemAt(position);
+		if (item == null) return;
 
 		if (item.isSelected()) {
 			ui.checkBox.setChecked(true);
@@ -64,9 +64,9 @@ class ContactSelectorAdapter
 	Collection<ContactId> getSelectedContactIds() {
 		Collection<ContactId> selected = new ArrayList<>();
 
-		for (int i = 0; i < contacts.size(); i++) {
+		for (int i = 0; i < items.size(); i++) {
 			SelectableContactListItem item =
-					(SelectableContactListItem) contacts.get(i);
+					(SelectableContactListItem) items.get(i);
 			if (item.isSelected()) selected.add(item.getContact().getId());
 		}
 
@@ -79,17 +79,12 @@ class ContactSelectorAdapter
 		private final CheckBox checkBox;
 		private final TextView shared;
 
-		SelectableContactHolder(View v) {
+		private SelectableContactHolder(View v) {
 			super(v);
 
 			checkBox = (CheckBox) v.findViewById(R.id.checkBox);
 			shared = (TextView) v.findViewById(R.id.infoView);
 		}
-	}
-
-	@Override
-	public int compareContactListItems(ContactListItem c1, ContactListItem c2) {
-		return compareByName(c1, c2);
 	}
 
 	private void grayOutItem(SelectableContactHolder ui, boolean gray) {

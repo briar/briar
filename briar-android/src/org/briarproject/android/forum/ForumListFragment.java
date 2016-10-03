@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
@@ -44,7 +45,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 public class ForumListFragment extends BaseEventFragment implements
-		View.OnClickListener {
+		OnClickListener {
 
 	public final static String TAG = "ForumListFragment";
 
@@ -288,7 +289,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				ForumListItem item = adapter.getItem(g);
+				ForumListItem item = adapter.findItem(g);
 				if (item != null) adapter.remove(item);
 			}
 		});

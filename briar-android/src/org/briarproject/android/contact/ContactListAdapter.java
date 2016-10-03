@@ -31,7 +31,8 @@ public class ContactListAdapter
 	public void onBindViewHolder(ContactHolder ui, int position) {
 		super.onBindViewHolder(ui, position);
 
-		ContactListItem item = getItem(position);
+		ContactListItem item = getItemAt(position);
+		if (item == null) return;
 
 		// unread count
 		int unread = item.getUnreadCount();
@@ -65,11 +66,11 @@ public class ContactListAdapter
 			extends BaseContactListAdapter.BaseContactHolder {
 
 		public final ImageView bulb;
-		final TextView unread;
+		private final TextView unread;
 		public final TextView date;
 		public final TextView identity;
 
-		ContactHolder(View v) {
+		private ContactHolder(View v) {
 			super(v);
 
 			bulb = (ImageView) v.findViewById(R.id.bulbView);
@@ -80,7 +81,7 @@ public class ContactListAdapter
 	}
 
 	@Override
-	public int compareContactListItems(ContactListItem c1, ContactListItem c2) {
+	public int compare(ContactListItem c1, ContactListItem c2) {
 		return compareByTime(c1, c2);
 	}
 }
