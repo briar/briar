@@ -1,15 +1,14 @@
 package org.briarproject.api.blogs;
 
-import org.briarproject.api.forum.Forum;
+import org.briarproject.api.clients.BaseGroup;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sync.Group;
 import org.jetbrains.annotations.NotNull;
 
-public class Blog extends Forum {
+public class Blog extends BaseGroup implements Shareable {
 
-	@NotNull
 	private final String description;
-	@NotNull
 	private final Author author;
 
 	public Blog(@NotNull Group group, @NotNull String name,
@@ -28,5 +27,10 @@ public class Blog extends Forum {
 	@NotNull
 	public Author getAuthor() {
 		return author;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof Blog && super.equals(o);
 	}
 }

@@ -15,7 +15,7 @@ import org.briarproject.api.blogs.BlogPost;
 import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -86,7 +85,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	private final ScheduledExecutorService feedExecutor;
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
-	private final PrivateGroupFactory privateGroupFactory;
+	private final ContactGroupFactory contactGroupFactory;
 	private final ClientHelper clientHelper;
 	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
@@ -103,14 +102,14 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	@Inject
 	FeedManagerImpl(ScheduledExecutorService feedExecutor,
 			@IoExecutor Executor ioExecutor, DatabaseComponent db,
-			PrivateGroupFactory privateGroupFactory, ClientHelper clientHelper,
+			ContactGroupFactory contactGroupFactory, ClientHelper clientHelper,
 			IdentityManager identityManager, BlogManager blogManager,
 			SocketFactory torSocketFactory) {
 
 		this.feedExecutor = feedExecutor;
 		this.ioExecutor = ioExecutor;
 		this.db = db;
-		this.privateGroupFactory = privateGroupFactory;
+		this.contactGroupFactory = contactGroupFactory;
 		this.clientHelper = clientHelper;
 		this.identityManager = identityManager;
 		this.blogManager = blogManager;
@@ -518,7 +517,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	}
 
 	private Group getLocalGroup() {
-		return privateGroupFactory.createLocalGroup(getClientId());
+		return contactGroupFactory.createLocalGroup(getClientId());
 	}
 
 }

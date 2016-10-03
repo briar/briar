@@ -1,14 +1,14 @@
-package org.briarproject.api.messaging;
+package org.briarproject.api.clients;
 
 import org.briarproject.api.sync.MessageId;
 
-public abstract class BaseMessage {
+public abstract class BaseMessageHeader {
 
 	private final MessageId id;
 	private final long timestamp;
 	private final boolean local, read, sent, seen;
 
-	public BaseMessage(MessageId id, long timestamp, boolean local,
+	public BaseMessageHeader(MessageId id, long timestamp, boolean local,
 			boolean read, boolean sent, boolean seen) {
 
 		this.id = id;

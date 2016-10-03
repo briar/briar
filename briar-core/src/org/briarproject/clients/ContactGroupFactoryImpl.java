@@ -4,7 +4,7 @@ package org.briarproject.clients;
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.AuthorId;
@@ -14,7 +14,7 @@ import org.briarproject.api.sync.GroupFactory;
 
 import javax.inject.Inject;
 
-class PrivateGroupFactoryImpl implements PrivateGroupFactory {
+class ContactGroupFactoryImpl implements ContactGroupFactory {
 
 	private static final byte[] LOCAL_GROUP_DESCRIPTOR = new byte[0];
 
@@ -22,7 +22,7 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 	private final ClientHelper clientHelper;
 
 	@Inject
-	PrivateGroupFactoryImpl(GroupFactory groupFactory,
+	ContactGroupFactoryImpl(GroupFactory groupFactory,
 			ClientHelper clientHelper) {
 		this.groupFactory = groupFactory;
 		this.clientHelper = clientHelper;
@@ -34,7 +34,7 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 	}
 
 	@Override
-	public Group createPrivateGroup(ClientId clientId, Contact contact) {
+	public Group createContactGroup(ClientId clientId, Contact contact) {
 		AuthorId local = contact.getLocalAuthorId();
 		AuthorId remote = contact.getAuthor().getId();
 		byte[] descriptor = createGroupDescriptor(local, remote);

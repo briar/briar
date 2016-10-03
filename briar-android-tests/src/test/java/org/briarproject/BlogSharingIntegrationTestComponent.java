@@ -2,13 +2,8 @@ package org.briarproject;
 
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogSharingManager;
-import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.PrivateGroupFactory;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.SyncSessionFactory;
@@ -86,15 +81,5 @@ interface BlogSharingIntegrationTestComponent {
 	BlogManager getBlogManager();
 
 	SyncSessionFactory getSyncSessionFactory();
-
-	/* the following methods are only needed to manually construct messages */
-
-	DatabaseComponent getDatabaseComponent();
-
-	PrivateGroupFactory getPrivateGroupFactory();
-
-	ClientHelper getClientHelper();
-
-	MessageQueueManager getMessageQueueManager();
 
 }

@@ -3,7 +3,7 @@ package org.briarproject.sharing;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
@@ -59,10 +59,10 @@ class ForumSharingManagerImpl extends
 			MessageQueueManager messageQueueManager,
 			MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser,
-			PrivateGroupFactory privateGroupFactory,
+			ContactGroupFactory contactGroupFactory,
 			SecureRandom random) {
 		super(db, messageQueueManager, clientHelper, metadataParser,
-				metadataEncoder, random, privateGroupFactory, clock);
+				metadataEncoder, random, contactGroupFactory, clock);
 
 		sFactory = new SFactory(forumFactory, forumManager);
 		iFactory = new IFactory();

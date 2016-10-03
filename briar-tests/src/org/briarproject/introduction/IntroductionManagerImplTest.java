@@ -5,7 +5,7 @@ import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
@@ -55,7 +55,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	final IntroducerManager introducerManager;
 	final IntroduceeManager introduceeManager;
 	final DatabaseComponent db;
-	final PrivateGroupFactory privateGroupFactory;
+	final ContactGroupFactory contactGroupFactory;
 	final ClientHelper clientHelper;
 	final MetadataEncoder metadataEncoder;
 	final MessageQueueManager messageQueueManager;
@@ -109,7 +109,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		introducerManager = context.mock(IntroducerManager.class);
 		introduceeManager = context.mock(IntroduceeManager.class);
 		db = context.mock(DatabaseComponent.class);
-		privateGroupFactory = context.mock(PrivateGroupFactory.class);
+		contactGroupFactory = context.mock(ContactGroupFactory.class);
 		clientHelper = context.mock(ClientHelper.class);
 		metadataEncoder =
 				context.mock(MetadataEncoder.class);

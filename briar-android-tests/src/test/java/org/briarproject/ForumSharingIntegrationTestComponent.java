@@ -2,7 +2,7 @@ package org.briarproject;
 
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.PrivateGroupFactory;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
@@ -90,7 +90,7 @@ interface ForumSharingIntegrationTestComponent {
 
 	DatabaseComponent getDatabaseComponent();
 
-	PrivateGroupFactory getPrivateGroupFactory();
+	ContactGroupFactory getContactGroupFactory();
 
 	ClientHelper getClientHelper();
 

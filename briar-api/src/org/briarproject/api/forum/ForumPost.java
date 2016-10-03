@@ -1,30 +1,25 @@
 package org.briarproject.api.forum;
 
+import org.briarproject.api.clients.BaseMessage;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ForumPost {
+public class ForumPost extends BaseMessage {
 
-	private final Message message;
-	private final MessageId parent;
 	private final Author author;
 
-	public ForumPost(Message message, MessageId parent, Author author) {
-		this.message = message;
-		this.parent = parent;
+	public ForumPost(@NotNull Message message, @Nullable MessageId parent,
+			@Nullable Author author) {
+		super(message, parent);
 		this.author = author;
 	}
 
-	public Message getMessage() {
-		return message;
-	}
-
-	public MessageId getParent() {
-		return parent;
-	}
-
+	@Nullable
 	public Author getAuthor() {
 		return author;
 	}
+
 }

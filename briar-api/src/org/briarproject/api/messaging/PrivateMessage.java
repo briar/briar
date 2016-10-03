@@ -1,30 +1,23 @@
 package org.briarproject.api.messaging;
 
+import org.briarproject.api.clients.BaseMessage;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class PrivateMessage {
+public class PrivateMessage extends BaseMessage {
 
-	private final Message message;
-	private final MessageId parent;
 	private final String contentType;
 
-	public PrivateMessage(Message message, MessageId parent,
-			String contentType) {
-		this.message = message;
-		this.parent = parent;
+	public PrivateMessage(@NotNull Message message, @Nullable MessageId parent,
+			@NotNull String contentType) {
+		super(message, parent);
 		this.contentType = contentType;
-	}
-
-	public Message getMessage() {
-		return message;
-	}
-
-	public MessageId getParent() {
-		return parent;
 	}
 
 	public String getContentType() {
 		return contentType;
 	}
+
 }
