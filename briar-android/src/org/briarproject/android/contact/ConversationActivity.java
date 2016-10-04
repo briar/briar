@@ -809,7 +809,7 @@ public class ConversationActivity extends BriarActivity
 					@Override
 					public void onHidePrompt(MotionEvent motionEvent,
 							boolean focalClicked) {
-						if (focalClicked) introductionOnboardingSeen();
+						introductionOnboardingSeen();
 					}
 
 					@Override
