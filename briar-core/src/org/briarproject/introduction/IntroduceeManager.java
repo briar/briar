@@ -32,6 +32,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -243,7 +244,7 @@ class IntroduceeManager {
 					result) throws DbException, FormatException {
 
 		// perform actions based on new local state
-		performTasks(txn, result.localState);
+		BdfDictionary followUpAction = performTasks(txn, result.localState);
 
 		// save new local state
 		MessageId storageId =
@@ -269,13 +270,21 @@ class IntroduceeManager {
 			db.deleteMessage(txn, messageId);
 			db.deleteMessageMetadata(txn, messageId);
 		}
+
+		// process follow up action at the end if available
+		if (followUpAction != null) {
+			IntroduceeEngine engine = new IntroduceeEngine();
+			processStateUpdate(txn, null,
+					engine.onLocalAction(result.localState, followUpAction));
+		}
 	}
 
-	private void performTasks(Transaction txn, BdfDictionary localState)
+	@Nullable
+	private BdfDictionary performTasks(Transaction txn, BdfDictionary localState)
 			throws FormatException, DbException {
 
 		if (!localState.containsKey(TASK) || localState.get(TASK) == NULL_VALUE)
-			return;
+			return null;
 
 		// remember task and remove it from localState
 		long task = localState.getLong(TASK);
@@ -285,7 +294,7 @@ class IntroduceeManager {
 			if (localState.getBoolean(EXISTS)) {
 				// we have this contact already, so do not perform actions
 				LOG.info("We have this contact already, do not add");
-				return;
+				return null;
 			}
 
 			// figure out who takes which role by comparing public keys
@@ -348,10 +357,9 @@ class IntroduceeManager {
 			BdfDictionary localAction = new BdfDictionary();
 			localAction.put(TYPE, TYPE_ACK);
 
-			// start engine and process its state update
-			IntroduceeEngine engine = new IntroduceeEngine();
-			processStateUpdate(txn, null,
-					engine.onLocalAction(localState, localAction));
+			// return follow up action to start engine
+			// and process its state update again
+			return localAction;
 		}
 
 		// we sent and received an ACK, so activate contact
@@ -394,6 +402,7 @@ class IntroduceeManager {
 				contactManager.removeContact(txn, contactId);
 			}
 		}
+		return null;
 	}
 
 	private SecretKey deriveSecretKey(byte[] publicKeyBytes,
