@@ -443,6 +443,54 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testResponseAndAckInOneSession() throws Exception {
+		startLifecycles();
+
+		addDefaultIdentities();
+		addDefaultContacts();
+		addListeners(true, true);
+		addTransportProperties();
+
+		// make introduction
+		long time = clock.currentTimeMillis();
+		Contact introducee1 = contactManager0.getContact(contactId1);
+		Contact introducee2 = contactManager0.getContact(contactId2);
+		introductionManager0
+				.makeIntroduction(introducee1, introducee2, "Hi!", time);
+
+		// sync first request message
+		deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+
+		// sync first response
+		deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.response1Received);
+
+		// don't let 2 answer the request right away
+		// to have the response arrive first
+		listener2.answerRequests = false;
+
+		// sync second request message and first response
+		deliverMessage(sync0, contactId0, sync2, contactId2, 2, "0 to 2");
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener2.requestReceived);
+
+		// answer request manually
+		introductionManager2
+				.acceptIntroduction(contactId0, listener2.sessionId, time);
+
+		// sync second response and ACK and make sure there is no abort
+		deliverMessage(sync2, contactId2, sync0, contactId0, 2, "2 to 0");
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.response2Received);
+		assertFalse(listener0.aborted);
+
+		stopLifecycles();
+	}
+
+	@Test
 	public void testIntroductionToSameContact() throws Exception {
 		startLifecycles();
 		try {
@@ -1169,6 +1217,8 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 		private volatile boolean requestReceived = false;
 		private volatile boolean succeeded = false;
 		private volatile boolean aborted = false;
+		private volatile boolean answerRequests = true;
+		private volatile SessionId sessionId;
 
 		private final int introducee;
 		private final boolean accept;
@@ -1194,10 +1244,10 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 				requestReceived = true;
 				IntroductionRequest ir = introEvent.getIntroductionRequest();
 				ContactId contactId = introEvent.getContactId();
-				SessionId sessionId = ir.getSessionId();
+				sessionId = ir.getSessionId();
 				long time = clock.currentTimeMillis();
 				try {
-					if (introducee == 1) {
+					if (introducee == 1 && answerRequests) {
 						if (accept) {
 							introductionManager1
 									.acceptIntroduction(contactId, sessionId,
@@ -1207,7 +1257,7 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 									.declineIntroduction(contactId, sessionId,
 											time);
 						}
-					} else if (introducee == 2) {
+					} else if (introducee == 2 && answerRequests) {
 						if (accept) {
 							introductionManager2
 									.acceptIntroduction(contactId, sessionId,
