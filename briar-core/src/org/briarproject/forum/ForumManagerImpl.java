@@ -45,9 +45,9 @@ import static org.briarproject.api.forum.ForumConstants.KEY_LOCAL;
 import static org.briarproject.api.forum.ForumConstants.KEY_NAME;
 import static org.briarproject.api.forum.ForumConstants.KEY_PARENT;
 import static org.briarproject.api.forum.ForumConstants.KEY_PUBLIC_NAME;
-import static org.briarproject.api.forum.ForumConstants.KEY_READ;
 import static org.briarproject.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
+import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
@@ -55,7 +55,6 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			"859a7be50dca035b64bd6902fb797097"
 					+ "795af837abbf8c16d750b3c2ccc186ea"));
 
-	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
 	private final ForumFactory forumFactory;
 	private final List<RemoveForumHook> removeHooks;
@@ -64,9 +63,8 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	ForumManagerImpl(DatabaseComponent db, IdentityManager identityManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
 			ForumFactory forumFactory) {
+		super(db, clientHelper, metadataParser);
 
-		super(clientHelper, metadataParser);
-		this.db = db;
 		this.identityManager = identityManager;
 		this.forumFactory = forumFactory;
 		removeHooks = new CopyOnWriteArrayList<RemoveForumHook>();
@@ -75,6 +73,8 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
+
+		trackIncomingMessage(txn, m);
 
 		ForumPostHeader post = getForumPostHeader(txn, m.getId(), meta);
 		ForumPostReceivedEvent event =
@@ -119,6 +119,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public void addLocalPost(ForumPost p) throws DbException {
+		Transaction txn = db.startTransaction(false);
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
@@ -132,10 +133,14 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				meta.put(KEY_AUTHOR, authorMeta);
 			}
 			meta.put(KEY_LOCAL, true);
-			meta.put(KEY_READ, true);
-			clientHelper.addLocalMessage(p.getMessage(), meta, true);
+			meta.put(MSG_KEY_READ, true);
+			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
+			trackOutgoingMessage(txn, p.getMessage());
+			txn.setComplete();
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
+		} finally {
+			db.endTransaction(txn);
 		}
 	}
 
@@ -231,17 +236,6 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	public void setReadFlag(MessageId m, boolean read) throws DbException {
-		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put(KEY_READ, read);
-			clientHelper.mergeMessageMetadata(m, meta);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
 	public void registerRemoveForumHook(RemoveForumHook hook) {
 		removeHooks.add(hook);
 	}
@@ -281,7 +275,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				status = identityManager.getAuthorStatus(txn, author.getId());
 			}
 		}
-		boolean read = meta.getBoolean(KEY_READ);
+		boolean read = meta.getBoolean(MSG_KEY_READ);
 
 		return new ForumPostHeader(id, parentId, timestamp, author, status,
 				read);

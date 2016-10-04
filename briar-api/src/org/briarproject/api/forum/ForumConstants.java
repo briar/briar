@@ -28,6 +28,5 @@ public interface ForumConstants {
 	String KEY_PUBLIC_NAME = "publicKey";
 	String KEY_AUTHOR = "author";
 	String KEY_LOCAL = "local";
-	String KEY_READ = "read";
 
 }

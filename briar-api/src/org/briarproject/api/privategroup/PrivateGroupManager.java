@@ -1,5 +1,6 @@
 package org.briarproject.api.privategroup;
 
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.ClientId;
@@ -9,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
-public interface PrivateGroupManager {
+public interface PrivateGroupManager extends MessageTracker {
 
 	/** Returns the unique ID of the private group client. */
 	@NotNull
@@ -39,8 +40,5 @@ public interface PrivateGroupManager {
 	/** Returns the headers of all group messages in the given group. */
 	@NotNull
 	Collection<GroupMessageHeader> getHeaders(GroupId g) throws DbException;
-
-	/** Marks a group message as read or unread. */
-	void setReadFlag(MessageId m, boolean read) throws DbException;
 
 }

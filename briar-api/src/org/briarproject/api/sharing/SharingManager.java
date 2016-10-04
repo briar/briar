@@ -1,5 +1,6 @@
 package org.briarproject.api.sharing;
 
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -8,7 +9,7 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-public interface SharingManager<S extends Shareable> {
+public interface SharingManager<S extends Shareable> extends MessageTracker {
 
 	/** Returns the unique ID of the group sharing client. */
 	ClientId getClientId();

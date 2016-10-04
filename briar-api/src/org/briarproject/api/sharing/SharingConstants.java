@@ -16,7 +16,6 @@ public interface SharingConstants {
 	String STATE = "state";
 	String LOCAL = "local";
 	String TIME = "time";
-	String READ = "read";
 	String IS_SHARER = "isSharer";
 	String SHAREABLE_ID = "shareableId";
 	String INVITATION_MSG = "invitationMsg";

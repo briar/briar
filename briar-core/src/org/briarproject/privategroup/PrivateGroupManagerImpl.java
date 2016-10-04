@@ -28,8 +28,6 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 
-import static org.briarproject.privategroup.Constants.KEY_READ;
-
 public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		PrivateGroupManager {
 
@@ -37,7 +35,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			StringUtils.fromHexString("5072697661746547726f75704d616e61"
 					+ "67657220627920546f727374656e2047"));
 
-	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
 	private final PrivateGroupFactory privateGroupFactory;
 
@@ -46,9 +43,8 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			MetadataParser metadataParser, DatabaseComponent db,
 			IdentityManager identityManager,
 			PrivateGroupFactory privateGroupFactory) {
-		super(clientHelper, metadataParser);
+		super(db, clientHelper, metadataParser);
 
-		this.db = db;
 		this.identityManager = identityManager;
 		this.privateGroupFactory = privateGroupFactory;
 	}
@@ -61,11 +57,16 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 	@Override
 	public void addLocalMessage(GroupMessage m) throws DbException {
+		Transaction txn = db.startTransaction(false);
 		try {
 			BdfDictionary meta = new BdfDictionary();
-			clientHelper.addLocalMessage(m.getMessage(), meta, true);
+			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
+			trackOutgoingMessage(txn, m.getMessage());
+			txn.setComplete();
 		} catch (FormatException e) {
 			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
 		}
 	}
 
@@ -105,19 +106,10 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	}
 
 	@Override
-	public void setReadFlag(MessageId m, boolean read) throws DbException {
-		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put(KEY_READ, read);
-			clientHelper.mergeMessageMetadata(m, meta);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
+
+		trackIncomingMessage(txn, m);
 
 		return true;
 	}

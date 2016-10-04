@@ -45,7 +45,6 @@ public interface IntroductionConstants {
 	String CONTACT_ID_2 = "contactId2";
 	String RESPONSE_1 = "response1";
 	String RESPONSE_2 = "response2";
-	String READ = "read";
 
 	/* Introduction Request Action */
 	String PUBLIC_KEY1 = "publicKey1";

@@ -291,13 +291,15 @@ public class ForumControllerImpl extends DbControllerImpl
 
 	@Override
 	public void entriesRead(final Collection<ForumEntry> forumEntries) {
+		if (forum == null) return;
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
 					for (ForumEntry fe : forumEntries) {
-						forumManager.setReadFlag(fe.getId(), true);
+						forumManager
+								.setReadFlag(forum.getId(), fe.getId(), true);
 					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))

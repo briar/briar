@@ -499,7 +499,7 @@ public class ConversationActivity extends BriarActivity
 					for (MessageId m : unread)
 						// not really clean, but the messaging manager can
 						// handle introduction messages as well
-						messagingManager.setReadFlag(m, true);
+						messagingManager.setReadFlag(groupId, m, true);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
@@ -614,7 +614,7 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void run() {
 				try {
-					messagingManager.setReadFlag(m, true);
+					messagingManager.setReadFlag(groupId, m, true);
 					loadMessages();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

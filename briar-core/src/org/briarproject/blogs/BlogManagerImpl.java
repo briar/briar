@@ -86,7 +86,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			"dafbe56f0c8971365cea4bb5f08ec9a6" +
 					"1d686e058b943997b6ff259ba423f613"));
 
-	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
 	private final BlogFactory blogFactory;
@@ -98,9 +97,8 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
 			ContactManager contactManager, BlogFactory blogFactory,
 			BlogPostFactory blogPostFactory) {
-		super(clientHelper, metadataParser);
+		super(db, clientHelper, metadataParser);
 
-		this.db = db;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
 		this.blogFactory = blogFactory;

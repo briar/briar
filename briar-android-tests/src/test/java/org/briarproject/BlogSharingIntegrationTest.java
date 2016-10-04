@@ -8,6 +8,7 @@ import org.briarproject.api.blogs.BlogInvitationResponse;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.blogs.BlogSharingManager;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -25,6 +26,7 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sharing.InvitationMessage;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.sync.ValidationManager.State;
@@ -62,12 +64,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class BlogSharingIntegrationTest extends BriarTestCase {
+public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 
 	private LifecycleManager lifecycleManager0, lifecycleManager1,
 			lifecycleManager2;
-	private SyncSessionFactory sync0, sync1, sync2;
-	private BlogManager blogManager0, blogManager1, blogManager2;
+	private SyncSessionFactory sync0, sync1;
+	private BlogManager blogManager0, blogManager1;
 	private ContactManager contactManager0, contactManager1, contactManager2;
 	private Contact contact1, contact2, contact01, contact02;
 	private ContactId contactId1, contactId2, contactId01, contactId02;
@@ -82,6 +84,8 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 	Clock clock;
 	@Inject
 	AuthorFactory authorFactory;
+	@Inject
+	ContactGroupFactory contactGroupFactory;
 	@Inject
 	BlogPostFactory blogPostFactory;
 	@Inject
@@ -138,13 +142,11 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		contactManager2 = t2.getContactManager();
 		blogManager0 = t0.getBlogManager();
 		blogManager1 = t1.getBlogManager();
-		blogManager2 = t2.getBlogManager();
 		blogSharingManager0 = t0.getBlogSharingManager();
 		blogSharingManager1 = t1.getBlogSharingManager();
 		blogSharingManager2 = t2.getBlogSharingManager();
 		sync0 = t0.getSyncSessionFactory();
 		sync1 = t1.getSyncSessionFactory();
-		sync2 = t2.getSyncSessionFactory();
 
 		// initialize waiters fresh for each test
 		eventWaiter = new Waiter();
@@ -187,15 +189,23 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		// invitee has own blog and that of the sharer
 		assertEquals(2, blogManager1.getBlogs().size());
 
+		// get sharing group and assert group message count
+		GroupId g = contactGroupFactory
+				.createContactGroup(blogSharingManager0.getClientId(),
+						contact1).getId();
+		assertGroupCount(blogSharingManager0, g, 1, 0);
+
 		// sync first request message
 		sync0To1();
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
+		assertGroupCount(blogSharingManager1, g, 2, 1);
 
 		// sync response back
 		sync1To0();
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.responseReceived);
+		assertGroupCount(blogSharingManager0, g, 2, 1);
 
 		// blog was added successfully
 		assertEquals(0, blogSharingManager0.getInvitations().size());
@@ -231,6 +241,10 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 		// blog can not be shared again
 		assertFalse(blogSharingManager0.canBeShared(blog2.getId(), contact1));
 		assertFalse(blogSharingManager1.canBeShared(blog2.getId(), contact01));
+
+		// group message count is still correct
+		assertGroupCount(blogSharingManager0, g, 2, 1);
+		assertGroupCount(blogSharingManager1, g, 2, 1);
 
 		stopLifecycles();
 	}
@@ -510,8 +524,7 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 
 	private class SharerListener implements EventListener {
 
-		volatile boolean requestReceived = false;
-		volatile boolean responseReceived = false;
+		private volatile boolean responseReceived = false;
 
 		@Override
 		public void eventOccurred(Event e) {
@@ -534,7 +547,6 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 				BlogInvitationReceivedEvent event =
 						(BlogInvitationReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1, event.getContactId());
-				requestReceived = true;
 				Blog b = event.getBlog();
 				try {
 					Contact c = contactManager0.getContact(contactId1);
@@ -550,17 +562,16 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 
 	private class InviteeListener implements EventListener {
 
-		volatile boolean requestReceived = false;
-		volatile boolean responseReceived = false;
+		private volatile boolean requestReceived = false;
 
 		private final boolean accept, answer;
 
-		InviteeListener(boolean accept, boolean answer) {
+		private InviteeListener(boolean accept, boolean answer) {
 			this.accept = accept;
 			this.answer = answer;
 		}
 
-		InviteeListener(boolean accept) {
+		private InviteeListener(boolean accept) {
 			this(accept, true);
 		}
 
@@ -596,7 +607,6 @@ public class BlogSharingIntegrationTest extends BriarTestCase {
 				BlogInvitationResponseReceivedEvent event =
 						(BlogInvitationResponseReceivedEvent) e;
 				eventWaiter.assertEquals(contactId01, event.getContactId());
-				responseReceived = true;
 				eventWaiter.resume();
 			}
 		}
