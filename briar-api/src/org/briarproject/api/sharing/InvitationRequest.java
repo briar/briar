@@ -16,7 +16,7 @@ public abstract class InvitationRequest extends InvitationMessage {
 			boolean available, long time, boolean local, boolean sent,
 			boolean seen, boolean read) {
 
-		super(id, sessionId, groupId, contactId, time, local, read, sent, seen);
+		super(id, sessionId, groupId, contactId, time, local, sent, seen, read);
 		this.message = message;
 		this.available = available;
 	}

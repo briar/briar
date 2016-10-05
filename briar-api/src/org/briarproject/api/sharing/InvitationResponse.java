@@ -13,7 +13,7 @@ public abstract class InvitationResponse extends InvitationMessage {
 			GroupId groupId, ContactId contactId, boolean accept, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
 
-		super(id, sessionId, groupId, contactId, time, local, read, sent, seen);
+		super(id, sessionId, groupId, contactId, time, local, sent, seen, read);
 		this.accept = accept;
 	}
 
