@@ -681,11 +681,10 @@ public class ConversationActivity extends BriarActivity
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
-
 					MessageId id = m.getMessage().getId();
 					PrivateMessageHeader h = new PrivateMessageHeader(id,
-							m.getMessage().getTimestamp(), m.getContentType(),
-							true, false, false, false);
+							groupId, m.getMessage().getTimestamp(),
+							m.getContentType(), true, false, false, false);
 					ConversationMessageItem item = ConversationItem.from(h);
 					item.setBody(body);
 					bodyCache.put(id, body);

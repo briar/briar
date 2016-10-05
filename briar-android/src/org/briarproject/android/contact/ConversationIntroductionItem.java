@@ -9,7 +9,7 @@ abstract class ConversationIntroductionItem extends ConversationItem {
 	private boolean answered;
 
 	ConversationIntroductionItem(IntroductionRequest ir) {
-		super(ir.getMessageId(), ir.getTimestamp());
+		super(ir.getMessageId(), ir.getGroupId(), ir.getTimestamp());
 
 		this.ir = ir;
 		this.answered = ir.wasAnswered();

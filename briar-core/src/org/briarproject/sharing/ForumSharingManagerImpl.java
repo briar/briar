@@ -83,17 +83,18 @@ class ForumSharingManagerImpl extends
 			ForumInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read) {
-		return new ForumInvitationRequest(id, msg.getSessionId(), contactId,
-				msg.getForumName(), msg.getMessage(), available, time, local,
-				sent, seen, read);
+		return new ForumInvitationRequest(id, msg.getSessionId(),
+				msg.getGroupId(), contactId, msg.getForumName(),
+				msg.getMessage(), available, time, local, sent, seen, read);
 	}
 
 	@Override
 	protected InvitationMessage createInvitationResponse(MessageId id,
-			SessionId sessionId, ContactId contactId, boolean accept,
-			long time, boolean local, boolean sent, boolean seen, boolean read) {
-		return new ForumInvitationResponse(id, sessionId, contactId, accept,
-				time, local, sent, seen, read);
+			SessionId sessionId, GroupId groupId, ContactId contactId,
+			boolean accept, long time, boolean local, boolean sent,
+			boolean seen, boolean read) {
+		return new ForumInvitationResponse(id, sessionId, groupId, contactId,
+				accept, time, local, sent, seen, read);
 	}
 
 	@Override
@@ -268,8 +269,8 @@ class ForumSharingManagerImpl extends
 			ContactId contactId = localState.getContactId();
 			ForumInvitationRequest request = new ForumInvitationRequest(
 					localState.getInvitationId(), localState.getSessionId(),
-					contactId, forum.getName(), msg, true, time, false, false,
-					false, false);
+					localState.getGroupId(), contactId, forum.getName(), msg,
+					true, time, false, false, false, false);
 			return new ForumInvitationReceivedEvent(forum, contactId, request);
 		}
 	}
@@ -282,9 +283,9 @@ class ForumSharingManagerImpl extends
 			String name = localState.getForumName();
 			ContactId c = localState.getContactId();
 			ForumInvitationResponse response = new ForumInvitationResponse(
-					localState.getResponseId(),
-					localState.getSessionId(), localState.getContactId(),
-					accept, time, false, false, false, false);
+					localState.getResponseId(), localState.getSessionId(),
+					localState.getGroupId(), localState.getContactId(), accept,
+					time, false, false, false, false);
 			return new ForumInvitationResponseReceivedEvent(name, c, response);
 		}
 	}

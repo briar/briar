@@ -1,5 +1,6 @@
 package org.briarproject.android.contact;
 
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
@@ -8,9 +9,9 @@ class ConversationNoticeInItem extends ConversationNoticeItem
 
 	private boolean read;
 
-	ConversationNoticeInItem(MessageId id, String text, long time,
-			boolean read) {
-		super(id, text, time);
+	ConversationNoticeInItem(MessageId id, GroupId groupId, String text,
+			long time, boolean read) {
+		super(id, groupId, text, time);
 
 		this.read = read;
 	}

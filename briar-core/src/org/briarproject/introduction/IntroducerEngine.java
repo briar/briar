@@ -12,6 +12,7 @@ import org.briarproject.api.introduction.IntroducerAction;
 import org.briarproject.api.introduction.IntroducerProtocolState;
 import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
@@ -298,14 +299,15 @@ public class IntroducerEngine
 
 		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
 		MessageId messageId = new MessageId(msg.getRaw(MESSAGE_ID));
+		GroupId groupId = new GroupId(msg.getRaw(GROUP_ID));
 		long time = msg.getLong(MESSAGE_TIME);
 		String name = getOtherContact(localState, msg);
 		boolean accept = msg.getBoolean(ACCEPT);
 
 		IntroductionResponse ir =
-				new IntroductionResponse(sessionId, messageId, ROLE_INTRODUCER,
-						time, false, false, false, false, authorId, name,
-						accept);
+				new IntroductionResponse(sessionId, messageId, groupId,
+						ROLE_INTRODUCER, time, false, false, false, false,
+						authorId, name, accept);
 		return new IntroductionResponseReceivedEvent(contactId, ir);
 	}
 

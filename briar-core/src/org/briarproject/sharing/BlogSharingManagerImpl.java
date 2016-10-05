@@ -109,17 +109,18 @@ class BlogSharingManagerImpl extends
 			BlogInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read) {
-		return new BlogInvitationRequest(id, msg.getSessionId(), contactId,
-				msg.getBlogAuthorName(), msg.getMessage(), available, time,
-				local, sent, seen, read);
+		return new BlogInvitationRequest(id, msg.getSessionId(),
+				msg.getGroupId(), contactId, msg.getBlogAuthorName(),
+				msg.getMessage(), available, time, local, sent, seen, read);
 	}
 
 	@Override
 	protected InvitationMessage createInvitationResponse(MessageId id,
-			SessionId sessionId, ContactId contactId, boolean accept, long time,
+			SessionId sessionId, GroupId groupId, ContactId contactId,
+			boolean accept, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
-		return new BlogInvitationResponse(id, sessionId, contactId, accept,
-				time, local, sent, seen, read);
+		return new BlogInvitationResponse(id, sessionId, groupId, contactId,
+				accept, time, local, sent, seen, read);
 	}
 
 	@Override
@@ -321,9 +322,9 @@ class BlogSharingManagerImpl extends
 			ContactId contactId = localState.getContactId();
 			BlogInvitationRequest request =
 					new BlogInvitationRequest(localState.getInvitationId(),
-							localState.getSessionId(), contactId,
-							blog.getAuthor().getName(), msg, true, time, false,
-							false, false, false);
+							localState.getSessionId(), localState.getGroupId(),
+							contactId, blog.getAuthor().getName(), msg, true,
+							time, false, false, false, false);
 			return new BlogInvitationReceivedEvent(blog, contactId, request);
 		}
 	}
@@ -337,7 +338,7 @@ class BlogSharingManagerImpl extends
 			ContactId c = localState.getContactId();
 			BlogInvitationResponse response =
 					new BlogInvitationResponse(localState.getResponseId(),
-							localState.getSessionId(),
+							localState.getSessionId(), localState.getGroupId(),
 							localState.getContactId(), accept, time, false,
 							false, false, false);
 			return new BlogInvitationResponseReceivedEvent(title, c, response);

@@ -415,7 +415,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							name = state.getString(NAME);
 						}
 						IntroductionResponse ir = new IntroductionResponse(
-								sessionId, messageId, role, time, local,
+								sessionId, messageId, g, role, time, local,
 								s.isSent(), s.isSeen(), read, authorId, name,
 								accepted);
 						list.add(ir);
@@ -445,7 +445,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 									state.getBoolean(REMOTE_AUTHOR_IS_US);
 						}
 						IntroductionRequest ir = new IntroductionRequest(
-								sessionId, messageId, role, time, local,
+								sessionId, messageId, g, role, time, local,
 								s.isSent(), s.isSeen(), read, authorId, name,
 								accepted, message, answered, exists,
 								introducesOtherIdentity);

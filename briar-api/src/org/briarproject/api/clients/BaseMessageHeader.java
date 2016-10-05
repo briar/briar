@@ -1,17 +1,20 @@
 package org.briarproject.api.clients;
 
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 public abstract class BaseMessageHeader {
 
 	private final MessageId id;
+	private final GroupId groupId;
 	private final long timestamp;
 	private final boolean local, read, sent, seen;
 
-	public BaseMessageHeader(MessageId id, long timestamp, boolean local,
-			boolean read, boolean sent, boolean seen) {
+	public BaseMessageHeader(MessageId id, GroupId groupId, long timestamp,
+			boolean local, boolean read, boolean sent, boolean seen) {
 
 		this.id = id;
+		this.groupId = groupId;
 		this.timestamp = timestamp;
 		this.local = local;
 		this.read = read;
@@ -21,6 +24,10 @@ public abstract class BaseMessageHeader {
 
 	public MessageId getId() {
 		return id;
+	}
+
+	public GroupId getGroupId() {
+		return groupId;
 	}
 
 	public long getTimestamp() {
@@ -42,4 +49,5 @@ public abstract class BaseMessageHeader {
 	public boolean isSeen() {
 		return seen;
 	}
+
 }

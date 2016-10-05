@@ -2,6 +2,7 @@ package org.briarproject.api.sharing;
 
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,12 +11,12 @@ public abstract class InvitationRequest extends InvitationMessage {
 	private final String message;
 	private final boolean available;
 
-	public InvitationRequest(MessageId id, SessionId sessionId,
+	public InvitationRequest(MessageId id, SessionId sessionId, GroupId groupId,
 			ContactId contactId, String message,
 			boolean available, long time, boolean local, boolean sent,
 			boolean seen, boolean read) {
 
-		super(id, sessionId, contactId, time, local, read, sent, seen);
+		super(id, sessionId, groupId, contactId, time, local, read, sent, seen);
 		this.message = message;
 		this.available = available;
 	}

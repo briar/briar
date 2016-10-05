@@ -9,7 +9,7 @@ abstract class ConversationMessageItem extends ConversationItem {
 	private byte[] body;
 
 	ConversationMessageItem(PrivateMessageHeader header) {
-		super(header.getId(), header.getTimestamp());
+		super(header.getId(), header.getGroupId(), header.getTimestamp());
 
 		this.header = header;
 		body = null;

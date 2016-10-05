@@ -101,7 +101,8 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), timestamp, contentType, local, read, false, false);
+				m.getId(), m.getGroupId(), timestamp, contentType, local, read,
+				false, false);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, groupId);
 		txn.attach(event);
@@ -159,9 +160,10 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 			throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;
+		GroupId g;
 		Transaction txn = db.startTransaction(true);
 		try {
-			GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+			g = getContactGroup(db.getContact(txn, c)).getId();
 			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
 			statuses = db.getMessageStatus(txn, c, g);
 			txn.setComplete();
@@ -181,8 +183,8 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 				String contentType = meta.getString("contentType");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
-				headers.add(new PrivateMessageHeader(id, timestamp, contentType,
-						local, read, s.isSent(), s.isSeen()));
+				headers.add(new PrivateMessageHeader(id, g, timestamp,
+						contentType, local, read, s.isSent(), s.isSeen()));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}

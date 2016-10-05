@@ -2,6 +2,7 @@ package org.briarproject.api.introduction;
 
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 public class IntroductionRequest extends IntroductionResponse {
@@ -10,13 +11,13 @@ public class IntroductionRequest extends IntroductionResponse {
 	private final boolean answered, exists, introducesOtherIdentity;
 
 	public IntroductionRequest(SessionId sessionId, MessageId messageId,
-			int role, long time, boolean local, boolean sent, boolean seen,
-			boolean read, AuthorId authorId, String name, boolean accepted,
-			String message, boolean answered, boolean exists,
+			GroupId groupId, int role, long time, boolean local, boolean sent,
+			boolean seen, boolean read, AuthorId authorId, String name,
+			boolean accepted, String message, boolean answered, boolean exists,
 			boolean introducesOtherIdentity) {
 
-		super(sessionId, messageId, role, time, local, sent, seen, read,
-				authorId, name, accepted);
+		super(sessionId, messageId, groupId, role, time, local, sent, seen,
+				read, authorId, name, accepted);
 
 		this.message = message;
 		this.answered = answered;

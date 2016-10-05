@@ -117,13 +117,14 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 	public abstract ClientId getClientId();
 
-	protected abstract InvitationMessage createInvitationRequest(MessageId id, I msg,
-			ContactId contactId, boolean available, long time, boolean local,
-			boolean sent, boolean seen, boolean read);
+	protected abstract InvitationMessage createInvitationRequest(MessageId id,
+			I msg, ContactId contactId, boolean available, long time,
+			boolean local, boolean sent, boolean seen, boolean read);
 
 	protected abstract InvitationMessage createInvitationResponse(MessageId id,
-			SessionId sessionId, ContactId contactId, boolean accept, long time,
-			boolean local, boolean sent, boolean seen, boolean read);
+			SessionId sessionId, GroupId groupId, ContactId contactId,
+			boolean accept, long time, boolean local, boolean sent,
+			boolean seen, boolean read);
 
 	protected abstract ShareableFactory<S, I, IS, SS> getSFactory();
 
@@ -394,8 +395,9 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 								.from(getIFactory(), group.getId(), d);
 						SessionId sessionId = msg.getSessionId();
 						InvitationMessage im = createInvitationResponse(
-								m.getKey(), sessionId, contactId, accept, time,
-								local, status.isSent(), status.isSeen(), read);
+								m.getKey(), sessionId, group.getId(), contactId,
+								accept, time, local, status.isSent(),
+								status.isSeen(), read);
 						list.add(im);
 					}
 					else {
