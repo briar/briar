@@ -24,7 +24,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.clients.BdfIncomingMessageHook;
+import org.briarproject.clients.ConversationClient;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
-class MessagingManagerImpl extends BdfIncomingMessageHook
+class MessagingManagerImpl extends ConversationClient
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
@@ -77,7 +77,8 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
-	private Group getContactGroup(Contact c) {
+	@Override
+	protected Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
 	}
 
@@ -201,6 +202,16 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
+			throws DbException {
+
+		Contact contact = db.getContact(txn, contactId);
+		GroupId groupId = getContactGroup(contact).getId();
+
+		return getGroupCount(txn, groupId);
 	}
 
 }

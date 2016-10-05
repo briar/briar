@@ -21,6 +21,7 @@ import org.briarproject.event.EventModule;
 import org.briarproject.forum.ForumModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
+import org.briarproject.messaging.MessagingModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
@@ -50,7 +51,8 @@ import dagger.Component;
 		SharingModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		MessagingModule.class
 })
 interface ForumSharingIntegrationTestComponent {
 

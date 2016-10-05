@@ -9,6 +9,7 @@ import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.system.Clock;
 
 import javax.inject.Inject;
@@ -52,6 +53,7 @@ public class SharingModule {
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			MessageQueueManager messageQueueManager,
+			ConversationManager conversationManager,
 			BlogManager blogManager,
 			BlogSharingManagerImpl blogSharingManager) {
 
@@ -60,6 +62,7 @@ public class SharingModule {
 		contactManager.registerRemoveContactHook(blogSharingManager);
 		messageQueueManager.registerIncomingMessageHook(
 				BlogSharingManagerImpl.CLIENT_ID, blogSharingManager);
+		conversationManager.registerConversationClient(blogSharingManager);
 		blogManager.registerRemoveBlogHook(blogSharingManager);
 
 		return blogSharingManager;
@@ -86,6 +89,7 @@ public class SharingModule {
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
 			MessageQueueManager messageQueueManager,
+			ConversationManager conversationManager,
 			ForumManager forumManager,
 			ForumSharingManagerImpl forumSharingManager) {
 
@@ -94,6 +98,7 @@ public class SharingModule {
 		contactManager.registerRemoveContactHook(forumSharingManager);
 		messageQueueManager.registerIncomingMessageHook(
 				ForumSharingManagerImpl.CLIENT_ID, forumSharingManager);
+		conversationManager.registerConversationClient(forumSharingManager);
 		forumManager.registerRemoveForumHook(forumSharingManager);
 
 		return forumSharingManager;

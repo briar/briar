@@ -103,7 +103,7 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 		return count;
 	}
 
-	private GroupCount getGroupCount(Transaction txn, GroupId g)
+	protected GroupCount getGroupCount(Transaction txn, GroupId g)
 			throws DbException {
 		GroupCount count;
 		try {

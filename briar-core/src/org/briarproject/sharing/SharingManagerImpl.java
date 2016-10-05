@@ -4,8 +4,8 @@ import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -36,7 +36,7 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.system.Clock;
-import org.briarproject.clients.BdfIncomingMessageHook;
+import org.briarproject.clients.ConversationClient;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
@@ -86,7 +86,7 @@ import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
 abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
-		extends BdfIncomingMessageHook
+		extends ConversationClient
 		implements SharingManager<S>, Client, AddContactHook,
 		RemoveContactHook {
 
@@ -565,6 +565,16 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		}
 	}
 
+	@Override
+	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
+			throws DbException {
+
+		Contact contact = db.getContact(txn, contactId);
+		GroupId groupId = getContactGroup(contact).getId();
+
+		return getGroupCount(txn, groupId);
+	}
+
 	void removingShareable(Transaction txn, S f) throws DbException {
 		try {
 			for (Contact c : db.getContacts(txn)) {
@@ -922,7 +932,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 				.sendMessage(txn, group, m.getTime(), body, meta);
 	}
 
-	private Group getContactGroup(Contact c) {
+	@Override
+	protected Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(getClientId(), c);
 	}
 

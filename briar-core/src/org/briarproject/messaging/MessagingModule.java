@@ -4,6 +4,7 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.ValidationManager;
@@ -22,6 +23,7 @@ public class MessagingModule {
 
 	public static class EagerSingletons {
 		@Inject MessagingManager messagingManager;
+		@Inject ConversationManager conversationManager;
 		@Inject PrivateMessageValidator privateMessageValidator;
 	}
 
@@ -46,12 +48,22 @@ public class MessagingModule {
 	@Singleton
 	MessagingManager getMessagingManager(LifecycleManager lifecycleManager,
 			ContactManager contactManager, ValidationManager validationManager,
+			ConversationManager conversationManager,
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerClient(messagingManager);
 		contactManager.registerAddContactHook(messagingManager);
 		contactManager.registerRemoveContactHook(messagingManager);
 		validationManager
 				.registerIncomingMessageHook(CLIENT_ID, messagingManager);
+		conversationManager.registerConversationClient(messagingManager);
 		return messagingManager;
 	}
+
+	@Provides
+	@Singleton
+	ConversationManager getConversationManager(
+			ConversationManagerImpl conversationManager) {
+		return conversationManager;
+	}
+
 }
