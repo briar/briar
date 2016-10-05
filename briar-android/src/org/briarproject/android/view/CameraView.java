@@ -8,6 +8,7 @@ import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -40,8 +41,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	private Camera camera = null;
 	private PreviewConsumer previewConsumer = null;
+	private Surface surface = null;
 	private int displayOrientation = 0, surfaceWidth = 0, surfaceHeight = 0;
-	private boolean autoFocus = false, surfaceExists = false;
+	private boolean autoFocus = false;
 
 	public CameraView(Context context) {
 		super(context);
@@ -59,8 +61,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
 		setKeepScreenOn(true);
-		SurfaceHolder holder = getHolder();
-		holder.addCallback(this);
+		getHolder().addCallback(this);
 	}
 
 	@Override
@@ -68,6 +69,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		super.onDetachedFromWindow();
 		setKeepScreenOn(false);
 		getHolder().removeCallback(this);
+		if (surface != null) surface.release();
 	}
 
 	public void start(Camera camera, PreviewConsumer previewConsumer,
@@ -92,7 +94,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		enableAutoFocus(params.getFocusMode());
 		// Log the parameters that are being used (maybe not what we asked for)
 		logCameraParameters();
-		if (surfaceExists) startPreview(getHolder());
+		if (surface != null) startPreview(getHolder());
 	}
 
 	public void stop() {
@@ -270,13 +272,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		LOG.info("Surface created");
-		surfaceExists = true;
+		if (surface != null) throw new IllegalStateException();
+		surface = holder.getSurface();
 		if (camera != null) startPreview(holder);
 	}
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
 		if (LOG.isLoggable(INFO)) LOG.info("Surface changed: " + w + "x" + h);
+		// Release the previous surface if necessary
+		if (surface != null && surface != holder.getSurface())
+			surface.release();
+		surface = holder.getSurface();
 		surfaceWidth = w;
 		surfaceHeight = h;
 		if (camera == null) return; // We are stopped
@@ -295,7 +302,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		LOG.info("Surface destroyed");
-		surfaceExists = false;
+		if (holder.getSurface() != surface) throw new IllegalStateException();
+		if (surface != null) surface.release();
 	}
 
 	@Override
