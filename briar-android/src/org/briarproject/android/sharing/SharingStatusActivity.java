@@ -9,6 +9,8 @@ import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.view.BriarRecyclerView;
+import org.briarproject.api.clients.MessageTracker;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.IdentityManager;
@@ -106,7 +108,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =
 								new ContactListItem(c, localAuthor, false, null,
-										null);
+										new GroupCount(0, 0, 0));
 						contactItems.add(item);
 					}
 				} catch (DbException e) {
@@ -142,7 +144,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 								.getLocalAuthor(c.getLocalAuthorId());
 						ContactListItem item =
 								new ContactListItem(c, localAuthor, false, null,
-										null);
+										new GroupCount(0, 0, 0));
 						contactItems.add(item);
 					}
 				} catch (DbException e) {

@@ -15,9 +15,9 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
-import org.briarproject.android.contact.ConversationItem;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.BriarRecyclerView;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -25,21 +25,16 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.introduction.IntroductionManager;
-import org.briarproject.api.introduction.IntroductionMessage;
-import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 public class ContactChooserFragment extends BaseFragment {
@@ -61,9 +56,7 @@ public class ContactChooserFragment extends BaseFragment {
 	@Inject
 	protected volatile IdentityManager identityManager;
 	@Inject
-	protected volatile MessagingManager messagingManager;
-	@Inject
-	protected volatile IntroductionManager introductionManager;
+	protected volatile ConversationManager conversationManager;
 	@Inject
 	protected volatile ConnectionRegistry connectionRegistry;
 
@@ -159,23 +152,23 @@ public class ContactChooserFragment extends BaseFragment {
 			public void run() {
 				try {
 					List<ContactListItem> contacts = new ArrayList<>();
-					AuthorId localAuthorId = null;
+					AuthorId localAuthorId =
+							identityManager.getLocalAuthor().getId();
 					for (Contact c : contactManager.getActiveContacts()) {
 						if (c.getId().getInt() == contactId) {
 							c1 = c;
-							localAuthorId = c1.getLocalAuthorId();
 						} else {
 							ContactId id = c.getId();
 							GroupId groupId =
-									messagingManager.getConversationId(id);
-							Collection<ConversationItem> messages =
-									getMessages(id);
+									conversationManager.getConversationId(id);
+							GroupCount count =
+									conversationManager.getGroupCount(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
 							LocalAuthor localAuthor = identityManager
 									.getLocalAuthor(c.getLocalAuthorId());
 							contacts.add(new ContactListItem(c, localAuthor,
-									connected, groupId, messages));
+									connected, groupId, count));
 						}
 					}
 					displayContacts(localAuthorId, contacts);
@@ -220,36 +213,4 @@ public class ContactChooserFragment extends BaseFragment {
 		builder.show();
 	}
 
-	/**
-	 * This needs to be called from the DbThread
-	 */
-	private Collection<ConversationItem> getMessages(ContactId id)
-			throws DbException {
-
-		long now = System.currentTimeMillis();
-
-		Collection<ConversationItem> messages = new ArrayList<>();
-
-		Collection<PrivateMessageHeader> headers =
-				messagingManager.getMessageHeaders(id);
-		for (PrivateMessageHeader h : headers) {
-			messages.add(ConversationItem.from(h));
-		}
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading message headers took " + duration + " ms");
-
-		now = System.currentTimeMillis();
-		Collection<IntroductionMessage> introductions =
-				introductionManager
-						.getIntroductionMessages(id);
-		for (IntroductionMessage m : introductions) {
-			messages.add(ConversationItem.from(m));
-		}
-		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading introduction messages took " + duration + " ms");
-
-		return messages;
-	}
 }

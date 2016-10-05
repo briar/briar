@@ -5,6 +5,7 @@ import org.briarproject.api.forum.ForumPostHeader;
 
 import java.util.Collection;
 
+// This class is NOT thread-safe
 class ForumListItem {
 
 	private final Forum forum;

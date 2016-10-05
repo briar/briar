@@ -3,6 +3,7 @@ package org.briarproject.android.sharing;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.transition.Fade;
 import android.view.LayoutInflater;
@@ -39,6 +40,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.sharing.ShareActivity.CONTACTS;
 import static org.briarproject.android.sharing.ShareActivity.getContactsFromIds;
+import static org.briarproject.android.sharing.ShareActivity.getContactsFromIntegers;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
 public class ContactSelectorFragment extends BaseFragment implements
@@ -122,8 +124,9 @@ public class ContactSelectorFragment extends BaseFragment implements
 		if (savedInstanceState != null) {
 			ArrayList<Integer> intContacts =
 					savedInstanceState.getIntegerArrayList(CONTACTS);
-			selectedContacts = ShareActivity.getContactsFromIntegers(
-					intContacts);
+			if (intContacts != null) {
+				selectedContacts = getContactsFromIntegers(intContacts);
+			}
 		}
 
 		return contentView;
@@ -185,7 +188,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 		updateMenuItem();
 	}
 
-	private void loadContacts(final Collection<ContactId> selection) {
+	private void loadContacts(@Nullable final Collection<ContactId> selection) {
 		shareActivity.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {

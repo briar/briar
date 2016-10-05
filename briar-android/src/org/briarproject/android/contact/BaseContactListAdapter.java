@@ -96,8 +96,10 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		int count = getItemCount();
 		for (int i = 0; i < count; i++) {
 			ContactListItem item = getItemAt(i);
-			if (item != null && item.getGroupId().equals(g))
+			if (item != null && item.getGroupId() != null &&
+					item.getGroupId().equals(g)) {
 				return i;
+			}
 		}
 		return INVALID_POSITION; // Not found
 	}

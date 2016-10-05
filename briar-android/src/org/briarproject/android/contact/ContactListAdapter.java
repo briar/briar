@@ -35,7 +35,7 @@ public class ContactListAdapter
 		if (item == null) return;
 
 		// unread count
-		int unread = item.getUnreadCount();
+		long unread = item.getUnreadCount();
 		if (unread > 0) {
 			ui.unread.setText(String.valueOf(unread));
 			ui.unread.setVisibility(View.VISIBLE);
