@@ -4,12 +4,10 @@ import android.app.Activity;
 
 import org.briarproject.android.blogs.BlogActivity;
 import org.briarproject.android.blogs.BlogFragment;
-import org.briarproject.android.blogs.BlogListFragment;
 import org.briarproject.android.blogs.BlogPostFragment;
 import org.briarproject.android.blogs.BlogPostPagerFragment;
-import org.briarproject.android.blogs.CreateBlogActivity;
-import org.briarproject.android.blogs.FeedPostFragment;
 import org.briarproject.android.blogs.FeedFragment;
+import org.briarproject.android.blogs.FeedPostFragment;
 import org.briarproject.android.blogs.FeedPostPagerFragment;
 import org.briarproject.android.blogs.ReblogActivity;
 import org.briarproject.android.blogs.ReblogFragment;
@@ -21,7 +19,6 @@ import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.CreateForumActivity;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.android.forum.ForumListFragment;
-import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.introduction.IntroductionMessageFragment;
@@ -70,8 +67,6 @@ public interface ActivityComponent {
 
 	void inject(ConversationActivity activity);
 
-	void inject(CreateIdentityActivity activity);
-
 	void inject(InvitationsForumActivity activity);
 
 	void inject(InvitationsBlogActivity activity);
@@ -87,8 +82,6 @@ public interface ActivityComponent {
 	void inject(SharingStatusBlogActivity activity);
 
 	void inject(ForumActivity activity);
-
-	void inject(CreateBlogActivity activity);
 
 	void inject(BlogActivity activity);
 
@@ -122,7 +115,6 @@ public interface ActivityComponent {
 	// Fragments
 	void inject(ContactListFragment fragment);
 	void inject(ForumListFragment fragment);
-	void inject(BlogListFragment fragment);
 	void inject(FeedFragment fragment);
 	void inject(IntroFragment fragment);
 	void inject(ShowQrCodeFragment fragment);
