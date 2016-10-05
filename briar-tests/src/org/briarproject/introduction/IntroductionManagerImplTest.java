@@ -97,10 +97,12 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		);
 		metadataBefore = BdfDictionary.of(
 				new BdfEntry(GROUP_KEY_MSG_COUNT, 41L),
+				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0L),
 				new BdfEntry(GROUP_KEY_LATEST_MSG, 0L)
 		);
 		metadataAfter = BdfDictionary.of(
 				new BdfEntry(GROUP_KEY_MSG_COUNT, 42L),
+				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0L),
 				new BdfEntry(GROUP_KEY_LATEST_MSG, time)
 		);
 
