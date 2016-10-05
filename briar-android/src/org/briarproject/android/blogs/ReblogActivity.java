@@ -65,16 +65,6 @@ public class ReblogActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void showLoadingScreen(boolean isBlocking, int stringId) {
-		// this is handled by the fragment
-	}
-
-	@Override
-	public void hideLoadingScreen() {
-		// this is handled by the fragment
-	}
-
-	@Override
 	public void onFragmentCreated(String tag) {
 
 	}
