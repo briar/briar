@@ -2,8 +2,8 @@ package org.briarproject.sharing;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
@@ -35,6 +35,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
+import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
 
 class ForumSharingManagerImpl extends
 		SharingManagerImpl<Forum, ForumInvitation, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
@@ -136,7 +137,7 @@ class ForumSharingManagerImpl extends
 		private final ForumFactory forumFactory;
 		private final ForumManager forumManager;
 
-		SFactory(ForumFactory forumFactory, ForumManager forumManager) {
+		private SFactory(ForumFactory forumFactory, ForumManager forumManager) {
 			this.forumFactory = forumFactory;
 			this.forumManager = forumManager;
 		}
@@ -185,10 +186,11 @@ class ForumSharingManagerImpl extends
 		}
 
 		@Override
-		public ForumInvitation build(ForumSharerSessionState localState) {
+		public ForumInvitation build(ForumSharerSessionState localState,
+				long time) {
 			return new ForumInvitation(localState.getGroupId(),
 					localState.getSessionId(), localState.getForumName(),
-					localState.getForumSalt(), localState.getMessage());
+					localState.getForumSalt(), time, localState.getMessage());
 		}
 	}
 
@@ -201,18 +203,23 @@ class ForumSharingManagerImpl extends
 				GroupId forumId, BdfDictionary d) throws FormatException {
 			String forumName = d.getString(FORUM_NAME);
 			byte[] forumSalt = d.getRaw(FORUM_SALT);
+			MessageId invitationId = null;
+			byte[] invitationIdBytes = d.getOptionalRaw(INVITATION_ID);
+			if (invitationIdBytes != null)
+				invitationId = new MessageId(invitationIdBytes);
 			return new ForumInviteeSessionState(sessionId, storageId,
-					groupId, state, contactId, forumId, forumName, forumSalt);
+					groupId, state, contactId, forumId, forumName, forumSalt,
+					invitationId);
 		}
 
 		@Override
 		public ForumInviteeSessionState build(SessionId sessionId,
 				MessageId storageId, GroupId groupId,
 				InviteeSessionState.State state, ContactId contactId,
-				Forum forum) {
+				Forum forum, MessageId invitationId) {
 			return new ForumInviteeSessionState(sessionId, storageId,
 					groupId, state, contactId, forum.getId(), forum.getName(),
-					forum.getSalt());
+					forum.getSalt(), invitationId);
 		}
 	}
 
@@ -225,8 +232,13 @@ class ForumSharingManagerImpl extends
 				GroupId forumId, BdfDictionary d) throws FormatException {
 			String forumName = d.getString(FORUM_NAME);
 			byte[] forumSalt = d.getRaw(FORUM_SALT);
+			MessageId responseId = null;
+			byte[] responseIdBytes = d.getOptionalRaw(INVITATION_ID);
+			if (responseIdBytes != null)
+				responseId = new MessageId(responseIdBytes);
 			return new ForumSharerSessionState(sessionId, storageId,
-					groupId, state, contactId, forumId, forumName, forumSalt);
+					groupId, state, contactId, forumId, forumName, forumSalt,
+					responseId);
 		}
 
 		@Override
@@ -236,7 +248,7 @@ class ForumSharingManagerImpl extends
 				Forum forum) {
 			return new ForumSharerSessionState(sessionId, storageId,
 					groupId, state, contactId, forum.getId(), forum.getName(),
-					forum.getSalt());
+					forum.getSalt(), null);
 		}
 	}
 
@@ -245,16 +257,20 @@ class ForumSharingManagerImpl extends
 
 		private final SFactory sFactory;
 
-		IRFactory(SFactory sFactory) {
+		private IRFactory(SFactory sFactory) {
 			this.sFactory = sFactory;
 		}
 
 		@Override
 		public ForumInvitationReceivedEvent build(
-				ForumInviteeSessionState localState) {
+				ForumInviteeSessionState localState, long time, String msg) {
 			Forum forum = sFactory.parse(localState);
 			ContactId contactId = localState.getContactId();
-			return new ForumInvitationReceivedEvent(forum, contactId);
+			ForumInvitationRequest request = new ForumInvitationRequest(
+					localState.getInvitationId(), localState.getSessionId(),
+					contactId, forum.getName(), msg, true, time, false, false,
+					false, false);
+			return new ForumInvitationReceivedEvent(forum, contactId, request);
 		}
 	}
 
@@ -262,10 +278,14 @@ class ForumSharingManagerImpl extends
 			InvitationResponseReceivedEventFactory<ForumSharerSessionState, ForumInvitationResponseReceivedEvent> {
 		@Override
 		public ForumInvitationResponseReceivedEvent build(
-				ForumSharerSessionState localState) {
+				ForumSharerSessionState localState, boolean accept, long time) {
 			String name = localState.getForumName();
 			ContactId c = localState.getContactId();
-			return new ForumInvitationResponseReceivedEvent(name, c);
+			ForumInvitationResponse response = new ForumInvitationResponse(
+					localState.getResponseId(),
+					localState.getSessionId(), localState.getContactId(),
+					accept, time, false, false, false, false);
+			return new ForumInvitationResponseReceivedEvent(name, c, response);
 		}
 	}
 }

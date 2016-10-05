@@ -11,6 +11,7 @@ import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_MSG;
 import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
+import static org.briarproject.api.sharing.SharingConstants.TIME;
 
 public interface ForumSharingMessage {
 
@@ -20,9 +21,9 @@ public interface ForumSharingMessage {
 		private final byte[] forumSalt;
 
 		public ForumInvitation(GroupId groupId, SessionId sessionId,
-				String forumName, byte[] forumSalt, String message) {
+				String forumName, byte[] forumSalt, long time, String message) {
 
-			super(groupId, sessionId, message);
+			super(groupId, sessionId, time, message);
 
 			this.forumName = forumName;
 			this.forumSalt = forumSalt;
@@ -53,9 +54,10 @@ public interface ForumSharingMessage {
 			String forumName = d.getString(FORUM_NAME);
 			byte[] forumSalt = d.getRaw(FORUM_SALT);
 			String message = d.getOptionalString(INVITATION_MSG);
+			long time = d.getLong(TIME);
 
 			return new ForumInvitation(groupId, sessionId, forumName, forumSalt,
-					message);
+					time, message);
 		}
 
 		public String getForumName() {

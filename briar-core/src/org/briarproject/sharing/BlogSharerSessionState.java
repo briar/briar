@@ -5,6 +5,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
 import static org.briarproject.api.blogs.BlogConstants.BLOG_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_DESC;
@@ -21,8 +22,9 @@ public class BlogSharerSessionState extends SharerSessionState {
 	public BlogSharerSessionState(SessionId sessionId, MessageId storageId,
 			GroupId groupId, State state, ContactId contactId, GroupId blogId,
 			String blogTitle, String blogDesc, String blogAuthorName,
-			byte[] blogPublicKey) {
-		super(sessionId, storageId, groupId, state, contactId, blogId);
+			byte[] blogPublicKey, @Nullable MessageId responseId) {
+		super(sessionId, storageId, groupId, state, contactId, blogId,
+				responseId);
 
 		this.blogTitle = blogTitle;
 		this.blogDesc = blogDesc;

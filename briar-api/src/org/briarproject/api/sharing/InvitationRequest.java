@@ -3,6 +3,7 @@ package org.briarproject.api.sharing;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class InvitationRequest extends InvitationMessage {
 
@@ -19,6 +20,7 @@ public abstract class InvitationRequest extends InvitationMessage {
 		this.available = available;
 	}
 
+	@Nullable
 	public String getMessage() {
 		return message;
 	}

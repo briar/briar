@@ -15,5 +15,6 @@ public interface InviteeSessionStateFactory<S extends Shareable, IS extends Invi
 			GroupId shareableId, BdfDictionary d) throws FormatException;
 
 	IS build(SessionId sessionId, MessageId storageId, GroupId groupId,
-			InviteeSessionState.State state, ContactId contactId, S shareable);
+			InviteeSessionState.State state, ContactId contactId, S shareable,
+			MessageId invitationId);
 }
