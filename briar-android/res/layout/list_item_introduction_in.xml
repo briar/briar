@@ -26,7 +26,7 @@
 		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:background="@drawable/notice_in_bottom">
 
-		<TextView
+		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/introductionText"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

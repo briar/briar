@@ -41,6 +41,7 @@ public class EmojiTextView extends TextView {
 	@Override
 	public void setText(@Nullable CharSequence text, BufferType type) {
 		source = EmojiProvider.getInstance(getContext()).emojify(text, this);
+
 		setTextEllipsized(source);
 	}
 

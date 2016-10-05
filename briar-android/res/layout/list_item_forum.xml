@@ -17,7 +17,7 @@
 		android:layout_centerVertical="true"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"/>
 
-	<TextView
+	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/forumNameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

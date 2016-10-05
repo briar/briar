@@ -14,4 +14,14 @@
 		</attr>
 	</declare-styleable>
 
+	<declare-styleable name="TextInputView">
+		<attr name="hint" format="string"/>
+	</declare-styleable>
+
+	<declare-styleable name="LargeTextInputView">
+		<attr name="buttonText" format="string"/>
+		<attr name="maxLines" format="integer"/>
+		<attr name="fillHeight" format="boolean"/>
+	</declare-styleable>
+
 </resources>

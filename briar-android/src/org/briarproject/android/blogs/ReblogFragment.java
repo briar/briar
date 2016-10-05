@@ -5,10 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
@@ -16,6 +13,8 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.view.TextInputView;
+import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -29,7 +28,7 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 
-public class ReblogFragment extends BaseFragment {
+public class ReblogFragment extends BaseFragment implements TextInputListener {
 
 	public static final String TAG = ReblogFragment.class.getName();
 
@@ -88,6 +87,7 @@ public class ReblogFragment extends BaseFragment {
 				false);
 		ui = new ViewHolder(v);
 		ui.post.setTransitionName(postId);
+		ui.input.setSendButtonEnabled(false);
 		showProgressBar();
 
 		return v;
@@ -129,14 +129,8 @@ public class ReblogFragment extends BaseFragment {
 		ui.post.bindItem(item);
 		ui.post.hideReblogButton();
 
-		ui.publish.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				send();
-				finish();
-			}
-		});
-		ui.publish.setEnabled(true);
+		ui.input.setListener(this);
+		ui.input.setSendButtonEnabled(true);
 		ui.scrollView.post(new Runnable() {
 			@Override
 			public void run() {
@@ -145,7 +139,8 @@ public class ReblogFragment extends BaseFragment {
 		});
 	}
 
-	private void send() {
+	@Override
+	public void onSendClick(String text) {
 		String comment = getComment();
 		feedController.repeatPost(item, comment,
 				new UiResultExceptionHandler<Void, DbException>(listener) {
@@ -159,6 +154,7 @@ public class ReblogFragment extends BaseFragment {
 						// do nothing, this fragment is gone already
 					}
 				});
+		finish();
 	}
 
 	@Nullable
@@ -170,13 +166,11 @@ public class ReblogFragment extends BaseFragment {
 	private void showProgressBar() {
 		ui.progressBar.setVisibility(VISIBLE);
 		ui.input.setVisibility(GONE);
-		ui.publish.setVisibility(GONE);
 	}
 
 	private void hideProgressBar() {
 		ui.progressBar.setVisibility(INVISIBLE);
 		ui.input.setVisibility(VISIBLE);
-		ui.publish.setVisibility(VISIBLE);
 	}
 
 	private static class ViewHolder {
@@ -184,15 +178,13 @@ public class ReblogFragment extends BaseFragment {
 		private final ScrollView scrollView;
 		private final ProgressBar progressBar;
 		private final BlogPostViewHolder post;
-		private final EditText input;
-		private final Button publish;
+		private final TextInputView input;
 
 		private ViewHolder(View v) {
 			scrollView = (ScrollView) v.findViewById(R.id.scrollView);
 			progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
 			post = new BlogPostViewHolder(v.findViewById(R.id.postLayout));
-			input = (EditText) v.findViewById(R.id.inputText);
-			publish = (Button) v.findViewById(R.id.publishButton);
+			input = (TextInputView) v.findViewById(R.id.inputText);
 		}
 	}
 }

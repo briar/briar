@@ -144,7 +144,7 @@ public class BlogFragment extends BaseFragment implements
 		writeButton = menu.findItem(R.id.action_write_blog_post);
 		if (isMyBlog) writeButton.setVisible(true);
 		deleteButton = menu.findItem(R.id.action_blog_delete);
-		if (canDeleteBlog) deleteButton.setVisible(true);
+		if (canDeleteBlog) deleteButton.setEnabled(true);
 
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -196,7 +196,7 @@ public class BlogFragment extends BaseFragment implements
 			displaySnackbar(R.string.blogs_blog_post_created, true);
 			loadBlogPosts(true);
 		} else if (request == REQUEST_SHARE && result == RESULT_OK) {
-			displaySnackbar(R.string.blogs_sharing_snackbar, true);
+			displaySnackbar(R.string.blogs_sharing_snackbar, false);
 		}
 	}
 
@@ -261,7 +261,7 @@ public class BlogFragment extends BaseFragment implements
 						if (blog.isOurs())
 							showWriteButton();
 						if (blog.canBeRemoved())
-							showDeleteButton();
+							enableDeleteButton();
 					}
 
 					@Override
@@ -287,10 +287,10 @@ public class BlogFragment extends BaseFragment implements
 			writeButton.setVisible(true);
 	}
 
-	private void showDeleteButton() {
+	private void enableDeleteButton() {
 		canDeleteBlog = true;
 		if (deleteButton != null)
-			deleteButton.setVisible(true);
+			deleteButton.setEnabled(true);
 	}
 
 	private void displaySnackbar(int stringId, boolean scroll) {

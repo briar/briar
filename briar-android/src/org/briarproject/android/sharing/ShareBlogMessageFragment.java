@@ -43,7 +43,7 @@ public class ShareBlogMessageFragment extends ShareMessageFragment {
 		setTitle(R.string.blogs_sharing_share);
 
 		View v = super.onCreateView(inflater, container, savedInstanceState);
-		ui.button.setText(getString(R.string.blogs_sharing_button));
+		ui.message.setButtonText(getString(R.string.blogs_sharing_button));
 		return v;
 	}
 

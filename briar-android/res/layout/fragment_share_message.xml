@@ -1,41 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:fillViewport="true">
+	android:orientation="vertical">
 
-	<LinearLayout
+	<TextView
+		android:id="@+id/introductionText"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:padding="@dimen/margin_activity_horizontal"
-		android:orientation="vertical">
+		android:text="@string/forum_share_message"
+		android:textColor="@color/briar_text_primary"
+		android:textSize="@dimen/text_size_medium"/>
 
-		<TextView
-			android:id="@+id/introductionText"
-			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_marginTop="@dimen/margin_medium"
-			android:layout_weight="1"
-			android:gravity="top"
-			android:textSize="@dimen/text_size_medium"
-			android:textColor="@color/briar_text_primary"
-			android:text="@string/forum_share_message"/>
+	<org.briarproject.android.view.LargeTextInputView
+		android:id="@+id/invitationMessageView"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:gravity="bottom"
+		app:buttonText="@string/forum_share_button"
+		app:fillHeight="true"
+		app:hint="@string/introduction_message_hint"/>
 
-		<EditText
-			android:id="@+id/invitationMessageView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_medium"
-			android:gravity="bottom"
-			android:hint="@string/introduction_message_hint"
-			android:inputType="text|textMultiLine|textCapSentences"/>
-
-		<Button
-			android:id="@+id/shareForumButton"
-			style="@style/BriarButton"
-			android:text="@string/forum_share_button"/>
-
-	</LinearLayout>
-
-</android.support.v4.widget.NestedScrollView>
+</LinearLayout>

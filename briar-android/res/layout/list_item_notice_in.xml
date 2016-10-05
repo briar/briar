@@ -9,7 +9,7 @@
 	android:layout_marginLeft="@dimen/message_bubble_margin_tail"
 	android:layout_marginRight="@dimen/message_bubble_margin_non_tail">
 
-	<TextView
+	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/noticeText"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

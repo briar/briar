@@ -174,9 +174,7 @@ public class ForumActivity extends BriarActivity implements
 
 	@Override
 	public void onBackPressed() {
-		if (textInput.isEmojiDrawerOpen()) {
-			textInput.hideEmojiDrawer();
-		} else if (textInput.getVisibility() == VISIBLE) {
+		if (textInput.getVisibility() == VISIBLE) {
 			textInput.setVisibility(GONE);
 			forumAdapter.setReplyEntry(null);
 		} else {
@@ -193,9 +191,9 @@ public class ForumActivity extends BriarActivity implements
 			textInput.setText("");
 		}
 		textInput.requestFocus();
+		textInput.showSoftKeyboard();
 		textInput.setHint(replyEntry == null ? R.string.forum_new_message_hint :
 				R.string.forum_message_reply_hint);
-		showSoftKeyboardForced(textInput);
 		forumAdapter.setReplyEntry(replyEntry);
 	}
 
@@ -273,7 +271,7 @@ public class ForumActivity extends BriarActivity implements
 					.createPost(StringUtils.toUtf8(text), replyEntry.getId(),
 							resultHandler);
 		}
-		hideSoftKeyboard(textInput);
+		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
 		forumAdapter.setReplyEntry(null);
 	}

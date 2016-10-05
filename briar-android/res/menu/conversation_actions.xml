@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/action_introduction"
 		android:icon="@drawable/introduction_white"
 		android:title="@string/introduction_button"
-		android:visible="false"
-		app:showAsAction="never"
-		tools:visible="true"/>
+		android:enabled="false"
+		app:showAsAction="never"/>
 
 	<item
 		android:id="@+id/action_social_remove_person"
