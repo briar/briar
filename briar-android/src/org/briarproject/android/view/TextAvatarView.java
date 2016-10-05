@@ -24,7 +24,7 @@ public class TextAvatarView extends FrameLayout {
 	final private AppCompatTextView character;
 	final private CircleImageView background;
 	final private TextView badge;
-	private int unreadCount;
+	private long unreadCount;
 
 	public TextAvatarView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -48,13 +48,19 @@ public class TextAvatarView extends FrameLayout {
 	}
 
 	public void setUnreadCount(int count) {
+		setUnreadCount((long) count);
+	}
+
+	public void setUnreadCount(long count) {
+		this.unreadCount = count;
 		if (count > 0) {
-			this.unreadCount = count;
 			badge.setBackgroundResource(R.drawable.bubble);
 			badge.setText(String.valueOf(count));
-			badge.setTextColor(ContextCompat.getColor(getContext(), R.color.briar_text_primary_inverse));
+			badge.setTextColor(ContextCompat.getColor(getContext(),
+					R.color.briar_text_primary_inverse));
 			badge.setVisibility(VISIBLE);
 		} else {
+			badge.setText("");
 			badge.setVisibility(INVISIBLE);
 		}
 	}
@@ -63,11 +69,13 @@ public class TextAvatarView extends FrameLayout {
 		if (problem) {
 			badge.setBackgroundResource(R.drawable.bubble_problem);
 			badge.setText("!");
-			badge.setTextColor(ContextCompat.getColor(getContext(), R.color.briar_primary));
+			badge.setTextColor(ContextCompat
+					.getColor(getContext(), R.color.briar_primary));
 			badge.setVisibility(VISIBLE);
 		} else if (unreadCount > 0) {
 			setUnreadCount(unreadCount);
 		} else {
+			badge.setText("");
 			badge.setVisibility(INVISIBLE);
 		}
 	}

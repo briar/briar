@@ -17,6 +17,7 @@ import org.briarproject.android.view.TextAvatarView;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.sync.GroupId;
 
+import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -50,7 +51,7 @@ class ForumListAdapter
 		ui.name.setText(item.getForum().getName());
 
 		// Post Count
-		int postCount = item.getPostCount();
+		int postCount = (int) item.getPostCount();
 		if (postCount > 0) {
 			ui.avatar.setProblem(false);
 			ui.postCount.setText(ctx.getResources()
@@ -104,7 +105,7 @@ class ForumListAdapter
 
 	@Override
 	public boolean areContentsTheSame(ForumListItem a, ForumListItem b) {
-		return a.getForum().equals(b.getForum()) &&
+		return a.isEmpty() == b.isEmpty() &&
 				a.getTimestamp() == b.getTimestamp() &&
 				a.getUnreadCount() == b.getUnreadCount();
 	}
@@ -125,10 +126,14 @@ class ForumListAdapter
 		return null;
 	}
 
-	void updateItem(ForumListItem item) {
-		ForumListItem oldItem = findItem(item.getForum().getGroup().getId());
-		int position = items.indexOf(oldItem);
-		items.updateItemAt(position, item);
+	int findItemPosition(GroupId g) {
+		int count = getItemCount();
+		for (int i = 0; i < count; i++) {
+			ForumListItem item = getItemAt(i);
+			if (item != null && item.getForum().getGroup().getId().equals(g))
+				return i;
+		}
+		return INVALID_POSITION; // Not found
 	}
 
 	static class ForumViewHolder extends RecyclerView.ViewHolder {

@@ -1,41 +1,26 @@
 package org.briarproject.android.forum;
 
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumPostHeader;
-
-import java.util.Collection;
 
 // This class is NOT thread-safe
 class ForumListItem {
 
 	private final Forum forum;
-	private final boolean empty;
-	private final int postCount;
-	private final long timestamp;
-	private final int unread;
+	private long postCount, unread, timestamp;
 
-	ForumListItem(Forum forum, Collection<ForumPostHeader> headers) {
+	ForumListItem(Forum forum, GroupCount count) {
 		this.forum = forum;
-		empty = headers.isEmpty();
-		if (empty) {
-			postCount = 0;
-			timestamp = 0;
-			unread = 0;
-		} else {
-			ForumPostHeader newest = null;
-			long timestamp = -1;
-			int unread = 0;
-			for (ForumPostHeader h : headers) {
-				if (h.getTimestamp() > timestamp) {
-					timestamp = h.getTimestamp();
-					newest = h;
-				}
-				if (!h.isRead()) unread++;
-			}
-			this.postCount = headers.size();
-			this.timestamp = newest.getTimestamp();
-			this.unread = unread;
-		}
+		this.postCount = count.getMsgCount();
+		this.unread = count.getUnreadCount();
+		this.timestamp = count.getLatestMsgTime();
+	}
+
+	void addHeader(ForumPostHeader h) {
+		postCount++;
+		if (!h.isRead()) unread++;
+		if (h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
 	}
 
 	Forum getForum() {
@@ -43,10 +28,10 @@ class ForumListItem {
 	}
 
 	boolean isEmpty() {
-		return empty;
+		return postCount == 0;
 	}
 
-	int getPostCount() {
+	long getPostCount() {
 		return postCount;
 	}
 
@@ -54,7 +39,7 @@ class ForumListItem {
 		return timestamp;
 	}
 
-	int getUnreadCount() {
+	long getUnreadCount() {
 		return unread;
 	}
 }

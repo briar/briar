@@ -20,6 +20,7 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseEventFragment;
 import org.briarproject.android.sharing.InvitationsForumActivity;
 import org.briarproject.android.view.BriarRecyclerView;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.ContactRemovedEvent;
@@ -47,11 +48,8 @@ import static java.util.logging.Level.WARNING;
 public class ForumListFragment extends BaseEventFragment implements
 		OnClickListener {
 
-	public final static String TAG = "ForumListFragment";
-
-	private static final Logger LOG =
-			Logger.getLogger(ForumListFragment.class.getName());
-
+	public final static String TAG = ForumListFragment.class.getName();
+	private final static Logger LOG = Logger.getLogger(TAG);
 
 	private BriarRecyclerView list;
 	private ForumListAdapter adapter;
@@ -118,7 +116,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 		notificationManager.blockAllForumPostNotifications();
 		notificationManager.clearAllForumPostNotifications();
-		loadForumHeaders();
+		loadForums();
 		loadAvailableForums();
 		list.startPeriodicUpdate();
 	}
@@ -153,7 +151,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		}
 	}
 
-	private void loadForumHeaders() {
+	private void loadForums() {
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -163,14 +161,14 @@ public class ForumListFragment extends BaseEventFragment implements
 					Collection<ForumListItem> forums = new ArrayList<>();
 					for (Forum f : forumManager.getForums()) {
 						try {
-							Collection<ForumPostHeader> headers =
-									forumManager.getPostHeaders(f.getId());
-							forums.add(new ForumListItem(f, headers));
+							GroupCount count =
+									forumManager.getGroupCount(f.getId());
+							forums.add(new ForumListItem(f, count));
 						} catch (NoSuchGroupException e) {
 							// Continue
 						}
 					}
-					displayForumHeaders(forums);
+					displayForums(forums);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
@@ -182,7 +180,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
-	private void displayForumHeaders(final Collection<ForumListItem> forums) {
+	private void displayForums(final Collection<ForumListItem> forums) {
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -238,7 +236,7 @@ public class ForumListFragment extends BaseEventFragment implements
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
 				LOG.info("Forum added, reloading forums");
-				loadForumHeaders();
+				loadForums();
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
@@ -248,39 +246,23 @@ public class ForumListFragment extends BaseEventFragment implements
 			}
 		} else if (e instanceof ForumPostReceivedEvent) {
 			ForumPostReceivedEvent m = (ForumPostReceivedEvent) e;
-			LOG.info("Forum post added, reloading");
-			loadForumHeaders(m.getGroupId());
+			LOG.info("Forum post added, updating...");
+			updateItem(m.getGroupId(), m.getForumPostHeader());
 		} else if (e instanceof ForumInvitationReceivedEvent) {
 			loadAvailableForums();
 		}
 	}
 
-	private void loadForumHeaders(final GroupId g) {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Forum f = forumManager.getForum(g);
-					Collection<ForumPostHeader> headers =
-							forumManager.getPostHeaders(g);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Partial load took " + duration + " ms");
-					updateForum(new ForumListItem(f, headers));
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void updateForum(final ForumListItem item) {
+	private void updateItem(final GroupId g, final ForumPostHeader m) {
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				adapter.updateItem(item);
+				int position = adapter.findItemPosition(g);
+				ForumListItem item = adapter.getItemAt(position);
+				if (item != null) {
+					item.addHeader(m);
+					adapter.updateItemAt(position, item);
+				}
 			}
 		});
 	}
@@ -289,7 +271,8 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				ForumListItem item = adapter.findItem(g);
+				int position = adapter.findItemPosition(g);
+				ForumListItem item = adapter.getItemAt(position);
 				if (item != null) adapter.remove(item);
 			}
 		});
