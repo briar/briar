@@ -33,6 +33,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
+
 class MessagingManagerImpl extends BdfIncomingMessageHook
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
@@ -40,16 +42,13 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 			"6bcdc006c0910b0f44e40644c3b31f1a"
 					+ "8bf9a6d6021d40d219c86b731b903070"));
 
-	private final DatabaseComponent db;
 	private final ContactGroupFactory contactGroupFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory) {
-		super(clientHelper, metadataParser);
-
-		this.db = db;
+		super(db, clientHelper, metadataParser);
 		this.contactGroupFactory = contactGroupFactory;
 	}
 
@@ -100,12 +99,13 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		long timestamp = meta.getLong("timestamp");
 		String contentType = meta.getString("contentType");
 		boolean local = meta.getBoolean("local");
-		boolean read = meta.getBoolean("read");
+		boolean read = meta.getBoolean(MSG_KEY_READ);
 		PrivateMessageHeader header = new PrivateMessageHeader(
 				m.getId(), timestamp, contentType, local, read, false, false);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, groupId);
 		txn.attach(event);
+		trackIncomingMessage(txn, m);
 
 		// don't share message
 		return false;
@@ -113,6 +113,7 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 
 	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
+		Transaction txn = db.startTransaction(false);
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put("timestamp", m.getMessage().getTimestamp());
@@ -120,9 +121,13 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 			meta.put("contentType", m.getContentType());
 			meta.put("local", true);
 			meta.put("read", true);
-			clientHelper.addLocalMessage(m.getMessage(), meta, true);
+			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
+			trackOutgoingMessage(txn, m.getMessage());
+			txn.setComplete();
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
+		} finally {
+			db.endTransaction(txn);
 		}
 	}
 
@@ -196,14 +201,4 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
-	@Override
-	public void setReadFlag(MessageId m, boolean read) throws DbException {
-		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put("read", read);
-			clientHelper.mergeMessageMetadata(m, meta);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

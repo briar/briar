@@ -14,6 +14,7 @@ import org.briarproject.clients.BdfMessageValidator;
 
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 class PrivateMessageValidator extends BdfMessageValidator {
 
@@ -42,7 +43,7 @@ class PrivateMessageValidator extends BdfMessageValidator {
 		if (parentId != null) meta.put("parent", parentId);
 		meta.put("contentType", contentType);
 		meta.put("local", false);
-		meta.put("read", false);
+		meta.put(MSG_KEY_READ, false);
 		return new BdfMessageContext(meta);
 	}
 }

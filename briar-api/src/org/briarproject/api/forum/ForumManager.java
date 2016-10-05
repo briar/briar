@@ -1,5 +1,6 @@
 package org.briarproject.api.forum;
 
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.ClientId;
@@ -8,7 +9,7 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface ForumManager {
+public interface ForumManager extends MessageTracker {
 
 	/** Returns the unique ID of the forum client. */
 	ClientId getClientId();
@@ -36,9 +37,6 @@ public interface ForumManager {
 
 	/** Returns the headers of all posts in the given forum. */
 	Collection<ForumPostHeader> getPostHeaders(GroupId g) throws DbException;
-
-	/** Marks a forum post as read or unread. */
-	void setReadFlag(MessageId m, boolean read) throws DbException;
 
 	/** Registers a hook to be called whenever a forum is removed. */
 	void registerRemoveForumHook(RemoveForumHook hook);

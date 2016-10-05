@@ -59,7 +59,7 @@ import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
 import static org.junit.Assert.assertTrue;
 
-public class ForumManagerTest {
+public class ForumManagerTest extends BriarIntegrationTest {
 
 	private LifecycleManager lifecycleManager0, lifecycleManager1;
 	private SyncSessionFactory sync0, sync1;
@@ -150,9 +150,19 @@ public class ForumManagerTest {
 				createForumPost(forum.getGroup().getId(), post1, body2, ms2);
 		assertEquals(ms2, post2.getMessage().getTimestamp());
 		forumManager0.addLocalPost(post1);
-		forumManager0.setReadFlag(post1.getMessage().getId(), true);
+		forumManager0.setReadFlag(forum.getGroup().getId(),
+				post1.getMessage().getId(), true);
+		assertGroupCount(forumManager0, forum.getGroup().getId(), 1, 0,
+				post1.getMessage().getTimestamp());
 		forumManager0.addLocalPost(post2);
-		forumManager0.setReadFlag(post2.getMessage().getId(), false);
+		forumManager0.setReadFlag(forum.getGroup().getId(),
+				post2.getMessage().getId(), false);
+		assertGroupCount(forumManager0, forum.getGroup().getId(), 2, 1,
+				post2.getMessage().getTimestamp());
+		forumManager0.setReadFlag(forum.getGroup().getId(),
+				post2.getMessage().getId(), false);
+		assertGroupCount(forumManager0, forum.getGroup().getId(), 2, 1,
+				post2.getMessage().getTimestamp());
 		Collection<ForumPostHeader> headers =
 				forumManager0.getPostHeaders(forum.getGroup().getId());
 		assertEquals(2, headers.size());
@@ -202,23 +212,29 @@ public class ForumManagerTest {
 		forumManager0.addLocalPost(post1);
 		assertEquals(1, forumManager0.getPostHeaders(g).size());
 		assertEquals(0, forumManager1.getPostHeaders(g).size());
+		assertGroupCount(forumManager0, g, 1, 0, time);
+		assertGroupCount(forumManager1, g, 0, 0, 0);
 
 		// send post to 1
 		sync0To1();
 		deliveryWaiter.await(TIMEOUT, 1);
 		assertEquals(1, forumManager1.getPostHeaders(g).size());
+		assertGroupCount(forumManager1, g, 1, 1, time);
 
 		// add another forum post
-		time = clock.currentTimeMillis();
-		ForumPost post2 = createForumPost(g, null, "b", time);
+		long time2 = clock.currentTimeMillis();
+		ForumPost post2 = createForumPost(g, null, "b", time2);
 		forumManager1.addLocalPost(post2);
 		assertEquals(1, forumManager0.getPostHeaders(g).size());
 		assertEquals(2, forumManager1.getPostHeaders(g).size());
+		assertGroupCount(forumManager0, g, 1, 0, time);
+		assertGroupCount(forumManager1, g, 2, 1, time2);
 
 		// send post to 0
 		sync1To0();
 		deliveryWaiter.await(TIMEOUT, 1);
 		assertEquals(2, forumManager1.getPostHeaders(g).size());
+		assertGroupCount(forumManager0, g, 2, 1, time2);
 
 		stopLifecycles();
 	}

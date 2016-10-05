@@ -58,7 +58,6 @@ import static org.briarproject.api.clients.ProtocolEngine.StateUpdate;
 import static org.briarproject.api.sharing.SharingConstants.CONTACT_ID;
 import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
 import static org.briarproject.api.sharing.SharingConstants.LOCAL;
-import static org.briarproject.api.sharing.SharingConstants.READ;
 import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHAREABLE_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHARED_BY_US;
@@ -83,6 +82,7 @@ import static org.briarproject.api.sharing.SharingConstants.TO_BE_SHARED_BY_US;
 import static org.briarproject.api.sharing.SharingConstants.TYPE;
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.Invitation;
+import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
 abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
@@ -93,7 +93,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	private static final Logger LOG =
 			Logger.getLogger(SharingManagerImpl.class.getName());
 
-	private final DatabaseComponent db;
 	private final MessageQueueManager messageQueueManager;
 	private final MetadataEncoder metadataEncoder;
 	private final SecureRandom random;
@@ -106,9 +105,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			MetadataParser metadataParser, MetadataEncoder metadataEncoder,
 			SecureRandom random, ContactGroupFactory contactGroupFactory,
 			Clock clock) {
+		super(db, clientHelper, metadataParser);
 
-		super(clientHelper, metadataParser);
-		this.db = db;
 		this.messageQueueManager = messageQueueManager;
 		this.metadataEncoder = metadataEncoder;
 		this.random = random;
@@ -226,6 +224,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 						new InviteeEngine<IS, IR>(getIRFactory());
 				processInviteeStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
+				trackIncomingMessage(txn, m);
 			} catch (FormatException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				deleteMessage(txn, m.getId());
@@ -239,6 +238,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 							getIRRFactory());
 			processSharerStateUpdate(txn, m.getId(),
 					engine.onMessageReceived(state, msg));
+			trackIncomingMessage(txn, m);
 		} else if (msg.getType() == SHARE_MSG_TYPE_LEAVE ||
 				msg.getType() == SHARE_MSG_TYPE_ABORT) {
 			// we don't know who we are, so figure it out
@@ -290,6 +290,10 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					engine.onLocalAction(localState,
 							SharerSessionState.Action.LOCAL_INVITATION));
 
+			// track message
+			long time = clock.currentTimeMillis();
+			trackMessage(txn, localState.getGroupId(), time, true);
+
 			txn.setComplete();
 		} catch (FormatException e) {
 			throw new DbException();
@@ -320,6 +324,10 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					new InviteeEngine<IS, IR>(getIRFactory());
 			processInviteeStateUpdate(txn, null,
 					engine.onLocalAction(localState, localAction));
+
+			// track message
+			long time = clock.currentTimeMillis();
+			trackMessage(txn, localState.getGroupId(), time, true);
 
 			txn.setComplete();
 		} catch (FormatException e) {
@@ -352,7 +360,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 							db.getMessageStatus(txn, contactId, m.getKey());
 					long time = d.getLong(TIME);
 					boolean local = d.getBoolean(LOCAL);
-					boolean read = d.getBoolean(READ, false);
+					boolean read = d.getBoolean(MSG_KEY_READ, false);
 					boolean available = false;
 
 					if (type == SHARE_MSG_TYPE_INVITATION) {

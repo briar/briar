@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.BriarTestCase;
+import org.briarproject.BriarIntegrationTest;
 import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
@@ -99,7 +99,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class IntroductionIntegrationTest extends BriarTestCase {
+public class IntroductionIntegrationTest extends BriarIntegrationTest {
 
 	private LifecycleManager lifecycleManager0, lifecycleManager1,
 			lifecycleManager2;
@@ -200,29 +200,43 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			introductionManager0
 					.makeIntroduction(introducee1, introducee2, "Hi!", time);
 
+			// check that messages are tracked properly
+			Group g1 = introductionGroupFactory
+					.createIntroductionGroup(introducee1);
+			Group g2 = introductionGroupFactory
+					.createIntroductionGroup(introducee2);
+			assertGroupCount(introductionManager0, g1.getId(), 1, 0, time);
+			assertGroupCount(introductionManager0, g2.getId(), 1, 0, time);
+
 			// sync first request message
 			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener1.requestReceived);
+			assertGroupCount(introductionManager1, g1.getId(), 2, 1);
 
 			// sync second request message
 			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener2.requestReceived);
+			assertGroupCount(introductionManager2, g2.getId(), 2, 1);
 
 			// sync first response
 			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener0.response1Received);
+			assertGroupCount(introductionManager0, g1.getId(), 2, 1);
 
 			// sync second response
 			deliverMessage(sync2, contactId2, sync0, contactId0, "2 to 0");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener0.response2Received);
+			assertGroupCount(introductionManager0, g2.getId(), 2, 1);
 
 			// sync forwarded responses to introducees
 			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
 			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
+			assertGroupCount(introductionManager1, g1.getId(), 3, 2);
+			assertGroupCount(introductionManager2, g2.getId(), 3, 2);
 
 			// sync first ACK and its forward
 			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
@@ -255,6 +269,10 @@ public class IntroductionIntegrationTest extends BriarTestCase {
 			}
 
 			assertDefaultUiMessages();
+			assertGroupCount(introductionManager0, g1.getId(), 2, 1);
+			assertGroupCount(introductionManager0, g2.getId(), 2, 1);
+			assertGroupCount(introductionManager1, g1.getId(), 3, 2);
+			assertGroupCount(introductionManager2, g2.getId(), 3, 2);
 		} finally {
 			stopLifecycles();
 		}

@@ -60,7 +60,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TI
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
-import static org.briarproject.api.introduction.IntroductionConstants.READ;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.api.introduction.IntroductionConstants.RESPONSE_1;
@@ -75,6 +74,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 class IntroductionManagerImpl extends BdfIncomingMessageHook
 		implements IntroductionManager, Client, AddContactHook,
@@ -87,7 +87,6 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	private static final Logger LOG =
 			Logger.getLogger(IntroductionManagerImpl.class.getName());
 
-	private final DatabaseComponent db;
 	private final IntroducerManager introducerManager;
 	private final IntroduceeManager introduceeManager;
 	private final IntroductionGroupFactory introductionGroupFactory;
@@ -98,8 +97,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			IntroduceeManager introduceeManager,
 			IntroductionGroupFactory introductionGroupFactory) {
 
-		super(clientHelper, metadataParser);
-		this.db = db;
+		super(db, clientHelper, metadataParser);
 		this.introducerManager = introducerManager;
 		this.introduceeManager = introduceeManager;
 		this.introductionGroupFactory = introductionGroupFactory;
@@ -208,7 +206,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	 */
 	@Override
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary message)	throws DbException {
+			BdfDictionary message) throws DbException {
 
 		// Get message data and type
 		GroupId groupId = m.getGroupId();
@@ -237,6 +235,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 			}
 			try {
 				introduceeManager.incomingMessage(txn, state, message);
+				trackIncomingMessage(txn, m);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				introduceeManager.abort(txn, state);
@@ -270,6 +269,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 						deleteMessage(txn, m.getId());
 					}
 				}
+				if (type == TYPE_RESPONSE) trackIncomingMessage(txn, m);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
@@ -296,6 +296,10 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		Transaction txn = db.startTransaction(false);
 		try {
 			introducerManager.makeIntroduction(txn, c1, c2, msg, timestamp);
+			Group g1 = introductionGroupFactory.createIntroductionGroup(c1);
+			Group g2 = introductionGroupFactory.createIntroductionGroup(c2);
+			trackMessage(txn, g1.getId(), timestamp, true);
+			trackMessage(txn, g2.getId(), timestamp, true);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -315,6 +319,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
 			introduceeManager.acceptIntroduction(txn, state, timestamp);
+			trackMessage(txn, g.getId(), timestamp, true);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -334,6 +339,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
 			introduceeManager.declineIntroduction(txn, state, timestamp);
+			trackMessage(txn, g.getId(), timestamp, true);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);
@@ -377,7 +383,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 					boolean local;
 					long time = msg.getLong(MESSAGE_TIME);
 					boolean accepted = msg.getBoolean(ACCEPT, false);
-					boolean read = msg.getBoolean(READ, false);
+					boolean read = msg.getBoolean(MSG_KEY_READ, false);
 					AuthorId authorId;
 					String name;
 					if (type == TYPE_RESPONSE) {
