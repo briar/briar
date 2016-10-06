@@ -3,12 +3,12 @@ package org.briarproject.android.contact;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
-public class ConversationNoticeInItem extends ConversationNoticeItem
+class ConversationNoticeInItem extends ConversationNoticeItem
 		implements ConversationItem.IncomingItem {
 
 	private boolean read;
 
-	public ConversationNoticeInItem(MessageId id, String text, long time,
+	ConversationNoticeInItem(MessageId id, String text, long time,
 			boolean read) {
 		super(id, text, time);
 

@@ -3,12 +3,12 @@ package org.briarproject.android.contact;
 import org.briarproject.api.introduction.IntroductionRequest;
 
 // This class is not thread-safe
-public class ConversationIntroductionInItem extends ConversationIntroductionItem
+class ConversationIntroductionInItem extends ConversationIntroductionItem
 		implements ConversationItem.IncomingItem {
 
 	private boolean read;
 
-	public ConversationIntroductionInItem(IntroductionRequest ir) {
+	ConversationIntroductionInItem(IntroductionRequest ir) {
 		super(ir);
 
 		this.read = ir.isRead();

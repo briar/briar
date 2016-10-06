@@ -48,14 +48,15 @@ public abstract class ConversationItem {
 		return time;
 	}
 
-	public static ConversationItem from(PrivateMessageHeader h) {
-		if (h.isLocal())
+	public static ConversationMessageItem from(PrivateMessageHeader h) {
+		if (h.isLocal()) {
 			return new ConversationMessageOutItem(h);
-		else
+		} else {
 			return new ConversationMessageInItem(h);
+		}
 	}
 
-	public static ConversationItem from(IntroductionRequest ir) {
+	public static ConversationIntroductionItem from(IntroductionRequest ir) {
 		if (ir.isLocal()) {
 			return new ConversationIntroductionOutItem(ir);
 		} else {
@@ -63,7 +64,7 @@ public abstract class ConversationItem {
 		}
 	}
 
-	public static ConversationItem from(Context ctx, String contactName,
+	public static ConversationNoticeItem from(Context ctx, String contactName,
 			IntroductionResponse ir) {
 
 		if (ir.isLocal()) {
@@ -101,7 +102,8 @@ public abstract class ConversationItem {
 		}
 	}
 
-	public static ConversationItem from(InvitationRequest fim) {
+	public static ConversationShareableInvitationItem from(
+			InvitationRequest fim) {
 		if (fim.isLocal()) {
 			return new ConversationShareableInvitationOutItem(fim);
 		} else {
@@ -109,7 +111,7 @@ public abstract class ConversationItem {
 		}
 	}
 
-	public static ConversationItem from(Context ctx, String contactName,
+	public static ConversationNoticeItem from(Context ctx, String contactName,
 			InvitationResponse ir) {
 
 		if (ir instanceof ForumInvitationResponse) {
@@ -121,7 +123,7 @@ public abstract class ConversationItem {
 		}
 	}
 
-	private static ConversationItem from(Context ctx, String contactName,
+	private static ConversationNoticeItem from(Context ctx, String contactName,
 			ForumInvitationResponse fir) {
 
 		if (fir.isLocal()) {
@@ -153,7 +155,7 @@ public abstract class ConversationItem {
 		}
 	}
 
-	private static ConversationItem from(Context ctx, String contactName,
+	private static ConversationNoticeItem from(Context ctx, String contactName,
 			BlogInvitationResponse fir) {
 
 		if (fir.isLocal()) {
