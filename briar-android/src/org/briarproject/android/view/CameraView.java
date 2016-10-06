@@ -7,6 +7,7 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
 import android.os.Build;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -72,6 +73,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		if (surface != null) surface.release();
 	}
 
+	@UiThread
 	public void start(Camera camera, PreviewConsumer previewConsumer,
 			int rotationDegrees) {
 		this.camera = camera;
@@ -97,17 +99,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		if (surface != null) startPreview(getHolder());
 	}
 
+	@UiThread
 	public void stop() {
 		stopPreview();
 		try {
-			if (camera != null)
-				camera.release();
+			if (camera != null) camera.release();
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error releasing camera", e);
 		}
 		camera = null;
 	}
 
+	@UiThread
 	private void startPreview(SurfaceHolder holder) {
 		try {
 			camera.setPreviewDisplay(holder);
@@ -118,28 +121,29 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 	}
 
+	@UiThread
 	private void stopPreview() {
 		try {
 			stopConsumer();
-			if (camera != null)
-				camera.stopPreview();
+			if (camera != null) camera.stopPreview();
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error stopping camera preview", e);
 		}
 	}
 
+	@UiThread
 	public void startConsumer() {
 		if (autoFocus) camera.autoFocus(this);
 		previewConsumer.start(camera);
 	}
 
+	@UiThread
 	public void stopConsumer() {
-		if (previewConsumer != null) {
-			previewConsumer.stop();
-		}
+		if (previewConsumer != null) previewConsumer.stop();
 		if (autoFocus) camera.cancelAutoFocus();
 	}
 
+	@UiThread
 	private void setDisplayOrientation(int rotationDegrees) {
 		int orientation;
 		CameraInfo info = new CameraInfo();
@@ -160,6 +164,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		displayOrientation = orientation;
 	}
 
+	@UiThread
 	private Parameters setSceneMode(Camera camera, Parameters params) {
 		List<String> sceneModes = params.getSupportedSceneModes();
 		if (sceneModes == null) return params;
@@ -172,18 +177,21 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		return params;
 	}
 
+	@UiThread
 	private Parameters disableFlash(Camera camera, Parameters params) {
 		params.setFlashMode(FLASH_MODE_OFF);
 		camera.setParameters(params);
 		return camera.getParameters();
 	}
 
+	@UiThread
 	private Parameters disableSceneMode(Camera camera, Parameters params) {
 		params.setSceneMode(SCENE_MODE_AUTO);
 		camera.setParameters(params);
 		return camera.getParameters();
 	}
 
+	@UiThread
 	private Parameters setBestParameters(Camera camera, Parameters params) {
 		setVideoStabilisation(params);
 		setFocusMode(params);
@@ -193,6 +201,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		return camera.getParameters();
 	}
 
+	@UiThread
 	private void setVideoStabilisation(Parameters params) {
 		if (Build.VERSION.SDK_INT >= 15 &&
 				params.isVideoStabilizationSupported()) {
@@ -200,6 +209,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 	}
 
+	@UiThread
 	private void setFocusMode(Parameters params) {
 		List<String> focusModes = params.getSupportedFocusModes();
 		if (LOG.isLoggable(INFO)) LOG.info("Focus modes: " + focusModes);
@@ -218,6 +228,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 	}
 
+	@UiThread
 	private void setPreviewSize(Parameters params) {
 		if (surfaceWidth == 0 || surfaceHeight == 0) return;
 		float idealRatio = (float) surfaceWidth / surfaceHeight;
@@ -249,11 +260,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 	}
 
+	@UiThread
 	private void enableAutoFocus(String focusMode) {
 		autoFocus = FOCUS_MODE_AUTO.equals(focusMode) ||
 				FOCUS_MODE_MACRO.equals(focusMode);
 	}
 
+	@UiThread
 	private void logCameraParameters() {
 		if (LOG.isLoggable(INFO)) {
 			Parameters params = camera.getParameters();
@@ -270,7 +283,17 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
+	public void surfaceCreated(final SurfaceHolder holder) {
+		post(new Runnable() {
+			@Override
+			public void run() {
+				surfaceCreatedUi(holder);
+			}
+		});
+	}
+
+	@UiThread
+	private void surfaceCreatedUi(SurfaceHolder holder) {
 		LOG.info("Surface created");
 		if (surface != null) throw new IllegalStateException();
 		surface = holder.getSurface();
@@ -278,7 +301,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+	public void surfaceChanged(final SurfaceHolder holder, int format,
+			final int w, final int h) {
+		post(new Runnable() {
+			@Override
+			public void run() {
+				surfaceChangedUi(holder, w, h);
+			}
+		});
+	}
+
+	@UiThread
+	private void surfaceChangedUi(SurfaceHolder holder, int w, int h) {
 		if (LOG.isLoggable(INFO)) LOG.info("Surface changed: " + w + "x" + h);
 		// Release the previous surface if necessary
 		if (surface != null && surface != holder.getSurface())
@@ -300,7 +334,17 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {
+	public void surfaceDestroyed(final SurfaceHolder holder) {
+		post(new Runnable() {
+			@Override
+			public void run() {
+				surfaceDestroyedUi(holder);
+			}
+		});
+	}
+
+	@UiThread
+	private void surfaceDestroyedUi(SurfaceHolder holder) {
 		LOG.info("Surface destroyed");
 		if (holder.getSurface() != surface) throw new IllegalStateException();
 		if (surface != null) surface.release();
@@ -317,6 +361,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}, AUTO_FOCUS_RETRY_DELAY);
 	}
 
+	@UiThread
 	private void retryAutoFocus() {
 		try {
 			if (camera != null) camera.autoFocus(this);

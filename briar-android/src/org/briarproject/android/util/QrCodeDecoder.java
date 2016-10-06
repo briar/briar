@@ -4,6 +4,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.AsyncTask;
+import android.support.annotation.UiThread;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
@@ -33,19 +34,24 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 		this.callback = callback;
 	}
 
+	@Override
 	public void start(Camera camera) {
 		stopped = false;
 		askForPreviewFrame(camera);
 	}
 
+	@Override
 	public void stop() {
 		stopped = true;
 	}
 
+	@UiThread
 	private void askForPreviewFrame(Camera camera) {
 		if (!stopped) camera.setOneShotPreviewCallback(this);
 	}
 
+	@UiThread
+	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
 		if (!stopped) {
 			Size size = camera.getParameters().getPreviewSize();
@@ -55,9 +61,9 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	private class DecoderTask extends AsyncTask<Void, Void, Void> {
 
-		final Camera camera;
-		final byte[] data;
-		final int width, height;
+		private final Camera camera;
+		private final byte[] data;
+		private final int width, height;
 
 		DecoderTask(Camera camera, byte[] data, int width, int height) {
 			this.camera = camera;

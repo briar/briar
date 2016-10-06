@@ -89,10 +89,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	private BluetoothStateReceiver receiver;
 	private QrCodeDecoder decoder;
-	private boolean gotRemotePayload;
-
-	private volatile KeyAgreementTask task;
-	private volatile boolean waitingForBluetooth;
+	private boolean gotRemotePayload, waitingForBluetooth;
+	private KeyAgreementTask task;
 
 	public static ShowQrCodeFragment newInstance() {
 
@@ -190,26 +188,33 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		if (receiver != null) getActivity().unregisterReceiver(receiver);
 	}
 
+	@UiThread
 	private void startListening() {
-		task = keyAgreementTaskFactory.getTask();
+		final KeyAgreementTask oldTask = task;
+		final KeyAgreementTask newTask = keyAgreementTaskFactory.getTask();
+		task = newTask;
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				task.listen();
+				if (oldTask != null) oldTask.stopListening();
+				newTask.listen();
 			}
 		});
 	}
 
+	@UiThread
 	private void stopListening() {
+		final KeyAgreementTask oldTask = task;
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				task.stopListening();
+				if (oldTask != null) oldTask.stopListening();
 			}
 		});
 	}
 
 	@SuppressWarnings("deprecation")
+	@UiThread
 	private void openCamera() {
 		LOG.info("Opening camera");
 		Camera camera;
@@ -229,6 +234,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		cameraView.start(camera, decoder, 0);
 	}
 
+	@UiThread
 	private void releaseCamera() {
 		LOG.info("Releasing camera");
 		try {
@@ -240,6 +246,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		}
 	}
 
+	@UiThread
 	private void reset() {
 		statusView.setVisibility(INVISIBLE);
 		cameraView.setVisibility(VISIBLE);
@@ -248,6 +255,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		startListening();
 	}
 
+	@UiThread
 	private void qrCodeScanned(String content) {
 		try {
 			Payload remotePayload = payloadParser.parse(
@@ -320,7 +328,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void setQrCode(final Payload localPayload) {
-
 		listener.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -397,6 +404,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
+		@UiThread
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
