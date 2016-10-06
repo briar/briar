@@ -185,16 +185,6 @@
 		</activity>
 
 		<activity
-			android:name=".android.blogs.CreateBlogActivity"
-			android:label="@string/blogs_my_blogs_label"
-			android:parentActivityName=".android.NavDrawerActivity">
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
-				/>
-		</activity>
-
-		<activity
 			android:name=".android.blogs.BlogActivity"
 			android:parentActivityName=".android.NavDrawerActivity">
 			<meta-data
@@ -244,12 +234,6 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.NavDrawerActivity"
 				/>
-		</activity>
-
-		<activity
-			android:name=".android.identity.CreateIdentityActivity"
-			android:label="@string/new_identity_title"
-			android:windowSoftInputMode="stateVisible">
 		</activity>
 
 		<activity
