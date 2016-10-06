@@ -153,7 +153,7 @@ public class NestedForumAdapter
 		}
 	}
 
-	void setReplyEntry(ForumEntry entry) {
+	void setReplyEntry(@Nullable ForumEntry entry) {
 		if (replyEntry != null) {
 			notifyItemChanged(getVisiblePos(replyEntry));
 		}
@@ -386,7 +386,7 @@ public class NestedForumAdapter
 	 * elements if sEntry is null. If sEntry is not visible a NO_POSITION is
 	 * returned.
 	 */
-	private int getVisiblePos(ForumEntry sEntry) {
+	private int getVisiblePos(@Nullable ForumEntry sEntry) {
 		int visibleCounter = 0;
 		int levelLimit = UNDEFINED;
 		for (ForumEntry fEntry : forumEntries) {
@@ -414,14 +414,14 @@ public class NestedForumAdapter
 
 	static class NestedForumHolder extends RecyclerView.ViewHolder {
 
-		final TextView textView, lvlText, repliesText;
-		final AuthorView author;
-		final View[] lvls;
-		final View chevron, replyButton;
-		final ViewGroup cell;
-		final View topDivider;
+		private final TextView textView, lvlText, repliesText;
+		private final AuthorView author;
+		private final View[] lvls;
+		private final View chevron, replyButton;
+		private final ViewGroup cell;
+		private final View topDivider;
 
-		NestedForumHolder(View v) {
+		private NestedForumHolder(View v) {
 			super(v);
 
 			textView = (TextView) v.findViewById(R.id.text);

@@ -3,6 +3,7 @@ package org.briarproject.android.forum;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -90,7 +91,6 @@ public class ForumActivity extends BriarActivity implements
 		recyclerView.setLayoutManager(linearLayoutManager);
 		forumAdapter = new NestedForumAdapter(this, this, linearLayoutManager);
 		recyclerView.setAdapter(forumAdapter);
-		recyclerView.setEmptyText(R.string.no_forum_posts);
 
 		forumController.loadForum(groupId,
 				new UiResultExceptionHandler<List<ForumEntry>, DbException>(
@@ -182,7 +182,7 @@ public class ForumActivity extends BriarActivity implements
 		}
 	}
 
-	private void showTextInput(ForumEntry replyEntry) {
+	private void showTextInput(@Nullable ForumEntry replyEntry) {
 		// An animation here would be an overkill because of the keyboard
 		// popping up.
 		// only clear the text when the input container was not visible
@@ -190,7 +190,6 @@ public class ForumActivity extends BriarActivity implements
 			textInput.setVisibility(VISIBLE);
 			textInput.setText("");
 		}
-		textInput.requestFocus();
 		textInput.showSoftKeyboard();
 		textInput.setHint(replyEntry == null ? R.string.forum_new_message_hint :
 				R.string.forum_message_reply_hint);

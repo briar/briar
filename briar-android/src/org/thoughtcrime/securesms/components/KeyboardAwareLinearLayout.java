@@ -63,6 +63,7 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 	public KeyboardAwareLinearLayout(Context context,
 			@Nullable AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		rotation = getDeviceRotation();
 		final int statusBarRes = getResources()
 				.getIdentifier("status_bar_height", "dimen", "android");
 		minKeyboardSize =
