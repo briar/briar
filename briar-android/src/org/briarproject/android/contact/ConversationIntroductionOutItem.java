@@ -9,13 +9,12 @@ import org.briarproject.api.introduction.IntroductionRequest;
  *
  *  This class is not thread-safe
  */
-public class ConversationIntroductionOutItem
-		extends ConversationIntroductionItem
+class ConversationIntroductionOutItem extends ConversationIntroductionItem
 		implements ConversationItem.OutgoingItem {
 
 	private boolean sent, seen;
 
-	public ConversationIntroductionOutItem(IntroductionRequest ir) {
+	ConversationIntroductionOutItem(IntroductionRequest ir) {
 		super(ir);
 		this.sent = ir.isSent();
 		this.seen = ir.isSeen();

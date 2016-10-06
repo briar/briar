@@ -8,7 +8,7 @@ abstract class ConversationMessageItem extends ConversationItem {
 	private final PrivateMessageHeader header;
 	private byte[] body;
 
-	public ConversationMessageItem(PrivateMessageHeader header) {
+	ConversationMessageItem(PrivateMessageHeader header) {
 		super(header.getId(), header.getTimestamp());
 
 		this.header = header;

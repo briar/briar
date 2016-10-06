@@ -6,7 +6,7 @@ abstract class ConversationNoticeItem extends ConversationItem {
 
 	private final String text;
 
-	public ConversationNoticeItem(MessageId id, String text, long time) {
+	ConversationNoticeItem(MessageId id, String text, long time) {
 		super(id, time);
 
 		this.text = text;

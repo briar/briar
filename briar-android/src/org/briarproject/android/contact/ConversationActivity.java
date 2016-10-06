@@ -77,11 +77,11 @@ import org.briarproject.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -106,7 +106,7 @@ public class ConversationActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 	private static final int REQUEST_CODE_INTRODUCTION = 1;
-	public static final String SHOW_ONBOARDING_INTRODUCTION =
+	private static final String SHOW_ONBOARDING_INTRODUCTION =
 			"showOnboardingIntroduction";
 
 	@Inject
@@ -115,7 +115,9 @@ public class ConversationActivity extends BriarActivity
 	ConnectionRegistry connectionRegistry;
 	@Inject
 	@CryptoExecutor
-	protected Executor cryptoExecutor;
+	Executor cryptoExecutor;
+
+	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
 
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
@@ -148,7 +150,6 @@ public class ConversationActivity extends BriarActivity
 	private volatile String contactName = null;
 	private volatile byte[] contactIdenticonKey = null;
 	private volatile boolean connected = false;
-	private volatile Map<MessageId, byte[]> bodyCache = new HashMap<>();
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
@@ -167,7 +168,8 @@ public class ConversationActivity extends BriarActivity
 		if (toolbar != null) {
 			toolbarAvatar =
 					(CircleImageView) toolbar.findViewById(R.id.contactAvatar);
-			toolbarStatus = (ImageView) toolbar.findViewById(R.id.contactStatus);
+			toolbarStatus =
+					(ImageView) toolbar.findViewById(R.id.contactStatus);
 			toolbarTitle = (TextView) toolbar.findViewById(R.id.contactName);
 			setSupportActionBar(toolbar);
 		}
@@ -383,11 +385,9 @@ public class ConversationActivity extends BriarActivity
 				} else {
 					List<ConversationItem> items = new ArrayList<>();
 					for (PrivateMessageHeader h : headers) {
-						ConversationMessageItem item =
-								(ConversationMessageItem) ConversationItem
-										.from(h);
+						ConversationMessageItem item = ConversationItem.from(h);
 						byte[] body = bodyCache.get(h.getId());
-						if (body == null) loadMessageBody(h);
+						if (body == null) loadMessageBody(h.getId());
 						else item.setBody(body);
 						items.add(item);
 					}
@@ -406,12 +406,10 @@ public class ConversationActivity extends BriarActivity
 					}
 					for (InvitationMessage i : invitations) {
 						if (i instanceof InvitationRequest) {
-							InvitationRequest r =
-									(InvitationRequest) i;
+							InvitationRequest r = (InvitationRequest) i;
 							items.add(ConversationItem.from(r));
 						} else if (i instanceof InvitationResponse) {
-							InvitationResponse r =
-									(InvitationResponse) i;
+							InvitationResponse r = (InvitationResponse) i;
 							items.add(ConversationItem
 									.from(ConversationActivity.this,
 											contactName, r));
@@ -425,17 +423,17 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void loadMessageBody(final PrivateMessageHeader h) {
+	private void loadMessageBody(final MessageId m) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					byte[] body = messagingManager.getMessageBody(h.getId());
+					byte[] body = messagingManager.getMessageBody(m);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading message took " + duration + " ms");
-					displayMessageBody(h.getId(), body);
+						LOG.info("Loading body took " + duration + " ms");
+					displayMessageBody(m, body);
 				} catch (NoSuchMessageException e) {
 					// The item will be removed when we get the event
 				} catch (DbException e) {
@@ -525,7 +523,7 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Message received, adding");
 				PrivateMessageHeader h = p.getMessageHeader();
 				addConversationItem(ConversationItem.from(h));
-				loadMessageBody(h);
+				loadMessageBody(h.getId());
 				markMessageReadIfNew(h);
 			}
 		} else if (e instanceof MessagesSentEvent) {
@@ -663,9 +661,9 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void run() {
 				try {
-					storeMessage(privateMessageFactory
-							.createPrivateMessage(groupId, timestamp, null,
-									"text/plain", body), body);
+					storeMessage(privateMessageFactory.createPrivateMessage(
+							groupId, timestamp, null, "text/plain", body),
+							body);
 				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
@@ -684,14 +682,13 @@ public class ConversationActivity extends BriarActivity
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
 
-					PrivateMessageHeader h = new PrivateMessageHeader(
-							m.getMessage().getId(),
+					MessageId id = m.getMessage().getId();
+					PrivateMessageHeader h = new PrivateMessageHeader(id,
 							m.getMessage().getTimestamp(), m.getContentType(),
 							true, false, false, false);
-					ConversationMessageItem item =
-							(ConversationMessageItem) ConversationItem.from(h);
+					ConversationMessageItem item = ConversationItem.from(h);
 					item.setBody(body);
-					bodyCache.put(m.getMessage().getId(), body);
+					bodyCache.put(id, body);
 					addConversationItem(item);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

@@ -8,22 +8,22 @@ abstract class ConversationIntroductionItem extends ConversationItem {
 	private final IntroductionRequest ir;
 	private boolean answered;
 
-	public ConversationIntroductionItem(IntroductionRequest ir) {
+	ConversationIntroductionItem(IntroductionRequest ir) {
 		super(ir.getMessageId(), ir.getTimestamp());
 
 		this.ir = ir;
 		this.answered = ir.wasAnswered();
 	}
 
-	public IntroductionRequest getIntroductionRequest() {
+	IntroductionRequest getIntroductionRequest() {
 		return ir;
 	}
 
-	public boolean wasAnswered() {
+	boolean wasAnswered() {
 		return answered;
 	}
 
-	public void setAnswered(boolean answered) {
+	void setAnswered(boolean answered) {
 		this.answered = answered;
 	}
 }
