@@ -4,7 +4,8 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumInvitationRequest;
 
-public class ForumInvitationReceivedEvent extends InvitationReceivedEvent {
+public class ForumInvitationReceivedEvent extends
+		InvitationRequestReceivedEvent {
 
 	private final Forum forum;
 

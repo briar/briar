@@ -22,7 +22,7 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sharing.InvitationItem;
@@ -36,7 +36,7 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.system.Clock;
-import org.briarproject.clients.ConversationClient;
+import org.briarproject.clients.ConversationClientImpl;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
@@ -85,8 +85,8 @@ import static org.briarproject.api.sharing.SharingMessage.Invitation;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
-abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
-		extends ConversationClient
+abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationRequestReceivedEvent, IRR extends InvitationResponseReceivedEvent>
+		extends ConversationClientImpl
 		implements SharingManager<S>, Client, AddContactHook,
 		RemoveContactHook {
 
@@ -212,7 +212,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 				if (stateExists) throw new FormatException();
 
 				// check if shareable can be shared
-				@SuppressWarnings("unchecked")
 				I invitation = (I) msg;
 				S f = getSFactory().parse(invitation);
 				ContactId contactId = getContactId(txn, m.getGroupId());
@@ -249,7 +248,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			SharingSessionState s = getSessionState(txn, sessionId, true);
 			if (s instanceof SharerSessionState) {
 				// we are a sharer and the invitee wants to leave or abort
-				@SuppressWarnings("unchecked")
 				SS state = (SS) s;
 				SharerEngine<I, SS, IRR> engine =
 						new SharerEngine<I, SS, IRR>(getIFactory(),
@@ -258,7 +256,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 						engine.onMessageReceived(state, msg));
 			} else {
 				// we are an invitee and the sharer wants to leave or abort
-				@SuppressWarnings("unchecked")
 				IS state = (IS) s;
 				InviteeEngine<IS, IR> engine =
 						new InviteeEngine<IS, IR>(getIRFactory(), clock);
@@ -298,6 +295,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			processSharerStateUpdate(txn, null, update);
 
 			// track message
+			// TODO handle this properly without engine hacks (#376)
 			long time = update.toSend.get(0).getTime();
 			trackMessage(txn, localState.getGroupId(), time, true);
 
@@ -334,6 +332,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			processInviteeStateUpdate(txn, null, update);
 
 			// track message
+			// TODO handle this properly without engine hacks (#376)
 			long time = update.toSend.get(0).getTime();
 			trackMessage(txn, localState.getGroupId(), time, true);
 
@@ -475,7 +474,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			BdfDictionary d = m.getValue();
 			try {
 				I msg = getIFactory().build(group.getId(), d);
-				@SuppressWarnings("unchecked")
 				IS iss = (IS) getSessionState(txn, msg.getSessionId(), true);
 				// get and add the shareable if the invitation is unanswered
 				if (iss.getState().equals(AWAIT_LOCAL_RESPONSE)) {
@@ -733,7 +731,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 		if (!d.getBoolean(IS_SHARER)) throw new FormatException();
 
-		//noinspection unchecked
 		return (SS) SharingSessionState
 				.fromBdfDictionary(getISFactory(), getSSFactory(), d);
 	}
@@ -768,7 +765,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			}
 			throw new DbException();
 		}
-		//noinspection unchecked
 		return (IS) SharingSessionState
 				.fromBdfDictionary(getISFactory(), getSSFactory(),
 						map.values().iterator().next());
@@ -954,7 +950,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			SharerEngine<I, SS, IRR> engine =
 					new SharerEngine<I, SS, IRR>(getIFactory(),
 							getIRRFactory(), clock);
-			//noinspection unchecked
 			processSharerStateUpdate(txn, null,
 					engine.onLocalAction((SS) state, action));
 		} else {
@@ -962,7 +957,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					InviteeSessionState.Action.LOCAL_LEAVE;
 			InviteeEngine<IS, IR> engine =
 					new InviteeEngine<IS, IR>(getIRFactory(), clock);
-			//noinspection unchecked
 			processInviteeStateUpdate(txn, null,
 					engine.onLocalAction((IS) state, action));
 		}

@@ -24,7 +24,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.clients.ConversationClient;
+import org.briarproject.clients.ConversationClientImpl;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
-class MessagingManagerImpl extends ConversationClient
+class MessagingManagerImpl extends ConversationClientImpl
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(

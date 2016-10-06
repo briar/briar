@@ -1,11 +1,10 @@
 package org.briarproject.android.contact;
 
-import android.support.annotation.Nullable;
-
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
+import org.jetbrains.annotations.NotNull;
 
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 
@@ -17,10 +16,11 @@ public class ContactListItem {
 	private final GroupId groupId;
 	private boolean connected, empty;
 	private long timestamp;
-	private long unread;
+	private int unread;
 
-	public ContactListItem(Contact contact, LocalAuthor localAuthor,
-			boolean connected, @Nullable GroupId groupId, GroupCount count) {
+	public ContactListItem(@NotNull Contact contact,
+			@NotNull LocalAuthor localAuthor, boolean connected,
+			@NotNull GroupId groupId, @NotNull GroupCount count) {
 		this.contact = contact;
 		this.localAuthor = localAuthor;
 		this.groupId = groupId;
@@ -48,7 +48,6 @@ public class ContactListItem {
 		return localAuthor;
 	}
 
-	@Nullable
 	GroupId getGroupId() {
 		return groupId;
 	}
@@ -69,7 +68,7 @@ public class ContactListItem {
 		return timestamp;
 	}
 
-	long getUnreadCount() {
+	int getUnreadCount() {
 		return unread;
 	}
 }

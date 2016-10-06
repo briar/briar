@@ -3,7 +3,7 @@ package org.briarproject.sharing;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ProtocolEngine;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.sharing.SharingMessage.Invitation;
 import org.briarproject.api.system.Clock;
 
@@ -25,7 +25,7 @@ import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREAB
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.SimpleMessage;
 
-class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationReceivedEvent>
+class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationRequestReceivedEvent>
 		implements ProtocolEngine<InviteeSessionState.Action, IS, BaseMessage> {
 
 	private static final Logger LOG =

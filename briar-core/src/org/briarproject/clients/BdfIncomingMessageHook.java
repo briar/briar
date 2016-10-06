@@ -81,8 +81,8 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 	protected void trackMessage(Transaction txn, GroupId g, long time,
 			boolean read) throws DbException {
 		GroupCount c = getGroupCount(txn, g);
-		long msgCount = c.getMsgCount() + 1;
-		long unreadCount = c.getUnreadCount() + (read ? 0 : 1);
+		int msgCount = c.getMsgCount() + 1;
+		int unreadCount = c.getUnreadCount() + (read ? 0 : 1);
 		long latestTime =
 				time > c.getLatestMsgTime() ? time : c.getLatestMsgTime();
 		storeGroupCount(txn, g,
@@ -109,8 +109,8 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 		try {
 			BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
 			count = new GroupCount(
-					d.getLong(GROUP_KEY_MSG_COUNT, 0L),
-					d.getLong(GROUP_KEY_UNREAD_COUNT, 0L),
+					d.getLong(GROUP_KEY_MSG_COUNT, 0L).intValue(),
+					d.getLong(GROUP_KEY_UNREAD_COUNT, 0L).intValue(),
 					d.getLong(GROUP_KEY_LATEST_MSG, 0L)
 			);
 		} catch (FormatException e) {

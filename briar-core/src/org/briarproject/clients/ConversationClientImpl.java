@@ -8,18 +8,17 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.messaging.ConversationManager;
+import org.briarproject.api.messaging.ConversationManager.ConversationClient;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 
-public abstract class ConversationClient extends BdfIncomingMessageHook
-		implements ConversationManager.ConversationClient {
+public abstract class ConversationClientImpl extends BdfIncomingMessageHook
+		implements ConversationClient {
 
-	protected ConversationClient(DatabaseComponent db,
+	protected ConversationClientImpl(DatabaseComponent db,
 			ClientHelper clientHelper, MetadataParser metadataParser) {
 		super(db, clientHelper, metadataParser);
 	}
-
-	// TODO overwrite super methods to store GroupCount data in a single group
 
 	protected abstract Group getContactGroup(Contact contact);
 

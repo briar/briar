@@ -8,7 +8,8 @@ import org.briarproject.api.forum.ForumPostHeader;
 class ForumListItem {
 
 	private final Forum forum;
-	private long postCount, unread, timestamp;
+	private int postCount, unread;
+	private long timestamp;
 
 	ForumListItem(Forum forum, GroupCount count) {
 		this.forum = forum;
@@ -31,7 +32,7 @@ class ForumListItem {
 		return postCount == 0;
 	}
 
-	long getPostCount() {
+	int getPostCount() {
 		return postCount;
 	}
 
@@ -39,7 +40,7 @@ class ForumListItem {
 		return timestamp;
 	}
 
-	long getUnreadCount() {
+	int getUnreadCount() {
 		return unread;
 	}
 }

@@ -51,7 +51,7 @@ class ForumListAdapter
 		ui.name.setText(item.getForum().getName());
 
 		// Post Count
-		int postCount = (int) item.getPostCount();
+		int postCount = item.getPostCount();
 		if (postCount > 0) {
 			ui.avatar.setProblem(false);
 			ui.postCount.setText(ctx.getResources()

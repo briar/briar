@@ -14,6 +14,7 @@ import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sharing.InvitationResponse;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
 
 // This class is not thread-safe
 public abstract class ConversationItem {
@@ -31,11 +32,12 @@ public abstract class ConversationItem {
 	final static int BLOG_INVITATION_IN = 9;
 	final static int BLOG_INVITATION_OUT = 10;
 
-	private MessageId id;
-	private GroupId groupId;
-	private long time;
+	final private MessageId id;
+	final private GroupId groupId;
+	final private long time;
 
-	public ConversationItem(MessageId id, GroupId groupId, long time) {
+	public ConversationItem(@NotNull MessageId id, @NotNull GroupId groupId,
+			long time) {
 		this.id = id;
 		this.groupId = groupId;
 		this.time = time;
@@ -43,10 +45,12 @@ public abstract class ConversationItem {
 
 	abstract int getType();
 
+	@NotNull
 	public MessageId getId() {
 		return id;
 	}
 
+	@NotNull
 	public GroupId getGroupId() {
 		return groupId;
 	}
@@ -221,6 +225,7 @@ public abstract class ConversationItem {
 
 	interface OutgoingItem {
 
+		@NotNull
 		MessageId getId();
 
 		boolean isSent();
@@ -234,8 +239,10 @@ public abstract class ConversationItem {
 
 	interface IncomingItem {
 
+		@NotNull
 		MessageId getId();
 
+		@NotNull
 		GroupId getGroupId();
 
 		boolean isRead();

@@ -44,6 +44,7 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_DESC;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
+import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 
 class BlogSharingManagerImpl extends
 		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
@@ -253,10 +254,7 @@ class BlogSharingManagerImpl extends
 			String blogDesc = d.getString(BLOG_DESC);
 			String blogAuthorName = d.getString(BLOG_AUTHOR_NAME);
 			byte[] blogPublicKey = d.getRaw(BLOG_PUBLIC_KEY);
-			MessageId invitationId = null;
-			byte[] invitationIdBytes = d.getOptionalRaw(INVITATION_ID);
-			if (invitationIdBytes != null)
-				invitationId = new MessageId(invitationIdBytes);
+			MessageId invitationId = new MessageId(d.getRaw(INVITATION_ID));
 			return new BlogInviteeSessionState(sessionId, storageId,
 					groupId, state, contactId, blogId, blogTitle, blogDesc,
 					blogAuthorName, blogPublicKey, invitationId);
@@ -286,7 +284,7 @@ class BlogSharingManagerImpl extends
 			String blogAuthorName = d.getString(BLOG_AUTHOR_NAME);
 			byte[] blogPublicKey = d.getRaw(BLOG_PUBLIC_KEY);
 			MessageId responseId = null;
-			byte[] responseIdBytes = d.getOptionalRaw(INVITATION_ID);
+			byte[] responseIdBytes = d.getOptionalRaw(RESPONSE_ID);
 			if (responseIdBytes != null)
 				responseId = new MessageId(responseIdBytes);
 			return new BlogSharerSessionState(sessionId, storageId,
@@ -336,8 +334,11 @@ class BlogSharingManagerImpl extends
 				BlogSharerSessionState localState, boolean accept, long time) {
 			String title = localState.getBlogTitle();
 			ContactId c = localState.getContactId();
+			MessageId responseId = localState.getResponseId();
+			if (responseId == null)
+				throw new IllegalStateException("No responseId");
 			BlogInvitationResponse response =
-					new BlogInvitationResponse(localState.getResponseId(),
+					new BlogInvitationResponse(responseId,
 							localState.getSessionId(), localState.getGroupId(),
 							localState.getContactId(), accept, time, false,
 							false, false, false);

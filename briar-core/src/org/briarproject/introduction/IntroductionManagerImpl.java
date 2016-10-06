@@ -29,7 +29,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.clients.ConversationClient;
+import org.briarproject.clients.ConversationClientImpl;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
@@ -76,7 +76,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
-class IntroductionManagerImpl extends ConversationClient
+class IntroductionManagerImpl extends ConversationClientImpl
 		implements IntroductionManager, Client, AddContactHook,
 		RemoveContactHook {
 

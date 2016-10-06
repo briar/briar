@@ -9,18 +9,13 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
-import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import org.briarproject.R;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
@@ -32,7 +27,6 @@ import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 import java.util.logging.Logger;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 @UiThread
 public class TextInputView extends KeyboardAwareLinearLayout

@@ -5,6 +5,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static org.briarproject.api.blogs.BlogConstants.BLOG_AUTHOR_NAME;
@@ -22,7 +23,7 @@ public class BlogInviteeSessionState extends InviteeSessionState {
 	public BlogInviteeSessionState(SessionId sessionId, MessageId storageId,
 			GroupId groupId, State state, ContactId contactId, GroupId blogId,
 			String blogTitle, String blogDesc, String blogAuthorName,
-			byte[] blogPublicKey, @Nullable MessageId invitationId) {
+			byte[] blogPublicKey, @NotNull MessageId invitationId) {
 		super(sessionId, storageId, groupId, state, contactId, blogId,
 				invitationId);
 

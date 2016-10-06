@@ -51,7 +51,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
@@ -77,7 +77,7 @@ import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -481,12 +481,13 @@ public class ConversationActivity extends BriarActivity
 		SparseArray<IncomingItem> list = adapter.getIncomingMessages();
 		for (int i = 0; i < list.size(); i++) {
 			IncomingItem item = list.valueAt(i);
-			if (!item.isRead()) unread.put(item.getId(), item.getGroupId());
+			if (!item.isRead())
+				unread.put(item.getId(), item.getGroupId());
 		}
 		if (unread.isEmpty()) return;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Marking " + unread.size() + " messages read");
-		markMessagesRead(Collections.unmodifiableMap(unread));
+		markMessagesRead(unread);
 	}
 
 	private void markMessagesRead(final Map<MessageId, GroupId> unread) {
@@ -573,9 +574,9 @@ public class ConversationActivity extends BriarActivity
 				addConversationItem(item);
 				markMessageReadIfNew(ir);
 			}
-		} else if (e instanceof InvitationReceivedEvent) {
-			InvitationReceivedEvent event =
-					(InvitationReceivedEvent) e;
+		} else if (e instanceof InvitationRequestReceivedEvent) {
+			InvitationRequestReceivedEvent event =
+					(InvitationRequestReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
 				LOG.info("Invitation received, adding...");
 				InvitationRequest ir = event.getRequest();

@@ -4,6 +4,7 @@ import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
 
 public class IntroductionResponse extends IntroductionMessage {
 
@@ -11,10 +12,10 @@ public class IntroductionResponse extends IntroductionMessage {
 	private final String name;
 	private final boolean accepted;
 
-	public IntroductionResponse(SessionId sessionId, MessageId messageId,
-			GroupId groupId, int role, long time, boolean local, boolean sent,
-			boolean seen, boolean read, AuthorId remoteAuthorId, String name,
-			boolean accepted) {
+	public IntroductionResponse(@NotNull SessionId sessionId,
+			@NotNull MessageId messageId, @NotNull GroupId groupId, int role,
+			long time, boolean local, boolean sent, boolean seen, boolean read,
+			AuthorId remoteAuthorId, String name, boolean accepted) {
 
 		super(sessionId, messageId, groupId, role, time, local, sent, seen,
 				read);

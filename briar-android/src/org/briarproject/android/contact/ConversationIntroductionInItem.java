@@ -1,14 +1,16 @@
 package org.briarproject.android.contact;
 
+import org.briarproject.android.contact.ConversationItem.IncomingItem;
 import org.briarproject.api.introduction.IntroductionRequest;
+import org.jetbrains.annotations.NotNull;
 
 // This class is not thread-safe
 class ConversationIntroductionInItem extends ConversationIntroductionItem
-		implements ConversationItem.IncomingItem {
+		implements IncomingItem {
 
 	private boolean read;
 
-	ConversationIntroductionInItem(IntroductionRequest ir) {
+	ConversationIntroductionInItem(@NotNull IntroductionRequest ir) {
 		super(ir);
 
 		this.read = ir.isRead();

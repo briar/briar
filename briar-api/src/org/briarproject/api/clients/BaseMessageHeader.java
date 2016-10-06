@@ -2,6 +2,7 @@ package org.briarproject.api.clients;
 
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class BaseMessageHeader {
 
@@ -10,8 +11,9 @@ public abstract class BaseMessageHeader {
 	private final long timestamp;
 	private final boolean local, read, sent, seen;
 
-	public BaseMessageHeader(MessageId id, GroupId groupId, long timestamp,
-			boolean local, boolean read, boolean sent, boolean seen) {
+	public BaseMessageHeader(@NotNull MessageId id, @NotNull GroupId groupId,
+			long timestamp, boolean local, boolean read, boolean sent,
+			boolean seen) {
 
 		this.id = id;
 		this.groupId = groupId;
@@ -22,10 +24,12 @@ public abstract class BaseMessageHeader {
 		this.seen = seen;
 	}
 
+	@NotNull
 	public MessageId getId() {
 		return id;
 	}
 
+	@NotNull
 	public GroupId getGroupId() {
 		return groupId;
 	}

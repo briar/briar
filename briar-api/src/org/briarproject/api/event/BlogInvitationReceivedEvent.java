@@ -4,7 +4,8 @@ import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.sharing.InvitationRequest;
 
-public class BlogInvitationReceivedEvent extends InvitationReceivedEvent {
+public class BlogInvitationReceivedEvent extends
+		InvitationRequestReceivedEvent {
 
 	private final Blog blog;
 

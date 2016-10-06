@@ -28,7 +28,7 @@ import org.briarproject.api.event.ForumPostReceivedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.event.SettingsUpdatedEvent;
@@ -235,8 +235,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
 			ContactId c = ((IntroductionResponseReceivedEvent) e).getContactId();
 			showNotificationForPrivateConversation(c);
-		} else if (e instanceof InvitationReceivedEvent) {
-			ContactId c = ((InvitationReceivedEvent) e).getContactId();
+		} else if (e instanceof InvitationRequestReceivedEvent) {
+			ContactId c = ((InvitationRequestReceivedEvent) e).getContactId();
 			showNotificationForPrivateConversation(c);
 		} else if (e instanceof InvitationResponseReceivedEvent) {
 			ContactId c = ((InvitationResponseReceivedEvent) e).getContactId();

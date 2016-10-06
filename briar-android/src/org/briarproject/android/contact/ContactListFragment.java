@@ -36,7 +36,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.identity.IdentityManager;
@@ -121,7 +121,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
 						GroupId groupId = item.getGroupId();
-						if (groupId == null) return;
 						Intent i = new Intent(getActivity(),
 								ConversationActivity.class);
 						i.putExtra(GROUP_ID, groupId.getBytes());
@@ -270,9 +269,9 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					(IntroductionResponseReceivedEvent) e;
 			IntroductionResponse ir = m.getIntroductionResponse();
 			updateItem(m.getContactId(), ConversationItem.from(ir));
-		} else if (e instanceof InvitationReceivedEvent) {
+		} else if (e instanceof InvitationRequestReceivedEvent) {
 			LOG.info("Invitation Request received, update contact");
-			InvitationReceivedEvent m = (InvitationReceivedEvent) e;
+			InvitationRequestReceivedEvent m = (InvitationRequestReceivedEvent) e;
 			InvitationRequest ir = m.getRequest();
 			updateItem(m.getContactId(), ConversationItem.from(ir));
 		} else if (e instanceof InvitationResponseReceivedEvent) {

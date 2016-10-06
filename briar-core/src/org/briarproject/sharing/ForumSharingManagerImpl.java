@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
+import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 
 class ForumSharingManagerImpl extends
 		SharingManagerImpl<Forum, ForumInvitation, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
@@ -204,10 +205,7 @@ class ForumSharingManagerImpl extends
 				GroupId forumId, BdfDictionary d) throws FormatException {
 			String forumName = d.getString(FORUM_NAME);
 			byte[] forumSalt = d.getRaw(FORUM_SALT);
-			MessageId invitationId = null;
-			byte[] invitationIdBytes = d.getOptionalRaw(INVITATION_ID);
-			if (invitationIdBytes != null)
-				invitationId = new MessageId(invitationIdBytes);
+			MessageId invitationId = new MessageId(d.getRaw(INVITATION_ID));
 			return new ForumInviteeSessionState(sessionId, storageId,
 					groupId, state, contactId, forumId, forumName, forumSalt,
 					invitationId);
@@ -234,7 +232,7 @@ class ForumSharingManagerImpl extends
 			String forumName = d.getString(FORUM_NAME);
 			byte[] forumSalt = d.getRaw(FORUM_SALT);
 			MessageId responseId = null;
-			byte[] responseIdBytes = d.getOptionalRaw(INVITATION_ID);
+			byte[] responseIdBytes = d.getOptionalRaw(RESPONSE_ID);
 			if (responseIdBytes != null)
 				responseId = new MessageId(responseIdBytes);
 			return new ForumSharerSessionState(sessionId, storageId,
@@ -282,8 +280,11 @@ class ForumSharingManagerImpl extends
 				ForumSharerSessionState localState, boolean accept, long time) {
 			String name = localState.getForumName();
 			ContactId c = localState.getContactId();
+			MessageId responseId = localState.getResponseId();
+			if (responseId == null)
+				throw new IllegalStateException("No responseId");
 			ForumInvitationResponse response = new ForumInvitationResponse(
-					localState.getResponseId(), localState.getSessionId(),
+					responseId, localState.getSessionId(),
 					localState.getGroupId(), localState.getContactId(), accept,
 					time, false, false, false, false);
 			return new ForumInvitationResponseReceivedEvent(name, c, response);

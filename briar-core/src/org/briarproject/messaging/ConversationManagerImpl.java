@@ -32,7 +32,10 @@ class ConversationManagerImpl implements ConversationManager {
 
 	@Override
 	public void registerConversationClient(ConversationClient client) {
-		clients.add(client);
+		if (!clients.add(client)) {
+			throw new IllegalStateException(
+					"This client is already registered");
+		}
 	}
 
 	@Override
@@ -56,7 +59,8 @@ class ConversationManagerImpl implements ConversationManager {
 	public GroupCount getGroupCount(ContactId contactId)
 			throws DbException {
 
-		long msgCount = 0, unreadCount = 0, latestTime = 0;
+		int msgCount = 0, unreadCount = 0;
+		long latestTime = 0;
 		Transaction txn = db.startTransaction(true);
 		try {
 			for (ConversationClient client : clients) {
