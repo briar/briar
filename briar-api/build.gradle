@@ -4,10 +4,15 @@ targetCompatibility = 1.6
 
 apply plugin: 'witness'
 
+repositories {
+	mavenCentral()
+}
+
 dependencies {
 	compile "com.google.dagger:dagger:2.0.2"
 	compile 'com.google.dagger:dagger-compiler:2.0.2'
 	compile 'org.jetbrains:annotations-java5:15.0'
+	compile 'com.google.code.findbugs:jsr305:3.0.1'
 }
 
 dependencyVerification {
@@ -18,6 +23,7 @@ dependencyVerification {
 			'javax.inject:javax.inject:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
 			'com.google.dagger:dagger-producers:99ec15e8a0507ba569e7655bc1165ee5e5ca5aa914b3c8f7e2c2458f724edd6b',
 			'com.google.guava:guava:d664fbfc03d2e5ce9cab2a44fb01f1d0bf9dfebeccc1a473b1f9ea31f79f6f99',
+			'com.google.code.findbugs:jsr305:c885ce34249682bc0236b4a7d56efcc12048e6135a5baf7a9cde8ad8cda13fcd'
 	]
 }
 
