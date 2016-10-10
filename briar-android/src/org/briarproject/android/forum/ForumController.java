@@ -3,6 +3,7 @@ package org.briarproject.android.forum;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
+import org.briarproject.android.DestroyableContext;
 import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
@@ -38,9 +39,13 @@ public interface ForumController extends ActivityLifecycleController {
 	void createPost(byte[] body, MessageId parentId,
 			ResultExceptionHandler<ForumEntry, DbException> resultHandler);
 
-	interface ForumPostListener {
+	interface ForumPostListener extends DestroyableContext {
+
 		@UiThread
-		void onExternalEntryAdded(ForumPostHeader header);
+		void onForumPostReceived(ForumPostHeader header);
+
+		@UiThread
+		void onForumRemoved();
 	}
 
 }

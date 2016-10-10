@@ -205,6 +205,7 @@ public class AddContactActivity extends BriarActivity
 
 	void loadLocalAuthor() {
 		runOnDbThread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
@@ -222,7 +223,7 @@ public class AddContactActivity extends BriarActivity
 	}
 
 	void setLocalAuthorId(final AuthorId localAuthorId) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				AddContactActivity.this.localAuthorId = localAuthorId;
@@ -283,8 +284,10 @@ public class AddContactActivity extends BriarActivity
 		}
 	}
 
+	@Override
 	public void connectionSucceeded() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				connected = true;
 				setView(new ConfirmationCodeView(AddContactActivity.this,
@@ -293,8 +296,10 @@ public class AddContactActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void connectionFailed() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				connectionFailed = true;
 				setView(new ErrorView(AddContactActivity.this,
@@ -304,9 +309,11 @@ public class AddContactActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void keyAgreementSucceeded(final int localCode,
 			final int remoteCode) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				localConfirmationCode = localCode;
 				remoteConfirmationCode = remoteCode;
@@ -315,8 +322,10 @@ public class AddContactActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void keyAgreementFailed() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				connectionFailed = true;
 				setView(new ErrorView(AddContactActivity.this,
@@ -326,8 +335,10 @@ public class AddContactActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void remoteConfirmationSucceeded() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				remoteCompared = true;
 				remoteMatched = true;
@@ -339,8 +350,10 @@ public class AddContactActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void remoteConfirmationFailed() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				remoteCompared = true;
 				remoteMatched = false;
@@ -352,8 +365,10 @@ public class AddContactActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void pseudonymExchangeSucceeded(final String remoteName) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				contactName = remoteName;
 				showToastAndFinish();
@@ -361,8 +376,10 @@ public class AddContactActivity extends BriarActivity
 		});
 	}
 
+	@Override
 	public void pseudonymExchangeFailed() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
 			public void run() {
 				setView(new ErrorView(AddContactActivity.this,
 						R.string.connection_failed,
@@ -386,34 +403,42 @@ public class AddContactActivity extends BriarActivity
 			this.handle = handle;
 		}
 
+		@Override
 		public void connectionSucceeded() {
 			// Wait for key agreement to succeed or fail
 		}
 
+		@Override
 		public void connectionFailed() {
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
+		@Override
 		public void keyAgreementSucceeded(int localCode, int remoteCode) {
 			// Wait for remote confirmation to succeed or fail
 		}
 
+		@Override
 		public void keyAgreementFailed() {
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
+		@Override
 		public void remoteConfirmationSucceeded() {
 			// Wait for the pseudonym exchange to succeed or fail
 		}
 
+		@Override
 		public void remoteConfirmationFailed() {
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
+		@Override
 		public void pseudonymExchangeSucceeded(String remoteName) {
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
+		@Override
 		public void pseudonymExchangeFailed() {
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}

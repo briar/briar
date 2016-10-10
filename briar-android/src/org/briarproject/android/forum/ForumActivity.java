@@ -267,9 +267,8 @@ public class ForumActivity extends BriarActivity implements
 			// root post
 			forumController.createPost(StringUtils.toUtf8(text), resultHandler);
 		} else {
-			forumController
-					.createPost(StringUtils.toUtf8(text), replyEntry.getId(),
-							resultHandler);
+			forumController.createPost(StringUtils.toUtf8(text),
+					replyEntry.getId(), resultHandler);
 		}
 		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
@@ -344,7 +343,7 @@ public class ForumActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void onExternalEntryAdded(ForumPostHeader header) {
+	public void onForumPostReceived(ForumPostHeader header) {
 		forumController.loadPost(header,
 				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
 					@Override
@@ -357,6 +356,10 @@ public class ForumActivity extends BriarActivity implements
 						// TODO add proper exception handling
 					}
 				});
+	}
 
+	@Override
+	public void onForumRemoved() {
+		finish();
 	}
 }

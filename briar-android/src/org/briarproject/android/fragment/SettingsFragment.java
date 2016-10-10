@@ -75,15 +75,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onAttach(Context context) {
 		super.onAttach(context);
 
-		try {
-			listener = (SettingsActivity) context;
-			androidExecutor = listener.getAndroidExecutor();
-			settingsManager = listener.getSettingsManager();
-			eventBus = listener.getEventBus();
-		} catch (ClassCastException e) {
-			throw new ClassCastException(context.toString()
-					+ " is not a SettingsActivity");
-		}
+		listener = (SettingsActivity) context;
+		androidExecutor = listener.getAndroidExecutor();
+		settingsManager = listener.getSettingsManager();
+		eventBus = listener.getEventBus();
 	}
 
 	@Override
@@ -195,7 +190,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void displaySettings() {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				enableBluetooth.setValue(Boolean.toString(bluetoothSetting));

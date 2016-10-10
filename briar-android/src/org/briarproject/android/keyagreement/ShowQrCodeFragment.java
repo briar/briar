@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,23 +66,21 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
-	protected KeyAgreementTaskFactory keyAgreementTaskFactory;
+	KeyAgreementTaskFactory keyAgreementTaskFactory;
 	@Inject
-	protected PayloadEncoder payloadEncoder;
+	PayloadEncoder payloadEncoder;
 	@Inject
-	protected PayloadParser payloadParser;
+	PayloadParser payloadParser;
 	@Inject
-	protected AndroidExecutor androidExecutor;
+	AndroidExecutor androidExecutor;
 	@Inject
 	@IoExecutor
-	protected Executor ioExecutor;
+	Executor ioExecutor;
 
 	private CameraView cameraView;
-	private ViewGroup cameraOverlay;
 	private View statusView;
 	private TextView status;
 	private ImageView qrCode;
-	private ProgressBar mainProgressBar;
 	private TextView mainProgressTitle;
 	private ViewGroup mainProgressContainer;
 
@@ -124,11 +121,9 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		super.onViewCreated(view, savedInstanceState);
 
 		cameraView = (CameraView) view.findViewById(R.id.camera_view);
-		cameraOverlay = (ViewGroup) view.findViewById(R.id.camera_overlay);
 		statusView = view.findViewById(R.id.status_container);
 		status = (TextView) view.findViewById(R.id.connect_status);
 		qrCode = (ImageView) view.findViewById(R.id.qr_code);
-		mainProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
 		mainProgressTitle =
 				(TextView) view.findViewById(R.id.title_progress_bar);
 		mainProgressContainer =
@@ -286,11 +281,12 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
 		} else if (e instanceof KeyAgreementFinishedEvent) {
-			listener.runOnUiThread(new Runnable() {
+			listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 				@Override
 				public void run() {
 					mainProgressContainer.setVisibility(VISIBLE);
-					mainProgressTitle.setText(R.string.exchanging_contact_details);
+					mainProgressTitle.setText(
+							R.string.exchanging_contact_details);
 				}
 			});
 		}
@@ -309,9 +305,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 				String input =
 						Base64.encodeToString(payloadEncoder.encode(payload),
 								0);
-				Bitmap bitmap =
-						QrCodeUtils.createQrCode(dm, input);
-				return bitmap;
+				return QrCodeUtils.createQrCode(dm, input);
 			}
 
 			@Override
@@ -328,7 +322,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void setQrCode(final Payload localPayload) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				generateBitmapQR(localPayload);
@@ -337,7 +331,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementFailed() {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				reset();
@@ -349,7 +343,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementWaiting() {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				status.setText(R.string.waiting_for_contact);
@@ -358,7 +352,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementStarted() {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				mainProgressContainer.setVisibility(VISIBLE);
@@ -368,7 +362,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementAborted(final boolean remoteAborted) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				reset();
@@ -385,7 +379,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@Override
 	public void handleResult(final Result result) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				LOG.info("Got result from decoder");

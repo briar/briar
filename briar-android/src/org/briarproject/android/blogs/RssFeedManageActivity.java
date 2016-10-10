@@ -40,6 +40,7 @@ public class RssFeedManageActivity extends BriarActivity
 
 	// Fields that are accessed from background threads must be volatile
 	private volatile GroupId groupId = null;
+
 	@Inject
 	@SuppressWarnings("WeakerAccess")
 	volatile FeedManager feedManager;
@@ -135,7 +136,7 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	private void addFeeds(final List<Feed> feeds) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (feeds.size() == 0) list.showData();
@@ -145,7 +146,7 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	private void onFeedDeleted(final Feed feed) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.remove(feed);
@@ -154,7 +155,7 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	private void onDeleteError() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				Snackbar.make(list,

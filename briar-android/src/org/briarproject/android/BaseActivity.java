@@ -2,7 +2,6 @@ package org.briarproject.android;
 
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,7 +17,7 @@ import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 public abstract class BaseActivity extends AppCompatActivity
-		implements DestroyableActivity {
+		implements DestroyableContext {
 
 	protected ActivityComponent activityComponent;
 
@@ -49,7 +48,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		injectActivity(activityComponent);
 
 		for (ActivityLifecycleController alc : lifecycleControllers) {
-			alc.onActivityCreate();
+			alc.onActivityCreate(this);
 		}
 	}
 
@@ -87,9 +86,14 @@ public abstract class BaseActivity extends AppCompatActivity
 		}
 	}
 
-	@UiThread
-	public boolean hasBeenDestroyed() {
-		return destroyed;
+	@Override
+	public void runOnUiThreadUnlessDestroyed(final Runnable r) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (!destroyed && !isFinishing()) r.run();
+			}
+		});
 	}
 
 	public void showSoftKeyboardForced(View view) {

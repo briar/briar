@@ -2,35 +2,33 @@ package org.briarproject.android.controller.handler;
 
 import android.support.annotation.UiThread;
 
-import org.briarproject.android.DestroyableActivity;
+import org.briarproject.android.DestroyableContext;
 
 public abstract class UiResultExceptionHandler<R, E extends Exception>
 		implements ResultExceptionHandler<R, E> {
 
-	private final DestroyableActivity listener;
+	private final DestroyableContext listener;
 
-	protected UiResultExceptionHandler(DestroyableActivity listener) {
+	protected UiResultExceptionHandler(DestroyableContext listener) {
 		this.listener = listener;
 	}
 
 	@Override
 	public void onResult(final R result) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (!listener.hasBeenDestroyed())
-					onResultUi(result);
+				onResultUi(result);
 			}
 		});
 	}
 
 	@Override
 	public void onException(final E exception) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (!listener.hasBeenDestroyed())
-					onExceptionUi(exception);
+				onExceptionUi(exception);
 			}
 		});
 	}

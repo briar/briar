@@ -6,8 +6,6 @@ import org.briarproject.api.identity.LocalAuthor;
 
 public interface NavDrawerController extends ActivityLifecycleController {
 
-	void setTransportListener(TransportStateListener transportListener);
-
 	boolean isTransportRunning(TransportId transportId);
 
 	void storeLocalAuthor(LocalAuthor author,

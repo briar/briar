@@ -20,11 +20,11 @@ public class BriarControllerImpl implements BriarController {
 			Logger.getLogger(BriarControllerImpl.class.getName());
 
 	@Inject
-	protected BriarServiceConnection serviceConnection;
+	BriarServiceConnection serviceConnection;
 	@Inject
-	protected DatabaseConfig databaseConfig;
+	DatabaseConfig databaseConfig;
 	@Inject
-	protected Activity activity;
+	Activity activity;
 
 	private boolean bound = false;
 
@@ -35,7 +35,7 @@ public class BriarControllerImpl implements BriarController {
 
 	@Override
 	@CallSuper
-	public void onActivityCreate() {
+	public void onActivityCreate(Activity activity) {
 		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 
@@ -90,7 +90,7 @@ public class BriarControllerImpl implements BriarController {
 		}.start();
 	}
 
-	protected void unbindService() {
+	private void unbindService() {
 		if (bound) activity.unbindService(serviceConnection);
 	}
 

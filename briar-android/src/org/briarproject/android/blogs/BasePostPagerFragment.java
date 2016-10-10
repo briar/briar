@@ -90,6 +90,7 @@ abstract class BasePostPagerFragment extends BaseFragment
 
 	abstract void loadBlogPost(BlogPostHeader header);
 
+	@UiThread
 	protected void onBlogPostsLoaded(MessageId select,
 			Collection<BlogPostItem> posts) {
 
@@ -98,6 +99,7 @@ abstract class BasePostPagerFragment extends BaseFragment
 		selectPost(select);
 	}
 
+	@UiThread
 	protected void onBlogPostsLoadedException(DbException exception) {
 		// TODO: Decide how to handle errors in the UI
 		finish();
@@ -174,4 +176,8 @@ abstract class BasePostPagerFragment extends BaseFragment
 		}
 	}
 
+	@Override
+	public void onBlogRemoved() {
+		finish();
+	}
 }

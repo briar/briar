@@ -74,5 +74,4 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 					}
 				});
 	}
-
 }

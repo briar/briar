@@ -44,7 +44,7 @@ public class WriteBlogPostActivity extends BriarActivity
 			Logger.getLogger(WriteBlogPostActivity.class.getName());
 
 	@Inject
-	protected AndroidNotificationManager notificationManager;
+	AndroidNotificationManager notificationManager;
 
 	private TextInputView input;
 	private ProgressBar progressBar;
@@ -52,7 +52,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	// Fields that are accessed from background threads must be volatile
 	private volatile GroupId groupId;
 	@Inject
-	protected volatile IdentityManager identityManager;
+	volatile IdentityManager identityManager;
 	@Inject
 	volatile BlogPostFactory blogPostFactory;
 	@Inject
@@ -168,7 +168,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	private void postPublished() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				setResult(RESULT_OK);
@@ -178,7 +178,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	private void postFailedToPublish() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				// hide progress bar, show publish button

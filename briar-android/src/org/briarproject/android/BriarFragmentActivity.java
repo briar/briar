@@ -1,7 +1,6 @@
 package org.briarproject.android;
 
 import android.support.annotation.AnimRes;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -11,6 +10,8 @@ import org.briarproject.android.blogs.FeedFragment;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment;
+
+import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 
 /**
  * This class should be extended by classes that wish to utilise fragments in
@@ -33,11 +34,8 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 	}
 
 	void clearBackStack() {
-		getSupportFragmentManager()
-				.popBackStackImmediate(
-						null,
-						FragmentManager.POP_BACK_STACK_INCLUSIVE
-				);
+		getSupportFragmentManager().popBackStackImmediate(null,
+				POP_BACK_STACK_INCLUSIVE);
 	}
 
 	@Override

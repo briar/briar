@@ -39,10 +39,8 @@ import static java.util.logging.Level.WARNING;
 
 public class ContactChooserFragment extends BaseFragment {
 
-	public final static String TAG = "ContactChooserFragment";
-
-	private static final Logger LOG =
-			Logger.getLogger(ContactChooserFragment.class.getName());
+	public static final String TAG = ContactChooserFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	private IntroductionActivity introductionActivity;
 	private BriarRecyclerView list;
@@ -72,12 +70,7 @@ public class ContactChooserFragment extends BaseFragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		try {
-			introductionActivity = (IntroductionActivity) context;
-		} catch (ClassCastException e) {
-			throw new InstantiationError(
-					"This fragment is only meant to be attached to the IntroductionActivity");
-		}
+		introductionActivity = (IntroductionActivity) context;
 	}
 
 	@Override
@@ -182,7 +175,7 @@ public class ContactChooserFragment extends BaseFragment {
 
 	private void displayContacts(final AuthorId localAuthorId,
 			final List<ContactListItem> contacts) {
-		introductionActivity.runOnUiThread(new Runnable() {
+		introductionActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.setLocalAuthor(localAuthorId);

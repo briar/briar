@@ -46,10 +46,8 @@ import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 public class ContactSelectorFragment extends BaseFragment implements
 		BaseContactListAdapter.OnItemClickListener {
 
-	public final static String TAG = "ContactSelectorFragment";
-
-	private static final Logger LOG =
-			Logger.getLogger(ContactSelectorFragment.class.getName());
+	public static final String TAG = ContactSelectorFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	private ShareActivity shareActivity;
 	private Menu menu;
@@ -84,12 +82,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		try {
-			shareActivity = (ShareActivity) context;
-		} catch (ClassCastException e) {
-			throw new InstantiationError(
-					"This fragment is only meant to be attached to a subclass of ShareActivity");
-		}
+		shareActivity = (ShareActivity) context;
 	}
 
 	@Override
@@ -221,7 +214,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	private void displayContacts(final List<ContactListItem> contacts) {
-		shareActivity.runOnUiThread(new Runnable() {
+		shareActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (!contacts.isEmpty()) adapter.addAll(contacts);

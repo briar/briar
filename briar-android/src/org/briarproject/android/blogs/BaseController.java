@@ -3,6 +3,7 @@ package org.briarproject.android.blogs;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
+import org.briarproject.android.DestroyableContext;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
@@ -33,9 +34,13 @@ interface BaseController {
 
 	void setOnBlogPostAddedListener(OnBlogPostAddedListener listener);
 
-	interface OnBlogPostAddedListener {
+	interface OnBlogPostAddedListener extends DestroyableContext {
+
 		@UiThread
 		void onBlogPostAdded(BlogPostHeader header, boolean local);
+
+		@UiThread
+		void onBlogRemoved();
 	}
 
 }

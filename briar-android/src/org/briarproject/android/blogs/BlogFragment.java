@@ -160,8 +160,8 @@ public class BlogFragment extends BaseFragment implements
 				getActivity().onBackPressed();
 				return true;
 			case R.id.action_write_blog_post:
-				Intent i =
-						new Intent(getActivity(), WriteBlogPostActivity.class);
+				Intent i = new Intent(getActivity(),
+						WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
 				i.putExtra(BLOG_NAME, blogName);
 				startActivityForResult(i, REQUEST_WRITE_POST,
@@ -224,7 +224,7 @@ public class BlogFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						getActivity().finish();
+						finish();
 					}
 				}
 		);
@@ -338,7 +338,7 @@ public class BlogFragment extends BaseFragment implements
 						Toast.makeText(getActivity(),
 								R.string.blogs_blog_removed, LENGTH_SHORT)
 								.show();
-						getActivity().supportFinishAfterTransition();
+						finish();
 					}
 
 					@Override
@@ -349,4 +349,8 @@ public class BlogFragment extends BaseFragment implements
 				});
 	}
 
+	@Override
+	public void onBlogRemoved() {
+		finish();
+	}
 }

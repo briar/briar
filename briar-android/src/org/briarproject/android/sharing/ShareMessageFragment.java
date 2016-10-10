@@ -18,7 +18,6 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -28,10 +27,6 @@ import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
 abstract class ShareMessageFragment extends BaseFragment
 		implements TextInputListener {
-
-	public final static String TAG = ShareMessageFragment.class.getName();
-
-	protected static final Logger LOG = Logger.getLogger(TAG);
 
 	protected ViewHolder ui;
 	private ShareActivity shareActivity;
@@ -56,12 +51,7 @@ abstract class ShareMessageFragment extends BaseFragment
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		try {
-			shareActivity = (ShareActivity) context;
-		} catch (ClassCastException e) {
-			throw new InstantiationError(
-					"This fragment is only meant to be attached to the ShareForumActivity");
-		}
+		shareActivity = (ShareActivity) context;
 	}
 
 	@Override
@@ -104,11 +94,6 @@ abstract class ShareMessageFragment extends BaseFragment
 		}
 	}
 
-	@Override
-	public String getUniqueTag() {
-		return TAG;
-	}
-
 	protected void setTitle(int res) {
 		shareActivity.setTitle(res);
 	}
@@ -134,10 +119,6 @@ abstract class ShareMessageFragment extends BaseFragment
 
 	protected GroupId getGroupId() {
 		return groupId;
-	}
-
-	protected void runOnUiThread(Runnable runnable) {
-		listener.runOnUiThread(runnable);
 	}
 
 	protected static class ViewHolder {

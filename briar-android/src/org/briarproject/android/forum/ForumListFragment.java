@@ -56,13 +56,13 @@ public class ForumListFragment extends BaseEventFragment implements
 	private Snackbar snackbar;
 
 	@Inject
-	protected AndroidNotificationManager notificationManager;
+	AndroidNotificationManager notificationManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ForumManager forumManager;
+	volatile ForumManager forumManager;
 	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
+	volatile ForumSharingManager forumSharingManager;
 
 	public static ForumListFragment newInstance() {
 
@@ -181,7 +181,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void displayForums(final Collection<ForumListItem> forums) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (forums.size() > 0) adapter.addAll(forums);
@@ -211,10 +211,9 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void displayAvailableForums(final int availableCount) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (getActivity() == null) return;
 				if (availableCount == 0) {
 					snackbar.dismiss();
 				} else {
@@ -245,16 +244,16 @@ public class ForumListFragment extends BaseEventFragment implements
 				removeForum(g.getGroup().getId());
 			}
 		} else if (e instanceof ForumPostReceivedEvent) {
-			ForumPostReceivedEvent m = (ForumPostReceivedEvent) e;
+			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			LOG.info("Forum post added, updating...");
-			updateItem(m.getGroupId(), m.getForumPostHeader());
+			updateItem(f.getGroupId(), f.getForumPostHeader());
 		} else if (e instanceof ForumInvitationReceivedEvent) {
 			loadAvailableForums();
 		}
 	}
 
 	private void updateItem(final GroupId g, final ForumPostHeader m) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(g);
@@ -268,7 +267,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void removeForum(final GroupId g) {
-		listener.runOnUiThread(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(g);

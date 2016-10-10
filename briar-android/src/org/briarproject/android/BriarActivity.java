@@ -94,7 +94,7 @@ public abstract class BriarActivity extends BaseActivity {
 
 	@Deprecated
 	protected void finishOnUiThread() {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				finish();

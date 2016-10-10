@@ -231,4 +231,9 @@ public class FeedFragment extends BaseFragment implements
 		}
 		s.show();
 	}
+
+	@Override
+	public void onBlogRemoved() {
+		finish();
+	}
 }

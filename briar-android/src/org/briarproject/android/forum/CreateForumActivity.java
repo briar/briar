@@ -144,7 +144,7 @@ public class CreateForumActivity extends BriarActivity
 	}
 
 	private void displayForum(final Forum f) {
-		runOnUiThread(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				Intent i = new Intent(CreateForumActivity.this,

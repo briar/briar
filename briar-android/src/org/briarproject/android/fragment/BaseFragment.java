@@ -7,9 +7,10 @@ import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.DestroyableActivity;
+import org.briarproject.android.DestroyableContext;
 
-public abstract class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment
+		implements DestroyableContext {
 
 	protected BaseFragmentListener listener;
 
@@ -20,12 +21,7 @@ public abstract class BaseFragment extends Fragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		try {
-			listener = (BaseFragmentListener) context;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(
-					"Using class must implement BaseFragmentListener");
-		}
+		listener = (BaseFragmentListener) context;
 	}
 
 	@Override
@@ -37,7 +33,7 @@ public abstract class BaseFragment extends Fragment {
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		this.injectFragment(listener.getActivityComponent());
+		injectFragment(listener.getActivityComponent());
 		listener.onFragmentCreated(getUniqueTag());
 	}
 
@@ -46,7 +42,7 @@ public abstract class BaseFragment extends Fragment {
 		getActivity().supportFinishAfterTransition();
 	}
 
-	public interface BaseFragmentListener extends DestroyableActivity {
+	public interface BaseFragmentListener extends DestroyableContext {
 
 		void runOnDbThread(Runnable runnable);
 
@@ -55,5 +51,10 @@ public abstract class BaseFragment extends Fragment {
 
 		@UiThread
 		void onFragmentCreated(String tag);
+	}
+
+	@Override
+	public void runOnUiThreadUnlessDestroyed(Runnable r) {
+		listener.runOnUiThreadUnlessDestroyed(r);
 	}
 }

@@ -1,7 +1,10 @@
 package org.briarproject.android.controller;
 
+import android.app.Activity;
+
 public interface ActivityLifecycleController {
-	void onActivityCreate();
+
+	void onActivityCreate(Activity activity);
 
 	void onActivityResume();
 
