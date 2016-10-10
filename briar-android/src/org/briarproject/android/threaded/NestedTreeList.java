@@ -1,4 +1,4 @@
-package org.briarproject.android.util;
+package org.briarproject.android.threaded;
 
 import android.support.annotation.UiThread;
 

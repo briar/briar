@@ -16,7 +16,7 @@ public class TestForumActivity extends ForumActivity {
 	}
 
 	public NestedForumAdapter getAdapter() {
-		return forumAdapter;
+		return adapter;
 	}
 
 	@Override

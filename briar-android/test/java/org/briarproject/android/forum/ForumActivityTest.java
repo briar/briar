@@ -126,9 +126,9 @@ public class ForumActivityTest {
 		adapter.hideDescendants(dummyData.get(0));
 		assertEquals(2, adapter.getItemCount());
 		assertTrue(dummyData.get(0).getText()
-				.equals(adapter.getVisibleEntry(0).getText()));
+				.equals(adapter.getVisibleItem(0).getText()));
 		assertTrue(dummyData.get(5).getText()
-				.equals(adapter.getVisibleEntry(1).getText()));
+				.equals(adapter.getVisibleItem(1).getText()));
 		// Cascade re-open
 		adapter.showDescendants(dummyData.get(0));
 		assertEquals(4, adapter.getItemCount());
@@ -137,8 +137,8 @@ public class ForumActivityTest {
 		adapter.showDescendants(dummyData.get(2));
 		assertEquals(6, adapter.getItemCount());
 		assertTrue(dummyData.get(2).getText()
-				.equals(adapter.getVisibleEntry(2).getText()));
+				.equals(adapter.getVisibleItem(2).getText()));
 		assertTrue(dummyData.get(4).getText()
-				.equals(adapter.getVisibleEntry(4).getText()));
+				.equals(adapter.getVisibleItem(4).getText()));
 	}
 }

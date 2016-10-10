@@ -3,36 +3,28 @@ package org.briarproject.android.forum;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.BriarActivity;
-import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumController.ForumPostListener;
-import org.briarproject.android.forum.NestedForumAdapter.OnNestedForumListener;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.SharingStatusForumActivity;
-import org.briarproject.android.view.BriarRecyclerView;
-import org.briarproject.android.view.TextInputView;
-import org.briarproject.android.view.TextInputView.TextInputListener;
+import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumPostHeader;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -42,55 +34,31 @@ import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
+import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class ForumActivity extends BriarActivity implements
-		ForumPostListener, TextInputListener, OnNestedForumListener {
+public class ForumActivity extends ThreadListActivity<ForumEntry, NestedForumAdapter>
+		implements ForumPostListener {
 
 	static final String FORUM_NAME = "briar.FORUM_NAME";
 
 	private static final int REQUEST_FORUM_SHARED = 3;
-	private static final String KEY_INPUT_VISIBILITY = "inputVisibility";
-	private static final String KEY_REPLY_ID = "replyId";
-
-	@Inject
-	AndroidNotificationManager notificationManager;
 
 	@Inject
 	protected ForumController forumController;
 
-	// Protected access for testing
-	protected NestedForumAdapter forumAdapter;
-
-	private BriarRecyclerView recyclerView;
-	private TextInputView textInput;
-
-	private volatile GroupId groupId = null;
+	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+	}
 
 	@Override
 	public void onCreate(final Bundle state) {
 		super.onCreate(state);
 
-		setContentView(R.layout.activity_forum);
-
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra(GROUP_ID);
-		if (b == null) throw new IllegalStateException();
-		groupId = new GroupId(b);
 		String forumName = i.getStringExtra(FORUM_NAME);
 		if (forumName != null) setTitle(forumName);
-
-		textInput = (TextInputView) findViewById(R.id.text_input_container);
-		textInput.setVisibility(GONE);
-		textInput.setListener(this);
-		recyclerView =
-				(BriarRecyclerView) findViewById(R.id.forum_discussion_list);
-		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-		recyclerView.setLayoutManager(linearLayoutManager);
-		forumAdapter = new NestedForumAdapter(this, this, linearLayoutManager);
-		recyclerView.setAdapter(forumAdapter);
 
 		forumController.loadForum(groupId,
 				new UiResultExceptionHandler<List<ForumEntry>, DbException>(
@@ -101,14 +69,15 @@ public class ForumActivity extends BriarActivity implements
 						if (forum != null) setTitle(forum.getName());
 						List<ForumEntry> entries = new ArrayList<>(result);
 						if (entries.isEmpty()) {
-							recyclerView.showData();
+							list.showData();
 						} else {
-							forumAdapter.setEntries(entries);
+							adapter.setItems(entries);
+							list.showData();
 							if (state != null) {
 								byte[] replyId =
 										state.getByteArray(KEY_REPLY_ID);
 								if (replyId != null)
-									forumAdapter.setReplyEntryById(replyId);
+									adapter.setReplyItemById(replyId);
 							}
 						}
 					}
@@ -122,36 +91,20 @@ public class ForumActivity extends BriarActivity implements
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-		textInput.setVisibility(
-				savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY) ?
-						VISIBLE : GONE);
-	}
-
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_INPUT_VISIBILITY,
-				textInput.getVisibility() == VISIBLE);
-		ForumEntry replyEntry = forumAdapter.getReplyEntry();
-		if (replyEntry != null) {
-			outState.putByteArray(KEY_REPLY_ID,
-					replyEntry.getMessageId().getBytes());
-		}
+	protected @LayoutRes int getLayout() {
+		return R.layout.activity_forum;
 	}
 
 	@Override
-	public void injectActivity(ActivityComponent component) {
-		component.inject(this);
+	protected NestedForumAdapter createAdapter(
+			LinearLayoutManager layoutManager) {
+		return new NestedForumAdapter(this, layoutManager);
 	}
 
-	private void displaySnackbarShort(int stringId) {
-		Snackbar snackbar =
-				Snackbar.make(recyclerView, stringId, Snackbar.LENGTH_SHORT);
-		snackbar.getView().setBackgroundResource(R.color.briar_primary);
-		snackbar.show();
+	@Override
+	public void onResume() {
+		super.onResume();
+		notificationManager.clearForumPostNotification(groupId);
 	}
 
 	@Override
@@ -173,33 +126,9 @@ public class ForumActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void onBackPressed() {
-		if (textInput.getVisibility() == VISIBLE) {
-			textInput.setVisibility(GONE);
-			forumAdapter.setReplyEntry(null);
-		} else {
-			super.onBackPressed();
-		}
-	}
-
-	private void showTextInput(@Nullable ForumEntry replyEntry) {
-		// An animation here would be an overkill because of the keyboard
-		// popping up.
-		// only clear the text when the input container was not visible
-		if (textInput.getVisibility() != VISIBLE) {
-			textInput.setVisibility(VISIBLE);
-			textInput.setText("");
-		}
-		textInput.showSoftKeyboard();
-		textInput.setHint(replyEntry == null ? R.string.forum_new_message_hint :
-				R.string.forum_message_reply_hint);
-		forumAdapter.setReplyEntry(replyEntry);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		ActivityOptionsCompat options = ActivityOptionsCompat
-				.makeCustomAnimation(this, android.R.anim.slide_in_left,
+		ActivityOptionsCompat options =
+				makeCustomAnimation(this, android.R.anim.slide_in_left,
 						android.R.anim.slide_out_right);
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
@@ -228,31 +157,33 @@ public class ForumActivity extends BriarActivity implements
 		}
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		notificationManager.blockNotification(groupId);
-		notificationManager.clearForumPostNotification(groupId);
-		recyclerView.startPeriodicUpdate();
+	protected void markItemRead(ForumEntry entry) {
+		forumController.entryRead(entry);
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		notificationManager.unblockNotification(groupId);
-		recyclerView.stopPeriodicUpdate();
+	public void onForumPostReceived(ForumPostHeader header) {
+		forumController.loadPost(header,
+				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
+					@Override
+					public void onResultUi(final ForumEntry result) {
+						addItem(result, false);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO add proper exception handling
+					}
+				});
 	}
 
 	@Override
-	public void onSendClick(String text) {
-		if (text.trim().length() == 0)
-			return;
-		ForumEntry replyEntry = forumAdapter.getReplyEntry();
-		UiResultExceptionHandler<ForumEntry, DbException> resultHandler =
+	protected void sendItem(String text, @Nullable ForumEntry replyItem) {
+		UiResultExceptionHandler<ForumEntry, DbException> handler =
 				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
 					@Override
 					public void onResultUi(ForumEntry result) {
-						onForumEntryAdded(result, true);
+						addItem(result, true);
 					}
 
 					@Override
@@ -261,17 +192,28 @@ public class ForumActivity extends BriarActivity implements
 						finish();
 					}
 				};
-
-		if (replyEntry == null) {
+		if (replyItem == null) {
 			// root post
-			forumController.createPost(StringUtils.toUtf8(text), resultHandler);
+			forumController.createPost(StringUtils.toUtf8(text), handler);
 		} else {
 			forumController.createPost(StringUtils.toUtf8(text),
-					replyEntry.getId(), resultHandler);
+					replyItem.getId(), handler);
 		}
-		textInput.hideSoftKeyboard();
-		textInput.setVisibility(GONE);
-		forumAdapter.setReplyEntry(null);
+	}
+
+	@Override
+	public void onForumRemoved() {
+		supportFinishAfterTransition();
+	}
+
+	@Override
+	protected int getItemPostedString() {
+		return R.string.forum_new_entry_posted;
+	}
+
+	@Override
+	protected int getItemReceivedString() {
+		return R.string.forum_new_entry_received;
 	}
 
 	private void showUnsubscribeDialog() {
@@ -304,61 +246,4 @@ public class ForumActivity extends BriarActivity implements
 		builder.show();
 	}
 
-	@Override
-	public void onEntryVisible(ForumEntry forumEntry) {
-		if (!forumEntry.isRead()) {
-			forumEntry.setRead(true);
-			forumController.entryRead(forumEntry);
-		}
-	}
-
-	@Override
-	public void onReplyClick(ForumEntry forumEntry) {
-		showTextInput(forumEntry);
-	}
-
-	private void onForumEntryAdded(final ForumEntry entry, boolean isLocal) {
-		forumAdapter.addEntry(entry);
-		if (isLocal && forumAdapter.isVisible(entry)) {
-			displaySnackbarShort(R.string.forum_new_entry_posted);
-		} else {
-			Snackbar snackbar = Snackbar.make(recyclerView,
-					isLocal ? R.string.forum_new_entry_posted :
-							R.string.forum_new_entry_received,
-					Snackbar.LENGTH_LONG);
-			snackbar.getView().setBackgroundResource(R.color.briar_primary);
-			snackbar.setActionTextColor(ContextCompat
-					.getColor(ForumActivity.this,
-							R.color.briar_button_positive));
-			snackbar.setAction(R.string.show, new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					forumAdapter.scrollToEntry(entry);
-				}
-			});
-			snackbar.getView().setBackgroundResource(R.color.briar_primary);
-			snackbar.show();
-		}
-	}
-
-	@Override
-	public void onForumPostReceived(ForumPostHeader header) {
-		forumController.loadPost(header,
-				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
-					@Override
-					public void onResultUi(final ForumEntry result) {
-						onForumEntryAdded(result, false);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO add proper exception handling
-					}
-				});
-	}
-
-	@Override
-	public void onForumRemoved() {
-		finish();
-	}
 }
