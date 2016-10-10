@@ -39,7 +39,7 @@ class KeyAgreementTaskImpl extends Thread implements
 	private Payload localPayload;
 	private Payload remotePayload;
 
-	public KeyAgreementTaskImpl(Clock clock, CryptoComponent crypto,
+	KeyAgreementTaskImpl(Clock clock, CryptoComponent crypto,
 			EventBus eventBus, PayloadEncoder payloadEncoder,
 			PluginManager pluginManager, Executor ioExecutor) {
 		this.crypto = crypto;
