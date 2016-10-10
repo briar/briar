@@ -50,10 +50,8 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 			}
 		});
 
-		if (item.getGroupId() != null) {
-			ViewCompat.setTransitionName(ui.avatar, "avatar" +
-					StringUtils.toHexString(item.getGroupId().getBytes()));
-		}
+		ViewCompat.setTransitionName(ui.avatar, "avatar" +
+				StringUtils.toHexString(item.getGroupId().getBytes()));
 	}
 
 	@Override
@@ -96,8 +94,9 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		int count = getItemCount();
 		for (int i = 0; i < count; i++) {
 			ContactListItem item = getItemAt(i);
-			if (item != null && item.getGroupId().equals(g))
+			if (item != null && item.getGroupId().equals(g)) {
 				return i;
+			}
 		}
 		return INVALID_POSITION; // Not found
 	}

@@ -96,13 +96,13 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				TestUtils.getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
 		);
 		metadataBefore = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_MSG_COUNT, 41L),
-				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0L),
-				new BdfEntry(GROUP_KEY_LATEST_MSG, 0L)
+				new BdfEntry(GROUP_KEY_MSG_COUNT, 41),
+				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0),
+				new BdfEntry(GROUP_KEY_LATEST_MSG, 0)
 		);
 		metadataAfter = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_MSG_COUNT, 42L),
-				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0L),
+				new BdfEntry(GROUP_KEY_MSG_COUNT, 42),
+				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0),
 				new BdfEntry(GROUP_KEY_LATEST_MSG, time)
 		);
 
@@ -273,8 +273,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		final BdfDictionary state = new BdfDictionary();
 		txn = new Transaction(null, false);
 
-		metadataBefore.put(GROUP_KEY_UNREAD_COUNT, 1L);
-		metadataAfter.put(GROUP_KEY_UNREAD_COUNT, 2L);
+		metadataBefore.put(GROUP_KEY_UNREAD_COUNT, 1);
+		metadataAfter.put(GROUP_KEY_UNREAD_COUNT, 2);
 
 		context.checking(new Expectations() {{
 			oneOf(introduceeManager)
@@ -314,8 +314,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 
 		txn = new Transaction(null, false);
 
-		metadataBefore.put(GROUP_KEY_UNREAD_COUNT, 41L);
-		metadataAfter.put(GROUP_KEY_UNREAD_COUNT, 42L);
+		metadataBefore.put(GROUP_KEY_UNREAD_COUNT, 41);
+		metadataAfter.put(GROUP_KEY_UNREAD_COUNT, 42);
 
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn, sessionId);

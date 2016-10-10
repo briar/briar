@@ -12,7 +12,9 @@ import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sharing.InvitationResponse;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
 
 // This class is not thread-safe
 public abstract class ConversationItem {
@@ -30,18 +32,27 @@ public abstract class ConversationItem {
 	final static int BLOG_INVITATION_IN = 9;
 	final static int BLOG_INVITATION_OUT = 10;
 
-	private MessageId id;
-	private long time;
+	final private MessageId id;
+	final private GroupId groupId;
+	final private long time;
 
-	public ConversationItem(MessageId id, long time) {
+	public ConversationItem(@NotNull MessageId id, @NotNull GroupId groupId,
+			long time) {
 		this.id = id;
+		this.groupId = groupId;
 		this.time = time;
 	}
 
 	abstract int getType();
 
+	@NotNull
 	public MessageId getId() {
 		return id;
+	}
+
+	@NotNull
+	public GroupId getGroupId() {
+		return groupId;
 	}
 
 	long getTime() {
@@ -78,8 +89,9 @@ public abstract class ConversationItem {
 						R.string.introduction_response_declined_sent,
 						ir.getName());
 			}
-			return new ConversationNoticeOutItem(ir.getMessageId(), text,
-					ir.getTimestamp(), ir.isSent(), ir.isSeen());
+			return new ConversationNoticeOutItem(ir.getMessageId(),
+					ir.getGroupId(), text, ir.getTimestamp(), ir.isSent(),
+					ir.isSeen());
 		} else {
 			String text;
 			if (ir.wasAccepted()) {
@@ -97,8 +109,8 @@ public abstract class ConversationItem {
 							contactName, ir.getName());
 				}
 			}
-			return new ConversationNoticeInItem(ir.getMessageId(), text,
-					ir.getTimestamp(), ir.isRead());
+			return new ConversationNoticeInItem(ir.getMessageId(),
+					ir.getGroupId(), text, ir.getTimestamp(), ir.isRead());
 		}
 	}
 
@@ -137,8 +149,8 @@ public abstract class ConversationItem {
 						R.string.forum_invitation_response_declined_sent,
 						contactName);
 			}
-			return new ConversationNoticeOutItem(fir.getId(), text,
-					fir.getTimestamp(), fir.isSent(), fir.isSeen());
+			return new ConversationNoticeOutItem(fir.getId(), fir.getGroupId(),
+					text, fir.getTimestamp(), fir.isSent(), fir.isSeen());
 		} else {
 			String text;
 			if (fir.wasAccepted()) {
@@ -150,8 +162,8 @@ public abstract class ConversationItem {
 						R.string.forum_invitation_response_declined_received,
 						contactName);
 			}
-			return new ConversationNoticeInItem(fir.getId(), text,
-					fir.getTimestamp(), fir.isRead());
+			return new ConversationNoticeInItem(fir.getId(), fir.getGroupId(),
+					text, fir.getTimestamp(), fir.isRead());
 		}
 	}
 
@@ -169,8 +181,8 @@ public abstract class ConversationItem {
 						R.string.blogs_sharing_response_declined_sent,
 						contactName);
 			}
-			return new ConversationNoticeOutItem(fir.getId(), text,
-					fir.getTimestamp(), fir.isSent(), fir.isSeen());
+			return new ConversationNoticeOutItem(fir.getId(), fir.getGroupId(),
+					text, fir.getTimestamp(), fir.isSent(), fir.isSeen());
 		} else {
 			String text;
 			if (fir.wasAccepted()) {
@@ -182,8 +194,8 @@ public abstract class ConversationItem {
 						R.string.blogs_sharing_response_declined_received,
 						contactName);
 			}
-			return new ConversationNoticeInItem(fir.getId(), text,
-					fir.getTimestamp(), fir.isRead());
+			return new ConversationNoticeInItem(fir.getId(), fir.getGroupId(),
+					text, fir.getTimestamp(), fir.isRead());
 		}
 	}
 
@@ -193,10 +205,10 @@ public abstract class ConversationItem {
 	 */
 	public static ConversationItem from(IntroductionMessage im) {
 		if (im.isLocal())
-			return new ConversationNoticeOutItem(im.getMessageId(), "",
-					im.getTimestamp(), false, false);
-		return new ConversationNoticeInItem(im.getMessageId(), "",
-				im.getTimestamp(), im.isRead());
+			return new ConversationNoticeOutItem(im.getMessageId(),
+					im.getGroupId(), "", im.getTimestamp(), false, false);
+		return new ConversationNoticeInItem(im.getMessageId(), im.getGroupId(),
+				"", im.getTimestamp(), im.isRead());
 	}
 
 	/**
@@ -205,14 +217,15 @@ public abstract class ConversationItem {
 	 */
 	public static ConversationItem from(InvitationMessage im) {
 		if (im.isLocal())
-			return new ConversationNoticeOutItem(im.getId(), "",
-					im.getTimestamp(), false, false);
-		return new ConversationNoticeInItem(im.getId(), "",
+			return new ConversationNoticeOutItem(im.getId(), im.getGroupId(),
+					"", im.getTimestamp(), false, false);
+		return new ConversationNoticeInItem(im.getId(), im.getGroupId(), "",
 				im.getTimestamp(), im.isRead());
 	}
 
 	interface OutgoingItem {
 
+		@NotNull
 		MessageId getId();
 
 		boolean isSent();
@@ -226,7 +239,11 @@ public abstract class ConversationItem {
 
 	interface IncomingItem {
 
+		@NotNull
 		MessageId getId();
+
+		@NotNull
+		GroupId getGroupId();
 
 		boolean isRead();
 

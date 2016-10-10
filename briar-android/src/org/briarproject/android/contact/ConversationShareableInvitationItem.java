@@ -7,7 +7,7 @@ abstract class ConversationShareableInvitationItem extends ConversationItem {
 	private final InvitationRequest fim;
 
 	ConversationShareableInvitationItem(InvitationRequest fim) {
-		super(fim.getId(), fim.getTimestamp());
+		super(fim.getId(), fim.getGroupId(), fim.getTimestamp());
 
 		this.fim = fim;
 	}

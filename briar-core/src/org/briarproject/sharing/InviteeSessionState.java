@@ -5,7 +5,9 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.NotNull;
 
+import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
 import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
@@ -21,19 +23,23 @@ import static org.briarproject.sharing.InviteeSessionState.Action.REMOTE_LEAVE;
 public abstract class InviteeSessionState extends SharingSessionState {
 
 	private State state;
+	@NotNull
+	private final MessageId invitationId;
 
 	public InviteeSessionState(SessionId sessionId, MessageId storageId,
 			GroupId groupId, State state, ContactId contactId,
-			GroupId shareableId) {
+			GroupId shareableId, @NotNull MessageId invitationId) {
 
 		super(sessionId, storageId, groupId, contactId, shareableId);
 		this.state = state;
+		this.invitationId = invitationId;
 	}
 
 	public BdfDictionary toBdfDictionary() {
 		BdfDictionary d = super.toBdfDictionary();
 		d.put(STATE, getState().getValue());
 		d.put(IS_SHARER, false);
+		d.put(INVITATION_ID, invitationId);
 		return d;
 	}
 
@@ -43,6 +49,11 @@ public abstract class InviteeSessionState extends SharingSessionState {
 
 	public State getState() {
 		return state;
+	}
+
+	@NotNull
+	public MessageId getInvitationId() {
+		return invitationId;
 	}
 
 	public enum State {

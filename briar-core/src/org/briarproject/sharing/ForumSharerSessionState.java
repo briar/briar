@@ -5,6 +5,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
 import static org.briarproject.api.forum.ForumConstants.FORUM_NAME;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
@@ -16,8 +17,10 @@ class ForumSharerSessionState extends SharerSessionState {
 
 	ForumSharerSessionState(SessionId sessionId, MessageId storageId,
 			GroupId groupId, State state, ContactId contactId, GroupId forumId,
-			String forumName, byte[] forumSalt) {
-		super(sessionId, storageId, groupId, state, contactId, forumId);
+			String forumName, byte[] forumSalt,
+			@Nullable MessageId responseId) {
+		super(sessionId, storageId, groupId, state, contactId, forumId,
+				responseId);
 
 		this.forumName = forumName;
 		this.forumSalt = forumSalt;

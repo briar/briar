@@ -48,11 +48,12 @@ public class TextAvatarView extends FrameLayout {
 	}
 
 	public void setUnreadCount(int count) {
+		unreadCount = count;
 		if (count > 0) {
-			this.unreadCount = count;
 			badge.setBackgroundResource(R.drawable.bubble);
 			badge.setText(String.valueOf(count));
-			badge.setTextColor(ContextCompat.getColor(getContext(), R.color.briar_text_primary_inverse));
+			badge.setTextColor(ContextCompat.getColor(getContext(),
+					R.color.briar_text_primary_inverse));
 			badge.setVisibility(VISIBLE);
 		} else {
 			badge.setVisibility(INVISIBLE);
@@ -63,12 +64,11 @@ public class TextAvatarView extends FrameLayout {
 		if (problem) {
 			badge.setBackgroundResource(R.drawable.bubble_problem);
 			badge.setText("!");
-			badge.setTextColor(ContextCompat.getColor(getContext(), R.color.briar_primary));
+			badge.setTextColor(ContextCompat
+					.getColor(getContext(), R.color.briar_primary));
 			badge.setVisibility(VISIBLE);
-		} else if (unreadCount > 0) {
-			setUnreadCount(unreadCount);
 		} else {
-			badge.setVisibility(INVISIBLE);
+			setUnreadCount(unreadCount);
 		}
 	}
 

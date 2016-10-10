@@ -4,8 +4,8 @@ import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -22,7 +22,7 @@ import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sharing.InvitationItem;
@@ -36,7 +36,7 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.api.system.Clock;
-import org.briarproject.clients.BdfIncomingMessageHook;
+import org.briarproject.clients.ConversationClientImpl;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
@@ -85,8 +85,8 @@ import static org.briarproject.api.sharing.SharingMessage.Invitation;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
-abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationReceivedEvent, IRR extends InvitationResponseReceivedEvent>
-		extends BdfIncomingMessageHook
+abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationRequestReceivedEvent, IRR extends InvitationResponseReceivedEvent>
+		extends ConversationClientImpl
 		implements SharingManager<S>, Client, AddContactHook,
 		RemoveContactHook {
 
@@ -117,13 +117,14 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 	public abstract ClientId getClientId();
 
-	protected abstract InvitationMessage createInvitationRequest(MessageId id, I msg,
-			ContactId contactId, boolean available, long time, boolean local,
-			boolean sent, boolean seen, boolean read);
+	protected abstract InvitationMessage createInvitationRequest(MessageId id,
+			I msg, ContactId contactId, boolean available, long time,
+			boolean local, boolean sent, boolean seen, boolean read);
 
 	protected abstract InvitationMessage createInvitationResponse(MessageId id,
-			SessionId sessionId, ContactId contactId, boolean accept, long time,
-			boolean local, boolean sent, boolean seen, boolean read);
+			SessionId sessionId, GroupId groupId, ContactId contactId,
+			boolean accept, long time, boolean local, boolean sent,
+			boolean seen, boolean read);
 
 	protected abstract ShareableFactory<S, I, IS, SS> getSFactory();
 
@@ -219,9 +220,10 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					checkForRaceCondition(txn, f, contact);
 
 				// initialize state and process invitation
-				IS state = initializeInviteeState(txn, contactId, invitation);
+				IS state = initializeInviteeState(txn, contactId, invitation,
+						m.getId());
 				InviteeEngine<IS, IR> engine =
-						new InviteeEngine<IS, IR>(getIRFactory());
+						new InviteeEngine<IS, IR>(getIRFactory(), clock);
 				processInviteeStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 				trackIncomingMessage(txn, m);
@@ -233,9 +235,10 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 				msg.getType() == SHARE_MSG_TYPE_DECLINE) {
 			// we are a sharer who just received a response
 			SS state = getSessionStateForSharer(txn, sessionId);
+			state.setResponseId(m.getId());
 			SharerEngine<I, SS, IRR> engine =
 					new SharerEngine<I, SS, IRR>(getIFactory(),
-							getIRRFactory());
+							getIRRFactory(), clock);
 			processSharerStateUpdate(txn, m.getId(),
 					engine.onMessageReceived(state, msg));
 			trackIncomingMessage(txn, m);
@@ -248,14 +251,14 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 				SS state = (SS) s;
 				SharerEngine<I, SS, IRR> engine =
 						new SharerEngine<I, SS, IRR>(getIFactory(),
-								getIRRFactory());
+								getIRRFactory(), clock);
 				processSharerStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 			} else {
 				// we are an invitee and the sharer wants to leave or abort
 				IS state = (IS) s;
 				InviteeEngine<IS, IR> engine =
-						new InviteeEngine<IS, IR>(getIRFactory());
+						new InviteeEngine<IS, IR>(getIRFactory(), clock);
 				processInviteeStateUpdate(txn, m.getId(),
 						engine.onMessageReceived(state, msg));
 			}
@@ -285,13 +288,15 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			// start engine and process its state update
 			SharerEngine<I, SS, IRR> engine =
 					new SharerEngine<I, SS, IRR>(getIFactory(),
-							getIRRFactory());
-			processSharerStateUpdate(txn, null,
+							getIRRFactory(), clock);
+			StateUpdate<SS, BaseMessage> update =
 					engine.onLocalAction(localState,
-							SharerSessionState.Action.LOCAL_INVITATION));
+							SharerSessionState.Action.LOCAL_INVITATION);
+			processSharerStateUpdate(txn, null, update);
 
 			// track message
-			long time = clock.currentTimeMillis();
+			// TODO handle this properly without engine hacks (#376)
+			long time = update.toSend.get(0).getTime();
 			trackMessage(txn, localState.getGroupId(), time, true);
 
 			txn.setComplete();
@@ -321,12 +326,14 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 			// start engine and process its state update
 			InviteeEngine<IS, IR> engine =
-					new InviteeEngine<IS, IR>(getIRFactory());
-			processInviteeStateUpdate(txn, null,
-					engine.onLocalAction(localState, localAction));
+					new InviteeEngine<IS, IR>(getIRFactory(), clock);
+			StateUpdate<IS, BaseMessage> update =
+					engine.onLocalAction(localState, localAction);
+			processInviteeStateUpdate(txn, null, update);
 
 			// track message
-			long time = clock.currentTimeMillis();
+			// TODO handle this properly without engine hacks (#376)
+			long time = update.toSend.get(0).getTime();
 			trackMessage(txn, localState.getGroupId(), time, true);
 
 			txn.setComplete();
@@ -387,8 +394,9 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 								.from(getIFactory(), group.getId(), d);
 						SessionId sessionId = msg.getSessionId();
 						InvitationMessage im = createInvitationResponse(
-								m.getKey(), sessionId, contactId, accept, time,
-								local, status.isSent(), status.isSeen(), read);
+								m.getKey(), sessionId, group.getId(), contactId,
+								accept, time, local, status.isSent(),
+								status.isSeen(), read);
 						list.add(im);
 					}
 					else {
@@ -555,6 +563,16 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		}
 	}
 
+	@Override
+	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
+			throws DbException {
+
+		Contact contact = db.getContact(txn, contactId);
+		GroupId groupId = getContactGroup(contact).getId();
+
+		return getGroupCount(txn, groupId);
+	}
+
 	void removingShareable(Transaction txn, S f) throws DbException {
 		try {
 			for (Contact c : db.getContacts(txn)) {
@@ -642,7 +660,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	private IS initializeInviteeState(Transaction txn,
-			ContactId contactId, I msg)
+			ContactId contactId, I msg, MessageId id)
 			throws FormatException, DbException {
 
 		Contact c = db.getContact(txn, contactId);
@@ -656,9 +674,10 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		Message m = clientHelper.createMessage(localGroup.getId(), now,
 				BdfList.of(mSalt));
 
-		IS s = getISFactory().build(msg.getSessionId(),
-				m.getId(), group.getId(),
-				InviteeSessionState.State.AWAIT_INVITATION, contactId, f);
+		IS s = getISFactory()
+				.build(msg.getSessionId(), m.getId(), group.getId(),
+						InviteeSessionState.State.AWAIT_INVITATION, contactId,
+						f, id);
 
 		// save local state to database
 		BdfDictionary d = s.toBdfDictionary();
@@ -898,19 +917,19 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 		byte[] body = clientHelper.toByteArray(m.toBdfList());
 		Group group = db.getGroup(txn, m.getGroupId());
-		long timestamp = clock.currentTimeMillis();
 
 		// add message itself as metadata
 		BdfDictionary d = m.toBdfDictionary();
 		d.put(LOCAL, true);
-		d.put(TIME, timestamp);
+		d.put(TIME, m.getTime());
 		Metadata meta = metadataEncoder.encode(d);
 
 		messageQueueManager
-				.sendMessage(txn, group, timestamp, body, meta);
+				.sendMessage(txn, group, m.getTime(), body, meta);
 	}
 
-	private Group getContactGroup(Contact c) {
+	@Override
+	protected Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(getClientId(), c);
 	}
 
@@ -930,14 +949,14 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					SharerSessionState.Action.LOCAL_LEAVE;
 			SharerEngine<I, SS, IRR> engine =
 					new SharerEngine<I, SS, IRR>(getIFactory(),
-							getIRRFactory());
+							getIRRFactory(), clock);
 			processSharerStateUpdate(txn, null,
 					engine.onLocalAction((SS) state, action));
 		} else {
 			InviteeSessionState.Action action =
 					InviteeSessionState.Action.LOCAL_LEAVE;
 			InviteeEngine<IS, IR> engine =
-					new InviteeEngine<IS, IR>(getIRFactory());
+					new InviteeEngine<IS, IR>(getIRFactory(), clock);
 			processInviteeStateUpdate(txn, null,
 					engine.onLocalAction((IS) state, action));
 		}

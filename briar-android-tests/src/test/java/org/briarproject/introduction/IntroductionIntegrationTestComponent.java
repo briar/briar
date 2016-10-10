@@ -20,6 +20,7 @@ import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
+import org.briarproject.messaging.MessagingModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.system.SystemModule;
@@ -46,7 +47,8 @@ import dagger.Component;
 		SyncModule.class,
 		SystemModule.class,
 		DataModule.class,
-		PropertiesModule.class
+		PropertiesModule.class,
+		MessagingModule.class
 })
 public interface IntroductionIntegrationTestComponent {
 

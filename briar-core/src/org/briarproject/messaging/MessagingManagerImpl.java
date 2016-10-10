@@ -24,7 +24,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.clients.BdfIncomingMessageHook;
+import org.briarproject.clients.ConversationClientImpl;
 import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
-class MessagingManagerImpl extends BdfIncomingMessageHook
+class MessagingManagerImpl extends ConversationClientImpl
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
@@ -77,7 +77,8 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
-	private Group getContactGroup(Contact c) {
+	@Override
+	protected Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
 	}
 
@@ -101,7 +102,8 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), timestamp, contentType, local, read, false, false);
+				m.getId(), m.getGroupId(), timestamp, contentType, local, read,
+				false, false);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, groupId);
 		txn.attach(event);
@@ -159,9 +161,10 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 			throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;
+		GroupId g;
 		Transaction txn = db.startTransaction(true);
 		try {
-			GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+			g = getContactGroup(db.getContact(txn, c)).getId();
 			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
 			statuses = db.getMessageStatus(txn, c, g);
 			txn.setComplete();
@@ -181,8 +184,8 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 				String contentType = meta.getString("contentType");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
-				headers.add(new PrivateMessageHeader(id, timestamp, contentType,
-						local, read, s.isSent(), s.isSeen()));
+				headers.add(new PrivateMessageHeader(id, g, timestamp,
+						contentType, local, read, s.isSent(), s.isSeen()));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -199,6 +202,16 @@ class MessagingManagerImpl extends BdfIncomingMessageHook
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
+			throws DbException {
+
+		Contact contact = db.getContact(txn, contactId);
+		GroupId groupId = getContactGroup(contact).getId();
+
+		return getGroupCount(txn, groupId);
 	}
 
 }

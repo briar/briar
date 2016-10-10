@@ -34,6 +34,7 @@ import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.BlogSharingManager;
+import org.briarproject.api.clients.BaseMessageHeader;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -50,7 +51,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
@@ -76,7 +77,7 @@ import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -476,28 +477,28 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void markMessagesRead() {
-		List<MessageId> unread = new ArrayList<>();
+		Map<MessageId, GroupId> unread = new HashMap<>();
 		SparseArray<IncomingItem> list = adapter.getIncomingMessages();
 		for (int i = 0; i < list.size(); i++) {
 			IncomingItem item = list.valueAt(i);
-			if (!item.isRead()) unread.add(item.getId());
+			if (!item.isRead())
+				unread.put(item.getId(), item.getGroupId());
 		}
 		if (unread.isEmpty()) return;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Marking " + unread.size() + " messages read");
-		markMessagesRead(Collections.unmodifiableList(unread));
+		markMessagesRead(unread);
 	}
 
-	private void markMessagesRead(final Collection<MessageId> unread) {
+	private void markMessagesRead(final Map<MessageId, GroupId> unread) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for (MessageId m : unread)
-						// not really clean, but the messaging manager can
-						// handle introduction messages as well
-						messagingManager.setReadFlag(groupId, m, true);
+					for (Map.Entry<MessageId, GroupId> e : unread.entrySet())
+						messagingManager
+								.setReadFlag(e.getValue(), e.getKey(), true);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
@@ -560,6 +561,7 @@ public class ConversationActivity extends BriarActivity
 				IntroductionRequest ir = event.getIntroductionRequest();
 				ConversationItem item = new ConversationIntroductionInItem(ir);
 				addConversationItem(item);
+				markMessageReadIfNew(ir);
 			}
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
 			IntroductionResponseReceivedEvent event =
@@ -570,25 +572,33 @@ public class ConversationActivity extends BriarActivity
 				ConversationItem item =
 						ConversationItem.from(this, contactName, ir);
 				addConversationItem(item);
+				markMessageReadIfNew(ir);
 			}
-		} else if (e instanceof InvitationReceivedEvent) {
-			InvitationReceivedEvent event =
-					(InvitationReceivedEvent) e;
+		} else if (e instanceof InvitationRequestReceivedEvent) {
+			InvitationRequestReceivedEvent event =
+					(InvitationRequestReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
-				LOG.info("Invitation received, reloading...");
-				loadMessages();
+				LOG.info("Invitation received, adding...");
+				InvitationRequest ir = event.getRequest();
+				ConversationItem item = ConversationItem.from(ir);
+				addConversationItem(item);
+				markMessageReadIfNew(ir);
 			}
 		} else if (e instanceof InvitationResponseReceivedEvent) {
 			InvitationResponseReceivedEvent event =
 					(InvitationResponseReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
-				LOG.info("Invitation response received, reloading...");
-				loadMessages();
+				LOG.info("Invitation response received, adding...");
+				InvitationResponse ir = event.getResponse();
+				ConversationItem item =
+						ConversationItem.from(this, contactName, ir);
+				addConversationItem(item);
+				markMessageReadIfNew(ir);
 			}
 		}
 	}
 
-	private void markMessageReadIfNew(final PrivateMessageHeader h) {
+	private void markMessageReadIfNew(final BaseMessageHeader h) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -597,22 +607,23 @@ public class ConversationActivity extends BriarActivity
 					// Mark the message read if it's the newest message
 					long lastMsgTime = item.getTime();
 					long newMsgTime = h.getTimestamp();
-					if (newMsgTime > lastMsgTime) markNewMessageRead(h.getId());
+					if (newMsgTime > lastMsgTime)
+						markNewMessageRead(h.getGroupId(), h.getId());
 					else loadMessages();
 				} else {
 					// mark the message as read as well if it is the first one
-					markNewMessageRead(h.getId());
+					markNewMessageRead(h.getGroupId(), h.getId());
 				}
 			}
 		});
 	}
 
-	private void markNewMessageRead(final MessageId m) {
+	private void markNewMessageRead(final GroupId g, final MessageId m) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					messagingManager.setReadFlag(groupId, m, true);
+					messagingManager.setReadFlag(g, m, true);
 					loadMessages();
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -681,11 +692,10 @@ public class ConversationActivity extends BriarActivity
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
-
 					MessageId id = m.getMessage().getId();
 					PrivateMessageHeader h = new PrivateMessageHeader(id,
-							m.getMessage().getTimestamp(), m.getContentType(),
-							true, false, false, false);
+							groupId, m.getMessage().getTimestamp(),
+							m.getContentType(), true, false, false, false);
 					ConversationMessageItem item = ConversationItem.from(h);
 					item.setBody(body);
 					bodyCache.put(id, body);

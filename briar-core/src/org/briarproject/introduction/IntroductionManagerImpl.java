@@ -29,7 +29,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
-import org.briarproject.clients.BdfIncomingMessageHook;
+import org.briarproject.clients.ConversationClientImpl;
 import org.briarproject.util.StringUtils;
 
 import java.io.IOException;
@@ -76,7 +76,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
-class IntroductionManagerImpl extends BdfIncomingMessageHook
+class IntroductionManagerImpl extends ConversationClientImpl
 		implements IntroductionManager, Client, AddContactHook,
 		RemoveContactHook {
 
@@ -119,7 +119,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		try {
 			// Create an introduction group for sending introduction messages
-			Group g = introductionGroupFactory.createIntroductionGroup(c);
+			Group g = getContactGroup(c);
 			// Return if we've already set things up for this contact
 			if (db.containsGroup(txn, g.getId())) return;
 			// Store the group and share it with the contact
@@ -196,7 +196,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 
 		// remove the group (all messages will be removed with it)
 		// this contact won't get our abort message, but the other will
-		db.removeGroup(txn, introductionGroupFactory.createIntroductionGroup(c));
+		db.removeGroup(txn, getContactGroup(c));
 	}
 
 	/**
@@ -289,6 +289,11 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
+	protected Group getContactGroup(Contact contact) {
+		return introductionGroupFactory.createIntroductionGroup(contact);
+	}
+
+	@Override
 	public void makeIntroduction(Contact c1, Contact c2, String msg,
 			final long timestamp)
 			throws DbException, FormatException {
@@ -296,8 +301,8 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		Transaction txn = db.startTransaction(false);
 		try {
 			introducerManager.makeIntroduction(txn, c1, c2, msg, timestamp);
-			Group g1 = introductionGroupFactory.createIntroductionGroup(c1);
-			Group g2 = introductionGroupFactory.createIntroductionGroup(c2);
+			Group g1 = getContactGroup(c1);
+			Group g2 = getContactGroup(c2);
 			trackMessage(txn, g1.getId(), timestamp, true);
 			trackMessage(txn, g2.getId(), timestamp, true);
 			txn.setComplete();
@@ -314,7 +319,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		Transaction txn = db.startTransaction(false);
 		try {
 			Contact c = db.getContact(txn, contactId);
-			Group g = introductionGroupFactory.createIntroductionGroup(c);
+			Group g = getContactGroup(c);
 			BdfDictionary state =
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
@@ -334,7 +339,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		Transaction txn = db.startTransaction(false);
 		try {
 			Contact c = db.getContact(txn, contactId);
-			Group g = introductionGroupFactory.createIntroductionGroup(c);
+			Group g = getContactGroup(c);
 			BdfDictionary state =
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
@@ -358,9 +363,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 		Transaction txn = db.startTransaction(true);
 		try {
 			// get messages and their status
-			GroupId g = introductionGroupFactory
-					.createIntroductionGroup(db.getContact(txn, contactId))
-					.getId();
+			GroupId g = getContactGroup(db.getContact(txn, contactId)).getId();
 			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
 			statuses = db.getMessageStatus(txn, contactId, g);
 
@@ -415,7 +418,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 							name = state.getString(NAME);
 						}
 						IntroductionResponse ir = new IntroductionResponse(
-								sessionId, messageId, role, time, local,
+								sessionId, messageId, g, role, time, local,
 								s.isSent(), s.isSeen(), read, authorId, name,
 								accepted);
 						list.add(ir);
@@ -445,7 +448,7 @@ class IntroductionManagerImpl extends BdfIncomingMessageHook
 									state.getBoolean(REMOTE_AUTHOR_IS_US);
 						}
 						IntroductionRequest ir = new IntroductionRequest(
-								sessionId, messageId, role, time, local,
+								sessionId, messageId, g, role, time, local,
 								s.isSent(), s.isSeen(), read, authorId, name,
 								accepted, message, answered, exists,
 								introducesOtherIdentity);

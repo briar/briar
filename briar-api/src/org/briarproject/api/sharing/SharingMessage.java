@@ -14,6 +14,7 @@ import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEP
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_DECLINE;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
+import static org.briarproject.api.sharing.SharingConstants.TIME;
 import static org.briarproject.api.sharing.SharingConstants.TYPE;
 
 public interface SharingMessage {
@@ -21,10 +22,12 @@ public interface SharingMessage {
 	abstract class BaseMessage {
 		private final GroupId groupId;
 		private final SessionId sessionId;
+		private final long time;
 
-		BaseMessage(GroupId groupId, SessionId sessionId) {
+		BaseMessage(GroupId groupId, SessionId sessionId, long time) {
 			this.groupId = groupId;
 			this.sessionId = sessionId;
+			this.time = time;
 		}
 
 		public BdfList toBdfList() {
@@ -62,16 +65,20 @@ public interface SharingMessage {
 		public SessionId getSessionId() {
 			return sessionId;
 		}
+
+		public long getTime() {
+			return time;
+		}
 	}
 
 	abstract class Invitation extends BaseMessage {
 
 		protected final String message;
 
-		public Invitation(GroupId groupId, SessionId sessionId,
+		public Invitation(GroupId groupId, SessionId sessionId, long time,
 				String message) {
 
-			super(groupId, sessionId);
+			super(groupId, sessionId, time);
 
 			this.message = message;
 		}
@@ -90,8 +97,9 @@ public interface SharingMessage {
 
 		private final long type;
 
-		public SimpleMessage(long type, GroupId groupId, SessionId sessionId) {
-			super(groupId, sessionId);
+		public SimpleMessage(long type, GroupId groupId, SessionId sessionId,
+				long time) {
+			super(groupId, sessionId, time);
 			this.type = type;
 		}
 
@@ -114,7 +122,8 @@ public interface SharingMessage {
 					type != SHARE_MSG_TYPE_ABORT) throw new FormatException();
 
 			SessionId sessionId = new SessionId(d.getRaw(SESSION_ID));
-			return new SimpleMessage(type, groupId, sessionId);
+			long time = d.getLong(TIME);
+			return new SimpleMessage(type, groupId, sessionId, time);
 		}
 	}
 

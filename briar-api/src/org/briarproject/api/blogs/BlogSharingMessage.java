@@ -13,6 +13,7 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_MSG;
 import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
+import static org.briarproject.api.sharing.SharingConstants.TIME;
 
 public interface BlogSharingMessage {
 
@@ -25,9 +26,9 @@ public interface BlogSharingMessage {
 
 		public BlogInvitation(GroupId groupId, SessionId sessionId,
 				String blogTitle, String blogDesc, String blogAuthorName,
-				byte[] blogPublicKey, String message) {
+				byte[] blogPublicKey, long time, String message) {
 
-			super(groupId, sessionId, message);
+			super(groupId, sessionId, time, message);
 
 			this.blogTitle = blogTitle;
 			this.blogDesc = blogDesc;
@@ -65,9 +66,10 @@ public interface BlogSharingMessage {
 			String blogAuthorName = d.getString(BLOG_AUTHOR_NAME);
 			byte[] blogPublicKey = d.getRaw(BLOG_PUBLIC_KEY);
 			String message = d.getOptionalString(INVITATION_MSG);
+			long time = d.getLong(TIME);
 
 			return new BlogInvitation(groupId, sessionId, blogTitle,
-					blogDesc, blogAuthorName, blogPublicKey, message);
+					blogDesc, blogAuthorName, blogPublicKey, time, message);
 		}
 
 		public String getBlogTitle() {

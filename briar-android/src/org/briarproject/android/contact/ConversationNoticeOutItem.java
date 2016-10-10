@@ -1,5 +1,6 @@
 package org.briarproject.android.contact;
 
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 // This class is not thread-safe
@@ -8,9 +9,9 @@ class ConversationNoticeOutItem extends ConversationNoticeItem
 
 	private boolean sent, seen;
 
-	ConversationNoticeOutItem(MessageId id, String text, long time,
-			boolean sent, boolean seen) {
-		super(id, text, time);
+	ConversationNoticeOutItem(MessageId id, GroupId groupId, String text,
+			long time, boolean sent, boolean seen) {
+		super(id, groupId, text, time);
 
 		this.sent = sent;
 		this.seen = seen;

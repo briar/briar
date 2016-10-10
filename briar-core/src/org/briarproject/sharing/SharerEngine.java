@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ProtocolEngine;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
+import org.briarproject.api.system.Clock;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,8 @@ import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREAB
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.Invitation;
 import static org.briarproject.api.sharing.SharingMessage.SimpleMessage;
+import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_ACCEPT;
+import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_DECLINE;
 
 class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR extends InvitationResponseReceivedEvent>
 		implements ProtocolEngine<SharerSessionState.Action, SS, BaseMessage> {
@@ -32,12 +35,15 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 	private final InvitationFactory<I, SS> invitationFactory;
 	private final InvitationResponseReceivedEventFactory<SS, IRR>
 			invitationResponseReceivedEventFactory;
+	private final Clock clock;
 
 	SharerEngine(InvitationFactory<I, SS> invitationFactory,
-			InvitationResponseReceivedEventFactory<SS, IRR> invitationResponseReceivedEventFactory) {
+			InvitationResponseReceivedEventFactory<SS, IRR> invitationResponseReceivedEventFactory,
+			Clock clock) {
 		this.invitationFactory = invitationFactory;
 		this.invitationResponseReceivedEventFactory =
 				invitationResponseReceivedEventFactory;
+		this.clock = clock;
 	}
 
 	@Override
@@ -65,7 +71,8 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 			List<Event> events = Collections.emptyList();
 
 			if (action == SharerSessionState.Action.LOCAL_INVITATION) {
-				BaseMessage msg = invitationFactory.build(localState);
+				BaseMessage msg = invitationFactory.build(localState,
+						clock.currentTimeMillis());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, nextState, msg);
 
@@ -74,7 +81,8 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 						.setTask(TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US);
 			} else if (action == SharerSessionState.Action.LOCAL_LEAVE) {
 				BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_LEAVE,
-						localState.getGroupId(), localState.getSessionId());
+						localState.getGroupId(), localState.getSessionId(),
+						clock.currentTimeMillis());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, nextState, msg);
 			} else {
@@ -122,9 +130,8 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 				deleteMsg = true;
 			}
 			// we have sent our invitation and just got a response
-			else if (action == SharerSessionState.Action.REMOTE_ACCEPT ||
-					action == SharerSessionState.Action.REMOTE_DECLINE) {
-				if (action == SharerSessionState.Action.REMOTE_ACCEPT) {
+			else if (action == REMOTE_ACCEPT || action == REMOTE_DECLINE) {
+				if (action == REMOTE_ACCEPT) {
 					localState.setTask(TASK_SHARE_SHAREABLE);
 				} else {
 					// this ensures that the forum can be shared again
@@ -132,7 +139,8 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 							TASK_REMOVE_SHAREABLE_FROM_LIST_TO_BE_SHARED_BY_US);
 				}
 				Event event = invitationResponseReceivedEventFactory
-						.build(localState);
+						.build(localState, action == REMOTE_ACCEPT,
+								msg.getTime());
 				events = Collections.singletonList(event);
 			} else {
 				throw new IllegalArgumentException("Bad state");
@@ -204,7 +212,8 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 
 		localState.setState(SharerSessionState.State.ERROR);
 		BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_ABORT,
-				localState.getGroupId(), localState.getSessionId());
+				localState.getGroupId(), localState.getSessionId(),
+				clock.currentTimeMillis());
 		List<BaseMessage> messages = Collections.singletonList(msg);
 
 		List<Event> events = Collections.emptyList();

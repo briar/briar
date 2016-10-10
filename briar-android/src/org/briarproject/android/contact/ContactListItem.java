@@ -1,14 +1,14 @@
 package org.briarproject.android.contact;
 
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
-
-import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 
-// This class is not thread-safe
+// This class is NOT thread-safe
 public class ContactListItem {
 
 	private final Contact contact;
@@ -18,26 +18,16 @@ public class ContactListItem {
 	private long timestamp;
 	private int unread;
 
-	public ContactListItem(Contact contact, LocalAuthor localAuthor,
-			boolean connected,
-			GroupId groupId,
-			Collection<ConversationItem> messages) {
+	public ContactListItem(@NotNull Contact contact,
+			@NotNull LocalAuthor localAuthor, boolean connected,
+			@NotNull GroupId groupId, @NotNull GroupCount count) {
 		this.contact = contact;
 		this.localAuthor = localAuthor;
 		this.groupId = groupId;
 		this.connected = connected;
-		setMessages(messages);
-	}
-
-	void setMessages(Collection<ConversationItem> messages) {
-		empty = messages == null || messages.isEmpty();
-		timestamp = 0;
-		unread = 0;
-		if (!empty) {
-			for (ConversationItem i : messages) {
-				addMessage(i);
-			}
-		}
+		this.empty = count.getMsgCount() == 0;
+		this.unread = count.getUnreadCount();
+		this.timestamp = count.getLatestMsgTime();
 	}
 
 	void addMessage(ConversationItem message) {

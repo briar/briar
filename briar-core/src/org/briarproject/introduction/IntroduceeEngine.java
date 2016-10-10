@@ -12,6 +12,7 @@ import org.briarproject.api.introduction.IntroduceeAction;
 import org.briarproject.api.introduction.IntroduceeProtocolState;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
@@ -343,6 +344,7 @@ public class IntroduceeEngine
 
 		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
 		MessageId messageId = new MessageId(msg.getRaw(MESSAGE_ID));
+		GroupId groupId = new GroupId(msg.getRaw(GROUP_ID));
 		long time = msg.getLong(MESSAGE_TIME);
 		String name = msg.getString(NAME);
 		String message = msg.getOptionalString(MSG);
@@ -351,8 +353,9 @@ public class IntroduceeEngine
 				localState.getBoolean(REMOTE_AUTHOR_IS_US);
 
 		IntroductionRequest ir = new IntroductionRequest(sessionId, messageId,
-				ROLE_INTRODUCEE, time, false, false, false, false, authorId,
-				name, false, message, false, exists, introducesOtherIdentity);
+				groupId, ROLE_INTRODUCEE, time, false, false, false, false,
+				authorId, name, false, message, false, exists,
+				introducesOtherIdentity);
 		return new IntroductionRequestReceivedEvent(contactId, ir);
 	}
 

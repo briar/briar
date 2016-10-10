@@ -10,8 +10,8 @@ import org.briarproject.api.blogs.BlogManager.RemoveBlogHook;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.blogs.BlogSharingMessage.BlogInvitation;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -43,6 +43,8 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_DESC;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
+import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
+import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 
 class BlogSharingManagerImpl extends
 		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
@@ -108,17 +110,18 @@ class BlogSharingManagerImpl extends
 			BlogInvitation msg, ContactId contactId, boolean available,
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read) {
-		return new BlogInvitationRequest(id, msg.getSessionId(), contactId,
-				msg.getBlogAuthorName(), msg.getMessage(), available, time,
-				local, sent, seen, read);
+		return new BlogInvitationRequest(id, msg.getSessionId(),
+				msg.getGroupId(), contactId, msg.getBlogAuthorName(),
+				msg.getMessage(), available, time, local, sent, seen, read);
 	}
 
 	@Override
 	protected InvitationMessage createInvitationResponse(MessageId id,
-			SessionId sessionId, ContactId contactId, boolean accept, long time,
+			SessionId sessionId, GroupId groupId, ContactId contactId,
+			boolean accept, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
-		return new BlogInvitationResponse(id, sessionId, contactId, accept,
-				time, local, sent, seen, read);
+		return new BlogInvitationResponse(id, sessionId, groupId, contactId,
+				accept, time, local, sent, seen, read);
 	}
 
 	@Override
@@ -163,7 +166,7 @@ class BlogSharingManagerImpl extends
 		private final BlogFactory blogFactory;
 		private final BlogManager blogManager;
 
-		SFactory(AuthorFactory authorFactory, BlogFactory BlogFactory,
+		private SFactory(AuthorFactory authorFactory, BlogFactory BlogFactory,
 				BlogManager BlogManager) {
 			this.authorFactory = authorFactory;
 			this.blogFactory = BlogFactory;
@@ -230,11 +233,13 @@ class BlogSharingManagerImpl extends
 		}
 
 		@Override
-		public BlogInvitation build(BlogSharerSessionState localState) {
+		public BlogInvitation build(BlogSharerSessionState localState,
+				long time) {
 			return new BlogInvitation(localState.getGroupId(),
 					localState.getSessionId(), localState.getBlogTitle(),
 					localState.getBlogDesc(), localState.getBlogAuthorName(),
-					localState.getBlogPublicKey(), localState.getMessage());
+					localState.getBlogPublicKey(), time,
+					localState.getMessage());
 		}
 	}
 
@@ -249,20 +254,21 @@ class BlogSharingManagerImpl extends
 			String blogDesc = d.getString(BLOG_DESC);
 			String blogAuthorName = d.getString(BLOG_AUTHOR_NAME);
 			byte[] blogPublicKey = d.getRaw(BLOG_PUBLIC_KEY);
+			MessageId invitationId = new MessageId(d.getRaw(INVITATION_ID));
 			return new BlogInviteeSessionState(sessionId, storageId,
 					groupId, state, contactId, blogId, blogTitle, blogDesc,
-					blogAuthorName, blogPublicKey);
+					blogAuthorName, blogPublicKey, invitationId);
 		}
 
 		@Override
 		public BlogInviteeSessionState build(SessionId sessionId,
 				MessageId storageId, GroupId groupId,
 				InviteeSessionState.State state, ContactId contactId,
-				Blog blog) {
+				Blog blog, MessageId invitationId) {
 			return new BlogInviteeSessionState(sessionId, storageId,
 					groupId, state, contactId, blog.getId(), blog.getName(),
 					blog.getDescription(), blog.getAuthor().getName(),
-					blog.getAuthor().getPublicKey());
+					blog.getAuthor().getPublicKey(), invitationId);
 		}
 	}
 
@@ -277,9 +283,13 @@ class BlogSharingManagerImpl extends
 			String blogDesc = d.getString(BLOG_DESC);
 			String blogAuthorName = d.getString(BLOG_AUTHOR_NAME);
 			byte[] blogPublicKey = d.getRaw(BLOG_PUBLIC_KEY);
+			MessageId responseId = null;
+			byte[] responseIdBytes = d.getOptionalRaw(RESPONSE_ID);
+			if (responseIdBytes != null)
+				responseId = new MessageId(responseIdBytes);
 			return new BlogSharerSessionState(sessionId, storageId,
 					groupId, state, contactId, blogId, blogTitle, blogDesc,
-					blogAuthorName, blogPublicKey);
+					blogAuthorName, blogPublicKey, responseId);
 		}
 
 		@Override
@@ -290,7 +300,7 @@ class BlogSharingManagerImpl extends
 			return new BlogSharerSessionState(sessionId, storageId,
 					groupId, state, contactId, blog.getId(), blog.getName(),
 					blog.getDescription(), blog.getAuthor().getName(),
-					blog.getAuthor().getPublicKey());
+					blog.getAuthor().getPublicKey(), null);
 		}
 	}
 
@@ -299,16 +309,21 @@ class BlogSharingManagerImpl extends
 
 		private final SFactory sFactory;
 
-		IRFactory(SFactory sFactory) {
+		private IRFactory(SFactory sFactory) {
 			this.sFactory = sFactory;
 		}
 
 		@Override
 		public BlogInvitationReceivedEvent build(
-				BlogInviteeSessionState localState) {
+				BlogInviteeSessionState localState, long time, String msg) {
 			Blog blog = sFactory.parse(localState);
 			ContactId contactId = localState.getContactId();
-			return new BlogInvitationReceivedEvent(blog, contactId);
+			BlogInvitationRequest request =
+					new BlogInvitationRequest(localState.getInvitationId(),
+							localState.getSessionId(), localState.getGroupId(),
+							contactId, blog.getAuthor().getName(), msg, true,
+							time, false, false, false, false);
+			return new BlogInvitationReceivedEvent(blog, contactId, request);
 		}
 	}
 
@@ -316,10 +331,18 @@ class BlogSharingManagerImpl extends
 			InvitationResponseReceivedEventFactory<BlogSharerSessionState, BlogInvitationResponseReceivedEvent> {
 		@Override
 		public BlogInvitationResponseReceivedEvent build(
-				BlogSharerSessionState localState) {
+				BlogSharerSessionState localState, boolean accept, long time) {
 			String title = localState.getBlogTitle();
 			ContactId c = localState.getContactId();
-			return new BlogInvitationResponseReceivedEvent(title, c);
+			MessageId responseId = localState.getResponseId();
+			if (responseId == null)
+				throw new IllegalStateException("No responseId");
+			BlogInvitationResponse response =
+					new BlogInvitationResponse(responseId,
+							localState.getSessionId(), localState.getGroupId(),
+							localState.getContactId(), accept, time, false,
+							false, false, false);
+			return new BlogInvitationResponseReceivedEvent(title, c, response);
 		}
 	}
 }

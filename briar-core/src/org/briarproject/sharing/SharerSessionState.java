@@ -5,8 +5,10 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
 import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
+import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEPT;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_DECLINE;
@@ -22,20 +24,25 @@ import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_LEAVE;
 public abstract class SharerSessionState extends SharingSessionState {
 
 	private State state;
+	@Nullable
 	private String msg = null;
+	@Nullable
+	private MessageId responseId;
 
 	public SharerSessionState(SessionId sessionId, MessageId storageId,
 			GroupId groupId, State state, ContactId contactId,
-			GroupId shareableId) {
+			GroupId shareableId, @Nullable MessageId responseId) {
 
 		super(sessionId, storageId, groupId, contactId, shareableId);
 		this.state = state;
+		this.responseId = responseId;
 	}
 
 	public BdfDictionary toBdfDictionary() {
 		BdfDictionary d = super.toBdfDictionary();
 		d.put(STATE, getState().getValue());
 		d.put(IS_SHARER, true);
+		if (responseId != null) d.put(RESPONSE_ID, responseId);
 		return d;
 	}
 
@@ -53,6 +60,15 @@ public abstract class SharerSessionState extends SharingSessionState {
 
 	public String getMessage() {
 		return this.msg;
+	}
+
+	public void setResponseId(@Nullable MessageId responseId) {
+		this.responseId = responseId;
+	}
+
+	@Nullable
+	public MessageId getResponseId() {
+		return responseId;
 	}
 
 	public enum State {

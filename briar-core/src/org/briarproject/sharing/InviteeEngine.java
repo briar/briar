@@ -3,7 +3,9 @@ package org.briarproject.sharing;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ProtocolEngine;
 import org.briarproject.api.event.Event;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
+import org.briarproject.api.sharing.SharingMessage.Invitation;
+import org.briarproject.api.system.Clock;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,16 +25,20 @@ import static org.briarproject.api.sharing.SharingConstants.TASK_UNSHARE_SHAREAB
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.SimpleMessage;
 
-class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationReceivedEvent>
+class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationRequestReceivedEvent>
 		implements ProtocolEngine<InviteeSessionState.Action, IS, BaseMessage> {
 
 	private static final Logger LOG =
 			Logger.getLogger(InviteeEngine.class.getName());
 
 	private final InvitationReceivedEventFactory<IS, IR> invitationReceivedEventFactory;
+	private final Clock clock;
 
-	InviteeEngine(InvitationReceivedEventFactory<IS, IR> invitationReceivedEventFactory) {
+	InviteeEngine(
+			InvitationReceivedEventFactory<IS, IR> invitationReceivedEventFactory,
+			Clock clock) {
 		this.invitationReceivedEventFactory = invitationReceivedEventFactory;
+		this.clock = clock;
 	}
 
 	@Override
@@ -63,19 +69,22 @@ class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationReceive
 				if (action == InviteeSessionState.Action.LOCAL_ACCEPT) {
 					localState.setTask(TASK_ADD_SHARED_SHAREABLE);
 					msg = new SimpleMessage(SHARE_MSG_TYPE_ACCEPT,
-							localState.getGroupId(), localState.getSessionId());
+							localState.getGroupId(), localState.getSessionId(),
+							clock.currentTimeMillis());
 				} else {
 					localState.setTask(
 							TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US);
 					msg = new SimpleMessage(SHARE_MSG_TYPE_DECLINE,
-							localState.getGroupId(), localState.getSessionId());
+							localState.getGroupId(), localState.getSessionId(),
+							clock.currentTimeMillis());
 				}
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, localState, msg);
 			}
 			else if (action == InviteeSessionState.Action.LOCAL_LEAVE) {
 				BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_LEAVE,
-						localState.getGroupId(), localState.getSessionId());
+						localState.getGroupId(), localState.getSessionId(),
+						clock.currentTimeMillis());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, localState, msg);
 			}
@@ -133,7 +142,9 @@ class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationReceive
 			// we have just received our invitation
 			else if (action == InviteeSessionState.Action.REMOTE_INVITATION) {
 				localState.setTask(TASK_ADD_SHAREABLE_TO_LIST_SHARED_WITH_US);
-				Event event = invitationReceivedEventFactory.build(localState);
+				Invitation invitation = (Invitation) msg;
+				Event event = invitationReceivedEventFactory.build(localState,
+						msg.getTime(), invitation.getMessage());
 				events = Collections.singletonList(event);
 			}
 			else {
@@ -203,7 +214,7 @@ class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationReceive
 		localState.setState(InviteeSessionState.State.ERROR);
 		BaseMessage msg =
 				new SimpleMessage(SHARE_MSG_TYPE_ABORT, localState.getGroupId(),
-						localState.getSessionId());
+						localState.getSessionId(), clock.currentTimeMillis());
 		List<BaseMessage> messages = Collections.singletonList(msg);
 
 		List<Event> events = Collections.emptyList();

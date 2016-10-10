@@ -21,13 +21,12 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.view.BriarRecyclerView;
-import org.briarproject.api.blogs.BlogSharingManager;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
-import org.briarproject.api.event.ContactAddedEvent;
 import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
@@ -37,24 +36,21 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
-import org.briarproject.api.event.InvitationReceivedEvent;
+import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.introduction.IntroductionManager;
-import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
-import org.briarproject.api.messaging.MessagingManager;
+import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
-import org.briarproject.api.sharing.InvitationMessage;
+import org.briarproject.api.sharing.InvitationRequest;
+import org.briarproject.api.sharing.InvitationResponse;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -88,13 +84,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Inject
 	protected volatile IdentityManager identityManager;
 	@Inject
-	protected volatile MessagingManager messagingManager;
-	@Inject
-	protected volatile IntroductionManager introductionManager;
-	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
-	@Inject
-	protected volatile BlogSharingManager blogSharingManager;
+	protected volatile ConversationManager conversationManager;
 
 	public static ContactListFragment newInstance() {
 
@@ -130,7 +120,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				new ContactListAdapter.OnItemClickListener() {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
-
 						GroupId groupId = item.getGroupId();
 						Intent i = new Intent(getActivity(),
 								ConversationActivity.class);
@@ -215,15 +204,15 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 						try {
 							ContactId id = c.getId();
 							GroupId groupId =
-									messagingManager.getConversationId(id);
-							Collection<ConversationItem> messages =
-									getMessages(id);
+									conversationManager.getConversationId(id);
+							GroupCount count =
+									conversationManager.getGroupCount(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
 							LocalAuthor localAuthor = identityManager
 									.getLocalAuthor(c.getLocalAuthorId());
 							contacts.add(new ContactListItem(c, localAuthor,
-									connected, groupId, messages));
+									connected, groupId, count));
 						} catch (NoSuchContactException e) {
 							// Continue
 						}
@@ -252,14 +241,9 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof ContactAddedEvent) {
-			if (((ContactAddedEvent) e).isActive()) {
-				LOG.info("Contact added as active, reloading");
-				loadContacts();
-			}
-		} else if (e instanceof ContactStatusChangedEvent) {
+		if (e instanceof ContactStatusChangedEvent) {
 			LOG.info("Contact Status changed, reloading");
-			// TODO We can update the contact state without needing to reload
+			// is also broadcast when contact was added
 			loadContacts();
 		} else if (e instanceof ContactConnectedEvent) {
 			setConnected(((ContactConnectedEvent) e).getContactId(), true);
@@ -285,48 +269,18 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					(IntroductionResponseReceivedEvent) e;
 			IntroductionResponse ir = m.getIntroductionResponse();
 			updateItem(m.getContactId(), ConversationItem.from(ir));
-		} else if (e instanceof InvitationReceivedEvent) {
-			LOG.info("Invitation received, reloading conversation...");
-			InvitationReceivedEvent m = (InvitationReceivedEvent) e;
-			reloadConversation(m.getContactId());
+		} else if (e instanceof InvitationRequestReceivedEvent) {
+			LOG.info("Invitation Request received, update contact");
+			InvitationRequestReceivedEvent m = (InvitationRequestReceivedEvent) e;
+			InvitationRequest ir = m.getRequest();
+			updateItem(m.getContactId(), ConversationItem.from(ir));
 		} else if (e instanceof InvitationResponseReceivedEvent) {
-			LOG.info("Invitation Response received, reloading ...");
+			LOG.info("Invitation Response received, update contact");
 			InvitationResponseReceivedEvent m =
 					(InvitationResponseReceivedEvent) e;
-			reloadConversation(m.getContactId());
+			InvitationResponse ir = m.getResponse();
+			updateItem(m.getContactId(), ConversationItem.from(ir));
 		}
-	}
-
-	private void reloadConversation(final ContactId c) {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<ConversationItem> messages = getMessages(c);
-					updateItem(c, messages);
-				} catch (NoSuchContactException e) {
-					LOG.info("Contact removed");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void updateItem(final ContactId c,
-			final Collection<ConversationItem> messages) {
-		listener.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItemAt(position);
-				if (item != null) {
-					item.setMessages(messages);
-					adapter.updateItemAt(position, item);
-				}
-			}
-		});
 	}
 
 	private void updateItem(final ContactId c, final ConversationItem m) {
@@ -382,50 +336,4 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	// This needs to be called from the DB thread
-	// Do not call getActivty() here as it might return null
-	private Collection<ConversationItem> getMessages(ContactId id)
-			throws DbException {
-
-		long now = System.currentTimeMillis();
-
-		Collection<ConversationItem> messages = new ArrayList<>();
-
-		Collection<PrivateMessageHeader> headers =
-				messagingManager.getMessageHeaders(id);
-		for (PrivateMessageHeader h : headers) {
-			messages.add(ConversationItem.from(h));
-		}
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading message headers took " + duration + " ms");
-
-		now = System.currentTimeMillis();
-		Collection<IntroductionMessage> introductions =
-				introductionManager
-						.getIntroductionMessages(id);
-		for (IntroductionMessage m : introductions) {
-			messages.add(ConversationItem.from(m));
-		}
-		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading introduction messages took " + duration + " ms");
-
-		now = System.currentTimeMillis();
-		Collection<InvitationMessage> forumInvitations =
-				forumSharingManager.getInvitationMessages(id);
-		for (InvitationMessage i : forumInvitations) {
-			messages.add(ConversationItem.from(i));
-		}
-		Collection<InvitationMessage> blogInvitations =
-				blogSharingManager.getInvitationMessages(id);
-		for (InvitationMessage i : blogInvitations) {
-			messages.add(ConversationItem.from(i));
-		}
-		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading invitations took " + duration + " ms");
-
-		return messages;
-	}
 }

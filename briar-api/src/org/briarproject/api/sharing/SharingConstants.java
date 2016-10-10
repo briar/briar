@@ -19,6 +19,8 @@ public interface SharingConstants {
 	String IS_SHARER = "isSharer";
 	String SHAREABLE_ID = "shareableId";
 	String INVITATION_MSG = "invitationMsg";
+	String INVITATION_ID = "invitationId";
+	String RESPONSE_ID = "responseId";
 	int SHARE_MSG_TYPE_INVITATION = 1;
 	int SHARE_MSG_TYPE_ACCEPT = 2;
 	int SHARE_MSG_TYPE_DECLINE = 3;

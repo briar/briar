@@ -30,6 +30,7 @@ import org.briarproject.api.keyagreement.PayloadEncoder;
 import org.briarproject.api.keyagreement.PayloadParser;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.plugins.ConnectionRegistry;
@@ -85,6 +86,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	ConnectionRegistry connectionRegistry();
 
 	ContactManager contactManager();
+
+	ConversationManager conversationManager();
 
 	MessagingManager messagingManager();
 

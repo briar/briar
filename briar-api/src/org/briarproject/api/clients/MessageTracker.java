@@ -1,9 +1,7 @@
 package org.briarproject.api.clients;
 
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 
 public interface MessageTracker {
@@ -20,19 +18,20 @@ public interface MessageTracker {
 	void setReadFlag(GroupId g, MessageId m, boolean read) throws DbException;
 
 	class GroupCount {
-		private final long msgCount, unreadCount, latestMsgTime;
+		private final int msgCount, unreadCount;
+		private final long latestMsgTime;
 
-		public GroupCount(long msgCount, long unreadCount, long latestMsgTime) {
+		public GroupCount(int msgCount, int unreadCount, long latestMsgTime) {
 			this.msgCount = msgCount;
 			this.unreadCount = unreadCount;
 			this.latestMsgTime = latestMsgTime;
 		}
 
-		public long getMsgCount() {
+		public int getMsgCount() {
 			return msgCount;
 		}
 
-		public long getUnreadCount() {
+		public int getUnreadCount() {
 			return unreadCount;
 		}
 
