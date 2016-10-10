@@ -14,7 +14,9 @@ class ForumInvitationAdapter extends InvitationAdapter {
 	@Override
 	public void onBindViewHolder(InvitationsViewHolder ui, int position) {
 		super.onBindViewHolder(ui, position);
-		InvitationItem item = getItem(position);
+		InvitationItem item = getItemAt(position);
+		if (item == null) return;
+
 		Forum forum = (Forum) item.getShareable();
 
 		ui.avatar.setText(forum.getName().substring(0, 1));
@@ -23,7 +25,8 @@ class ForumInvitationAdapter extends InvitationAdapter {
 		ui.name.setText(forum.getName());
 	}
 
-	int compareInvitations(InvitationItem o1, InvitationItem o2) {
+	@Override
+	public int compare(InvitationItem o1, InvitationItem o2) {
 		return String.CASE_INSENSITIVE_ORDER
 				.compare(((Forum) o1.getShareable()).getName(),
 						((Forum) o2.getShareable()).getName());

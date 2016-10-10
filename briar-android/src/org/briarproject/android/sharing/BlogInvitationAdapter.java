@@ -15,7 +15,9 @@ class BlogInvitationAdapter extends InvitationAdapter {
 	@Override
 	public void onBindViewHolder(InvitationsViewHolder ui, int position) {
 		super.onBindViewHolder(ui, position);
-		InvitationItem item = getItem(position);
+		InvitationItem item = getItemAt(position);
+		if (item == null) return;
+
 		Blog blog = (Blog) item.getShareable();
 
 		ui.avatar.setAuthorAvatar(blog.getAuthor());
@@ -28,7 +30,8 @@ class BlogInvitationAdapter extends InvitationAdapter {
 		}
 	}
 
-	int compareInvitations(InvitationItem o1, InvitationItem o2) {
+	@Override
+	public int compare(InvitationItem o1, InvitationItem o2) {
 		return String.CASE_INSENSITIVE_ORDER
 				.compare(((Blog) o1.getShareable()).getAuthor().getName(),
 						((Blog) o2.getShareable()).getAuthor().getName());

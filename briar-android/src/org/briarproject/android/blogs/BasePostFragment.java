@@ -20,7 +20,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.util.AndroidUtils.MIN_RESOLUTION;
 
-public abstract class BasePostFragment extends BaseFragment {
+abstract class BasePostFragment extends BaseFragment {
 
 	private final Logger LOG =
 			Logger.getLogger(BasePostFragment.class.getName());

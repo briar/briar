@@ -1,8 +1,8 @@
 package org.briarproject.android.contact;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,34 +10,32 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.BriarAdapter;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
-
-import java.util.List;
 
 import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
 public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.BaseContactHolder>
-		extends RecyclerView.Adapter<VH> {
+		extends BriarAdapter<ContactListItem, VH> {
 
-	protected final SortedList<ContactListItem> contacts;
+	@Nullable
 	protected final OnItemClickListener listener;
-	protected Context ctx;
 
-	public BaseContactListAdapter(Context ctx, OnItemClickListener listener) {
-		this.ctx = ctx;
+	public BaseContactListAdapter(Context ctx,
+			@Nullable OnItemClickListener listener) {
+		super(ctx, ContactListItem.class);
 		this.listener = listener;
-		this.contacts = new SortedList<>(ContactListItem.class,
-				new SortedListCallBacks());
 	}
 
 	@Override
 	public void onBindViewHolder(final VH ui, int position) {
-		final ContactListItem item = getItem(position);
+		final ContactListItem item = getItemAt(position);
+		if (item == null) return;
 
 		Author author = item.getContact().getAuthor();
 		ui.avatar.setImageDrawable(
@@ -59,30 +57,37 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 	}
 
 	@Override
-	public int getItemCount() {
-		return contacts.size();
+	public int compare(ContactListItem c1, ContactListItem c2) {
+		return compareByName(c1, c2);
 	}
 
-	public ContactListItem getItem(int position) {
-		if (position == INVALID_POSITION || contacts.size() <= position) {
-			return null; // Not found
+	@Override
+	public boolean areItemsTheSame(ContactListItem c1, ContactListItem c2) {
+		return c1.getContact().getId().equals(c2.getContact().getId());
+	}
+
+	@Override
+	public boolean areContentsTheSame(ContactListItem c1, ContactListItem c2) {
+		// check for all properties that influence visual
+		// representation of contact
+		if (c1.isConnected() != c2.isConnected()) {
+			return false;
 		}
-		return contacts.get(position);
-	}
-
-	void updateItem(int position, ContactListItem item) {
-		contacts.updateItemAt(position, item);
-	}
-
-	public int findItemPosition(ContactListItem c) {
-		return contacts.indexOf(c);
+		if (c1.getUnreadCount() != c2.getUnreadCount()) {
+			return false;
+		}
+		if (c1.getTimestamp() != c2.getTimestamp()) {
+			return false;
+		}
+		return true;
 	}
 
 	int findItemPosition(ContactId c) {
 		int count = getItemCount();
 		for (int i = 0; i < count; i++) {
-			ContactListItem item = getItem(i);
-			if (item.getContact().getId().equals(c)) return i;
+			ContactListItem item = getItemAt(i);
+			if (item != null && item.getContact().getId().equals(c))
+				return i;
 		}
 		return INVALID_POSITION; // Not found
 	}
@@ -90,26 +95,11 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 	int findItemPosition(GroupId g) {
 		int count = getItemCount();
 		for (int i = 0; i < count; i++) {
-			ContactListItem item = getItem(i);
-			if (item.getGroupId().equals(g)) return i;
+			ContactListItem item = getItemAt(i);
+			if (item != null && item.getGroupId().equals(g))
+				return i;
 		}
 		return INVALID_POSITION; // Not found
-	}
-
-	public void addAll(List<ContactListItem> contacts) {
-		this.contacts.addAll(contacts);
-	}
-
-	public void add(ContactListItem contact) {
-		contacts.add(contact);
-	}
-
-	public void remove(ContactListItem contact) {
-		contacts.remove(contact);
-	}
-
-	public void clear() {
-		contacts.clear();
 	}
 
 	public static class BaseContactHolder extends RecyclerView.ViewHolder {
@@ -127,10 +117,6 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		}
 	}
 
-	public int compareContactListItems(ContactListItem c1, ContactListItem c2) {
-		return compareByName(c1, c2);
-	}
-
 	protected int compareByName(ContactListItem c1, ContactListItem c2) {
 		int authorCompare = c1.getLocalAuthor().getName()
 				.compareTo(c2.getLocalAuthor().getName());
@@ -142,7 +128,7 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		}
 	}
 
-	int compareByTime(ContactListItem c1, ContactListItem c2) {
+	protected int compareByTime(ContactListItem c1, ContactListItem c2) {
 		long time1 = c1.getTimestamp();
 		long time2 = c2.getTimestamp();
 		if (time1 < time2) return 1;
@@ -150,58 +136,8 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 		return 0;
 	}
 
-	private class SortedListCallBacks
-			extends SortedList.Callback<ContactListItem> {
-
-		@Override
-		public void onInserted(int position, int count) {
-			notifyItemRangeInserted(position, count);
-		}
-
-		@Override
-		public void onChanged(int position, int count) {
-			notifyItemRangeChanged(position, count);
-		}
-
-		@Override
-		public void onMoved(int fromPosition, int toPosition) {
-			notifyItemMoved(fromPosition, toPosition);
-		}
-
-		@Override
-		public void onRemoved(int position, int count) {
-			notifyItemRangeRemoved(position, count);
-		}
-
-		@Override
-		public int compare(ContactListItem c1, ContactListItem c2) {
-			return compareContactListItems(c1, c2);
-		}
-
-		@Override
-		public boolean areItemsTheSame(ContactListItem c1, ContactListItem c2) {
-			return c1.getContact().getId().equals(c2.getContact().getId());
-		}
-
-		@Override
-		public boolean areContentsTheSame(ContactListItem c1,
-				ContactListItem c2) {
-			// check for all properties that influence visual
-			// representation of contact
-			if (c1.isConnected() != c2.isConnected()) {
-				return false;
-			}
-			if (c1.getUnreadCount() != c2.getUnreadCount()) {
-				return false;
-			}
-			if (c1.getTimestamp() != c2.getTimestamp()) {
-				return false;
-			}
-			return true;
-		}
-	}
-
 	public interface OnItemClickListener {
 		void onItemClick(View view, ContactListItem item);
 	}
+
 }

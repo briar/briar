@@ -21,8 +21,6 @@ public class BlogActivity extends BriarActivity implements
 	static final String BLOG_NAME = "briar.BLOG_NAME";
 	static final String IS_NEW_BLOG = "briar.IS_NEW_BLOG";
 
-	private ProgressBar progressBar;
-
 	@Inject
 	BlogController blogController;
 
@@ -45,7 +43,6 @@ public class BlogActivity extends BriarActivity implements
 		boolean isNew = i.getBooleanExtra(IS_NEW_BLOG, false);
 
 		setContentView(R.layout.activity_fragment_container);
-		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 		if (state == null) {
 			BlogFragment f = BlogFragment.newInstance(groupId, blogName, isNew);

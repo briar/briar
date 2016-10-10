@@ -2,7 +2,6 @@ package org.briarproject.android.blogs;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.identity.Author;
@@ -10,8 +9,8 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-@UiThread
-class BlogPostItem implements Comparable<BlogPostItem> {
+// This class is not thread-safe
+public class BlogPostItem implements Comparable<BlogPostItem> {
 
 	private final BlogPostHeader header;
 	protected String body;

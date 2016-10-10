@@ -3,6 +3,7 @@ package org.briarproject.android.blogs;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -85,7 +86,9 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		return "blogPost" + id.hashCode();
 	}
 
-	void bindItem(final BlogPostItem item) {
+	void bindItem(@Nullable final BlogPostItem item) {
+		if (item == null) return;
+
 		setTransitionName(item.getId());
 		if (listener != null) {
 			layout.setClickable(true);

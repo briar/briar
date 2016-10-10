@@ -97,9 +97,9 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	protected volatile BlogSharingManager blogSharingManager;
 
 	public static ContactListFragment newInstance() {
-		
+
 		Bundle args = new Bundle();
-		
+
 		ContactListFragment fragment = new ContactListFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -320,10 +320,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItem(position);
+				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {
 					item.setMessages(messages);
-					adapter.updateItem(position, item);
+					adapter.updateItemAt(position, item);
 				}
 			}
 		});
@@ -334,10 +334,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItem(position);
+				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {
 					item.addMessage(m);
-					adapter.updateItem(position, item);
+					adapter.updateItemAt(position, item);
 				}
 			}
 		});
@@ -348,10 +348,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(g);
-				ContactListItem item = adapter.getItem(position);
+				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {
 					item.addMessage(m);
-					adapter.updateItem(position, item);
+					adapter.updateItemAt(position, item);
 				}
 			}
 		});
@@ -362,7 +362,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItem(position);
+				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) adapter.remove(item);
 			}
 		});
@@ -373,7 +373,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Override
 			public void run() {
 				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItem(position);
+				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {
 					item.setConnected(connected);
 					adapter.notifyItemChanged(position);

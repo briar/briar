@@ -1,7 +1,5 @@
 package org.briarproject.android.blogs;
 
-import android.support.annotation.UiThread;
-
 import org.briarproject.api.blogs.BlogCommentHeader;
 import org.briarproject.api.blogs.BlogPostHeader;
 
@@ -10,7 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-@UiThread
+// This class is not thread-safe
 class BlogCommentItem extends BlogPostItem {
 
 	private static final BlogCommentComparator COMPARATOR =

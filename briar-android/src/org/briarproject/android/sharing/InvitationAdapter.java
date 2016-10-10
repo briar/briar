@@ -1,7 +1,6 @@
 package org.briarproject.android.sharing;
 
 import android.content.Context;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.util.BriarAdapter;
 import org.briarproject.android.view.TextAvatarView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.sharing.InvitationItem;
@@ -22,16 +22,12 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 abstract class InvitationAdapter extends
-		RecyclerView.Adapter<InvitationAdapter.InvitationsViewHolder> {
+		BriarAdapter<InvitationItem, InvitationAdapter.InvitationsViewHolder> {
 
-	protected final Context ctx;
 	private final AvailableForumClickListener listener;
-	private final SortedList<InvitationItem> invitations =
-			new SortedList<>(InvitationItem.class,
-					new SortedListCallBacks());
 
 	InvitationAdapter(Context ctx, AvailableForumClickListener listener) {
-		this.ctx = ctx;
+		super(ctx, InvitationItem.class);
 		this.listener = listener;
 	}
 
@@ -46,7 +42,8 @@ abstract class InvitationAdapter extends
 
 	@Override
 	public void onBindViewHolder(InvitationsViewHolder ui, int position) {
-		final InvitationItem item = getItem(position);
+		final InvitationItem item = getItemAt(position);
+		if (item == null) return;
 
 		Collection<String> names = new ArrayList<>();
 		for (Contact c : item.getNewSharers())
@@ -75,40 +72,28 @@ abstract class InvitationAdapter extends
 	}
 
 	@Override
-	public int getItemCount() {
-		return invitations.size();
+	public boolean areContentsTheSame(InvitationItem oldItem,
+			InvitationItem newItem) {
+		return oldItem.isSubscribed() == newItem.isSubscribed() &&
+				oldItem.getNewSharers().equals(newItem.getNewSharers());
 	}
 
-	public InvitationItem getItem(int position) {
-		return invitations.get(position);
-	}
-
-	public void add(InvitationItem item) {
-		invitations.add(item);
-	}
-
-	public void addAll(Collection<InvitationItem> list) {
-		invitations.addAll(list);
-	}
-
-	public void remove(InvitationItem item) {
-		invitations.remove(item);
-	}
-
-	public void clear() {
-		invitations.clear();
+	@Override
+	public boolean areItemsTheSame(InvitationItem oldItem,
+			InvitationItem newItem) {
+		return oldItem.getShareable().equals(newItem.getShareable());
 	}
 
 	static class InvitationsViewHolder extends RecyclerView.ViewHolder {
 
 		final TextAvatarView avatar;
 		final TextView name;
-		final TextView sharedBy;
+		private final TextView sharedBy;
 		final TextView subscribed;
-		final Button accept;
-		final Button decline;
+		private final Button accept;
+		private final Button decline;
 
-		InvitationsViewHolder(View v) {
+		private InvitationsViewHolder(View v) {
 			super(v);
 
 			avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
@@ -119,52 +104,6 @@ abstract class InvitationAdapter extends
 			decline = (Button) v.findViewById(R.id.declineButton);
 		}
 	}
-
-	abstract int compareInvitations(InvitationItem o1, InvitationItem o2);
-
-	private class SortedListCallBacks
-			extends SortedList.Callback<InvitationItem> {
-
-		@Override
-		public int compare(InvitationItem o1,
-				InvitationItem o2) {
-			return compareInvitations(o1, o2);
-		}
-
-		@Override
-		public void onInserted(int position, int count) {
-			notifyItemRangeInserted(position, count);
-		}
-
-		@Override
-		public void onRemoved(int position, int count) {
-			notifyItemRangeRemoved(position, count);
-		}
-
-		@Override
-		public void onMoved(int fromPosition, int toPosition) {
-			notifyItemMoved(fromPosition, toPosition);
-		}
-
-		@Override
-		public void onChanged(int position, int count) {
-			notifyItemRangeChanged(position, count);
-		}
-
-		@Override
-		public boolean areContentsTheSame(InvitationItem oldItem,
-				InvitationItem newItem) {
-			return oldItem.isSubscribed() == newItem.isSubscribed() &&
-					oldItem.getNewSharers().equals(newItem.getNewSharers());
-		}
-
-		@Override
-		public boolean areItemsTheSame(InvitationItem oldItem,
-				InvitationItem newItem) {
-			return oldItem.getShareable().equals(newItem.getShareable());
-		}
-	}
-
 
 	interface AvailableForumClickListener {
 		void onItemClick(InvitationItem item, boolean accept);

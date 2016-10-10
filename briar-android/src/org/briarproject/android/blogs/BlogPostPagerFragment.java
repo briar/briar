@@ -12,7 +12,6 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-
 public class BlogPostPagerFragment extends BasePostPagerFragment {
 
 	public final static String TAG = BlogPostPagerFragment.class.getName();

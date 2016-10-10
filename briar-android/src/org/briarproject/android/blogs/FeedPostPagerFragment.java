@@ -40,7 +40,7 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 		return TAG;
 	}
 
-
+	@Override
 	void loadBlogPosts(final MessageId select) {
 		feedController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
@@ -57,6 +57,7 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 				});
 	}
 
+	@Override
 	void loadBlogPost(BlogPostHeader header) {
 		feedController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(

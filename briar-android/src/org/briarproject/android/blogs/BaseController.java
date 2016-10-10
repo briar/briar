@@ -11,7 +11,7 @@ import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface BaseController {
+interface BaseController {
 
 	@UiThread
 	void onStart();
