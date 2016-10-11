@@ -2,7 +2,6 @@ package org.briarproject.android.forum;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,7 +20,7 @@ import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.forum.ForumActivity.FORUM_NAME;
+import static org.briarproject.android.BriarActivity.GROUP_NAME;
 
 class ForumListAdapter
 		extends BriarAdapter<ForumListItem, ForumListAdapter.ForumViewHolder> {
@@ -84,7 +83,7 @@ class ForumListAdapter
 				Intent i = new Intent(ctx, ForumActivity.class);
 				Forum f = item.getForum();
 				i.putExtra(GROUP_ID, f.getId().getBytes());
-				i.putExtra(FORUM_NAME, f.getName());
+				i.putExtra(GROUP_NAME, f.getName());
 				ctx.startActivity(i);
 			}
 		});
@@ -113,17 +112,6 @@ class ForumListAdapter
 	@Override
 	public boolean areItemsTheSame(ForumListItem a, ForumListItem b) {
 		return a.getForum().equals(b.getForum());
-	}
-
-	@Nullable
-	public ForumListItem findItem(GroupId g) {
-		for (int i = 0; i < items.size(); i++) {
-			ForumListItem item = items.get(i);
-			if (item.getForum().getGroup().getId().equals(g)) {
-				return item;
-			}
-		}
-		return null;
 	}
 
 	int findItemPosition(GroupId g) {

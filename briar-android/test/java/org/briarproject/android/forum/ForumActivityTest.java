@@ -26,6 +26,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -81,7 +82,7 @@ public class ForumActivityTest {
 
 	private TestForumActivity forumActivity;
 	@Captor
-	private ArgumentCaptor<UiResultExceptionHandler<List<ForumEntry>, DbException>>
+	private ArgumentCaptor<UiResultExceptionHandler<Collection<ForumEntry>, DbException>>
 			rc;
 
 	@Before
@@ -112,8 +113,7 @@ public class ForumActivityTest {
 	public void testNestedEntries() {
 		ForumController mc = forumActivity.getController();
 		List<ForumEntry> dummyData = getDummyData();
-		verify(mc, times(1))
-				.loadForum(Mockito.any(GroupId.class), rc.capture());
+		verify(mc, times(1)).loadItems(rc.capture());
 		rc.getValue().onResult(dummyData);
 		NestedForumAdapter adapter = forumActivity.getAdapter();
 		Assert.assertNotNull(adapter);

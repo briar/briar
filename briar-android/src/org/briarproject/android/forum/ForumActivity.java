@@ -2,9 +2,7 @@ package org.briarproject.android.forum;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
@@ -17,18 +15,13 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.controller.handler.UiResultHandler;
-import org.briarproject.android.forum.ForumController.ForumPostListener;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.SharingStatusForumActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
+import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumPostHeader;
-import org.briarproject.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -37,10 +30,8 @@ import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class ForumActivity extends ThreadListActivity<ForumEntry, NestedForumAdapter>
-		implements ForumPostListener {
-
-	static final String FORUM_NAME = "briar.FORUM_NAME";
+public class ForumActivity extends
+		ThreadListActivity<Forum, ForumEntry, ForumPostHeader, NestedForumAdapter> {
 
 	private static final int REQUEST_FORUM_SHARED = 3;
 
@@ -53,41 +44,8 @@ public class ForumActivity extends ThreadListActivity<ForumEntry, NestedForumAda
 	}
 
 	@Override
-	public void onCreate(final Bundle state) {
-		super.onCreate(state);
-
-		Intent i = getIntent();
-		String forumName = i.getStringExtra(FORUM_NAME);
-		if (forumName != null) setTitle(forumName);
-
-		forumController.loadForum(groupId,
-				new UiResultExceptionHandler<List<ForumEntry>, DbException>(
-						this) {
-					@Override
-					public void onResultUi(List<ForumEntry> result) {
-						Forum forum = forumController.getForum();
-						if (forum != null) setTitle(forum.getName());
-						List<ForumEntry> entries = new ArrayList<>(result);
-						if (entries.isEmpty()) {
-							list.showData();
-						} else {
-							adapter.setItems(entries);
-							list.showData();
-							if (state != null) {
-								byte[] replyId =
-										state.getByteArray(KEY_REPLY_ID);
-								if (replyId != null)
-									adapter.setReplyItemById(replyId);
-							}
-						}
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO Improve UX ?
-						finish();
-					}
-				});
+	protected ThreadListController<Forum, ForumEntry, ForumPostHeader> getController() {
+		return forumController;
 	}
 
 	@Override
@@ -99,12 +57,6 @@ public class ForumActivity extends ThreadListActivity<ForumEntry, NestedForumAda
 	protected NestedForumAdapter createAdapter(
 			LinearLayoutManager layoutManager) {
 		return new NestedForumAdapter(this, layoutManager);
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		notificationManager.clearForumPostNotification(groupId);
 	}
 
 	@Override
@@ -157,55 +109,6 @@ public class ForumActivity extends ThreadListActivity<ForumEntry, NestedForumAda
 		}
 	}
 
-	protected void markItemRead(ForumEntry entry) {
-		forumController.entryRead(entry);
-	}
-
-	@Override
-	public void onForumPostReceived(ForumPostHeader header) {
-		forumController.loadPost(header,
-				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
-					@Override
-					public void onResultUi(final ForumEntry result) {
-						addItem(result, false);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO add proper exception handling
-					}
-				});
-	}
-
-	@Override
-	protected void sendItem(String text, @Nullable ForumEntry replyItem) {
-		UiResultExceptionHandler<ForumEntry, DbException> handler =
-				new UiResultExceptionHandler<ForumEntry, DbException>(this) {
-					@Override
-					public void onResultUi(ForumEntry result) {
-						addItem(result, true);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO Improve UX ?
-						finish();
-					}
-				};
-		if (replyItem == null) {
-			// root post
-			forumController.createPost(StringUtils.toUtf8(text), handler);
-		} else {
-			forumController.createPost(StringUtils.toUtf8(text),
-					replyItem.getId(), handler);
-		}
-	}
-
-	@Override
-	public void onForumRemoved() {
-		supportFinishAfterTransition();
-	}
-
 	@Override
 	protected int getItemPostedString() {
 		return R.string.forum_new_entry_posted;
@@ -220,18 +123,24 @@ public class ForumActivity extends ThreadListActivity<ForumEntry, NestedForumAda
 		DialogInterface.OnClickListener okListener =
 				new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						forumController.unsubscribe(
-								new UiResultHandler<Boolean>(
+					public void onClick(final DialogInterface dialog,
+							int which) {
+						forumController.deleteGroupItem(
+								new UiResultExceptionHandler<Void, DbException>(
 										ForumActivity.this) {
 									@Override
-									public void onResultUi(Boolean result) {
-										if (result) {
-											Toast.makeText(ForumActivity.this,
-													R.string.forum_left_toast,
-													LENGTH_SHORT)
-													.show();
-										}
+									public void onResultUi(Void v) {
+										Toast.makeText(ForumActivity.this,
+												R.string.forum_left_toast,
+												LENGTH_SHORT)
+												.show();
+									}
+
+									@Override
+									public void onExceptionUi(
+											DbException exception) {
+										// TODO proper error handling
+										dialog.dismiss();
 									}
 								});
 					}
@@ -241,8 +150,8 @@ public class ForumActivity extends ThreadListActivity<ForumEntry, NestedForumAda
 						R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_leave_forum));
 		builder.setMessage(getString(R.string.dialog_message_leave_forum));
-		builder.setPositiveButton(R.string.dialog_button_leave, okListener);
-		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setNegativeButton(R.string.dialog_button_leave, okListener);
+		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
 	}
 

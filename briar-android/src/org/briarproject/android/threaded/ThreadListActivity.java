@@ -14,36 +14,44 @@ import android.view.View;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.threaded.ThreadItemAdapter.ThreadItemListener;
+import org.briarproject.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
+import org.briarproject.api.clients.BaseGroup;
+import org.briarproject.api.clients.PostHeader;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
-import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static android.support.design.widget.Snackbar.make;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadItemAdapter<I>>
+public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadItem, H extends PostHeader, A extends ThreadItemAdapter<I>>
 		extends BriarActivity
-		implements TextInputListener, ThreadItemListener<I> {
+		implements ThreadListListener<H>, TextInputListener,
+		ThreadItemListener<I> {
 
 	protected static final String KEY_INPUT_VISIBILITY = "inputVisibility";
 	protected static final String KEY_REPLY_ID = "replyId";
-
-	@Inject
-	protected AndroidNotificationManager notificationManager;
 
 	protected A adapter;
 	protected BriarRecyclerView list;
 	protected TextInputView textInput;
 	protected GroupId groupId;
+	private byte[] replyId;
+
+	protected abstract ThreadListController<G, I, H> getController();
 
 	@CallSuper
 	@Override
+	@SuppressWarnings("ConstantConditions")
 	public void onCreate(final Bundle state) {
 		super.onCreate(state);
 
@@ -53,6 +61,10 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId in intent.");
 		groupId = new GroupId(b);
+		getController().setGroupId(groupId);
+		String groupName = i.getStringExtra(GROUP_NAME);
+		if (groupName != null) setTitle(groupName);
+		else loadAndSetTitle();
 
 		textInput = (TextInputView) findViewById(R.id.text_input_container);
 		textInput.setVisibility(GONE);
@@ -62,17 +74,64 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		list.setLayoutManager(linearLayoutManager);
 		adapter = createAdapter(linearLayoutManager);
 		list.setAdapter(adapter);
+
+		if (state != null) {
+			replyId = state.getByteArray(KEY_REPLY_ID);
+		}
+
+		loadItems();
 	}
 
 	protected abstract @LayoutRes int getLayout();
 
 	protected abstract A createAdapter(LinearLayoutManager layoutManager);
 
+	private void loadAndSetTitle() {
+		getController().loadGroupItem(
+				new UiResultExceptionHandler<G, DbException>(this) {
+					@Override
+					public void onResultUi(G forum) {
+						setTitle(forum.getName());
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO Proper error handling
+						finish();
+					}
+				});
+	}
+
+	private void loadItems() {
+		getController().loadItems(
+				new UiResultExceptionHandler<Collection<I>, DbException>(
+						this) {
+					@Override
+					public void onResultUi(Collection<I> result) {
+						// FIXME What's the benefit of copying the collection?
+						List<I> items = new ArrayList<>(result);
+						if (items.isEmpty()) {
+							list.showData();
+						} else {
+							adapter.setItems(items);
+							list.showData();
+							if (replyId != null)
+								adapter.setReplyItemById(replyId);
+						}
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO Proper error handling
+						finish();
+					}
+				});
+	}
+
 	@CallSuper
 	@Override
 	public void onResume() {
 		super.onResume();
-		notificationManager.blockNotification(groupId);
 		list.startPeriodicUpdate();
 	}
 
@@ -80,7 +139,6 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	@Override
 	public void onPause() {
 		super.onPause();
-		notificationManager.unblockNotification(groupId);
 		list.stopPeriodicUpdate();
 	}
 
@@ -130,11 +188,9 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	public void onItemVisible(I item) {
 		if (!item.isRead()) {
 			item.setRead(true);
-			markItemRead(item);
+			getController().markItemRead(item);
 		}
 	}
-
-	protected abstract void markItemRead(I item);
 
 	@Override
 	public void onReplyClick(I item) {
@@ -167,13 +223,50 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		if (text.trim().length() == 0)
 			return;
 		I replyItem = adapter.getReplyItem();
-		sendItem(text, replyItem);
+		UiResultExceptionHandler<I, DbException> handler =
+				new UiResultExceptionHandler<I, DbException>(this) {
+					@Override
+					public void onResultUi(I result) {
+						addItem(result, true);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO add proper exception handling
+						finish();
+					}
+				};
+		if (replyItem == null) {
+			// root post
+			getController().send(text, handler);
+		} else {
+			getController().send(text, replyItem.getId(), handler);
+		}
 		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
 		adapter.setReplyItem(null);
 	}
 
-	protected abstract void sendItem(String text, I replyToItem);
+	@Override
+	public void onHeaderReceived(H header) {
+		getController().loadItem(header,
+				new UiResultExceptionHandler<I, DbException>(this) {
+					@Override
+					public void onResultUi(final I result) {
+						addItem(result, false);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO add proper exception handling
+					}
+				});
+	}
+
+	@Override
+	public void onGroupRemoved() {
+		supportFinishAfterTransition();
+	}
 
 	protected void addItem(final I item, boolean isLocal) {
 		adapter.add(item);
