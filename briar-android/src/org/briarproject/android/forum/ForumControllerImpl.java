@@ -166,8 +166,7 @@ public class ForumControllerImpl
 									p.getMessage().getTimestamp(),
 									p.getAuthor(), OURSELVES, true);
 
-					resultHandler.onResult(new ForumEntry(h,
-							bodyCache.get(p.getMessage().getId())));
+					resultHandler.onResult(buildItem(h));
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

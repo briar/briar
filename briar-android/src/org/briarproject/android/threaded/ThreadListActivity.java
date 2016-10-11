@@ -90,8 +90,8 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 		getController().loadGroupItem(
 				new UiResultExceptionHandler<G, DbException>(this) {
 					@Override
-					public void onResultUi(G forum) {
-						setTitle(forum.getName());
+					public void onResultUi(G groupItem) {
+						setTitle(groupItem.getName());
 					}
 
 					@Override

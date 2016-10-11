@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ForumPost extends BaseMessage {
 
+	@Nullable
 	private final Author author;
 
 	public ForumPost(@NotNull Message message, @Nullable MessageId parent,
