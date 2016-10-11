@@ -96,11 +96,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		});
 	}
 
-	public void showSoftKeyboardForced(View view) {
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).showSoftInput(view, SHOW_FORCED);
-	}
-
 	public void showSoftKeyboard(View view) {
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).showSoftInput(view, SHOW_IMPLICIT);

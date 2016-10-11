@@ -27,6 +27,7 @@ import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_BACK;
+import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 
 @UiThread
 public class TextInputView extends KeyboardAwareLinearLayout
@@ -108,6 +109,14 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	}
 
 	@Override
+	public void setVisibility(int visibility) {
+		if (visibility == GONE && isKeyboardOpen()) {
+			onKeyboardClose();
+		}
+		super.setVisibility(visibility);
+	}
+
+	@Override
 	public void onKeyEvent(KeyEvent keyEvent) {
 		ui.editText.dispatchKeyEvent(keyEvent);
 	}
@@ -169,8 +178,10 @@ public class TextInputView extends KeyboardAwareLinearLayout
 			@Override
 			public void run() {
 				ui.editText.requestFocus();
-				Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-				((InputMethodManager) o).showSoftInput(ui.editText, 0);
+				InputMethodManager imm =
+						(InputMethodManager) getContext()
+								.getSystemService(INPUT_METHOD_SERVICE);
+				imm.showSoftInput(ui.editText, SHOW_FORCED);
 			}
 		});
 	}
