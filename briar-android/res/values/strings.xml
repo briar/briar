@@ -34,6 +34,7 @@
 	<string name="nav_drawer_open_description">Open the navigation drawer</string>
 	<string name="nav_drawer_close_description">Close the navigation drawer</string>
 	<string name="contact_list_button">Contacts</string>
+	<string name="groups_button">Private Groups</string>
 	<string name="forums_button">Forums</string>
 	<string name="blogs_button">Blogs</string>
 	<string name="settings_button">Settings</string>
@@ -142,6 +143,18 @@
 		<item quantity="one">New contact added.</item>
 		<item quantity="other">%d new contacts added.</item>
 	</plurals>
+
+	<!-- Private Groups -->
+	<string name="groups_list_empty">You are not participating in any groups.\n\nTap the + icon at the top to create a group yourself or ask your contacts to get invited into one of their groups.</string>
+	<string name="groups_created_by">Created by %s</string>
+	<plurals name="messages">
+		<item quantity="one">%d message</item>
+		<item quantity="other">%d messages</item>
+	</plurals>
+	<string name="groups_group_is_empty">This group is empty</string>
+	<string name="groups_group_is_dissolved">This group is dissolved</string>
+	<string name="groups_remove">Remove</string>
+	<string name="groups_add_group_title">Add Private Group</string>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>

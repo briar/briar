@@ -28,6 +28,7 @@ import org.briarproject.android.controller.TransportStateListener;
 import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.identity.LocalAuthor;
 
@@ -179,6 +180,9 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		switch (fragmentId) {
 			case R.id.nav_btn_contacts:
 				startFragment(ContactListFragment.newInstance());
+				break;
+			case R.id.nav_btn_groups:
+				startFragment(GroupListFragment.newInstance());
 				break;
 			case R.id.nav_btn_forums:
 				startFragment(ForumListFragment.newInstance());

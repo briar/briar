@@ -1,5 +1,7 @@
 package org.briarproject;
 
+import org.briarproject.api.privategroup.PrivateGroup;
+import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.blogs.BlogsModule;
 import org.briarproject.contact.ContactModule;
 import org.briarproject.crypto.CryptoModule;
@@ -11,6 +13,7 @@ import org.briarproject.introduction.IntroductionModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
+import org.briarproject.privategroup.PrivateGroupModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
@@ -38,6 +41,8 @@ public interface CoreEagerSingletons {
 	void inject(MessagingModule.EagerSingletons init);
 
 	void inject(PluginsModule.EagerSingletons init);
+
+	void inject(PrivateGroupModule.EagerSingletons init);
 
 	void inject(PropertiesModule.EagerSingletons init);
 

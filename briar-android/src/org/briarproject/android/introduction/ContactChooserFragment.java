@@ -77,10 +77,7 @@ public class ContactChooserFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		View contentView =
-				inflater.inflate(R.layout.introduction_contact_chooser,
-						container, false);
-
+		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		if (Build.VERSION.SDK_INT >= 21) {
 			setExitTransition(new Fade());
@@ -105,7 +102,7 @@ public class ContactChooserFragment extends BaseFragment {
 				};
 		adapter = new ContactChooserAdapter(getActivity(), onItemClickListener);
 
-		list = (BriarRecyclerView) contentView.findViewById(R.id.contactList);
+		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));

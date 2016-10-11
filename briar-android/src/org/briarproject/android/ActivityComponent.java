@@ -28,6 +28,7 @@ import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
+import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.android.sharing.ContactSelectorFragment;
 import org.briarproject.android.sharing.InvitationsBlogActivity;
 import org.briarproject.android.sharing.InvitationsForumActivity;
@@ -114,6 +115,7 @@ public interface ActivityComponent {
 
 	// Fragments
 	void inject(ContactListFragment fragment);
+	void inject(GroupListFragment fragment);
 	void inject(ForumListFragment fragment);
 	void inject(FeedFragment fragment);
 	void inject(IntroFragment fragment);

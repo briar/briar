@@ -2,6 +2,7 @@ package org.briarproject.android.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -78,7 +79,7 @@ public class TextAvatarView extends FrameLayout {
 		int b = getByte(bytes, 2) * 3 / 4 + 96;
 		int color = Color.rgb(r, g, b);
 
-		background.setFillColor(color);
+		background.setImageDrawable(new ColorDrawable(color));
 	}
 
 	private byte getByte(byte[] bytes, int index) {
