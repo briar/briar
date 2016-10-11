@@ -19,7 +19,6 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.feed.FeedManager;
 import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
@@ -35,7 +34,6 @@ import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
-import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.plugins.AndroidPluginsModule;
@@ -97,15 +95,11 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	PrivateGroupManager privateGroupManager();
 
-	GroupMessageFactory groupMessageFactory();
-
 	ForumManager forumManager();
 
 	ForumSharingManager forumSharingManager();
 
 	BlogSharingManager blogSharingManager();
-
-	ForumPostFactory forumPostFactory();
 
 	BlogManager blogManager();
 

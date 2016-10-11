@@ -1,8 +1,7 @@
 package org.briarproject.api.forum;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.crypto.PrivateKey;
-import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
@@ -15,7 +14,6 @@ public interface ForumPostFactory {
 			throws FormatException;
 
 	ForumPost createPseudonymousPost(GroupId groupId, long timestamp,
-			MessageId parent, Author author, String contentType, byte[] body,
-			PrivateKey privateKey) throws FormatException,
-			GeneralSecurityException;
+			MessageId parent, LocalAuthor author, String body)
+			throws FormatException, GeneralSecurityException;
 }

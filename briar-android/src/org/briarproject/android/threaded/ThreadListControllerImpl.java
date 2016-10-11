@@ -2,13 +2,14 @@ package org.briarproject.android.threaded;
 
 import android.app.Activity;
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.clients.BaseGroup;
+import org.briarproject.api.clients.BaseMessage;
 import org.briarproject.api.clients.PostHeader;
-import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -16,9 +17,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupRemovedEvent;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumPostFactory;
-import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -30,13 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends ThreadItem, H extends PostHeader>
+public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends ThreadItem, H extends PostHeader, M extends BaseMessage>
 		extends DbControllerImpl
 		implements ThreadListController<G, I, H>, EventListener {
 
@@ -44,14 +41,11 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
 	protected final Executor cryptoExecutor;
-	protected final CryptoComponent crypto;
-	protected final EventBus eventBus;
-	protected final IdentityManager identityManager;
 	protected final AndroidNotificationManager notificationManager;
+	private final EventBus eventBus;
 
 	protected final Map<MessageId, String> bodyCache =
 			new ConcurrentHashMap<>();
-	protected final AtomicLong newestTimeStamp = new AtomicLong();
 
 	protected volatile GroupId groupId;
 
@@ -59,14 +53,11 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
-			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
-			EventBus eventBus, IdentityManager identityManager,
+			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus,
 			AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager);
 		this.cryptoExecutor = cryptoExecutor;
-		this.crypto = crypto;
 		this.eventBus = eventBus;
-		this.identityManager = identityManager;
 		this.notificationManager = notificationManager;
 	}
 
@@ -164,9 +155,6 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");
 
-					// Update timestamp of newest item
-					updateNewestTimeStamp(headers);
-
 					// Load bodies
 					now = System.currentTimeMillis();
 					loadBodies(headers);
@@ -260,6 +248,63 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 	}
 
 	@Override
+	public void send(final String body, @Nullable final MessageId parentId,
+			final ResultExceptionHandler<I, DbException> handler) {
+		cryptoExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				LOG.info("Creating message...");
+				try {
+					M msg = createLocalMessage(groupId, body, parentId);
+					bodyCache.put(msg.getMessage().getId(), body);
+					storePost(msg, handler);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
+	}
+
+	/**
+	 * This should only be run from the DbThread.
+	 *
+	 * @throws DbException
+	 */
+	protected abstract M createLocalMessage(GroupId g, String body,
+			@Nullable MessageId parentId) throws DbException;
+
+	private void storePost(final M p,
+			final ResultExceptionHandler<I, DbException> resultHandler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					LOG.info("Store message...");
+					long now = System.currentTimeMillis();
+					H h = addLocalMessage(p);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Storing message took " + duration + " ms");
+					resultHandler.onResult(buildItem(h));
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					resultHandler.onException(e);
+				}
+			}
+		});
+	}
+
+	/**
+	 * This should only be run from the DbThread.
+	 *
+	 * @throws DbException
+	 */
+	protected abstract H addLocalMessage(M message) throws DbException;
+
+	@Override
 	public void deleteGroupItem(
 			final ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(new Runnable() {
@@ -302,20 +347,6 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 	 * When building the item, the body can be assumed to be cached
 	 */
 	protected abstract I buildItem(H header);
-
-	private void updateNewestTimeStamp(Collection<H> headers) {
-		for (H h : headers) {
-			updateNewestTimestamp(h.getTimestamp());
-		}
-	}
-
-	protected void updateNewestTimestamp(long update) {
-		long newest = newestTimeStamp.get();
-		while (newest < update) {
-			if (newestTimeStamp.compareAndSet(newest, update)) return;
-			newest = newestTimeStamp.get();
-		}
-	}
 
 	private void checkGroupId() {
 		if (groupId == null) {

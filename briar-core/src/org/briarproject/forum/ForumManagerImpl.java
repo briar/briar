@@ -13,19 +13,24 @@ import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
+import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +52,7 @@ import static org.briarproject.api.forum.ForumConstants.KEY_PARENT;
 import static org.briarproject.api.forum.ForumConstants.KEY_PUBLIC_NAME;
 import static org.briarproject.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
+import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
@@ -57,16 +63,21 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	private final IdentityManager identityManager;
 	private final ForumFactory forumFactory;
+	private final ForumPostFactory forumPostFactory;
+	private final Clock clock;
 	private final List<RemoveForumHook> removeHooks;
 
 	@Inject
 	ForumManagerImpl(DatabaseComponent db, IdentityManager identityManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
-			ForumFactory forumFactory) {
+			ForumFactory forumFactory, ForumPostFactory forumPostFactory,
+			Clock clock) {
 		super(db, clientHelper, metadataParser);
 
 		this.identityManager = identityManager;
 		this.forumFactory = forumFactory;
+		this.forumPostFactory = forumPostFactory;
+		this.clock = clock;
 		removeHooks = new CopyOnWriteArrayList<RemoveForumHook>();
 	}
 
@@ -118,7 +129,38 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	public void addLocalPost(ForumPost p) throws DbException {
+	public ForumPost createLocalPost(final GroupId groupId,
+			final String body, final @Nullable MessageId parentId)
+			throws DbException {
+
+		LocalAuthor author;
+		GroupCount count;
+		Transaction txn = db.startTransaction(true);
+		try {
+			author = identityManager.getLocalAuthor(txn);
+			count = getGroupCount(txn, groupId);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		long timestamp = clock.currentTimeMillis();
+		timestamp = Math.max(timestamp, count.getLatestMsgTime());
+
+		ForumPost p;
+		try {
+			p = forumPostFactory
+					.createPseudonymousPost(groupId, timestamp, parentId,
+							author, body);
+		} catch (GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		return p;
+	}
+
+	@Override
+	public ForumPostHeader addLocalPost(ForumPost p) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
 			BdfDictionary meta = new BdfDictionary();
@@ -142,6 +184,8 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		} finally {
 			db.endTransaction(txn);
 		}
+		return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
+				p.getMessage().getTimestamp(), p.getAuthor(), OURSELVES, true);
 	}
 
 	@Override

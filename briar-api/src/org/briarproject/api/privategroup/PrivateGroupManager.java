@@ -7,6 +7,7 @@ import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -19,8 +20,12 @@ public interface PrivateGroupManager extends MessageTracker {
 	/** Removes a dissolved private group. */
 	void removePrivateGroup(GroupId g) throws DbException;
 
+	/** Creates a local group message. */
+	GroupMessage createLocalMessage(GroupId groupId, String text,
+			@Nullable MessageId parentId) throws DbException;
+
 	/** Stores (and sends) a local group message. */
-	void addLocalMessage(GroupMessage p) throws DbException;
+	GroupMessageHeader addLocalMessage(GroupMessage p) throws DbException;
 
 	/** Returns the private group with the given ID. */
 	@NotNull
