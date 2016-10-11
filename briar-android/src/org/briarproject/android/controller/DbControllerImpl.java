@@ -13,16 +13,14 @@ public class DbControllerImpl implements DbController {
 	private static final Logger LOG =
 			Logger.getLogger(DbControllerImpl.class.getName());
 
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	@DatabaseExecutor
-	protected volatile Executor dbExecutor;
-	@Inject
-	protected volatile LifecycleManager lifecycleManager;
+	private final Executor dbExecutor;
+	private final LifecycleManager lifecycleManager;
 
 	@Inject
-	public DbControllerImpl() {
-
+	public DbControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager) {
+		this.dbExecutor = dbExecutor;
+		this.lifecycleManager = lifecycleManager;
 	}
 
 	@Override

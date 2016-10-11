@@ -5,6 +5,7 @@ import android.app.Activity;
 import org.briarproject.android.api.ReferenceManager;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -13,9 +14,11 @@ import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
 
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -29,22 +32,23 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerControllerImpl.class.getName());
 
-	@Inject
-	ReferenceManager referenceManager;
-	@Inject
-	PluginManager pluginManager;
-	@Inject
-	EventBus eventBus;
+	private final ReferenceManager referenceManager;
+	private final PluginManager pluginManager;
+	private final EventBus eventBus;
+	private final IdentityManager identityManager;
 
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	protected volatile IdentityManager identityManager;
-
-	private TransportStateListener listener;
+	private volatile TransportStateListener listener;
 
 	@Inject
-	public NavDrawerControllerImpl() {
-
+	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			ReferenceManager referenceManager, PluginManager pluginManager,
+			EventBus eventBus, IdentityManager identityManager) {
+		super(dbExecutor, lifecycleManager);
+		this.referenceManager = referenceManager;
+		this.pluginManager = pluginManager;
+		this.eventBus = eventBus;
+		this.identityManager = identityManager;
 	}
 
 	@Override

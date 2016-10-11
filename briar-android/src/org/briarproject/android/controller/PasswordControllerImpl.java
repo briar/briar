@@ -1,13 +1,12 @@
 package org.briarproject.android.controller;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.StringUtils;
 
 import java.util.concurrent.Executor;
@@ -23,21 +22,16 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(PasswordControllerImpl.class.getName());
 
-	private final static String PREF_DB_KEY = "key";
+	protected final Executor cryptoExecutor;
+	protected final CryptoComponent crypto;
 
 	@Inject
-	@CryptoExecutor
-	protected Executor cryptoExecutor;
-	@Inject
-	protected Activity activity;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	protected CryptoComponent crypto;
-
-	@Inject
-	public PasswordControllerImpl() {
-
+	PasswordControllerImpl(SharedPreferences briarPrefs,
+			DatabaseConfig databaseConfig,
+			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto) {
+		super(briarPrefs, databaseConfig);
+		this.cryptoExecutor = cryptoExecutor;
+		this.crypto = crypto;
 	}
 
 	@Override
@@ -71,7 +65,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 				} else {
 					String hex =
 							encryptDatabaseKey(new SecretKey(key), newPassword);
-					storeEncryptedDatabaseKey(hex);
+					setEncryptedDatabaseKey(hex);
 					resultHandler.onResult(true);
 				}
 			}
@@ -93,11 +87,5 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 		if (LOG.isLoggable(INFO))
 			LOG.info("Key derivation took " + duration + " ms");
 		return StringUtils.toHexString(encrypted);
-	}
-
-	void storeEncryptedDatabaseKey(String hex) {
-		SharedPreferences.Editor editor = briarPrefs.edit();
-		editor.putString(PREF_DB_KEY, hex);
-		editor.apply();
 	}
 }
