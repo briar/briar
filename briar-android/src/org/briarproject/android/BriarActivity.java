@@ -34,10 +34,11 @@ public abstract class BriarActivity extends BaseActivity {
 			Logger.getLogger(BriarActivity.class.getName());
 
 	@Inject
-	protected BriarController briarController;
-	// TODO remove this when the deprecated method runOnDbThread is removed
+	BriarController briarController;
+
+	@Deprecated
 	@Inject
-	protected DbController dbController;
+	DbController dbController;
 
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
@@ -49,8 +50,8 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		if (!briarController.hasEncryptionKey() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION | FLAG_ACTIVITY_SINGLE_TOP);

@@ -37,9 +37,7 @@ public class RssFeedManageActivity extends BriarActivity
 
 	private BriarRecyclerView list;
 	private RssFeedAdapter adapter;
-
-	// Fields that are accessed from background threads must be volatile
-	private volatile GroupId groupId = null;
+	private GroupId groupId;
 
 	@Inject
 	@SuppressWarnings("WeakerAccess")
@@ -65,9 +63,16 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		loadFeeds();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		adapter.clear();
+		list.showProgressBar();
 	}
 
 	@Override
@@ -139,7 +144,7 @@ public class RssFeedManageActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (feeds.size() == 0) list.showData();
+				if (feeds.isEmpty()) list.showData();
 				else adapter.addAll(feeds);
 			}
 		});

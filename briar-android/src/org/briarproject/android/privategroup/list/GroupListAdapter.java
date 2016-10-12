@@ -38,7 +38,7 @@ class GroupListAdapter extends BriarAdapter<GroupItem, GroupViewHolder> {
 	public int compare(GroupItem a, GroupItem b) {
 		if (a == b) return 0;
 		// The group with the latest message comes first
-		long aTime = a.getLastUpdate(), bTime = b.getLastUpdate();
+		long aTime = a.getTimestamp(), bTime = b.getTimestamp();
 		if (aTime > bTime) return -1;
 		if (aTime < bTime) return 1;
 		// Break ties by group name
@@ -50,7 +50,7 @@ class GroupListAdapter extends BriarAdapter<GroupItem, GroupViewHolder> {
 	@Override
 	public boolean areContentsTheSame(GroupItem a, GroupItem b) {
 		return a.getMessageCount() == b.getMessageCount() &&
-				a.getLastUpdate() == b.getLastUpdate() &&
+				a.getTimestamp() == b.getTimestamp() &&
 				a.getUnreadCount() == b.getUnreadCount() &&
 				a.isDissolved() == b.isDissolved();
 	}

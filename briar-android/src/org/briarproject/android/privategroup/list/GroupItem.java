@@ -1,56 +1,51 @@
 package org.briarproject.android.privategroup.list;
 
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.sync.GroupId;
-import org.jetbrains.annotations.NotNull;
 
 // This class is not thread-safe
+@NotNullByDefault
 class GroupItem {
 
 	private final PrivateGroup privateGroup;
-	private int messageCount;
-	private long lastUpdate;
-	private int unreadCount;
+	private int messageCount, unreadCount;
+	private long timestamp;
 	private boolean dissolved;
 
-	GroupItem(@NotNull PrivateGroup privateGroup, int messageCount,
-			long lastUpdate, int unreadCount, boolean dissolved) {
-
+	GroupItem(PrivateGroup privateGroup, GroupCount count, boolean dissolved) {
 		this.privateGroup = privateGroup;
-		this.messageCount = messageCount;
-		this.lastUpdate = lastUpdate;
-		this.unreadCount = unreadCount;
+		this.messageCount = count.getMsgCount();
+		this.unreadCount = count.getUnreadCount();
+		this.timestamp = count.getLatestMsgTime();
 		this.dissolved = dissolved;
 	}
 
 	void addMessageHeader(GroupMessageHeader header) {
 		messageCount++;
-		if (header.getTimestamp() > lastUpdate) {
-			lastUpdate = header.getTimestamp();
+		if (header.getTimestamp() > timestamp) {
+			timestamp = header.getTimestamp();
 		}
 		if (!header.isRead()) {
 			unreadCount++;
 		}
 	}
 
-	@NotNull
 	PrivateGroup getPrivateGroup() {
 		return privateGroup;
 	}
 
-	@NotNull
 	GroupId getId() {
 		return privateGroup.getId();
 	}
 
-	@NotNull
 	Author getCreator() {
 		return privateGroup.getAuthor();
 	}
 
-	@NotNull
 	String getName() {
 		return privateGroup.getName();
 	}
@@ -63,8 +58,8 @@ class GroupItem {
 		return messageCount;
 	}
 
-	long getLastUpdate() {
-		return lastUpdate;
+	long getTimestamp() {
+		return timestamp;
 	}
 
 	int getUnreadCount() {

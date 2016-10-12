@@ -29,9 +29,9 @@ public class InvitationsBlogActivity extends InvitationsActivity {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile BlogManager blogManager;
+	volatile BlogManager blogManager;
 	@Inject
-	protected volatile BlogSharingManager blogSharingManager;
+	volatile BlogSharingManager blogSharingManager;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -62,31 +62,34 @@ public class InvitationsBlogActivity extends InvitationsActivity {
 		}
 	}
 
+	@Override
 	protected InvitationAdapter getAdapter(Context ctx,
 			AvailableForumClickListener listener) {
 		return new BlogInvitationAdapter(ctx, listener);
 	}
 
+	@Override
 	protected void loadInvitations(final boolean clear) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				Collection<InvitationItem> invitations = new ArrayList<>();
 				try {
+					Collection<InvitationItem> invitations = new ArrayList<>();
 					long now = System.currentTimeMillis();
 					invitations.addAll(blogSharingManager.getInvitations());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
+					displayInvitations(invitations, clear);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
-				displayInvitations(invitations, clear);
 			}
 		});
 	}
 
+	@Override
 	protected void respondToInvitation(final InvitationItem item,
 			final boolean accept) {
 		runOnDbThread(new Runnable() {
@@ -95,6 +98,7 @@ public class InvitationsBlogActivity extends InvitationsActivity {
 				try {
 					Blog b = (Blog) item.getShareable();
 					for (Contact c : item.getNewSharers()) {
+						// TODO: What happens if a contact has been removed?
 						blogSharingManager.respondToInvitation(b, c, accept);
 					}
 				} catch (DbException e) {
@@ -105,10 +109,12 @@ public class InvitationsBlogActivity extends InvitationsActivity {
 		});
 	}
 
+	@Override
 	protected int getAcceptRes() {
 		return R.string.blogs_sharing_joined_toast;
 	}
 
+	@Override
 	protected int getDeclineRes() {
 		return R.string.blogs_sharing_declined_toast;
 	}

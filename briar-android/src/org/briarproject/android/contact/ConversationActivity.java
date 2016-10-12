@@ -34,7 +34,6 @@ import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.BlogSharingManager;
-import org.briarproject.api.clients.BaseMessageHeader;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -42,7 +41,6 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
-import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.event.ContactConnectedEvent;
 import org.briarproject.api.event.ContactDisconnectedEvent;
 import org.briarproject.api.event.ContactRemovedEvent;
@@ -150,7 +148,6 @@ public class ConversationActivity extends BriarActivity
 	private volatile ContactId contactId = null;
 	private volatile String contactName = null;
 	private volatile byte[] contactIdenticonKey = null;
-	private volatile boolean connected = false;
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
@@ -214,18 +211,19 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		eventBus.addListener(this);
 		notificationManager.blockNotification(groupId);
 		notificationManager.clearPrivateMessageNotification(groupId);
-		loadData();
+		loadContactDetails();
+		loadMessages();
 		list.startPeriodicUpdate();
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		eventBus.removeListener(this);
 		notificationManager.unblockNotification(groupId);
 		list.stopPeriodicUpdate();
@@ -277,7 +275,7 @@ public class ConversationActivity extends BriarActivity
 		finish();
 	}
 
-	private void loadData() {
+	private void loadContactDetails() {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -291,13 +289,12 @@ public class ConversationActivity extends BriarActivity
 						contactIdenticonKey =
 								contact.getAuthor().getId().getBytes();
 					}
-					connected = connectionRegistry.isConnected(contactId);
+					boolean connected =
+							connectionRegistry.isConnected(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading contact took " + duration + " ms");
-					displayContactDetails();
-					// Load the messages here to make sure we have a contactId
-					loadMessages();
+					displayContactDetails(connected);
 				} catch (NoSuchContactException e) {
 					finishOnUiThread();
 				} catch (DbException e) {
@@ -308,7 +305,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void displayContactDetails() {
+	private void displayContactDetails(final boolean connected) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
@@ -359,7 +356,7 @@ public class ConversationActivity extends BriarActivity
 					invitations.addAll(blogInvitations);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading headers took " + duration + " ms");
+						LOG.info("Loading messages took " + duration + " ms");
 					displayMessages(headers, introductions, invitations);
 				} catch (NoSuchContactException e) {
 					finishOnUiThread();
@@ -378,13 +375,12 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void run() {
 				textInputView.setSendButtonEnabled(true);
-				if (headers.isEmpty() && introductions.isEmpty() &&
-						invitations.isEmpty()) {
-					// we have no messages,
-					// so let the list know to hide progress bar
+				int size = headers.size() + introductions.size() +
+						invitations.size();
+				if (size == 0) {
 					list.showData();
 				} else {
-					List<ConversationItem> items = new ArrayList<>();
+					List<ConversationItem> items = new ArrayList<>(size);
 					for (PrivateMessageHeader h : headers) {
 						ConversationMessageItem item = ConversationItem.from(h);
 						byte[] body = bodyCache.get(h.getId());
@@ -392,28 +388,26 @@ public class ConversationActivity extends BriarActivity
 						else item.setBody(body);
 						items.add(item);
 					}
-					for (IntroductionMessage m : introductions) {
-						ConversationItem item;
-						if (m instanceof IntroductionRequest) {
-							item = ConversationItem
-									.from((IntroductionRequest) m);
+					for (IntroductionMessage im : introductions) {
+						if (im instanceof IntroductionRequest) {
+							IntroductionRequest ir = (IntroductionRequest) im;
+							items.add(ConversationItem.from(ir));
 						} else {
-							item = ConversationItem
-									.from(ConversationActivity.this,
-											contactName,
-											(IntroductionResponse) m);
-						}
-						items.add(item);
-					}
-					for (InvitationMessage i : invitations) {
-						if (i instanceof InvitationRequest) {
-							InvitationRequest r = (InvitationRequest) i;
-							items.add(ConversationItem.from(r));
-						} else if (i instanceof InvitationResponse) {
-							InvitationResponse r = (InvitationResponse) i;
+							IntroductionResponse ir = (IntroductionResponse) im;
 							items.add(ConversationItem
 									.from(ConversationActivity.this,
-											contactName, r));
+											contactName, ir));
+						}
+					}
+					for (InvitationMessage im : invitations) {
+						if (im instanceof InvitationRequest) {
+							InvitationRequest ir = (InvitationRequest) im;
+							items.add(ConversationItem.from(ir));
+						} else if (im instanceof InvitationResponse) {
+							InvitationResponse ir = (InvitationResponse) im;
+							items.add(ConversationItem
+									.from(ConversationActivity.this,
+											contactName, ir));
 						}
 					}
 					adapter.addAll(items);
@@ -435,8 +429,6 @@ public class ConversationActivity extends BriarActivity
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading body took " + duration + " ms");
 					displayMessageBody(m, body);
-				} catch (NoSuchMessageException e) {
-					// The item will be removed when we get the event
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -496,9 +488,10 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					for (Map.Entry<MessageId, GroupId> e : unread.entrySet())
-						messagingManager
-								.setReadFlag(e.getValue(), e.getKey(), true);
+					for (Map.Entry<MessageId, GroupId> e : unread.entrySet()) {
+						messagingManager.setReadFlag(e.getValue(), e.getKey(),
+								true);
+					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Marking read took " + duration + " ms");
@@ -525,7 +518,6 @@ public class ConversationActivity extends BriarActivity
 				PrivateMessageHeader h = p.getMessageHeader();
 				addConversationItem(ConversationItem.from(h));
 				loadMessageBody(h.getId());
-				markMessageReadIfNew(h);
 			}
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
@@ -543,15 +535,13 @@ public class ConversationActivity extends BriarActivity
 			ContactConnectedEvent c = (ContactConnectedEvent) e;
 			if (c.getContactId().equals(contactId)) {
 				LOG.info("Contact connected");
-				connected = true;
-				displayContactDetails();
+				displayContactDetails(true);
 			}
 		} else if (e instanceof ContactDisconnectedEvent) {
 			ContactDisconnectedEvent c = (ContactDisconnectedEvent) e;
 			if (c.getContactId().equals(contactId)) {
 				LOG.info("Contact disconnected");
-				connected = false;
-				displayContactDetails();
+				displayContactDetails(false);
 			}
 		} else if (e instanceof IntroductionRequestReceivedEvent) {
 			IntroductionRequestReceivedEvent event =
@@ -561,7 +551,6 @@ public class ConversationActivity extends BriarActivity
 				IntroductionRequest ir = event.getIntroductionRequest();
 				ConversationItem item = new ConversationIntroductionInItem(ir);
 				addConversationItem(item);
-				markMessageReadIfNew(ir);
 			}
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
 			IntroductionResponseReceivedEvent event =
@@ -572,7 +561,6 @@ public class ConversationActivity extends BriarActivity
 				ConversationItem item =
 						ConversationItem.from(this, contactName, ir);
 				addConversationItem(item);
-				markMessageReadIfNew(ir);
 			}
 		} else if (e instanceof InvitationRequestReceivedEvent) {
 			InvitationRequestReceivedEvent event =
@@ -582,7 +570,6 @@ public class ConversationActivity extends BriarActivity
 				InvitationRequest ir = event.getRequest();
 				ConversationItem item = ConversationItem.from(ir);
 				addConversationItem(item);
-				markMessageReadIfNew(ir);
 			}
 		} else if (e instanceof InvitationResponseReceivedEvent) {
 			InvitationResponseReceivedEvent event =
@@ -593,44 +580,8 @@ public class ConversationActivity extends BriarActivity
 				ConversationItem item =
 						ConversationItem.from(this, contactName, ir);
 				addConversationItem(item);
-				markMessageReadIfNew(ir);
 			}
 		}
-	}
-
-	private void markMessageReadIfNew(final BaseMessageHeader h) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				ConversationItem item = adapter.getLastItem();
-				if (item != null) {
-					// Mark the message read if it's the newest message
-					long lastMsgTime = item.getTime();
-					long newMsgTime = h.getTimestamp();
-					if (newMsgTime > lastMsgTime)
-						markNewMessageRead(h.getGroupId(), h.getId());
-					else loadMessages();
-				} else {
-					// mark the message as read as well if it is the first one
-					markNewMessageRead(h.getGroupId(), h.getId());
-				}
-			}
-		});
-	}
-
-	private void markNewMessageRead(final GroupId g, final MessageId m) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					messagingManager.setReadFlag(g, m, true);
-					loadMessages();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
 	}
 
 	private void markMessages(final Collection<MessageId> messageIds,
@@ -654,7 +605,6 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onSendClick(String text) {
-		markMessagesRead();
 		if (text.equals("")) return;
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());

@@ -102,10 +102,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), m.getGroupId(), timestamp, contentType, local, read,
+				m.getId(), groupId, timestamp, contentType, local, read,
 				false, false);
+		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
-				header, groupId);
+				header, contactId, groupId);
 		txn.attach(event);
 		trackIncomingMessage(txn, m);
 
@@ -130,6 +131,17 @@ class MessagingManagerImpl extends ConversationClientImpl
 			throw new RuntimeException(e);
 		} finally {
 			db.endTransaction(txn);
+		}
+	}
+
+	private ContactId getContactId(Transaction txn, GroupId g)
+			throws DbException {
+		try {
+			BdfDictionary meta =
+					clientHelper.getGroupMetadataAsDictionary(txn, g);
+			return new ContactId(meta.getLong("contactId").intValue());
+		} catch (FormatException e) {
+			throw new DbException(e);
 		}
 	}
 

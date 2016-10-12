@@ -88,7 +88,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 				postCount.setTextColor(
 						getColor(ctx, R.color.briar_text_secondary));
 
-				long lastUpdate = group.getLastUpdate();
+				long lastUpdate = group.getTimestamp();
 				date.setText(AndroidUtils.formatDate(ctx, lastUpdate));
 				date.setVisibility(VISIBLE);
 				avatar.setProblem(false);

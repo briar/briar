@@ -44,6 +44,7 @@ public abstract class BaseFragment extends Fragment
 
 	public interface BaseFragmentListener extends DestroyableContext {
 
+		@Deprecated
 		void runOnDbThread(Runnable runnable);
 
 		@UiThread

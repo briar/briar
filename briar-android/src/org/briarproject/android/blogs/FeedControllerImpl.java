@@ -2,14 +2,16 @@ package org.briarproject.android.blogs;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.event.BlogPostAddedEvent;
+import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -53,14 +55,27 @@ public class FeedControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof BlogPostAddedEvent) {
+			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
+			LOG.info("Blog post added");
+			onBlogPostAdded(b.getHeader(), b.isLocal());
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getClientId().equals(blogManager.getClientId())) {
+				LOG.info("Blog removed");
+				onBlogRemoved();
+			}
+		}
+	}
+
+	@Override
 	public void loadBlogPosts(
 			final ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
-		LOG.info("Loading all blog posts...");
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					// load blog posts
 					long now = System.currentTimeMillis();
 					Collection<BlogPostItem> posts = new ArrayList<>();
 					for (Blog b : blogManager.getBlogs()) {
@@ -85,24 +100,23 @@ public class FeedControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
-	public void loadPersonalBlog(final ResultHandler<Blog> resultHandler) {
-		LOG.info("Loading personal blog...");
+	public void loadPersonalBlog(
+			final ResultExceptionHandler<Blog, DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					// load blog posts
 					long now = System.currentTimeMillis();
 					Author a = identityManager.getLocalAuthor();
 					Blog b = blogManager.getPersonalBlog(a);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading pers. blog took " + duration + " ms");
-					resultHandler.onResult(b);
+						LOG.info("Loading blog took " + duration + " ms");
+					handler.onResult(b);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onResult(null);
+					handler.onException(e);
 				}
 			}
 		});

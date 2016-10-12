@@ -14,6 +14,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 
 // TODO extend the BriarFragmentActivity ?
 public class IntroductionActivity extends BriarActivity implements
@@ -21,16 +22,16 @@ public class IntroductionActivity extends BriarActivity implements
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
-	private int contactId;
+	private ContactId contactId;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
-		contactId = intent.getIntExtra(CONTACT_ID, -1);
-		if (contactId == -1)
-			throw new IllegalArgumentException("Wrong ContactId");
+		int id = intent.getIntExtra(CONTACT_ID, -1);
+		if (id == -1) throw new IllegalStateException("No ContactId");
+		contactId = new ContactId(id);
 
 		setContentView(R.layout.activity_fragment_container);
 
@@ -75,7 +76,7 @@ public class IntroductionActivity extends BriarActivity implements
 		}
 	}
 
-	int getContactId() {
+	ContactId getContactId() {
 		return contactId;
 	}
 

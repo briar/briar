@@ -30,7 +30,6 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -57,11 +56,11 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ContactManager contactManager;
+	volatile ContactManager contactManager;
 	@Inject
-	protected volatile IdentityManager identityManager;
+	volatile IdentityManager identityManager;
 	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
+	volatile ForumSharingManager forumSharingManager;
 
 	private volatile GroupId groupId;
 
@@ -91,8 +90,9 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 		setHasOptionsMenu(true);
 		Bundle args = getArguments();
-		groupId = new GroupId(args.getByteArray(GROUP_ID));
-		if (groupId == null) throw new IllegalStateException("No GroupId");
+		byte[] b = args.getByteArray(GROUP_ID);
+		if (b == null) throw new IllegalStateException("No GroupId");
+		groupId = new GroupId(b);
 	}
 
 	@Override
@@ -125,12 +125,16 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
+		loadContacts(selectedContacts);
+	}
 
-		if (selectedContacts != null)
-			loadContacts(Collections.unmodifiableCollection(selectedContacts));
-		else loadContacts(null);
+	@Override
+	public void onStop() {
+		super.onStop();
+		adapter.clear();
+		list.showProgressBar();
 	}
 
 	@Override
@@ -202,9 +206,8 @@ public class ContactSelectorFragment extends BaseFragment implements
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayContacts(Collections.unmodifiableList(contacts));
+					displayContacts(contacts);
 				} catch (DbException e) {
-					displayContacts(Collections.<ContactListItem>emptyList());
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
@@ -216,8 +219,8 @@ public class ContactSelectorFragment extends BaseFragment implements
 		shareActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (!contacts.isEmpty()) adapter.addAll(contacts);
-				else list.showData();
+				if (contacts.isEmpty()) list.showData();
+				else adapter.addAll(contacts);
 				updateMenuItem();
 			}
 		});

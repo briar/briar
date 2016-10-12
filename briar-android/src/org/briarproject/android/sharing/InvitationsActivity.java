@@ -2,6 +2,7 @@ package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.widget.Toast;
 
@@ -42,7 +43,6 @@ abstract class InvitationsActivity extends BriarActivity
 
 		adapter = getAdapter(this, this);
 
-
 		list = (BriarRecyclerView) findViewById(R.id.list);
 		if (list != null) {
 			list.setLayoutManager(new LinearLayoutManager(this));
@@ -51,21 +51,22 @@ abstract class InvitationsActivity extends BriarActivity
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		eventBus.addListener(this);
 		loadInvitations(false);
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		eventBus.removeListener(this);
 		adapter.clear();
 		list.showProgressBar();
 	}
 
 	@Override
+	@CallSuper
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed, reloading...");
@@ -110,8 +111,8 @@ abstract class InvitationsActivity extends BriarActivity
 					LOG.info("No more invitations available, finishing");
 					finish();
 				} else {
-					if (clear) adapter.clear();
-					adapter.addAll(invitations);
+					if (clear) adapter.setItems(invitations);
+					else adapter.addAll(invitations);
 				}
 			}
 		});

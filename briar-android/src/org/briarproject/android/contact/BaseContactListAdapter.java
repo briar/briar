@@ -13,7 +13,6 @@ import org.briarproject.R;
 import org.briarproject.android.util.BriarAdapter;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import im.delight.android.identicons.IdenticonDrawable;
@@ -86,17 +85,6 @@ public abstract class BaseContactListAdapter<VH extends BaseContactListAdapter.B
 			ContactListItem item = getItemAt(i);
 			if (item != null && item.getContact().getId().equals(c))
 				return i;
-		}
-		return INVALID_POSITION; // Not found
-	}
-
-	int findItemPosition(GroupId g) {
-		int count = getItemCount();
-		for (int i = 0; i < count; i++) {
-			ContactListItem item = getItemAt(i);
-			if (item != null && item.getGroupId().equals(g)) {
-				return i;
-			}
 		}
 		return INVALID_POSITION; // Not found
 	}

@@ -12,14 +12,14 @@ public abstract class BaseEventFragment extends BaseFragment implements
 	protected volatile EventBus eventBus;
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		eventBus.addListener(this);
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		eventBus.removeListener(this);
 	}
 }

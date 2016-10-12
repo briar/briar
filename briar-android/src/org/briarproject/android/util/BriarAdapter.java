@@ -75,6 +75,13 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 		this.items.addAll(items);
 	}
 
+	public void setItems(Collection<T> items) {
+		this.items.beginBatchedUpdates();
+		this.items.clear();
+		this.items.addAll(items);
+		this.items.endBatchedUpdates();
+	}
+
 	@Nullable
 	public T getItemAt(int position) {
 		if (position == INVALID_POSITION || position >= items.size()) {

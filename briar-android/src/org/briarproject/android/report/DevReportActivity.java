@@ -163,8 +163,8 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		if (chevron.isSelected()) refresh();
 	}
 

@@ -12,8 +12,6 @@ import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.BlogPostAddedEvent;
-import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.identity.IdentityManager;
@@ -47,7 +45,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	private final Map<MessageId, BlogPostHeader> headerCache =
 			new ConcurrentHashMap<>();
 
-	protected volatile OnBlogPostAddedListener listener;
+	private volatile OnBlogPostAddedListener listener;
 
 	BaseControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
@@ -63,9 +61,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	@Override
 	@CallSuper
 	public void onStart() {
-		if (listener == null)
-			throw new IllegalStateException(
-					"OnBlogPostAddedListener needs to be attached");
+		if (listener == null) throw new IllegalStateException();
 		eventBus.addListener(this);
 	}
 
@@ -76,24 +72,28 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	@CallSuper
-	public void eventOccurred(Event e) {
-		if (e instanceof BlogPostAddedEvent) {
-			final BlogPostAddedEvent b = (BlogPostAddedEvent) e;
-			LOG.info("New blog post added");
-			listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-				@Override
-				public void run() {
-					listener.onBlogPostAdded(b.getHeader(), b.isLocal());
-				}
-			});
-		}
-	}
-
-	@Override
 	public void setOnBlogPostAddedListener(OnBlogPostAddedListener listener) {
 		this.listener = listener;
 	}
+
+	void onBlogPostAdded(final BlogPostHeader h, final boolean local) {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onBlogPostAdded(h, local);
+			}
+		});
+	}
+
+	void onBlogRemoved() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onBlogRemoved();
+			}
+		});
+	}
+
 
 	@Override
 	public void loadBlogPosts(final GroupId groupId,

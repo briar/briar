@@ -20,7 +20,6 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.blogs.Blog;
@@ -99,38 +98,54 @@ public class FeedFragment extends BaseFragment implements
 	public void onStart() {
 		super.onStart();
 		feedController.onStart();
-		feedController.loadPersonalBlog(
-				new UiResultHandler<Blog>(listener) {
-					@Override
-					public void onResultUi(Blog b) {
-						personalBlog = b;
-					}
-				});
-		feedController.loadBlogPosts(
-				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						listener) {
-					@Override
-					public void onResultUi(Collection<BlogPostItem> posts) {
-						if (posts.isEmpty()) {
-							list.showData();
-						} else {
-							adapter.addAll(posts);
-						}
-					}
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO
-					}
-				});
-		list.startPeriodicUpdate();
+		loadPersonalBlog();
+		loadBlogPosts(false);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
 		feedController.onStop();
+		adapter.clear();
+		list.showProgressBar();
 		list.stopPeriodicUpdate();
 		// TODO save list position in database/preferences?
+	}
+
+	private void loadPersonalBlog() {
+		feedController.loadPersonalBlog(
+				new UiResultExceptionHandler<Blog, DbException>(listener) {
+					@Override
+					public void onResultUi(Blog b) {
+						personalBlog = b;
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						finish();
+					}
+				});
+	}
+
+	private void loadBlogPosts(final boolean clear) {
+		feedController.loadBlogPosts(
+				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
+						listener) {
+					@Override
+					public void onResultUi(Collection<BlogPostItem> posts) {
+						if (clear) adapter.setItems(posts);
+						else adapter.addAll(posts);
+						if (posts.isEmpty()) list.showData();
+					}
+
+					@Override
+					public void onExceptionUi(DbException e) {
+						// TODO: Decide how to handle errors in the UI
+						finish();
+					}
+				});
+		list.startPeriodicUpdate();
 	}
 
 	@Override
@@ -185,9 +200,11 @@ public class FeedFragment extends BaseFragment implements
 							showSnackBar(R.string.blogs_blog_post_received);
 						}
 					}
+
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
+						finish();
 					}
 				}
 		);
@@ -234,6 +251,6 @@ public class FeedFragment extends BaseFragment implements
 
 	@Override
 	public void onBlogRemoved() {
-		finish();
+		loadBlogPosts(true);
 	}
 }

@@ -1,6 +1,5 @@
 package org.briarproject.android.privategroup.list;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -16,7 +15,6 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.privategroup.list.GroupListController.GroupListListener;
 import org.briarproject.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.android.view.BriarRecyclerView;
@@ -152,12 +150,9 @@ public class GroupListFragment extends BaseFragment implements
 				new UiResultExceptionHandler<Collection<GroupItem>, DbException>(
 						listener) {
 					@Override
-					public void onResultUi(Collection<GroupItem> result) {
-						if (result.isEmpty()) {
-							list.showData();
-						} else {
-							adapter.addAll(result);
-						}
+					public void onResultUi(Collection<GroupItem> groups) {
+						if (groups.isEmpty()) list.showData();
+						else adapter.addAll(groups);
 					}
 
 					@Override

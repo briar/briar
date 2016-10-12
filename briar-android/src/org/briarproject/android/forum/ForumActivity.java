@@ -1,6 +1,7 @@
 package org.briarproject.android.forum;
 
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -98,9 +99,8 @@ public class ForumActivity extends
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		ActivityOptionsCompat options =
-				makeCustomAnimation(this, android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right);
+		ActivityOptionsCompat options = makeCustomAnimation(this,
+				android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_forum_compose_post:
@@ -110,9 +110,8 @@ public class ForumActivity extends
 				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityCompat
-						.startActivityForResult(this, i2, REQUEST_FORUM_SHARED,
-								options.toBundle());
+				ActivityCompat.startActivityForResult(this, i2,
+						REQUEST_FORUM_SHARED, options.toBundle());
 				return true;
 			case R.id.action_forum_sharing_status:
 				Intent i3 = new Intent(this, SharingStatusForumActivity.class);
@@ -146,17 +145,14 @@ public class ForumActivity extends
 	}
 
 	private void showUnsubscribeDialog() {
-		DialogInterface.OnClickListener okListener =
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(final DialogInterface dialog,
-							int which) {
-						deleteNamedGroup();
-					}
-				};
-		AlertDialog.Builder builder =
-				new AlertDialog.Builder(ForumActivity.this,
-						R.style.BriarDialogTheme);
+		OnClickListener okListener = new OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface dialog, int which) {
+				deleteNamedGroup();
+			}
+		};
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				ForumActivity.this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_leave_forum));
 		builder.setMessage(getString(R.string.dialog_message_leave_forum));
 		builder.setNegativeButton(R.string.dialog_button_leave, okListener);
@@ -171,14 +167,11 @@ public class ForumActivity extends
 					@Override
 					public void onResultUi(Void v) {
 						Toast.makeText(ForumActivity.this,
-								R.string.forum_left_toast,
-								LENGTH_SHORT)
-								.show();
+								R.string.forum_left_toast, LENGTH_SHORT).show();
 					}
 
 					@Override
-					public void onExceptionUi(
-							DbException exception) {
+					public void onExceptionUi(DbException exception) {
 						// TODO proper error handling
 						finish();
 					}

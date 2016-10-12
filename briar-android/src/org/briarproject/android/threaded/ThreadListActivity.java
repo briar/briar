@@ -75,7 +75,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 		if (state != null) {
 			byte[] replyIdBytes = state.getByteArray(KEY_REPLY_ID);
-			if(replyIdBytes != null) replyId = new MessageId(replyIdBytes);
+			if (replyIdBytes != null) replyId = new MessageId(replyIdBytes);
 		}
 
 		loadItems();
@@ -131,35 +131,33 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 	@CallSuper
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		list.startPeriodicUpdate();
 	}
 
 	@CallSuper
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		list.stopPeriodicUpdate();
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		textInput.setVisibility(
-				savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY) ?
-						VISIBLE : GONE);
+		boolean visible = savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY);
+		textInput.setVisibility(visible ? VISIBLE : GONE);
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_INPUT_VISIBILITY,
-				textInput.getVisibility() == VISIBLE);
+		boolean visible = textInput.getVisibility() == VISIBLE;
+		outState.putBoolean(KEY_INPUT_VISIBILITY, visible);
 		ThreadItem replyItem = adapter.getReplyItem();
 		if (replyItem != null) {
-			outState.putByteArray(KEY_REPLY_ID,
-					replyItem.getId().getBytes());
+			outState.putByteArray(KEY_REPLY_ID, replyItem.getId().getBytes());
 		}
 	}
 

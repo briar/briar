@@ -162,18 +162,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} else {
 			startListening();
 		}
-	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
 		openCamera();
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		releaseCamera();
 	}
 
 	@Override
@@ -181,6 +171,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		super.onStop();
 		stopListening();
 		if (receiver != null) getActivity().unregisterReceiver(receiver);
+		releaseCamera();
 	}
 
 	@UiThread
