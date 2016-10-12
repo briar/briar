@@ -2,19 +2,26 @@ package org.briarproject.android.blogs;
 
 import android.app.Activity;
 
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.blogs.BlogManager;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupRemovedEvent;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -30,7 +37,12 @@ public class BlogControllerImpl extends BaseControllerImpl
 	private volatile GroupId groupId = null;
 
 	@Inject
-	BlogControllerImpl() {
+	BlogControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager, EventBus eventBus,
+			AndroidNotificationManager notificationManager,
+			IdentityManager identityManager, BlogManager blogManager) {
+		super(dbExecutor, lifecycleManager, eventBus, notificationManager,
+				identityManager, blogManager);
 	}
 
 	@Override

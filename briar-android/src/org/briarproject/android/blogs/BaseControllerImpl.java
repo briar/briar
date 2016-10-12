@@ -10,6 +10,7 @@ import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogCommentHeader;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostHeader;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.event.Event;
@@ -17,6 +18,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
@@ -24,9 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
-
-import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -37,21 +38,27 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(BaseControllerImpl.class.getName());
 
-	@Inject
-	EventBus eventBus;
-	@Inject
-	AndroidNotificationManager notificationManager;
-	@Inject
-	IdentityManager identityManager;
-
-	@Inject
-	volatile BlogManager blogManager;
+	protected final EventBus eventBus;
+	protected final AndroidNotificationManager notificationManager;
+	protected final IdentityManager identityManager;
+	protected final BlogManager blogManager;
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 	private final Map<MessageId, BlogPostHeader> headerCache =
 			new ConcurrentHashMap<>();
 
 	protected volatile OnBlogPostAddedListener listener;
+
+	BaseControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager, EventBus eventBus,
+			AndroidNotificationManager notificationManager,
+			IdentityManager identityManager, BlogManager blogManager) {
+		super(dbExecutor, lifecycleManager);
+		this.eventBus = eventBus;
+		this.notificationManager = notificationManager;
+		this.identityManager = identityManager;
+		this.blogManager = blogManager;
+	}
 
 	@Override
 	@CallSuper

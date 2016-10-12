@@ -1,7 +1,6 @@
 package org.briarproject.android;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.briarproject.android.blogs.BlogController;
@@ -28,6 +27,7 @@ import org.briarproject.android.privategroup.list.GroupListControllerImpl;
 import dagger.Module;
 import dagger.Provides;
 
+import static android.content.Context.MODE_PRIVATE;
 import static org.briarproject.android.BriarService.BriarServiceConnection;
 
 @Module
@@ -54,36 +54,36 @@ public class ActivityModule {
 	@ActivityScope
 	@Provides
 	SetupController provideSetupController(
-			SetupControllerImpl setupControllerImpl) {
-		return setupControllerImpl;
+			SetupControllerImpl setupController) {
+		return setupController;
 	}
 
 	@ActivityScope
 	@Provides
 	ConfigController provideConfigController(
-			ConfigControllerImpl configControllerImpl) {
-		return configControllerImpl;
+			ConfigControllerImpl configController) {
+		return configController;
 	}
 
 	@ActivityScope
 	@Provides
 	SharedPreferences provideSharedPreferences(Activity activity) {
-		return activity.getSharedPreferences("db", Context.MODE_PRIVATE);
+		return activity.getSharedPreferences("db", MODE_PRIVATE);
 	}
 
 	@ActivityScope
 	@Provides
 	PasswordController providePasswordController(
-			PasswordControllerImpl passwordControllerImpl) {
-		return passwordControllerImpl;
+			PasswordControllerImpl passwordController) {
+		return passwordController;
 	}
 
 	@ActivityScope
 	@Provides
 	protected BriarController provideBriarController(
-			BriarControllerImpl briarControllerImpl) {
-		activity.addLifecycleController(briarControllerImpl);
-		return briarControllerImpl;
+			BriarControllerImpl briarController) {
+		activity.addLifecycleController(briarController);
+		return briarController;
 	}
 
 	@ActivityScope

@@ -1,15 +1,22 @@
 package org.briarproject.android.blogs;
 
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.controller.handler.ResultHandler;
 import org.briarproject.api.blogs.Blog;
+import org.briarproject.api.blogs.BlogManager;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.lifecycle.LifecycleManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -24,7 +31,12 @@ public class FeedControllerImpl extends BaseControllerImpl
 			Logger.getLogger(FeedControllerImpl.class.getName());
 
 	@Inject
-	FeedControllerImpl() {
+	FeedControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager, EventBus eventBus,
+			AndroidNotificationManager notificationManager,
+			IdentityManager identityManager, BlogManager blogManager) {
+		super(dbExecutor, lifecycleManager, eventBus, notificationManager,
+				identityManager, blogManager);
 	}
 
 	@Override

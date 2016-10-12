@@ -12,19 +12,27 @@ public class ConfigControllerImpl implements ConfigController {
 
 	private static final String PREF_DB_KEY = "key";
 
-	@Inject
-	protected SharedPreferences briarPrefs;
-	@Inject
-	protected volatile DatabaseConfig databaseConfig;
+	private final SharedPreferences briarPrefs;
+	protected final DatabaseConfig databaseConfig;
 
 	@Inject
-	public ConfigControllerImpl() {
+	ConfigControllerImpl(SharedPreferences briarPrefs,
+			DatabaseConfig databaseConfig) {
+		this.briarPrefs = briarPrefs;
+		this.databaseConfig = databaseConfig;
 
 	}
 
 	@Override
 	public String getEncryptedDatabaseKey() {
 		return briarPrefs.getString(PREF_DB_KEY, null);
+	}
+
+	@Override
+	public void setEncryptedDatabaseKey(String hex) {
+		SharedPreferences.Editor editor = briarPrefs.edit();
+		editor.putString(PREF_DB_KEY, hex);
+		editor.apply();
 	}
 
 	@Override

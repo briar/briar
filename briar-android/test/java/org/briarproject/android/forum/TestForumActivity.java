@@ -19,11 +19,13 @@ public class TestForumActivity extends ForumActivity {
 		return forumAdapter;
 	}
 
+	@Override
 	protected ActivityModule getActivityModule() {
 		return new ActivityModule(this) {
+
 			@Override
 			protected BriarController provideBriarController(
-					BriarControllerImpl briarControllerImpl) {
+					BriarControllerImpl briarController) {
 				BriarController c = Mockito.mock(BriarController.class);
 				Mockito.when(c.hasEncryptionKey()).thenReturn(true);
 				return c;

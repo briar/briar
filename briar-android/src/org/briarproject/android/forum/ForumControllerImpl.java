@@ -11,6 +11,7 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -24,6 +25,7 @@ import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
@@ -51,31 +53,34 @@ public class ForumControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(ForumControllerImpl.class.getName());
 
-	@Inject
-	@CryptoExecutor
-	Executor cryptoExecutor;
-	@Inject
-	volatile ForumPostFactory forumPostFactory;
-	@Inject
-	volatile CryptoComponent crypto;
-	@Inject
-	volatile ForumManager forumManager;
-	@Inject
-	volatile EventBus eventBus;
-	@Inject
-	volatile IdentityManager identityManager;
+	private final Executor cryptoExecutor;
+	private final ForumPostFactory forumPostFactory;
+	private final CryptoComponent crypto;
+	private final ForumManager forumManager;
+	private final EventBus eventBus;
+	private final IdentityManager identityManager;
 
 	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
 	private final AtomicLong newestTimeStamp = new AtomicLong();
 
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Forum forum = null;
-
-	private ForumPostListener listener;
+	private volatile ForumPostListener listener;
 
 	@Inject
-	ForumControllerImpl() {
-
+	ForumControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			@CryptoExecutor Executor cryptoExecutor,
+			ForumPostFactory forumPostFactory, CryptoComponent crypto,
+			ForumManager forumManager, EventBus eventBus,
+			IdentityManager identityManager) {
+		super(dbExecutor, lifecycleManager);
+		this.cryptoExecutor = cryptoExecutor;
+		this.forumPostFactory = forumPostFactory;
+		this.crypto = crypto;
+		this.forumManager = forumManager;
+		this.eventBus = eventBus;
+		this.identityManager = identityManager;
 	}
 
 	@Override

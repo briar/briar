@@ -1,6 +1,5 @@
 package org.briarproject.android.controller;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 
 import org.briarproject.android.api.ReferenceManager;
@@ -13,7 +12,6 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.util.StringUtils;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -28,17 +26,20 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(SetupControllerImpl.class.getName());
 
-	@Inject
-	protected PasswordStrengthEstimator strengthEstimator;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	protected volatile AuthorFactory authorFactory;
-	@Inject
-	protected volatile ReferenceManager referenceManager;
+	private final PasswordStrengthEstimator strengthEstimator;
+	private final AuthorFactory authorFactory;
+	private final ReferenceManager referenceManager;
 
 	@Inject
-	public SetupControllerImpl() {
+	SetupControllerImpl(SharedPreferences briarPrefs,
+			DatabaseConfig databaseConfig,
+			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
+			PasswordStrengthEstimator strengthEstimator,
+			AuthorFactory authorFactory, ReferenceManager referenceManager) {
+		super(briarPrefs, databaseConfig, cryptoExecutor, crypto);
+		this.strengthEstimator = strengthEstimator;
+		this.authorFactory = authorFactory;
+		this.referenceManager = referenceManager;
 
 	}
 
@@ -69,7 +70,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 				SecretKey key = crypto.generateSecretKey();
 				databaseConfig.setEncryptionKey(key);
 				String hex = encryptDatabaseKey(key, password);
-				storeEncryptedDatabaseKey(hex);
+				setEncryptedDatabaseKey(hex);
 				LocalAuthor localAuthor = createLocalAuthor(nickname);
 				long handle = referenceManager.putReference(localAuthor,
 						LocalAuthor.class);
