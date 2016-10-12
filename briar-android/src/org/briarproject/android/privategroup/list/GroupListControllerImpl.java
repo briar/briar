@@ -6,6 +6,7 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
@@ -14,6 +15,7 @@ import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.sync.ClientId;
@@ -22,6 +24,7 @@ import org.briarproject.api.sync.GroupId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -34,20 +37,23 @@ public class GroupListControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(GroupListControllerImpl.class.getName());
 
-	@Inject
-	PrivateGroupManager groupManager;
-	@Inject
-	EventBus eventBus;
-	@Inject
-	AndroidNotificationManager notificationManager;
-	@Inject
-	IdentityManager identityManager;
+	private final PrivateGroupManager groupManager;
+	private final EventBus eventBus;
+	private final AndroidNotificationManager notificationManager;
+	private final IdentityManager identityManager;
 
 	protected volatile GroupListListener listener;
 
 	@Inject
-	GroupListControllerImpl() {
-
+	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
+			EventBus eventBus, AndroidNotificationManager notificationManager,
+			IdentityManager identityManager) {
+		super(dbExecutor, lifecycleManager);
+		this.groupManager = groupManager;
+		this.eventBus = eventBus;
+		this.notificationManager = notificationManager;
+		this.identityManager = identityManager;
 	}
 
 	@Override
@@ -55,6 +61,7 @@ public class GroupListControllerImpl extends DbControllerImpl
 		this.listener = listener;
 	}
 
+	@Override
 	@CallSuper
 	public void onStart() {
 		if (listener == null)
@@ -63,6 +70,7 @@ public class GroupListControllerImpl extends DbControllerImpl
 		eventBus.addListener(this);
 	}
 
+	@Override
 	@CallSuper
 	public void onStop() {
 		eventBus.removeListener(this);

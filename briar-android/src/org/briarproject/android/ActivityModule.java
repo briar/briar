@@ -94,7 +94,7 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	protected GroupListController provideGroupListController(
+	GroupListController provideGroupListController(
 			GroupListControllerImpl groupListController) {
 		return groupListController;
 	}
