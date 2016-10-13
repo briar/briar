@@ -195,7 +195,7 @@
 
 	<!-- Forum Sharing -->
 	<string name="forum_share_button">Share Forum</string>
-	<string name="forum_share_action">Share this forum with chosen contacts</string>
+	<string name="contacts_selected">Contacts selected</string>
 	<string name="activity_share_toolbar_header">Choose Contacts</string>
 	<string name="no_contacts_selector">It seems that you are new here and have no contacts yet.\n\nPlease come back here after you added your first contact.</string>
 	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>

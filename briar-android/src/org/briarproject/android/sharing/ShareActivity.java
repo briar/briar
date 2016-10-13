@@ -6,7 +6,7 @@ import android.view.View;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class ShareActivity extends BriarActivity implements
-		BaseFragment.BaseFragmentListener {
+		BaseFragmentListener, ContactSelectorListener {
 
 	final static String CONTACTS = "contacts";
 
@@ -44,9 +44,15 @@ public abstract class ShareActivity extends BriarActivity implements
 	abstract ShareMessageFragment getMessageFragment(GroupId groupId,
 			Collection<ContactId> contacts);
 
-	abstract boolean isDisabled(GroupId groupId, Contact c) throws DbException;
+	/**
+	 * This must only be called from a DbThread
+	 */
+	public abstract boolean isDisabled(GroupId groupId, Contact c)
+			throws DbException;
 
-	void showMessageScreen(GroupId groupId, Collection<ContactId> contacts) {
+	@Override
+	public void contactsSelected(GroupId groupId,
+			Collection<ContactId> contacts) {
 		ShareMessageFragment messageFragment =
 				getMessageFragment(groupId, contacts);
 

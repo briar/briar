@@ -4,9 +4,9 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
-		android:id="@+id/action_share_forum"
+		android:id="@+id/action_contacts_selected"
 		android:icon="@drawable/ic_check_white"
-		android:title="@string/forum_share_action"
+		android:title="@string/contacts_selected"
 		app:showAsAction="always"/>
 
 </menu>

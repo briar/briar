@@ -29,7 +29,7 @@ public class ShareBlogActivity extends ShareActivity {
 	/**
 	 * This must only be called from a DbThread
 	 */
-	boolean isDisabled(GroupId groupId, Contact c) throws DbException {
+	public boolean isDisabled(GroupId groupId, Contact c) throws DbException {
 		return !blogSharingManager.canBeShared(groupId, c);
 	}
 }

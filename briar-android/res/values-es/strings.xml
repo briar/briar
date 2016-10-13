@@ -159,7 +159,7 @@
   <string name="forum_left_toast">Foro abandonado</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Compartir foro</string>
-  <string name="forum_share_action">Compartir este foro con los contactos seleccionados</string>
+  <string name="contacts_selected">Compartir este foro con los contactos seleccionados</string>
   <string name="activity_share_toolbar_header">Elige contactos</string>
   <string name="no_contacts_selector">Parece que eres nuevo aquí y no tienes contactos aún.\n\nPor favor, vuelve cuando hayas añadido tu primer contacto.</string>
   <string name="forum_shared_snackbar">Foro compartido con los contactos seleccionados</string>
