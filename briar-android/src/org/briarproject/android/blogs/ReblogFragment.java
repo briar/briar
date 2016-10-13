@@ -72,8 +72,6 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		setHasOptionsMenu(true);
-
 		Bundle args = getArguments();
 		blogId = new GroupId(args.getByteArray(GROUP_ID));
 		postId = new MessageId(args.getByteArray(POST_ID));

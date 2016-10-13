@@ -32,9 +32,6 @@ abstract class BaseMessageFragment extends BaseFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		// allow for "up" button to act as back button
-		setHasOptionsMenu(true);
-
 		// inflate view
 		View v = inflater.inflate(R.layout.fragment_message, container,
 				false);
@@ -57,17 +54,6 @@ abstract class BaseMessageFragment extends BaseFragment
 	public void onStart() {
 		super.onStart();
 		message.showSoftKeyboard();
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				listener.onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
 	}
 
 	@Override

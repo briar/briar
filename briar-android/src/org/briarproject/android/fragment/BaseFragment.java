@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.DestroyableContext;
@@ -27,6 +28,9 @@ public abstract class BaseFragment extends Fragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		// allow for "up" button to act as back button
+		setHasOptionsMenu(true);
 	}
 
 
@@ -35,6 +39,17 @@ public abstract class BaseFragment extends Fragment
 		super.onActivityCreated(savedInstanceState);
 		injectFragment(listener.getActivityComponent());
 		listener.onFragmentCreated(getUniqueTag());
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				listener.onBackPressed();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@UiThread
@@ -46,6 +61,9 @@ public abstract class BaseFragment extends Fragment
 
 		@Deprecated
 		void runOnDbThread(Runnable runnable);
+
+		@UiThread
+		void onBackPressed();
 
 		@UiThread
 		ActivityComponent getActivityComponent();

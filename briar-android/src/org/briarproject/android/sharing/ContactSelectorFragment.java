@@ -84,7 +84,6 @@ public class ContactSelectorFragment extends BaseFragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setHasOptionsMenu(true);
 		Bundle args = getArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
@@ -156,9 +155,6 @@ public class ContactSelectorFragment extends BaseFragment implements
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
-			case android.R.id.home:
-				listener.onBackPressed();
-				return true;
 			case R.id.action_contacts_selected:
 				selectedContacts = adapter.getSelectedContactIds();
 				listener.contactsSelected(groupId, selectedContacts);

@@ -66,7 +66,6 @@ public class FeedFragment extends BaseFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		setHasOptionsMenu(true);
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
 		adapter = new BlogPostAdapter(getActivity(), this);
