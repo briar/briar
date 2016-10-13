@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,7 +15,7 @@ import org.briarproject.android.view.TextInputView.TextInputListener;
 import static org.briarproject.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
 import static org.briarproject.util.StringUtils.truncateUtf8;
 
-abstract class BaseMessageFragment extends BaseFragment
+public abstract class BaseMessageFragment extends BaseFragment
 		implements TextInputListener {
 
 	protected LargeTextInputView message;

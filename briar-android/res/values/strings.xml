@@ -155,8 +155,11 @@
 	<string name="groups_group_is_empty">This group is empty</string>
 	<string name="groups_group_is_dissolved">This group is dissolved</string>
 	<string name="groups_remove">Remove</string>
-	<string name="groups_add_group_title">Add Private Group</string>
+	<string name="groups_create_group_title">Create Private Group</string>
 	<string name="groups_no_messages">This group is empty.\n\nYou can use the pen icon at the top to compose the first message.</string>
+	<string name="groups_create_group_button">Create Group</string>
+	<string name="groups_create_group_invitation_button">Send Invitation</string>
+	<string name="groups_create_group_hint">Add a name for your private group</string>
 	<string name="groups_compose_message">Compose Message</string>
 	<string name="groups_message_sent">Message sent</string>
 	<string name="groups_message_received">Message received</string>

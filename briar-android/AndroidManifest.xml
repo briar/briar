@@ -101,6 +101,17 @@
 		</activity>
 
 		<activity
+			android:name=".android.privategroup.creation.CreateGroupActivity"
+			android:label="@string/groups_create_group_title"
+			android:parentActivityName=".android.NavDrawerActivity"
+			android:windowSoftInputMode="adjustResize">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.NavDrawerActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name=".android.privategroup.conversation.GroupActivity"
 			android:label="@string/app_name"
 			android:parentActivityName=".android.NavDrawerActivity"

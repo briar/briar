@@ -6,7 +6,7 @@
 	<item
 		android:id="@+id/action_add_group"
 		android:icon="@drawable/ic_add_white"
-		android:title="@string/groups_add_group_title"
+		android:title="@string/groups_create_group_title"
 		app:showAsAction="ifRoom"/>
 
 </menu>
