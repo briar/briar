@@ -9,8 +9,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
-import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.transport.KeyManager;
 
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.inject.Inject;
 
-class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
+class ContactManagerImpl implements ContactManager {
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
@@ -148,11 +146,4 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 		db.removeContact(txn, c);
 	}
 
-	@Override
-	public void removingIdentity(Transaction txn, LocalAuthor a)
-			throws DbException {
-		// Remove any contacts of the local pseudonym that's being removed
-		for (ContactId c : db.getContacts(txn, a.getId()))
-			removeContact(txn, c);
-	}
 }

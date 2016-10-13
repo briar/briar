@@ -1,7 +1,10 @@
 package org.briarproject.lifecycle;
 
+import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
@@ -26,7 +29,8 @@ public class LifecycleModule {
 
 	public static class EagerSingletons {
 		@Inject
-		@IoExecutor Executor executor;
+		@IoExecutor
+		Executor executor;
 	}
 
 	private final ExecutorService ioExecutor;
@@ -51,8 +55,10 @@ public class LifecycleModule {
 	@Provides
 	@Singleton
 	LifecycleManager provideLifecycleManager(DatabaseComponent db,
-			EventBus eventBus) {
-		return new LifecycleManagerImpl(db, eventBus);
+			EventBus eventBus, CryptoComponent crypto,
+			AuthorFactory authorFactory, IdentityManager identityManager) {
+		return new LifecycleManagerImpl(db, eventBus, crypto, authorFactory,
+				identityManager);
 	}
 
 	@Provides

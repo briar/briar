@@ -26,8 +26,6 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.IdentityManager.AddIdentityHook;
-import org.briarproject.api.identity.IdentityManager.RemoveIdentityHook;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
@@ -75,8 +73,7 @@ import static org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import static org.briarproject.blogs.BlogPostValidator.authorToBdfDictionary;
 
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
-		AddContactHook, RemoveContactHook, Client,
-		AddIdentityHook, RemoveIdentityHook {
+		AddContactHook, RemoveContactHook, Client {
 
 	private static final Logger LOG =
 			Logger.getLogger(BlogManagerImpl.class.getName());
@@ -149,25 +146,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			Blog b = blogFactory.createBlog(c.getAuthor());
 			db.removeGroup(txn, b.getGroup());
 		}
-	}
-
-	@Override
-	public void addingIdentity(Transaction txn, LocalAuthor a)
-			throws DbException {
-
-		// add a personal blog for the new identity
-		LOG.info("New Personal Blog Added.");
-		Blog b = blogFactory.createBlog(a);
-		db.addGroup(txn, b.getGroup());
-	}
-
-	@Override
-	public void removingIdentity(Transaction txn, LocalAuthor a)
-			throws DbException {
-
-		// remove the personal blog of that identity
-		Blog b = blogFactory.createBlog(a);
-		db.removeGroup(txn, b.getGroup());
 	}
 
 	@Override

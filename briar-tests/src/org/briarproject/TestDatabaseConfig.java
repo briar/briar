@@ -39,6 +39,16 @@ public class TestDatabaseConfig implements DatabaseConfig {
 	}
 
 	@Override
+	public void setAuthorNick(String nickName) {
+
+	}
+
+	@Override
+	public String getAuthorNick() {
+		return null;
+	}
+
+	@Override
 	public long getMaxSize() {
 		return maxSize;
 	}

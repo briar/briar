@@ -6,6 +6,7 @@ public interface SetupController {
 
 	float estimatePasswordStrength(String password);
 
-	void createIdentity(String nickname, String password,
-			ResultHandler<Long> resultHandler);
+	void storeAuthorInfo(String password, String nickName,
+			ResultHandler<Void> resultHandler);
+
 }

@@ -2,7 +2,6 @@ package org.briarproject.android;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -135,18 +134,18 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		progress.setVisibility(VISIBLE);
 		String nickname = nicknameEntry.getText().toString();
 		String password = passwordEntry.getText().toString();
-		setupController.createIdentity(nickname, password,
-				new UiResultHandler<Long>(this) {
+
+		setupController.storeAuthorInfo(password, nickname,
+				new UiResultHandler<Void>(this) {
 					@Override
-					public void onResultUi(@NonNull Long result) {
-						showMain(result);
+					public void onResultUi(Void result) {
+						showMain();
 					}
 				});
 	}
 
-	private void showMain(final long handle) {
+	private void showMain() {
 		Intent i = new Intent(this, NavDrawerActivity.class);
-		i.putExtra(BriarActivity.KEY_LOCAL_AUTHOR_HANDLE, handle);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		finish();

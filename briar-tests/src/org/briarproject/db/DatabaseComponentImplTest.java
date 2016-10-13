@@ -136,7 +136,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// startTransaction()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			// addLocalAuthor()
+			// registerLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
@@ -813,7 +813,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// startTransaction()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			// addLocalAuthor()
+			// registerLocalAuthor()
 			oneOf(database).containsLocalAuthor(txn, localAuthorId);
 			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);

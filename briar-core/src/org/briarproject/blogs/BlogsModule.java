@@ -7,7 +7,6 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.MessageFactory;
@@ -36,14 +35,11 @@ public class BlogsModule {
 	@Singleton
 	BlogManager provideBlogManager(BlogManagerImpl blogManager,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
-			IdentityManager identityManager,
 			ValidationManager validationManager) {
 
 		lifecycleManager.registerClient(blogManager);
 		contactManager.registerAddContactHook(blogManager);
 		contactManager.registerRemoveContactHook(blogManager);
-		identityManager.registerAddIdentityHook(blogManager);
-		identityManager.registerRemoveIdentityHook(blogManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, blogManager);
 		return blogManager;
 	}

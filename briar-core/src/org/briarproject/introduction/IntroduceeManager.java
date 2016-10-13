@@ -305,10 +305,8 @@ class IntroduceeManager {
 			boolean alice = comp < 0;
 
 			// get our local author
-			AuthorId localAuthorId =
-					new AuthorId(localState.getRaw(LOCAL_AUTHOR_ID));
 			LocalAuthor author =
-					identityManager.getLocalAuthor(txn, localAuthorId);
+					identityManager.getLocalAuthor(txn);
 
 			SecretKey secretKey;
 			byte[] privateKeyBytes = localState.getRaw(OUR_PRIVATE_KEY);
@@ -336,7 +334,7 @@ class IntroduceeManager {
 					.createAuthor(localState.getString(NAME),
 							localState.getRaw(PUBLIC_KEY));
 			ContactId contactId = contactManager
-					.addContact(txn, remoteAuthor, localAuthorId, secretKey,
+					.addContact(txn, remoteAuthor, author.getId(), secretKey,
 							timestamp, alice, false, false);
 
 			// Update local state with ContactId, so we know what to activate

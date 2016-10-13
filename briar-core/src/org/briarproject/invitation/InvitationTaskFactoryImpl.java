@@ -4,7 +4,6 @@ import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriterFactory;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
@@ -35,10 +34,9 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.pluginManager = pluginManager;
 	}
 
-	public InvitationTask createTask(AuthorId localAuthorId, int localCode,
-			int remoteCode) {
+	public InvitationTask createTask(int localCode, int remoteCode) {
 		return new ConnectorGroup(crypto, bdfReaderFactory, bdfWriterFactory,
 				contactExchangeTask, identityManager, pluginManager,
-				localAuthorId, localCode, remoteCode);
+				localCode, remoteCode);
 	}
 }

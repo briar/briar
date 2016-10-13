@@ -46,7 +46,7 @@ public class IdentityManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testGetAuthorStatus() throws DbException {
-		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
+		final AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 		final Collection<LocalAuthor> localAuthors = new ArrayList<>();
 		LocalAuthor localAuthor =
 				new LocalAuthor(new AuthorId(TestUtils.getRandomId()),
@@ -54,9 +54,17 @@ public class IdentityManagerImplTest extends BriarTestCase {
 						TestUtils.getRandomBytes(42),
 						TestUtils.getRandomBytes(42), 0);
 		localAuthors.add(localAuthor);
-		Collection<Contact> contacts = new ArrayList<>();
+		final Collection<Contact> contacts = new ArrayList<>();
 
-		checkAuthorStatusContext(localAuthors, authorId, contacts);
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getLocalAuthors(txn);
+			will(returnValue(localAuthors));
+			oneOf(db).getContactsByAuthorId(txn, authorId);
+			will(returnValue(contacts));
+			oneOf(db).endTransaction(txn);
+		}});
 		assertEquals(UNKNOWN, identityManager.getAuthorStatus(authorId));
 
 		// add one unverified contact
@@ -67,7 +75,7 @@ public class IdentityManagerImplTest extends BriarTestCase {
 						false, true);
 		contacts.add(contact);
 
-		checkAuthorStatusContext(localAuthors, authorId, contacts);
+		checkAuthorStatusContext(authorId, contacts);
 		assertEquals(UNVERIFIED, identityManager.getAuthorStatus(authorId));
 
 		// add one verified contact
@@ -76,37 +84,28 @@ public class IdentityManagerImplTest extends BriarTestCase {
 						true, true);
 		contacts.add(contact2);
 
-		checkAuthorStatusContext(localAuthors, authorId, contacts);
+		checkAuthorStatusContext(authorId, contacts);
 		assertEquals(VERIFIED, identityManager.getAuthorStatus(authorId));
 
-		// add ourselves to the local authors
-		LocalAuthor localAuthor2 =
-				new LocalAuthor(authorId,
-						TestUtils.getRandomString(8),
-						TestUtils.getRandomBytes(42),
-						TestUtils.getRandomBytes(42), 0);
-		localAuthors.add(localAuthor2);
-
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getLocalAuthors(txn);
-			will(returnValue(localAuthors));
+			never(db).getLocalAuthors(txn);
+			never(db).getContactsByAuthorId(txn, authorId);
 			oneOf(db).endTransaction(txn);
 		}});
-		assertEquals(OURSELVES, identityManager.getAuthorStatus(authorId));
+		assertEquals(OURSELVES,
+				identityManager.getAuthorStatus(localAuthor.getId()));
 
 		context.assertIsSatisfied();
 	}
 
-	private void checkAuthorStatusContext(
-			final Collection<LocalAuthor> localAuthors, final AuthorId authorId,
+	private void checkAuthorStatusContext(final AuthorId authorId,
 			final Collection<Contact> contacts) throws DbException {
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getLocalAuthors(txn);
-			will(returnValue(localAuthors));
+			never(db).getLocalAuthors(txn);
 			oneOf(db).getContactsByAuthorId(txn, authorId);
 			will(returnValue(contacts));
 			oneOf(db).endTransaction(txn);

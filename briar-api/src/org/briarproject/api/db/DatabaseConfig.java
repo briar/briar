@@ -1,8 +1,8 @@
 package org.briarproject.api.db;
 
-import java.io.File;
-
 import org.briarproject.api.crypto.SecretKey;
+
+import java.io.File;
 
 public interface DatabaseConfig {
 
@@ -13,6 +13,10 @@ public interface DatabaseConfig {
 	void setEncryptionKey(SecretKey key);
 
 	SecretKey getEncryptionKey();
+
+	void setAuthorNick(String nickName);
+
+	String getAuthorNick();
 
 	long getMaxSize();
 }

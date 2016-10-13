@@ -27,7 +27,6 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.util.StringUtils;
 
 import java.security.GeneralSecurityException;
-import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -147,9 +146,7 @@ public class WriteBlogPostActivity extends BriarActivity
 			public void run() {
 				long now = System.currentTimeMillis();
 				try {
-					Collection<LocalAuthor> authors =
-							identityManager.getLocalAuthors();
-					LocalAuthor author = authors.iterator().next();
+					LocalAuthor author = identityManager.getLocalAuthor();
 					BlogPost p = blogPostFactory
 							.createBlogPost(groupId, now, null, author, body);
 					blogManager.addLocalPost(p);
