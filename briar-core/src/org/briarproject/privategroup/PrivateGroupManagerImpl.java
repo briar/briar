@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Logger;
@@ -68,6 +69,21 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	@Override
 	public ClientId getClientId() {
 		return CLIENT_ID;
+	}
+
+	@Override
+	public GroupId addPrivateGroup(String name) throws DbException {
+		PrivateGroup group;
+		Transaction txn = db.startTransaction(false);
+		try {
+			LocalAuthor a = identityManager.getLocalAuthor(txn);
+			group = privateGroupFactory.createPrivateGroup(name, a);
+			db.addGroup(txn, group.getGroup());
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return group.getId();
 	}
 
 	@Override
@@ -137,7 +153,24 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	@NotNull
 	@Override
 	public Collection<PrivateGroup> getPrivateGroups() throws DbException {
-		return Collections.emptyList();
+		Collection<Group> groups;
+		Transaction txn = db.startTransaction(true);
+		try {
+			groups = db.getGroups(txn, getClientId());
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		try {
+			Collection<PrivateGroup> privateGroups =
+					new ArrayList<PrivateGroup>(groups.size());
+			for (Group g : groups) {
+				privateGroups.add(privateGroupFactory.parsePrivateGroup(g));
+			}
+			return privateGroups;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override

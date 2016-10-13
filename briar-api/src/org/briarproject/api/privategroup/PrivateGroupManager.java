@@ -18,6 +18,9 @@ public interface PrivateGroupManager extends MessageTracker {
 	@NotNull
 	ClientId getClientId();
 
+	/** Adds a new private group. */
+	GroupId addPrivateGroup(String name) throws DbException;
+
 	/** Removes a dissolved private group. */
 	void removePrivateGroup(GroupId g) throws DbException;
 
