@@ -8,7 +8,6 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
-import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.privategroup.GroupMessage;
 import org.briarproject.api.privategroup.GroupMessageHeader;
@@ -16,6 +15,7 @@ import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.sync.ClientId;
+import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -81,16 +81,27 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	@NotNull
 	@Override
 	public PrivateGroup getPrivateGroup(GroupId g) throws DbException {
-		Author a = identityManager.getLocalAuthor();
-		return privateGroupFactory.createPrivateGroup("todo", a);
+		PrivateGroup privateGroup;
+		Transaction txn = db.startTransaction(true);
+		try {
+			privateGroup = getPrivateGroup(txn, g);
+			txn.setComplete();
+		} finally {
+			db.endTransaction(txn);
+		}
+		return privateGroup;
 	}
 
 	@NotNull
 	@Override
 	public PrivateGroup getPrivateGroup(Transaction txn, GroupId g)
 			throws DbException {
-		Author a = identityManager.getLocalAuthor(txn);
-		return privateGroupFactory.createPrivateGroup("todo", a);
+		try {
+			Group group = db.getGroup(txn, g);
+			return privateGroupFactory.parsePrivateGroup(group);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@NotNull
