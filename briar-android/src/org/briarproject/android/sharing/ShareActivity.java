@@ -7,37 +7,26 @@ import android.support.annotation.UiThread;
 import android.widget.Toast;
 
 import org.briarproject.R;
-import org.briarproject.android.BriarActivity;
-import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
-import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 
-public abstract class ShareActivity extends BriarActivity implements
-		BaseFragmentListener, ContactSelectorListener, MessageFragmentListener {
+public abstract class ShareActivity extends ContactSelectorActivity implements
+		MessageFragmentListener {
 
 	private final static Logger LOG =
 			Logger.getLogger(ShareActivity.class.getName());
-	final static String CONTACTS = "contacts";
-
-	private volatile GroupId groupId;
-	private volatile Collection<ContactId> contacts;
 
 	@Override
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
-
-		setContentView(R.layout.activity_fragment_container);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
@@ -50,21 +39,6 @@ public abstract class ShareActivity extends BriarActivity implements
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.fragmentContainer, contactSelectorFragment)
 					.commit();
-		} else {
-			ArrayList<Integer> intContacts =
-					bundle.getIntegerArrayList(CONTACTS);
-			if (intContacts != null) {
-				contacts = getContactsFromIntegers(intContacts);
-			}
-		}
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (contacts != null) {
-			outState.putIntegerArrayList(CONTACTS,
-					getContactsFromIds(contacts));
 		}
 	}
 
@@ -72,11 +46,9 @@ public abstract class ShareActivity extends BriarActivity implements
 	@Override
 	public void contactsSelected(GroupId groupId,
 			Collection<ContactId> contacts) {
-		this.groupId = groupId;
-		this.contacts = contacts;
+		super.contactsSelected(groupId, contacts);
 
 		BaseMessageFragment messageFragment = getMessageFragment();
-
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,
 						android.R.anim.fade_out,
@@ -90,38 +62,13 @@ public abstract class ShareActivity extends BriarActivity implements
 
 	abstract BaseMessageFragment getMessageFragment();
 
-	/**
-	 * This must only be called from a DbThread
-	 */
-	public abstract boolean isDisabled(GroupId groupId, Contact c)
-			throws DbException;
-
-	static ArrayList<Integer> getContactsFromIds(
-			Collection<ContactId> contacts) {
-		// transform ContactIds to Integers so they can be added to a bundle
-		ArrayList<Integer> intContacts = new ArrayList<>(contacts.size());
-		for (ContactId contactId : contacts) {
-			intContacts.add(contactId.getInt());
-		}
-		return intContacts;
-	}
-
-	static Collection<ContactId> getContactsFromIntegers(
-			ArrayList<Integer> intContacts) {
-		// turn contact integers from a bundle back to ContactIds
-		List<ContactId> contacts = new ArrayList<>(intContacts.size());
-		for (Integer c : intContacts) {
-			contacts.add(new ContactId(c));
-		}
-		return contacts;
-	}
-
 	@UiThread
 	@Override
-	public void onButtonClick(String message) {
+	public boolean onButtonClick(String message) {
 		share(message);
 		setResult(RESULT_OK);
 		supportFinishAfterTransition();
+		return true;
 	}
 
 	private void share(final String msg) {
@@ -159,10 +106,5 @@ public abstract class ShareActivity extends BriarActivity implements
 	}
 
 	protected abstract @StringRes int getSharingError();
-
-	@Override
-	public void onFragmentCreated(String tag) {
-
-	}
 
 }

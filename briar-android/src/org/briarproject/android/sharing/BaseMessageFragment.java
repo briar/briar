@@ -12,7 +12,6 @@ import org.briarproject.R;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.LargeTextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
-import org.briarproject.util.StringUtils;
 
 import static org.briarproject.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
 import static org.briarproject.util.StringUtils.truncateUtf8;
@@ -78,7 +77,10 @@ abstract class BaseMessageFragment extends BaseFragment
 		message.hideSoftKeyboard();
 
 		msg = truncateUtf8(msg, MAX_INVITATION_MESSAGE_LENGTH);
-		listener.onButtonClick(msg);
+		if(!listener.onButtonClick(msg)) {
+			message.setSendButtonEnabled(true);
+			message.showSoftKeyboard();
+		}
 	}
 
 	public interface MessageFragmentListener {
@@ -87,7 +89,8 @@ abstract class BaseMessageFragment extends BaseFragment
 
 		void setTitle(@StringRes int titleRes);
 
-		void onButtonClick(String message);
+		/** Returns true when the button click has been consumed. */
+		boolean onButtonClick(String message);
 
 	}
 
