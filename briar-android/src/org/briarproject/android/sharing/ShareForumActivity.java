@@ -1,5 +1,6 @@
 package org.briarproject.android.sharing;
 
+import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -7,17 +8,17 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.sync.GroupId;
 
-import java.util.Collection;
-
 import javax.inject.Inject;
 
 public class ShareForumActivity extends ShareActivity {
-	@Inject
-	volatile ForumSharingManager forumSharingManager;
 
-	ShareMessageFragment getMessageFragment(GroupId groupId,
-			Collection<ContactId> contacts) {
-		return ShareForumMessageFragment.newInstance(groupId, contacts);
+	// Fields that are accessed from background threads must be volatile
+	@Inject
+	protected volatile ForumSharingManager forumSharingManager;
+
+	@Override
+	BaseMessageFragment getMessageFragment() {
+		return ShareForumMessageFragment.newInstance();
 	}
 
 	@Override
@@ -25,10 +26,20 @@ public class ShareForumActivity extends ShareActivity {
 		component.inject(this);
 	}
 
-	/**
-	 * This must only be called from a DbThread
-	 */
+	@Override
 	public boolean isDisabled(GroupId groupId, Contact c) throws DbException {
 		return !forumSharingManager.canBeShared(groupId, c);
 	}
+
+	@Override
+	protected void share(GroupId g, ContactId c, String msg)
+			throws DbException {
+		forumSharingManager.sendInvitation(g, c, msg);
+	}
+
+	@Override
+	protected int getSharingError() {
+		return R.string.forum_share_error;
+	}
+
 }
