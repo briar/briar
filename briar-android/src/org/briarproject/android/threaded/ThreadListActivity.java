@@ -6,6 +6,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -63,8 +64,7 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 		groupId = new GroupId(b);
 		getController().setGroupId(groupId);
 		String groupName = i.getStringExtra(GROUP_NAME);
-		if (groupName != null) setTitle(groupName);
-		else loadAndSetTitle();
+		setActionBarTitle(groupName);
 
 		textInput = (TextInputView) findViewById(R.id.text_input_container);
 		textInput.setVisibility(GONE);
@@ -86,12 +86,17 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 
 	protected abstract A createAdapter(LinearLayoutManager layoutManager);
 
-	private void loadAndSetTitle() {
+	protected void setActionBarTitle(@Nullable String title) {
+		if (title != null) setTitle(title);
+		else loadGroupItem();
+	}
+
+	protected void loadGroupItem() {
 		getController().loadGroupItem(
 				new UiResultExceptionHandler<G, DbException>(this) {
 					@Override
 					public void onResultUi(G groupItem) {
-						setTitle(groupItem.getName());
+						onGroupItemLoaded(groupItem);
 					}
 
 					@Override
@@ -100,6 +105,12 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 						finish();
 					}
 				});
+	}
+
+	@CallSuper
+	@UiThread
+	protected void onGroupItemLoaded(G groupItem) {
+		setTitle(groupItem.getName());
 	}
 
 	private void loadItems() {
