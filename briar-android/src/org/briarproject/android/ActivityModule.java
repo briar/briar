@@ -27,6 +27,10 @@ import org.briarproject.android.privategroup.creation.CreateGroupController;
 import org.briarproject.android.privategroup.creation.CreateGroupControllerImpl;
 import org.briarproject.android.privategroup.list.GroupListController;
 import org.briarproject.android.privategroup.list.GroupListControllerImpl;
+import org.briarproject.android.sharing.InvitationsBlogController;
+import org.briarproject.android.sharing.InvitationsBlogControllerImpl;
+import org.briarproject.android.sharing.InvitationsForumController;
+import org.briarproject.android.sharing.InvitationsForumControllerImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -123,6 +127,22 @@ public class ActivityModule {
 			ForumControllerImpl forumController) {
 		activity.addLifecycleController(forumController);
 		return forumController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected InvitationsForumController provideInvitationsForumController(
+			InvitationsForumControllerImpl invitationsForumController) {
+		activity.addLifecycleController(invitationsForumController);
+		return invitationsForumController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected InvitationsBlogController provideInvitationsBlogController(
+			InvitationsBlogControllerImpl invitationsBlogController) {
+		activity.addLifecycleController(invitationsBlogController);
+		return invitationsBlogController;
 	}
 
 	@ActivityScope

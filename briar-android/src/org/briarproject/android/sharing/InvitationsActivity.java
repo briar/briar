@@ -2,38 +2,33 @@ package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
+import android.support.annotation.StringRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.sharing.InvitationsController.InvitationListener;
 import org.briarproject.android.view.BriarRecyclerView;
-import org.briarproject.api.event.ContactRemovedEvent;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.EventListener;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.sharing.InvitationItem;
 
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
 import static android.widget.Toast.LENGTH_SHORT;
-import static org.briarproject.android.sharing.InvitationAdapter.AvailableForumClickListener;
+import static org.briarproject.android.sharing.InvitationAdapter.InvitationClickListener;
 
-abstract class InvitationsActivity extends BriarActivity
-		implements EventListener, AvailableForumClickListener {
+public abstract class InvitationsActivity<I extends InvitationItem>
+		extends BriarActivity
+		implements InvitationListener, InvitationClickListener<I> {
 
 	protected static final Logger LOG =
 			Logger.getLogger(InvitationsActivity.class.getName());
 
-	protected InvitationAdapter adapter;
+	private InvitationAdapter<I, ?> adapter;
 	private BriarRecyclerView list;
-
-	@Inject
-	EventBus eventBus;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -42,7 +37,6 @@ abstract class InvitationsActivity extends BriarActivity
 		setContentView(R.layout.list);
 
 		adapter = getAdapter(this, this);
-
 		list = (BriarRecyclerView) findViewById(R.id.list);
 		if (list != null) {
 			list.setLayoutManager(new LinearLayoutManager(this));
@@ -50,32 +44,24 @@ abstract class InvitationsActivity extends BriarActivity
 		}
 	}
 
+	abstract protected InvitationAdapter<I, ?> getAdapter(Context ctx,
+			InvitationClickListener listener);
+
 	@Override
 	public void onStart() {
 		super.onStart();
-		eventBus.addListener(this);
 		loadInvitations(false);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		eventBus.removeListener(this);
 		adapter.clear();
 		list.showProgressBar();
 	}
 
 	@Override
-	@CallSuper
-	public void eventOccurred(Event e) {
-		if (e instanceof ContactRemovedEvent) {
-			LOG.info("Contact removed, reloading...");
-			loadInvitations(true);
-		}
-	}
-
-	@Override
-	public void onItemClick(InvitationItem item, boolean accept) {
+	public void onItemClick(I item, boolean accept) {
 		respondToInvitation(item, accept);
 
 		// show toast
@@ -91,26 +77,58 @@ abstract class InvitationsActivity extends BriarActivity
 		}
 	}
 
-	abstract protected InvitationAdapter getAdapter(Context ctx,
-			AvailableForumClickListener listener);
+	@Override
+	public void loadInvitations(final boolean clear) {
+		final int revision = adapter.getRevision();
+		getController().loadInvitations(clear,
+				new UiResultExceptionHandler<Collection<I>, DbException>(
+						this) {
+					@Override
+					public void onResultUi(Collection<I> items) {
+						displayInvitations(revision, items, clear);
+					}
 
-	abstract protected void loadInvitations(boolean clear);
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+						finish();
+					}
+				});
+	}
 
-	abstract protected void respondToInvitation(final InvitationItem item,
-			final boolean accept);
+	abstract protected InvitationsController<I> getController();
 
+	protected void respondToInvitation(final I item,
+			final boolean accept) {
+		getController().respondToInvitation(item, accept,
+				new UiResultExceptionHandler<Void, DbException>(this) {
+					@Override
+					public void onResultUi(Void result) {
+
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+						finish();
+					}
+				});
+	}
+
+	@StringRes
 	abstract protected int getAcceptRes();
 
+	@StringRes
 	abstract protected int getDeclineRes();
 
 	protected void displayInvitations(final int revision,
-			final Collection<InvitationItem> invitations, final boolean clear) {
+			final Collection<I> invitations, final boolean clear) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (invitations.isEmpty()) {
 					LOG.info("No more invitations available, finishing");
-					finish();
+					supportFinishAfterTransition();
 				} else if (revision == adapter.getRevision()) {
 					adapter.incrementRevision();
 					if (clear) adapter.setItems(invitations);
