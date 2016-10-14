@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class BriarIntegrationTest extends BriarTestCase {
 
-	// TODO maybe we could add uncaught exception handlers for other threads here (#670)
-
 	protected void assertGroupCount(MessageTracker tracker, GroupId g,
 			long msgCount, long unreadCount, long latestMsg)
 			throws DbException {
