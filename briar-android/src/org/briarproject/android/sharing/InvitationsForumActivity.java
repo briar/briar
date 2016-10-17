@@ -70,6 +70,7 @@ public class InvitationsForumActivity extends InvitationsActivity {
 
 	@Override
 	protected void loadInvitations(final boolean clear) {
+		final int revision = adapter.getRevision();
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -80,7 +81,7 @@ public class InvitationsForumActivity extends InvitationsActivity {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayInvitations(invitations, clear);
+					displayInvitations(revision, invitations, clear);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

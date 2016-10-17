@@ -190,6 +190,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void loadContacts() {
+		final int revision = adapter.getRevision();
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -216,7 +217,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
-					displayContacts(contacts);
+					displayContacts(revision, contacts);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -225,12 +226,19 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	private void displayContacts(final List<ContactListItem> contacts) {
+	private void displayContacts(final int revision,
+			final List<ContactListItem> contacts) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (contacts.isEmpty()) list.showData();
-				else adapter.addAll(contacts);
+				if (revision == adapter.getRevision()) {
+					adapter.incrementRevision();
+					if (contacts.isEmpty()) list.showData();
+					else adapter.addAll(contacts);
+				} else {
+					LOG.info("Concurrent update, reloading");
+					loadContacts();
+				}
 			}
 		});
 	}
@@ -288,6 +296,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {
@@ -302,6 +311,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) adapter.remove(item);
@@ -313,6 +323,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {

@@ -27,6 +27,7 @@ import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -41,6 +42,7 @@ public class FeedFragment extends BaseFragment implements
 		OnBlogPostClickListener, OnBlogPostAddedListener {
 
 	public final static String TAG = FeedFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
 	FeedController feedController;
@@ -129,14 +131,21 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	private void loadBlogPosts(final boolean clear) {
+		final int revision = adapter.getRevision();
 		feedController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
 						listener) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
-						if (clear) adapter.setItems(posts);
-						else adapter.addAll(posts);
-						if (posts.isEmpty()) list.showData();
+						if (revision == adapter.getRevision()) {
+							adapter.incrementRevision();
+							if (clear) adapter.setItems(posts);
+							else adapter.addAll(posts);
+							if (posts.isEmpty()) list.showData();
+						} else {
+							LOG.info("Concurrent update, reloading");
+							loadBlogPosts(clear);
+						}
 					}
 
 					@Override
@@ -193,6 +202,7 @@ public class FeedFragment extends BaseFragment implements
 						listener) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
+						adapter.incrementRevision();
 						adapter.add(post);
 						if (local) {
 							showSnackBar(R.string.blogs_blog_post_created);

@@ -150,6 +150,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void loadForums() {
+		final int revision = adapter.getRevision();
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -168,7 +169,7 @@ public class ForumListFragment extends BaseEventFragment implements
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
-					displayForums(forums);
+					displayForums(revision, forums);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -177,12 +178,19 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
-	private void displayForums(final Collection<ForumListItem> forums) {
+	private void displayForums(final int revision,
+			final Collection<ForumListItem> forums) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (forums.isEmpty()) list.showData();
-				else adapter.addAll(forums);
+				if (revision == adapter.getRevision()) {
+					adapter.incrementRevision();
+					if (forums.isEmpty()) list.showData();
+					else adapter.addAll(forums);
+				} else {
+					LOG.info("Concurrent update, reloading");
+					loadForums();
+				}
 			}
 		});
 	}
@@ -254,6 +262,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(g);
 				ForumListItem item = adapter.getItemAt(position);
 				if (item != null) {
@@ -268,6 +277,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(g);
 				ForumListItem item = adapter.getItemAt(position);
 				if (item != null) adapter.remove(item);

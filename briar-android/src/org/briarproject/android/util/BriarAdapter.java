@@ -2,6 +2,7 @@ package org.briarproject.android.util;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -15,6 +16,8 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 
 	protected final Context ctx;
 	protected final SortedList<T> items;
+
+	private volatile int revision = 0;
 
 	public BriarAdapter(Context ctx, Class<T> c) {
 		this.ctx = ctx;
@@ -110,4 +113,26 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 		return items.size() == 0;
 	}
 
+	/**
+	 * Returns the adapter's revision counter. This method should be called on
+	 * any thread before starting an asynchronous load that could overwrite
+	 * other changes to the adapter, and called again on the UI thread before
+	 * applying the changes from the asynchronous load. If the revision has
+	 * changed between the two calls, the asynchronous load should be restarted
+	 * without applying its changes. Otherwise {@link #incrementRevision()}
+	 * should be called before applying the changes.
+	 */
+	public int getRevision() {
+		return revision;
+	}
+
+	/**
+	 * Increments the adapter's revision counter. This method should be called
+	 * on the UI thread before applying any changes to the adapter that could
+	 * be overwritten by an asynchronous load.
+	 */
+	@UiThread
+	public void incrementRevision() {
+		revision++;
+	}
 }

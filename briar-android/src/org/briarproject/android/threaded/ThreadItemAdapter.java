@@ -24,13 +24,15 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 
 	private final NestedTreeList<I> items = new NestedTreeList<>();
 	private final Map<I, ValueAnimator> animatingItems = new HashMap<>();
+	private final ThreadItemListener<I> listener;
+	private final LinearLayoutManager layoutManager;
+
 	// highlight not dependant on time
 	private I replyItem;
 	// temporary highlight
 	private I addedItem;
 
-	private final ThreadItemListener<I> listener;
-	private final LinearLayoutManager layoutManager;
+	private volatile int revision = 0;
 
 	public ThreadItemAdapter(ThreadItemListener<I> listener,
 			LinearLayoutManager layoutManager) {
@@ -288,6 +290,29 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 
 	void removeAnimatingItem(I item) {
 		animatingItems.remove(item);
+	}
+
+	/**
+	 * Returns the adapter's revision counter. This method should be called on
+	 * any thread before starting an asynchronous load that could overwrite
+	 * other changes to the adapter, and called again on the UI thread before
+	 * applying the changes from the asynchronous load. If the revision has
+	 * changed between the two calls, the asynchronous load should be restarted
+	 * without applying its changes. Otherwise {@link #incrementRevision()}
+	 * should be called before applying the changes.
+	 */
+	public int getRevision() {
+		return revision;
+	}
+
+	/**
+	 * Increments the adapter's revision counter. This method should be called
+	 * on the UI thread before applying any changes to the adapter that could
+	 * be overwritten by an asynchronous load.
+	 */
+	@UiThread
+	public void incrementRevision() {
+		revision++;
 	}
 
 	protected interface ThreadItemListener<I> {

@@ -147,7 +147,7 @@ public class ForumActivity extends
 	private void showUnsubscribeDialog() {
 		OnClickListener okListener = new OnClickListener() {
 			@Override
-			public void onClick(final DialogInterface dialog, int which) {
+			public void onClick(DialogInterface dialog, int which) {
 				deleteNamedGroup();
 			}
 		};
@@ -162,8 +162,7 @@ public class ForumActivity extends
 
 	private void deleteNamedGroup() {
 		forumController.deleteNamedGroup(
-				new UiResultExceptionHandler<Void, DbException>(
-						ForumActivity.this) {
+				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
 					public void onResultUi(Void v) {
 						Toast.makeText(ForumActivity.this,

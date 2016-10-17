@@ -23,6 +23,7 @@ import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -30,6 +31,7 @@ public class GroupListFragment extends BaseFragment implements
 		GroupListListener, OnGroupRemoveClickListener {
 
 	public final static String TAG = GroupListFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	public static GroupListFragment newInstance() {
 		return new GroupListFragment();
@@ -120,6 +122,7 @@ public class GroupListFragment extends BaseFragment implements
 	@UiThread
 	@Override
 	public void onGroupMessageAdded(GroupMessageHeader header) {
+		adapter.incrementRevision();
 		int position = adapter.findItemPosition(header.getGroupId());
 		GroupItem item = adapter.getItemAt(position);
 		if (item != null) {
@@ -137,6 +140,7 @@ public class GroupListFragment extends BaseFragment implements
 	@UiThread
 	@Override
 	public void onGroupRemoved(GroupId groupId) {
+		adapter.incrementRevision();
 		adapter.removeItem(groupId);
 	}
 
@@ -146,13 +150,20 @@ public class GroupListFragment extends BaseFragment implements
 	}
 
 	private void loadGroups() {
+		final int revision = adapter.getRevision();
 		controller.loadGroups(
 				new UiResultExceptionHandler<Collection<GroupItem>, DbException>(
 						listener) {
 					@Override
 					public void onResultUi(Collection<GroupItem> groups) {
-						if (groups.isEmpty()) list.showData();
-						else adapter.addAll(groups);
+						if (revision == adapter.getRevision()) {
+							adapter.incrementRevision();
+							if (groups.isEmpty()) list.showData();
+							else adapter.addAll(groups);
+						} else {
+							LOG.info("Concurrent update, reloading");
+							loadGroups();
+						}
 					}
 
 					@Override

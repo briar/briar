@@ -29,7 +29,7 @@ abstract class InvitationsActivity extends BriarActivity
 	protected static final Logger LOG =
 			Logger.getLogger(InvitationsActivity.class.getName());
 
-	private InvitationAdapter adapter;
+	protected InvitationAdapter adapter;
 	private BriarRecyclerView list;
 
 	@Inject
@@ -84,6 +84,7 @@ abstract class InvitationsActivity extends BriarActivity
 		Toast.makeText(this, res, LENGTH_SHORT).show();
 
 		// remove item and finish if it was the last
+		adapter.incrementRevision();
 		adapter.remove(item);
 		if (adapter.getItemCount() == 0) {
 			supportFinishAfterTransition();
@@ -102,7 +103,7 @@ abstract class InvitationsActivity extends BriarActivity
 
 	abstract protected int getDeclineRes();
 
-	protected void displayInvitations(
+	protected void displayInvitations(final int revision,
 			final Collection<InvitationItem> invitations, final boolean clear) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
@@ -110,9 +111,13 @@ abstract class InvitationsActivity extends BriarActivity
 				if (invitations.isEmpty()) {
 					LOG.info("No more invitations available, finishing");
 					finish();
-				} else {
+				} else if (revision == adapter.getRevision()) {
+					adapter.incrementRevision();
 					if (clear) adapter.setItems(invitations);
 					else adapter.addAll(invitations);
+				} else {
+					LOG.info("Concurrent update, reloading");
+					loadInvitations(clear);
 				}
 			}
 		});
