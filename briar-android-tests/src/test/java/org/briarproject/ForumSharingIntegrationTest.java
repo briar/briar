@@ -939,7 +939,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 						(ForumInvitationReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1, event.getContactId());
 				requestReceived = true;
-				Forum f = event.getForum();
+				Forum f = event.getShareable();
 				try {
 					Contact c = contactManager0.getContact(contactId1);
 					forumSharingManager0.respondToInvitation(f, c, true);
@@ -982,7 +982,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 						(ForumInvitationReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
-				Forum f = event.getForum();
+				Forum f = event.getShareable();
 				try {
 					eventWaiter.assertEquals(1,
 							forumSharingManager1.getInvitations().size());

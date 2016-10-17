@@ -5,18 +5,11 @@ import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumInvitationRequest;
 
 public class ForumInvitationReceivedEvent extends
-		InvitationRequestReceivedEvent {
-
-	private final Forum forum;
+		InvitationRequestReceivedEvent<Forum> {
 
 	public ForumInvitationReceivedEvent(Forum forum, ContactId contactId,
 			ForumInvitationRequest request) {
-		super(contactId, request);
-		this.forum = forum;
-	}
-
-	public Forum getForum() {
-		return forum;
+		super(forum, contactId, request);
 	}
 
 }
