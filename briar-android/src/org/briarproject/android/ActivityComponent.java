@@ -33,6 +33,7 @@ import org.briarproject.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupMessageFragment;
 import org.briarproject.android.privategroup.list.GroupListFragment;
+import org.briarproject.android.privategroup.invitation.InvitationsGroupActivity;
 import org.briarproject.android.sharing.ContactSelectorFragment;
 import org.briarproject.android.sharing.InvitationsBlogActivity;
 import org.briarproject.android.sharing.InvitationsForumActivity;
@@ -77,8 +78,8 @@ public interface ActivityComponent {
 	void inject(InvitationsBlogActivity activity);
 
 	void inject(CreateGroupActivity activity);
-
 	void inject(GroupActivity activity);
+	void inject(InvitationsGroupActivity activity);
 
 	void inject(CreateForumActivity activity);
 

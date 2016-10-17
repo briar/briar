@@ -30,6 +30,9 @@ public interface GroupListController extends DbController {
 	void removeGroup(GroupId g,
 			ResultExceptionHandler<Void, DbException> result);
 
+	void loadAvailableGroups(
+			ResultExceptionHandler<Integer, DbException> result);
+
 	interface GroupListListener extends DestroyableContext {
 
 		@UiThread

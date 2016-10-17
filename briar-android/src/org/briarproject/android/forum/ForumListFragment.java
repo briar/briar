@@ -220,10 +220,10 @@ public class ForumListFragment extends BaseEventFragment implements
 				if (availableCount == 0) {
 					snackbar.dismiss();
 				} else {
-					snackbar.show();
 					snackbar.setText(getResources().getQuantityString(
 							R.plurals.forums_shared, availableCount,
 							availableCount));
+					if (!snackbar.isShownOrQueued()) snackbar.show();
 				}
 			}
 		});

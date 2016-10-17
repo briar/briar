@@ -168,6 +168,15 @@
 	<string name="groups_leave">Leave Group</string>
 	<string name="groups_dissolve">Dissolve Group</string>
 
+	<!-- Private Group Invitations -->
+	<string name="groups_invitations_title">Group Invitations</string>
+	<string name="groups_invitations_joined">Joined Group</string>
+	<string name="groups_invitations_declined">Group Invitation Declined</string>
+	<plurals name="groups_invitations_open">
+		<item quantity="one">%d open group invitation</item>
+		<item quantity="other">%d open group invitations</item>
+	</plurals>
+
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
 	<string name="create_forum_title">New Forum</string>

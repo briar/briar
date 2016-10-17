@@ -123,6 +123,16 @@
 		</activity>
 
 		<activity
+			android:name=".android.privategroup.invitation.InvitationsGroupActivity"
+			android:label="@string/groups_invitations_title"
+			android:parentActivityName=".android.NavDrawerActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.NavDrawerActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name=".android.sharing.InvitationsForumActivity"
 			android:label="@string/forum_invitations_title"
 			android:parentActivityName=".android.NavDrawerActivity">
