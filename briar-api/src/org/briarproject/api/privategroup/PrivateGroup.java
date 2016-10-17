@@ -3,6 +3,7 @@ package org.briarproject.api.privategroup;
 import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.nullsafety.NotNullByDefault;
+import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sync.Group;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class PrivateGroup extends NamedGroup {
+public class PrivateGroup extends NamedGroup implements Shareable {
 
 	private final Author author;
 

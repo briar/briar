@@ -38,7 +38,7 @@ public interface SharingManager<S extends Shareable> extends MessageTracker {
 	/**
 	 * Returns all invitations to groups.
 	 */
-	Collection<InvitationItem> getInvitations() throws DbException;
+	Collection<SharingInvitationItem> getInvitations() throws DbException;
 
 	/**
 	 * Returns all contacts who are sharing the given group with us.

@@ -25,7 +25,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.sharing.InvitationItem;
+import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sharing.SharingManager;
@@ -418,8 +418,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	@Override
-	public Collection<InvitationItem> getInvitations() throws DbException {
-		List<InvitationItem> invitations = new ArrayList<InvitationItem>();
+	public Collection<SharingInvitationItem> getInvitations() throws DbException {
+		List<SharingInvitationItem> invitations = new ArrayList<SharingInvitationItem>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			Set<S> shareables = new HashSet<S>();
@@ -445,8 +445,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			for (S s : shareables) {
 				Collection<Contact> newS = newSharers.get(s.getId());
 				boolean subscribed = db.containsGroup(txn, s.getId());
-				InvitationItem invitation =
-						new InvitationItem(s, subscribed, newS);
+				SharingInvitationItem invitation =
+						new SharingInvitationItem(s, subscribed, newS);
 				invitations.add(invitation);
 			}
 			txn.setComplete();

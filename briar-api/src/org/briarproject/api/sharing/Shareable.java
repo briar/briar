@@ -8,4 +8,7 @@ public interface Shareable {
 	GroupId getId();
 
 	Group getGroup();
+
+	String getName();
+
 }

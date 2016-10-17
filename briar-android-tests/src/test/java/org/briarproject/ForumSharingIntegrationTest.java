@@ -34,7 +34,7 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.sharing.InvitationItem;
+import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.SyncSession;
@@ -762,7 +762,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 					"Sharer2 to Invitee");
 
 			// make sure we now have two invitations to the same forum available
-			Collection<InvitationItem> forums =
+			Collection<SharingInvitationItem> forums =
 					forumSharingManager1.getInvitations();
 			assertEquals(1, forums.size());
 			assertEquals(2, forums.iterator().next().getNewSharers().size());
@@ -986,7 +986,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 				try {
 					eventWaiter.assertEquals(1,
 							forumSharingManager1.getInvitations().size());
-					InvitationItem invitation =
+					SharingInvitationItem invitation =
 							forumSharingManager1.getInvitations().iterator()
 									.next();
 					eventWaiter.assertEquals(f, invitation.getShareable());
