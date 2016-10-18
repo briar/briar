@@ -21,10 +21,11 @@ import org.briarproject.android.threaded.ThreadListController.ThreadListListener
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
-import org.briarproject.api.clients.BaseGroup;
+import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +35,7 @@ import static android.support.design.widget.Snackbar.make;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadItem, H extends PostHeader, A extends ThreadItemAdapter<I>>
+public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, A extends ThreadItemAdapter<I>>
 		extends BriarActivity
 		implements ThreadListListener<H>, TextInputListener,
 		ThreadItemListener<I> {
@@ -46,7 +47,7 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 	protected BriarRecyclerView list;
 	protected TextInputView textInput;
 	protected GroupId groupId;
-	private byte[] replyId;
+	private MessageId replyId;
 
 	protected abstract ThreadListController<G, I, H> getController();
 
@@ -63,8 +64,6 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 		if (b == null) throw new IllegalStateException("No GroupId in intent.");
 		groupId = new GroupId(b);
 		getController().setGroupId(groupId);
-		String groupName = i.getStringExtra(GROUP_NAME);
-		setActionBarTitle(groupName);
 
 		textInput = (TextInputView) findViewById(R.id.text_input_container);
 		textInput.setVisibility(GONE);
@@ -76,27 +75,23 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 		list.setAdapter(adapter);
 
 		if (state != null) {
-			replyId = state.getByteArray(KEY_REPLY_ID);
+			replyId = new MessageId(state.getByteArray(KEY_REPLY_ID));
 		}
 
 		loadItems();
 	}
 
-	protected abstract @LayoutRes int getLayout();
+	@LayoutRes
+	protected abstract int getLayout();
 
 	protected abstract A createAdapter(LinearLayoutManager layoutManager);
 
-	protected void setActionBarTitle(@Nullable String title) {
-		if (title != null) setTitle(title);
-		else loadGroupItem();
-	}
-
-	protected void loadGroupItem() {
-		getController().loadGroupItem(
+	protected void loadNamedGroup() {
+		getController().loadNamedGroup(
 				new UiResultExceptionHandler<G, DbException>(this) {
 					@Override
 					public void onResultUi(G groupItem) {
-						onGroupItemLoaded(groupItem);
+						onNamedGroupLoaded(groupItem);
 					}
 
 					@Override
@@ -107,11 +102,8 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 				});
 	}
 
-	@CallSuper
 	@UiThread
-	protected void onGroupItemLoaded(G groupItem) {
-		setTitle(groupItem.getName());
-	}
+	protected abstract void onNamedGroupLoaded(G groupItem);
 
 	private void loadItems() {
 		getController().loadItems(
@@ -208,7 +200,7 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 		showTextInput(item);
 	}
 
-	protected void displaySnackbarShort(int stringId) {
+	protected void displaySnackbarShort(@StringRes int stringId) {
 		Snackbar snackbar = make(list, stringId, Snackbar.LENGTH_SHORT);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.show();
@@ -233,6 +225,10 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 	public void onSendClick(String text) {
 		if (text.trim().length() == 0)
 			return;
+		if (text.length() > getMaxBodyLength()) {
+			displaySnackbarShort(R.string.text_too_long);
+			return;
+		}
 		I replyItem = adapter.getReplyItem();
 		UiResultExceptionHandler<I, DbException> handler =
 				new UiResultExceptionHandler<I, DbException>(this) {
@@ -257,6 +253,8 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 		textInput.setVisibility(GONE);
 		adapter.setReplyItem(null);
 	}
+
+	protected abstract int getMaxBodyLength();
 
 	@Override
 	public void onHeaderReceived(H header) {
@@ -302,8 +300,10 @@ public abstract class ThreadListActivity<G extends BaseGroup, I extends ThreadIt
 		}
 	}
 
-	protected abstract @StringRes int getItemPostedString();
+	@StringRes
+	protected abstract int getItemPostedString();
 
-	protected abstract @StringRes int getItemReceivedString();
+	@StringRes
+	protected abstract int getItemReceivedString();
 
 }

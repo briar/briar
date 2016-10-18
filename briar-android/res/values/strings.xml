@@ -75,6 +75,7 @@
 	<string name="send">Send</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
+	<string name="text_too_long">The entered text is too long</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>

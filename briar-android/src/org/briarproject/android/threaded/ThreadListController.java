@@ -6,21 +6,20 @@ import android.support.annotation.UiThread;
 import org.briarproject.android.DestroyableContext;
 import org.briarproject.android.controller.ActivityLifecycleController;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.api.clients.BaseGroup;
+import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface ThreadListController<G extends BaseGroup, I extends ThreadItem, H extends PostHeader>
+public interface ThreadListController<G extends NamedGroup, I extends ThreadItem, H extends PostHeader>
 		extends ActivityLifecycleController {
 
 	void setGroupId(GroupId groupId);
 
-	void loadGroupItem(ResultExceptionHandler<G, DbException> handler);
+	void loadNamedGroup(ResultExceptionHandler<G, DbException> handler);
 
 	void loadItem(H header, ResultExceptionHandler<I, DbException> handler);
 
@@ -35,7 +34,7 @@ public interface ThreadListController<G extends BaseGroup, I extends ThreadItem,
 	void send(String body, @Nullable MessageId parentId,
 			ResultExceptionHandler<I, DbException> handler);
 
-	void deleteGroupItem(ResultExceptionHandler<Void, DbException> handler);
+	void deleteNamedGroup(ResultExceptionHandler<Void, DbException> handler);
 
 	interface ThreadListListener<H> extends DestroyableContext {
 		@UiThread

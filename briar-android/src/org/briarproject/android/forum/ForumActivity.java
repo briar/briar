@@ -2,7 +2,9 @@ package org.briarproject.android.forum;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
@@ -29,6 +31,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
+import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 
 public class ForumActivity extends
 		ThreadListActivity<Forum, ForumEntry, ForumPostHeader, NestedForumAdapter> {
@@ -36,7 +39,7 @@ public class ForumActivity extends
 	private static final int REQUEST_FORUM_SHARED = 3;
 
 	@Inject
-	protected ForumController forumController;
+	ForumController forumController;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -49,7 +52,23 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected @LayoutRes int getLayout() {
+	public void onCreate(Bundle state) {
+		super.onCreate(state);
+
+		Intent i = getIntent();
+		String groupName = i.getStringExtra(GROUP_NAME);
+		if (groupName != null) setTitle(groupName);
+		else loadNamedGroup();
+	}
+
+	@Override
+	protected void onNamedGroupLoaded(Forum forum) {
+		setTitle(forum.getName());
+	}
+
+	@Override
+	@LayoutRes
+	protected int getLayout() {
 		return R.layout.activity_forum;
 	}
 
@@ -110,11 +129,18 @@ public class ForumActivity extends
 	}
 
 	@Override
+	protected int getMaxBodyLength() {
+		return MAX_FORUM_POST_BODY_LENGTH;
+	}
+
+	@Override
+	@StringRes
 	protected int getItemPostedString() {
 		return R.string.forum_new_entry_posted;
 	}
 
 	@Override
+	@StringRes
 	protected int getItemReceivedString() {
 		return R.string.forum_new_entry_received;
 	}
@@ -125,24 +151,7 @@ public class ForumActivity extends
 					@Override
 					public void onClick(final DialogInterface dialog,
 							int which) {
-						forumController.deleteGroupItem(
-								new UiResultExceptionHandler<Void, DbException>(
-										ForumActivity.this) {
-									@Override
-									public void onResultUi(Void v) {
-										Toast.makeText(ForumActivity.this,
-												R.string.forum_left_toast,
-												LENGTH_SHORT)
-												.show();
-									}
-
-									@Override
-									public void onExceptionUi(
-											DbException exception) {
-										// TODO proper error handling
-										dialog.dismiss();
-									}
-								});
+						deleteNamedGroup();
 					}
 				};
 		AlertDialog.Builder builder =
@@ -153,6 +162,27 @@ public class ForumActivity extends
 		builder.setNegativeButton(R.string.dialog_button_leave, okListener);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
+	}
+
+	private void deleteNamedGroup() {
+		forumController.deleteNamedGroup(
+				new UiResultExceptionHandler<Void, DbException>(
+						ForumActivity.this) {
+					@Override
+					public void onResultUi(Void v) {
+						Toast.makeText(ForumActivity.this,
+								R.string.forum_left_toast,
+								LENGTH_SHORT)
+								.show();
+					}
+
+					@Override
+					public void onExceptionUi(
+							DbException exception) {
+						// TODO proper error handling
+						finish();
+					}
+				});
 	}
 
 }

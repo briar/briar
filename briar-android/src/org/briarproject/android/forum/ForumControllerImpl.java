@@ -15,11 +15,12 @@ import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
 import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -48,7 +49,7 @@ public class ForumControllerImpl
 	@Override
 	public void onActivityResume() {
 		super.onActivityResume();
-		notificationManager.clearForumPostNotification(groupId);
+		notificationManager.clearForumPostNotification(getGroupId());
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class ForumControllerImpl
 
 		if (e instanceof ForumPostReceivedEvent) {
 			final ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
-			if (pe.getGroupId().equals(groupId)) {
+			if (pe.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum post received, adding...");
 				final ForumPostHeader fph = pe.getForumPostHeader();
 				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
@@ -72,35 +73,38 @@ public class ForumControllerImpl
 
 	@Override
 	protected Forum loadGroupItem() throws DbException {
-		return forumManager.getForum(groupId);
+		return forumManager.getForum(getGroupId());
 	}
 
 	@Override
 	protected Collection<ForumPostHeader> loadHeaders() throws DbException {
-		return forumManager.getPostHeaders(groupId);
+		return forumManager.getPostHeaders(getGroupId());
 	}
 
 	@Override
-	protected void loadBodies(Collection<ForumPostHeader> headers)
+	protected Map<MessageId, String> loadBodies(
+			Collection<ForumPostHeader> headers)
 			throws DbException {
+		Map<MessageId, String> bodies = new HashMap<>();
 		for (ForumPostHeader header : headers) {
 			if (!bodyCache.containsKey(header.getId())) {
 				String body = StringUtils
 						.fromUtf8(forumManager.getPostBody(header.getId()));
-				bodyCache.put(header.getId(), body);
+				bodies.put(header.getId(), body);
 			}
 		}
+		return bodies;
 	}
 
 	@Override
 	protected void markRead(MessageId id) throws DbException {
-		forumManager.setReadFlag(groupId, id, true);
+		forumManager.setReadFlag(getGroupId(), id, true);
 	}
 
 	@Override
-	protected ForumPost createLocalMessage(GroupId g, String body,
+	protected ForumPost createLocalMessage(String body,
 			@Nullable MessageId parentId) throws DbException {
-		return forumManager.createLocalPost(groupId, body, parentId);
+		return forumManager.createLocalPost(getGroupId(), body, parentId);
 	}
 
 	@Override
@@ -115,8 +119,8 @@ public class ForumControllerImpl
 	}
 
 	@Override
-	protected ForumEntry buildItem(ForumPostHeader header) {
-		return new ForumEntry(header, bodyCache.get(header.getId()));
+	protected ForumEntry buildItem(ForumPostHeader header, String body) {
+		return new ForumEntry(header, body);
 	}
 
 }

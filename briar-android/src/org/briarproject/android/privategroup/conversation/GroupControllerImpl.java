@@ -15,10 +15,11 @@ import org.briarproject.api.privategroup.GroupMessage;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -47,7 +48,7 @@ public class GroupControllerImpl
 	@Override
 	public void onActivityResume() {
 		super.onActivityResume();
-		notificationManager.clearForumPostNotification(groupId);
+		notificationManager.clearForumPostNotification(getGroupId());
 	}
 
 	@Override
@@ -55,14 +56,14 @@ public class GroupControllerImpl
 		super.eventOccurred(e);
 
 		if (e instanceof GroupMessageAddedEvent) {
-			final GroupMessageAddedEvent pe = (GroupMessageAddedEvent) e;
-			if (!pe.isLocal() && pe.getGroupId().equals(groupId)) {
+			final GroupMessageAddedEvent gmae = (GroupMessageAddedEvent) e;
+			if (!gmae.isLocal() && gmae.getGroupId().equals(getGroupId())) {
 				LOG.info("Group message received, adding...");
-				final GroupMessageHeader fph = pe.getHeader();
+				final GroupMessageHeader h = gmae.getHeader();
 				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 					@Override
 					public void run() {
-						listener.onHeaderReceived(fph);
+						listener.onHeaderReceived(h);
 					}
 				});
 			}
@@ -71,35 +72,39 @@ public class GroupControllerImpl
 
 	@Override
 	protected PrivateGroup loadGroupItem() throws DbException {
-		return privateGroupManager.getPrivateGroup(groupId);
+		return privateGroupManager.getPrivateGroup(getGroupId());
 	}
 
 	@Override
 	protected Collection<GroupMessageHeader> loadHeaders() throws DbException {
-		return privateGroupManager.getHeaders(groupId);
+		return privateGroupManager.getHeaders(getGroupId());
 	}
 
 	@Override
-	protected void loadBodies(Collection<GroupMessageHeader> headers)
+	protected Map<MessageId, String> loadBodies(
+			Collection<GroupMessageHeader> headers)
 			throws DbException {
+		Map<MessageId, String> bodies = new HashMap<>();
 		for (GroupMessageHeader header : headers) {
 			if (!bodyCache.containsKey(header.getId())) {
 				String body =
 						privateGroupManager.getMessageBody(header.getId());
-				bodyCache.put(header.getId(), body);
+				bodies.put(header.getId(), body);
 			}
 		}
+		return bodies;
 	}
 
 	@Override
 	protected void markRead(MessageId id) throws DbException {
-		privateGroupManager.setReadFlag(groupId, id, true);
+		privateGroupManager.setReadFlag(getGroupId(), id, true);
 	}
 
 	@Override
-	protected GroupMessage createLocalMessage(GroupId g, String body,
+	protected GroupMessage createLocalMessage(String body,
 			@Nullable MessageId parentId) throws DbException {
-		return privateGroupManager.createLocalMessage(groupId, body, parentId);
+		return privateGroupManager
+				.createLocalMessage(getGroupId(), body, parentId);
 	}
 
 	@Override
@@ -114,8 +119,9 @@ public class GroupControllerImpl
 	}
 
 	@Override
-	protected GroupMessageItem buildItem(GroupMessageHeader header) {
-		return new GroupMessageItem(header, bodyCache.get(header.getId()));
+	protected GroupMessageItem buildItem(GroupMessageHeader header,
+			String body) {
+		return new GroupMessageItem(header, body);
 	}
 
 }

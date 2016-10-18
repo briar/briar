@@ -41,7 +41,7 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 
 	@Override
 	public void onBindViewHolder(ThreadItemViewHolder<I> ui, int position) {
-		final I item = getVisibleItem(position);
+		I item = getVisibleItem(position);
 		if (item == null) return;
 		listener.onItemVisible(item);
 		ui.bind(this, listener, item, position);
@@ -151,10 +151,9 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		}
 	}
 
-	public void setReplyItemById(byte[] id) {
-		MessageId messageId = new MessageId(id);
+	public void setReplyItemById(MessageId id) {
 		for (I item : items) {
-			if (item.getId().equals(messageId)) {
+			if (item.getId().equals(id)) {
 				setReplyItem(item);
 				break;
 			}

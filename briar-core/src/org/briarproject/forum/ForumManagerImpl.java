@@ -154,7 +154,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		} catch (FormatException e) {
-			throw new DbException(e);
+			throw new RuntimeException(e);
 		}
 		return p;
 	}

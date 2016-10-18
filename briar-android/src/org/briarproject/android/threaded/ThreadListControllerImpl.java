@@ -7,8 +7,8 @@ import android.support.annotation.Nullable;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.api.clients.BaseGroup;
 import org.briarproject.api.clients.BaseMessage;
+import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends ThreadItem, H extends PostHeader, M extends BaseMessage>
+public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends BaseMessage>
 		extends DbControllerImpl
 		implements ThreadListController<G, I, H>, EventListener {
 
@@ -47,7 +47,7 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 	protected final Map<MessageId, String> bodyCache =
 			new ConcurrentHashMap<>();
 
-	protected volatile GroupId groupId;
+	private volatile GroupId groupId;
 
 	protected ThreadListListener<H> listener;
 
@@ -110,7 +110,7 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 	}
 
 	@Override
-	public void loadGroupItem(
+	public void loadNamedGroup(
 			final ResultExceptionHandler<G, DbException> handler) {
 		checkGroupId();
 		runOnDbThread(new Runnable() {
@@ -121,7 +121,8 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 					G groupItem = loadGroupItem();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info("Loading forum took " + duration + " ms");
+						LOG.info(
+								"Loading named group took " + duration + " ms");
 					handler.onResult(groupItem);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -132,11 +133,7 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 		});
 	}
 
-	/**
-	 * This should only be run from the DbThread.
-	 *
-	 * @throws DbException
-	 */
+	@DatabaseExecutor
 	protected abstract G loadGroupItem() throws DbException;
 
 	@Override
@@ -157,7 +154,8 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 
 					// Load bodies
 					now = System.currentTimeMillis();
-					loadBodies(headers);
+					Map<MessageId, String> bodies = loadBodies(headers);
+					bodyCache.putAll(bodies);
 					duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading bodies took " + duration + " ms");
@@ -173,19 +171,11 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 		});
 	}
 
-	/**
-	 * This should only be run from the DbThread.
-	 *
-	 * @throws DbException
-	 */
+	@DatabaseExecutor
 	protected abstract Collection<H> loadHeaders() throws DbException;
 
-	/**
-	 * This should only be run from the DbThread.
-	 *
-	 * @throws DbException
-	 */
-	protected abstract void loadBodies(Collection<H> headers)
+	@DatabaseExecutor
+	protected abstract Map<MessageId, String> loadBodies(Collection<H> headers)
 			throws DbException;
 
 	@Override
@@ -196,8 +186,10 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 			public void run() {
 				LOG.info("Loading item...");
 				try {
-					loadBodies(Collections.singletonList(header));
-					I item = buildItem(header);
+					String body = loadBodies(Collections.singletonList(header))
+							.get(header.getId());
+					bodyCache.put(header.getId(), body);
+					I item = buildItem(header, body);
 					handler.onResult(item);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -234,11 +226,7 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 		});
 	}
 
-	/**
-	 * This should only be run from the DbThread.
-	 *
-	 * @throws DbException
-	 */
+	@DatabaseExecutor
 	protected abstract void markRead(MessageId id) throws DbException;
 
 	@Override
@@ -255,9 +243,8 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 			public void run() {
 				LOG.info("Creating message...");
 				try {
-					M msg = createLocalMessage(groupId, body, parentId);
-					bodyCache.put(msg.getMessage().getId(), body);
-					storePost(msg, handler);
+					M msg = createLocalMessage(body, parentId);
+					storePost(msg, body, handler);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -267,15 +254,11 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 		});
 	}
 
-	/**
-	 * This should only be run from the DbThread.
-	 *
-	 * @throws DbException
-	 */
-	protected abstract M createLocalMessage(GroupId g, String body,
+	@DatabaseExecutor
+	protected abstract M createLocalMessage(String body,
 			@Nullable MessageId parentId) throws DbException;
 
-	private void storePost(final M p,
+	private void storePost(final M msg, final String body,
 			final ResultExceptionHandler<I, DbException> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override
@@ -283,11 +266,12 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 				try {
 					LOG.info("Store message...");
 					long now = System.currentTimeMillis();
-					H h = addLocalMessage(p);
+					H header = addLocalMessage(msg);
+					bodyCache.put(msg.getMessage().getId(), body);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
-					resultHandler.onResult(buildItem(h));
+					resultHandler.onResult(buildItem(header, body));
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -297,15 +281,11 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 		});
 	}
 
-	/**
-	 * This should only be run from the DbThread.
-	 *
-	 * @throws DbException
-	 */
+	@DatabaseExecutor
 	protected abstract H addLocalMessage(M message) throws DbException;
 
 	@Override
-	public void deleteGroupItem(
+	public void deleteNamedGroup(
 			final ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
@@ -328,17 +308,13 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 		});
 	}
 
-	/**
-	 * This should only be run from the DbThread.
-	 *
-	 * @throws DbException
-	 */
+	@DatabaseExecutor
 	protected abstract void deleteGroupItem(G groupItem) throws DbException;
 
 	private List<I> buildItems(Collection<H> headers) {
 		List<I> entries = new ArrayList<>();
 		for (H h : headers) {
-			entries.add(buildItem(h));
+			entries.add(buildItem(h, bodyCache.get(h.getId())));
 		}
 		return entries;
 	}
@@ -346,7 +322,12 @@ public abstract class ThreadListControllerImpl<G extends BaseGroup, I extends Th
 	/**
 	 * When building the item, the body can be assumed to be cached
 	 */
-	protected abstract I buildItem(H header);
+	protected abstract I buildItem(H header, String body);
+
+	protected GroupId getGroupId() {
+		checkGroupId();
+		return groupId;
+	}
 
 	private void checkGroupId() {
 		if (groupId == null) {
