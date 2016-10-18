@@ -3,9 +3,10 @@ package org.briarproject.api.sharing;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 
+import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-@ThreadSafe
+@Immutable
 @NotNullByDefault
 public abstract class InvitationItem {
 

@@ -8,9 +8,10 @@ import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
+import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-@ThreadSafe
+@Immutable
 @NotNullByDefault
 public class GroupInvitationRequest extends InvitationRequest {
 

@@ -67,6 +67,7 @@ import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
+import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.sharing.InvitationMessage;
@@ -146,6 +147,8 @@ public class ConversationActivity extends BriarActivity
 	volatile ForumSharingManager forumSharingManager;
 	@Inject
 	volatile BlogSharingManager blogSharingManager;
+	@Inject
+	volatile GroupInvitationManager groupInvitationManager;
 
 	private volatile GroupId groupId = null;
 	private volatile ContactId contactId = null;
@@ -351,10 +354,14 @@ public class ConversationActivity extends BriarActivity
 					Collection<InvitationMessage> blogInvitations =
 							blogSharingManager
 									.getInvitationMessages(contactId);
+					Collection<InvitationMessage> groupInvitations =
+							groupInvitationManager
+									.getInvitationMessages(contactId);
 					List<InvitationMessage> invitations = new ArrayList<>(
 							forumInvitations.size() + blogInvitations.size());
 					invitations.addAll(forumInvitations);
 					invitations.addAll(blogInvitations);
+					invitations.addAll(groupInvitations);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading messages took " + duration + " ms");
@@ -398,44 +405,46 @@ public class ConversationActivity extends BriarActivity
 			Collection<PrivateMessageHeader> headers,
 			Collection<IntroductionMessage> introductions,
 			Collection<InvitationMessage> invitations) {
-		int size = headers.size() + introductions.size() + invitations.size();
+		int size =
+				headers.size() + introductions.size() + invitations.size();
 		List<ConversationItem> items = new ArrayList<>(size);
-
-			for (PrivateMessageHeader h : headers) {
-				ConversationItem item = ConversationItem.from(h);
-				String body = bodyCache.get(h.getId());
-				if (body == null) loadMessageBody(h.getId());
-				else ((PartialItem) item).setText(body);
-				items.add(item);
+		for (PrivateMessageHeader h : headers) {
+			ConversationItem item = ConversationItem.from(h);
+			String body = bodyCache.get(h.getId());
+			if (body == null) loadMessageBody(h.getId());
+			else ((PartialItem) item).setText(body);
+			items.add(item);
+		}
+		for (IntroductionMessage m : introductions) {
+			ConversationItem item;
+			if (m instanceof IntroductionRequest) {
+				item = ConversationItem
+						.from(ConversationActivity.this,
+								contactName,
+								(IntroductionRequest) m);
+			} else {
+				item = ConversationItem
+						.from(ConversationActivity.this,
+								contactName,
+								(IntroductionResponse) m);
 			}
-			for (IntroductionMessage m : introductions) {
-				ConversationItem item;
-				if (m instanceof IntroductionRequest) {
-					item = ConversationItem
-							.from(ConversationActivity.this,
-									contactName,
-									(IntroductionRequest) m);
-				} else {
-					item = ConversationItem
-							.from(ConversationActivity.this,
-									contactName,
-									(IntroductionResponse) m);
-				}
-				items.add(item);
+			items.add(item);
+		}
+		for (InvitationMessage i : invitations) {
+			ConversationItem item;
+			if (i instanceof InvitationRequest) {
+				InvitationRequest r = (InvitationRequest) i;
+				item = ConversationItem
+						.from(ConversationActivity.this,
+								contactName, r);
+			} else {
+				InvitationResponse r = (InvitationResponse) i;
+				item = ConversationItem
+						.from(ConversationActivity.this,
+								contactName, r);
 			}
-			for (InvitationMessage i : invitations) {
-				if (i instanceof InvitationRequest) {
-					InvitationRequest r = (InvitationRequest) i;
-					items.add(ConversationItem
-							.from(ConversationActivity.this,
-									contactName, r));
-				} else if (i instanceof InvitationResponse) {
-					InvitationResponse r = (InvitationResponse) i;
-					items.add(ConversationItem
-							.from(ConversationActivity.this,
-									contactName, r));
-				}
-			}
+			items.add(item);
+		}
 		return items;
 	}
 
@@ -850,6 +859,9 @@ public class ConversationActivity extends BriarActivity
 						case BLOG:
 							respondToBlogRequest(item.getSessionId(), accept);
 							break;
+						case GROUP:
+							respondToGroupRequest(item.getSessionId(), accept);
+							break;
 						default:
 							throw new IllegalArgumentException(
 									"Unknown Request Type");
@@ -886,6 +898,13 @@ public class ConversationActivity extends BriarActivity
 	private void respondToBlogRequest(SessionId id, boolean accept)
 			throws DbException {
 		blogSharingManager.respondToInvitation(id, accept);
+		loadMessages();
+	}
+
+	@DatabaseExecutor
+	private void respondToGroupRequest(SessionId id, boolean accept)
+			throws DbException {
+		groupInvitationManager.respondToInvitation(id, accept);
 		loadMessages();
 	}
 

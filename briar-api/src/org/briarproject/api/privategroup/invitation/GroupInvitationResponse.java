@@ -9,9 +9,10 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-@ThreadSafe
+@Immutable
 @NotNullByDefault
 public class GroupInvitationResponse extends InvitationResponse {
 

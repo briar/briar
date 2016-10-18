@@ -12,7 +12,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotNullByDefault
 class ConversationRequestItem extends ConversationNoticeInItem {
 
-	enum RequestType { INTRODUCTION, FORUM, BLOG };
+	enum RequestType { INTRODUCTION, FORUM, BLOG, GROUP };
 	private final RequestType requestType;
 	private final SessionId sessionId;
 	private boolean answered;

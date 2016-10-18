@@ -6,12 +6,15 @@ import android.support.annotation.StringRes;
 import org.briarproject.R;
 import org.briarproject.android.contact.ConversationRequestItem.RequestType;
 import org.briarproject.api.blogs.BlogInvitationRequest;
+import org.briarproject.api.blogs.BlogInvitationResponse;
 import org.briarproject.api.forum.ForumInvitationRequest;
 import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.nullsafety.NotNullByDefault;
+import org.briarproject.api.privategroup.invitation.GroupInvitationRequest;
+import org.briarproject.api.privategroup.invitation.GroupInvitationResponse;
 import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sharing.InvitationResponse;
 import org.briarproject.api.sync.GroupId;
@@ -22,6 +25,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.android.contact.ConversationRequestItem.RequestType.BLOG;
 import static org.briarproject.android.contact.ConversationRequestItem.RequestType.FORUM;
+import static org.briarproject.android.contact.ConversationRequestItem.RequestType.GROUP;
 import static org.briarproject.android.contact.ConversationRequestItem.RequestType.INTRODUCTION;
 
 @NotThreadSafe
@@ -145,10 +149,17 @@ abstract class ConversationItem {
 				text = ctx.getString(R.string.forum_invitation_sent,
 						((ForumInvitationRequest) ir).getForumName(),
 						contactName);
-			} else {
+			} else if (ir instanceof BlogInvitationRequest) {
 				text = ctx.getString(R.string.blogs_sharing_invitation_sent,
 						((BlogInvitationRequest) ir).getBlogAuthorName(),
 						contactName);
+			} else if (ir instanceof GroupInvitationRequest) {
+				text = ctx.getString(
+						R.string.groups_invitations_invitation_sent,
+						contactName,
+						((GroupInvitationRequest) ir).getGroupName());
+			} else {
+				throw new IllegalArgumentException("Unknown InvitationRequest");
 			}
 			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
 					text, ir.getMessage(), ir.getTimestamp(), ir.isSent(),
@@ -161,11 +172,19 @@ abstract class ConversationItem {
 						contactName,
 						((ForumInvitationRequest) ir).getForumName());
 				type = FORUM;
-			} else {
+			} else if (ir instanceof BlogInvitationRequest) {
 				text = ctx.getString(R.string.blogs_sharing_invitation_received,
 						contactName,
 						((BlogInvitationRequest) ir).getBlogAuthorName());
 				type = BLOG;
+			} else if (ir instanceof GroupInvitationRequest) {
+				text = ctx.getString(
+						R.string.groups_invitations_invitation_received,
+						contactName,
+						((GroupInvitationRequest) ir).getGroupName());
+				type = GROUP;
+			} else {
+				throw new IllegalArgumentException("Unknown InvitationRequest");
 			}
 			if (!ir.isAvailable()) {
 				return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
@@ -185,14 +204,24 @@ abstract class ConversationItem {
 			if (ir.wasAccepted()) {
 				if (ir instanceof ForumInvitationResponse) {
 					res = R.string.forum_invitation_response_accepted_sent;
-				} else {
+				} else if (ir instanceof BlogInvitationResponse) {
 					res = R.string.blogs_sharing_response_accepted_sent;
+				} else if (ir instanceof GroupInvitationResponse) {
+					res = R.string.groups_invitations_response_accepted_sent;
+				} else {
+					throw new IllegalArgumentException(
+							"Unknown InvitationResponse");
 				}
 			} else {
 				if (ir instanceof ForumInvitationResponse) {
 					res = R.string.forum_invitation_response_declined_sent;
-				} else {
+				} else if (ir instanceof BlogInvitationResponse) {
 					res = R.string.blogs_sharing_response_declined_sent;
+				} else if (ir instanceof GroupInvitationResponse) {
+					res = R.string.groups_invitations_response_declined_sent;
+				} else {
+					throw new IllegalArgumentException(
+							"Unknown InvitationResponse");
 				}
 			}
 			String text = ctx.getString(res, contactName);
@@ -202,14 +231,24 @@ abstract class ConversationItem {
 			if (ir.wasAccepted()) {
 				if (ir instanceof ForumInvitationResponse) {
 					res = R.string.forum_invitation_response_accepted_received;
-				} else {
+				} else if (ir instanceof BlogInvitationResponse) {
 					res = R.string.blogs_sharing_response_accepted_received;
+				} else if (ir instanceof GroupInvitationResponse) {
+					res = R.string.groups_invitations_response_accepted_received;
+				} else {
+					throw new IllegalArgumentException(
+							"Unknown InvitationResponse");
 				}
 			} else {
 					if (ir instanceof ForumInvitationResponse) {
 						res = R.string.forum_invitation_response_declined_received;
-					} else {
+					} else if (ir instanceof BlogInvitationResponse) {
 						res = R.string.blogs_sharing_response_declined_received;
+					} else if (ir instanceof GroupInvitationResponse) {
+						res = R.string.groups_invitations_response_declined_received;
+					} else {
+						throw new IllegalArgumentException(
+								"Unknown InvitationResponse");
 					}
 			}
 			String text = ctx.getString(res, contactName);

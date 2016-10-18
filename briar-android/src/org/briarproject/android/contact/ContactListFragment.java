@@ -286,8 +286,9 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			updateItem(m.getContactId(),
 					ConversationItem.from(getContext(), "", ir));
 		} else if (e instanceof InvitationRequestReceivedEvent) {
-			LOG.info("Invitation request received, updating item");
-			InvitationRequestReceivedEvent m = (InvitationRequestReceivedEvent) e;
+			LOG.info("Invitation Request received, update item");
+			InvitationRequestReceivedEvent m =
+					(InvitationRequestReceivedEvent) e;
 			InvitationRequest ir = m.getRequest();
 			updateItem(m.getContactId(),
 					ConversationItem.from(getContext(), "", ir));
