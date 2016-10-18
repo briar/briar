@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+	android:id="@+id/layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:background="@drawable/notice_in"
-	android:orientation="vertical"
 	android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-	android:layout_marginRight="@dimen/message_bubble_margin_non_tail">
+	android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
+	android:background="@drawable/msg_in"
+	android:orientation="vertical">
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
-		android:id="@+id/noticeText"
+		android:id="@+id/text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:textColor="@color/briar_text_primary"
 		android:textIsSelectable="true"
 		android:textSize="@dimen/text_size_medium"
-		android:textStyle="italic"
-		android:textColor="@color/briar_text_secondary"
-		tools:text="@string/introduction_response_accepted_received"/>
+		tools:text="Short message"/>
 
 	<TextView
-		android:id="@+id/noticeTime"
+		android:id="@+id/time"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right|end"

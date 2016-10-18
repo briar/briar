@@ -3,6 +3,7 @@ package org.briarproject.android.contact;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -27,7 +28,8 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
-import org.briarproject.android.contact.ConversationAdapter.IntroductionHandler;
+import org.briarproject.android.contact.ConversationAdapter.RequestListener;
+import org.briarproject.android.contact.ConversationItem.PartialItem;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.android.view.TextInputView;
@@ -39,6 +41,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.event.ContactConnectedEvent;
@@ -92,16 +95,15 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.OnHidePromptListener;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
+import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.contact.ConversationItem.IncomingItem;
-import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 
 public class ConversationActivity extends BriarActivity
-		implements EventListener, IntroductionHandler, TextInputListener {
+		implements EventListener, RequestListener, TextInputListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
@@ -117,7 +119,7 @@ public class ConversationActivity extends BriarActivity
 	@CryptoExecutor
 	Executor cryptoExecutor;
 
-	private final Map<MessageId, byte[]> bodyCache = new ConcurrentHashMap<>();
+	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
@@ -325,7 +327,6 @@ public class ConversationActivity extends BriarActivity
 					toolbarStatus
 							.setContentDescription(getString(R.string.offline));
 				}
-				adapter.setContactName(contactName);
 			}
 		});
 	}
@@ -399,33 +400,42 @@ public class ConversationActivity extends BriarActivity
 			Collection<InvitationMessage> invitations) {
 		int size = headers.size() + introductions.size() + invitations.size();
 		List<ConversationItem> items = new ArrayList<>(size);
-		for (PrivateMessageHeader h : headers) {
-			ConversationMessageItem item = ConversationItem.from(h);
-			byte[] body = bodyCache.get(h.getId());
-			if (body == null) loadMessageBody(h.getId());
-			else item.setBody(body);
-			items.add(item);
-		}
-		for (IntroductionMessage im : introductions) {
-			if (im instanceof IntroductionRequest) {
-				IntroductionRequest ir = (IntroductionRequest) im;
-				items.add(ConversationItem.from(ir));
-			} else {
-				IntroductionResponse ir = (IntroductionResponse) im;
-				items.add(ConversationItem.from(ConversationActivity.this,
-								contactName, ir));
+
+			for (PrivateMessageHeader h : headers) {
+				ConversationItem item = ConversationItem.from(h);
+				String body = bodyCache.get(h.getId());
+				if (body == null) loadMessageBody(h.getId());
+				else ((PartialItem) item).setText(body);
+				items.add(item);
 			}
-		}
-		for (InvitationMessage im : invitations) {
-			if (im instanceof InvitationRequest) {
-				InvitationRequest ir = (InvitationRequest) im;
-				items.add(ConversationItem.from(ir));
-			} else if (im instanceof InvitationResponse) {
-				InvitationResponse ir = (InvitationResponse) im;
-				items.add(ConversationItem.from(ConversationActivity.this,
-								contactName, ir));
+			for (IntroductionMessage m : introductions) {
+				ConversationItem item;
+				if (m instanceof IntroductionRequest) {
+					item = ConversationItem
+							.from(ConversationActivity.this,
+									contactName,
+									(IntroductionRequest) m);
+				} else {
+					item = ConversationItem
+							.from(ConversationActivity.this,
+									contactName,
+									(IntroductionResponse) m);
+				}
+				items.add(item);
 			}
-		}
+			for (InvitationMessage i : invitations) {
+				if (i instanceof InvitationRequest) {
+					InvitationRequest r = (InvitationRequest) i;
+					items.add(ConversationItem
+							.from(ConversationActivity.this,
+									contactName, r));
+				} else if (i instanceof InvitationResponse) {
+					InvitationResponse r = (InvitationResponse) i;
+					items.add(ConversationItem
+							.from(ConversationActivity.this,
+									contactName, r));
+				}
+			}
 		return items;
 	}
 
@@ -439,7 +449,7 @@ public class ConversationActivity extends BriarActivity
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading body took " + duration + " ms");
-					displayMessageBody(m, body);
+					displayMessageBody(m, StringUtils.fromUtf8(body));
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -448,17 +458,17 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void displayMessageBody(final MessageId m, final byte[] body) {
+	private void displayMessageBody(final MessageId m, final String body) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				bodyCache.put(m, body);
-				SparseArray<ConversationMessageItem> messages =
+				SparseArray<ConversationItem> messages =
 						adapter.getPrivateMessages();
 				for (int i = 0; i < messages.size(); i++) {
-					ConversationMessageItem item = messages.valueAt(i);
+					ConversationItem item = messages.valueAt(i);
 					if (item.getId().equals(m)) {
-						item.setBody(body);
+						((PartialItem) item).setText(body);
 						adapter.notifyItemChanged(messages.keyAt(i));
 						list.scrollToPosition(adapter.getItemCount() - 1);
 						return;
@@ -482,9 +492,9 @@ public class ConversationActivity extends BriarActivity
 
 	private void markMessagesRead() {
 		Map<MessageId, GroupId> unread = new HashMap<>();
-		SparseArray<IncomingItem> list = adapter.getIncomingMessages();
+		SparseArray<ConversationInItem> list = adapter.getIncomingMessages();
 		for (int i = 0; i < list.size(); i++) {
-			IncomingItem item = list.valueAt(i);
+			ConversationInItem item = list.valueAt(i);
 			if (!item.isRead())
 				unread.put(item.getId(), item.getGroupId());
 		}
@@ -561,7 +571,8 @@ public class ConversationActivity extends BriarActivity
 			if (event.getContactId().equals(contactId)) {
 				LOG.info("Introduction request received, adding...");
 				IntroductionRequest ir = event.getIntroductionRequest();
-				ConversationItem item = new ConversationIntroductionInItem(ir);
+				ConversationItem item =
+						ConversationRequestItem.from(this, contactName, ir);
 				addConversationItem(item);
 			}
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
@@ -580,7 +591,8 @@ public class ConversationActivity extends BriarActivity
 			if (event.getContactId().equals(contactId)) {
 				LOG.info("Invitation received, adding...");
 				InvitationRequest ir = event.getRequest();
-				ConversationItem item = ConversationItem.from(ir);
+				ConversationItem item =
+						ConversationItem.from(this, contactName, ir);
 				addConversationItem(item);
 			}
 		} else if (e instanceof InvitationResponseReceivedEvent) {
@@ -603,9 +615,10 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				adapter.incrementRevision();
 				Set<MessageId> messages = new HashSet<>(messageIds);
-				SparseArray<OutgoingItem> list = adapter.getOutgoingMessages();
+				SparseArray<ConversationOutItem> list =
+						adapter.getOutgoingMessages();
 				for (int i = 0; i < list.size(); i++) {
-					OutgoingItem item = list.valueAt(i);
+					ConversationOutItem item = list.valueAt(i);
 					if (messages.contains(item.getId())) {
 						item.setSent(sent);
 						item.setSeen(seen);
@@ -622,7 +635,7 @@ public class ConversationActivity extends BriarActivity
 		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		createMessage(StringUtils.toUtf8(text), timestamp);
+		createMessage(text, timestamp);
 		textInputView.setText("");
 	}
 
@@ -632,14 +645,14 @@ public class ConversationActivity extends BriarActivity
 		return item == null ? 0 : item.getTime() + 1;
 	}
 
-	private void createMessage(final byte[] body, final long timestamp) {
+	private void createMessage(final String body, final long timestamp) {
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					storeMessage(privateMessageFactory.createPrivateMessage(
-							groupId, timestamp, null, "text/plain", body),
-							body);
+							groupId, timestamp, null, "text/plain",
+							StringUtils.toUtf8(body)), body);
 				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
@@ -647,7 +660,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void storeMessage(final PrivateMessage m, final byte[] body) {
+	private void storeMessage(final PrivateMessage m, final String body) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -661,8 +674,8 @@ public class ConversationActivity extends BriarActivity
 					PrivateMessageHeader h = new PrivateMessageHeader(id,
 							groupId, m.getMessage().getTimestamp(),
 							m.getContentType(), true, false, false, false);
-					ConversationMessageItem item = ConversationItem.from(h);
-					item.setBody(body);
+					ConversationItem item = ConversationItem.from(h);
+					((PartialItem) item).setText(body);
 					bodyCache.put(id, body);
 					addConversationItem(item);
 				} catch (DbException e) {
@@ -812,23 +825,35 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	@UiThread
 	@Override
-	public void respondToIntroduction(final SessionId sessionId,
+	public void respondToRequest(final ConversationRequestItem item,
 			final boolean accept) {
+		int position = adapter.findItemPosition(item);
+		if (position != INVALID_POSITION) {
+			adapter.notifyItemChanged(position, item);
+		}
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				long timestamp = System.currentTimeMillis();
 				timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 				try {
-					if (accept) {
-						introductionManager.acceptIntroduction(contactId,
-								sessionId, timestamp);
-					} else {
-						introductionManager.declineIntroduction(contactId,
-								sessionId, timestamp);
+					switch (item.getRequestType()) {
+						case INTRODUCTION:
+							respondToIntroductionRequest(item.getSessionId(),
+								accept, timestamp);
+							break;
+						case FORUM:
+							respondToForumRequest(item.getSessionId(), accept);
+							break;
+						case BLOG:
+							respondToBlogRequest(item.getSessionId(), accept);
+							break;
+						default:
+							throw new IllegalArgumentException(
+									"Unknown Request Type");
 					}
-					loadMessages();
 				} catch (DbException | FormatException e) {
 					introductionResponseError();
 					if (LOG.isLoggable(WARNING))
@@ -837,6 +862,31 @@ public class ConversationActivity extends BriarActivity
 
 			}
 		});
+	}
+
+	@DatabaseExecutor
+	private void respondToIntroductionRequest(SessionId sessionId,
+			boolean accept, long time) throws DbException, FormatException {
+		if (accept) {
+			introductionManager.acceptIntroduction(contactId, sessionId, time);
+		} else {
+			introductionManager.declineIntroduction(contactId, sessionId, time);
+		}
+		loadMessages();
+	}
+
+	@DatabaseExecutor
+	private void respondToForumRequest(SessionId id, boolean accept)
+			throws DbException {
+		forumSharingManager.respondToInvitation(id, accept);
+		loadMessages();
+	}
+
+	@DatabaseExecutor
+	private void respondToBlogRequest(SessionId id, boolean accept)
+			throws DbException {
+		blogSharingManager.respondToInvitation(id, accept);
+		loadMessages();
 	}
 
 	private void introductionResponseError() {

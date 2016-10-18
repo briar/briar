@@ -276,24 +276,28 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			IntroductionRequestReceivedEvent m =
 					(IntroductionRequestReceivedEvent) e;
 			IntroductionRequest ir = m.getIntroductionRequest();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(),
+					ConversationItem.from(getContext(), "", ir));
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
 			LOG.info("Introduction response received, updating item");
 			IntroductionResponseReceivedEvent m =
 					(IntroductionResponseReceivedEvent) e;
 			IntroductionResponse ir = m.getIntroductionResponse();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(),
+					ConversationItem.from(getContext(), "", ir));
 		} else if (e instanceof InvitationRequestReceivedEvent) {
 			LOG.info("Invitation request received, updating item");
 			InvitationRequestReceivedEvent m = (InvitationRequestReceivedEvent) e;
 			InvitationRequest ir = m.getRequest();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(),
+					ConversationItem.from(getContext(), "", ir));
 		} else if (e instanceof InvitationResponseReceivedEvent) {
 			LOG.info("Invitation response received, updating item");
 			InvitationResponseReceivedEvent m =
 					(InvitationResponseReceivedEvent) e;
 			InvitationResponse ir = m.getResponse();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(),
+					ConversationItem.from(getContext(), "", ir));
 		}
 	}
 

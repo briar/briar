@@ -1,31 +1,22 @@
 package org.briarproject.android.contact;
 
+import org.briarproject.android.contact.ConversationItem.PartialItem;
 import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
-// This class is not thread-safe
-class ConversationMessageInItem extends ConversationMessageItem
-		implements ConversationItem.IncomingItem {
+import javax.annotation.concurrent.NotThreadSafe;
 
-	private boolean read;
+@NotThreadSafe
+@NotNullByDefault
+class ConversationMessageInItem extends ConversationInItem
+		implements PartialItem {
 
-	ConversationMessageInItem(PrivateMessageHeader header) {
-		super(header);
-
-		read = header.isRead();
+	ConversationMessageInItem(PrivateMessageHeader h) {
+		super(h.getId(), h.getGroupId(), null, h.getTimestamp(), h.isRead());
 	}
 
-	@Override
-	int getType() {
-		return MSG_IN;
+	public void setText(String body) {
+		text = body;
 	}
 
-	@Override
-	public boolean isRead() {
-		return read;
-	}
-
-	@Override
-	public void setRead(boolean read) {
-		this.read = read;
-	}
 }

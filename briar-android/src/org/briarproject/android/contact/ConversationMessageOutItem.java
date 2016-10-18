@@ -1,42 +1,23 @@
 package org.briarproject.android.contact;
 
+import org.briarproject.android.contact.ConversationItem.PartialItem;
 import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
-// This class is not thread-safe
-class ConversationMessageOutItem extends ConversationMessageItem
-		implements ConversationItem.OutgoingItem {
+import javax.annotation.concurrent.NotThreadSafe;
 
-	private boolean sent, seen;
+@NotThreadSafe
+@NotNullByDefault
+class ConversationMessageOutItem extends ConversationOutItem
+		implements PartialItem {
 
-	ConversationMessageOutItem(PrivateMessageHeader header) {
-		super(header);
-
-		sent = header.isSent();
-		seen = header.isSeen();
+	ConversationMessageOutItem(PrivateMessageHeader h) {
+		super(h.getId(), h.getGroupId(), null, h.getTimestamp(), h.isSent(),
+				h.isSeen());
 	}
 
-	@Override
-	int getType() {
-		return MSG_OUT;
+	public void setText(String body) {
+		text = body;
 	}
 
-	@Override
-	public boolean isSent() {
-		return sent;
-	}
-
-	@Override
-	public void setSent(boolean sent) {
-		this.sent = sent;
-	}
-
-	@Override
-	public boolean isSeen() {
-		return seen;
-	}
-
-	@Override
-	public void setSeen(boolean seen) {
-		this.seen = seen;
-	}
 }
