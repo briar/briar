@@ -316,33 +316,52 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		try {
 			// find session state based on shareable
 			IS localState = getSessionStateForResponse(txn, f, c);
-
-			// define action
-			InviteeSessionState.Action localAction;
-			if (accept) {
-				localAction = InviteeSessionState.Action.LOCAL_ACCEPT;
-			} else {
-				localAction = InviteeSessionState.Action.LOCAL_DECLINE;
-			}
-
-			// start engine and process its state update
-			InviteeEngine<IS, IR> engine =
-					new InviteeEngine<IS, IR>(getIRFactory(), clock);
-			StateUpdate<IS, BaseMessage> update =
-					engine.onLocalAction(localState, localAction);
-			processInviteeStateUpdate(txn, null, update);
-
-			// track message
-			// TODO handle this properly without engine hacks (#376)
-			long time = update.toSend.get(0).getTime();
-			trackMessage(txn, localState.getGroupId(), time, true);
-
+			respondToInvitation(txn, localState, accept);
 			txn.setComplete();
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
 			db.endTransaction(txn);
 		}
+	}
+
+	@Override
+	public void respondToInvitation(SessionId id, boolean accept)
+			throws DbException {
+
+		Transaction txn = db.startTransaction(false);
+		try {
+			IS localState = (IS) getSessionState(txn, id, true);
+			respondToInvitation(txn, localState, accept);
+			txn.setComplete();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	private void respondToInvitation(Transaction txn, IS localState,
+			boolean accept) throws DbException, FormatException {
+		// define action
+		InviteeSessionState.Action localAction;
+		if (accept) {
+			localAction = InviteeSessionState.Action.LOCAL_ACCEPT;
+		} else {
+			localAction = InviteeSessionState.Action.LOCAL_DECLINE;
+		}
+
+		// start engine and process its state update
+		InviteeEngine<IS, IR> engine =
+				new InviteeEngine<IS, IR>(getIRFactory(), clock);
+		StateUpdate<IS, BaseMessage> update =
+				engine.onLocalAction(localState, localAction);
+		processInviteeStateUpdate(txn, null, update);
+
+		// track message
+		// TODO handle this properly without engine hacks (#376)
+		long time = update.toSend.get(0).getTime();
+		trackMessage(txn, localState.getGroupId(), time, true);
 	}
 
 	@Override
