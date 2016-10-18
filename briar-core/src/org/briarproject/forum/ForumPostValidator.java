@@ -4,10 +4,6 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyParser;
-import org.briarproject.api.crypto.PublicKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -20,7 +16,6 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
-import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -32,14 +27,11 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH
 
 class ForumPostValidator extends BdfMessageValidator {
 
-	private final CryptoComponent crypto;
 	private final AuthorFactory authorFactory;
 
-	ForumPostValidator(CryptoComponent crypto, AuthorFactory authorFactory,
-			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock) {
+	ForumPostValidator(AuthorFactory authorFactory, ClientHelper clientHelper,
+			MetadataEncoder metadataEncoder, Clock clock) {
 		super(clientHelper, metadataEncoder, clock);
-		this.crypto = crypto;
 		this.authorFactory = authorFactory;
 	}
 
@@ -81,23 +73,10 @@ class ForumPostValidator extends BdfMessageValidator {
 		}
 		// Verify the signature, if any
 		if (author != null) {
-			try {
-				// Parse the public key
-				KeyParser keyParser = crypto.getSignatureKeyParser();
-				PublicKey key = keyParser.parsePublicKey(author.getPublicKey());
-				// Serialise the data to be signed
-				BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
-						authorList, contentType, forumPostBody);
-				// Verify the signature
-				Signature signature = crypto.getSignature();
-				signature.initVerify(key);
-				signature.update(clientHelper.toByteArray(signed));
-				if (!signature.verify(sig)) {
-					throw new InvalidMessageException("Invalid signature");
-				}
-			} catch (GeneralSecurityException e) {
-				throw new InvalidMessageException("Invalid public key");
-			}
+			// Serialise the data to be signed
+			BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
+					authorList, contentType, forumPostBody);
+			clientHelper.verifySignature(sig, author.getPublicKey(), signed);
 		}
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();

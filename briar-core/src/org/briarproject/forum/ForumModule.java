@@ -54,11 +54,11 @@ public class ForumModule {
 	@Provides
 	@Singleton
 	ForumPostValidator provideForumPostValidator(
-			ValidationManager validationManager, CryptoComponent crypto,
-			AuthorFactory authorFactory, ClientHelper clientHelper,
-			MetadataEncoder metadataEncoder, Clock clock) {
-		ForumPostValidator validator = new ForumPostValidator(crypto,
-				authorFactory, clientHelper, metadataEncoder, clock);
+			ValidationManager validationManager, AuthorFactory authorFactory,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
+			Clock clock) {
+		ForumPostValidator validator = new ForumPostValidator(authorFactory,
+				clientHelper, metadataEncoder, clock);
 		validationManager.registerMessageValidator(
 				ForumManagerImpl.CLIENT_ID, validator);
 		return validator;
