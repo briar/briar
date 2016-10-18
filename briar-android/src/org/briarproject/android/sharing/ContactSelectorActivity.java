@@ -7,10 +7,7 @@ import android.support.annotation.UiThread;
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
-import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DatabaseExecutor;
-import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -57,10 +54,6 @@ public abstract class ContactSelectorActivity extends BriarActivity implements
 		this.groupId = groupId;
 		this.contacts = contacts;
 	}
-
-	@DatabaseExecutor
-	public abstract boolean isDisabled(GroupId groupId, Contact c)
-			throws DbException;
 
 	static ArrayList<Integer> getContactsFromIds(
 			Collection<ContactId> contacts) {

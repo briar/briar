@@ -1,5 +1,6 @@
 package org.briarproject.android.api;
 
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.sync.GroupId;
 
 /**
@@ -8,7 +9,7 @@ import org.briarproject.api.sync.GroupId;
  */
 public interface AndroidNotificationManager {
 
-	void clearPrivateMessageNotification(GroupId g);
+	void clearContactNotification(ContactId c);
 
 	void clearAllContactNotifications();
 
@@ -19,6 +20,10 @@ public interface AndroidNotificationManager {
 	void clearBlogPostNotification(GroupId g);
 
 	void clearAllBlogPostNotifications();
+
+	void blockContactNotification(ContactId c);
+
+	void unblockContactNotification(ContactId c);
 
 	void blockNotification(GroupId g);
 

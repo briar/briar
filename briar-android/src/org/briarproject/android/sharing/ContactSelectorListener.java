@@ -11,7 +11,7 @@ import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-public interface ContactSelectorListener extends DestroyableContext {
+interface ContactSelectorListener extends DestroyableContext {
 
 	@Deprecated
 	void runOnDbThread(Runnable runnable);
