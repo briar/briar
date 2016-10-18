@@ -198,6 +198,12 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 		trackIncomingMessage(txn, m);
 
+
+		// TODO POST timestamp must be greater than the timestamps of the parent post, if any, and the member's previous message
+
+		// TODO JOIN timestamp must be equal to the timestamp of the new member message.
+		// TODO JOIN new_member_id must be the identifier of a NEW_MEMBER message with the same member_name and member_public_key
+
 		return true;
 	}
 
