@@ -14,6 +14,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.TextInputView;
+import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -37,7 +38,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
 
 public class IntroductionMessageFragment extends BaseFragment
-		implements TextInputView.TextInputListener {
+		implements TextInputListener {
 
 	public static final String TAG =
 			IntroductionMessageFragment.class.getName();
@@ -56,7 +57,8 @@ public class IntroductionMessageFragment extends BaseFragment
 	@Inject
 	protected volatile IntroductionManager introductionManager;
 
-	public static IntroductionMessageFragment newInstance(int contactId1, int contactId2) {
+	public static IntroductionMessageFragment newInstance(int contactId1,
+			int contactId2) {
 		Bundle args = new Bundle();
 		args.putInt(CONTACT_ID_1, contactId1);
 		args.putInt(CONTACT_ID_2, contactId2);

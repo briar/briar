@@ -253,6 +253,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 				replyItem != null ? replyItem.getId() : null, handler);
 		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
+		textInput.setText("");
 		adapter.setReplyItem(null);
 	}
 

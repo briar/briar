@@ -1,9 +1,10 @@
 package org.briarproject.android.privategroup.creation;
 
+import android.support.annotation.StringRes;
+
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.sharing.BaseMessageFragment;
-
 
 public class CreateGroupMessageFragment extends BaseMessageFragment {
 
@@ -11,11 +12,13 @@ public class CreateGroupMessageFragment extends BaseMessageFragment {
 			CreateGroupMessageFragment.class.getName();
 
 	@Override
+	@StringRes
 	protected int getButtonText() {
 		return R.string.groups_create_group_invitation_button;
 	}
 
 	@Override
+	@StringRes
 	protected int getHintText() {
 		return R.string.forum_share_message;
 	}

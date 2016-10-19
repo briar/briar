@@ -1,6 +1,7 @@
 package org.briarproject.android.sharing;
 
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +26,13 @@ public class ShareBlogMessageFragment extends BaseMessageFragment {
 	}
 
 	@Override
+	@StringRes
 	protected int getButtonText() {
 		return R.string.blogs_sharing_button;
 	}
 
 	@Override
+	@StringRes
 	protected int getHintText() {
 		return R.string.forum_share_message;
 	}

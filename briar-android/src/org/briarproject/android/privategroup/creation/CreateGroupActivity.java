@@ -24,12 +24,13 @@ import javax.inject.Inject;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
+import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
 public class CreateGroupActivity extends ContactSelectorActivity implements
 		CreateGroupListener, MessageFragmentListener {
 
 	@Inject
-	protected CreateGroupController controller;
+	CreateGroupController controller;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -142,6 +143,11 @@ public class CreateGroupActivity extends ContactSelectorActivity implements
 					}
 				});
 		return true;
+	}
+
+	@Override
+	public int getMaximumMessageLength() {
+		return MAX_MESSAGE_BODY_LENGTH;
 	}
 
 	private void openNewGroup() {
