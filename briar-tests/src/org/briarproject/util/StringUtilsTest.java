@@ -124,7 +124,7 @@ public class StringUtilsTest extends BriarTestCase {
 				(byte) 0xED, (byte) 0xB0, (byte) 0x80,
 				(byte) 0xC8, (byte) 0x85 // U+0205
 		};
-		// Converstion should ignore the invalid character and return the rest
+		// Conversion should ignore the invalid character and return the rest
 		String expected = "\u0205";
 		assertEquals(expected, StringUtils.fromUtf8(b));
 	}
