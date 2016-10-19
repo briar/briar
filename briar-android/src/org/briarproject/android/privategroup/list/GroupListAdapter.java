@@ -31,7 +31,7 @@ class GroupListAdapter extends BriarAdapter<GroupItem, GroupViewHolder> {
 
 	@Override
 	public void onBindViewHolder(GroupViewHolder ui, int position) {
-		ui.bindView(ctx, getItemAt(position), listener);
+		ui.bindView(ctx, items.get(position), listener);
 	}
 
 	@Override

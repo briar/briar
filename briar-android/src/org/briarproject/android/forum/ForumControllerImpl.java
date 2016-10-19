@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -14,20 +15,20 @@ import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostHeader;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 public class ForumControllerImpl
-		extends ThreadListControllerImpl<Forum, ForumEntry, ForumPostHeader, ForumPost>
+		extends ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost>
 		implements ForumController {
 
 	private static final Logger LOG =
@@ -37,12 +38,12 @@ public class ForumControllerImpl
 
 	@Inject
 	ForumControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager,
+			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			ForumManager forumManager, EventBus eventBus,
 			AndroidNotificationManager notificationManager) {
-		super(dbExecutor, lifecycleManager, cryptoExecutor, eventBus,
-				notificationManager);
+		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
+				eventBus, notificationManager);
 		this.forumManager = forumManager;
 	}
 
@@ -72,7 +73,7 @@ public class ForumControllerImpl
 	}
 
 	@Override
-	protected Forum loadGroupItem() throws DbException {
+	protected Forum loadNamedGroup() throws DbException {
 		return forumManager.getForum(getGroupId());
 	}
 
@@ -82,18 +83,8 @@ public class ForumControllerImpl
 	}
 
 	@Override
-	protected Map<MessageId, String> loadBodies(
-			Collection<ForumPostHeader> headers)
-			throws DbException {
-		Map<MessageId, String> bodies = new HashMap<>();
-		for (ForumPostHeader header : headers) {
-			if (!bodyCache.containsKey(header.getId())) {
-				String body = StringUtils
-						.fromUtf8(forumManager.getPostBody(header.getId()));
-				bodies.put(header.getId(), body);
-			}
-		}
-		return bodies;
+	protected String loadMessageBody(MessageId id) throws DbException {
+		return StringUtils.fromUtf8(forumManager.getPostBody(id));
 	}
 
 	@Override
@@ -102,9 +93,17 @@ public class ForumControllerImpl
 	}
 
 	@Override
-	protected ForumPost createLocalMessage(String body,
-			@Nullable MessageId parentId) throws DbException {
-		return forumManager.createLocalPost(getGroupId(), body, parentId);
+	protected long getLatestTimestamp() throws DbException {
+		GroupCount count = forumManager.getGroupCount(getGroupId());
+		return count.getLatestMsgTime();
+	}
+
+	@Override
+	protected ForumPost createLocalMessage(String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author) {
+		return forumManager
+				.createLocalPost(getGroupId(), body, timestamp, parentId,
+						author);
 	}
 
 	@Override
@@ -114,13 +113,13 @@ public class ForumControllerImpl
 	}
 
 	@Override
-	protected void deleteGroupItem(Forum forum) throws DbException {
+	protected void deleteNamedGroup(Forum forum) throws DbException {
 		forumManager.removeForum(forum);
 	}
 
 	@Override
-	protected ForumEntry buildItem(ForumPostHeader header, String body) {
-		return new ForumEntry(header, body);
+	protected ForumItem buildItem(ForumPostHeader header, String body) {
+		return new ForumItem(header, body);
 	}
 
 }

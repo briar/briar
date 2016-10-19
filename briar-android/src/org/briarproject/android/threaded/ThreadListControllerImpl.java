@@ -17,6 +17,8 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupRemovedEvent;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -40,11 +42,12 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
-	protected final Executor cryptoExecutor;
+	private final IdentityManager identityManager;
+	private final Executor cryptoExecutor;
 	protected final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
 
-	protected final Map<MessageId, String> bodyCache =
+	private final Map<MessageId, String> bodyCache =
 			new ConcurrentHashMap<>();
 
 	private volatile GroupId groupId;
@@ -52,10 +55,11 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected ThreadListListener<H> listener;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager,
+			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus,
 			AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager);
+		this.identityManager = identityManager;
 		this.cryptoExecutor = cryptoExecutor;
 		this.eventBus = eventBus;
 		this.notificationManager = notificationManager;
@@ -76,15 +80,14 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@CallSuper
 	@Override
 	public void onActivityResume() {
-		checkGroupId();
-		notificationManager.blockNotification(groupId);
+		notificationManager.blockNotification(getGroupId());
 		eventBus.addListener(this);
 	}
 
 	@CallSuper
 	@Override
 	public void onActivityPause() {
-		notificationManager.unblockNotification(groupId);
+		notificationManager.unblockNotification(getGroupId());
 		eventBus.removeListener(this);
 	}
 
@@ -97,7 +100,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	public void eventOccurred(Event e) {
 		if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
-			if (s.getGroup().getId().equals(groupId)) {
+			if (s.getGroup().getId().equals(getGroupId())) {
 				LOG.info("Group removed");
 				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 					@Override
@@ -118,7 +121,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					G groupItem = loadGroupItem();
+					G groupItem = loadNamedGroup();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info(
@@ -134,7 +137,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	}
 
 	@DatabaseExecutor
-	protected abstract G loadGroupItem() throws DbException;
+	protected abstract G loadNamedGroup() throws DbException;
 
 	@Override
 	public void loadItems(
@@ -152,10 +155,14 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading headers took " + duration + " ms");
 
-					// Load bodies
+					// Load bodies into cache
 					now = System.currentTimeMillis();
-					Map<MessageId, String> bodies = loadBodies(headers);
-					bodyCache.putAll(bodies);
+					for (H header : headers) {
+						if (!bodyCache.containsKey(header.getId())) {
+							bodyCache.put(header.getId(),
+									loadMessageBody(header.getId()));
+						}
+					}
 					duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading bodies took " + duration + " ms");
@@ -175,8 +182,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected abstract Collection<H> loadHeaders() throws DbException;
 
 	@DatabaseExecutor
-	protected abstract Map<MessageId, String> loadBodies(Collection<H> headers)
-			throws DbException;
+	protected abstract String loadMessageBody(MessageId id) throws DbException;
 
 	@Override
 	public void loadItem(final H header,
@@ -186,9 +192,13 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			public void run() {
 				LOG.info("Loading item...");
 				try {
-					String body = loadBodies(Collections.singletonList(header))
-							.get(header.getId());
-					bodyCache.put(header.getId(), body);
+					String body;
+					if (!bodyCache.containsKey(header.getId())) {
+						body = loadMessageBody(header.getId());
+						bodyCache.put(header.getId(), body);
+					} else {
+						body = bodyCache.get(header.getId());
+					}
 					I item = buildItem(header, body);
 					handler.onResult(item);
 				} catch (DbException e) {
@@ -230,21 +240,19 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected abstract void markRead(MessageId id) throws DbException;
 
 	@Override
-	public void send(String body,
-			ResultExceptionHandler<I, DbException> resultHandler) {
-		send(body, null, resultHandler);
-	}
-
-	@Override
-	public void send(final String body, @Nullable final MessageId parentId,
+	public void createAndStoreMessage(final String body,
+			@Nullable final MessageId parentId,
 			final ResultExceptionHandler<I, DbException> handler) {
-		cryptoExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				LOG.info("Creating message...");
 				try {
-					M msg = createLocalMessage(body, parentId);
-					storePost(msg, body, handler);
+					LocalAuthor author = identityManager.getLocalAuthor();
+					long timestamp = getLatestTimestamp();
+					timestamp =
+							Math.max(timestamp, System.currentTimeMillis());
+					createMessage(body, timestamp, parentId, author,
+							handler);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -255,8 +263,24 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	}
 
 	@DatabaseExecutor
-	protected abstract M createLocalMessage(String body,
-			@Nullable MessageId parentId) throws DbException;
+	protected abstract long getLatestTimestamp() throws DbException;
+
+	private void createMessage(final String body, final long timestamp,
+			final @Nullable MessageId parentId, final LocalAuthor author,
+			final ResultExceptionHandler<I, DbException> handler) {
+		cryptoExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				LOG.info("Creating message...");
+				M msg = createLocalMessage(body, timestamp, parentId, author);
+				storePost(msg, body, handler);
+			}
+		});
+	}
+
+	@CryptoExecutor
+	protected abstract M createLocalMessage(String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author);
 
 	private void storePost(final M msg, final String body,
 			final ResultExceptionHandler<I, DbException> resultHandler) {
@@ -292,8 +316,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					G groupItem = loadGroupItem();
-					deleteGroupItem(groupItem);
+					G groupItem = loadNamedGroup();
+					deleteNamedGroup(groupItem);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing group took " + duration + " ms");
@@ -309,7 +333,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	}
 
 	@DatabaseExecutor
-	protected abstract void deleteGroupItem(G groupItem) throws DbException;
+	protected abstract void deleteNamedGroup(G groupItem) throws DbException;
 
 	private List<I> buildItems(Collection<H> headers) {
 		List<I> entries = new ArrayList<>();

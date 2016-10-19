@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		return replyItem;
 	}
 
-	public void setItems(List<I> items) {
+	public void setItems(Collection<I> items) {
 		this.items.clear();
 		this.items.addAll(items);
 		notifyDataSetChanged();

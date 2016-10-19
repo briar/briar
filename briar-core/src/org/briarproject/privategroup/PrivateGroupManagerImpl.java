@@ -77,16 +77,13 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 	@Override
 	public GroupMessage createLocalMessage(GroupId groupId, String body,
-			@Nullable MessageId parentId) throws DbException {
-
-		long timestamp = clock.currentTimeMillis();
-		LocalAuthor author = identityManager.getLocalAuthor();
+			long timestamp, @Nullable MessageId parentId, LocalAuthor author) {
 		try {
 			return groupMessageFactory
 					.createGroupMessage(groupId, timestamp, parentId, author,
 							body);
 		} catch (FormatException e) {
-			throw new DbException(e);
+			throw new RuntimeException(e);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}

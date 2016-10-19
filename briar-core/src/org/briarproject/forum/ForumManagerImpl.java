@@ -25,7 +25,6 @@ import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -64,20 +63,17 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	private final IdentityManager identityManager;
 	private final ForumFactory forumFactory;
 	private final ForumPostFactory forumPostFactory;
-	private final Clock clock;
 	private final List<RemoveForumHook> removeHooks;
 
 	@Inject
 	ForumManagerImpl(DatabaseComponent db, IdentityManager identityManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
-			ForumFactory forumFactory, ForumPostFactory forumPostFactory,
-			Clock clock) {
+			ForumFactory forumFactory, ForumPostFactory forumPostFactory) {
 		super(db, clientHelper, metadataParser);
 
 		this.identityManager = identityManager;
 		this.forumFactory = forumFactory;
 		this.forumPostFactory = forumPostFactory;
-		this.clock = clock;
 		removeHooks = new CopyOnWriteArrayList<RemoveForumHook>();
 	}
 
@@ -129,23 +125,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	public ForumPost createLocalPost(final GroupId groupId,
-			final String body, final @Nullable MessageId parentId)
-			throws DbException {
-
-		LocalAuthor author;
-		GroupCount count;
-		Transaction txn = db.startTransaction(true);
-		try {
-			author = identityManager.getLocalAuthor(txn);
-			count = getGroupCount(txn, groupId);
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
-		}
-		long timestamp = clock.currentTimeMillis();
-		timestamp = Math.max(timestamp, count.getLatestMsgTime());
-
+	public ForumPost createLocalPost(final GroupId groupId, final String body,
+			final long timestamp, final @Nullable MessageId parentId,
+			final LocalAuthor author) {
 		ForumPost p;
 		try {
 			p = forumPostFactory

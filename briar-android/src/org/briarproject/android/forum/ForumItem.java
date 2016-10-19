@@ -6,15 +6,17 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.MessageId;
 
-/* This class is not thread safe */
-public class ForumEntry extends ThreadItem {
+import javax.annotation.concurrent.NotThreadSafe;
 
-	ForumEntry(ForumPostHeader h, String text) {
-		super(h.getId(), h.getParentId(), text, h.getTimestamp(), h.getAuthor(),
+@NotThreadSafe
+public class ForumItem extends ThreadItem {
+
+	ForumItem(ForumPostHeader h, String body) {
+		super(h.getId(), h.getParentId(), body, h.getTimestamp(), h.getAuthor(),
 				h.getAuthorStatus(), h.isRead());
 	}
 
-	public ForumEntry(MessageId messageId, MessageId parentId, String text,
+	public ForumItem(MessageId messageId, MessageId parentId, String text,
 			long timestamp, Author author, Status status) {
 		super(messageId, parentId, text, timestamp, author, status, true);
 	}

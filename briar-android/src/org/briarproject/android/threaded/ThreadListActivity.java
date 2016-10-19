@@ -26,10 +26,9 @@ import org.briarproject.api.clients.PostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static android.support.design.widget.Snackbar.make;
 import static android.view.View.GONE;
@@ -75,7 +74,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		list.setAdapter(adapter);
 
 		if (state != null) {
-			replyId = new MessageId(state.getByteArray(KEY_REPLY_ID));
+			byte[] replyIdBytes = state.getByteArray(KEY_REPLY_ID);
+			if(replyIdBytes != null) replyId = new MessageId(replyIdBytes);
 		}
 
 		loadItems();
@@ -110,9 +110,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 				new UiResultExceptionHandler<Collection<I>, DbException>(
 						this) {
 					@Override
-					public void onResultUi(Collection<I> result) {
-						// FIXME What's the benefit of copying the collection?
-						List<I> items = new ArrayList<>(result);
+					public void onResultUi(Collection<I> items) {
 						if (items.isEmpty()) {
 							list.showData();
 						} else {
@@ -225,7 +223,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	public void onSendClick(String text) {
 		if (text.trim().length() == 0)
 			return;
-		if (text.length() > getMaxBodyLength()) {
+		if (StringUtils.isTooLong(text, getMaxBodyLength())) {
 			displaySnackbarShort(R.string.text_too_long);
 			return;
 		}
@@ -243,12 +241,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 						finish();
 					}
 				};
-		if (replyItem == null) {
-			// root post
-			getController().send(text, handler);
-		} else {
-			getController().send(text, replyItem.getId(), handler);
-		}
+		getController().createAndStoreMessage(text,
+				replyItem != null ? replyItem.getId() : null, handler);
 		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
 		adapter.setReplyItem(null);
@@ -268,6 +262,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO add proper exception handling
+						finish();
 					}
 				});
 	}

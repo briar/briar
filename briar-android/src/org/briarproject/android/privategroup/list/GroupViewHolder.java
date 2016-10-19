@@ -2,7 +2,6 @@ package org.briarproject.android.privategroup.list;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -51,7 +50,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		remove = (Button) v.findViewById(R.id.removeButton);
 	}
 
-	void bindView(final Context ctx, @Nullable final GroupItem group,
+	void bindView(final Context ctx, final GroupItem group,
 			@NotNull final OnGroupRemoveClickListener listener) {
 		if (group == null) return;
 

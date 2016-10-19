@@ -10,9 +10,9 @@ import org.briarproject.R;
 import org.briarproject.android.threaded.ThreadItemAdapter;
 
 @UiThread
-public class NestedForumAdapter extends ThreadItemAdapter<ForumEntry> {
+public class NestedForumAdapter extends ThreadItemAdapter<ForumItem> {
 
-	public NestedForumAdapter(ThreadItemListener<ForumEntry> listener,
+	public NestedForumAdapter(ThreadItemListener<ForumItem> listener,
 			LinearLayoutManager layoutManager) {
 		super(listener, layoutManager);
 	}

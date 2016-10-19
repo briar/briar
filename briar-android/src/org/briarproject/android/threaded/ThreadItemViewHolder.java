@@ -57,7 +57,7 @@ public abstract class ThreadItemViewHolder<I extends ThreadItem>
 
 	// TODO improve encapsulation, so we don't need to pass the adapter here
 	public void bind(final ThreadItemAdapter<I> adapter,
-			final ThreadItemListener listener, final I item, int pos) {
+			final ThreadItemListener<I> listener, final I item, int pos) {
 
 		textView.setText(StringUtils.trim(item.getText()));
 

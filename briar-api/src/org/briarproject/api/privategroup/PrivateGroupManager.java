@@ -3,6 +3,7 @@ package org.briarproject.api.privategroup;
 import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -21,8 +22,8 @@ public interface PrivateGroupManager extends MessageTracker {
 	void removePrivateGroup(GroupId g) throws DbException;
 
 	/** Creates a local group message. */
-	GroupMessage createLocalMessage(GroupId groupId, String text,
-			@Nullable MessageId parentId) throws DbException;
+	GroupMessage createLocalMessage(GroupId groupId, String body,
+			long timestamp, @Nullable MessageId parentId, LocalAuthor author);
 
 	/** Stores (and sends) a local group message. */
 	GroupMessageHeader addLocalMessage(GroupMessage p) throws DbException;

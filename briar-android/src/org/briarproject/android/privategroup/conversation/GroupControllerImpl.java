@@ -4,12 +4,15 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.GroupMessageAddedEvent;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.GroupMessage;
 import org.briarproject.api.privategroup.GroupMessageHeader;
@@ -18,8 +21,6 @@ import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -36,19 +37,19 @@ public class GroupControllerImpl
 
 	@Inject
 	GroupControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager,
+			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			PrivateGroupManager privateGroupManager, EventBus eventBus,
 			AndroidNotificationManager notificationManager) {
-		super(dbExecutor, lifecycleManager, cryptoExecutor, eventBus,
-				notificationManager);
+		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
+				eventBus, notificationManager);
 		this.privateGroupManager = privateGroupManager;
 	}
 
 	@Override
 	public void onActivityResume() {
 		super.onActivityResume();
-		notificationManager.clearForumPostNotification(getGroupId());
+		// TODO: Add new notification manager methods for private groups
 	}
 
 	@Override
@@ -56,7 +57,7 @@ public class GroupControllerImpl
 		super.eventOccurred(e);
 
 		if (e instanceof GroupMessageAddedEvent) {
-			final GroupMessageAddedEvent gmae = (GroupMessageAddedEvent) e;
+			GroupMessageAddedEvent gmae = (GroupMessageAddedEvent) e;
 			if (!gmae.isLocal() && gmae.getGroupId().equals(getGroupId())) {
 				LOG.info("Group message received, adding...");
 				final GroupMessageHeader h = gmae.getHeader();
@@ -71,7 +72,7 @@ public class GroupControllerImpl
 	}
 
 	@Override
-	protected PrivateGroup loadGroupItem() throws DbException {
+	protected PrivateGroup loadNamedGroup() throws DbException {
 		return privateGroupManager.getPrivateGroup(getGroupId());
 	}
 
@@ -81,18 +82,8 @@ public class GroupControllerImpl
 	}
 
 	@Override
-	protected Map<MessageId, String> loadBodies(
-			Collection<GroupMessageHeader> headers)
-			throws DbException {
-		Map<MessageId, String> bodies = new HashMap<>();
-		for (GroupMessageHeader header : headers) {
-			if (!bodyCache.containsKey(header.getId())) {
-				String body =
-						privateGroupManager.getMessageBody(header.getId());
-				bodies.put(header.getId(), body);
-			}
-		}
-		return bodies;
+	protected String loadMessageBody(MessageId id) throws DbException {
+		return privateGroupManager.getMessageBody(id);
 	}
 
 	@Override
@@ -101,10 +92,17 @@ public class GroupControllerImpl
 	}
 
 	@Override
-	protected GroupMessage createLocalMessage(String body,
-			@Nullable MessageId parentId) throws DbException {
+	protected long getLatestTimestamp() throws DbException {
+		GroupCount count = privateGroupManager.getGroupCount(getGroupId());
+		return count.getLatestMsgTime();
+	}
+
+	@Override
+	protected GroupMessage createLocalMessage(String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author) {
 		return privateGroupManager
-				.createLocalMessage(getGroupId(), body, parentId);
+				.createLocalMessage(getGroupId(), body, timestamp, parentId,
+						author);
 	}
 
 	@Override
@@ -114,7 +112,7 @@ public class GroupControllerImpl
 	}
 
 	@Override
-	protected void deleteGroupItem(PrivateGroup group) throws DbException {
+	protected void deleteNamedGroup(PrivateGroup group) throws DbException {
 		privateGroupManager.removePrivateGroup(group.getId());
 	}
 

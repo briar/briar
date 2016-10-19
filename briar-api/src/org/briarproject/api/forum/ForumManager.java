@@ -1,8 +1,10 @@
 package org.briarproject.api.forum;
 
 import org.briarproject.api.clients.MessageTracker;
+import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -22,8 +24,9 @@ public interface ForumManager extends MessageTracker {
 	void removeForum(Forum f) throws DbException;
 
 	/** Creates a local forum post. */
-	ForumPost createLocalPost(GroupId groupId, String text,
-			@Nullable MessageId parentId) throws DbException;
+	@CryptoExecutor
+	ForumPost createLocalPost(GroupId groupId, String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author);
 
 	/** Stores a local forum post. */
 	ForumPostHeader addLocalPost(ForumPost p) throws DbException;

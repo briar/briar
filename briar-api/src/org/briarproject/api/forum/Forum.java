@@ -5,9 +5,9 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sync.Group;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@ThreadSafe
+@Immutable
 @NotNullByDefault
 public class Forum extends NamedGroup implements Shareable {
 

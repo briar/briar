@@ -4,9 +4,9 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@ThreadSafe
+@Immutable
 @NotNullByDefault
 public abstract class NamedGroup extends BaseGroup {
 

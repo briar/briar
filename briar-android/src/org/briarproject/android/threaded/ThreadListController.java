@@ -29,9 +29,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void markItemsRead(Collection<I> items);
 
-	void send(String body, ResultExceptionHandler<I, DbException> handler);
-
-	void send(String body, @Nullable MessageId parentId,
+	void createAndStoreMessage(String body, @Nullable MessageId parentId,
 			ResultExceptionHandler<I, DbException> handler);
 
 	void deleteNamedGroup(ResultExceptionHandler<Void, DbException> handler);

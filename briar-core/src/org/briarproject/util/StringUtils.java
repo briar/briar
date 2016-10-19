@@ -86,4 +86,11 @@ public class StringUtils {
 	public static String trim(String s) {
 		return s.trim();
 	}
+
+	/**
+	 * Returns true if the string is longer than maxLength
+	 */
+	public static boolean isTooLong(String s, int maxLength) {
+		return toUtf8(s).length > maxLength;
+	}
 }

@@ -7,9 +7,9 @@ import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sync.Group;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@ThreadSafe
+@Immutable
 @NotNullByDefault
 public class Blog extends BaseGroup implements Shareable {
 
