@@ -22,6 +22,7 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.system.Clock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +47,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	private final Executor cryptoExecutor;
 	protected final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
+	private final Clock clock;
 
 	private final Map<MessageId, String> bodyCache =
 			new ConcurrentHashMap<>();
@@ -57,12 +59,13 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus,
-			AndroidNotificationManager notificationManager) {
+			AndroidNotificationManager notificationManager, Clock clock) {
 		super(dbExecutor, lifecycleManager);
 		this.identityManager = identityManager;
 		this.cryptoExecutor = cryptoExecutor;
 		this.eventBus = eventBus;
 		this.notificationManager = notificationManager;
+		this.clock = clock;
 	}
 
 	@Override
@@ -250,7 +253,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					LocalAuthor author = identityManager.getLocalAuthor();
 					long timestamp = getLatestTimestamp();
 					timestamp =
-							Math.max(timestamp, System.currentTimeMillis());
+							Math.max(timestamp, clock.currentTimeMillis());
 					createMessage(body, timestamp, parentId, author,
 							handler);
 				} catch (DbException e) {
@@ -343,9 +346,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		return entries;
 	}
 
-	/**
-	 * When building the item, the body can be assumed to be cached
-	 */
 	protected abstract I buildItem(H header, String body);
 
 	protected GroupId getGroupId() {

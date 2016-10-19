@@ -19,6 +19,7 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
@@ -41,9 +42,9 @@ public class ForumControllerImpl
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			ForumManager forumManager, EventBus eventBus,
-			AndroidNotificationManager notificationManager) {
+			AndroidNotificationManager notificationManager, Clock clock) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
-				eventBus, notificationManager);
+				eventBus, notificationManager, clock);
 		this.forumManager = forumManager;
 	}
 

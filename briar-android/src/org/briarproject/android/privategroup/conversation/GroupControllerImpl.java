@@ -19,6 +19,7 @@ import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.system.Clock;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -40,9 +41,9 @@ public class GroupControllerImpl
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			PrivateGroupManager privateGroupManager, EventBus eventBus,
-			AndroidNotificationManager notificationManager) {
+			AndroidNotificationManager notificationManager, Clock clock) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
-				eventBus, notificationManager);
+				eventBus, notificationManager, clock);
 		this.privateGroupManager = privateGroupManager;
 	}
 

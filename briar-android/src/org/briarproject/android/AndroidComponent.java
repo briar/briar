@@ -36,6 +36,7 @@ import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.settings.SettingsManager;
+import org.briarproject.api.system.Clock;
 import org.briarproject.plugins.AndroidPluginsModule;
 import org.briarproject.system.AndroidSystemModule;
 
@@ -120,6 +121,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	AndroidExecutor androidExecutor();
 
 	FeedManager feedManager();
+
+	Clock clock();
 
 	@IoExecutor
 	Executor ioExecutor();
