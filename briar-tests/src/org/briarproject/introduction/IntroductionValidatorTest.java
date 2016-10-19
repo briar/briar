@@ -30,6 +30,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_K
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC_LENGTH;
+import static org.briarproject.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY;
@@ -83,8 +84,10 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	public void testValidateProperIntroductionRequest() throws IOException {
 		final byte[] sessionId = TestUtils.getRandomId();
 		final String name = TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		final byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		final String text = TestUtils.getRandomString(MAX_MESSAGE_BODY_LENGTH);
+		final byte[] publicKey =
+				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		final String text =
+				TestUtils.getRandomString(MAX_INTRODUCTION_MESSAGE_LENGTH);
 
 		BdfList body = BdfList.of(TYPE_REQUEST, sessionId,
 				name, publicKey, text);
@@ -107,14 +110,15 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 		// no NAME is message
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-					msg.getRaw(PUBLIC_KEY));
+				msg.getRaw(PUBLIC_KEY));
 		if (msg.containsKey(MSG)) body.add(msg.getString(MSG));
 
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateIntroductionRequestWithLongName() throws IOException {
+	public void testValidateIntroductionRequestWithLongName()
+			throws IOException {
 		// too long NAME in message
 		BdfDictionary msg = getValidIntroductionRequest();
 		msg.put(NAME, msg.get(NAME) + "x");
@@ -315,7 +319,8 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateIntroductionAckWithLongSessionId() throws IOException {
+	public void testValidateIntroductionAckWithLongSessionId()
+			throws IOException {
 		BdfDictionary msg = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_ACK),
 				new BdfEntry(SESSION_ID, new byte[SessionId.LENGTH + 1])

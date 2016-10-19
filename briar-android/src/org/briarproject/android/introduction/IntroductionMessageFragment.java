@@ -20,6 +20,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.introduction.IntroductionManager;
+import org.briarproject.util.StringUtils;
 
 import java.util.logging.Logger;
 
@@ -33,6 +34,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
 
 public class IntroductionMessageFragment extends BaseFragment
 		implements TextInputView.TextInputListener {
@@ -176,6 +178,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		ui.message.setSendButtonEnabled(false);
 
 		String msg = ui.message.getText().toString();
+		msg = StringUtils.truncateUtf8(msg, MAX_INTRODUCTION_MESSAGE_LENGTH);
 		makeIntroduction(contact1, contact2, msg);
 
 		// don't wait for the introduction to be made before finishing activity

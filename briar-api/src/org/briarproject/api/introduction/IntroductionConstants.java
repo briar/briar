@@ -1,5 +1,7 @@
 package org.briarproject.api.introduction;
 
+import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+
 public interface IntroductionConstants {
 
 	/* Protocol roles */
@@ -30,7 +32,17 @@ public interface IntroductionConstants {
 	String SIGNATURE = "signature";
 
 	/* Validation Constants */
+
+	/**
+	 * The length of the message authentication code in bytes.
+	 */
 	int MAC_LENGTH = 32;
+
+	/**
+	 * The maximum length of the introducer's optional message to the
+	 * introducees in UTF-8 bytes.
+	 */
+	int MAX_INTRODUCTION_MESSAGE_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
 	/* Introducer Local State Metadata */
 	String STATE = "state";

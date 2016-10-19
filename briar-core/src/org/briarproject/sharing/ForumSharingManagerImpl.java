@@ -167,6 +167,7 @@ class ForumSharingManagerImpl extends
 					.createForum(msg.getForumName(), msg.getForumSalt());
 		}
 
+		@Override
 		public Forum parse(ForumInviteeSessionState state) {
 			return forumFactory
 					.createForum(state.getForumName(), state.getForumSalt());

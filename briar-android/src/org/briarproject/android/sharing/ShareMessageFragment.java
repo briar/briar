@@ -15,6 +15,7 @@ import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import static org.briarproject.android.sharing.ShareActivity.CONTACTS;
 import static org.briarproject.android.sharing.ShareActivity.getContactsFromIds;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
+import static org.briarproject.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
 
 abstract class ShareMessageFragment extends BaseFragment
 		implements TextInputListener {
@@ -103,6 +105,7 @@ abstract class ShareMessageFragment extends BaseFragment
 		// disable button to prevent accidental double invitations
 		ui.message.setSendButtonEnabled(false);
 
+		msg = StringUtils.truncateUtf8(msg, MAX_INVITATION_MESSAGE_LENGTH);
 		share(msg);
 
 		// don't wait for the invitation to be made before finishing activity

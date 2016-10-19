@@ -29,7 +29,6 @@ import org.briarproject.api.sharing.InvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sharing.SharingManager;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -58,6 +57,7 @@ import static org.briarproject.api.clients.ProtocolEngine.StateUpdate;
 import static org.briarproject.api.sharing.SharingConstants.CONTACT_ID;
 import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
 import static org.briarproject.api.sharing.SharingConstants.LOCAL;
+import static org.briarproject.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
 import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHAREABLE_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHARED_BY_US;
@@ -114,8 +114,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		this.clock = clock;
 		localGroup = contactGroupFactory.createLocalGroup(getClientId());
 	}
-
-	public abstract ClientId getClientId();
 
 	protected abstract InvitationMessage createInvitationRequest(MessageId id,
 			I msg, ContactId contactId, boolean available, long time,
@@ -282,6 +280,9 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 			// add invitation message to local state to be available for engine
 			if (!StringUtils.isNullOrEmpty(msg)) {
+				int msgLength = StringUtils.toUtf8(msg).length;
+				if (msgLength > MAX_INVITATION_MESSAGE_LENGTH)
+					throw new IllegalArgumentException();
 				localState.setMessage(msg);
 			}
 

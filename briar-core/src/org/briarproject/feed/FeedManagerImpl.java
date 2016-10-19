@@ -484,10 +484,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 	private String getPostBody(String text) {
 		text = clean(text, article);
-		byte[] textBytes = StringUtils.toUtf8(text);
-		if (textBytes.length <= MAX_BLOG_POST_BODY_LENGTH)
-			return text;
-		return StringUtils.fromUtf8(textBytes, 0, MAX_BLOG_POST_BODY_LENGTH);
+		return StringUtils.truncateUtf8(text, MAX_BLOG_POST_BODY_LENGTH);
 	}
 
 	/**

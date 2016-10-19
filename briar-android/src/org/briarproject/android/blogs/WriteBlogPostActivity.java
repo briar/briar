@@ -128,12 +128,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	private void enableOrDisablePublishButton() {
-		int bodyLength =
-				StringUtils.toUtf8(input.getText().toString()).length;
-		if (bodyLength > 0 && bodyLength <= MAX_BLOG_POST_BODY_LENGTH)
-			input.setSendButtonEnabled(true);
-		else
-			input.setSendButtonEnabled(false);
+		input.setSendButtonEnabled(input.getText().length() > 0);
 	}
 
 	@Override
@@ -142,6 +137,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
+		body = StringUtils.truncateUtf8(body, MAX_BLOG_POST_BODY_LENGTH);
 		storePost(body);
 	}
 

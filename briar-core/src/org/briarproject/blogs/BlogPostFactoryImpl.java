@@ -11,6 +11,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
+import org.briarproject.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +19,7 @@ import java.security.GeneralSecurityException;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
 import static org.briarproject.api.blogs.MessageType.COMMENT;
 import static org.briarproject.api.blogs.MessageType.POST;
@@ -42,7 +44,8 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 			throws FormatException, GeneralSecurityException {
 
 		// Validate the arguments
-		if (body.length() > MAX_BLOG_POST_BODY_LENGTH)
+		int bodyLength = StringUtils.toUtf8(body).length;
+		if (bodyLength > MAX_BLOG_POST_BODY_LENGTH)
 			throw new IllegalArgumentException();
 
 		// Serialise the data to be signed
@@ -61,6 +64,13 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 	public Message createBlogComment(GroupId groupId, LocalAuthor author,
 			@Nullable String comment, MessageId pOriginalId, MessageId parentId)
 			throws FormatException, GeneralSecurityException {
+
+		if (comment != null) {
+			int commentLength = StringUtils.toUtf8(comment).length;
+			if (commentLength == 0) throw new IllegalArgumentException();
+			if (commentLength > MAX_BLOG_COMMENT_LENGTH)
+				throw new IllegalArgumentException();
+		}
 
 		long timestamp = clock.currentTimeMillis();
 
