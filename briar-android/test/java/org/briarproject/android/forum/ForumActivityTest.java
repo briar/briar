@@ -11,14 +11,12 @@ import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -26,6 +24,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -81,7 +80,7 @@ public class ForumActivityTest {
 
 	private TestForumActivity forumActivity;
 	@Captor
-	private ArgumentCaptor<UiResultExceptionHandler<List<ForumEntry>, DbException>>
+	private ArgumentCaptor<UiResultExceptionHandler<Collection<ForumItem>, DbException>>
 			rc;
 
 	@Before
@@ -93,14 +92,14 @@ public class ForumActivityTest {
 				.withIntent(intent).create().resume().get();
 	}
 
-	private List<ForumEntry> getDummyData() {
-		ForumEntry[] forumEntries = new ForumEntry[6];
+	private List<ForumItem> getDummyData() {
+		ForumItem[] forumEntries = new ForumItem[6];
 		for (int i = 0; i < forumEntries.length; i++) {
 			AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 			byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 			Author author = new Author(authorId, AUTHORS[i], publicKey);
 			forumEntries[i] =
-					new ForumEntry(AUTHOR_IDS[i], PARENT_AUTHOR_IDS[i],
+					new ForumItem(AUTHOR_IDS[i], PARENT_AUTHOR_IDS[i],
 							AUTHORS[i], System.currentTimeMillis(), author,
 							UNKNOWN);
 			forumEntries[i].setLevel(LEVELS[i]);
@@ -111,9 +110,8 @@ public class ForumActivityTest {
 	@Test
 	public void testNestedEntries() {
 		ForumController mc = forumActivity.getController();
-		List<ForumEntry> dummyData = getDummyData();
-		verify(mc, times(1))
-				.loadForum(Mockito.any(GroupId.class), rc.capture());
+		List<ForumItem> dummyData = getDummyData();
+		verify(mc, times(1)).loadItems(rc.capture());
 		rc.getValue().onResult(dummyData);
 		NestedForumAdapter adapter = forumActivity.getAdapter();
 		Assert.assertNotNull(adapter);
@@ -126,9 +124,9 @@ public class ForumActivityTest {
 		adapter.hideDescendants(dummyData.get(0));
 		assertEquals(2, adapter.getItemCount());
 		assertTrue(dummyData.get(0).getText()
-				.equals(adapter.getVisibleEntry(0).getText()));
+				.equals(adapter.getVisibleItem(0).getText()));
 		assertTrue(dummyData.get(5).getText()
-				.equals(adapter.getVisibleEntry(1).getText()));
+				.equals(adapter.getVisibleItem(1).getText()));
 		// Cascade re-open
 		adapter.showDescendants(dummyData.get(0));
 		assertEquals(4, adapter.getItemCount());
@@ -137,8 +135,8 @@ public class ForumActivityTest {
 		adapter.showDescendants(dummyData.get(2));
 		assertEquals(6, adapter.getItemCount());
 		assertTrue(dummyData.get(2).getText()
-				.equals(adapter.getVisibleEntry(2).getText()));
+				.equals(adapter.getVisibleItem(2).getText()));
 		assertTrue(dummyData.get(4).getText()
-				.equals(adapter.getVisibleEntry(4).getText()));
+				.equals(adapter.getVisibleItem(4).getText()));
 	}
 }

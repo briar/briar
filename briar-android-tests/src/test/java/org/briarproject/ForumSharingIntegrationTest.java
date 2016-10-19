@@ -3,16 +3,14 @@ package org.briarproject;
 import net.jodah.concurrentunit.Waiter;
 
 import org.briarproject.api.Bytes;
-import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
-import org.briarproject.api.crypto.KeyParser;
-import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
@@ -820,12 +818,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 			// sharer posts into the forum
 			long time = clock.currentTimeMillis();
-			byte[] body = TestUtils.getRandomBytes(42);
-			KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
-			PrivateKey key = keyParser.parsePrivateKey(author0.getPrivateKey());
+			String body = TestUtils.getRandomString(42);
 			ForumPost p = forumPostFactory
 					.createPseudonymousPost(forum0.getId(), time, null, author0,
-							"text/plain", body, key);
+							body);
 			forumManager0.addLocalPost(p);
 
 			// sync forum post
@@ -841,11 +837,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 			// now invitee creates a post
 			time = clock.currentTimeMillis();
-			body = TestUtils.getRandomBytes(42);
-			key = keyParser.parsePrivateKey(author1.getPrivateKey());
+			body = TestUtils.getRandomString(42);
 			p = forumPostFactory
 					.createPseudonymousPost(forum0.getId(), time, null, author1,
-							"text/plain", body, key);
+							body);
 			forumManager1.addLocalPost(p);
 
 			// sync forum post
@@ -886,11 +881,10 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 
 			// now invitee creates a post
 			time = clock.currentTimeMillis();
-			body = TestUtils.getRandomBytes(42);
-			key = keyParser.parsePrivateKey(author1.getPrivateKey());
+			body = TestUtils.getRandomString(42);
 			p = forumPostFactory
 					.createPseudonymousPost(forum0.getId(), time, null, author1,
-							"text/plain", body, key);
+							body);
 			forumManager1.addLocalPost(p);
 
 			// sync forum post

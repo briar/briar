@@ -1,7 +1,6 @@
 package org.briarproject.android.privategroup.list;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,7 @@ class GroupListAdapter extends BriarAdapter<GroupItem, GroupViewHolder> {
 
 	@Override
 	public void onBindViewHolder(GroupViewHolder ui, int position) {
-		ui.bindView(ctx, getItemAt(position), listener);
+		ui.bindView(ctx, items.get(position), listener);
 	}
 
 	@Override

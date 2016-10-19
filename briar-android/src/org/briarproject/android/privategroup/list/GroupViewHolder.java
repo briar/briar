@@ -1,7 +1,8 @@
 package org.briarproject.android.privategroup.list;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.content.Intent;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,13 +11,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.R;
+import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.view.TextAvatarView;
+import org.briarproject.api.sync.GroupId;
 import org.jetbrains.annotations.NotNull;
 
 import static android.support.v4.content.ContextCompat.getColor;
+import static android.support.v4.content.ContextCompat.startActivities;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.android.BriarActivity.GROUP_ID;
+import static org.briarproject.android.BriarActivity.GROUP_NAME;
 
 class GroupViewHolder extends RecyclerView.ViewHolder {
 
@@ -44,10 +50,8 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		remove = (Button) v.findViewById(R.id.removeButton);
 	}
 
-	void bindView(Context ctx, @Nullable final GroupItem group,
+	void bindView(final Context ctx, final GroupItem group,
 			@NotNull final OnGroupRemoveClickListener listener) {
-		if (group == null) return;
-
 		// Avatar
 		avatar.setText(group.getName().substring(0, 1));
 		avatar.setBackgroundBytes(group.getId().getBytes());
@@ -115,15 +119,15 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-/*
 				Intent i = new Intent(ctx, GroupActivity.class);
-				GroupId id = item.getId();
+				GroupId id = group.getId();
 				i.putExtra(GROUP_ID, id.getBytes());
+				i.putExtra(GROUP_NAME, group.getName());
 				ActivityOptionsCompat options = ActivityOptionsCompat
 						.makeCustomAnimation(ctx, android.R.anim.fade_in,
 								android.R.anim.fade_out);
-				ActivityCompat.startActivity(ctx, i, options.toBundle());
-*/
+				Intent[] intents = {i};
+				startActivities(ctx, intents, options.toBundle());
 			}
 		});
 	}

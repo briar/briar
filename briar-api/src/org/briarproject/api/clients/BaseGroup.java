@@ -1,19 +1,22 @@
 package org.briarproject.api.clients;
 
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+@NotNullByDefault
 public abstract class BaseGroup {
 
 	private final Group group;
 	private final String name;
-	private final byte[] salt;
 
-	public BaseGroup(@NotNull Group group, @NotNull String name, byte[] salt) {
+	public BaseGroup(Group group, String name) {
 		this.group = group;
 		this.name = name;
-		this.salt = salt;
 	}
 
 	@NotNull
@@ -29,10 +32,6 @@ public abstract class BaseGroup {
 	@NotNull
 	public String getName() {
 		return name;
-	}
-
-	public byte[] getSalt() {
-		return salt;
 	}
 
 	@Override

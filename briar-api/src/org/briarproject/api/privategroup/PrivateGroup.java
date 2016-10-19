@@ -1,11 +1,16 @@
 package org.briarproject.api.privategroup;
 
-import org.briarproject.api.clients.BaseGroup;
+import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.jetbrains.annotations.NotNull;
 
-public class PrivateGroup extends BaseGroup {
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+@NotNullByDefault
+public class PrivateGroup extends NamedGroup {
 
 	private final Author author;
 

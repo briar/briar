@@ -1,4 +1,4 @@
-package org.briarproject.android.forum;
+package org.briarproject.android.privategroup.conversation;
 
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,19 +10,19 @@ import org.briarproject.R;
 import org.briarproject.android.threaded.ThreadItemAdapter;
 
 @UiThread
-public class NestedForumAdapter extends ThreadItemAdapter<ForumItem> {
+public class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 
-	public NestedForumAdapter(ThreadItemListener<ForumItem> listener,
+	public GroupMessageAdapter(ThreadItemListener<GroupMessageItem> listener,
 			LinearLayoutManager layoutManager) {
 		super(listener, layoutManager);
 	}
 
 	@Override
-	public NestedForumHolder onCreateViewHolder(ViewGroup parent,
+	public GroupMessageViewHolder onCreateViewHolder(ViewGroup parent,
 			int viewType) {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.list_item_forum_post, parent, false);
-		return new NestedForumHolder(v);
+		return new GroupMessageViewHolder(v);
 	}
 
 }

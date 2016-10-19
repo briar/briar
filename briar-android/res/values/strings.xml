@@ -75,6 +75,7 @@
 	<string name="send">Send</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
+	<string name="text_too_long">The entered text is too long</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
@@ -155,6 +156,14 @@
 	<string name="groups_group_is_dissolved">This group is dissolved</string>
 	<string name="groups_remove">Remove</string>
 	<string name="groups_add_group_title">Add Private Group</string>
+	<string name="groups_no_messages">This group is empty.\n\nYou can use the pen icon at the top to compose the first message.</string>
+	<string name="groups_compose_message">Compose Message</string>
+	<string name="groups_message_sent">Message sent</string>
+	<string name="groups_message_received">Message received</string>
+	<string name="groups_member_list">Member List</string>
+	<string name="groups_invite_members">Invite Members</string>
+	<string name="groups_leave">Leave Group</string>
+	<string name="groups_dissolve">Dissolve Group</string>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>

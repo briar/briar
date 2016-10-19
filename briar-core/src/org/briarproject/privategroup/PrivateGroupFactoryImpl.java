@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.sync.Group;
@@ -22,14 +23,17 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 
 	private final GroupFactory groupFactory;
 	private final ClientHelper clientHelper;
+	private final AuthorFactory authorFactory;
 	private final SecureRandom random;
 
 	@Inject
 	PrivateGroupFactoryImpl(GroupFactory groupFactory,
-			ClientHelper clientHelper, SecureRandom random) {
+			ClientHelper clientHelper, AuthorFactory authorFactory,
+			SecureRandom random) {
 
 		this.groupFactory = groupFactory;
 		this.clientHelper = clientHelper;
+		this.authorFactory = authorFactory;
 		this.random = random;
 	}
 
@@ -64,6 +68,15 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public PrivateGroup parsePrivateGroup(Group group) throws FormatException {
+		byte[] descriptor = group.getDescriptor();
+		BdfList list = clientHelper.toList(descriptor);
+		Author a =
+				authorFactory.createAuthor(list.getString(1), list.getRaw(2));
+		return new PrivateGroup(group, list.getString(0), a, list.getRaw(3));
 	}
 
 }

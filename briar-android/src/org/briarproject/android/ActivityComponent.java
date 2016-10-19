@@ -28,6 +28,7 @@ import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
+import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.android.sharing.ContactSelectorFragment;
 import org.briarproject.android.sharing.InvitationsBlogActivity;
@@ -71,6 +72,8 @@ public interface ActivityComponent {
 	void inject(InvitationsForumActivity activity);
 
 	void inject(InvitationsBlogActivity activity);
+
+	void inject(GroupActivity activity);
 
 	void inject(CreateForumActivity activity);
 

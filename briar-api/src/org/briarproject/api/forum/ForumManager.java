@@ -1,11 +1,14 @@
 package org.briarproject.api.forum;
 
 import org.briarproject.api.clients.MessageTracker;
+import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -20,8 +23,13 @@ public interface ForumManager extends MessageTracker {
 	/** Unsubscribes from a forum. */
 	void removeForum(Forum f) throws DbException;
 
+	/** Creates a local forum post. */
+	@CryptoExecutor
+	ForumPost createLocalPost(GroupId groupId, String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author);
+
 	/** Stores a local forum post. */
-	void addLocalPost(ForumPost p) throws DbException;
+	ForumPostHeader addLocalPost(ForumPost p) throws DbException;
 
 	/** Returns the forum with the given ID. */
 	Forum getForum(GroupId g) throws DbException;

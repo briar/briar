@@ -68,6 +68,7 @@ public class GroupListControllerImpl extends DbControllerImpl
 			throw new IllegalStateException(
 					"GroupListListener needs to be attached");
 		eventBus.addListener(this);
+		// TODO: Add new notification manager methods for private groups
 	}
 
 	@Override

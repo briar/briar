@@ -19,7 +19,6 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.feed.FeedManager;
 import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
@@ -37,6 +36,7 @@ import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.settings.SettingsManager;
+import org.briarproject.api.system.Clock;
 import org.briarproject.plugins.AndroidPluginsModule;
 import org.briarproject.system.AndroidSystemModule;
 
@@ -102,8 +102,6 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	BlogSharingManager blogSharingManager();
 
-	ForumPostFactory forumPostFactory();
-
 	BlogManager blogManager();
 
 	BlogPostFactory blogPostFactory();
@@ -123,6 +121,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	AndroidExecutor androidExecutor();
 
 	FeedManager feedManager();
+
+	Clock clock();
 
 	@IoExecutor
 	Executor ioExecutor();

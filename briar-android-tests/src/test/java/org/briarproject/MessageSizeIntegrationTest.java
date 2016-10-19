@@ -6,8 +6,8 @@ import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.forum.ForumConstants;
 import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostFactory;
-import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.messaging.MessagingConstants;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
@@ -68,17 +68,17 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		String authorName = TestUtils.getRandomString(
 				MAX_AUTHOR_NAME_LENGTH);
 		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
-		Author author = authorFactory.createAuthor(authorName, authorPublic);
+		PrivateKey privateKey = crypto.generateSignatureKeyPair().getPrivate();
+		LocalAuthor author = authorFactory
+				.createLocalAuthor(authorName, authorPublic,
+						privateKey.getEncoded());
 		// Create a maximum-length forum post
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
 		long timestamp = Long.MAX_VALUE;
 		MessageId parent = new MessageId(TestUtils.getRandomId());
-		String contentType = TestUtils.getRandomString(
-				ForumConstants.MAX_CONTENT_TYPE_LENGTH);
-		byte[] body = new byte[MAX_FORUM_POST_BODY_LENGTH];
-		PrivateKey privateKey = crypto.generateSignatureKeyPair().getPrivate();
+		String body = TestUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH);
 		ForumPost post = forumPostFactory.createPseudonymousPost(groupId,
-				timestamp, parent, author, contentType, body, privateKey);
+				timestamp, parent, author, body);
 		// Check the size of the serialised message
 		int length = post.getMessage().getRaw().length;
 		assertTrue(length > UniqueId.LENGTH + 8 + UniqueId.LENGTH

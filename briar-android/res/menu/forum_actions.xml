@@ -7,7 +7,7 @@
 		android:id="@+id/action_forum_compose_post"
 		android:icon="@drawable/forum_item_create_white"
 		android:title="@string/forum_compose_post"
-		app:showAsAction="ifRoom"/>
+		app:showAsAction="always"/>
 
 	<item
 		android:id="@+id/action_forum_share"
