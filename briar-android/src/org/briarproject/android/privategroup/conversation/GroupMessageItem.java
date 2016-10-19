@@ -8,13 +8,13 @@ import org.briarproject.api.sync.MessageId;
 
 class GroupMessageItem extends ThreadItem {
 
-	public GroupMessageItem(MessageId messageId, MessageId parentId,
+	GroupMessageItem(MessageId messageId, MessageId parentId,
 			String text, long timestamp, Author author, Status status,
 			boolean isRead) {
 		super(messageId, parentId, text, timestamp, author, status, isRead);
 	}
 
-	public GroupMessageItem(GroupMessageHeader h, String text) {
+	GroupMessageItem(GroupMessageHeader h, String text) {
 		this(h.getId(), h.getParentId(), text, h.getTimestamp(), h.getAuthor(),
 				h.getAuthorStatus(), h.isRead());
 	}

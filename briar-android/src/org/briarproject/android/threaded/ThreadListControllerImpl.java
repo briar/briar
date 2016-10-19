@@ -339,11 +339,11 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected abstract void deleteNamedGroup(G groupItem) throws DbException;
 
 	private List<I> buildItems(Collection<H> headers) {
-		List<I> entries = new ArrayList<>();
+		List<I> items = new ArrayList<>();
 		for (H h : headers) {
-			entries.add(buildItem(h, bodyCache.get(h.getId())));
+			items.add(buildItem(h, bodyCache.get(h.getId())));
 		}
-		return entries;
+		return items;
 	}
 
 	protected abstract I buildItem(H header, String body);

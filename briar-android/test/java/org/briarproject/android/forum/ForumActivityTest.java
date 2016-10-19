@@ -93,18 +93,16 @@ public class ForumActivityTest {
 	}
 
 	private List<ForumItem> getDummyData() {
-		ForumItem[] forumEntries = new ForumItem[6];
-		for (int i = 0; i < forumEntries.length; i++) {
+		ForumItem[] forumItems = new ForumItem[6];
+		for (int i = 0; i < forumItems.length; i++) {
 			AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 			byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 			Author author = new Author(authorId, AUTHORS[i], publicKey);
-			forumEntries[i] =
-					new ForumItem(AUTHOR_IDS[i], PARENT_AUTHOR_IDS[i],
-							AUTHORS[i], System.currentTimeMillis(), author,
-							UNKNOWN);
-			forumEntries[i].setLevel(LEVELS[i]);
+			forumItems[i] = new ForumItem(AUTHOR_IDS[i], PARENT_AUTHOR_IDS[i],
+					AUTHORS[i], System.currentTimeMillis(), author, UNKNOWN);
+			forumItems[i].setLevel(LEVELS[i]);
 		}
-		return new ArrayList<>(Arrays.asList(forumEntries));
+		return new ArrayList<>(Arrays.asList(forumItems));
 	}
 
 	@Test

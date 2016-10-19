@@ -22,14 +22,12 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 
 	static final int UNDEFINED = -1;
 
-	private final NestedTreeList<I> items =
-			new NestedTreeList<>();
-	private final Map<I, ValueAnimator> animatingItems =
-			new HashMap<>();
+	private final NestedTreeList<I> items = new NestedTreeList<>();
+	private final Map<I, ValueAnimator> animatingItems = new HashMap<>();
 	// highlight not dependant on time
 	private I replyItem;
 	// temporary highlight
-	private I addedEntry;
+	private I addedItem;
 
 	private final ThreadItemListener<I> listener;
 	private final LinearLayoutManager layoutManager;
@@ -53,7 +51,7 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		return getVisiblePos(null);
 	}
 
-	public I getReplyItem() {
+	I getReplyItem() {
 		return replyItem;
 	}
 
@@ -65,7 +63,7 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 
 	public void add(I item) {
 		items.add(item);
-		addedEntry = item;
+		addedItem = item;
 		if (item.getParentId() == null) {
 			notifyItemInserted(getVisiblePos(item));
 		} else {
@@ -96,7 +94,7 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		}
 	}
 
-	public void scrollTo(I item) {
+	void scrollTo(I item) {
 		int visiblePos = getVisiblePos(item);
 		if (visiblePos == NO_POSITION && item.getParentId() != null) {
 			// The item is not visible due to being hidden by its parent item.
@@ -110,7 +108,7 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 					showDescendants(higherItem);
 					int parentPos = getVisiblePos(higherItem);
 					if (parentPos != NO_POSITION) {
-						// parent or ancestor is visible, entry's visibility
+						// parent or ancestor is visible, item's visibility
 						// is ensured
 						notifyItemChanged(parentPos);
 						visiblePos = parentPos;
@@ -142,17 +140,17 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		return counter;
 	}
 
-	public void setReplyItem(@Nullable I entry) {
+	void setReplyItem(@Nullable I item) {
 		if (replyItem != null) {
 			notifyItemChanged(getVisiblePos(replyItem));
 		}
-		replyItem = entry;
+		replyItem = item;
 		if (replyItem != null) {
 			notifyItemChanged(getVisiblePos(replyItem));
 		}
 	}
 
-	public void setReplyItemById(MessageId id) {
+	void setReplyItemById(MessageId id) {
 		for (I item : items) {
 			if (item.getId().equals(id)) {
 				setReplyItem(item);
@@ -215,17 +213,18 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 
 	/**
 	 * Returns the visible item at the given position
-	 * @param position is visible entry index
-	 * @return the visible entry at index position from an ordered list of
-	 * visible entries, or null if position is larger than
-	 * the number of visible entries.
+	 *
+	 * @param position is visible item index
+	 * @return the visible item at index 'position' from an ordered list of
+	 * visible items, or null if 'position' is larger than the number of
+	 * visible items.
 	 */
 	@Nullable
 	public I getVisibleItem(int position) {
 		int levelLimit = UNDEFINED;
 		for (I item : items) {
 			if (levelLimit >= 0) {
-				// skip hidden entries that their parent is hiding
+				// skip hidden items that their parent is hiding
 				if (item.getLevel() > levelLimit) {
 					continue;
 				}
@@ -241,33 +240,34 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		return null;
 	}
 
-	public boolean isVisible(I item) {
+	boolean isVisible(I item) {
 		return getVisiblePos(item) != NO_POSITION;
 	}
 
 	/**
-	 * Returns the visible position of the given ThreadItem
-	 * @param item the ThreadItem to find the visible position of, or null to
-	 *               return the total count of visible elements
-	 * @return the visible position of item, or the total number of visible
-	 * elements if sEntry is null. If item is not visible NO_POSITION is
+	 * Returns the visible position of the given item.
+	 *
+	 * @param item the item to find the visible position of, or null to
+	 *             return the total count of visible items.
+	 * @return the visible position of 'item', or the total number of visible
+	 * items if 'item' is null. If 'item' is not visible, NO_POSITION is
 	 * returned.
 	 */
 	private int getVisiblePos(@Nullable I item) {
 		int visibleCounter = 0;
 		int levelLimit = UNDEFINED;
-		for (I iItem : items) {
+		for (I i : items) {
 			if (levelLimit >= 0) {
-				if (iItem.getLevel() > levelLimit) {
-					// skip all the entries below a non visible branch
+				if (i.getLevel() > levelLimit) {
+					// skip all the items below a non visible branch
 					continue;
 				}
 				levelLimit = UNDEFINED;
 			}
-			if (item != null && item.equals(iItem)) {
+			if (item != null && item.equals(i)) {
 				return visibleCounter;
-			} else if (!iItem.isShowingDescendants()) {
-				levelLimit = iItem.getLevel();
+			} else if (!i.isShowingDescendants()) {
+				levelLimit = i.getLevel();
 			}
 			visibleCounter++;
 		}
@@ -275,11 +275,11 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	I getAddedItem() {
-		return addedEntry;
+		return addedItem;
 	}
 
 	void clearAddedItem() {
-		addedEntry = null;
+		addedItem = null;
 	}
 
 	void addAnimatingItem(I item, ValueAnimator anim) {
@@ -290,7 +290,8 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		animatingItems.remove(item);
 	}
 
-	public interface ThreadItemListener<I> {
+	protected interface ThreadItemListener<I> {
+
 		void onItemVisible(I item);
 
 		void onReplyClick(I item);
