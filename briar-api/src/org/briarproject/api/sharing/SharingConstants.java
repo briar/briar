@@ -13,7 +13,7 @@ public interface SharingConstants {
 	 * The maximum length of the optional message from the inviter to the
 	 * invitee in UTF-8 bytes.
 	 */
-	int MAX_INVITATION_MESSAGE_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1204;
+	int MAX_INVITATION_MESSAGE_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
 	String CONTACT_ID = "contactId";
 	String GROUP_ID = "groupId";
