@@ -8,6 +8,8 @@ interface Constants {
 	String KEY_TYPE = "type";
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_READ = MSG_KEY_READ;
+	String KEY_PARENT_ID = "parentId";
+	String KEY_AUTHOR_ID = "authorId";
 	String KEY_AUTHOR_NAME = "authorName";
 	String KEY_AUTHOR_PUBLIC_KEY = "authorPublicKey";
 

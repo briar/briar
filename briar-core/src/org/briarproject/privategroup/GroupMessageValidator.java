@@ -6,6 +6,8 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.privategroup.MessageType;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
@@ -24,8 +26,10 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENG
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
+import static org.briarproject.privategroup.Constants.KEY_AUTHOR_ID;
 import static org.briarproject.privategroup.Constants.KEY_AUTHOR_NAME;
 import static org.briarproject.privategroup.Constants.KEY_AUTHOR_PUBLIC_KEY;
+import static org.briarproject.privategroup.Constants.KEY_PARENT_ID;
 import static org.briarproject.privategroup.Constants.KEY_READ;
 import static org.briarproject.privategroup.Constants.KEY_TIMESTAMP;
 import static org.briarproject.privategroup.Constants.KEY_TYPE;
@@ -33,12 +37,14 @@ import static org.briarproject.privategroup.Constants.KEY_TYPE;
 class GroupMessageValidator extends BdfMessageValidator {
 
 	private final PrivateGroupFactory groupFactory;
+	private final AuthorFactory authorFactory;
 
 	GroupMessageValidator(PrivateGroupFactory groupFactory,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock) {
+			Clock clock, AuthorFactory authorFactory) {
 		super(clientHelper, metadataEncoder, clock);
 		this.groupFactory = groupFactory;
+		this.authorFactory = authorFactory;
 	}
 
 	@Override
@@ -179,6 +185,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
+		if (parent_id != null) meta.put(KEY_PARENT_ID, parent_id);
 		return new BdfMessageContext(meta, dependencies);
 	}
 
@@ -186,6 +193,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 			byte[] pubKey, long time) {
 		c.getDictionary().put(KEY_TIMESTAMP, time);
 		c.getDictionary().put(KEY_READ, false);
+		Author a = authorFactory.createAuthor(authorName, pubKey);
+		c.getDictionary().put(KEY_AUTHOR_ID, a.getId());
 		c.getDictionary().put(KEY_AUTHOR_NAME, authorName);
 		c.getDictionary().put(KEY_AUTHOR_PUBLIC_KEY, pubKey);
 	}
