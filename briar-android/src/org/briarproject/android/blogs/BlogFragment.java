@@ -32,7 +32,6 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -52,7 +51,6 @@ public class BlogFragment extends BaseFragment implements
 		OnBlogPostAddedListener {
 
 	public final static String TAG = BlogFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
 	BlogController blogController;
@@ -209,7 +207,6 @@ public class BlogFragment extends BaseFragment implements
 						listener) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
-						adapter.incrementRevision();
 						adapter.add(post);
 						if (local) {
 							list.scrollToPosition(0);
@@ -231,23 +228,16 @@ public class BlogFragment extends BaseFragment implements
 	}
 
 	void loadBlogPosts(final boolean reload) {
-		final int revision = adapter.getRevision();
 		blogController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
 						listener) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
-						if (revision == adapter.getRevision()) {
-							adapter.incrementRevision();
-							if (posts.isEmpty()) {
-								list.showData();
-							} else {
-								adapter.addAll(posts);
-								if (reload) list.scrollToPosition(0);
-							}
+						if (posts.isEmpty()) {
+							list.showData();
 						} else {
-							LOG.info("Concurrent update, reloading");
-							loadBlogPosts(reload);
+							adapter.addAll(posts);
+							if (reload) list.scrollToPosition(0);
 						}
 					}
 
