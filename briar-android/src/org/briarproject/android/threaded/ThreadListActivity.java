@@ -249,8 +249,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 						finish();
 					}
 				};
-		getController().createAndStoreMessage(text,
-				replyItem != null ? replyItem.getId() : null, handler);
+		getController().createAndStoreMessage(text, replyItem, handler);
 		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
 		textInput.setText("");

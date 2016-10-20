@@ -2,7 +2,6 @@ package org.briarproject.android.threaded;
 
 import android.app.Activity;
 import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
@@ -18,7 +17,6 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -43,12 +41,12 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
-	private final IdentityManager identityManager;
+	protected final IdentityManager identityManager;
 	@CryptoExecutor
-	private final Executor cryptoExecutor;
+	protected final Executor cryptoExecutor;
 	protected final AndroidNotificationManager notificationManager;
+	protected final Clock clock;
 	private final EventBus eventBus;
-	private final Clock clock;
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
@@ -59,13 +57,13 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus,
-			AndroidNotificationManager notificationManager, Clock clock) {
+			Clock clock, AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager);
 		this.identityManager = identityManager;
 		this.cryptoExecutor = cryptoExecutor;
-		this.eventBus = eventBus;
 		this.notificationManager = notificationManager;
 		this.clock = clock;
+		this.eventBus = eventBus;
 	}
 
 	@Override
@@ -243,57 +241,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@DatabaseExecutor
 	protected abstract void markRead(MessageId id) throws DbException;
 
-	@Override
-	public void createAndStoreMessage(final String body,
-			@Nullable final MessageId parentId,
-			final ResultExceptionHandler<I, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					LocalAuthor author = identityManager.getLocalAuthor();
-					long timestamp = getLatestTimestamp();
-					timestamp = Math.max(timestamp, clock.currentTimeMillis());
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO)) {
-						LOG.info("Loading identity and timestamp took " +
-								duration + " ms");
-					}
-					createMessage(body, timestamp, parentId, author, handler);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
-			}
-		});
-	}
-
-	@DatabaseExecutor
-	protected abstract long getLatestTimestamp() throws DbException;
-
-	private void createMessage(final String body, final long timestamp,
-			final @Nullable MessageId parentId, final LocalAuthor author,
-			final ResultExceptionHandler<I, DbException> handler) {
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				long now = System.currentTimeMillis();
-				M msg = createLocalMessage(body, timestamp, parentId, author);
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Creating message took " + duration + " ms");
-				storePost(msg, body, handler);
-			}
-		});
-	}
-
-	@CryptoExecutor
-	protected abstract M createLocalMessage(String body, long timestamp,
-			@Nullable MessageId parentId, LocalAuthor author);
-
-	private void storePost(final M msg, final String body,
+	protected void storePost(final M msg, final String body,
 			final ResultExceptionHandler<I, DbException> resultHandler) {
 		runOnDbThread(new Runnable() {
 			@Override

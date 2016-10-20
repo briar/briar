@@ -10,7 +10,6 @@ import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
@@ -29,7 +28,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void markItemsRead(Collection<I> items);
 
-	void createAndStoreMessage(String body, @Nullable MessageId parentId,
+	void createAndStoreMessage(String body, @Nullable I parentItem,
 			ResultExceptionHandler<I, DbException> handler);
 
 	void deleteNamedGroup(ResultExceptionHandler<Void, DbException> handler);
