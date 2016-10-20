@@ -11,4 +11,6 @@ interface Constants {
 	String KEY_AUTHOR_NAME = "authorName";
 	String KEY_AUTHOR_PUBLIC_KEY = "authorPublicKey";
 
+	// Messaging Group Metadata
+	String KEY_PREVIOUS_MSG_ID = "previousMsgId";
 }

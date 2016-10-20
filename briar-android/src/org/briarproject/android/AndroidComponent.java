@@ -34,6 +34,8 @@ import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
+import org.briarproject.api.privategroup.GroupMessageFactory;
+import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.settings.SettingsManager;
@@ -98,6 +100,10 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	PrivateGroupManager privateGroupManager();
 
 	GroupInvitationManager groupInvitationManager();
+
+	PrivateGroupFactory privateGroupFactory();
+
+	GroupMessageFactory groupMessageFactory();
 
 	ForumManager forumManager();
 

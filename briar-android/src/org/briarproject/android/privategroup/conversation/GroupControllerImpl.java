@@ -15,6 +15,7 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.GroupMessage;
+import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
@@ -35,16 +36,19 @@ public class GroupControllerImpl extends
 			Logger.getLogger(GroupControllerImpl.class.getName());
 
 	private final PrivateGroupManager privateGroupManager;
+	private final GroupMessageFactory groupMessageFactory;
 
 	@Inject
 	GroupControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
-			PrivateGroupManager privateGroupManager, EventBus eventBus,
+			PrivateGroupManager privateGroupManager,
+			GroupMessageFactory groupMessageFactory, EventBus eventBus,
 			AndroidNotificationManager notificationManager, Clock clock) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
 				eventBus, notificationManager, clock);
 		this.privateGroupManager = privateGroupManager;
+		this.groupMessageFactory = groupMessageFactory;
 	}
 
 	@Override
@@ -101,8 +105,10 @@ public class GroupControllerImpl extends
 	@Override
 	protected GroupMessage createLocalMessage(String body, long timestamp,
 			@Nullable MessageId parentId, LocalAuthor author) {
-		return privateGroupManager.createLocalMessage(getGroupId(), body,
-				timestamp, parentId, author);
+		MessageId previousMsgId = null; // TODO
+		return groupMessageFactory
+				.createGroupMessage(getGroupId(), timestamp, parentId,
+						author, body, previousMsgId);
 	}
 
 	@Override

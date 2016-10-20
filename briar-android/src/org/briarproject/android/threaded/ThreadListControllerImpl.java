@@ -44,6 +44,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
 	private final IdentityManager identityManager;
+	@CryptoExecutor
 	private final Executor cryptoExecutor;
 	protected final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
