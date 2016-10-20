@@ -12,7 +12,7 @@ import java.util.Collection;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
 public abstract class BriarAdapter<T, V extends ViewHolder>
-		extends Adapter<V> {
+		extends Adapter<V> implements VersionedAdapter {
 
 	protected final Context ctx;
 	protected final SortedList<T> items;
@@ -113,25 +113,13 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 		return items.size() == 0;
 	}
 
-	/**
-	 * Returns the adapter's revision counter. This method should be called on
-	 * any thread before starting an asynchronous load that could overwrite
-	 * other changes to the adapter, and called again on the UI thread before
-	 * applying the changes from the asynchronous load. If the revision has
-	 * changed between the two calls, the asynchronous load should be restarted
-	 * without applying its changes. Otherwise {@link #incrementRevision()}
-	 * should be called before applying the changes.
-	 */
+	@Override
 	public int getRevision() {
 		return revision;
 	}
 
-	/**
-	 * Increments the adapter's revision counter. This method should be called
-	 * on the UI thread before applying any changes to the adapter that could
-	 * be overwritten by an asynchronous load.
-	 */
 	@UiThread
+	@Override
 	public void incrementRevision() {
 		revision++;
 	}

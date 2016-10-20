@@ -6,6 +6,7 @@ import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import org.briarproject.android.util.VersionedAdapter;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
@@ -16,9 +17,9 @@ import java.util.Map;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
-@UiThread
 public abstract class ThreadItemAdapter<I extends ThreadItem>
-		extends RecyclerView.Adapter<ThreadItemViewHolder<I>> {
+		extends RecyclerView.Adapter<ThreadItemViewHolder<I>>
+		implements VersionedAdapter {
 
 	static final int UNDEFINED = -1;
 
@@ -292,25 +293,13 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		animatingItems.remove(item);
 	}
 
-	/**
-	 * Returns the adapter's revision counter. This method should be called on
-	 * any thread before starting an asynchronous load that could overwrite
-	 * other changes to the adapter, and called again on the UI thread before
-	 * applying the changes from the asynchronous load. If the revision has
-	 * changed between the two calls, the asynchronous load should be restarted
-	 * without applying its changes. Otherwise {@link #incrementRevision()}
-	 * should be called before applying the changes.
-	 */
+	@Override
 	public int getRevision() {
 		return revision;
 	}
 
-	/**
-	 * Increments the adapter's revision counter. This method should be called
-	 * on the UI thread before applying any changes to the adapter that could
-	 * be overwritten by an asynchronous load.
-	 */
 	@UiThread
+	@Override
 	public void incrementRevision() {
 		revision++;
 	}
