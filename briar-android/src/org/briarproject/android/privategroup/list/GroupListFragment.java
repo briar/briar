@@ -114,7 +114,6 @@ public class GroupListFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO handle error
-						finish();
 					}
 				});
 	}
@@ -169,7 +168,6 @@ public class GroupListFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO handle this error
-						finish();
 					}
 				});
 	}

@@ -125,7 +125,6 @@ public class FeedFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						finish();
 					}
 				});
 	}
@@ -151,7 +150,6 @@ public class FeedFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException e) {
 						// TODO: Decide how to handle errors in the UI
-						finish();
 					}
 				});
 		list.startPeriodicUpdate();
@@ -214,7 +212,6 @@ public class FeedFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						finish();
 					}
 				}
 		);
