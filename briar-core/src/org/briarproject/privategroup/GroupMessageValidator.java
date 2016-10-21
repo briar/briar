@@ -3,7 +3,6 @@ package org.briarproject.privategroup;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -12,6 +11,7 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.privategroup.MessageType;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
+import org.briarproject.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
@@ -29,7 +29,6 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH
 import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
-import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_ID;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_NAME;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_PUBLIC_KEY;
@@ -41,18 +40,18 @@ import static org.briarproject.privategroup.Constants.KEY_TYPE;
 
 class GroupMessageValidator extends BdfMessageValidator {
 
-	private final ContactGroupFactory contactGroupFactory;
-	private final PrivateGroupFactory groupFactory;
+	private final PrivateGroupFactory privateGroupFactory;
 	private final AuthorFactory authorFactory;
+	private final GroupInvitationFactory groupInvitationFactory;
 
-	GroupMessageValidator(ContactGroupFactory contactGroupFactory,
-			PrivateGroupFactory groupFactory,
+	GroupMessageValidator(PrivateGroupFactory privateGroupFactory,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock, AuthorFactory authorFactory) {
+			Clock clock, AuthorFactory authorFactory,
+			GroupInvitationFactory groupInvitationFactory) {
 		super(clientHelper, metadataEncoder, clock);
-		this.contactGroupFactory = contactGroupFactory;
-		this.groupFactory = groupFactory;
+		this.privateGroupFactory = privateGroupFactory;
 		this.authorFactory = authorFactory;
+		this.groupInvitationFactory = groupInvitationFactory;
 	}
 
 	@Override
@@ -96,15 +95,16 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// The content is a BDF list with five elements
 		checkSize(body, 5);
-		PrivateGroup pg = groupFactory.parsePrivateGroup(g);
+		PrivateGroup pg = privateGroupFactory.parsePrivateGroup(g);
 
 		// invite is null if the member is the creator of the private group
+		Author creator = pg.getAuthor();
 		BdfList invite = body.getOptionalList(3);
 		if (invite == null) {
-			if (!member.equals(pg.getAuthor()))
+			if (!member.equals(creator))
 				throw new InvalidMessageException();
 		} else {
-			if (member.equals(pg.getAuthor()))
+			if (member.equals(creator))
 				throw new InvalidMessageException();
 
 			// Otherwise invite is a list with two elements
@@ -120,21 +120,13 @@ class GroupMessageValidator extends BdfMessageValidator {
 			byte[] creatorSignature = invite.getRaw(1);
 			checkLength(creatorSignature, 1, MAX_SIGNATURE_LENGTH);
 
-			// derive invitation group
-			Group invitationGroup = contactGroupFactory
-					.createContactGroup(CLIENT_ID, pg.getAuthor().getId(),
-							member.getId());
-
-			// signature with the creator's private key
-			// over a list with four elements:
-			// invite_type (int), invite_timestamp (int),
-			// invitation_group_id (raw), and private_group_id (raw)
-			BdfList signed =
-					BdfList.of(0, inviteTimestamp, invitationGroup.getId(),
-							g.getId());
+			// the invite token is signed by the creator of the private group
+			BdfList token = groupInvitationFactory
+					.createInviteToken(creator.getId(), member.getId(),
+							pg.getId(), inviteTimestamp);
 			try {
 				clientHelper.verifySignature(creatorSignature,
-						pg.getAuthor().getPublicKey(), signed);
+						creator.getPublicKey(), token);
 			} catch (GeneralSecurityException e) {
 				throw new InvalidMessageException(e);
 			}

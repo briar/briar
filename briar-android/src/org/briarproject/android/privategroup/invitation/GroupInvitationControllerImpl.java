@@ -2,7 +2,7 @@ package org.briarproject.android.privategroup.invitation;
 
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.sharing.InvitationControllerImpl;
-import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -70,8 +70,8 @@ public class GroupInvitationControllerImpl
 			public void run() {
 				try {
 					PrivateGroup g = item.getShareable();
-					Contact c = item.getCreator();
-					groupInvitationManager.respondToInvitation(g, c, accept);
+					ContactId c = item.getCreator().getId();
+					groupInvitationManager.respondToInvitation(c, g, accept);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

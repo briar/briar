@@ -14,7 +14,7 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupDissolvedEvent;
-import org.briarproject.api.event.GroupInvitationReceivedEvent;
+import org.briarproject.api.event.GroupInvitationRequestReceivedEvent;
 import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -92,8 +92,7 @@ public class GroupListControllerImpl extends DbControllerImpl
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			LOG.info("Private group message added");
 			onGroupMessageAdded(g.getHeader());
-		} else if (e instanceof GroupInvitationReceivedEvent) {
-			GroupInvitationReceivedEvent g = (GroupInvitationReceivedEvent) e;
+		} else if (e instanceof GroupInvitationRequestReceivedEvent) {
 			LOG.info("Private group invitation received");
 			onGroupInvitationReceived();
 		} else if (e instanceof GroupAddedEvent) {

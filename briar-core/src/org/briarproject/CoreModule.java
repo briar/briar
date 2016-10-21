@@ -18,6 +18,7 @@ import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.plugins.PluginsModule;
 import org.briarproject.privategroup.PrivateGroupModule;
+import org.briarproject.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.reliability.ReliabilityModule;
 import org.briarproject.reporting.ReportingModule;
@@ -40,6 +41,7 @@ import dagger.Module;
 		DatabaseExecutorModule.class,
 		EventModule.class,
 		ForumModule.class,
+		GroupInvitationModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
 		InvitationModule.class,
@@ -67,6 +69,7 @@ public class CoreModule {
 		c.inject(new CryptoModule.EagerSingletons());
 		c.inject(new DatabaseExecutorModule.EagerSingletons());
 		c.inject(new ForumModule.EagerSingletons());
+		c.inject(new GroupInvitationModule.EagerSingletons());
 		c.inject(new IdentityModule.EagerSingletons());
 		c.inject(new LifecycleModule.EagerSingletons());
 		c.inject(new MessagingModule.EagerSingletons());

@@ -20,7 +20,6 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.feed.FeedManager;
 import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
-import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.invitation.InvitationTaskFactory;
@@ -37,6 +36,7 @@ import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
+import org.briarproject.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.system.Clock;
@@ -68,8 +68,6 @@ public interface AndroidComponent extends CoreEagerSingletons {
 
 	DatabaseConfig databaseConfig();
 
-	AuthorFactory authFactory();
-
 	ReferenceManager referenceMangager();
 
 	@DatabaseExecutor
@@ -98,6 +96,8 @@ public interface AndroidComponent extends CoreEagerSingletons {
 	PrivateMessageFactory privateMessageFactory();
 
 	PrivateGroupManager privateGroupManager();
+
+	GroupInvitationFactory groupInvitationFactory();
 
 	GroupInvitationManager groupInvitationManager();
 

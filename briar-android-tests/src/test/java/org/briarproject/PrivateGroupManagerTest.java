@@ -27,7 +27,6 @@ import org.briarproject.api.privategroup.JoinMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -94,8 +93,6 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	PrivateGroupFactory privateGroupFactory;
 	@Inject
 	GroupMessageFactory groupMessageFactory;
-	@Inject
-	GroupInvitationManager groupInvitationManager;
 
 	// objects accessed from background threads need to be volatile
 	private volatile Waiter validationWaiter;

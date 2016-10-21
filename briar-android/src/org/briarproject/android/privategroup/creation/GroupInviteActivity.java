@@ -10,10 +10,16 @@ import org.briarproject.android.sharing.ContactSelectorFragment;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sync.GroupId;
+
+import javax.inject.Inject;
 
 public class GroupInviteActivity extends BaseGroupInviteActivity
 		implements MessageFragmentListener {
+
+	@Inject
+	GroupInvitationManager groupInvitationManager;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -42,9 +48,8 @@ public class GroupInviteActivity extends BaseGroupInviteActivity
 
 	@Override
 	@DatabaseExecutor
-	public boolean isDisabled(GroupId groupId, Contact c) throws DbException {
-		// TODO disable contacts that can not be invited
-		return false;
+	public boolean isDisabled(GroupId g, Contact c) throws DbException {
+		return !groupInvitationManager.isInvitationAllowed(c, g);
 	}
 
 }

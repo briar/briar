@@ -898,7 +898,7 @@ public class ConversationActivity extends BriarActivity
 	@DatabaseExecutor
 	private void respondToGroupRequest(SessionId id, boolean accept)
 			throws DbException {
-		groupInvitationManager.respondToInvitation(id, accept);
+		groupInvitationManager.respondToInvitation(contactId, id, accept);
 	}
 
 	private void introductionResponseError() {

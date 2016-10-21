@@ -17,6 +17,7 @@ import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.privategroup.PrivateGroupModule;
+import org.briarproject.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
@@ -40,6 +41,7 @@ import dagger.Component;
 		EventModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
+		GroupInvitationModule.class,
 		IdentityModule.class,
 		LifecycleModule.class,
 		PropertiesModule.class,
