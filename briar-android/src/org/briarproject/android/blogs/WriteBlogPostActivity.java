@@ -94,15 +94,15 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		notificationManager.unblockNotification(groupId);
+	public void onStart() {
+		super.onStart();
+		notificationManager.blockNotification(groupId);
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		notificationManager.blockNotification(groupId);
+	public void onStop() {
+		super.onStop();
+		notificationManager.unblockNotification(groupId);
 	}
 
 	@Override

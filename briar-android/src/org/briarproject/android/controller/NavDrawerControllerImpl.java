@@ -57,12 +57,12 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void onActivityResume() {
+	public void onActivityStart() {
 		eventBus.addListener(this);
 	}
 
 	@Override
-	public void onActivityPause() {
+	public void onActivityStop() {
 		eventBus.removeListener(this);
 	}
 

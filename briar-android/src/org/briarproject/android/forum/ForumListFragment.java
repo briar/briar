@@ -111,9 +111,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-
+	public void onStart() {
+		super.onStart();
 		notificationManager.blockAllForumPostNotifications();
 		notificationManager.clearAllForumPostNotifications();
 		loadForums();
@@ -122,9 +121,8 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-
+	public void onStop() {
+		super.onStop();
 		notificationManager.unblockAllForumPostNotifications();
 		adapter.clear();
 		list.showProgressBar();
@@ -152,11 +150,11 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void loadForums() {
+		final int revision = adapter.getRevision();
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					// load forums
 					long now = System.currentTimeMillis();
 					Collection<ForumListItem> forums = new ArrayList<>();
 					for (Forum f : forumManager.getForums()) {
@@ -168,10 +166,10 @@ public class ForumListFragment extends BaseEventFragment implements
 							// Continue
 						}
 					}
-					displayForums(forums);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
+					displayForums(revision, forums);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -180,12 +178,19 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
-	private void displayForums(final Collection<ForumListItem> forums) {
+	private void displayForums(final int revision,
+			final Collection<ForumListItem> forums) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (forums.size() > 0) adapter.addAll(forums);
-				else list.showData();
+				if (revision == adapter.getRevision()) {
+					adapter.incrementRevision();
+					if (forums.isEmpty()) list.showData();
+					else adapter.addAll(forums);
+				} else {
+					LOG.info("Concurrent update, reloading");
+					loadForums();
+				}
 			}
 		});
 	}
@@ -245,9 +250,10 @@ public class ForumListFragment extends BaseEventFragment implements
 			}
 		} else if (e instanceof ForumPostReceivedEvent) {
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
-			LOG.info("Forum post added, updating...");
+			LOG.info("Forum post added, updating item");
 			updateItem(f.getGroupId(), f.getForumPostHeader());
 		} else if (e instanceof ForumInvitationReceivedEvent) {
+			LOG.info("Forum invitation received, reloading available forums");
 			loadAvailableForums();
 		}
 	}
@@ -256,6 +262,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(g);
 				ForumListItem item = adapter.getItemAt(position);
 				if (item != null) {
@@ -270,6 +277,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(g);
 				ForumListItem item = adapter.getItemAt(position);
 				if (item != null) adapter.remove(item);

@@ -6,6 +6,7 @@ import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import org.briarproject.android.util.VersionedAdapter;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
@@ -16,21 +17,23 @@ import java.util.Map;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
-@UiThread
 public abstract class ThreadItemAdapter<I extends ThreadItem>
-		extends RecyclerView.Adapter<ThreadItemViewHolder<I>> {
+		extends RecyclerView.Adapter<ThreadItemViewHolder<I>>
+		implements VersionedAdapter {
 
 	static final int UNDEFINED = -1;
 
 	private final NestedTreeList<I> items = new NestedTreeList<>();
 	private final Map<I, ValueAnimator> animatingItems = new HashMap<>();
+	private final ThreadItemListener<I> listener;
+	private final LinearLayoutManager layoutManager;
+
 	// highlight not dependant on time
 	private I replyItem;
 	// temporary highlight
 	private I addedItem;
 
-	private final ThreadItemListener<I> listener;
-	private final LinearLayoutManager layoutManager;
+	private volatile int revision = 0;
 
 	public ThreadItemAdapter(ThreadItemListener<I> listener,
 			LinearLayoutManager layoutManager) {
@@ -288,6 +291,17 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 
 	void removeAnimatingItem(I item) {
 		animatingItems.remove(item);
+	}
+
+	@Override
+	public int getRevision() {
+		return revision;
+	}
+
+	@UiThread
+	@Override
+	public void incrementRevision() {
+		revision++;
 	}
 
 	protected interface ThreadItemListener<I> {

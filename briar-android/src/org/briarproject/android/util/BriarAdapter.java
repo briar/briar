@@ -2,6 +2,7 @@ package org.briarproject.android.util;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -11,10 +12,12 @@ import java.util.Collection;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
 public abstract class BriarAdapter<T, V extends ViewHolder>
-		extends Adapter<V> {
+		extends Adapter<V> implements VersionedAdapter {
 
 	protected final Context ctx;
 	protected final SortedList<T> items;
+
+	private volatile int revision = 0;
 
 	public BriarAdapter(Context ctx, Class<T> c) {
 		this.ctx = ctx;
@@ -75,6 +78,13 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 		this.items.addAll(items);
 	}
 
+	public void setItems(Collection<T> items) {
+		this.items.beginBatchedUpdates();
+		this.items.clear();
+		this.items.addAll(items);
+		this.items.endBatchedUpdates();
+	}
+
 	@Nullable
 	public T getItemAt(int position) {
 		if (position == INVALID_POSITION || position >= items.size()) {
@@ -103,4 +113,14 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 		return items.size() == 0;
 	}
 
+	@Override
+	public int getRevision() {
+		return revision;
+	}
+
+	@UiThread
+	@Override
+	public void incrementRevision() {
+		revision++;
+	}
 }

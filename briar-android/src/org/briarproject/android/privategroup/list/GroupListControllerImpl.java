@@ -8,6 +8,7 @@ import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
@@ -16,6 +17,7 @@ import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.sync.ClientId;
@@ -29,6 +31,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 public class GroupListControllerImpl extends DbControllerImpl
@@ -81,39 +84,51 @@ public class GroupListControllerImpl extends DbControllerImpl
 	@CallSuper
 	public void eventOccurred(Event e) {
 		if (e instanceof GroupMessageAddedEvent) {
-			final GroupMessageAddedEvent m = (GroupMessageAddedEvent) e;
-			LOG.info("New group message added");
-			listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-				@Override
-				public void run() {
-					listener.onGroupMessageAdded(m.getHeader());
-				}
-			});
+			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
+			LOG.info("Private group message added");
+			onGroupMessageAdded(g.getHeader());
 		} else if (e instanceof GroupAddedEvent) {
-			final GroupAddedEvent gae = (GroupAddedEvent) e;
-			ClientId id = gae.getGroup().getClientId();
+			GroupAddedEvent g = (GroupAddedEvent) e;
+			ClientId id = g.getGroup().getClientId();
 			if (id.equals(groupManager.getClientId())) {
 				LOG.info("Private group added");
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						listener.onGroupAdded(gae.getGroup().getId());
-					}
-				});
+				onGroupAdded(g.getGroup().getId());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
-			final GroupRemovedEvent gre = (GroupRemovedEvent) e;
-			ClientId id = gre.getGroup().getClientId();
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			ClientId id = g.getGroup().getClientId();
 			if (id.equals(groupManager.getClientId())) {
 				LOG.info("Private group removed");
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						listener.onGroupRemoved(gre.getGroup().getId());
-					}
-				});
+				onGroupRemoved(g.getGroup().getId());
 			}
 		}
+	}
+
+	private void onGroupMessageAdded(final GroupMessageHeader h) {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onGroupMessageAdded(h);
+			}
+		});
+	}
+
+	private void onGroupAdded(final GroupId g) {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onGroupAdded(g);
+			}
+		});
+	}
+
+	private void onGroupRemoved(final GroupId g) {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onGroupRemoved(g);
+			}
+		});
 	}
 
 	@Override
@@ -122,18 +137,24 @@ public class GroupListControllerImpl extends DbControllerImpl
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				LOG.info("Loading groups from database...");
 				try {
+					long now = System.currentTimeMillis();
 					Collection<PrivateGroup> groups =
 							groupManager.getPrivateGroups();
 					List<GroupItem> items = new ArrayList<>(groups.size());
 					for (PrivateGroup g : groups) {
-						GroupCount c = groupManager.getGroupCount(g.getId());
-						boolean dissolved = groupManager.isDissolved(g.getId());
-						items.add(new GroupItem(g, c.getMsgCount(),
-								c.getLatestMsgTime(), c.getUnreadCount(),
-								dissolved));
+						try {
+							GroupId id = g.getId();
+							GroupCount count = groupManager.getGroupCount(id);
+							boolean dissolved = groupManager.isDissolved(id);
+							items.add(new GroupItem(g, count, dissolved));
+						} catch (NoSuchGroupException e) {
+							// Continue
+						}
 					}
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading groups took " + duration + " ms");
 					handler.onResult(items);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -150,9 +171,13 @@ public class GroupListControllerImpl extends DbControllerImpl
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				LOG.info("Removing group from database...");
 				try {
+					long now = System.currentTimeMillis();
 					groupManager.removePrivateGroup(g);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Removing group took " + duration + " ms");
+					handler.onResult(null);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

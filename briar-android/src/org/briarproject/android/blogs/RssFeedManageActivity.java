@@ -37,9 +37,7 @@ public class RssFeedManageActivity extends BriarActivity
 
 	private BriarRecyclerView list;
 	private RssFeedAdapter adapter;
-
-	// Fields that are accessed from background threads must be volatile
-	private volatile GroupId groupId = null;
+	private GroupId groupId;
 
 	@Inject
 	@SuppressWarnings("WeakerAccess")
@@ -65,9 +63,16 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		loadFeeds();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		adapter.clear();
+		list.showProgressBar();
 	}
 
 	@Override
@@ -120,27 +125,43 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	private void loadFeeds() {
+		final int revision = adapter.getRevision();
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					addFeeds(feedManager.getFeeds());
+					displayFeeds(revision, feedManager.getFeeds());
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-					list.setEmptyText(R.string.blogs_rss_feeds_manage_error);
-					list.showData();
+					onLoadError();
 				}
 			}
 		});
 	}
 
-	private void addFeeds(final List<Feed> feeds) {
+	private void displayFeeds(final int revision, final List<Feed> feeds) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (feeds.size() == 0) list.showData();
-				else adapter.addAll(feeds);
+				if (revision == adapter.getRevision()) {
+					adapter.incrementRevision();
+					if (feeds.isEmpty()) list.showData();
+					else adapter.addAll(feeds);
+				} else {
+					LOG.info("Concurrent update, reloading");
+					loadFeeds();
+				}
+			}
+		});
+	}
+
+	private void onLoadError() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				list.setEmptyText(R.string.blogs_rss_feeds_manage_error);
+				list.showData();
 			}
 		});
 	}
@@ -149,6 +170,7 @@ public class RssFeedManageActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				adapter.remove(feed);
 			}
 		});

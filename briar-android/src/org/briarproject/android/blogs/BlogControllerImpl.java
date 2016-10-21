@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 public class BlogControllerImpl extends BaseControllerImpl
@@ -50,15 +51,15 @@ public class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
-	public void onActivityResume() {
-		super.onStart(); // TODO: Should be called when activity starts. #609
+	public void onActivityStart() {
+		super.onStart();
 		notificationManager.blockNotification(groupId);
 		notificationManager.clearBlogPostNotification(groupId);
 	}
 
 	@Override
-	public void onActivityPause() {
-		super.onStop(); // TODO: Should be called when activity stops. #609
+	public void onActivityStop() {
+		super.onStop();
 		notificationManager.unblockNotification(groupId);
 	}
 
@@ -75,20 +76,16 @@ public class BlogControllerImpl extends BaseControllerImpl
 	public void eventOccurred(Event e) {
 		if (groupId == null) throw new IllegalStateException();
 		if (e instanceof BlogPostAddedEvent) {
-			BlogPostAddedEvent s = (BlogPostAddedEvent) e;
-			if (s.getGroupId().equals(groupId)) {
-				super.eventOccurred(e);
+			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
+			if (b.getGroupId().equals(groupId)) {
+				LOG.info("Blog post added");
+				onBlogPostAdded(b.getHeader(), b.isLocal());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
-			GroupRemovedEvent s = (GroupRemovedEvent) e;
-			if (s.getGroup().getId().equals(groupId)) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getId().equals(groupId)) {
 				LOG.info("Blog removed");
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						listener.onBlogRemoved();
-					}
-				});
+				onBlogRemoved();
 			}
 		}
 	}
@@ -115,11 +112,15 @@ public class BlogControllerImpl extends BaseControllerImpl
 			@Override
 			public void run() {
 				try {
+					long now = System.currentTimeMillis();
 					LocalAuthor a = identityManager.getLocalAuthor();
 					Blog b = blogManager.getBlog(groupId);
 					boolean ours = a.getId().equals(b.getAuthor().getId());
 					boolean removable = blogManager.canBeRemoved(groupId);
 					BlogItem blog = new BlogItem(b, ours, removable);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading blog took " + duration + " ms");
 					handler.onResult(blog);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -138,8 +139,12 @@ public class BlogControllerImpl extends BaseControllerImpl
 			@Override
 			public void run() {
 				try {
+					long now = System.currentTimeMillis();
 					Blog b = blogManager.getBlog(groupId);
 					blogManager.removeBlog(b);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Removing blog took " + duration + " ms");
 					handler.onResult(null);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

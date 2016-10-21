@@ -141,8 +141,8 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		updateTransports();
 	}
 

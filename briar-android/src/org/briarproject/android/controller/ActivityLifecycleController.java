@@ -6,9 +6,9 @@ public interface ActivityLifecycleController {
 
 	void onActivityCreate(Activity activity);
 
-	void onActivityResume();
+	void onActivityStart();
 
-	void onActivityPause();
+	void onActivityStop();
 
 	void onActivityDestroy();
 }

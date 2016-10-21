@@ -1,19 +1,19 @@
 package org.briarproject.android.introduction;
 
 import android.content.Context;
+import android.support.annotation.UiThread;
 import android.view.View;
 
 import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.api.identity.AuthorId;
 
-public class ContactChooserAdapter extends ContactListAdapter {
+@UiThread
+class ContactChooserAdapter extends ContactListAdapter {
 
 	private AuthorId localAuthorId;
 
-	public ContactChooserAdapter(Context context,
-			OnItemClickListener listener) {
-
+	ContactChooserAdapter(Context context, OnItemClickListener listener) {
 		super(context, listener);
 	}
 
@@ -46,7 +46,7 @@ public class ContactChooserAdapter extends ContactListAdapter {
 	 *
 	 * @param authorId The ID of the local Author
 	 */
-	public void setLocalAuthor(AuthorId authorId) {
+	void setLocalAuthor(AuthorId authorId) {
 		localAuthorId = authorId;
 		notifyDataSetChanged();
 	}

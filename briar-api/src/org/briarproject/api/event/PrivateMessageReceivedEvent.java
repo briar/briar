@@ -1,5 +1,6 @@
 package org.briarproject.api.event;
 
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.sync.GroupId;
 
@@ -9,16 +10,22 @@ import org.briarproject.api.sync.GroupId;
 public class PrivateMessageReceivedEvent extends Event {
 
 	private final PrivateMessageHeader messageHeader;
+	private final ContactId contactId;
 	private final GroupId groupId;
 
 	public PrivateMessageReceivedEvent(PrivateMessageHeader messageHeader,
-			GroupId groupId) {
+			ContactId contactId, GroupId groupId) {
 		this.messageHeader = messageHeader;
+		this.contactId = contactId;
 		this.groupId = groupId;
 	}
 
 	public PrivateMessageHeader getMessageHeader() {
 		return messageHeader;
+	}
+
+	public ContactId getContactId() {
+		return contactId;
 	}
 
 	public GroupId getGroupId() {

@@ -27,8 +27,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-public class GroupControllerImpl
-		extends ThreadListControllerImpl<PrivateGroup, GroupMessageItem, GroupMessageHeader, GroupMessage>
+public class GroupControllerImpl extends
+		ThreadListControllerImpl<PrivateGroup, GroupMessageItem, GroupMessageHeader, GroupMessage>
 		implements GroupController {
 
 	private static final Logger LOG =
@@ -48,8 +48,8 @@ public class GroupControllerImpl
 	}
 
 	@Override
-	public void onActivityResume() {
-		super.onActivityResume();
+	public void onActivityStart() {
+		super.onActivityStart();
 		// TODO: Add new notification manager methods for private groups
 	}
 
@@ -101,9 +101,8 @@ public class GroupControllerImpl
 	@Override
 	protected GroupMessage createLocalMessage(String body, long timestamp,
 			@Nullable MessageId parentId, LocalAuthor author) {
-		return privateGroupManager
-				.createLocalMessage(getGroupId(), body, timestamp, parentId,
-						author);
+		return privateGroupManager.createLocalMessage(getGroupId(), body,
+				timestamp, parentId, author);
 	}
 
 	@Override

@@ -49,8 +49,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	private final EventBus eventBus;
 	private final Clock clock;
 
-	private final Map<MessageId, String> bodyCache =
-			new ConcurrentHashMap<>();
+	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
 	private volatile GroupId groupId;
 
@@ -82,14 +81,14 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@CallSuper
 	@Override
-	public void onActivityResume() {
+	public void onActivityStart() {
 		notificationManager.blockNotification(getGroupId());
 		eventBus.addListener(this);
 	}
 
 	@CallSuper
 	@Override
-	public void onActivityPause() {
+	public void onActivityStop() {
 		notificationManager.unblockNotification(getGroupId());
 		eventBus.removeListener(this);
 	}
@@ -127,8 +126,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					G groupItem = loadNamedGroup();
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
-						LOG.info(
-								"Loading named group took " + duration + " ms");
+						LOG.info("Loading group took " + duration + " ms");
 					handler.onResult(groupItem);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -149,7 +147,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				LOG.info("Loading items...");
 				try {
 					// Load headers
 					long now = System.currentTimeMillis();
@@ -193,8 +190,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				LOG.info("Loading item...");
 				try {
+					long now = System.currentTimeMillis();
 					String body;
 					if (!bodyCache.containsKey(header.getId())) {
 						body = loadMessageBody(header.getId());
@@ -202,6 +199,9 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					} else {
 						body = bodyCache.get(header.getId());
 					}
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading item took " + duration + " ms");
 					I item = buildItem(header, body);
 					handler.onResult(item);
 				} catch (DbException e) {
@@ -250,12 +250,16 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			@Override
 			public void run() {
 				try {
+					long now = System.currentTimeMillis();
 					LocalAuthor author = identityManager.getLocalAuthor();
 					long timestamp = getLatestTimestamp();
-					timestamp =
-							Math.max(timestamp, clock.currentTimeMillis());
-					createMessage(body, timestamp, parentId, author,
-							handler);
+					timestamp = Math.max(timestamp, clock.currentTimeMillis());
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Loading identity and timestamp took " +
+								duration + " ms");
+					}
+					createMessage(body, timestamp, parentId, author, handler);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -274,8 +278,11 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				LOG.info("Creating message...");
+				long now = System.currentTimeMillis();
 				M msg = createLocalMessage(body, timestamp, parentId, author);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Creating message took " + duration + " ms");
 				storePost(msg, body, handler);
 			}
 		});
@@ -291,7 +298,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			@Override
 			public void run() {
 				try {
-					LOG.info("Store message...");
 					long now = System.currentTimeMillis();
 					H header = addLocalMessage(msg);
 					bodyCache.put(msg.getMessage().getId(), body);
@@ -354,10 +360,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	}
 
 	private void checkGroupId() {
-		if (groupId == null) {
-			throw new IllegalStateException(
-					"You must set the GroupId before the controller is started.");
-		}
+		if (groupId == null) throw new IllegalStateException();
 	}
 
 }

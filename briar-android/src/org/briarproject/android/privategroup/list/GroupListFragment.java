@@ -1,6 +1,5 @@
 package org.briarproject.android.privategroup.list;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -16,7 +15,6 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.privategroup.list.GroupListController.GroupListListener;
 import org.briarproject.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.android.view.BriarRecyclerView;
@@ -25,6 +23,7 @@ import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -32,6 +31,7 @@ public class GroupListFragment extends BaseFragment implements
 		GroupListListener, OnGroupRemoveClickListener {
 
 	public final static String TAG = GroupListFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	public static GroupListFragment newInstance() {
 		return new GroupListFragment();
@@ -114,7 +114,6 @@ public class GroupListFragment extends BaseFragment implements
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO handle error
-						finish();
 					}
 				});
 	}
@@ -122,6 +121,7 @@ public class GroupListFragment extends BaseFragment implements
 	@UiThread
 	@Override
 	public void onGroupMessageAdded(GroupMessageHeader header) {
+		adapter.incrementRevision();
 		int position = adapter.findItemPosition(header.getGroupId());
 		GroupItem item = adapter.getItemAt(position);
 		if (item != null) {
@@ -139,6 +139,7 @@ public class GroupListFragment extends BaseFragment implements
 	@UiThread
 	@Override
 	public void onGroupRemoved(GroupId groupId) {
+		adapter.incrementRevision();
 		adapter.removeItem(groupId);
 	}
 
@@ -148,22 +149,25 @@ public class GroupListFragment extends BaseFragment implements
 	}
 
 	private void loadGroups() {
+		final int revision = adapter.getRevision();
 		controller.loadGroups(
 				new UiResultExceptionHandler<Collection<GroupItem>, DbException>(
 						listener) {
 					@Override
-					public void onResultUi(Collection<GroupItem> result) {
-						if (result.isEmpty()) {
-							list.showData();
+					public void onResultUi(Collection<GroupItem> groups) {
+						if (revision == adapter.getRevision()) {
+							adapter.incrementRevision();
+							if (groups.isEmpty()) list.showData();
+							else adapter.addAll(groups);
 						} else {
-							adapter.addAll(result);
+							LOG.info("Concurrent update, reloading");
+							loadGroups();
 						}
 					}
 
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO handle this error
-						finish();
 					}
 				});
 	}

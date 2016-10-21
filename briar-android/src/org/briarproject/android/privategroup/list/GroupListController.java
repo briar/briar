@@ -31,6 +31,7 @@ public interface GroupListController extends DbController {
 			ResultExceptionHandler<Void, DbException> result);
 
 	interface GroupListListener extends DestroyableContext {
+
 		@UiThread
 		void onGroupMessageAdded(GroupMessageHeader header);
 

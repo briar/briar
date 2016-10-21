@@ -29,9 +29,9 @@ public class InvitationsForumActivity extends InvitationsActivity {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ForumManager forumManager;
+	volatile ForumManager forumManager;
 	@Inject
-	protected volatile ForumSharingManager forumSharingManager;
+	volatile ForumSharingManager forumSharingManager;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -62,31 +62,35 @@ public class InvitationsForumActivity extends InvitationsActivity {
 		}
 	}
 
+	@Override
 	protected InvitationAdapter getAdapter(Context ctx,
 			AvailableForumClickListener listener) {
 		return new ForumInvitationAdapter(ctx, listener);
 	}
 
+	@Override
 	protected void loadInvitations(final boolean clear) {
+		final int revision = adapter.getRevision();
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
-				Collection<InvitationItem> invitations = new ArrayList<>();
 				try {
+					Collection<InvitationItem> invitations = new ArrayList<>();
 					long now = System.currentTimeMillis();
 					invitations.addAll(forumSharingManager.getInvitations());
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
+					displayInvitations(revision, invitations, clear);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
-				displayInvitations(invitations, clear);
 			}
 		});
 	}
 
+	@Override
 	protected void respondToInvitation(final InvitationItem item,
 			final boolean accept) {
 		runOnDbThread(new Runnable() {
@@ -95,6 +99,7 @@ public class InvitationsForumActivity extends InvitationsActivity {
 				try {
 					Forum f = (Forum) item.getShareable();
 					for (Contact c : item.getNewSharers()) {
+						// TODO: What happens if a contact has been removed?
 						forumSharingManager.respondToInvitation(f, c, accept);
 					}
 				} catch (DbException e) {
@@ -105,10 +110,12 @@ public class InvitationsForumActivity extends InvitationsActivity {
 		});
 	}
 
+	@Override
 	protected int getAcceptRes() {
 		return R.string.forum_joined_toast;
 	}
 
+	@Override
 	protected int getDeclineRes() {
 		return R.string.forum_declined_toast;
 	}

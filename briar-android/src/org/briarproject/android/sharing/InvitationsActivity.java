@@ -2,6 +2,7 @@ package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ abstract class InvitationsActivity extends BriarActivity
 	protected static final Logger LOG =
 			Logger.getLogger(InvitationsActivity.class.getName());
 
-	private InvitationAdapter adapter;
+	protected InvitationAdapter adapter;
 	private BriarRecyclerView list;
 
 	@Inject
@@ -42,7 +43,6 @@ abstract class InvitationsActivity extends BriarActivity
 
 		adapter = getAdapter(this, this);
 
-
 		list = (BriarRecyclerView) findViewById(R.id.list);
 		if (list != null) {
 			list.setLayoutManager(new LinearLayoutManager(this));
@@ -51,21 +51,22 @@ abstract class InvitationsActivity extends BriarActivity
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		eventBus.addListener(this);
 		loadInvitations(false);
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		eventBus.removeListener(this);
 		adapter.clear();
 		list.showProgressBar();
 	}
 
 	@Override
+	@CallSuper
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed, reloading...");
@@ -83,6 +84,7 @@ abstract class InvitationsActivity extends BriarActivity
 		Toast.makeText(this, res, LENGTH_SHORT).show();
 
 		// remove item and finish if it was the last
+		adapter.incrementRevision();
 		adapter.remove(item);
 		if (adapter.getItemCount() == 0) {
 			supportFinishAfterTransition();
@@ -101,7 +103,7 @@ abstract class InvitationsActivity extends BriarActivity
 
 	abstract protected int getDeclineRes();
 
-	protected void displayInvitations(
+	protected void displayInvitations(final int revision,
 			final Collection<InvitationItem> invitations, final boolean clear) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
@@ -109,9 +111,13 @@ abstract class InvitationsActivity extends BriarActivity
 				if (invitations.isEmpty()) {
 					LOG.info("No more invitations available, finishing");
 					finish();
+				} else if (revision == adapter.getRevision()) {
+					adapter.incrementRevision();
+					if (clear) adapter.setItems(invitations);
+					else adapter.addAll(invitations);
 				} else {
-					if (clear) adapter.clear();
-					adapter.addAll(invitations);
+					LOG.info("Concurrent update, reloading");
+					loadInvitations(clear);
 				}
 			}
 		});

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
@@ -62,18 +61,18 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
+	protected void onStart() {
+		super.onStart();
 		for (ActivityLifecycleController alc : lifecycleControllers) {
-			alc.onActivityResume();
+			alc.onActivityStart();
 		}
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onStop() {
+		super.onStop();
 		for (ActivityLifecycleController alc : lifecycleControllers) {
-			alc.onActivityPause();
+			alc.onActivityStop();
 		}
 	}
 

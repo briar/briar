@@ -19,18 +19,18 @@ public class BriarControllerImpl implements BriarController {
 	private static final Logger LOG =
 			Logger.getLogger(BriarControllerImpl.class.getName());
 
-	@Inject
-	BriarServiceConnection serviceConnection;
-	@Inject
-	DatabaseConfig databaseConfig;
-	@Inject
-	Activity activity;
+	private final BriarServiceConnection serviceConnection;
+	private final DatabaseConfig databaseConfig;
+	private final Activity activity;
 
 	private boolean bound = false;
 
 	@Inject
-	public BriarControllerImpl() {
-
+	BriarControllerImpl(BriarServiceConnection serviceConnection,
+			DatabaseConfig databaseConfig, Activity activity) {
+		this.serviceConnection = serviceConnection;
+		this.databaseConfig = databaseConfig;
+		this.activity = activity;
 	}
 
 	@Override
@@ -40,13 +40,11 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
-	@CallSuper
-	public void onActivityResume() {
+	public void onActivityStart() {
 	}
 
 	@Override
-	@CallSuper
-	public void onActivityPause() {
+	public void onActivityStop() {
 	}
 
 	@Override

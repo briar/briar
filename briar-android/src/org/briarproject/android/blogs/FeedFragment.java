@@ -20,7 +20,6 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.blogs.Blog;
@@ -28,6 +27,7 @@ import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -42,6 +42,7 @@ public class FeedFragment extends BaseFragment implements
 		OnBlogPostClickListener, OnBlogPostAddedListener {
 
 	public final static String TAG = FeedFragment.class.getName();
+	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
 	FeedController feedController;
@@ -99,38 +100,59 @@ public class FeedFragment extends BaseFragment implements
 	public void onStart() {
 		super.onStart();
 		feedController.onStart();
-		feedController.loadPersonalBlog(
-				new UiResultHandler<Blog>(listener) {
-					@Override
-					public void onResultUi(Blog b) {
-						personalBlog = b;
-					}
-				});
-		feedController.loadBlogPosts(
-				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						listener) {
-					@Override
-					public void onResultUi(Collection<BlogPostItem> posts) {
-						if (posts.isEmpty()) {
-							list.showData();
-						} else {
-							adapter.addAll(posts);
-						}
-					}
-					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO
-					}
-				});
-		list.startPeriodicUpdate();
+		loadPersonalBlog();
+		loadBlogPosts(false);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
 		feedController.onStop();
+		adapter.clear();
+		list.showProgressBar();
 		list.stopPeriodicUpdate();
 		// TODO save list position in database/preferences?
+	}
+
+	private void loadPersonalBlog() {
+		feedController.loadPersonalBlog(
+				new UiResultExceptionHandler<Blog, DbException>(listener) {
+					@Override
+					public void onResultUi(Blog b) {
+						personalBlog = b;
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+					}
+				});
+	}
+
+	private void loadBlogPosts(final boolean clear) {
+		final int revision = adapter.getRevision();
+		feedController.loadBlogPosts(
+				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
+						listener) {
+					@Override
+					public void onResultUi(Collection<BlogPostItem> posts) {
+						if (revision == adapter.getRevision()) {
+							adapter.incrementRevision();
+							if (clear) adapter.setItems(posts);
+							else adapter.addAll(posts);
+							if (posts.isEmpty()) list.showData();
+						} else {
+							LOG.info("Concurrent update, reloading");
+							loadBlogPosts(clear);
+						}
+					}
+
+					@Override
+					public void onExceptionUi(DbException e) {
+						// TODO: Decide how to handle errors in the UI
+					}
+				});
+		list.startPeriodicUpdate();
 	}
 
 	@Override
@@ -178,6 +200,7 @@ public class FeedFragment extends BaseFragment implements
 						listener) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
+						adapter.incrementRevision();
 						adapter.add(post);
 						if (local) {
 							showSnackBar(R.string.blogs_blog_post_created);
@@ -185,6 +208,7 @@ public class FeedFragment extends BaseFragment implements
 							showSnackBar(R.string.blogs_blog_post_received);
 						}
 					}
+
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
@@ -234,6 +258,6 @@ public class FeedFragment extends BaseFragment implements
 
 	@Override
 	public void onBlogRemoved() {
-		finish();
+		loadBlogPosts(true);
 	}
 }

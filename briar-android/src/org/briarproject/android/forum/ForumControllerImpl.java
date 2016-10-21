@@ -28,8 +28,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-public class ForumControllerImpl
-		extends ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost>
+public class ForumControllerImpl extends
+		ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost>
 		implements ForumController {
 
 	private static final Logger LOG =
@@ -49,8 +49,8 @@ public class ForumControllerImpl
 	}
 
 	@Override
-	public void onActivityResume() {
-		super.onActivityResume();
+	public void onActivityStart() {
+		super.onActivityStart();
 		notificationManager.clearForumPostNotification(getGroupId());
 	}
 
@@ -59,7 +59,7 @@ public class ForumControllerImpl
 		super.eventOccurred(e);
 
 		if (e instanceof ForumPostReceivedEvent) {
-			final ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
+			ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
 			if (pe.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum post received, adding...");
 				final ForumPostHeader fph = pe.getForumPostHeader();
@@ -102,9 +102,8 @@ public class ForumControllerImpl
 	@Override
 	protected ForumPost createLocalMessage(String body, long timestamp,
 			@Nullable MessageId parentId, LocalAuthor author) {
-		return forumManager
-				.createLocalPost(getGroupId(), body, timestamp, parentId,
-						author);
+		return forumManager.createLocalPost(getGroupId(), body, timestamp,
+				parentId, author);
 	}
 
 	@Override

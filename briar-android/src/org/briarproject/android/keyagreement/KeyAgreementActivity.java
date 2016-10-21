@@ -40,15 +40,13 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	private static final int STEP_QR = 2;
 
 	@Inject
-	protected EventBus eventBus;
-
-	private Toolbar toolbar;
+	EventBus eventBus;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile ContactExchangeTask contactExchangeTask;
+	volatile ContactExchangeTask contactExchangeTask;
 	@Inject
-	protected volatile IdentityManager identityManager;
+	volatile IdentityManager identityManager;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -61,7 +59,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 		super.onCreate(state);
 		setContentView(R.layout.activity_plain);
 
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -83,14 +81,14 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		eventBus.addListener(this);
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onStop() {
+		super.onStop();
 		eventBus.removeListener(this);
 	}
 

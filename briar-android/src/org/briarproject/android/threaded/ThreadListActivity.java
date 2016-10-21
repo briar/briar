@@ -29,6 +29,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import static android.support.design.widget.Snackbar.make;
 import static android.view.View.GONE;
@@ -41,6 +42,9 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 	protected static final String KEY_INPUT_VISIBILITY = "inputVisibility";
 	protected static final String KEY_REPLY_ID = "replyId";
+
+	private static final Logger LOG =
+			Logger.getLogger(ThreadListActivity.class.getName());
 
 	protected A adapter;
 	protected BriarRecyclerView list;
@@ -75,7 +79,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 		if (state != null) {
 			byte[] replyIdBytes = state.getByteArray(KEY_REPLY_ID);
-			if(replyIdBytes != null) replyId = new MessageId(replyIdBytes);
+			if (replyIdBytes != null) replyId = new MessageId(replyIdBytes);
 		}
 
 		loadItems();
@@ -106,18 +110,24 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	protected abstract void onNamedGroupLoaded(G groupItem);
 
 	private void loadItems() {
+		final int revision = adapter.getRevision();
 		getController().loadItems(
-				new UiResultExceptionHandler<Collection<I>, DbException>(
-						this) {
+				new UiResultExceptionHandler<Collection<I>, DbException>(this) {
 					@Override
 					public void onResultUi(Collection<I> items) {
-						if (items.isEmpty()) {
-							list.showData();
+						if (revision == adapter.getRevision()) {
+							adapter.incrementRevision();
+							if (items.isEmpty()) {
+								list.showData();
+							} else {
+								adapter.setItems(items);
+								list.showData();
+								if (replyId != null)
+									adapter.setReplyItemById(replyId);
+							}
 						} else {
-							adapter.setItems(items);
-							list.showData();
-							if (replyId != null)
-								adapter.setReplyItemById(replyId);
+							LOG.info("Concurrent update, reloading");
+							loadItems();
 						}
 					}
 
@@ -131,35 +141,33 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 	@CallSuper
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		list.startPeriodicUpdate();
 	}
 
 	@CallSuper
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		list.stopPeriodicUpdate();
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		textInput.setVisibility(
-				savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY) ?
-						VISIBLE : GONE);
+		boolean visible = savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY);
+		textInput.setVisibility(visible ? VISIBLE : GONE);
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_INPUT_VISIBILITY,
-				textInput.getVisibility() == VISIBLE);
+		boolean visible = textInput.getVisibility() == VISIBLE;
+		outState.putBoolean(KEY_INPUT_VISIBILITY, visible);
 		ThreadItem replyItem = adapter.getReplyItem();
 		if (replyItem != null) {
-			outState.putByteArray(KEY_REPLY_ID,
-					replyItem.getId().getBytes());
+			outState.putByteArray(KEY_REPLY_ID, replyItem.getId().getBytes());
 		}
 	}
 
@@ -273,6 +281,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	}
 
 	protected void addItem(final I item, boolean isLocal) {
+		adapter.incrementRevision();
 		adapter.add(item);
 		if (isLocal && adapter.isVisible(item)) {
 			displaySnackbarShort(getItemPostedString());

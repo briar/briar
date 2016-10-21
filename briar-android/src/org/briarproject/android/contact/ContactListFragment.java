@@ -170,8 +170,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		notificationManager.blockAllContactNotifications();
 		notificationManager.clearAllContactNotifications();
 		eventBus.addListener(this);
@@ -180,8 +180,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		eventBus.removeListener(this);
 		notificationManager.unblockAllContactNotifications();
 		adapter.clear();
@@ -190,6 +190,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void loadContacts() {
+		final int revision = adapter.getRevision();
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -213,10 +214,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 							// Continue
 						}
 					}
-					displayContacts(contacts);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
+					displayContacts(revision, contacts);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -225,12 +226,19 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	private void displayContacts(final List<ContactListItem> contacts) {
+	private void displayContacts(final int revision,
+			final List<ContactListItem> contacts) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (contacts.size() == 0) list.showData();
-				else adapter.addAll(contacts);
+				if (revision == adapter.getRevision()) {
+					adapter.incrementRevision();
+					if (contacts.isEmpty()) list.showData();
+					else adapter.addAll(contacts);
+				} else {
+					LOG.info("Concurrent update, reloading");
+					loadContacts();
+				}
 			}
 		});
 	}
@@ -238,40 +246,45 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactStatusChangedEvent) {
-			LOG.info("Contact Status changed, reloading");
-			// is also broadcast when contact was added
-			loadContacts();
+			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
+			if (c.isActive()) {
+				LOG.info("Contact activated, reloading");
+				loadContacts();
+			} else {
+				LOG.info("Contact deactivated, removing item");
+				removeItem(c.getContactId());
+			}
 		} else if (e instanceof ContactConnectedEvent) {
 			setConnected(((ContactConnectedEvent) e).getContactId(), true);
 		} else if (e instanceof ContactDisconnectedEvent) {
 			setConnected(((ContactDisconnectedEvent) e).getContactId(), false);
 		} else if (e instanceof ContactRemovedEvent) {
-			LOG.info("Contact removed");
+			LOG.info("Contact removed, removing item");
 			removeItem(((ContactRemovedEvent) e).getContactId());
 		} else if (e instanceof PrivateMessageReceivedEvent) {
-			LOG.info("Message received, update contact");
+			LOG.info("Private message received, updating item");
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			PrivateMessageHeader h = p.getMessageHeader();
-			updateItem(p.getGroupId(), ConversationItem.from(h));
+			updateItem(p.getContactId(), ConversationItem.from(h));
 		} else if (e instanceof IntroductionRequestReceivedEvent) {
-			LOG.info("Introduction Request received, update contact");
+			LOG.info("Introduction request received, updating item");
 			IntroductionRequestReceivedEvent m =
 					(IntroductionRequestReceivedEvent) e;
 			IntroductionRequest ir = m.getIntroductionRequest();
 			updateItem(m.getContactId(), ConversationItem.from(ir));
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
-			LOG.info("Introduction Response received, update contact");
+			LOG.info("Introduction response received, updating item");
 			IntroductionResponseReceivedEvent m =
 					(IntroductionResponseReceivedEvent) e;
 			IntroductionResponse ir = m.getIntroductionResponse();
 			updateItem(m.getContactId(), ConversationItem.from(ir));
 		} else if (e instanceof InvitationRequestReceivedEvent) {
-			LOG.info("Invitation Request received, update contact");
+			LOG.info("Invitation request received, updating item");
 			InvitationRequestReceivedEvent m = (InvitationRequestReceivedEvent) e;
 			InvitationRequest ir = m.getRequest();
 			updateItem(m.getContactId(), ConversationItem.from(ir));
 		} else if (e instanceof InvitationResponseReceivedEvent) {
-			LOG.info("Invitation Response received, update contact");
+			LOG.info("Invitation response received, updating item");
 			InvitationResponseReceivedEvent m =
 					(InvitationResponseReceivedEvent) e;
 			InvitationResponse ir = m.getResponse();
@@ -283,21 +296,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItemAt(position);
-				if (item != null) {
-					item.addMessage(m);
-					adapter.updateItemAt(position, item);
-				}
-			}
-		});
-	}
-
-	private void updateItem(final GroupId g, final ConversationItem m) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				int position = adapter.findItemPosition(g);
 				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {
 					item.addMessage(m);
@@ -311,6 +311,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) adapter.remove(item);
@@ -322,6 +323,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
+				adapter.incrementRevision();
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {

@@ -45,18 +45,18 @@ public class ContactChooserFragment extends BaseFragment {
 	private IntroductionActivity introductionActivity;
 	private BriarRecyclerView list;
 	private ContactChooserAdapter adapter;
-	private int contactId;
+	private ContactId contactId;
 
 	// Fields that are accessed from background threads must be volatile
-	protected volatile Contact c1;
+	volatile Contact c1;
 	@Inject
-	protected volatile ContactManager contactManager;
+	volatile ContactManager contactManager;
 	@Inject
-	protected volatile IdentityManager identityManager;
+	volatile IdentityManager identityManager;
 	@Inject
-	protected volatile ConversationManager conversationManager;
+	volatile ConversationManager conversationManager;
 	@Inject
-	protected volatile ConnectionRegistry connectionRegistry;
+	volatile ConnectionRegistry connectionRegistry;
 
 	public static ContactChooserFragment newInstance() {
 		
@@ -87,9 +87,7 @@ public class ContactChooserFragment extends BaseFragment {
 				new ContactListAdapter.OnItemClickListener() {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
-						if (c1 == null) {
-							throw new RuntimeException("c1 not accountExists");
-						}
+						if (c1 == null) throw new IllegalStateException();
 						Contact c2 = item.getContact();
 						if (!c1.getLocalAuthorId()
 								.equals(c2.getLocalAuthorId())) {
@@ -113,15 +111,14 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-
+	public void onStart() {
+		super.onStart();
 		loadContacts();
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		adapter.clear();
 		list.showProgressBar();
 	}
@@ -145,7 +142,7 @@ public class ContactChooserFragment extends BaseFragment {
 					AuthorId localAuthorId =
 							identityManager.getLocalAuthor().getId();
 					for (Contact c : contactManager.getActiveContacts()) {
-						if (c.getId().getInt() == contactId) {
+						if (c.getId().equals(contactId)) {
 							c1 = c;
 						} else {
 							ContactId id = c.getId();
@@ -176,7 +173,7 @@ public class ContactChooserFragment extends BaseFragment {
 			@Override
 			public void run() {
 				adapter.setLocalAuthor(localAuthorId);
-				if (contacts.size() == 0) list.showData();
+				if (contacts.isEmpty()) list.showData();
 				else adapter.addAll(contacts);
 			}
 		});

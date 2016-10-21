@@ -37,9 +37,13 @@ public class AddContactActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
 
-	@Inject protected CryptoComponent crypto;
-	@Inject protected InvitationTaskFactory invitationTaskFactory;
-	@Inject protected ReferenceManager referenceManager;
+	@Inject
+	CryptoComponent crypto;
+	@Inject
+	InvitationTaskFactory invitationTaskFactory;
+	@Inject
+	ReferenceManager referenceManager;
+
 	private AddContactView view = null;
 	private InvitationTask task = null;
 	private long taskHandle = -1;
@@ -52,7 +56,8 @@ public class AddContactActivity extends BriarActivity
 	private String contactName = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile IdentityManager identityManager;
+	@Inject
+	volatile IdentityManager identityManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -150,8 +155,8 @@ public class AddContactActivity extends BriarActivity
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		view.populate();
 	}
 
