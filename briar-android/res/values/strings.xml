@@ -166,6 +166,7 @@
 	<string name="groups_invite_members">Invite Members</string>
 	<string name="groups_leave">Leave Group</string>
 	<string name="groups_dissolve">Dissolve Group</string>
+	<string name="groups_member_joined">joined the group.</string>
 
 	<!-- Private Group Invitations -->
 	<string name="groups_invitations_title">Group Invitations</string>

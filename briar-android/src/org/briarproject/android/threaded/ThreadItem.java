@@ -1,13 +1,18 @@
 package org.briarproject.android.threaded;
 
+import android.support.annotation.UiThread;
+
 import org.briarproject.api.clients.MessageTree.MessageNode;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.MessageId;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import static org.briarproject.android.threaded.ThreadItemAdapter.UNDEFINED;
 
-/* This class is not thread safe */
+@UiThread
+@NotThreadSafe
 public abstract class ThreadItem implements MessageNode {
 
 	private final MessageId messageId;

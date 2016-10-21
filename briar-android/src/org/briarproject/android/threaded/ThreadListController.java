@@ -1,5 +1,6 @@
 package org.briarproject.android.threaded;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
@@ -39,6 +40,8 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 		@UiThread
 		void onGroupRemoved();
+
+		Context getApplicationContext();
 	}
 
 }

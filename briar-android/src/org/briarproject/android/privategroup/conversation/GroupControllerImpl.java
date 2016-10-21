@@ -2,6 +2,7 @@ package org.briarproject.android.privategroup.conversation;
 
 import android.support.annotation.Nullable;
 
+import org.briarproject.R;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
@@ -17,6 +18,7 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.GroupMessage;
 import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.GroupMessageHeader;
+import org.briarproject.api.privategroup.JoinMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.sync.MessageId;
@@ -90,8 +92,13 @@ public class GroupControllerImpl extends
 	}
 
 	@Override
-	protected String loadMessageBody(MessageId id) throws DbException {
-		return privateGroupManager.getMessageBody(id);
+	protected String loadMessageBody(GroupMessageHeader header)
+			throws DbException {
+		if (header instanceof JoinMessageHeader) {
+			return listener.getApplicationContext()
+					.getString(R.string.groups_member_joined);
+		}
+		return privateGroupManager.getMessageBody(header.getId());
 	}
 
 	@Override
@@ -162,6 +169,9 @@ public class GroupControllerImpl extends
 	@Override
 	protected GroupMessageItem buildItem(GroupMessageHeader header,
 			String body) {
+		if (header instanceof JoinMessageHeader) {
+			return new JoinMessageItem(header, body);
+		}
 		return new GroupMessageItem(header, body);
 	}
 

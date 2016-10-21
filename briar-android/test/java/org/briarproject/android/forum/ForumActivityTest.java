@@ -8,6 +8,7 @@ import org.briarproject.BuildConfig;
 import org.briarproject.TestUtils;
 import org.briarproject.android.TestBriarApplication;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.threaded.ThreadItemAdapter;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
@@ -111,7 +112,7 @@ public class ForumActivityTest {
 		List<ForumItem> dummyData = getDummyData();
 		verify(mc, times(1)).loadItems(rc.capture());
 		rc.getValue().onResult(dummyData);
-		NestedForumAdapter adapter = forumActivity.getAdapter();
+		ThreadItemAdapter<ForumItem> adapter = forumActivity.getAdapter();
 		Assert.assertNotNull(adapter);
 		// Cascade close
 		assertEquals(6, adapter.getItemCount());

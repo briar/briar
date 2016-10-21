@@ -26,7 +26,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.clients.BdfIncomingMessageHook;
 import org.briarproject.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -236,10 +235,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	@Override
 	public String getMessageBody(MessageId m) throws DbException {
 		try {
-			// TODO remove
-			if (clientHelper.getMessageMetadataAsDictionary(m).getLong(KEY_TYPE) != POST.getInt())
-				return "new member joined";
-
 			// type(0), member_name(1), member_public_key(2), parent_id(3),
 			// previous_message_id(4), content(5), signature(6)
 			return clientHelper.getMessageAsList(m).getString(5);

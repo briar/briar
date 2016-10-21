@@ -88,8 +88,8 @@ public class ForumControllerImpl
 	}
 
 	@Override
-	protected String loadMessageBody(MessageId id) throws DbException {
-		return StringUtils.fromUtf8(forumManager.getPostBody(id));
+	protected String loadMessageBody(ForumPostHeader h) throws DbException {
+		return StringUtils.fromUtf8(forumManager.getPostBody(h.getId()));
 	}
 
 	@Override

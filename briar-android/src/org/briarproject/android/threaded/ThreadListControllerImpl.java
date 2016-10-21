@@ -52,7 +52,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	private volatile GroupId groupId;
 
-	protected ThreadListListener<H> listener;
+	protected volatile ThreadListListener<H> listener;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
@@ -159,7 +159,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					for (H header : headers) {
 						if (!bodyCache.containsKey(header.getId())) {
 							bodyCache.put(header.getId(),
-									loadMessageBody(header.getId()));
+									loadMessageBody(header));
 						}
 					}
 					duration = System.currentTimeMillis() - now;
@@ -181,7 +181,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected abstract Collection<H> loadHeaders() throws DbException;
 
 	@DatabaseExecutor
-	protected abstract String loadMessageBody(MessageId id) throws DbException;
+	protected abstract String loadMessageBody(H header) throws DbException;
 
 	@Override
 	public void loadItem(final H header,
@@ -193,7 +193,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					long now = System.currentTimeMillis();
 					String body;
 					if (!bodyCache.containsKey(header.getId())) {
-						body = loadMessageBody(header.getId());
+						body = loadMessageBody(header);
 						bodyCache.put(header.getId(), body);
 					} else {
 						body = bodyCache.get(header.getId());
