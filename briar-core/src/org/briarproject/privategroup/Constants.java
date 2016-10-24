@@ -8,11 +8,11 @@ interface Constants {
 	String KEY_TYPE = "type";
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_READ = MSG_KEY_READ;
-	String KEY_PARENT_ID = "parentId";
+	String KEY_PARENT_MSG_ID = "parentMsgId";
+	String KEY_NEW_MEMBER_MSG_ID = "newMemberMsgId";
+	String KEY_PREVIOUS_MSG_ID = "previousMsgId";
 	String KEY_AUTHOR_ID = "authorId";
 	String KEY_AUTHOR_NAME = "authorName";
 	String KEY_AUTHOR_PUBLIC_KEY = "authorPublicKey";
 
-	// Messaging Group Metadata
-	String KEY_PREVIOUS_MSG_ID = "previousMsgId";
 }

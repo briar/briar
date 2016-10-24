@@ -29,7 +29,9 @@ import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_
 import static org.briarproject.privategroup.Constants.KEY_AUTHOR_ID;
 import static org.briarproject.privategroup.Constants.KEY_AUTHOR_NAME;
 import static org.briarproject.privategroup.Constants.KEY_AUTHOR_PUBLIC_KEY;
-import static org.briarproject.privategroup.Constants.KEY_PARENT_ID;
+import static org.briarproject.privategroup.Constants.KEY_NEW_MEMBER_MSG_ID;
+import static org.briarproject.privategroup.Constants.KEY_PARENT_MSG_ID;
+import static org.briarproject.privategroup.Constants.KEY_PREVIOUS_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_READ;
 import static org.briarproject.privategroup.Constants.KEY_TIMESTAMP;
 import static org.briarproject.privategroup.Constants.KEY_TYPE;
@@ -80,6 +82,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 				break;
 			case POST:
 				c = validatePost(m, g, body, member_name, member_public_key);
+				addMessageMetadata(c, member_name, member_public_key,
+						m.getTimestamp());
 				break;
 			default:
 				throw new InvalidMessageException("Unknown Message Type");
@@ -141,6 +145,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
+		meta.put(KEY_NEW_MEMBER_MSG_ID, new_member_id);
 		return new BdfMessageContext(meta, dependencies);
 	}
 
@@ -185,7 +190,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
-		if (parent_id != null) meta.put(KEY_PARENT_ID, parent_id);
+		if (parent_id != null) meta.put(KEY_PARENT_MSG_ID, parent_id);
+		meta.put(KEY_PREVIOUS_MSG_ID, previous_message_id);
 		return new BdfMessageContext(meta, dependencies);
 	}
 
