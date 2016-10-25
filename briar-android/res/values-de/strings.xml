@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Fehler beim Starten von Briar</string>
+  <string name="setup_title">Briar Einrichten</string>
   <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, kannst du dein Konto und deine Daten nicht wiederherstellen.</string>
   <string name="choose_nickname">Wähle deinen Benutzernamen</string>
   <string name="choose_password">Wähle dein Passwort</string>
@@ -30,6 +30,7 @@
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
   <string name="contact_list_button">Kontakte</string>
+  <string name="groups_button">Private Gruppen</string>
   <string name="forums_button">Foren</string>
   <string name="blogs_button">Blogs</string>
   <string name="settings_button">Einstellungen</string>
@@ -71,6 +72,7 @@
   <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nTipp das \"+\"-Icon am oberen Bildschirmrand an und folge den Anweisungen, um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenk daran: Du kannst neue Kontakte nur dann hinzufügen, wenn du ihnen physisch begegnest. Das hindert andere daran, sich als dich auszugeben oder deine Nachrichten abzufangen.</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="no_private_messages">Das ist die Gesprächsansicht.\n\nEs scheint hier einen Mangel an Gesprächsthemen zu geben.\n\nTipp einfach auf das Eingabefeld am unteren Bildschirmrand, um ein Gespräch zu beginnen.</string>
+  <string name="message_hint">Nachricht eingeben</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>
@@ -104,6 +106,7 @@
   <string name="connection_aborted_local">Verbindung wurde durch uns abgebrochen! Das könnte daran liegen, dass jemand deine Verbindung stört.</string>
   <string name="connection_aborted_remote">Verbindung wurde durch deinen Kontakt abgebrochen! Das könnte daran liegen, dass jemand deine Verbindung stört.</string>
   <!--Introductions-->
+  <string name="introduction_onboarding_title">Deine Konakte empfehlen</string>
   <string name="introduction_activity_title">Kontakt auswählen</string>
   <string name="introduction_message_title">Kontakte einander empfehlen</string>
   <string name="introduction_message_text">Du kannst eine Nachrircht verfassen, welche mit deiner Kontaktempfehlung an %1$s und %2$s mitgesendet wird.</string>
@@ -129,6 +132,16 @@
     <item quantity="one">neuer Kontakt hinzugefügt.</item>
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
+  <!--Private Groups-->
+  <string name="groups_created_by">Erstellt durch %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d Nachrichten</item>
+    <item quantity="other">%d Nachrichten</item>
+  </plurals>
+  <string name="groups_group_is_empty">Diese Gruppe ist leer.</string>
+  <string name="groups_group_is_dissolved">Diese Gruppe ist aufgelöst</string>
+  <string name="groups_remove">Entfernen</string>
+  <string name="groups_add_group_title">Private Gruppe hinzufügen</string>
   <!--Forums-->
   <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
   <string name="create_forum_title">Neues Forum</string>

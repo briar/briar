@@ -110,6 +110,8 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
   <string name="connection_aborted_local">Conexão interrompida por nós! Isso pode disgnificar que alguém está tentando interferir na sua conexão</string>
   <string name="connection_aborted_remote">Conexão interrompida pelo seu contato! Isto pode significar que algúem está tentando interferir em sua conexão</string>
   <!--Introductions-->
+  <string name="introduction_onboarding_title">Apresente seus contatos</string>
+  <string name="introduction_onboarding_text">Você pode apresentar seus contatos entre si, assim eles não precisam se encontrar pessoalmente para se comunicar no Briar.</string>
   <string name="introduction_activity_title">Selecionar contato</string>
   <string name="introduction_message_title">Apresentar contatos</string>
   <string name="introduction_message_text">Você pode escrever uma mensagem que será enviada para %1$s e %2$s junto com sua apresentação:</string>
@@ -135,6 +137,7 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
     <item quantity="one">Novo contato adicionado.</item>
     <item quantity="other">%d novos contatos adicionados.</item>
   </plurals>
+  <!--Private Groups-->
   <!--Forums-->
   <string name="no_forums">Você não tem nenhum fórum.
 Por que não cria um novo você mesmo, Clicando o ícone + no topo?
@@ -302,6 +305,10 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Enviar feedback</string>
   <!--Link Warning-->
+  <string name="link_warning_title">Aviso sobre Link</string>
+  <string name="link_warning_intro">Você está prestes a abrir esse link em um Aplicativo Externo.</string>
+  <string name="link_warning_text">Isso pode ser usado para identificar você. Pense se você confia a pessoa que enviou esse link ou considere abrindo o no Orfox.</string>
+  <string name="link_warning_open_link">Abrir Link</string>
   <!--Multiple Identities-->
   <string name="anonymous">Anônimo</string>
   <string name="new_identity_title">Nova identidade</string>

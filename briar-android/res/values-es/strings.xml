@@ -129,6 +129,7 @@
     <item quantity="one">nuevo contacto añadido.</item>
     <item quantity="other">%d nuevos contactos añadido</item>
   </plurals>
+  <!--Private Groups-->
   <!--Forums-->
   <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el icono + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
   <string name="create_forum_title">Nuevo foro</string>

@@ -113,6 +113,7 @@
     <item quantity="one">Aggiunto nuovo contatto</item>
     <item quantity="other">Aggiunti %d nuovi contatti.</item>
   </plurals>
+  <!--Private Groups-->
   <!--Forums-->
   <string name="create_forum_title">Nuovo Forum</string>
   <string name="choose_forum_name">Scegli un nome per il tuo forum:</string>
