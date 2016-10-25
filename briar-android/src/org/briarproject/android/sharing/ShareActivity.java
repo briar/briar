@@ -9,8 +9,10 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -64,20 +66,21 @@ public abstract class ShareActivity extends ContactSelectorActivity implements
 
 	@UiThread
 	@Override
-	public boolean onButtonClick(String message) {
-		share(message);
+	public boolean onButtonClick(@NotNull String message) {
+		share(groupId, contacts, message);
 		setResult(RESULT_OK);
 		supportFinishAfterTransition();
 		return true;
 	}
 
-	private void share(final String msg) {
+	private void share(final GroupId g, final Collection<ContactId> contacts,
+			final String msg) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					for (ContactId c : contacts) {
-						share(groupId, c, msg);
+						share(g, c, msg);
 					}
 				} catch (DbException e) {
 					// TODO proper error handling
@@ -89,9 +92,7 @@ public abstract class ShareActivity extends ContactSelectorActivity implements
 		});
 	}
 
-	/**
-	 * This method must be run from the DbThread.
-	 */
+	@DatabaseExecutor
 	protected abstract void share(GroupId g, ContactId c, String msg)
 			throws DbException;
 

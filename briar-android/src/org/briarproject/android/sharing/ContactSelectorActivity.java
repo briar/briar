@@ -1,6 +1,5 @@
 package org.briarproject.android.sharing;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
@@ -10,6 +9,7 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
@@ -22,8 +22,8 @@ public abstract class ContactSelectorActivity extends BriarActivity implements
 
 	final static String CONTACTS = "contacts";
 
-	protected volatile GroupId groupId;
-	protected volatile Collection<ContactId> contacts;
+	protected GroupId groupId;
+	protected Collection<ContactId> contacts;
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -58,9 +58,7 @@ public abstract class ContactSelectorActivity extends BriarActivity implements
 		this.contacts = contacts;
 	}
 
-	/**
-	 * This must only be called from a DbThread
-	 */
+	@DatabaseExecutor
 	public abstract boolean isDisabled(GroupId groupId, Contact c)
 			throws DbException;
 

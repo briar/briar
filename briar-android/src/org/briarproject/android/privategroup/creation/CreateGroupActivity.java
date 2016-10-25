@@ -17,6 +17,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
@@ -24,7 +25,7 @@ import javax.inject.Inject;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
-import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
 public class CreateGroupActivity extends ContactSelectorActivity implements
 		CreateGroupListener, MessageFragmentListener {
@@ -125,7 +126,7 @@ public class CreateGroupActivity extends ContactSelectorActivity implements
 	}
 
 	@Override
-	public boolean onButtonClick(String message) {
+	public boolean onButtonClick(@NotNull String message) {
 		controller.sendInvitation(groupId, contacts, message,
 				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
@@ -147,7 +148,7 @@ public class CreateGroupActivity extends ContactSelectorActivity implements
 
 	@Override
 	public int getMaximumMessageLength() {
-		return MAX_MESSAGE_BODY_LENGTH;
+		return MAX_GROUP_POST_BODY_LENGTH;
 	}
 
 	private void openNewGroup() {

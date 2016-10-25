@@ -3,6 +3,7 @@ package org.briarproject.android.sharing;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +13,10 @@ import org.briarproject.R;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.LargeTextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.util.StringUtils;
 
 import static android.support.design.widget.Snackbar.LENGTH_SHORT;
-
 import static org.briarproject.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
 import static org.briarproject.util.StringUtils.truncateUtf8;
 
@@ -79,6 +80,8 @@ public abstract class BaseMessageFragment extends BaseFragment
 		}
 	}
 
+	@UiThread
+	@NotNullByDefault
 	public interface MessageFragmentListener {
 
 		void onBackPressed();
