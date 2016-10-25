@@ -21,15 +21,15 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class InvitationsBlogControllerImpl
+public class BlogInvitationsControllerImpl
 		extends InvitationsControllerImpl<SharingInvitationItem>
-		implements InvitationsBlogController {
+		implements BlogInvitationsController {
 
 	private final BlogManager blogManager;
 	private final BlogSharingManager blogSharingManager;
 
 	@Inject
-	InvitationsBlogControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	BlogInvitationsControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			BlogManager blogManager, BlogSharingManager blogSharingManager) {
 		super(dbExecutor, lifecycleManager, eventBus);

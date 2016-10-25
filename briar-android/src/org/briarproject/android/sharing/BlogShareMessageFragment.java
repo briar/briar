@@ -9,26 +9,26 @@ import android.view.ViewGroup;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 
-public class ShareForumMessageFragment extends BaseMessageFragment {
+public class BlogShareMessageFragment extends BaseMessageFragment {
 
-	public final static String TAG = ShareForumMessageFragment.class.getName();
+	public final static String TAG = BlogShareMessageFragment.class.getName();
 
-	public static ShareForumMessageFragment newInstance() {
-		return new ShareForumMessageFragment();
+	public static BlogShareMessageFragment newInstance() {
+		return new BlogShareMessageFragment();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		setTitle(R.string.forum_share_button);
+		setTitle(R.string.blogs_sharing_share);
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
 	@Override
 	@StringRes
 	protected int getButtonText() {
-		return R.string.forum_share_button;
+		return R.string.blogs_sharing_button;
 	}
 
 	@Override

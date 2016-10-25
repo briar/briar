@@ -3,6 +3,7 @@ package org.briarproject.android.contact;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.util.BriarAdapter;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
 class ConversationAdapter
 		extends BriarAdapter<ConversationItem, ConversationItemViewHolder> {
@@ -140,6 +142,8 @@ class ConversationAdapter
 		return messages;
 	}
 
+	@UiThread
+	@NotNullByDefault
 	interface RequestListener {
 		void respondToRequest(ConversationRequestItem item, boolean accept);
 	}

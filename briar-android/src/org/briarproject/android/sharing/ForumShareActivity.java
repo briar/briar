@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
-public class ShareForumActivity extends ShareActivity {
+public class ForumShareActivity extends ShareActivity {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -20,7 +20,7 @@ public class ShareForumActivity extends ShareActivity {
 
 	@Override
 	BaseMessageFragment getMessageFragment() {
-		return ShareForumMessageFragment.newInstance();
+		return ForumShareMessageFragment.newInstance();
 	}
 
 	@Override

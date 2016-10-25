@@ -12,11 +12,11 @@ import javax.inject.Inject;
 
 import static org.briarproject.android.sharing.InvitationAdapter.InvitationClickListener;
 
-public class InvitationsGroupActivity
+public class GroupInvitationsActivity
 		extends InvitationsActivity<GroupInvitationItem> {
 
 	@Inject
-	protected InvitationsGroupController controller;
+	protected GroupInvitationsController controller;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -24,14 +24,14 @@ public class InvitationsGroupActivity
 	}
 
 	@Override
-	protected InvitationsGroupController getController() {
+	protected GroupInvitationsController getController() {
 		return controller;
 	}
 
 	@Override
 	protected InvitationAdapter<GroupInvitationItem, ?> getAdapter(Context ctx,
-			InvitationClickListener listener) {
-		return new InvitationGroupAdapter(ctx, listener);
+			InvitationClickListener<GroupInvitationItem> listener) {
+		return new GroupInvitationAdapter(ctx, listener);
 	}
 
 	@Override

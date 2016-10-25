@@ -22,15 +22,15 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class InvitationsGroupControllerImpl
+public class GroupInvitationsControllerImpl
 		extends InvitationsControllerImpl<GroupInvitationItem>
-		implements InvitationsGroupController {
+		implements GroupInvitationsController {
 
 	private final PrivateGroupManager privateGroupManager;
 	private final GroupInvitationManager groupInvitationManager;
 
 	@Inject
-	InvitationsGroupControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	GroupInvitationsControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			PrivateGroupManager privateGroupManager,
 			GroupInvitationManager groupInvitationManager) {

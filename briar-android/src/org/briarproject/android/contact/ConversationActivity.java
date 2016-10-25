@@ -76,6 +76,7 @@ import org.briarproject.api.sharing.InvitationResponse;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -418,15 +419,13 @@ public class ConversationActivity extends BriarActivity
 		for (IntroductionMessage m : introductions) {
 			ConversationItem item;
 			if (m instanceof IntroductionRequest) {
+				IntroductionRequest i = (IntroductionRequest) m;
 				item = ConversationItem
-						.from(ConversationActivity.this,
-								contactName,
-								(IntroductionRequest) m);
+						.from(ConversationActivity.this, contactName, i);
 			} else {
+				IntroductionResponse i = (IntroductionResponse) m;
 				item = ConversationItem
-						.from(ConversationActivity.this,
-								contactName,
-								(IntroductionResponse) m);
+						.from(ConversationActivity.this, contactName, i);
 			}
 			items.add(item);
 		}
@@ -435,13 +434,11 @@ public class ConversationActivity extends BriarActivity
 			if (i instanceof InvitationRequest) {
 				InvitationRequest r = (InvitationRequest) i;
 				item = ConversationItem
-						.from(ConversationActivity.this,
-								contactName, r);
+						.from(ConversationActivity.this, contactName, r);
 			} else {
 				InvitationResponse r = (InvitationResponse) i;
 				item = ConversationItem
-						.from(ConversationActivity.this,
-								contactName, r);
+						.from(ConversationActivity.this, contactName, r);
 			}
 			items.add(item);
 		}
@@ -581,7 +578,7 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Introduction request received, adding...");
 				IntroductionRequest ir = event.getIntroductionRequest();
 				ConversationItem item =
-						ConversationRequestItem.from(this, contactName, ir);
+						ConversationItem.from(this, contactName, ir);
 				addConversationItem(item);
 			}
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
@@ -836,7 +833,7 @@ public class ConversationActivity extends BriarActivity
 
 	@UiThread
 	@Override
-	public void respondToRequest(final ConversationRequestItem item,
+	public void respondToRequest(@NotNull final ConversationRequestItem item,
 			final boolean accept) {
 		int position = adapter.findItemPosition(item);
 		if (position != INVALID_POSITION) {
@@ -866,6 +863,7 @@ public class ConversationActivity extends BriarActivity
 							throw new IllegalArgumentException(
 									"Unknown Request Type");
 					}
+					loadMessages();
 				} catch (DbException | FormatException e) {
 					introductionResponseError();
 					if (LOG.isLoggable(WARNING))
@@ -884,28 +882,24 @@ public class ConversationActivity extends BriarActivity
 		} else {
 			introductionManager.declineIntroduction(contactId, sessionId, time);
 		}
-		loadMessages();
 	}
 
 	@DatabaseExecutor
 	private void respondToForumRequest(SessionId id, boolean accept)
 			throws DbException {
 		forumSharingManager.respondToInvitation(id, accept);
-		loadMessages();
 	}
 
 	@DatabaseExecutor
 	private void respondToBlogRequest(SessionId id, boolean accept)
 			throws DbException {
 		blogSharingManager.respondToInvitation(id, accept);
-		loadMessages();
 	}
 
 	@DatabaseExecutor
 	private void respondToGroupRequest(SessionId id, boolean accept)
 			throws DbException {
 		groupInvitationManager.respondToInvitation(id, accept);
-		loadMessages();
 	}
 
 	private void introductionResponseError() {

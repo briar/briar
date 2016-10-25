@@ -7,6 +7,7 @@ import org.briarproject.R;
 import org.briarproject.android.contact.ConversationRequestItem.RequestType;
 import org.briarproject.api.blogs.BlogInvitationRequest;
 import org.briarproject.api.blogs.BlogInvitationResponse;
+import org.briarproject.api.clients.BaseMessageHeader;
 import org.briarproject.api.forum.ForumInvitationRequest;
 import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.introduction.IntroductionRequest;
@@ -32,9 +33,9 @@ import static org.briarproject.android.contact.ConversationRequestItem.RequestTy
 @NotNullByDefault
 abstract class ConversationItem {
 
+	protected @Nullable String text;
 	final private MessageId id;
 	final private GroupId groupId;
-	protected @Nullable String text;
 	final private long time;
 
 	ConversationItem(MessageId id, GroupId groupId,
@@ -254,6 +255,27 @@ abstract class ConversationItem {
 			String text = ctx.getString(res, contactName);
 			return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
 					text, null, ir.getTimestamp(), ir.isRead());
+		}
+	}
+
+	/**
+	 * This method should not be used to display the resulting ConversationItem
+	 * in the UI, but only to update list information based on the
+	 * BaseMessageHeader.
+	 **/
+	static ConversationItem from(Context ctx, BaseMessageHeader h) {
+		if (h instanceof PrivateMessageHeader) {
+			return from((PrivateMessageHeader) h);
+		} else if(h instanceof IntroductionRequest) {
+			return from(ctx, "", (IntroductionRequest) h);
+		} else if(h instanceof IntroductionResponse) {
+			return from(ctx, "", (IntroductionResponse) h);
+		} else if(h instanceof InvitationRequest) {
+			return from(ctx, "", (InvitationRequest) h);
+		} else if(h instanceof InvitationResponse) {
+			return from(ctx, "", (InvitationResponse) h);
+		} else {
+			throw new IllegalArgumentException("Unknown message header");
 		}
 	}
 

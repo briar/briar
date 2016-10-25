@@ -2,6 +2,6 @@ package org.briarproject.android.sharing;
 
 import org.briarproject.api.sharing.SharingInvitationItem;
 
-public interface InvitationsBlogController
+public interface BlogInvitationsController
 		extends InvitationsController<SharingInvitationItem> {
 }

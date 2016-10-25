@@ -45,7 +45,7 @@ public abstract class InvitationsActivity<I extends InvitationItem>
 	}
 
 	abstract protected InvitationAdapter<I, ?> getAdapter(Context ctx,
-			InvitationClickListener listener);
+			InvitationClickListener<I> listener);
 
 	@Override
 	public void onStart() {

@@ -6,10 +6,10 @@ import android.view.ViewGroup;
 import org.briarproject.android.sharing.InvitationAdapter;
 import org.briarproject.api.privategroup.invitation.GroupInvitationItem;
 
-class InvitationGroupAdapter extends
+class GroupInvitationAdapter extends
 		InvitationAdapter<GroupInvitationItem, GroupInvitationViewHolder> {
 
-	InvitationGroupAdapter(Context ctx,
+	GroupInvitationAdapter(Context ctx,
 			InvitationClickListener<GroupInvitationItem> listener) {
 		super(ctx, GroupInvitationItem.class, listener);
 	}

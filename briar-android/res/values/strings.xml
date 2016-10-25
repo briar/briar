@@ -171,8 +171,8 @@
 	<string name="groups_invitations_title">Group Invitations</string>
 	<string name="groups_invitations_invitation_sent">You have invited %1$s to your group "%2$s".</string>
 	<string name="groups_invitations_invitation_received">%1$s has invited you to join the group "%2$s".</string>
-	<string name="groups_invitations_joined">Joined Group</string>
-	<string name="groups_invitations_declined">Group Invitation Declined</string>
+	<string name="groups_invitations_joined">Joined group</string>
+	<string name="groups_invitations_declined">Group invitation declined</string>
 	<plurals name="groups_invitations_open">
 		<item quantity="one">%d open group invitation</item>
 		<item quantity="other">%d open group invitations</item>

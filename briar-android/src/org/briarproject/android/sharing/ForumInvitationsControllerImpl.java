@@ -21,15 +21,15 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class InvitationsForumControllerImpl
+public class ForumInvitationsControllerImpl
 		extends InvitationsControllerImpl<SharingInvitationItem>
-		implements InvitationsForumController {
+		implements ForumInvitationsController {
 
 	private final ForumManager forumManager;
 	private final ForumSharingManager forumSharingManager;
 
 	@Inject
-	InvitationsForumControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	ForumInvitationsControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			ForumManager forumManager,
 			ForumSharingManager forumSharingManager) {

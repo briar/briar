@@ -33,16 +33,16 @@ import org.briarproject.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupMessageFragment;
 import org.briarproject.android.privategroup.list.GroupListFragment;
-import org.briarproject.android.privategroup.invitation.InvitationsGroupActivity;
+import org.briarproject.android.privategroup.invitation.GroupInvitationsActivity;
+import org.briarproject.android.sharing.BlogShareActivity;
+import org.briarproject.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.android.sharing.ContactSelectorFragment;
-import org.briarproject.android.sharing.InvitationsBlogActivity;
-import org.briarproject.android.sharing.InvitationsForumActivity;
-import org.briarproject.android.sharing.ShareBlogActivity;
-import org.briarproject.android.sharing.ShareBlogMessageFragment;
-import org.briarproject.android.sharing.ShareForumActivity;
-import org.briarproject.android.sharing.ShareForumMessageFragment;
-import org.briarproject.android.sharing.SharingStatusBlogActivity;
-import org.briarproject.android.sharing.SharingStatusForumActivity;
+import org.briarproject.android.sharing.BlogInvitationsActivity;
+import org.briarproject.android.sharing.ForumInvitationsActivity;
+import org.briarproject.android.sharing.ForumShareMessageFragment;
+import org.briarproject.android.sharing.ForumSharingStatusActivity;
+import org.briarproject.android.sharing.BlogShareMessageFragment;
+import org.briarproject.android.sharing.ForumShareActivity;
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
@@ -73,23 +73,23 @@ public interface ActivityComponent {
 
 	void inject(ConversationActivity activity);
 
-	void inject(InvitationsForumActivity activity);
+	void inject(ForumInvitationsActivity activity);
 
-	void inject(InvitationsBlogActivity activity);
+	void inject(BlogInvitationsActivity activity);
 
 	void inject(CreateGroupActivity activity);
 	void inject(GroupActivity activity);
-	void inject(InvitationsGroupActivity activity);
+	void inject(GroupInvitationsActivity activity);
 
 	void inject(CreateForumActivity activity);
 
-	void inject(ShareForumActivity activity);
+	void inject(ForumShareActivity activity);
 
-	void inject(ShareBlogActivity activity);
+	void inject(BlogShareActivity activity);
 
-	void inject(SharingStatusForumActivity activity);
+	void inject(ForumSharingStatusActivity activity);
 
-	void inject(SharingStatusBlogActivity activity);
+	void inject(BlogSharingStatusActivity activity);
 
 	void inject(ForumActivity activity);
 
@@ -133,8 +133,8 @@ public interface ActivityComponent {
 	void inject(ShowQrCodeFragment fragment);
 	void inject(ContactChooserFragment fragment);
 	void inject(ContactSelectorFragment fragment);
-	void inject(ShareForumMessageFragment fragment);
-	void inject(ShareBlogMessageFragment fragment);
+	void inject(ForumShareMessageFragment fragment);
+	void inject(BlogShareMessageFragment fragment);
 	void inject(IntroductionMessageFragment fragment);
 
 }
