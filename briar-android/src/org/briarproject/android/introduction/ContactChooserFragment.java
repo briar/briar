@@ -1,10 +1,8 @@
 package org.briarproject.android.introduction;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.transition.Fade;
 import android.view.LayoutInflater;
@@ -13,6 +11,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.android.contact.ContactListAdapter;
 import org.briarproject.android.contact.ContactListItem;
 import org.briarproject.android.fragment.BaseFragment;
@@ -22,9 +21,6 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
@@ -44,15 +40,13 @@ public class ContactChooserFragment extends BaseFragment {
 
 	private IntroductionActivity introductionActivity;
 	private BriarRecyclerView list;
-	private ContactChooserAdapter adapter;
+	private ContactListAdapter adapter;
 	private ContactId contactId;
 
 	// Fields that are accessed from background threads must be volatile
 	volatile Contact c1;
 	@Inject
 	volatile ContactManager contactManager;
-	@Inject
-	volatile IdentityManager identityManager;
 	@Inject
 	volatile ConversationManager conversationManager;
 	@Inject
@@ -83,22 +77,16 @@ public class ContactChooserFragment extends BaseFragment {
 			setExitTransition(new Fade());
 		}
 
-		ContactListAdapter.OnItemClickListener onItemClickListener =
-				new ContactListAdapter.OnItemClickListener() {
+		OnContactClickListener<ContactListItem> onContactClickListener =
+				new OnContactClickListener<ContactListItem>() {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
 						if (c1 == null) throw new IllegalStateException();
 						Contact c2 = item.getContact();
-						if (!c1.getLocalAuthorId()
-								.equals(c2.getLocalAuthorId())) {
-							warnAboutDifferentIdentities(view, c1, c2);
-						} else {
-							introductionActivity.showMessageScreen(view, c1,
-									c2);
-						}
+						introductionActivity.showMessageScreen(view, c1, c2);
 					}
 				};
-		adapter = new ContactChooserAdapter(getActivity(), onItemClickListener);
+		adapter = new ContactListAdapter(getActivity(), onContactClickListener);
 
 		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -139,8 +127,6 @@ public class ContactChooserFragment extends BaseFragment {
 			public void run() {
 				try {
 					List<ContactListItem> contacts = new ArrayList<>();
-					AuthorId localAuthorId =
-							identityManager.getLocalAuthor().getId();
 					for (Contact c : contactManager.getActiveContacts()) {
 						if (c.getId().equals(contactId)) {
 							c1 = c;
@@ -152,13 +138,11 @@ public class ContactChooserFragment extends BaseFragment {
 									conversationManager.getGroupCount(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
-							LocalAuthor localAuthor = identityManager
-									.getLocalAuthor(c.getLocalAuthorId());
-							contacts.add(new ContactListItem(c, localAuthor,
-									connected, groupId, count));
+							contacts.add(new ContactListItem(c, connected,
+									groupId, count));
 						}
 					}
-					displayContacts(localAuthorId, contacts);
+					displayContacts(contacts);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -167,37 +151,14 @@ public class ContactChooserFragment extends BaseFragment {
 		});
 	}
 
-	private void displayContacts(final AuthorId localAuthorId,
-			final List<ContactListItem> contacts) {
+	private void displayContacts(final List<ContactListItem> contacts) {
 		introductionActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				adapter.setLocalAuthor(localAuthorId);
 				if (contacts.isEmpty()) list.showData();
 				else adapter.addAll(contacts);
 			}
 		});
-	}
-
-	private void warnAboutDifferentIdentities(final View view, final Contact c1,
-			final Contact c2) {
-
-		DialogInterface.OnClickListener okListener =
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						introductionActivity.showMessageScreen(view, c1, c2);
-					}
-				};
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
-				R.style.BriarDialogTheme);
-		builder.setTitle(getString(
-				R.string.introduction_warn_different_identities_title));
-		builder.setMessage(getString(
-				R.string.introduction_warn_different_identities_text));
-		builder.setPositiveButton(R.string.dialog_button_introduce, okListener);
-		builder.setNegativeButton(android.R.string.cancel, null);
-		builder.show();
 	}
 
 }

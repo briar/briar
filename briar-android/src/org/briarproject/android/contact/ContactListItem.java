@@ -2,61 +2,38 @@ package org.briarproject.android.contact;
 
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class ContactListItem {
+@NotNullByDefault
+public class ContactListItem extends ContactItem {
 
-	private final Contact contact;
-	private final LocalAuthor localAuthor;
 	private final GroupId groupId;
-	private boolean connected, empty;
+	private boolean empty;
 	private long timestamp;
 	private int unread;
 
-	public ContactListItem(@NotNull Contact contact,
-			@NotNull LocalAuthor localAuthor, boolean connected,
-			@NotNull GroupId groupId, @NotNull GroupCount count) {
-		this.contact = contact;
-		this.localAuthor = localAuthor;
+	public ContactListItem(Contact contact,	boolean connected, GroupId groupId,
+			GroupCount count) {
+		super(contact, connected);
 		this.groupId = groupId;
-		this.connected = connected;
 		this.empty = count.getMsgCount() == 0;
 		this.unread = count.getUnreadCount();
 		this.timestamp = count.getLatestMsgTime();
 	}
 
 	void addMessage(ConversationItem message) {
-		empty = empty && message == null;
-		if (message != null) {
-			if (message.getTime() > timestamp) timestamp = message.getTime();
-			if (!message.isRead())
-				unread++;
-		}
-	}
-
-	public Contact getContact() {
-		return contact;
-	}
-
-	public LocalAuthor getLocalAuthor() {
-		return localAuthor;
+		empty = false;
+		if (message.getTime() > timestamp) timestamp = message.getTime();
+		if (!message.isRead())
+			unread++;
 	}
 
 	GroupId getGroupId() {
 		return groupId;
-	}
-
-	boolean isConnected() {
-		return connected;
-	}
-
-	void setConnected(boolean connected) {
-		this.connected = connected;
 	}
 
 	boolean isEmpty() {
@@ -70,4 +47,5 @@ public class ContactListItem {
 	int getUnreadCount() {
 		return unread;
 	}
+
 }

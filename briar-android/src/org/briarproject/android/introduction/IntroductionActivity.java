@@ -13,12 +13,12 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 
-// TODO extend the BriarFragmentActivity ?
-public class IntroductionActivity extends BriarActivity implements
-		BaseFragment.BaseFragmentListener {
+public class IntroductionActivity extends BriarActivity
+		implements BaseFragmentListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
