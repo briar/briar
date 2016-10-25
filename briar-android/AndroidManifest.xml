@@ -128,7 +128,17 @@
 			android:parentActivityName=".android.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.NavDrawerActivity"
+				android:value=".android.NavDrawerActivity"/>
+		</activity>
+
+			<activity
+			android:name=".android.privategroup.memberlist.GroupMemberListActivity"
+			android:label="@string/app_name"
+			android:parentActivityName=".android.privategroup.conversation.GroupActivity"
+			android:windowSoftInputMode="adjustResize|stateHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.privategroup.conversation.GroupActivity"
 				/>
 		</activity>
 

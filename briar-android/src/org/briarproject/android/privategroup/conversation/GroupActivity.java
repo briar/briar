@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +18,7 @@ import android.view.MenuItem;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
@@ -24,6 +27,7 @@ import org.briarproject.api.privategroup.PrivateGroup;
 
 import javax.inject.Inject;
 
+import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
 public class GroupActivity extends
@@ -133,12 +137,20 @@ public class GroupActivity extends
 			case R.id.action_group_compose_message:
 				showTextInput(null);
 				return true;
+			case R.id.action_group_member_list:
+				Intent i = new Intent(this, GroupMemberListActivity.class);
+				i.putExtra(GROUP_ID, groupId.getBytes());
+				i.putExtra(GROUP_NAME, getTitle());
+				ActivityOptionsCompat options =
+						makeCustomAnimation(this, android.R.anim.slide_in_left,
+								android.R.anim.slide_out_right);
+				ActivityCompat.startActivity(this, i, options.toBundle());
+				return true;
 			case R.id.action_group_leave:
 				showLeaveGroupDialog();
 				return true;
 			case R.id.action_group_dissolve:
 				showDissolveGroupDialog();
-				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
