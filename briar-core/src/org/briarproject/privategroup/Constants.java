@@ -15,4 +15,7 @@ interface Constants {
 	String KEY_MEMBER_NAME = "memberName";
 	String KEY_MEMBER_PUBLIC_KEY = "memberPublicKey";
 
+	String KEY_MEMBERS = "members";
+	String KEY_DISSOLVED = "dissolved";
+
 }

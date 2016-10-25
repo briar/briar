@@ -3,12 +3,15 @@ package org.briarproject.api.privategroup;
 import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
+@NotNullByDefault
 public interface PrivateGroupManager extends MessageTracker {
 
 	/** Returns the unique ID of the private group client. */
@@ -35,6 +38,12 @@ public interface PrivateGroupManager extends MessageTracker {
 	// TODO change to getPreviousMessageHeader()
 	long getMessageTimestamp(MessageId id) throws DbException;
 
+	/** Marks the group with GroupId g as resolved */
+	void markGroupDissolved(Transaction txn, GroupId g) throws DbException;
+
+	/** Returns true if the private group has been dissolved. */
+	boolean isDissolved(GroupId g) throws DbException;
+
 	/** Stores (and sends) a local group message. */
 	GroupMessageHeader addLocalMessage(GroupMessage p) throws DbException;
 
@@ -49,13 +58,32 @@ public interface PrivateGroupManager extends MessageTracker {
 	/** Returns all private groups the user is a member of. */
 	Collection<PrivateGroup> getPrivateGroups() throws DbException;
 
-	/** Returns true if the private group has been dissolved. */
-	boolean isDissolved(GroupId g) throws DbException;
-
 	/** Returns the body of the group message with the given ID. */
 	String getMessageBody(MessageId m) throws DbException;
 
 	/** Returns the headers of all group messages in the given group. */
 	Collection<GroupMessageHeader> getHeaders(GroupId g) throws DbException;
+
+	/** Returns all members of the group with ID g */
+	Collection<GroupMember> getMembers(GroupId g) throws DbException;
+
+	/** Returns true if the given Author a is member of the group with ID g */
+	boolean isMember(Transaction txn, GroupId g, Author a) throws DbException;
+
+	/**
+	 * Registers a hook to be called when members are added
+	 * or groups are removed.
+	 * */
+	void registerPrivateGroupHook(PrivateGroupHook hook);
+
+	@NotNullByDefault
+	interface PrivateGroupHook {
+
+		void addingMember(Transaction txn, GroupId g, Author a)
+				throws DbException;
+
+		void removingGroup(Transaction txn, GroupId g) throws DbException;
+
+	}
 
 }
