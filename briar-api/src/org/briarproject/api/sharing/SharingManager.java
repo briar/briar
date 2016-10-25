@@ -11,15 +11,17 @@ import java.util.Collection;
 
 public interface SharingManager<S extends Shareable> extends MessageTracker {
 
-	/** Returns the unique ID of the group sharing client. */
+	/**
+	 * Returns the unique ID of the group sharing client.
+	 */
 	ClientId getClientId();
 
 	/**
-	 * Sends an invitation to share the given shareable with the given contact
+	 * Sends an invitation to share the given group with the given contact
 	 * and sends an optional message along with it.
 	 */
 	void sendInvitation(GroupId groupId, ContactId contactId,
-			String message)	throws DbException;
+			String message) throws DbException;
 
 	/**
 	 * Responds to a pending group invitation
@@ -28,22 +30,29 @@ public interface SharingManager<S extends Shareable> extends MessageTracker {
 			throws DbException;
 
 	/**
-	 * Returns all group sharing messages sent by the Contact
-	 * identified by contactId.
+	 * Returns all group sharing messages sent by the given contact.
 	 */
 	Collection<InvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
 
-	/** Returns all invitations to shareables. */
+	/**
+	 * Returns all invitations to groups.
+	 */
 	Collection<InvitationItem> getInvitations() throws DbException;
 
-	/** Returns all contacts who are sharing the given group with us. */
+	/**
+	 * Returns all contacts who are sharing the given group with us.
+	 */
 	Collection<Contact> getSharedBy(GroupId g) throws DbException;
 
-	/** Returns the IDs of all contacts with whom the given group is shared. */
+	/**
+	 * Returns all contacts with whom the given group is shared.
+	 */
 	Collection<Contact> getSharedWith(GroupId g) throws DbException;
 
-	/** Returns true if the group not already shared and no invitation is open */
+	/**
+	 * Returns true if the group not already shared and no invitation is open
+	 */
 	boolean canBeShared(GroupId g, Contact c) throws DbException;
 
 }

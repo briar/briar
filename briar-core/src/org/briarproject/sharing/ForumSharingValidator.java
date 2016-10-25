@@ -1,9 +1,9 @@
 package org.briarproject.sharing;
 
 import org.briarproject.api.FormatException;
+import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.SessionId;
-import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
@@ -20,6 +20,7 @@ import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_MSG;
 import static org.briarproject.api.sharing.SharingConstants.LOCAL;
+import static org.briarproject.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
 import static org.briarproject.api.sharing.SharingConstants.SESSION_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEPT;
@@ -28,7 +29,6 @@ import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVIT
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
 import static org.briarproject.api.sharing.SharingConstants.TIME;
 import static org.briarproject.api.sharing.SharingConstants.TYPE;
-import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
 class ForumSharingValidator extends BdfMessageValidator {
 
@@ -61,7 +61,7 @@ class ForumSharingValidator extends BdfMessageValidator {
 
 			if (body.size() > 4) {
 				String msg = body.getString(4);
-				checkLength(msg, 0, MAX_MESSAGE_BODY_LENGTH);
+				checkLength(msg, 0, MAX_INVITATION_MESSAGE_LENGTH);
 				d.put(INVITATION_MSG, msg);
 			}
 		} else {

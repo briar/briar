@@ -40,6 +40,7 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TYPE;
+import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
 import static org.briarproject.api.blogs.MessageType.COMMENT;
 import static org.briarproject.api.blogs.MessageType.POST;
@@ -125,7 +126,7 @@ class BlogPostValidator extends BdfMessageValidator {
 
 		// Comment
 		String comment = body.getOptionalString(0);
-		checkLength(comment, 1, MAX_BLOG_POST_BODY_LENGTH);
+		checkLength(comment, 1, MAX_BLOG_COMMENT_LENGTH);
 
 		// parent_original_id
 		// The ID of a post or comment in this group or another group
@@ -216,7 +217,7 @@ class BlogPostValidator extends BdfMessageValidator {
 
 		// Body of Wrapped Comment
 		String comment = body.getOptionalString(2);
-		checkLength(comment, 1, MAX_BLOG_POST_BODY_LENGTH);
+		checkLength(comment, 1, MAX_BLOG_COMMENT_LENGTH);
 
 		// c_parent_original_id
 		// Taken from the original comment

@@ -31,6 +31,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID
 import static org.briarproject.api.introduction.IntroductionConstants.CONTACT_ID_2;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2;
+import static org.briarproject.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
 import static org.briarproject.api.introduction.IntroductionConstants.PUBLIC_KEY1;
@@ -103,7 +104,7 @@ class IntroducerManager {
 		return d;
 	}
 
-	public void makeIntroduction(Transaction txn, Contact c1, Contact c2,
+	void makeIntroduction(Transaction txn, Contact c1, Contact c2,
 			String msg, long timestamp) throws DbException, FormatException {
 
 		// TODO check for existing session with those contacts?
@@ -116,6 +117,9 @@ class IntroducerManager {
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_REQUEST);
 		if (!StringUtils.isNullOrEmpty(msg)) {
+			int msgLength = StringUtils.toUtf8(msg).length;
+			if (msgLength > MAX_INTRODUCTION_MESSAGE_LENGTH)
+				throw new IllegalArgumentException();
 			localAction.put(MSG, msg);
 		}
 		localAction.put(PUBLIC_KEY1, c1.getAuthor().getPublicKey());

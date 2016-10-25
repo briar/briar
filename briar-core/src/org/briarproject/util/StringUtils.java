@@ -1,9 +1,17 @@
 package org.briarproject.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.Collection;
 
+import static java.nio.charset.CodingErrorAction.IGNORE;
+
 public class StringUtils {
+
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
 
 	private static final char[] HEX = new char[] {
 		'0', '1', '2', '3', '4', '5', '6', '7',
@@ -32,23 +40,29 @@ public class StringUtils {
 	}
 
 	public static String fromUtf8(byte[] bytes) {
-		try {
-			return new String(bytes, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		return fromUtf8(bytes, 0, bytes.length);
 	}
 
 	public static String fromUtf8(byte[] bytes, int off, int len) {
+		CharsetDecoder decoder = UTF_8.newDecoder();
+		decoder.onMalformedInput(IGNORE);
+		decoder.onUnmappableCharacter(IGNORE);
+		ByteBuffer buffer = ByteBuffer.wrap(bytes, off, len);
 		try {
-			return new String(bytes, off, len, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+			return decoder.decode(buffer).toString();
+		} catch (CharacterCodingException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	public static String truncateUtf8(String s, int maxUtf8Length) {
+		byte[] utf8 = toUtf8(s);
+		if (utf8.length <= maxUtf8Length) return s;
+		return fromUtf8(utf8, 0, maxUtf8Length);
+	}
+
 	/** Converts the given byte array to a hex character array. */
-	public static char[] toHexChars(byte[] bytes) {
+	private static char[] toHexChars(byte[] bytes) {
 		char[] hex = new char[bytes.length * 2];
 		for (int i = 0, j = 0; i < bytes.length; i++) {
 			hex[j++] = HEX[(bytes[i] >> 4) & 0xF];

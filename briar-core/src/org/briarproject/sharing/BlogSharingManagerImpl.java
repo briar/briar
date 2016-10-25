@@ -204,6 +204,7 @@ class BlogSharingManagerImpl extends
 					.createBlog(msg.getBlogTitle(), msg.getBlogDesc(), author);
 		}
 
+		@Override
 		public Blog parse(BlogInviteeSessionState state) {
 			Author author = authorFactory
 					.createAuthor(state.getBlogAuthorName(),

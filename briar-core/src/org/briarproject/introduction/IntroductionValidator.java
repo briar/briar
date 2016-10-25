@@ -21,6 +21,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_K
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC_LENGTH;
+import static org.briarproject.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.api.introduction.IntroductionConstants.MSG;
@@ -37,7 +38,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
 class IntroductionValidator extends BdfMessageValidator {
 
@@ -92,7 +92,7 @@ class IntroductionValidator extends BdfMessageValidator {
 		String msg = null;
 		if (message.size() == 5) {
 			msg = message.getString(4);
-			checkLength(msg, 0, MAX_MESSAGE_BODY_LENGTH);
+			checkLength(msg, 0, MAX_INTRODUCTION_MESSAGE_LENGTH);
 		}
 
 		// Return the metadata

@@ -98,6 +98,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ConversationItem.IncomingItem;
 import static org.briarproject.android.contact.ConversationItem.OutgoingItem;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 
 public class ConversationActivity extends BriarActivity
 		implements EventListener, IntroductionHandler, TextInputListener {
@@ -618,6 +619,7 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public void onSendClick(String text) {
 		if (text.equals("")) return;
+		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		createMessage(StringUtils.toUtf8(text), timestamp);
