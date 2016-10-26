@@ -54,6 +54,7 @@
 # RSS libraries
 -keep class com.rometools.rome.feed.synd.impl.** { *;}
 -keep class com.rometools.rome.io.impl.** { *;}
+-keep class org.jsoup.safety.Whitelist
 -dontnote com.rometools.rome.**
 -dontwarn javax.xml.stream.**
 -dontwarn org.jaxen.**
@@ -61,6 +62,9 @@
 -dontwarn org.codehaus.mojo.animal_sniffer.**
 -dontwarn org.slf4j.impl.**
 
+# Emoji
+-keep class org.thoughtcrime.securesms.**
+-keep class com.astuetz.PagerSlidingTabStrip$OnTabReselectedListener
 -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
     **[] $VALUES;
     public *;
