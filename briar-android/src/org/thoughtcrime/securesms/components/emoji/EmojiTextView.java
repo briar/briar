@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.ViewConfiguration;
 import android.widget.TextView;
 
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider.EmojiDrawable;
@@ -78,6 +79,16 @@ public class EmojiTextView extends TextView {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
+		// disable software layer if cache size is too small for it
+		int drawingCacheSize = ViewConfiguration.get(getContext())
+				.getScaledMaximumDrawingCacheSize();
+		int width = right - left;
+		int height = bottom - top;
+		int size = width * height * 4;
+		if (size > drawingCacheSize) {
+			setLayerType(LAYER_TYPE_NONE, null);
+		}
+
 		if (changed) setTextEllipsized(source);
 		super.onLayout(changed, left, top, right, bottom);
 	}
