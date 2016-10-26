@@ -149,11 +149,11 @@ public class ForumActivity extends
 		OnClickListener okListener = new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				deleteNamedGroup();
+				deleteForum();
 			}
 		};
-		AlertDialog.Builder builder = new AlertDialog.Builder(
-				ForumActivity.this, R.style.BriarDialogTheme);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_leave_forum));
 		builder.setMessage(getString(R.string.dialog_message_leave_forum));
 		builder.setNegativeButton(R.string.dialog_button_leave, okListener);
@@ -161,7 +161,7 @@ public class ForumActivity extends
 		builder.show();
 	}
 
-	private void deleteNamedGroup() {
+	private void deleteForum() {
 		forumController.deleteNamedGroup(
 				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
