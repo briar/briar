@@ -80,6 +80,7 @@ public class CreateGroupActivity extends ContactSelectorActivity implements
 				new UiResultExceptionHandler<GroupId, DbException>(this) {
 					@Override
 					public void onResultUi(GroupId g) {
+						groupId = g;
 						switchToContactSelectorFragment(g);
 					}
 
@@ -92,6 +93,7 @@ public class CreateGroupActivity extends ContactSelectorActivity implements
 	}
 
 	private void switchToContactSelectorFragment(GroupId g) {
+		setTitle(R.string.groups_invite_members);
 		ContactSelectorFragment fragment =
 				ContactSelectorFragment.newInstance(g);
 		getSupportFragmentManager().beginTransaction()
