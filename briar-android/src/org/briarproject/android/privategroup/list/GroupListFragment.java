@@ -1,8 +1,10 @@
 package org.briarproject.android.privategroup.list;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +17,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
+import org.briarproject.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.android.privategroup.list.GroupListController.GroupListListener;
 import org.briarproject.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.android.view.BriarRecyclerView;
@@ -26,6 +29,8 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 
 public class GroupListFragment extends BaseFragment implements
 		GroupListListener, OnGroupRemoveClickListener {
@@ -47,8 +52,6 @@ public class GroupListFragment extends BaseFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-
-		setHasOptionsMenu(true);
 
 		View v = inflater.inflate(R.layout.list, container, false);
 
@@ -94,7 +97,12 @@ public class GroupListFragment extends BaseFragment implements
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_add_group:
-				// TODO
+				Intent i = new Intent(getContext(), CreateGroupActivity.class);
+				ActivityOptionsCompat options =
+						makeCustomAnimation(getActivity(),
+								android.R.anim.slide_in_left,
+								android.R.anim.slide_out_right);
+				startActivity(i, options.toBundle());
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

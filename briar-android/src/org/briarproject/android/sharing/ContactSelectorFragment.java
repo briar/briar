@@ -23,7 +23,6 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
@@ -48,7 +47,6 @@ public class ContactSelectorFragment extends BaseFragment implements
 	public static final String TAG = ContactSelectorFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
 
-	private ShareActivity shareActivity;
 	private Menu menu;
 	private BriarRecyclerView list;
 	private ContactSelectorAdapter adapter;
@@ -59,13 +57,11 @@ public class ContactSelectorFragment extends BaseFragment implements
 	volatile ContactManager contactManager;
 	@Inject
 	volatile IdentityManager identityManager;
-	@Inject
-	volatile ForumSharingManager forumSharingManager;
 
 	private volatile GroupId groupId;
+	private volatile ContactSelectorListener listener;
 
 	public static ContactSelectorFragment newInstance(GroupId groupId) {
-
 		Bundle args = new Bundle();
 		args.putByteArray(GROUP_ID, groupId.getBytes());
 		ContactSelectorFragment fragment = new ContactSelectorFragment();
@@ -81,14 +77,13 @@ public class ContactSelectorFragment extends BaseFragment implements
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		shareActivity = (ShareActivity) context;
+		listener = (ContactSelectorListener) context;
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setHasOptionsMenu(true);
 		Bundle args = getArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
@@ -139,6 +134,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
 		if (adapter != null) {
 			selectedContacts = adapter.getSelectedContactIds();
 			outState.putIntegerArrayList(CONTACTS,
@@ -148,7 +144,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.forum_share_actions, menu);
+		inflater.inflate(R.menu.contact_selection_actions, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 		this.menu = menu;
 		// hide sharing action initially, if no contact is selected
@@ -159,12 +155,9 @@ public class ContactSelectorFragment extends BaseFragment implements
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
-			case android.R.id.home:
-				shareActivity.onBackPressed();
-				return true;
-			case R.id.action_share_forum:
+			case R.id.action_contacts_selected:
 				selectedContacts = adapter.getSelectedContactIds();
-				shareActivity.showMessageScreen(groupId, selectedContacts);
+				listener.contactsSelected(groupId, selectedContacts);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -185,7 +178,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	private void loadContacts(@Nullable final Collection<ContactId> selection) {
-		shareActivity.runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -199,7 +192,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 						boolean selected = selection != null &&
 								selection.contains(c.getId());
 						// do we have already some sharing with that contact?
-						boolean disabled = shareActivity.isDisabled(groupId, c);
+						boolean disabled = listener.isDisabled(groupId, c);
 						contacts.add(new SelectableContactListItem(c,
 								localAuthor, groupId, selected, disabled));
 					}
@@ -216,7 +209,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	private void displayContacts(final List<ContactListItem> contacts) {
-		shareActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (contacts.isEmpty()) list.showData();
@@ -228,7 +221,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 
 	private void updateMenuItem() {
 		if (menu == null) return;
-		MenuItem item = menu.findItem(R.id.action_share_forum);
+		MenuItem item = menu.findItem(R.id.action_contacts_selected);
 		if (item == null) return;
 
 		selectedContacts = adapter.getSelectedContactIds();

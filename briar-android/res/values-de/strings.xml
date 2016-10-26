@@ -171,7 +171,7 @@
   <string name="forum_left_toast">Forum wurde verlassen</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Forum teilen</string>
-  <string name="forum_share_action">Teile dieses Forum mit den gewählten Kontakten</string>
+  <string name="contacts_selected">Teile dieses Forum mit den gewählten Kontakten</string>
   <string name="activity_share_toolbar_header">Kontakte auswählen</string>
   <string name="no_contacts_selector">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nBitte komm zurück, wenn du deinen ersten Kontakt hinzugefügt hast.</string>
   <string name="forum_shared_snackbar">Forum mit gewählten Kontakten geteilt</string>

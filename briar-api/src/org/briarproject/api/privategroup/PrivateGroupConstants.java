@@ -19,4 +19,9 @@ public interface PrivateGroupConstants {
 	 */
 	int MAX_GROUP_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
+	/**
+	 * The maximum length of a group invitation message in bytes.
+	 */
+	int MAX_GROUP_INVITATION_MSG_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
+
 }

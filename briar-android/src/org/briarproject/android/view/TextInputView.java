@@ -101,7 +101,6 @@ public class TextInputView extends KeyboardAwareLinearLayout
 			public void onClick(View v) {
 				if (listener != null) {
 					listener.onSendClick(ui.editText.getText().toString());
-					ui.editText.setText("");
 				}
 			}
 		});

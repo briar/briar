@@ -2,96 +2,110 @@ package org.briarproject.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.support.annotation.StringRes;
+import android.support.annotation.UiThread;
+import android.widget.Toast;
 
 import org.briarproject.R;
-import org.briarproject.android.BriarActivity;
-import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.api.contact.Contact;
+import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.logging.Logger;
 
-public abstract class ShareActivity extends BriarActivity implements
-		BaseFragment.BaseFragmentListener {
+import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.logging.Level.WARNING;
 
-	final static String CONTACTS = "contacts";
+public abstract class ShareActivity extends ContactSelectorActivity implements
+		MessageFragmentListener {
+
+	private final static Logger LOG =
+			Logger.getLogger(ShareActivity.class.getName());
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.activity_share);
+	public void onCreate(Bundle bundle) {
+		super.onCreate(bundle);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
-		GroupId groupId = new GroupId(b);
+		groupId = new GroupId(b);
 
-		if (savedInstanceState == null) {
+		if (bundle == null) {
 			ContactSelectorFragment contactSelectorFragment =
 					ContactSelectorFragment.newInstance(groupId);
 			getSupportFragmentManager().beginTransaction()
-					.add(R.id.shareContainer, contactSelectorFragment)
+					.add(R.id.fragmentContainer, contactSelectorFragment)
 					.commit();
 		}
 	}
 
-	abstract ShareMessageFragment getMessageFragment(GroupId groupId,
-			Collection<ContactId> contacts);
+	@UiThread
+	@Override
+	public void contactsSelected(GroupId groupId,
+			Collection<ContactId> contacts) {
+		super.contactsSelected(groupId, contacts);
 
-	abstract boolean isDisabled(GroupId groupId, Contact c) throws DbException;
-
-	void showMessageScreen(GroupId groupId, Collection<ContactId> contacts) {
-		ShareMessageFragment messageFragment =
-				getMessageFragment(groupId, contacts);
-
+		BaseMessageFragment messageFragment = getMessageFragment();
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,
 						android.R.anim.fade_out,
 						android.R.anim.slide_in_left,
 						android.R.anim.slide_out_right)
-				.replace(R.id.shareContainer, messageFragment,
+				.replace(R.id.fragmentContainer, messageFragment,
 						ContactSelectorFragment.TAG)
 				.addToBackStack(null)
 				.commit();
 	}
 
-	static ArrayList<Integer> getContactsFromIds(
-			Collection<ContactId> contacts) {
+	abstract BaseMessageFragment getMessageFragment();
 
-		// transform ContactIds to Integers so they can be added to a bundle
-		ArrayList<Integer> intContacts = new ArrayList<>(contacts.size());
-		for (ContactId contactId : contacts) {
-			intContacts.add(contactId.getInt());
-		}
-		return intContacts;
-	}
-
-	void sharingSuccessful(View v) {
-		setResult(RESULT_OK);
-		hideSoftKeyboard(v);
-		supportFinishAfterTransition();
-	}
-
-	static Collection<ContactId> getContactsFromIntegers(
-			ArrayList<Integer> intContacts) {
-
-		// turn contact integers from a bundle back to ContactIds
-		List<ContactId> contacts = new ArrayList<>(intContacts.size());
-		for (Integer c : intContacts) {
-			contacts.add(new ContactId(c));
-		}
-		return contacts;
-	}
-
+	@UiThread
 	@Override
-	public void onFragmentCreated(String tag) {
-
+	public boolean onButtonClick(@NotNull String message) {
+		share(groupId, contacts, message);
+		setResult(RESULT_OK);
+		supportFinishAfterTransition();
+		return true;
 	}
+
+	private void share(final GroupId g, final Collection<ContactId> contacts,
+			final String msg) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					for (ContactId c : contacts) {
+						share(g, c, msg);
+					}
+				} catch (DbException e) {
+					// TODO proper error handling
+					sharingError();
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	@DatabaseExecutor
+	protected abstract void share(GroupId g, ContactId c, String msg)
+			throws DbException;
+
+	private void sharingError() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				int res = getSharingError();
+				Toast.makeText(ShareActivity.this, res, LENGTH_SHORT).show();
+			}
+		});
+	}
+
+	protected abstract @StringRes int getSharingError();
 
 }

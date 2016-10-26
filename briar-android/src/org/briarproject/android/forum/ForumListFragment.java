@@ -78,8 +78,6 @@ public class ForumListFragment extends BaseEventFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		setHasOptionsMenu(true);
-
 		View contentView =
 				inflater.inflate(R.layout.fragment_forum_list, container,
 						false);

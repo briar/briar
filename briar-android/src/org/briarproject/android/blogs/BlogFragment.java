@@ -80,9 +80,6 @@ public class BlogFragment extends BaseFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-
-		setHasOptionsMenu(true);
-
 		Bundle args = getArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
@@ -151,9 +148,6 @@ public class BlogFragment extends BaseFragment implements
 						android.R.anim.slide_in_left,
 						android.R.anim.slide_out_right);
 		switch (item.getItemId()) {
-			case android.R.id.home:
-				getActivity().onBackPressed();
-				return true;
 			case R.id.action_write_blog_post:
 				Intent i = new Intent(getActivity(),
 						WriteBlogPostActivity.class);

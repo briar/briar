@@ -623,6 +623,7 @@ public class ConversationActivity extends BriarActivity
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		createMessage(StringUtils.toUtf8(text), timestamp);
+		textInputView.setText("");
 	}
 
 	private long getMinTimestampForNewMessage() {

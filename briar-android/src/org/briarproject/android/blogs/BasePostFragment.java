@@ -5,7 +5,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -36,8 +35,6 @@ abstract class BasePostFragment extends BaseFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		setHasOptionsMenu(true);
-
 		view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
 		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
@@ -58,17 +55,6 @@ abstract class BasePostFragment extends BaseFragment {
 	public void onStop() {
 		super.onStop();
 		stopPeriodicUpdate();
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				getActivity().onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
 	}
 
 	@UiThread

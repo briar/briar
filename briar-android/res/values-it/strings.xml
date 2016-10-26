@@ -136,7 +136,7 @@
   <string name="forum_left_toast">Forum lasciato</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Condividi Forum</string>
-  <string name="forum_share_action">Condividi questo forum con i contatti scelti</string>
+  <string name="contacts_selected">Condividi questo forum con i contatti scelti</string>
   <string name="activity_share_toolbar_header">Scegli Contatti</string>
   <string name="forum_shared_snackbar">Forum condiviso con i contatti scelti</string>
   <string name="forum_share_error">C\'è stato un errore nella condivisione di questo forum.</string>

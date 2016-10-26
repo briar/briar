@@ -23,6 +23,8 @@ import org.briarproject.android.forum.ForumController;
 import org.briarproject.android.forum.ForumControllerImpl;
 import org.briarproject.android.privategroup.conversation.GroupController;
 import org.briarproject.android.privategroup.conversation.GroupControllerImpl;
+import org.briarproject.android.privategroup.creation.CreateGroupController;
+import org.briarproject.android.privategroup.creation.CreateGroupControllerImpl;
 import org.briarproject.android.privategroup.list.GroupListController;
 import org.briarproject.android.privategroup.list.GroupListControllerImpl;
 
@@ -99,6 +101,13 @@ public class ActivityModule {
 	GroupListController provideGroupListController(
 			GroupListControllerImpl groupListController) {
 		return groupListController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected CreateGroupController provideCreateGroupController(
+			CreateGroupControllerImpl createGroupController) {
+		return createGroupController;
 	}
 
 	@ActivityScope

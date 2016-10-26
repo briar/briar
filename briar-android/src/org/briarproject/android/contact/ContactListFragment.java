@@ -106,8 +106,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		setHasOptionsMenu(true);
-
 		View contentView =
 				inflater.inflate(R.layout.list, container,
 						false);

@@ -171,7 +171,7 @@ Se sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
   <string name="forum_left_toast">Saiu do fórum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Compartilhar fórum</string>
-  <string name="forum_share_action">Compartilhar este fórum com os contatos escolhidos</string>
+  <string name="contacts_selected">Compartilhar este fórum com os contatos escolhidos</string>
   <string name="activity_share_toolbar_header">Escolher contatos</string>
   <string name="no_contacts_selector">Parece que você é novo aqui e não tem nenhum contato ainda.
 Por favor volte aqui depois de adicionar um contato.</string>
