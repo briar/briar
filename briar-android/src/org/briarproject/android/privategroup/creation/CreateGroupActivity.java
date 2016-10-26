@@ -25,7 +25,7 @@ import javax.inject.Inject;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
-import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
+import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 
 public class CreateGroupActivity extends ContactSelectorActivity implements
 		CreateGroupListener, MessageFragmentListener {
@@ -148,7 +148,7 @@ public class CreateGroupActivity extends ContactSelectorActivity implements
 
 	@Override
 	public int getMaximumMessageLength() {
-		return MAX_GROUP_POST_BODY_LENGTH;
+		return MAX_GROUP_INVITATION_MSG_LENGTH;
 	}
 
 	private void openNewGroup() {
