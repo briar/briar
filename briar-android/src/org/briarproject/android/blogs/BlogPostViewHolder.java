@@ -3,6 +3,7 @@ package org.briarproject.android.blogs;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
@@ -134,11 +135,17 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 				i.putExtra(GROUP_ID, item.getGroupId().getBytes());
 				i.putExtra(POST_ID, item.getId().getBytes());
 
-				ActivityOptionsCompat options =
-						makeSceneTransitionAnimation((Activity) ctx, layout,
-								getTransitionName(item.getId()));
-				ActivityCompat
-						.startActivity((Activity) ctx, i, options.toBundle());
+				// work-around for android bug #224270
+				if (Build.VERSION.SDK_INT >= 23) {
+					ActivityOptionsCompat options =
+							makeSceneTransitionAnimation((Activity) ctx, layout,
+									getTransitionName(item.getId()));
+					ActivityCompat
+							.startActivity((Activity) ctx, i,
+									options.toBundle());
+				} else {
+					ctx.startActivity(i);
+				}
 			}
 		});
 

@@ -1,6 +1,7 @@
 package org.briarproject.android.contact;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -119,22 +120,28 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 								ConversationActivity.class);
 						i.putExtra(GROUP_ID, groupId.getBytes());
 
-						ContactListAdapter.ContactHolder holder =
-								(ContactListAdapter.ContactHolder) list
-										.getRecyclerView()
-										.findViewHolderForAdapterPosition(
-												adapter.findItemPosition(item));
-						Pair<View, String> avatar =
-								Pair.create((View) holder.avatar, ViewCompat
-										.getTransitionName(holder.avatar));
-						Pair<View, String> bulb =
-								Pair.create((View) holder.bulb, ViewCompat
-										.getTransitionName(holder.bulb));
-						ActivityOptionsCompat options =
-								makeSceneTransitionAnimation(getActivity(),
-										avatar, bulb);
-						ActivityCompat.startActivity(getActivity(), i,
-								options.toBundle());
+						// work-around for android bug #224270
+						if (Build.VERSION.SDK_INT >= 23) {
+							ContactListAdapter.ContactHolder holder =
+									(ContactListAdapter.ContactHolder) list
+											.getRecyclerView()
+											.findViewHolderForAdapterPosition(
+													adapter.findItemPosition(
+															item));
+							Pair<View, String> avatar =
+									Pair.create((View) holder.avatar, ViewCompat
+											.getTransitionName(holder.avatar));
+							Pair<View, String> bulb =
+									Pair.create((View) holder.bulb, ViewCompat.
+											getTransitionName(holder.bulb));
+							ActivityOptionsCompat options =
+									makeSceneTransitionAnimation(getActivity(),
+											avatar, bulb);
+							ActivityCompat.startActivity(getActivity(), i,
+									options.toBundle());
+						} else {
+							getActivity().startActivity(i);
+						}
 					}
 				};
 
