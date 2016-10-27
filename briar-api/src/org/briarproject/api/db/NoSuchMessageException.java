@@ -7,5 +7,4 @@ package org.briarproject.api.db;
  */
 public class NoSuchMessageException extends DbException {
 
-	private static final long serialVersionUID = 9191508339698803848L;
 }

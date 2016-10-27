@@ -6,5 +6,4 @@ package org.briarproject.api.db;
  */
 public class ContactExistsException extends DbException {
 
-	private static final long serialVersionUID = -6658762011691502411L;
 }
