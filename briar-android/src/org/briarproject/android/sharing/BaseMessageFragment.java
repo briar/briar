@@ -64,7 +64,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 
 	@Override
 	public void onSendClick(String msg) {
-		if (StringUtils.isTooLong(msg, listener.getMaximumMessageLength())) {
+		if (StringUtils.utf8IsTooLong(msg, listener.getMaximumMessageLength())) {
 			Snackbar.make(message, R.string.text_too_long, LENGTH_SHORT).show();
 			return;
 		}

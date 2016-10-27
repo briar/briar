@@ -30,6 +30,6 @@ public interface MessagingManager extends MessageTracker {
 			throws DbException;
 
 	/** Returns the body of the private message with the given ID. */
-	byte[] getMessageBody(MessageId m) throws DbException;
+	String getMessageBody(MessageId m) throws DbException;
 
 }

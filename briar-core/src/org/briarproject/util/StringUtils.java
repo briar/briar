@@ -104,7 +104,7 @@ public class StringUtils {
 	/**
 	 * Returns true if the string is longer than maxLength
 	 */
-	public static boolean isTooLong(String s, int maxLength) {
+	public static boolean utf8IsTooLong(String s, int maxLength) {
 		return toUtf8(s).length > maxLength;
 	}
 }

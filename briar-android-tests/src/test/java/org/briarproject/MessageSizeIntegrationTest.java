@@ -8,12 +8,12 @@ import org.briarproject.api.forum.ForumPost;
 import org.briarproject.api.forum.ForumPostFactory;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.messaging.MessagingConstants;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.system.SystemModule;
+import org.briarproject.util.StringUtils;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -48,17 +48,14 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		// Create a maximum-length private message
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
 		long timestamp = Long.MAX_VALUE;
-		MessageId parent = new MessageId(TestUtils.getRandomId());
-		String contentType = TestUtils.getRandomString(
-				MessagingConstants.MAX_CONTENT_TYPE_LENGTH);
-		byte[] body = new byte[MAX_PRIVATE_MESSAGE_BODY_LENGTH];
+		String body =
+				StringUtils.fromUtf8(new byte[MAX_PRIVATE_MESSAGE_BODY_LENGTH]);
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, parent, contentType, body);
+				groupId, timestamp, body);
 		// Check the size of the serialised message
 		int length = message.getMessage().getRaw().length;
-		assertTrue(length > UniqueId.LENGTH + 8 + UniqueId.LENGTH
-				+ MessagingConstants.MAX_CONTENT_TYPE_LENGTH
-				+ MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		assertTrue(
+				length > UniqueId.LENGTH + 8 + MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		assertTrue(length <= MAX_PACKET_PAYLOAD_LENGTH);
 	}
 

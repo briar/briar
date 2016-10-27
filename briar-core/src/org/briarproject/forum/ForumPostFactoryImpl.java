@@ -31,7 +31,7 @@ class ForumPostFactoryImpl implements ForumPostFactory {
 			MessageId parent, LocalAuthor author, String body)
 			throws FormatException, GeneralSecurityException {
 		// Validate the arguments
-		if (StringUtils.isTooLong(body, MAX_FORUM_POST_BODY_LENGTH))
+		if (StringUtils.utf8IsTooLong(body, MAX_FORUM_POST_BODY_LENGTH))
 			throw new IllegalArgumentException();
 		// Serialise the data to be signed
 		BdfList authorList =

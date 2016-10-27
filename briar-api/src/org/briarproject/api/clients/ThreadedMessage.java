@@ -1,5 +1,7 @@
 package org.briarproject.api.clients;
 
+import org.briarproject.api.identity.Author;
+import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -9,24 +11,26 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public abstract class BaseMessage {
+public abstract class ThreadedMessage extends PrivateMessage {
 
-	private final Message message;
 	@Nullable
 	private final MessageId parent;
+	private final Author author;
 
-	public BaseMessage(Message message, @Nullable MessageId parent) {
-		this.message = message;
+	public ThreadedMessage(Message message, @Nullable MessageId parent,
+			Author author) {
+		super(message);
 		this.parent = parent;
-	}
-
-	public Message getMessage() {
-		return message;
+		this.author = author;
 	}
 
 	@Nullable
 	public MessageId getParent() {
 		return parent;
+	}
+
+	public Author getAuthor() {
+		return author;
 	}
 
 }

@@ -1,26 +1,21 @@
 package org.briarproject.api.forum;
 
-import org.briarproject.api.clients.BaseMessage;
+import org.briarproject.api.clients.ThreadedMessage;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ForumPost extends BaseMessage {
+import javax.annotation.concurrent.Immutable;
 
-	@Nullable
-	private final Author author;
+@Immutable
+@NotNullByDefault
+public class ForumPost extends ThreadedMessage {
 
-	public ForumPost(@NotNull Message message, @Nullable MessageId parent,
-			@Nullable Author author) {
-		super(message, parent);
-		this.author = author;
-	}
-
-	@Nullable
-	public Author getAuthor() {
-		return author;
+	public ForumPost(Message message, @Nullable MessageId parent,
+			Author author) {
+		super(message, parent, author);
 	}
 
 }
