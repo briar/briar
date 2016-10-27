@@ -195,4 +195,23 @@ public class GroupControllerImpl extends
 		});
 	}
 
+	@Override
+	public void isDissolved(final
+			ResultExceptionHandler<Boolean, DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					boolean isDissolved =
+							privateGroupManager.isDissolved(getGroupId());
+					handler.onResult(isDissolved);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
+	}
+
 }

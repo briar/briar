@@ -80,6 +80,7 @@
 		android:layout_below="@+id/messageCountView"
 		android:layout_toEndOf="@+id/avatarView"
 		android:layout_toRightOf="@+id/avatarView"
+		android:layout_toLeftOf="@+id/removeButton"
 		android:paddingTop="@dimen/margin_small"
 		android:textColor="@color/briar_text_tertiary"
 		tools:text="@string/groups_group_is_empty"/>
@@ -91,7 +92,6 @@
 		android:layout_height="wrap_content"
 		android:layout_alignBottom="@+id/divider"
 		android:layout_alignParentRight="true"
-		android:layout_toRightOf="@+id/statusView"
 		android:text="@string/groups_remove"
 		tools:visibility="gone"/>
 
