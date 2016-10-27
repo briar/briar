@@ -33,16 +33,16 @@ import static org.briarproject.android.contact.ConversationRequestItem.RequestTy
 @NotNullByDefault
 abstract class ConversationItem {
 
-	protected @Nullable String text;
+	protected @Nullable String body;
 	final private MessageId id;
 	final private GroupId groupId;
 	final private long time;
 
 	ConversationItem(MessageId id, GroupId groupId,
-			@Nullable String text, long time) {
+			@Nullable String body, long time) {
 		this.id = id;
 		this.groupId = groupId;
-		this.text = text;
+		this.body = body;
 		this.time = time;
 	}
 
@@ -54,9 +54,13 @@ abstract class ConversationItem {
 		return groupId;
 	}
 
+	void setBody(String body) {
+		this.body = body;
+	}
+
 	@Nullable
-	public String getText() {
-		return text;
+	public String getBody() {
+		return body;
 	}
 
 	long getTime() {
@@ -277,15 +281,6 @@ abstract class ConversationItem {
 		} else {
 			throw new IllegalArgumentException("Unknown message header");
 		}
-	}
-
-	interface PartialItem {
-
-		@Nullable
-		String getText();
-
-		void setText(String text);
-
 	}
 
 }

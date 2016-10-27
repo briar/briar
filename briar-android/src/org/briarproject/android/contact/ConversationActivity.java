@@ -29,7 +29,6 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.contact.ConversationAdapter.RequestListener;
-import org.briarproject.android.contact.ConversationItem.PartialItem;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.android.view.TextInputView;
@@ -413,7 +412,7 @@ public class ConversationActivity extends BriarActivity
 			ConversationItem item = ConversationItem.from(h);
 			String body = bodyCache.get(h.getId());
 			if (body == null) loadMessageBody(h.getId());
-			else ((PartialItem) item).setText(body);
+			else item.setBody(body);
 			items.add(item);
 		}
 		for (IntroductionMessage m : introductions) {
@@ -474,7 +473,7 @@ public class ConversationActivity extends BriarActivity
 				for (int i = 0; i < messages.size(); i++) {
 					ConversationItem item = messages.valueAt(i);
 					if (item.getId().equals(m)) {
-						((PartialItem) item).setText(body);
+						item.setBody(body);
 						adapter.notifyItemChanged(messages.keyAt(i));
 						list.scrollToPosition(adapter.getItemCount() - 1);
 						return;
@@ -681,7 +680,7 @@ public class ConversationActivity extends BriarActivity
 							groupId, m.getMessage().getTimestamp(),
 							m.getContentType(), true, false, false, false);
 					ConversationItem item = ConversationItem.from(h);
-					((PartialItem) item).setText(body);
+					item.setBody(body);
 					bodyCache.put(id, body);
 					addConversationItem(item);
 				} catch (DbException e) {
