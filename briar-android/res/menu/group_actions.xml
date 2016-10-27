@@ -17,7 +17,6 @@
 
 	<item
 		android:id="@+id/action_group_invite"
-		android:enabled="false"
 		android:icon="@drawable/ic_add_white"
 		android:title="@string/groups_invite_members"
 		app:showAsAction="ifRoom"/>

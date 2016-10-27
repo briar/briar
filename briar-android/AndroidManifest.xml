@@ -143,6 +143,17 @@
 		</activity>
 
 		<activity
+			android:name=".android.privategroup.creation.GroupInviteActivity"
+			android:label="@string/groups_invite_members"
+			android:parentActivityName=".android.NavDrawerActivity"
+			android:windowSoftInputMode="adjustResize|stateHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.privategroup.conversation.GroupActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name=".android.sharing.ForumInvitationActivity"
 			android:label="@string/forum_invitations_title"
 			android:parentActivityName=".android.NavDrawerActivity">
