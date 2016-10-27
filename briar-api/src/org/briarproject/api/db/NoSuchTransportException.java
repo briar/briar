@@ -7,5 +7,4 @@ package org.briarproject.api.db;
  */
 public class NoSuchTransportException extends DbException {
 
-	private static final long serialVersionUID = -6274982612759573100L;
 }

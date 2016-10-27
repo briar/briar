@@ -7,5 +7,4 @@ package org.briarproject.api.db;
  */
 public class NoSuchGroupException extends DbException {
 
-	private static final long serialVersionUID = -5494178507342571697L;
 }

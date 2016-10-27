@@ -7,5 +7,4 @@ package org.briarproject.api.db;
  */
 public class NoSuchLocalAuthorException extends DbException {
 
-	private static final long serialVersionUID = 494398665376703860L;
 }
