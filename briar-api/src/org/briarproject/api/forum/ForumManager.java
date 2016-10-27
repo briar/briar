@@ -41,7 +41,7 @@ public interface ForumManager extends MessageTracker {
 	Collection<Forum> getForums() throws DbException;
 
 	/** Returns the body of the forum post with the given ID. */
-	byte[] getPostBody(MessageId m) throws DbException;
+	String getPostBody(MessageId m) throws DbException;
 
 	/** Returns the headers of all posts in the given forum. */
 	Collection<ForumPostHeader> getPostHeaders(GroupId g) throws DbException;

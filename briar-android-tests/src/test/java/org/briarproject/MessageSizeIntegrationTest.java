@@ -77,7 +77,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		long timestamp = Long.MAX_VALUE;
 		MessageId parent = new MessageId(TestUtils.getRandomId());
 		String body = TestUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH);
-		ForumPost post = forumPostFactory.createPseudonymousPost(groupId,
+		ForumPost post = forumPostFactory.createPost(groupId,
 				timestamp, parent, author, body);
 		// Check the size of the serialised message
 		int length = post.getMessage().getRaw().length;

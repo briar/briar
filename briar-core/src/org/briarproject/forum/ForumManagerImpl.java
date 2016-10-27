@@ -131,7 +131,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		ForumPost p;
 		try {
 			p = forumPostFactory
-					.createPseudonymousPost(groupId, timestamp, parentId,
+					.createPost(groupId, timestamp, parentId,
 							author, body);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -213,11 +213,11 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	public byte[] getPostBody(MessageId m) throws DbException {
+	public String getPostBody(MessageId m) throws DbException {
 		try {
-			// Parent ID, author, content type, forum post body, signature
+			// Parent ID, author, forum post body, signature
 			BdfList message = clientHelper.getMessageAsList(m);
-			return message.getRaw(3);
+			return message.getString(2);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

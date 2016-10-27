@@ -40,9 +40,9 @@ public class ForumModule {
 	}
 
 	@Provides
-	ForumPostFactory provideForumPostFactory(CryptoComponent crypto,
-			ClientHelper clientHelper) {
-		return new ForumPostFactoryImpl(crypto, clientHelper);
+	ForumPostFactory provideForumPostFactory(
+			ForumPostFactoryImpl forumPostFactory) {
+		return forumPostFactory;
 	}
 
 	@Provides
