@@ -5,7 +5,6 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sync.Group;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -13,21 +12,13 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class Blog extends BaseGroup implements Shareable {
 
-	private final String description;
 	private final Author author;
 
-	public Blog(Group group, String name, String description, Author author) {
-		super(group, name);
-		this.description = description;
+	public Blog(Group group, Author author) {
+		super(group);
 		this.author = author;
 	}
 
-	@NotNull
-	public String getDescription() {
-		return description;
-	}
-
-	@NotNull
 	public Author getAuthor() {
 		return author;
 	}
@@ -36,4 +27,13 @@ public class Blog extends BaseGroup implements Shareable {
 	public boolean equals(Object o) {
 		return o instanceof Blog && super.equals(o);
 	}
+
+	/**
+	 * Returns the blog's author's name, not the name as shown in the UI.
+	 */
+	@Override
+	public String getName() {
+		return author.getName();
+	}
+
 }

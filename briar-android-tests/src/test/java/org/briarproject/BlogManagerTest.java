@@ -538,7 +538,7 @@ public class BlogManagerTest extends BriarIntegrationTest {
 		author0 = authorFactory
 				.createLocalAuthor(AUTHOR1, publicKey0, privateKey0);
 		identityManager0.addLocalAuthor(author0);
-		blog0 = blogFactory.createPersonalBlog(author0);
+		blog0 = blogFactory.createBlog(author0);
 
 		KeyPair keyPair1 = crypto.generateSignatureKeyPair();
 		byte[] publicKey1 = keyPair1.getPublic().getEncoded();
@@ -546,7 +546,7 @@ public class BlogManagerTest extends BriarIntegrationTest {
 		author1 = authorFactory
 				.createLocalAuthor(AUTHOR2, publicKey1, privateKey1);
 		identityManager1.addLocalAuthor(author1);
-		blog1 = blogFactory.createPersonalBlog(author1);
+		blog1 = blogFactory.createBlog(author1);
 	}
 
 	private void addDefaultContacts() throws DbException {

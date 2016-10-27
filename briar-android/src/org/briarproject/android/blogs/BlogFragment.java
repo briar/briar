@@ -38,12 +38,9 @@ import javax.inject.Inject;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
-import static org.briarproject.android.blogs.BlogActivity.IS_NEW_BLOG;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_SHARE;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
@@ -56,21 +53,17 @@ public class BlogFragment extends BaseFragment implements
 	BlogController blogController;
 
 	private GroupId groupId;
-	private String blogName;
 	private BlogPostAdapter adapter;
 	private BriarRecyclerView list;
 	private MenuItem writeButton, deleteButton;
 	private boolean isMyBlog = false, canDeleteBlog = false;
 
-	static BlogFragment newInstance(GroupId groupId, @Nullable String name,
-			boolean isNew) {
+	static BlogFragment newInstance(GroupId groupId) {
 
 		BlogFragment f = new BlogFragment();
 
 		Bundle bundle = new Bundle();
 		bundle.putByteArray(GROUP_ID, groupId.getBytes());
-		bundle.putString(BLOG_NAME, name);
-		bundle.putBoolean(IS_NEW_BLOG, isNew);
 
 		f.setArguments(bundle);
 		return f;
@@ -84,8 +77,6 @@ public class BlogFragment extends BaseFragment implements
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
 		groupId = new GroupId(b);
-		blogName = args.getString(BLOG_NAME);
-		boolean isNew = args.getBoolean(IS_NEW_BLOG);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
@@ -97,16 +88,6 @@ public class BlogFragment extends BaseFragment implements
 		list.showProgressBar();
 		list.setEmptyText(getString(R.string.blogs_other_blog_empty_state));
 
-		// show snackbar if this blog was just created
-		if (isNew) {
-			Snackbar s = Snackbar.make(list, R.string.blogs_my_blogs_created,
-					LENGTH_LONG);
-			s.getView().setBackgroundResource(R.color.briar_primary);
-			s.show();
-
-			// show only once
-			args.putBoolean(IS_NEW_BLOG, false);
-		}
 		return v;
 	}
 
@@ -152,7 +133,6 @@ public class BlogFragment extends BaseFragment implements
 				Intent i = new Intent(getActivity(),
 						WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
-				i.putExtra(BLOG_NAME, blogName);
 				startActivityForResult(i, REQUEST_WRITE_POST,
 						options.toBundle());
 				return true;
@@ -266,10 +246,6 @@ public class BlogFragment extends BaseFragment implements
 	private void setToolbarTitle(Author a) {
 		String title = getString(R.string.blogs_personal_blog, a.getName());
 		getActivity().setTitle(title);
-
-		// safe title in intent, so it can be restored automatically
-		Intent intent = getActivity().getIntent();
-		intent.putExtra(BLOG_NAME, title);
 	}
 
 	private void showWriteButton() {

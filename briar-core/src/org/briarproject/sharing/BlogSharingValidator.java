@@ -15,11 +15,7 @@ import org.briarproject.clients.BdfMessageValidator;
 import javax.inject.Inject;
 
 import static org.briarproject.api.blogs.BlogConstants.BLOG_AUTHOR_NAME;
-import static org.briarproject.api.blogs.BlogConstants.BLOG_DESC;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
-import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
-import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_DESC_LENGTH;
-import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_TITLE_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_MSG;
@@ -52,30 +48,22 @@ class BlogSharingValidator extends BdfMessageValidator {
 		checkLength(id, SessionId.LENGTH);
 
 		if (type == SHARE_MSG_TYPE_INVITATION) {
-			checkSize(body, 5, 6);
+			checkSize(body, 3, 4);
 
-			String name = body.getString(2);
-			checkLength(name, 1, MAX_BLOG_TITLE_LENGTH);
-
-			String desc = body.getString(3);
-			checkLength(desc, 0, MAX_BLOG_DESC_LENGTH);
-
-			BdfList author = body.getList(4);
+			BdfList author = body.getList(2);
 			checkSize(author, 2);
 
 			String authorName = author.getString(0);
-			checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
+			checkLength(authorName, 1, MAX_AUTHOR_NAME_LENGTH);
 
 			byte[] publicKey = author.getRaw(1);
 			checkLength(publicKey, 1, MAX_PUBLIC_KEY_LENGTH);
 
-			d.put(BLOG_TITLE, name);
-			d.put(BLOG_DESC, desc);
 			d.put(BLOG_AUTHOR_NAME, authorName);
 			d.put(BLOG_PUBLIC_KEY, publicKey);
 
-			if (body.size() > 5) {
-				String msg = body.getString(5);
+			if (body.size() > 3) {
+				String msg = body.getString(3);
 				checkLength(msg, 0, MAX_INVITATION_MESSAGE_LENGTH);
 				d.put(INVITATION_MSG, msg);
 			}

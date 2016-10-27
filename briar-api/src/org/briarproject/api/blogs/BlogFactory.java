@@ -2,19 +2,17 @@ package org.briarproject.api.blogs;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.jetbrains.annotations.NotNull;
 
+@NotNullByDefault
 public interface BlogFactory {
 
-	/** Creates a blog with the given name, description and author. */
-	Blog createBlog(@NotNull String name, @NotNull String description,
-			@NotNull Author author);
-
 	/** Creates a personal blog for a given author. */
-	Blog createPersonalBlog(@NotNull Author author);
+	Blog createBlog(Author author);
 
-	/** Parses a blog with the given Group and description */
-	Blog parseBlog(@NotNull Group g, @NotNull String description)
-			throws FormatException;
+	/** Parses a blog with the given Group */
+	Blog parseBlog(@NotNull Group g) throws FormatException;
+
 }

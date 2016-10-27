@@ -40,9 +40,7 @@ import java.security.SecureRandom;
 import javax.inject.Inject;
 
 import static org.briarproject.api.blogs.BlogConstants.BLOG_AUTHOR_NAME;
-import static org.briarproject.api.blogs.BlogConstants.BLOG_DESC;
 import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
-import static org.briarproject.api.blogs.BlogConstants.BLOG_TITLE;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
 import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 
@@ -54,8 +52,7 @@ class BlogSharingManagerImpl extends
 			"bee438b5de0b3a685badc4e49d76e72d"
 					+ "21e01c4b569a775112756bdae267a028"));
 
-	@Inject
-	IdentityManager identityManager;
+	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
 
 	private final SFactory sFactory;
@@ -70,12 +67,14 @@ class BlogSharingManagerImpl extends
 			BlogManager blogManager, ClientHelper clientHelper, Clock clock,
 			DatabaseComponent db, MessageQueueManager messageQueueManager,
 			MetadataEncoder metadataEncoder, MetadataParser metadataParser,
-			ContactGroupFactory contactGroupFactory, SecureRandom random) {
+			ContactGroupFactory contactGroupFactory, SecureRandom random,
+			IdentityManager identityManager) {
 
 		super(db, messageQueueManager, clientHelper, metadataParser,
 				metadataEncoder, random, contactGroupFactory, clock);
 
 		this.blogManager = blogManager;
+		this.identityManager = identityManager;
 		sFactory = new SFactory(authorFactory, blogFactory, blogManager);
 		iFactory = new IFactory();
 		isFactory = new ISFactory();
@@ -175,9 +174,12 @@ class BlogSharingManagerImpl extends
 
 		@Override
 		public BdfList encode(Blog f) {
-			return BdfList.of(f.getName(), f.getDescription(),
-					BdfList.of(f.getAuthor().getName(),
-							f.getAuthor().getPublicKey()));
+			return BdfList.of(
+					BdfList.of(
+							f.getAuthor().getName(),
+							f.getAuthor().getPublicKey()
+					)
+			);
 		}
 
 		@Override
@@ -189,19 +191,16 @@ class BlogSharingManagerImpl extends
 		@Override
 		public Blog parse(BdfList shareable) throws FormatException {
 			Author author = authorFactory
-					.createAuthor(shareable.getList(2).getString(0),
-							shareable.getList(2).getRaw(1));
-			return blogFactory
-					.createBlog(shareable.getString(0), shareable.getString(1),
-							author);
+					.createAuthor(shareable.getList(0).getString(0),
+							shareable.getList(0).getRaw(1));
+			return blogFactory.createBlog(author);
 		}
 
 		@Override
 		public Blog parse(BlogInvitation msg) {
 			Author author = authorFactory.createAuthor(msg.getBlogAuthorName(),
 					msg.getBlogPublicKey());
-			return blogFactory
-					.createBlog(msg.getBlogTitle(), msg.getBlogDesc(), author);
+			return blogFactory.createBlog(author);
 		}
 
 		@Override
@@ -209,9 +208,7 @@ class BlogSharingManagerImpl extends
 			Author author = authorFactory
 					.createAuthor(state.getBlogAuthorName(),
 							state.getBlogPublicKey());
-			return blogFactory
-					.createBlog(state.getBlogTitle(), state.getBlogDesc(),
-							author);
+			return blogFactory.createBlog(author);
 		}
 
 		@Override
@@ -219,9 +216,7 @@ class BlogSharingManagerImpl extends
 			Author author = authorFactory
 					.createAuthor(state.getBlogAuthorName(),
 							state.getBlogPublicKey());
-			return blogFactory
-					.createBlog(state.getBlogTitle(), state.getBlogDesc(),
-							author);
+			return blogFactory.createBlog(author);
 		}
 	}
 
@@ -237,8 +232,7 @@ class BlogSharingManagerImpl extends
 		public BlogInvitation build(BlogSharerSessionState localState,
 				long time) {
 			return new BlogInvitation(localState.getGroupId(),
-					localState.getSessionId(), localState.getBlogTitle(),
-					localState.getBlogDesc(), localState.getBlogAuthorName(),
+					localState.getSessionId(), localState.getBlogAuthorName(),
 					localState.getBlogPublicKey(), time,
 					localState.getMessage());
 		}
@@ -251,14 +245,12 @@ class BlogSharingManagerImpl extends
 				MessageId storageId, GroupId groupId,
 				InviteeSessionState.State state, ContactId contactId,
 				GroupId blogId, BdfDictionary d) throws FormatException {
-			String blogTitle = d.getString(BLOG_TITLE);
-			String blogDesc = d.getString(BLOG_DESC);
 			String blogAuthorName = d.getString(BLOG_AUTHOR_NAME);
 			byte[] blogPublicKey = d.getRaw(BLOG_PUBLIC_KEY);
 			MessageId invitationId = new MessageId(d.getRaw(INVITATION_ID));
 			return new BlogInviteeSessionState(sessionId, storageId,
-					groupId, state, contactId, blogId, blogTitle, blogDesc,
-					blogAuthorName, blogPublicKey, invitationId);
+					groupId, state, contactId, blogId, blogAuthorName,
+					blogPublicKey, invitationId);
 		}
 
 		@Override
@@ -267,9 +259,9 @@ class BlogSharingManagerImpl extends
 				InviteeSessionState.State state, ContactId contactId,
 				Blog blog, MessageId invitationId) {
 			return new BlogInviteeSessionState(sessionId, storageId,
-					groupId, state, contactId, blog.getId(), blog.getName(),
-					blog.getDescription(), blog.getAuthor().getName(),
-					blog.getAuthor().getPublicKey(), invitationId);
+					groupId, state, contactId, blog.getId(),
+					blog.getAuthor().getName(), blog.getAuthor().getPublicKey(),
+					invitationId);
 		}
 	}
 
@@ -280,8 +272,6 @@ class BlogSharingManagerImpl extends
 				MessageId storageId, GroupId groupId,
 				SharerSessionState.State state, ContactId contactId,
 				GroupId blogId, BdfDictionary d) throws FormatException {
-			String blogTitle = d.getString(BLOG_TITLE);
-			String blogDesc = d.getString(BLOG_DESC);
 			String blogAuthorName = d.getString(BLOG_AUTHOR_NAME);
 			byte[] blogPublicKey = d.getRaw(BLOG_PUBLIC_KEY);
 			MessageId responseId = null;
@@ -289,8 +279,8 @@ class BlogSharingManagerImpl extends
 			if (responseIdBytes != null)
 				responseId = new MessageId(responseIdBytes);
 			return new BlogSharerSessionState(sessionId, storageId,
-					groupId, state, contactId, blogId, blogTitle, blogDesc,
-					blogAuthorName, blogPublicKey, responseId);
+					groupId, state, contactId, blogId, blogAuthorName,
+					blogPublicKey, responseId);
 		}
 
 		@Override
@@ -299,9 +289,9 @@ class BlogSharingManagerImpl extends
 				SharerSessionState.State state, ContactId contactId,
 				Blog blog) {
 			return new BlogSharerSessionState(sessionId, storageId,
-					groupId, state, contactId, blog.getId(), blog.getName(),
-					blog.getDescription(), blog.getAuthor().getName(),
-					blog.getAuthor().getPublicKey(), null);
+					groupId, state, contactId, blog.getId(),
+					blog.getAuthor().getName(), blog.getAuthor().getPublicKey(),
+					null);
 		}
 	}
 
@@ -333,7 +323,6 @@ class BlogSharingManagerImpl extends
 		@Override
 		public BlogInvitationResponseReceivedEvent build(
 				BlogSharerSessionState localState, boolean accept, long time) {
-			String title = localState.getBlogTitle();
 			ContactId c = localState.getContactId();
 			MessageId responseId = localState.getResponseId();
 			if (responseId == null)
@@ -343,7 +332,7 @@ class BlogSharingManagerImpl extends
 							localState.getSessionId(), localState.getGroupId(),
 							localState.getContactId(), accept, time, false,
 							false, false, false);
-			return new BlogInvitationResponseReceivedEvent(title, c, response);
+			return new BlogInvitationResponseReceivedEvent(c, response);
 		}
 	}
 }

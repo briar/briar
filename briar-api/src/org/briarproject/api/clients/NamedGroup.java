@@ -10,11 +10,17 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public abstract class NamedGroup extends BaseGroup {
 
+	private final String name;
 	private final byte[] salt;
 
 	public NamedGroup(@NotNull Group group, @NotNull String name, byte[] salt) {
-		super(group, name);
+		super(group);
+		this.name = name;
 		this.salt = salt;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public byte[] getSalt() {

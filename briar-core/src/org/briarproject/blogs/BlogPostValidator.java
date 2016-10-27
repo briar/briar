@@ -100,7 +100,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		byte[] sig = body.getRaw(1);
 		checkLength(sig, 1, MAX_SIGNATURE_LENGTH);
 		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), postBody);
-		Blog b = blogFactory.parseBlog(g, ""); // description doesn't matter
+		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
 			clientHelper.verifySignature(sig, a.getPublicKey(), signed);
@@ -145,7 +145,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfList signed =
 				BdfList.of(g.getId(), m.getTimestamp(), comment, pOriginalId,
 						currentId);
-		Blog b = blogFactory.parseBlog(g, ""); // description doesn't matter
+		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
 			clientHelper.verifySignature(sig, a.getPublicKey(), signed);

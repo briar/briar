@@ -16,10 +16,6 @@ public interface BlogManager {
 	/** Returns the unique ID of the blog client. */
 	ClientId getClientId();
 
-	/** Creates a new Blog. */
-	Blog addBlog(LocalAuthor localAuthor, String name, String description)
-			throws DbException;
-
 	/** Returns true if a blog can be removed. */
 	boolean canBeRemoved(GroupId g) throws DbException;
 
