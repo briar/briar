@@ -36,14 +36,15 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			LocalAuthor creator, Author member) {
 		try {
 			// Generate the signature
-			BdfList toSign = BdfList.of(groupId, timestamp, member.getName(),
-					member.getPublicKey());
+			int type = NEW_MEMBER.getInt();
+			BdfList toSign = BdfList.of(groupId, timestamp, type,
+					member.getName(), member.getPublicKey());
 			byte[] signature =
 					clientHelper.sign(toSign, creator.getPrivateKey());
 
 			// Compose the message
 			BdfList body =
-					BdfList.of(NEW_MEMBER.getInt(), member.getName(),
+					BdfList.of(type, member.getName(),
 							member.getPublicKey(), signature);
 			Message m = clientHelper.createMessage(groupId, timestamp, body);
 
@@ -60,14 +61,15 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			LocalAuthor member, MessageId newMemberId) {
 		try {
 			// Generate the signature
-			BdfList toSign = BdfList.of(groupId, timestamp, member.getName(),
-					member.getPublicKey(), newMemberId);
+			int type = JOIN.getInt();
+			BdfList toSign = BdfList.of(groupId, timestamp, type,
+					member.getName(), member.getPublicKey(), newMemberId);
 			byte[] signature =
 					clientHelper.sign(toSign, member.getPrivateKey());
 
 			// Compose the message
 			BdfList body =
-					BdfList.of(JOIN.getInt(), member.getName(),
+					BdfList.of(type, member.getName(),
 							member.getPublicKey(), newMemberId, signature);
 			Message m = clientHelper.createMessage(groupId, timestamp, body);
 
@@ -85,14 +87,16 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			MessageId previousMsgId) {
 		try {
 			// Generate the signature
-			BdfList toSign = BdfList.of(groupId, timestamp, author.getName(),
-					author.getPublicKey(), parentId, previousMsgId, content);
+			int type = POST.getInt();
+			BdfList toSign = BdfList.of(groupId, timestamp, type,
+					author.getName(), author.getPublicKey(), parentId,
+					previousMsgId, content);
 			byte[] signature =
 					clientHelper.sign(toSign, author.getPrivateKey());
 
 			// Compose the message
 			BdfList body =
-					BdfList.of(POST.getInt(), author.getName(),
+					BdfList.of(type, author.getName(),
 							author.getPublicKey(), parentId, previousMsgId,
 							content, signature);
 			Message m = clientHelper.createMessage(groupId, timestamp, body);

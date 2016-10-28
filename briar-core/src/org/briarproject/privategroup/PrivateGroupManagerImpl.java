@@ -44,9 +44,9 @@ import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.NEW_MEMBER;
 import static org.briarproject.api.privategroup.MessageType.POST;
-import static org.briarproject.privategroup.Constants.KEY_AUTHOR_ID;
-import static org.briarproject.privategroup.Constants.KEY_AUTHOR_NAME;
-import static org.briarproject.privategroup.Constants.KEY_AUTHOR_PUBLIC_KEY;
+import static org.briarproject.privategroup.Constants.KEY_MEMBER_ID;
+import static org.briarproject.privategroup.Constants.KEY_MEMBER_NAME;
+import static org.briarproject.privategroup.Constants.KEY_MEMBER_PUBLIC_KEY;
 import static org.briarproject.privategroup.Constants.KEY_NEW_MEMBER_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_PARENT_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_PREVIOUS_MSG_ID;
@@ -141,8 +141,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	private MessageId getPreviousMsgId(Transaction txn, GroupId g)
 			throws DbException, FormatException {
 		BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
-		byte[] previousMsgIdBytes = d.getOptionalRaw(KEY_PREVIOUS_MSG_ID);
-		if (previousMsgIdBytes == null) throw new DbException();
+		byte[] previousMsgIdBytes = d.getRaw(KEY_PREVIOUS_MSG_ID);
 		return new MessageId(previousMsgIdBytes);
 	}
 
@@ -191,9 +190,9 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			boolean read) {
 		meta.put(KEY_TIMESTAMP, m.getMessage().getTimestamp());
 		meta.put(KEY_READ, read);
-		meta.put(KEY_AUTHOR_ID, m.getMember().getId());
-		meta.put(KEY_AUTHOR_NAME, m.getMember().getName());
-		meta.put(KEY_AUTHOR_PUBLIC_KEY, m.getMember().getPublicKey());
+		meta.put(KEY_MEMBER_ID, m.getMember().getId());
+		meta.put(KEY_MEMBER_NAME, m.getMember().getName());
+		meta.put(KEY_MEMBER_PUBLIC_KEY, m.getMember().getPublicKey());
 	}
 
 	@Override
@@ -269,11 +268,10 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 					clientHelper.getMessageMetadataAsDictionary(txn, g);
 			// get all authors we need to get the status for
 			Set<AuthorId> authors = new HashSet<AuthorId>();
-			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-				BdfDictionary meta = entry.getValue();
+			for (BdfDictionary meta : metadata.values()) {
 				if (meta.getLong(KEY_TYPE) == NEW_MEMBER.getInt())
 					continue;
-				byte[] idBytes = meta.getRaw(KEY_AUTHOR_ID);
+				byte[] idBytes = meta.getRaw(KEY_MEMBER_ID);
 				authors.add(new AuthorId(idBytes));
 			}
 			// get statuses for all authors
@@ -308,9 +306,9 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		}
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
 
-		AuthorId authorId = new AuthorId(meta.getRaw(KEY_AUTHOR_ID));
-		String name = meta.getString(KEY_AUTHOR_NAME);
-		byte[] publicKey = meta.getRaw(KEY_AUTHOR_PUBLIC_KEY);
+		AuthorId authorId = new AuthorId(meta.getRaw(KEY_MEMBER_ID));
+		String name = meta.getString(KEY_MEMBER_NAME);
+		byte[] publicKey = meta.getRaw(KEY_MEMBER_PUBLIC_KEY);
 		Author author = new Author(authorId, name, publicKey);
 
 		Status status;
@@ -361,8 +359,8 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 					return false;
 				}
 				// NEW_MEMBER must have same member_name and member_public_key
-				if (!Arrays.equals(meta.getRaw(KEY_AUTHOR_ID),
-						newMemberMeta.getRaw(KEY_AUTHOR_ID))) {
+				if (!Arrays.equals(meta.getRaw(KEY_MEMBER_ID),
+						newMemberMeta.getRaw(KEY_MEMBER_ID))) {
 					// FIXME throw new InvalidMessageException() (#643)
 					db.deleteMessage(txn, m.getId());
 					return false;
@@ -401,8 +399,16 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 					return false;
 				}
 				// previous message must be from same member
-				if (!Arrays.equals(meta.getRaw(KEY_AUTHOR_ID),
-						previousMeta.getRaw(KEY_AUTHOR_ID))) {
+				if (!Arrays.equals(meta.getRaw(KEY_MEMBER_ID),
+						previousMeta.getRaw(KEY_MEMBER_ID))) {
+					// FIXME throw new InvalidMessageException() (#643)
+					db.deleteMessage(txn, m.getId());
+					return false;
+				}
+				// previous message must be a POST or JOIN
+				MessageType previousType = MessageType
+						.valueOf(previousMeta.getLong(KEY_TYPE).intValue());
+				if (previousType != JOIN && previousType != POST) {
 					// FIXME throw new InvalidMessageException() (#643)
 					db.deleteMessage(txn, m.getId());
 					return false;

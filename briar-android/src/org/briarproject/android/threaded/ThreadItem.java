@@ -1,7 +1,5 @@
 package org.briarproject.android.threaded;
 
-import android.support.annotation.UiThread;
-
 import org.briarproject.api.clients.MessageTree.MessageNode;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
@@ -11,7 +9,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.android.threaded.ThreadItemAdapter.UNDEFINED;
 
-@UiThread
 @NotThreadSafe
 public abstract class ThreadItem implements MessageNode {
 
@@ -97,4 +94,5 @@ public abstract class ThreadItem implements MessageNode {
 	public void setDescendantCount(int descendantCount) {
 		this.descendantCount = descendantCount;
 	}
+
 }

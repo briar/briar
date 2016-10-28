@@ -11,8 +11,8 @@ interface Constants {
 	String KEY_PARENT_MSG_ID = "parentMsgId";
 	String KEY_NEW_MEMBER_MSG_ID = "newMemberMsgId";
 	String KEY_PREVIOUS_MSG_ID = "previousMsgId";
-	String KEY_AUTHOR_ID = "authorId";
-	String KEY_AUTHOR_NAME = "authorName";
-	String KEY_AUTHOR_PUBLIC_KEY = "authorPublicKey";
+	String KEY_MEMBER_ID = "memberId";
+	String KEY_MEMBER_NAME = "memberName";
+	String KEY_MEMBER_PUBLIC_KEY = "memberPublicKey";
 
 }

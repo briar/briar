@@ -12,16 +12,8 @@ public enum MessageType {
 	}
 
 	public static MessageType valueOf(int value) {
-		switch (value) {
-			case 0:
-				return NEW_MEMBER;
-			case 1:
-				return JOIN;
-			case 2:
-				return POST;
-			default:
-				throw new IllegalArgumentException();
-		}
+		for (MessageType m : values()) if (m.value == value) return m;
+		throw new IllegalArgumentException();
 	}
 
 	public int getInt() {

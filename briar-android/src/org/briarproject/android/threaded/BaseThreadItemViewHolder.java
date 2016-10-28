@@ -21,13 +21,13 @@ import org.briarproject.util.StringUtils;
 
 @UiThread
 @NotNullByDefault
-public class BaseThreadItemViewHolder<I extends ThreadItem>
+public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		extends RecyclerView.ViewHolder {
 
 	private final static int ANIMATION_DURATION = 5000;
 
+	protected final TextView textView;
 	private final ViewGroup layout;
-	private final TextView textView;
 	private final AuthorView author;
 	private final View topDivider;
 

@@ -1,5 +1,6 @@
 package org.briarproject.android.privategroup.conversation;
 
+import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -19,12 +20,11 @@ public class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 		super(listener, layoutManager);
 	}
 
+	@LayoutRes
 	@Override
 	public int getItemViewType(int position) {
 		GroupMessageItem item = getVisibleItem(position);
-		if (item instanceof JoinMessageItem) {
-			return R.layout.list_item_thread_notice;
-		}
+		if (item != null) return item.getLayout();
 		return R.layout.list_item_thread;
 	}
 
@@ -34,7 +34,7 @@ public class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(type, parent, false);
 		if (type == R.layout.list_item_thread_notice) {
-			return new BaseThreadItemViewHolder<>(v);
+			return new JoinMessageItemHolder(v);
 		}
 		return new ThreadItemViewHolder<>(v);
 	}

@@ -15,6 +15,7 @@ import org.briarproject.db.DatabaseModule;
 import org.briarproject.event.EventModule;
 import org.briarproject.identity.IdentityModule;
 import org.briarproject.lifecycle.LifecycleModule;
+import org.briarproject.messaging.MessagingModule;
 import org.briarproject.privategroup.PrivateGroupModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sharing.SharingModule;
@@ -37,6 +38,7 @@ import dagger.Component;
 		DataModule.class,
 		DatabaseModule.class,
 		EventModule.class,
+		MessagingModule.class,
 		PrivateGroupModule.class,
 		IdentityModule.class,
 		LifecycleModule.class,

@@ -316,7 +316,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		revision++;
 	}
 
-	protected interface ThreadItemListener<I> {
+	public interface ThreadItemListener<I> {
 
 		void onItemVisible(I item);
 

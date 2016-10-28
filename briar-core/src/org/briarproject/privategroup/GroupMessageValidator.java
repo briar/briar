@@ -18,6 +18,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,10 +26,13 @@ import java.util.Collections;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.api.privategroup.MessageType.JOIN;
+import static org.briarproject.api.privategroup.MessageType.NEW_MEMBER;
+import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
-import static org.briarproject.privategroup.Constants.KEY_AUTHOR_ID;
-import static org.briarproject.privategroup.Constants.KEY_AUTHOR_NAME;
-import static org.briarproject.privategroup.Constants.KEY_AUTHOR_PUBLIC_KEY;
+import static org.briarproject.privategroup.Constants.KEY_MEMBER_ID;
+import static org.briarproject.privategroup.Constants.KEY_MEMBER_NAME;
+import static org.briarproject.privategroup.Constants.KEY_MEMBER_PUBLIC_KEY;
 import static org.briarproject.privategroup.Constants.KEY_NEW_MEMBER_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_PARENT_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_PREVIOUS_MSG_ID;
@@ -60,29 +64,29 @@ class GroupMessageValidator extends BdfMessageValidator {
 		body.removeElementAt(0);
 
 		// member_name (string)
-		String member_name = body.getString(0);
-		checkLength(member_name, 1, MAX_AUTHOR_NAME_LENGTH);
+		String memberName = body.getString(0);
+		checkLength(memberName, 1, MAX_AUTHOR_NAME_LENGTH);
 
 		// member_public_key (raw)
-		byte[] member_public_key = body.getRaw(1);
-		checkLength(member_public_key, 1, MAX_PUBLIC_KEY_LENGTH);
+		byte[] memberPublicKey = body.getRaw(1);
+		checkLength(memberPublicKey, 1, MAX_PUBLIC_KEY_LENGTH);
 
 		BdfMessageContext c;
 		switch (MessageType.valueOf(type)) {
 			case NEW_MEMBER:
-				c = validateNewMember(m, g, body, member_name,
-						member_public_key);
-				addMessageMetadata(c, member_name, member_public_key,
+				c = validateNewMember(m, g, body, memberName,
+						memberPublicKey);
+				addMessageMetadata(c, memberName, memberPublicKey,
 						m.getTimestamp());
 				break;
 			case JOIN:
-				c = validateJoin(m, g, body, member_name, member_public_key);
-				addMessageMetadata(c, member_name, member_public_key,
+				c = validateJoin(m, g, body, memberName, memberPublicKey);
+				addMessageMetadata(c, memberName, memberPublicKey,
 						m.getTimestamp());
 				break;
 			case POST:
-				c = validatePost(m, g, body, member_name, member_public_key);
-				addMessageMetadata(c, member_name, member_public_key,
+				c = validatePost(m, g, body, memberName, memberPublicKey);
+				addMessageMetadata(c, memberName, memberPublicKey,
 						m.getTimestamp());
 				break;
 			default:
@@ -93,7 +97,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 	}
 
 	private BdfMessageContext validateNewMember(Message m, Group g,
-			BdfList body, String member_name, byte[] member_public_key)
+			BdfList body, String memberName, byte[] memberPublicKey)
 			throws InvalidMessageException, FormatException {
 
 		// The content is a BDF list with three elements
@@ -105,11 +109,16 @@ class GroupMessageValidator extends BdfMessageValidator {
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 
 		// Verify Signature
-		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), member_name,
-				member_public_key);
+		BdfList signed =
+				BdfList.of(g.getId(), m.getTimestamp(), NEW_MEMBER.getInt(),
+						memberName, memberPublicKey);
 		PrivateGroup group = groupFactory.parsePrivateGroup(g);
 		byte[] creatorPublicKey = group.getAuthor().getPublicKey();
-		clientHelper.verifySignature(signature, creatorPublicKey, signed);
+		try {
+			clientHelper.verifySignature(signature, creatorPublicKey, signed);
+		} catch (GeneralSecurityException e) {
+			throw new InvalidMessageException(e);
+		}
 
 		// Return the metadata and no dependencies
 		BdfDictionary meta = new BdfDictionary();
@@ -117,7 +126,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 	}
 
 	private BdfMessageContext validateJoin(Message m, Group g, BdfList body,
-			String member_name, byte[] member_public_key)
+			String memberName, byte[] memberPublicKey)
 			throws InvalidMessageException, FormatException {
 
 		// The content is a BDF list with four elements
@@ -126,8 +135,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 		// new_member_id (raw)
 		// the identifier of a new member message
 		// with the same member_name and member_public_key
-		byte[] new_member_id = body.getRaw(2);
-		checkLength(new_member_id, MessageId.LENGTH);
+		byte[] newMemberId = body.getRaw(2);
+		checkLength(newMemberId, MessageId.LENGTH);
 
 		// signature (raw)
 		// a signature with the member's private key over a list with 5 elements
@@ -135,22 +144,26 @@ class GroupMessageValidator extends BdfMessageValidator {
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 
 		// Verify Signature
-		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), member_name,
-				member_public_key, new_member_id);
-		clientHelper.verifySignature(signature, member_public_key, signed);
+		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), JOIN.getInt(),
+				memberName, memberPublicKey, newMemberId);
+		try {
+			clientHelper.verifySignature(signature, memberPublicKey, signed);
+		} catch (GeneralSecurityException e) {
+			throw new InvalidMessageException(e);
+		}
 
 		// The new member message is a dependency
 		Collection<MessageId> dependencies =
-				Collections.singleton(new MessageId(new_member_id));
+				Collections.singleton(new MessageId(newMemberId));
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
-		meta.put(KEY_NEW_MEMBER_MSG_ID, new_member_id);
+		meta.put(KEY_NEW_MEMBER_MSG_ID, newMemberId);
 		return new BdfMessageContext(meta, dependencies);
 	}
 
 	private BdfMessageContext validatePost(Message m, Group g, BdfList body,
-			String member_name, byte[] member_public_key)
+			String memberName, byte[] memberPublicKey)
 			throws InvalidMessageException, FormatException {
 
 		// The content is a BDF list with six elements
@@ -158,15 +171,13 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// parent_id (raw or null)
 		// the identifier of the post to which this is a reply, if any
-		byte[] parent_id = body.getOptionalRaw(2);
-		if (parent_id != null) {
-			checkLength(parent_id, MessageId.LENGTH);
-		}
+		byte[] parentId = body.getOptionalRaw(2);
+		checkLength(parentId, MessageId.LENGTH);
 
 		// previous_message_id (raw)
 		// the identifier of the member's previous post or join message
-		byte[] previous_message_id = body.getRaw(3);
-		checkLength(previous_message_id, MessageId.LENGTH);
+		byte[] previousMessageId = body.getRaw(3);
+		checkLength(previousMessageId, MessageId.LENGTH);
 
 		// content (string)
 		String content = body.getString(4);
@@ -178,20 +189,25 @@ class GroupMessageValidator extends BdfMessageValidator {
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 
 		// Verify Signature
-		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), member_name,
-				member_public_key, parent_id, previous_message_id, content);
-		clientHelper.verifySignature(signature, member_public_key, signed);
+		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), POST.getInt(),
+				memberName, memberPublicKey, parentId, previousMessageId,
+				content);
+		try {
+			clientHelper.verifySignature(signature, memberPublicKey, signed);
+		} catch (GeneralSecurityException e) {
+			throw new InvalidMessageException(e);
+		}
 
 		// The parent post, if any,
 		// and the member's previous message are dependencies
 		Collection<MessageId> dependencies = new ArrayList<MessageId>();
-		if (parent_id != null) dependencies.add(new MessageId(parent_id));
-		dependencies.add(new MessageId(previous_message_id));
+		if (parentId != null) dependencies.add(new MessageId(parentId));
+		dependencies.add(new MessageId(previousMessageId));
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
-		if (parent_id != null) meta.put(KEY_PARENT_MSG_ID, parent_id);
-		meta.put(KEY_PREVIOUS_MSG_ID, previous_message_id);
+		if (parentId != null) meta.put(KEY_PARENT_MSG_ID, parentId);
+		meta.put(KEY_PREVIOUS_MSG_ID, previousMessageId);
 		return new BdfMessageContext(meta, dependencies);
 	}
 
@@ -200,9 +216,9 @@ class GroupMessageValidator extends BdfMessageValidator {
 		c.getDictionary().put(KEY_TIMESTAMP, time);
 		c.getDictionary().put(KEY_READ, false);
 		Author a = authorFactory.createAuthor(authorName, pubKey);
-		c.getDictionary().put(KEY_AUTHOR_ID, a.getId());
-		c.getDictionary().put(KEY_AUTHOR_NAME, authorName);
-		c.getDictionary().put(KEY_AUTHOR_PUBLIC_KEY, pubKey);
+		c.getDictionary().put(KEY_MEMBER_ID, a.getId());
+		c.getDictionary().put(KEY_MEMBER_NAME, authorName);
+		c.getDictionary().put(KEY_MEMBER_PUBLIC_KEY, pubKey);
 	}
 
 }

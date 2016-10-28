@@ -2,7 +2,6 @@ package org.briarproject.android.privategroup.conversation;
 
 import android.support.annotation.Nullable;
 
-import org.briarproject.R;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
@@ -95,8 +94,8 @@ public class GroupControllerImpl extends
 	protected String loadMessageBody(GroupMessageHeader header)
 			throws DbException {
 		if (header instanceof JoinMessageHeader) {
-			return listener.getApplicationContext()
-					.getString(R.string.groups_member_joined);
+			// will be looked up later
+			return "";
 		}
 		return privateGroupManager.getMessageBody(header.getId());
 	}

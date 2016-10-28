@@ -20,7 +20,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
@@ -325,22 +324,16 @@ class ClientHelperImpl implements ClientHelper {
 
 	@Override
 	public void verifySignature(byte[] sig, byte[] publicKey, BdfList signed)
-			throws InvalidMessageException {
-		try {
-			// Parse the public key
-			KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
-			PublicKey key = keyParser.parsePublicKey(publicKey);
-			// Verify the signature
-			Signature signature = cryptoComponent.getSignature();
-			signature.initVerify(key);
-			signature.update(toByteArray(signed));
-			if (!signature.verify(sig)) {
-				throw new InvalidMessageException("Invalid signature");
-			}
-		} catch (GeneralSecurityException e) {
-			throw new InvalidMessageException("Invalid public key");
-		} catch (FormatException e) {
-			throw new InvalidMessageException(e);
+			throws FormatException, GeneralSecurityException {
+		// Parse the public key
+		KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
+		PublicKey key = keyParser.parsePublicKey(publicKey);
+		// Verify the signature
+		Signature signature = cryptoComponent.getSignature();
+		signature.initVerify(key);
+		signature.update(toByteArray(signed));
+		if (!signature.verify(sig)) {
+			throw new GeneralSecurityException("Invalid signature");
 		}
 	}
 

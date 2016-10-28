@@ -84,6 +84,6 @@ public interface ClientHelper {
 			throws FormatException, GeneralSecurityException;
 
 	void verifySignature(byte[] sig, byte[] publicKey, BdfList signed)
-			throws InvalidMessageException;
+			throws FormatException, GeneralSecurityException;
 
 }

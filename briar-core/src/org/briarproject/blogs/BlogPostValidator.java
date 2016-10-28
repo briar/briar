@@ -20,6 +20,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
+import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -101,7 +102,11 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), postBody);
 		Blog b = blogFactory.parseBlog(g, ""); // description doesn't matter
 		Author a = b.getAuthor();
-		clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+		try {
+			clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+		} catch (GeneralSecurityException e) {
+			throw new InvalidMessageException(e);
+		}
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
@@ -142,7 +147,11 @@ class BlogPostValidator extends BdfMessageValidator {
 						currentId);
 		Blog b = blogFactory.parseBlog(g, ""); // description doesn't matter
 		Author a = b.getAuthor();
-		clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+		try {
+			clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+		} catch (GeneralSecurityException e) {
+			throw new InvalidMessageException(e);
+		}
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();

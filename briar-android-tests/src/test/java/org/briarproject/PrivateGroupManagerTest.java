@@ -72,6 +72,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	private LocalAuthor author0, author1;
 	private PrivateGroup privateGroup0;
 	private GroupId groupId0;
+	private GroupMessage newMemberMsg0;
 
 	@Inject
 	Clock clock;
@@ -210,6 +211,20 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		// create and add test message with wrong previousMsgId
 		previousMsgId = groupManager1.getPreviousMsgId(groupId0);
+		msg = groupMessageFactory
+				.createGroupMessage(groupId0, clock.currentTimeMillis(), null,
+						author0, "test", previousMsgId);
+		groupManager0.addLocalMessage(msg);
+
+		// sync test message
+		sync0To1();
+		validationWaiter.await(TIMEOUT, 1);
+
+		// assert that message did not arrive
+		assertEquals(2, groupManager1.getHeaders(groupId0).size());
+
+		// create and add test message with previousMsgId of newMemberMsg
+		previousMsgId = newMemberMsg0.getMessage().getId();
 		msg = groupMessageFactory
 				.createGroupMessage(groupId0, clock.currentTimeMillis(), null,
 						author0, "test", previousMsgId);
@@ -437,13 +452,13 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	private void addGroup() throws Exception {
 		// author0 joins privateGroup0
 		long joinTime = clock.currentTimeMillis();
-		GroupMessage newMemberMsg = groupMessageFactory
+		newMemberMsg0 = groupMessageFactory
 				.createNewMemberMessage(privateGroup0.getId(), joinTime,
 						author0, author0);
 		GroupMessage joinMsg = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0,
-						newMemberMsg.getMessage().getId());
-		groupManager0.addPrivateGroup(privateGroup0, newMemberMsg, joinMsg);
+						newMemberMsg0.getMessage().getId());
+		groupManager0.addPrivateGroup(privateGroup0, newMemberMsg0, joinMsg);
 		assertEquals(joinMsg.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
 
@@ -457,13 +472,13 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		// author1 joins privateGroup0
 		joinTime = clock.currentTimeMillis();
-		newMemberMsg = groupMessageFactory
+		GroupMessage newMemberMsg1 = groupMessageFactory
 				.createNewMemberMessage(privateGroup0.getId(), joinTime,
 						author0, author1);
 		joinMsg = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
-						newMemberMsg.getMessage().getId());
-		groupManager1.addPrivateGroup(privateGroup0, newMemberMsg, joinMsg);
+						newMemberMsg1.getMessage().getId());
+		groupManager1.addPrivateGroup(privateGroup0, newMemberMsg1, joinMsg);
 		assertEquals(joinMsg.getMessage().getId(),
 				groupManager1.getPreviousMsgId(groupId0));
 

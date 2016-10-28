@@ -16,6 +16,7 @@ import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
 import org.briarproject.clients.BdfMessageValidator;
 
+import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -73,10 +74,15 @@ class ForumPostValidator extends BdfMessageValidator {
 		}
 		// Verify the signature, if any
 		if (author != null) {
-			// Serialise the data to be signed
+			// Serialise the data to be verified
 			BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
 					authorList, contentType, forumPostBody);
-			clientHelper.verifySignature(sig, author.getPublicKey(), signed);
+			try {
+				clientHelper
+						.verifySignature(sig, author.getPublicKey(), signed);
+			} catch (GeneralSecurityException e) {
+				throw new InvalidMessageException(e);
+			}
 		}
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
