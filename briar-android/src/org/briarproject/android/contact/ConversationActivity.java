@@ -497,9 +497,9 @@ public class ConversationActivity extends BriarActivity
 
 	private void markMessagesRead() {
 		Map<MessageId, GroupId> unread = new HashMap<>();
-		SparseArray<ConversationInItem> list = adapter.getIncomingMessages();
+		SparseArray<ConversationItem> list = adapter.getIncomingMessages();
 		for (int i = 0; i < list.size(); i++) {
-			ConversationInItem item = list.valueAt(i);
+			ConversationItem item = list.valueAt(i);
 			if (!item.isRead())
 				unread.put(item.getId(), item.getGroupId());
 		}

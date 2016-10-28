@@ -1,7 +1,7 @@
 package org.briarproject.android.privategroup.invitation;
 
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.android.sharing.InvitationsControllerImpl;
+import org.briarproject.android.sharing.InvitationControllerImpl;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -22,15 +22,15 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class GroupInvitationsControllerImpl
-		extends InvitationsControllerImpl<GroupInvitationItem>
-		implements GroupInvitationsController {
+public class GroupInvitationControllerImpl
+		extends InvitationControllerImpl<GroupInvitationItem>
+		implements GroupInvitationController {
 
 	private final PrivateGroupManager privateGroupManager;
 	private final GroupInvitationManager groupInvitationManager;
 
 	@Inject
-	GroupInvitationsControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	GroupInvitationControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			PrivateGroupManager privateGroupManager,
 			GroupInvitationManager groupInvitationManager) {
@@ -50,7 +50,7 @@ public class GroupInvitationsControllerImpl
 	}
 
 	@Override
-	protected ClientId getClientId() {
+	protected ClientId getShareableClientId() {
 		return privateGroupManager.getClientId();
 	}
 
@@ -68,7 +68,7 @@ public class GroupInvitationsControllerImpl
 			@Override
 			public void run() {
 				try {
-					PrivateGroup g = (PrivateGroup) item.getShareable();
+					PrivateGroup g = item.getShareable();
 					Contact c = item.getCreator();
 					groupInvitationManager.respondToInvitation(g, c, accept);
 				} catch (DbException e) {

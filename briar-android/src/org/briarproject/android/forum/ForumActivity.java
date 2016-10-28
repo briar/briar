@@ -18,7 +18,7 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.sharing.ForumShareActivity;
+import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
@@ -107,7 +107,7 @@ public class ForumActivity extends
 				showTextInput(null);
 				return true;
 			case R.id.action_forum_share:
-				Intent i2 = new Intent(this, ForumShareActivity.class);
+				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
 				ActivityCompat.startActivityForResult(this, i2,

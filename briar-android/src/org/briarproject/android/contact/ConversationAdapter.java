@@ -27,19 +27,7 @@ class ConversationAdapter
 	@Override
 	public int getItemViewType(int position) {
 		ConversationItem item = items.get(position);
-		if (item instanceof ConversationRequestItem) {
-			return R.layout.list_item_conversation_request;
-		} else if (item instanceof ConversationNoticeOutItem) {
-			return R.layout.list_item_conversation_notice_out;
-		} else if (item instanceof ConversationNoticeInItem) {
-			return R.layout.list_item_conversation_notice_in;
-		} else if (item instanceof ConversationMessageOutItem) {
-			return R.layout.list_item_conversation_msg_out;
-		} else if (item instanceof ConversationMessageInItem) {
-			return R.layout.list_item_conversation_msg_in;
-		} else {
-			throw new IllegalArgumentException("Unknown ConversationItem");
-		}
+		return item.getLayout();
 	}
 
 	@Override
@@ -104,13 +92,13 @@ class ConversationAdapter
 		}
 	}
 
-	SparseArray<ConversationInItem> getIncomingMessages() {
-		SparseArray<ConversationInItem> messages = new SparseArray<>();
+	SparseArray<ConversationItem> getIncomingMessages() {
+		SparseArray<ConversationItem> messages = new SparseArray<>();
 
 		for (int i = 0; i < items.size(); i++) {
 			ConversationItem item = items.get(i);
-			if (item instanceof ConversationInItem) {
-				messages.put(i, (ConversationInItem) item);
+			if (item.isIncoming()) {
+				messages.put(i, item);
 			}
 		}
 		return messages;

@@ -4,21 +4,20 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 
 import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 
 @Immutable
 @NotNullByDefault
-public abstract class InvitationItem {
+public abstract class InvitationItem<S extends Shareable> {
 
-	private final Shareable shareable;
+	private final S shareable;
 	private final boolean subscribed;
 
-	public InvitationItem(Shareable shareable, boolean subscribed) {
+	public InvitationItem(S shareable, boolean subscribed) {
 		this.shareable = shareable;
 		this.subscribed = subscribed;
 	}
 
-	public Shareable getShareable() {
+	public S getShareable() {
 		return shareable;
 	}
 

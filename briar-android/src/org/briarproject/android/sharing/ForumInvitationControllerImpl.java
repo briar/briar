@@ -1,15 +1,15 @@
 package org.briarproject.android.sharing;
 
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.api.blogs.Blog;
-import org.briarproject.api.blogs.BlogManager;
-import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.BlogInvitationReceivedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.ForumInvitationReceivedEvent;
+import org.briarproject.api.forum.Forum;
+import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sync.ClientId;
@@ -21,40 +21,41 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class BlogInvitationsControllerImpl
-		extends InvitationsControllerImpl<SharingInvitationItem>
-		implements BlogInvitationsController {
+public class ForumInvitationControllerImpl
+		extends InvitationControllerImpl<SharingInvitationItem>
+		implements ForumInvitationController {
 
-	private final BlogManager blogManager;
-	private final BlogSharingManager blogSharingManager;
+	private final ForumManager forumManager;
+	private final ForumSharingManager forumSharingManager;
 
 	@Inject
-	BlogInvitationsControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	ForumInvitationControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
-			BlogManager blogManager, BlogSharingManager blogSharingManager) {
+			ForumManager forumManager,
+			ForumSharingManager forumSharingManager) {
 		super(dbExecutor, lifecycleManager, eventBus);
-		this.blogManager = blogManager;
-		this.blogSharingManager = blogSharingManager;
+		this.forumManager = forumManager;
+		this.forumSharingManager = forumSharingManager;
 	}
 
 	@Override
 	public void eventOccurred(Event e) {
 		super.eventOccurred(e);
 
-		if (e instanceof BlogInvitationReceivedEvent) {
-			LOG.info("Blog invitation received, reloading");
+		if (e instanceof ForumInvitationReceivedEvent) {
+			LOG.info("Forum invitation received, reloading");
 			listener.loadInvitations(false);
 		}
 	}
 
 	@Override
-	protected ClientId getClientId() {
-		return blogManager.getClientId();
+	protected ClientId getShareableClientId() {
+		return forumManager.getClientId();
 	}
 
 	@Override
 	protected Collection<SharingInvitationItem> getInvitations() throws DbException {
-		return blogSharingManager.getInvitations();
+		return forumSharingManager.getInvitations();
 	}
 
 	@Override
@@ -65,10 +66,10 @@ public class BlogInvitationsControllerImpl
 			@Override
 			public void run() {
 				try {
-					Blog f = (Blog) item.getShareable();
+					Forum f = (Forum) item.getShareable();
 					for (Contact c : item.getNewSharers()) {
 						// TODO: What happens if a contact has been removed?
-						blogSharingManager.respondToInvitation(f, c, accept);
+						forumSharingManager.respondToInvitation(f, c, accept);
 					}
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

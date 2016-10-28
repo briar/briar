@@ -1,6 +1,7 @@
 package org.briarproject.android.contact;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 
 import org.briarproject.R;
@@ -37,13 +38,15 @@ abstract class ConversationItem {
 	final private MessageId id;
 	final private GroupId groupId;
 	final private long time;
+	private boolean read;
 
-	ConversationItem(MessageId id, GroupId groupId,
-			@Nullable String body, long time) {
+	ConversationItem(MessageId id, GroupId groupId, @Nullable String body,
+			long time, boolean read) {
 		this.id = id;
 		this.groupId = groupId;
 		this.body = body;
 		this.time = time;
+		this.read = read;
 	}
 
 	MessageId getId() {
@@ -66,6 +69,15 @@ abstract class ConversationItem {
 	long getTime() {
 		return time;
 	}
+
+	public boolean isRead() {
+		return read;
+	}
+
+	abstract public boolean isIncoming();
+
+	@LayoutRes
+	abstract public int getLayout();
 
 	static ConversationItem from(PrivateMessageHeader h) {
 		if (h.isLocal()) {

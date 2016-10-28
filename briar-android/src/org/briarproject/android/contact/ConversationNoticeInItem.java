@@ -1,5 +1,8 @@
 package org.briarproject.android.contact;
 
+import android.support.annotation.LayoutRes;
+
+import org.briarproject.R;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -9,7 +12,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
 @NotNullByDefault
-class ConversationNoticeInItem extends ConversationInItem {
+class ConversationNoticeInItem extends ConversationItem {
 
 	@Nullable
 	private final String msgText;
@@ -24,6 +27,17 @@ class ConversationNoticeInItem extends ConversationInItem {
 	@Nullable
 	public String getMsgText() {
 		return msgText;
+	}
+
+	@Override
+	public boolean isIncoming() {
+		return true;
+	}
+
+	@LayoutRes
+	@Override
+	public int getLayout() {
+		return R.layout.list_item_conversation_notice_in;
 	}
 
 }

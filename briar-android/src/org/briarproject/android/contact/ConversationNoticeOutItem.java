@@ -1,5 +1,8 @@
 package org.briarproject.android.contact;
 
+import android.support.annotation.LayoutRes;
+
+import org.briarproject.R;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
@@ -24,6 +27,12 @@ class ConversationNoticeOutItem extends ConversationOutItem {
 	@Nullable
 	public String getMsgText() {
 		return msgText;
+	}
+
+	@LayoutRes
+	@Override
+	public int getLayout() {
+		return R.layout.list_item_conversation_notice_out;
 	}
 
 }

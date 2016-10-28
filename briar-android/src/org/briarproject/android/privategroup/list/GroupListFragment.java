@@ -21,7 +21,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.privategroup.creation.CreateGroupActivity;
-import org.briarproject.android.privategroup.invitation.GroupInvitationsActivity;
+import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.android.privategroup.list.GroupListController.GroupListListener;
 import org.briarproject.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.android.view.BriarRecyclerView;
@@ -221,7 +221,7 @@ public class GroupListFragment extends BaseFragment implements
 	 */
 	@Override
 	public void onClick(View v) {
-		Intent i = new Intent(getContext(), GroupInvitationsActivity.class);
+		Intent i = new Intent(getContext(), GroupInvitationActivity.class);
 		ActivityOptionsCompat options =
 				makeCustomAnimation(getActivity(),
 						android.R.anim.slide_in_left,

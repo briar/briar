@@ -9,7 +9,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class SharingInvitationItem extends InvitationItem {
+public class SharingInvitationItem extends InvitationItem<Shareable> {
 
 	private final Collection<Contact> newSharers;
 

@@ -15,7 +15,7 @@ abstract class ConversationOutItem extends ConversationItem {
 
 	ConversationOutItem(MessageId id, GroupId groupId, @Nullable String text,
 			long time, boolean sent, boolean seen) {
-		super(id, groupId, text, time);
+		super(id, groupId, text, time, true);
 
 		this.sent = sent;
 		this.seen = seen;
@@ -35,6 +35,11 @@ abstract class ConversationOutItem extends ConversationItem {
 
 	public void setSeen(boolean seen) {
 		this.seen = seen;
+	}
+
+	@Override
+	public boolean isIncoming() {
+		return false;
 	}
 
 }

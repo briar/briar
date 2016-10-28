@@ -6,7 +6,9 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.sync.GroupId;
 import org.jetbrains.annotations.NotNull;
 
-// This class is NOT thread-safe
+import javax.annotation.concurrent.NotThreadSafe;
+
+@NotThreadSafe
 public class ContactListItem {
 
 	private final Contact contact;
@@ -32,8 +34,7 @@ public class ContactListItem {
 		empty = empty && message == null;
 		if (message != null) {
 			if (message.getTime() > timestamp) timestamp = message.getTime();
-			if (message instanceof ConversationInItem &&
-					!((ConversationInItem) message).isRead())
+			if (!message.isRead())
 				unread++;
 		}
 	}

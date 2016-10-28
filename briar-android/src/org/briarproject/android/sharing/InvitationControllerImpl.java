@@ -25,17 +25,17 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public abstract class InvitationsControllerImpl<I extends InvitationItem>
+public abstract class InvitationControllerImpl<I extends InvitationItem>
 		extends DbControllerImpl
-		implements InvitationsController<I>, EventListener {
+		implements InvitationController<I>, EventListener {
 
 	protected static final Logger LOG =
-			Logger.getLogger(InvitationsControllerImpl.class.getName());
+			Logger.getLogger(InvitationControllerImpl.class.getName());
 
 	private final EventBus eventBus;
 	protected InvitationListener listener;
 
-	public InvitationsControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	public InvitationControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
 		this.eventBus = eventBus;
@@ -70,21 +70,21 @@ public abstract class InvitationsControllerImpl<I extends InvitationItem>
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			ClientId cId = g.getGroup().getClientId();
-			if (cId.equals(getClientId())) {
+			if (cId.equals(getShareableClientId())) {
 				LOG.info("Group added, reloading");
 				listener.loadInvitations(false);
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			ClientId cId = g.getGroup().getClientId();
-			if (cId.equals(getClientId())) {
+			if (cId.equals(getShareableClientId())) {
 				LOG.info("Group removed, reloading");
-				listener.loadInvitations(true);
+				listener.loadInvitations(false);
 			}
 		}
 	}
 
-	protected abstract ClientId getClientId();
+	protected abstract ClientId getShareableClientId();
 
 	@Override
 	public void loadInvitations(final boolean clear,

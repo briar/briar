@@ -4,19 +4,19 @@ import android.content.Context;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.sharing.InvitationActivity;
 import org.briarproject.android.sharing.InvitationAdapter;
-import org.briarproject.android.sharing.InvitationsActivity;
 import org.briarproject.api.privategroup.invitation.GroupInvitationItem;
 
 import javax.inject.Inject;
 
 import static org.briarproject.android.sharing.InvitationAdapter.InvitationClickListener;
 
-public class GroupInvitationsActivity
-		extends InvitationsActivity<GroupInvitationItem> {
+public class GroupInvitationActivity
+		extends InvitationActivity<GroupInvitationItem> {
 
 	@Inject
-	protected GroupInvitationsController controller;
+	protected GroupInvitationController controller;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -24,7 +24,7 @@ public class GroupInvitationsActivity
 	}
 
 	@Override
-	protected GroupInvitationsController getController() {
+	protected GroupInvitationController getController() {
 		return controller;
 	}
 

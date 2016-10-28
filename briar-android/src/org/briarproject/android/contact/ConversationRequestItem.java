@@ -1,5 +1,8 @@
 package org.briarproject.android.contact;
 
+import android.support.annotation.LayoutRes;
+
+import org.briarproject.R;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
@@ -41,6 +44,12 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 
 	void setAnswered(boolean answered) {
 		this.answered = answered;
+	}
+
+	@LayoutRes
+	@Override
+	public int getLayout() {
+		return R.layout.list_item_conversation_request;
 	}
 
 }

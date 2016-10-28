@@ -7,7 +7,7 @@ import org.briarproject.api.sharing.InvitationItem;
 
 import java.util.Collection;
 
-public interface InvitationsController<I extends InvitationItem>
+public interface InvitationController<I extends InvitationItem>
 		extends ActivityLifecycleController {
 
 	void loadInvitations(boolean clear,

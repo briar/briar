@@ -9,7 +9,7 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.sharing.InvitationsController.InvitationListener;
+import org.briarproject.android.sharing.InvitationController.InvitationListener;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sharing.InvitationItem;
@@ -20,12 +20,12 @@ import java.util.logging.Logger;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.android.sharing.InvitationAdapter.InvitationClickListener;
 
-public abstract class InvitationsActivity<I extends InvitationItem>
+public abstract class InvitationActivity<I extends InvitationItem>
 		extends BriarActivity
 		implements InvitationListener, InvitationClickListener<I> {
 
 	protected static final Logger LOG =
-			Logger.getLogger(InvitationsActivity.class.getName());
+			Logger.getLogger(InvitationActivity.class.getName());
 
 	private InvitationAdapter<I, ?> adapter;
 	private BriarRecyclerView list;
@@ -96,7 +96,7 @@ public abstract class InvitationsActivity<I extends InvitationItem>
 				});
 	}
 
-	abstract protected InvitationsController<I> getController();
+	abstract protected InvitationController<I> getController();
 
 	protected void respondToInvitation(final I item,
 			final boolean accept) {

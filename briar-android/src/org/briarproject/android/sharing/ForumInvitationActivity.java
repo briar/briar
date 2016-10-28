@@ -10,11 +10,11 @@ import javax.inject.Inject;
 
 import static org.briarproject.android.sharing.InvitationAdapter.InvitationClickListener;
 
-public class BlogInvitationsActivity
-		extends InvitationsActivity<SharingInvitationItem> {
+public class ForumInvitationActivity
+		extends InvitationActivity<SharingInvitationItem> {
 
 	@Inject
-	BlogInvitationsController controller;
+	ForumInvitationController controller;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -22,7 +22,7 @@ public class BlogInvitationsActivity
 	}
 
 	@Override
-	protected InvitationsController<SharingInvitationItem> getController() {
+	protected InvitationController<SharingInvitationItem> getController() {
 		return controller;
 	}
 
@@ -35,12 +35,12 @@ public class BlogInvitationsActivity
 
 	@Override
 	protected int getAcceptRes() {
-		return R.string.blogs_sharing_joined_toast;
+		return R.string.forum_joined_toast;
 	}
 
 	@Override
 	protected int getDeclineRes() {
-		return R.string.blogs_sharing_declined_toast;
+		return R.string.forum_declined_toast;
 	}
 
 }

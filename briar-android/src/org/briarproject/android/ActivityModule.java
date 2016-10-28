@@ -25,14 +25,14 @@ import org.briarproject.android.privategroup.conversation.GroupController;
 import org.briarproject.android.privategroup.conversation.GroupControllerImpl;
 import org.briarproject.android.privategroup.creation.CreateGroupController;
 import org.briarproject.android.privategroup.creation.CreateGroupControllerImpl;
-import org.briarproject.android.privategroup.invitation.GroupInvitationsController;
-import org.briarproject.android.privategroup.invitation.GroupInvitationsControllerImpl;
+import org.briarproject.android.privategroup.invitation.GroupInvitationController;
+import org.briarproject.android.privategroup.invitation.GroupInvitationControllerImpl;
 import org.briarproject.android.privategroup.list.GroupListController;
 import org.briarproject.android.privategroup.list.GroupListControllerImpl;
-import org.briarproject.android.sharing.BlogInvitationsController;
-import org.briarproject.android.sharing.BlogInvitationsControllerImpl;
-import org.briarproject.android.sharing.ForumInvitationsController;
-import org.briarproject.android.sharing.ForumInvitationsControllerImpl;
+import org.briarproject.android.sharing.BlogInvitationController;
+import org.briarproject.android.sharing.BlogInvitationControllerImpl;
+import org.briarproject.android.sharing.ForumInvitationController;
+import org.briarproject.android.sharing.ForumInvitationControllerImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -125,9 +125,9 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	protected GroupInvitationsController provideInvitationsGroupController(
-			GroupInvitationsControllerImpl invitationsGroupController) {
-		return invitationsGroupController;
+	protected GroupInvitationController provideInvitationGroupController(
+			GroupInvitationControllerImpl groupInvitationController) {
+		return groupInvitationController;
 	}
 
 	@ActivityScope
@@ -140,18 +140,18 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	protected ForumInvitationsController provideInvitationsForumController(
-			ForumInvitationsControllerImpl invitationsForumController) {
-		activity.addLifecycleController(invitationsForumController);
-		return invitationsForumController;
+	protected ForumInvitationController provideInvitationForumController(
+			ForumInvitationControllerImpl forumInvitationController) {
+		activity.addLifecycleController(forumInvitationController);
+		return forumInvitationController;
 	}
 
 	@ActivityScope
 	@Provides
-	protected BlogInvitationsController provideInvitationsBlogController(
-			BlogInvitationsControllerImpl invitationsBlogController) {
-		activity.addLifecycleController(invitationsBlogController);
-		return invitationsBlogController;
+	protected BlogInvitationController provideInvitationBlogController(
+			BlogInvitationControllerImpl blogInvitationController) {
+		activity.addLifecycleController(blogInvitationController);
+		return blogInvitationController;
 	}
 
 	@ActivityScope
