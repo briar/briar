@@ -35,7 +35,7 @@ import static android.support.design.widget.Snackbar.make;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, A extends ThreadItemAdapter<I>>
+public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadItem, H extends PostHeader>
 		extends BriarActivity
 		implements ThreadListListener<H>, TextInputListener,
 		ThreadItemListener<I> {
@@ -46,7 +46,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListActivity.class.getName());
 
-	protected A adapter;
+	protected ThreadItemAdapter<I> adapter;
 	protected BriarRecyclerView list;
 	protected TextInputView textInput;
 	protected GroupId groupId;
@@ -88,7 +88,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	@LayoutRes
 	protected abstract int getLayout();
 
-	protected abstract A createAdapter(LinearLayoutManager layoutManager);
+	protected abstract ThreadItemAdapter<I> createAdapter(
+			LinearLayoutManager layoutManager);
 
 	protected void loadNamedGroup() {
 		getController().loadNamedGroup(
@@ -249,8 +250,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 						finish();
 					}
 				};
-		getController().createAndStoreMessage(text,
-				replyItem != null ? replyItem.getId() : null, handler);
+		getController().createAndStoreMessage(text, replyItem, handler);
 		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
 		textInput.setText("");

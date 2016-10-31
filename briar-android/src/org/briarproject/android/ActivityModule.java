@@ -120,6 +120,7 @@ public class ActivityModule {
 	@Provides
 	protected GroupController provideGroupController(
 			GroupControllerImpl groupController) {
+		activity.addLifecycleController(groupController);
 		return groupController;
 	}
 

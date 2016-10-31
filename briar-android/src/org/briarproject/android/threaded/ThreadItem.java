@@ -5,9 +5,11 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.MessageId;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import static org.briarproject.android.threaded.ThreadItemAdapter.UNDEFINED;
 
-/* This class is not thread safe */
+@NotThreadSafe
 public abstract class ThreadItem implements MessageNode {
 
 	private final MessageId messageId;
@@ -92,4 +94,5 @@ public abstract class ThreadItem implements MessageNode {
 	public void setDescendantCount(int descendantCount) {
 		this.descendantCount = descendantCount;
 	}
+
 }

@@ -5,7 +5,6 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.Immutable;
@@ -14,16 +13,16 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class GroupMessage extends BaseMessage {
 
-	private final Author author;
+	private final Author member;
 
 	public GroupMessage(Message message, @Nullable MessageId parent,
-			Author author) {
+			Author member) {
 		super(message, parent);
-		this.author = author;
+		this.member = member;
 	}
 
-	public Author getAuthor() {
-		return author;
+	public Author getMember() {
+		return member;
 	}
 
 }

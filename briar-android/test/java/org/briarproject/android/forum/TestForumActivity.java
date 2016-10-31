@@ -3,6 +3,7 @@ package org.briarproject.android.forum;
 import org.briarproject.android.ActivityModule;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
+import org.briarproject.android.threaded.ThreadItemAdapter;
 import org.mockito.Mockito;
 
 /**
@@ -15,7 +16,7 @@ public class TestForumActivity extends ForumActivity {
 		return forumController;
 	}
 
-	public NestedForumAdapter getAdapter() {
+	public ThreadItemAdapter<ForumItem> getAdapter() {
 		return adapter;
 	}
 

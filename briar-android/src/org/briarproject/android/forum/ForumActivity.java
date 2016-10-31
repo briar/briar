@@ -18,8 +18,9 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.ForumSharingStatusActivity;
+import org.briarproject.android.sharing.ShareForumActivity;
+import org.briarproject.android.threaded.ThreadItemAdapter;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
@@ -35,7 +36,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 
 public class ForumActivity extends
-		ThreadListActivity<Forum, ForumItem, ForumPostHeader, NestedForumAdapter> {
+		ThreadListActivity<Forum, ForumItem, ForumPostHeader> {
 
 	private static final int REQUEST_FORUM_SHARED = 3;
 
@@ -74,9 +75,9 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected NestedForumAdapter createAdapter(
+	protected ThreadItemAdapter<ForumItem> createAdapter(
 			LinearLayoutManager layoutManager) {
-		return new NestedForumAdapter(this, layoutManager);
+		return new ThreadItemAdapter<>(this, layoutManager);
 	}
 
 	@Override

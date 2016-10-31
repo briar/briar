@@ -61,7 +61,7 @@ import static org.briarproject.api.sync.ValidationManager.State.PENDING;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class BlogManagerTest {
+public class BlogManagerTest extends BriarIntegrationTest {
 
 	private LifecycleManager lifecycleManager0, lifecycleManager1;
 	private SyncSessionFactory sync0, sync1;
@@ -94,7 +94,7 @@ public class BlogManagerTest {
 	private final String AUTHOR2 = "Author 2";
 
 	private static final Logger LOG =
-			Logger.getLogger(ForumSharingIntegrationTest.class.getName());
+			Logger.getLogger(BlogManagerTest.class.getName());
 
 	private BlogManagerTestComponent t0, t1;
 

@@ -3,6 +3,7 @@ package org.briarproject.android.forum;
 import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.crypto.CryptoExecutor;
@@ -28,8 +29,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-public class ForumControllerImpl extends
-		ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost>
+import static java.lang.Math.max;
+import static java.util.logging.Level.WARNING;
+
+public class ForumControllerImpl
+		extends ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost>
 		implements ForumController {
 
 	private static final Logger LOG =
@@ -42,9 +46,9 @@ public class ForumControllerImpl extends
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			ForumManager forumManager, EventBus eventBus,
-			AndroidNotificationManager notificationManager, Clock clock) {
+			Clock clock, AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
-				eventBus, notificationManager, clock);
+				eventBus, clock, notificationManager);
 		this.forumManager = forumManager;
 	}
 
@@ -84,8 +88,8 @@ public class ForumControllerImpl extends
 	}
 
 	@Override
-	protected String loadMessageBody(MessageId id) throws DbException {
-		return StringUtils.fromUtf8(forumManager.getPostBody(id));
+	protected String loadMessageBody(ForumPostHeader h) throws DbException {
+		return StringUtils.fromUtf8(forumManager.getPostBody(h.getId()));
 	}
 
 	@Override
@@ -94,16 +98,42 @@ public class ForumControllerImpl extends
 	}
 
 	@Override
-	protected long getLatestTimestamp() throws DbException {
-		GroupCount count = forumManager.getGroupCount(getGroupId());
-		return count.getLatestMsgTime();
+	public void createAndStoreMessage(final String body,
+			@Nullable final ForumItem parentItem,
+			final ResultExceptionHandler<ForumItem, DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					LocalAuthor author = identityManager.getLocalAuthor();
+					GroupCount count = forumManager.getGroupCount(getGroupId());
+					long timestamp = max(count.getLatestMsgTime() + 1,
+							clock.currentTimeMillis());
+					MessageId parentId = parentItem != null ?
+							parentItem.getId() : null;
+					createMessage(body, timestamp, parentId, author, handler);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
 	}
 
-	@Override
-	protected ForumPost createLocalMessage(String body, long timestamp,
-			@Nullable MessageId parentId, LocalAuthor author) {
-		return forumManager.createLocalPost(getGroupId(), body, timestamp,
-				parentId, author);
+	private void createMessage(final String body, final long timestamp,
+			final @Nullable MessageId parentId, final LocalAuthor author,
+			final ResultExceptionHandler<ForumItem, DbException> handler) {
+		cryptoExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				LOG.info("Creating forum post...");
+				ForumPost msg = forumManager
+						.createLocalPost(getGroupId(), body, timestamp,
+								parentId, author);
+				storePost(msg, body, handler);
+			}
+		});
 	}
 
 	@Override

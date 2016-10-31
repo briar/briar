@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/layout"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginLeft="@dimen/margin_medium"
+	android:baselineAligned="false"
+	android:orientation="vertical">
+
+	<View
+		android:id="@+id/top_divider"
+		style="@style/Divider.ForumList"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/margin_separator"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="@dimen/margin_small"
+		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginRight="@dimen/margin_medium"
+		android:layout_marginTop="@dimen/margin_medium"
+		android:orientation="horizontal">
+
+		<org.briarproject.android.view.AuthorView
+			android:id="@+id/author"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:persona="commenter"/>
+
+		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+			android:id="@+id/text"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="@dimen/margin_medium"
+			android:gravity="center_vertical"
+			android:textColor="@color/briar_text_secondary"
+			android:textIsSelectable="true"
+			android:textSize="@dimen/text_size_medium"
+			android:textStyle="italic"
+			tools:text="@string/groups_member_joined"/>
+
+	</LinearLayout>
+
+</LinearLayout>

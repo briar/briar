@@ -5,6 +5,7 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
+import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
@@ -320,4 +321,20 @@ class ClientHelperImpl implements ClientHelper {
 		signature.update(toByteArray(toSign));
 		return signature.sign();
 	}
+
+	@Override
+	public void verifySignature(byte[] sig, byte[] publicKey, BdfList signed)
+			throws FormatException, GeneralSecurityException {
+		// Parse the public key
+		KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
+		PublicKey key = keyParser.parsePublicKey(publicKey);
+		// Verify the signature
+		Signature signature = cryptoComponent.getSignature();
+		signature.initVerify(key);
+		signature.update(toByteArray(signed));
+		if (!signature.verify(sig)) {
+			throw new GeneralSecurityException("Invalid signature");
+		}
+	}
+
 }

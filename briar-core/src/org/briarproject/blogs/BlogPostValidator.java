@@ -6,10 +6,6 @@ import org.briarproject.api.blogs.BlogFactory;
 import org.briarproject.api.blogs.MessageType;
 import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyParser;
-import org.briarproject.api.crypto.PublicKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -48,18 +44,15 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH
 
 class BlogPostValidator extends BdfMessageValidator {
 
-	private final CryptoComponent crypto;
 	private final GroupFactory groupFactory;
 	private final MessageFactory messageFactory;
 	private final BlogFactory blogFactory;
 
-	BlogPostValidator(CryptoComponent crypto, GroupFactory groupFactory,
-			MessageFactory messageFactory, BlogFactory blogFactory,
-			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock) {
+	BlogPostValidator(GroupFactory groupFactory, MessageFactory messageFactory,
+			BlogFactory blogFactory, ClientHelper clientHelper,
+			MetadataEncoder metadataEncoder, Clock clock) {
 		super(clientHelper, metadataEncoder, clock);
 
-		this.crypto = crypto;
 		this.groupFactory = groupFactory;
 		this.messageFactory = messageFactory;
 		this.blogFactory = blogFactory;
@@ -109,7 +102,11 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), postBody);
 		Blog b = blogFactory.parseBlog(g, ""); // description doesn't matter
 		Author a = b.getAuthor();
-		verifySignature(sig, a.getPublicKey(), signed);
+		try {
+			clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+		} catch (GeneralSecurityException e) {
+			throw new InvalidMessageException(e);
+		}
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
@@ -150,7 +147,11 @@ class BlogPostValidator extends BdfMessageValidator {
 						currentId);
 		Blog b = blogFactory.parseBlog(g, ""); // description doesn't matter
 		Author a = b.getAuthor();
-		verifySignature(sig, a.getPublicKey(), signed);
+		try {
+			clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+		} catch (GeneralSecurityException e) {
+			throw new InvalidMessageException(e);
+		}
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
@@ -265,26 +266,6 @@ class BlogPostValidator extends BdfMessageValidator {
 		if (comment != null) meta.put(KEY_COMMENT, comment);
 		meta.put(KEY_AUTHOR, c.getDictionary().getDictionary(KEY_AUTHOR));
 		return new BdfMessageContext(meta, dependencies);
-	}
-
-	private void verifySignature(byte[] sig, byte[] publicKey, BdfList signed)
-			throws InvalidMessageException {
-		try {
-			// Parse the public key
-			KeyParser keyParser = crypto.getSignatureKeyParser();
-			PublicKey key = keyParser.parsePublicKey(publicKey);
-			// Verify the signature
-			Signature signature = crypto.getSignature();
-			signature.initVerify(key);
-			signature.update(clientHelper.toByteArray(signed));
-			if (!signature.verify(sig)) {
-				throw new InvalidMessageException("Invalid signature");
-			}
-		} catch (GeneralSecurityException e) {
-			throw new InvalidMessageException("Invalid public key");
-		} catch (FormatException e) {
-			throw new InvalidMessageException(e);
-		}
 	}
 
 	static BdfDictionary authorToBdfDictionary(Author a) {

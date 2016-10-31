@@ -3,7 +3,6 @@ package org.briarproject.api.clients;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.Immutable;

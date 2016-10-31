@@ -5,7 +5,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
+import org.briarproject.R;
 import org.briarproject.android.util.VersionedAdapter;
 import org.briarproject.api.sync.MessageId;
 
@@ -17,8 +21,8 @@ import java.util.Map;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
-public abstract class ThreadItemAdapter<I extends ThreadItem>
-		extends RecyclerView.Adapter<ThreadItemViewHolder<I>>
+public class ThreadItemAdapter<I extends ThreadItem>
+		extends RecyclerView.Adapter<BaseThreadItemViewHolder<I>>
 		implements VersionedAdapter {
 
 	static final int UNDEFINED = -1;
@@ -42,7 +46,15 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	@Override
-	public void onBindViewHolder(ThreadItemViewHolder<I> ui, int position) {
+	public BaseThreadItemViewHolder<I> onCreateViewHolder(
+			ViewGroup parent, int viewType) {
+		View v = LayoutInflater.from(parent.getContext())
+				.inflate(R.layout.list_item_thread, parent, false);
+		return new ThreadPostViewHolder<>(v);
+	}
+
+	@Override
+	public void onBindViewHolder(BaseThreadItemViewHolder<I> ui, int position) {
 		I item = getVisibleItem(position);
 		if (item == null) return;
 		listener.onItemVisible(item);
@@ -304,7 +316,7 @@ public abstract class ThreadItemAdapter<I extends ThreadItem>
 		revision++;
 	}
 
-	protected interface ThreadItemListener<I> {
+	public interface ThreadItemListener<I> {
 
 		void onItemVisible(I item);
 

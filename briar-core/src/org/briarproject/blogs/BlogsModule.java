@@ -5,7 +5,6 @@ import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
@@ -64,14 +63,14 @@ public class BlogsModule {
 	@Provides
 	@Singleton
 	BlogPostValidator provideBlogPostValidator(
-			ValidationManager validationManager, CryptoComponent crypto,
-			GroupFactory groupFactory, MessageFactory messageFactory,
-			BlogFactory blogFactory, ClientHelper clientHelper,
-			MetadataEncoder metadataEncoder, Clock clock) {
+			ValidationManager validationManager, GroupFactory groupFactory,
+			MessageFactory messageFactory, BlogFactory blogFactory,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
+			Clock clock) {
 
-		BlogPostValidator validator = new BlogPostValidator(crypto,
-				groupFactory, messageFactory, blogFactory, clientHelper,
-				metadataEncoder, clock);
+		BlogPostValidator validator = new BlogPostValidator(groupFactory,
+				messageFactory, blogFactory, clientHelper, metadataEncoder,
+				clock);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 
 		return validator;

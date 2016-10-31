@@ -6,6 +6,7 @@ import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 
@@ -81,4 +82,8 @@ public interface ClientHelper {
 
 	byte[] sign(BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException;
+
+	void verifySignature(byte[] sig, byte[] publicKey, BdfList signed)
+			throws FormatException, GeneralSecurityException;
+
 }
