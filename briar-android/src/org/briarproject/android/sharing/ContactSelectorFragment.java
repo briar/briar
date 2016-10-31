@@ -15,16 +15,14 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.contact.BaseContactListAdapter;
-import org.briarproject.android.contact.ContactListItem;
+import org.briarproject.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -41,8 +39,8 @@ import static org.briarproject.android.sharing.ShareActivity.getContactsFromIds;
 import static org.briarproject.android.sharing.ShareActivity.getContactsFromIntegers;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
-public class ContactSelectorFragment extends BaseFragment implements
-		BaseContactListAdapter.OnItemClickListener {
+public class ContactSelectorFragment extends BaseFragment
+		implements OnContactClickListener<SelectableContactItem> {
 
 	public static final String TAG = ContactSelectorFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
@@ -56,7 +54,7 @@ public class ContactSelectorFragment extends BaseFragment implements
 	@Inject
 	volatile ContactManager contactManager;
 	@Inject
-	volatile IdentityManager identityManager;
+	volatile ConnectionRegistry connectionRegistry;
 
 	private volatile GroupId groupId;
 	private volatile ContactSelectorListener listener;
@@ -115,7 +113,6 @@ public class ContactSelectorFragment extends BaseFragment implements
 				selectedContacts = getContactsFromIntegers(intContacts);
 			}
 		}
-
 		return contentView;
 	}
 
@@ -170,8 +167,8 @@ public class ContactSelectorFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onItemClick(View view, ContactListItem item) {
-		((SelectableContactListItem) item).toggleSelected();
+	public void onItemClick(View view, SelectableContactItem item) {
+		item.toggleSelected();
 		adapter.notifyItemChanged(adapter.findItemPosition(item), item);
 
 		updateMenuItem();
@@ -183,18 +180,19 @@ public class ContactSelectorFragment extends BaseFragment implements
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					List<ContactListItem> contacts = new ArrayList<>();
-
+					List<SelectableContactItem> contacts =
+							new ArrayList<>();
 					for (Contact c : contactManager.getActiveContacts()) {
-						LocalAuthor localAuthor = identityManager
-								.getLocalAuthor(c.getLocalAuthorId());
+						// is this contact online?
+						boolean connected =
+								connectionRegistry.isConnected(c.getId());
 						// was this contact already selected?
 						boolean selected = selection != null &&
 								selection.contains(c.getId());
 						// do we have already some sharing with that contact?
 						boolean disabled = listener.isDisabled(groupId, c);
-						contacts.add(new SelectableContactListItem(c,
-								localAuthor, groupId, selected, disabled));
+						contacts.add(new SelectableContactItem(c, connected,
+								selected, disabled));
 					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -208,7 +206,8 @@ public class ContactSelectorFragment extends BaseFragment implements
 		});
 	}
 
-	private void displayContacts(final List<ContactListItem> contacts) {
+	private void displayContacts(
+			final List<SelectableContactItem> contacts) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {

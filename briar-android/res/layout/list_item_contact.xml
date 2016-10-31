@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -12,8 +11,7 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/selectableItemBackground"
 		android:paddingBottom="@dimen/listitem_horizontal_margin"
-		android:paddingTop="@dimen/listitem_horizontal_margin"
-		>
+		android:paddingTop="@dimen/listitem_horizontal_margin">
 
 		<FrameLayout
 			android:id="@+id/avatarFrameView"
@@ -75,15 +73,6 @@
 				android:textColor="@color/briar_text_secondary"
 				android:textSize="@dimen/text_size_small"
 				tools:text="Dec 24"/>
-
-			<TextView
-				android:id="@+id/identityView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textColor="@android:color/tertiary_text_light"
-				android:textSize="@dimen/text_size_tiny"
-				android:visibility="gone"
-				tools:text="My Identity"/>
 
 		</LinearLayout>
 

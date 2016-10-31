@@ -7,20 +7,22 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.BaseContactListAdapter;
+import org.briarproject.android.contact.ContactItem;
+import org.briarproject.android.contact.ContactItemViewHolder;
 
-class SharingStatusAdapter
-		extends BaseContactListAdapter<BaseContactListAdapter.BaseContactHolder> {
+class SharingStatusAdapter extends
+		BaseContactListAdapter<ContactItem, ContactItemViewHolder<ContactItem>> {
 
 	SharingStatusAdapter(Context context) {
-		super(context, null);
+		super(context, ContactItem.class, null);
 	}
 
 	@Override
-	public BaseContactHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+	public ContactItemViewHolder<ContactItem> onCreateViewHolder(
+			ViewGroup viewGroup, int i) {
 		View v = LayoutInflater.from(viewGroup.getContext()).inflate(
 				R.layout.list_item_contact_small, viewGroup, false);
-
-		return new BaseContactHolder(v);
+		return new ContactItemViewHolder<>(v);
 	}
 
 }

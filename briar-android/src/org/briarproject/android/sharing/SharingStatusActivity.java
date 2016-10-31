@@ -7,13 +7,11 @@ import android.view.MenuItem;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.contact.ContactListItem;
+import org.briarproject.android.contact.ContactItem;
 import org.briarproject.android.view.BriarRecyclerView;
-import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -36,7 +34,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	volatile IdentityManager identityManager;
+	volatile ConnectionRegistry connectionRegistry;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -109,13 +107,11 @@ abstract class SharingStatusActivity extends BriarActivity {
 			@Override
 			public void run() {
 				try {
-					List<ContactListItem> contactItems = new ArrayList<>();
+					List<ContactItem> contactItems = new ArrayList<>();
 					for (Contact c : getSharedBy()) {
-						LocalAuthor localAuthor = identityManager
-								.getLocalAuthor(c.getLocalAuthorId());
-						ContactListItem item =
-								new ContactListItem(c, localAuthor, false,
-										groupId, new GroupCount(0, 0, 0));
+						boolean isConnected =
+								connectionRegistry.isConnected(c.getId());
+						ContactItem item = new ContactItem(c, isConnected);
 						contactItems.add(item);
 					}
 					displaySharedBy(contactItems);
@@ -127,7 +123,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 		});
 	}
 
-	private void displaySharedBy(final List<ContactListItem> contacts) {
+	private void displaySharedBy(final List<ContactItem> contacts) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
@@ -142,13 +138,11 @@ abstract class SharingStatusActivity extends BriarActivity {
 			@Override
 			public void run() {
 				try {
-					List<ContactListItem> contactItems = new ArrayList<>();
+					List<ContactItem> contactItems = new ArrayList<>();
 					for (Contact c : getSharedWith()) {
-						LocalAuthor localAuthor = identityManager
-								.getLocalAuthor(c.getLocalAuthorId());
-						ContactListItem item =
-								new ContactListItem(c, localAuthor, false,
-										groupId, new GroupCount(0, 0, 0));
+						boolean isConnected =
+								connectionRegistry.isConnected(c.getId());
+						ContactItem item = new ContactItem(c, isConnected);
 						contactItems.add(item);
 					}
 					displaySharedWith(contactItems);
@@ -160,7 +154,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 		});
 	}
 
-	private void displaySharedWith(final List<ContactListItem> contacts) {
+	private void displaySharedWith(final List<ContactItem> contacts) {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {

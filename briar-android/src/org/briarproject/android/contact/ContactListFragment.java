@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +18,7 @@ import android.view.ViewGroup;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.api.AndroidNotificationManager;
+import org.briarproject.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.view.BriarRecyclerView;
@@ -41,8 +41,6 @@ import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
 import org.briarproject.api.messaging.ConversationManager;
@@ -59,6 +57,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
+import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -81,8 +80,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject
 	volatile ContactManager contactManager;
-	@Inject
-	volatile IdentityManager identityManager;
 	@Inject
 	volatile ConversationManager conversationManager;
 
@@ -108,12 +105,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		View contentView =
-				inflater.inflate(R.layout.list, container,
-						false);
+		View contentView = inflater.inflate(R.layout.list, container, false);
 
-		BaseContactListAdapter.OnItemClickListener onItemClickListener =
-				new ContactListAdapter.OnItemClickListener() {
+		OnContactClickListener<ContactListItem> onContactClickListener =
+				new OnContactClickListener<ContactListItem>() {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
 						GroupId groupId = item.getGroupId();
@@ -123,17 +118,17 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 						// work-around for android bug #224270
 						if (Build.VERSION.SDK_INT >= 23) {
-							ContactListAdapter.ContactHolder holder =
-									(ContactListAdapter.ContactHolder) list
+							ContactListItemViewHolder holder =
+									(ContactListItemViewHolder) list
 											.getRecyclerView()
 											.findViewHolderForAdapterPosition(
 													adapter.findItemPosition(
 															item));
 							Pair<View, String> avatar =
-									Pair.create((View) holder.avatar, ViewCompat
-											.getTransitionName(holder.avatar));
+									Pair.create((View) holder.avatar,
+											getTransitionName(holder.avatar));
 							Pair<View, String> bulb =
-									Pair.create((View) holder.bulb, ViewCompat.
+									Pair.create((View) holder.bulb,
 											getTransitionName(holder.bulb));
 							ActivityOptionsCompat options =
 									makeSceneTransitionAnimation(getActivity(),
@@ -145,8 +140,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 						}
 					}
 				};
-
-		adapter = new ContactListAdapter(getContext(), onItemClickListener);
+		adapter = new ContactListAdapter(getContext(), onContactClickListener);
 		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
@@ -212,10 +206,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 									conversationManager.getGroupCount(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
-							LocalAuthor localAuthor = identityManager
-									.getLocalAuthor(c.getLocalAuthorId());
-							contacts.add(new ContactListItem(c, localAuthor,
-									connected, groupId, count));
+							contacts.add(new ContactListItem(c, connected,
+									groupId, count));
 						} catch (NoSuchContactException e) {
 							// Continue
 						}
