@@ -10,6 +10,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.TransportKeyManager;
 import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.transport.ReorderingWindow.Change;
 
@@ -28,10 +29,10 @@ import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFER
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-class TransportKeyManager {
+class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(TransportKeyManager.class.getName());
+			Logger.getLogger(TransportKeyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
@@ -47,7 +48,7 @@ class TransportKeyManager {
 	private final Map<ContactId, MutableOutgoingKeys> outContexts;
 	private final Map<ContactId, MutableTransportKeys> keys;
 
-	TransportKeyManager(DatabaseComponent db, CryptoComponent crypto,
+	TransportKeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
 			Executor dbExecutor, ScheduledExecutorService scheduler,
 			Clock clock, TransportId transportId, long maxLatency) {
 		this.db = db;
@@ -63,7 +64,7 @@ class TransportKeyManager {
 		keys = new HashMap<ContactId, MutableTransportKeys>();
 	}
 
-	void start(Transaction txn) throws DbException {
+	public void start(Transaction txn) throws DbException {
 		long now = clock.currentTimeMillis();
 		lock.lock();
 		try {
@@ -155,7 +156,7 @@ class TransportKeyManager {
 		});
 	}
 
-	void addContact(Transaction txn, ContactId c, SecretKey master,
+	public void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
 		lock.lock();
 		try {
@@ -176,7 +177,7 @@ class TransportKeyManager {
 		}
 	}
 
-	void removeContact(ContactId c) {
+	public void removeContact(ContactId c) {
 		lock.lock();
 		try {
 			// Remove mutable state for the contact
@@ -191,7 +192,7 @@ class TransportKeyManager {
 		}
 	}
 
-	StreamContext getStreamContext(Transaction txn, ContactId c)
+	public StreamContext getStreamContext(Transaction txn, ContactId c)
 			throws DbException {
 		lock.lock();
 		try {
@@ -213,7 +214,7 @@ class TransportKeyManager {
 		}
 	}
 
-	StreamContext getStreamContext(Transaction txn, byte[] tag)
+	public StreamContext getStreamContext(Transaction txn, byte[] tag)
 			throws DbException {
 		lock.lock();
 		try {

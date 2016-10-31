@@ -13,6 +13,7 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.StreamContext;
+import org.briarproject.api.transport.TransportKeyManager;
 import org.briarproject.api.transport.TransportKeys;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -96,7 +97,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 					with(rotationPeriodLength - 1), with(MILLISECONDS));
 		}});
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		transportKeyManager.start(txn);
 
@@ -138,7 +140,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(db).addTransportKeys(txn, contactId, rotated);
 		}});
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is 1 ms before the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000 - 1;
@@ -161,7 +164,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 
 		final Transaction txn = new Transaction(null, false);
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
 
@@ -205,7 +209,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
 		}});
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
@@ -254,7 +259,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(db).incrementStreamCounter(txn, contactId, transportId, 1000);
 		}});
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
@@ -310,7 +316,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
 		}});
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
@@ -365,7 +372,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 					1, new byte[REORDERING_WINDOW_SIZE / 8]);
 		}});
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
@@ -456,7 +464,8 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(db).endTransaction(txn1);
 		}});
 
-		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
+		TransportKeyManager
+				transportKeyManager = new TransportKeyManagerImpl(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		transportKeyManager.start(txn);
 

@@ -7,6 +7,7 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamReaderFactory;
 import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.api.transport.TransportKeyManagerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,6 +33,12 @@ public class TransportModule {
 	StreamWriterFactory provideStreamWriterFactory(
 			StreamEncrypterFactory streamEncrypterFactory) {
 		return new StreamWriterFactoryImpl(streamEncrypterFactory);
+	}
+
+	@Provides
+	TransportKeyManagerFactory provideTransportKeyManagerFactory(
+			TransportKeyManagerFactoryImpl transportKeyManagerFactory) {
+		return transportKeyManagerFactory;
 	}
 
 	@Provides
