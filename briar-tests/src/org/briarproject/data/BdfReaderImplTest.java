@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 
 import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
+import static org.briarproject.data.BdfReaderImpl.DEFAULT_NESTED_LIMIT;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -472,9 +473,73 @@ public class BdfReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
+	@Test
+	public void testNestedListWithinDepthLimit() throws Exception {
+		// A list containing a list containing a list containing a list...
+		String lists = "";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists += "60";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists += "80";
+		setContents(lists);
+		r.readList();
+		assertTrue(r.eof());
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNestedListOutsideDepthLimit() throws Exception {
+		// A list containing a list containing a list containing a list...
+		String lists = "";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists += "60";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists += "80";
+		setContents(lists);
+		r.readList();
+	}
+
+	@Test
+	public void testNestedDictionaryWithinDepthLimit() throws Exception {
+		// A dictionary containing a dictionary containing a dictionary...
+		String dicts = "";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++)
+			dicts += "70" + "41" + "03" + "666F6F";
+		dicts += "11";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++)
+			dicts += "80";
+		setContents(dicts);
+		r.readDictionary();
+		assertTrue(r.eof());
+	}
+
+	@Test(expected = FormatException.class)
+	public void testNestedDictionaryOutsideDepthLimit() throws Exception {
+		// A dictionary containing a dictionary containing a dictionary...
+		String dicts = "";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++)
+			dicts += "70" + "41" + "03" + "666F6F";
+		dicts += "11";
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++)
+			dicts += "80";
+		setContents(dicts);
+		r.readDictionary();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testOpenList() throws Exception {
+		// A list that is not closed
+		String list = "60";
+		setContents(list);
+		r.readList();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testOpenDictionary() throws Exception {
+		// A dictionary that is not closed
+		String dicts = "70" + "41" + "03" + "666F6F";
+		setContents(dicts);
+		r.readDictionary();
+	}
+
 	private void setContents(String hex) {
 		ByteArrayInputStream in = new ByteArrayInputStream(
 				StringUtils.fromHexString(hex));
-		r = new BdfReaderImpl(in);
+		r = new BdfReaderImpl(in, DEFAULT_NESTED_LIMIT);
 	}
 }
