@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import org.briarproject.R;
 import org.briarproject.android.threaded.BaseThreadItemViewHolder;
 import org.briarproject.android.threaded.ThreadItemAdapter;
-import org.briarproject.android.threaded.ThreadItemViewHolder;
+import org.briarproject.android.threaded.ThreadPostViewHolder;
 
 @UiThread
 public class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
@@ -34,9 +34,9 @@ public class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(type, parent, false);
 		if (type == R.layout.list_item_thread_notice) {
-			return new JoinMessageItemHolder(v);
+			return new JoinMessageItemViewHolder(v);
 		}
-		return new ThreadItemViewHolder<>(v);
+		return new ThreadPostViewHolder<>(v);
 	}
 
 }

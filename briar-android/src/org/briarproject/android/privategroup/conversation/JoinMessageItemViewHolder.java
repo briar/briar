@@ -11,10 +11,10 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 
 @UiThread
 @NotNullByDefault
-public class JoinMessageItemHolder
+public class JoinMessageItemViewHolder
 		extends BaseThreadItemViewHolder<GroupMessageItem> {
 
-	public JoinMessageItemHolder(View v) {
+	public JoinMessageItemViewHolder(View v) {
 		super(v);
 	}
 

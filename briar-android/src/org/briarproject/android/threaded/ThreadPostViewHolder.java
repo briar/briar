@@ -14,14 +14,14 @@ import static android.view.View.VISIBLE;
 
 @UiThread
 @NotNullByDefault
-public class ThreadItemViewHolder<I extends ThreadItem>
+public class ThreadPostViewHolder<I extends ThreadItem>
 		extends BaseThreadItemViewHolder<I> {
 
 	private final TextView  lvlText, repliesText;
 	private final View[] lvls;
 	private final View chevron, replyButton;
 
-	public ThreadItemViewHolder(View v) {
+	public ThreadPostViewHolder(View v) {
 		super(v);
 
 		lvlText = (TextView) v.findViewById(R.id.nested_line_text);

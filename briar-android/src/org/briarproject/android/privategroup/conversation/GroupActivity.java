@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
 public class GroupActivity extends
-		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader, GroupMessageAdapter> {
+		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader> {
 
 	@Inject
 	GroupController controller;

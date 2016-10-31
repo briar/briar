@@ -50,7 +50,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 			ViewGroup parent, int viewType) {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.list_item_thread, parent, false);
-		return new ThreadItemViewHolder<>(v);
+		return new ThreadPostViewHolder<>(v);
 	}
 
 	@Override

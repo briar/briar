@@ -36,7 +36,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 
 public class ForumActivity extends
-		ThreadListActivity<Forum, ForumItem, ForumPostHeader, ThreadItemAdapter<ForumItem>> {
+		ThreadListActivity<Forum, ForumItem, ForumPostHeader> {
 
 	private static final int REQUEST_FORUM_SHARED = 3;
 
