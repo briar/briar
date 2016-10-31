@@ -18,7 +18,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseEventFragment;
-import org.briarproject.android.sharing.InvitationsForumActivity;
+import org.briarproject.android.sharing.ForumInvitationActivity;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.db.DbException;
@@ -220,10 +220,10 @@ public class ForumListFragment extends BaseEventFragment implements
 				if (availableCount == 0) {
 					snackbar.dismiss();
 				} else {
-					snackbar.show();
 					snackbar.setText(getResources().getQuantityString(
 							R.plurals.forums_shared, availableCount,
 							availableCount));
+					if (!snackbar.isShownOrQueued()) snackbar.show();
 				}
 			}
 		});
@@ -286,7 +286,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onClick(View view) {
 		// snackbar click
-		Intent i = new Intent(getContext(), InvitationsForumActivity.class);
+		Intent i = new Intent(getContext(), ForumInvitationActivity.class);
 		startActivity(i);
 	}
 }

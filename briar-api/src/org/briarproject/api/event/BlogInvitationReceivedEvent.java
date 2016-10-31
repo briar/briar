@@ -5,17 +5,11 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.sharing.InvitationRequest;
 
 public class BlogInvitationReceivedEvent extends
-		InvitationRequestReceivedEvent {
-
-	private final Blog blog;
+		InvitationRequestReceivedEvent<Blog> {
 
 	public BlogInvitationReceivedEvent(Blog blog, ContactId contactId,
 			InvitationRequest request) {
-		super(contactId, request);
-		this.blog = blog;
+		super(blog, contactId, request);
 	}
 
-	public Blog getBlog() {
-		return blog;
-	}
 }

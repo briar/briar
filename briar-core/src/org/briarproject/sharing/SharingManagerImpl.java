@@ -25,7 +25,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.sharing.InvitationItem;
+import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sharing.SharingManager;
@@ -316,33 +316,52 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		try {
 			// find session state based on shareable
 			IS localState = getSessionStateForResponse(txn, f, c);
-
-			// define action
-			InviteeSessionState.Action localAction;
-			if (accept) {
-				localAction = InviteeSessionState.Action.LOCAL_ACCEPT;
-			} else {
-				localAction = InviteeSessionState.Action.LOCAL_DECLINE;
-			}
-
-			// start engine and process its state update
-			InviteeEngine<IS, IR> engine =
-					new InviteeEngine<IS, IR>(getIRFactory(), clock);
-			StateUpdate<IS, BaseMessage> update =
-					engine.onLocalAction(localState, localAction);
-			processInviteeStateUpdate(txn, null, update);
-
-			// track message
-			// TODO handle this properly without engine hacks (#376)
-			long time = update.toSend.get(0).getTime();
-			trackMessage(txn, localState.getGroupId(), time, true);
-
+			respondToInvitation(txn, localState, accept);
 			txn.setComplete();
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
 			db.endTransaction(txn);
 		}
+	}
+
+	@Override
+	public void respondToInvitation(SessionId id, boolean accept)
+			throws DbException {
+
+		Transaction txn = db.startTransaction(false);
+		try {
+			IS localState = (IS) getSessionState(txn, id, true);
+			respondToInvitation(txn, localState, accept);
+			txn.setComplete();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	private void respondToInvitation(Transaction txn, IS localState,
+			boolean accept) throws DbException, FormatException {
+		// define action
+		InviteeSessionState.Action localAction;
+		if (accept) {
+			localAction = InviteeSessionState.Action.LOCAL_ACCEPT;
+		} else {
+			localAction = InviteeSessionState.Action.LOCAL_DECLINE;
+		}
+
+		// start engine and process its state update
+		InviteeEngine<IS, IR> engine =
+				new InviteeEngine<IS, IR>(getIRFactory(), clock);
+		StateUpdate<IS, BaseMessage> update =
+				engine.onLocalAction(localState, localAction);
+		processInviteeStateUpdate(txn, null, update);
+
+		// track message
+		// TODO handle this properly without engine hacks (#376)
+		long time = update.toSend.get(0).getTime();
+		trackMessage(txn, localState.getGroupId(), time, true);
 	}
 
 	@Override
@@ -418,8 +437,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	@Override
-	public Collection<InvitationItem> getInvitations() throws DbException {
-		List<InvitationItem> invitations = new ArrayList<InvitationItem>();
+	public Collection<SharingInvitationItem> getInvitations() throws DbException {
+		List<SharingInvitationItem> invitations = new ArrayList<SharingInvitationItem>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			Set<S> shareables = new HashSet<S>();
@@ -445,8 +464,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			for (S s : shareables) {
 				Collection<Contact> newS = newSharers.get(s.getId());
 				boolean subscribed = db.containsGroup(txn, s.getId());
-				InvitationItem invitation =
-						new InvitationItem(s, subscribed, newS);
+				SharingInvitationItem invitation =
+						new SharingInvitationItem(s, subscribed, newS);
 				invitations.add(invitation);
 			}
 			txn.setComplete();

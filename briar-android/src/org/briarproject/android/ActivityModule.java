@@ -25,8 +25,14 @@ import org.briarproject.android.privategroup.conversation.GroupController;
 import org.briarproject.android.privategroup.conversation.GroupControllerImpl;
 import org.briarproject.android.privategroup.creation.CreateGroupController;
 import org.briarproject.android.privategroup.creation.CreateGroupControllerImpl;
+import org.briarproject.android.privategroup.invitation.GroupInvitationController;
+import org.briarproject.android.privategroup.invitation.GroupInvitationControllerImpl;
 import org.briarproject.android.privategroup.list.GroupListController;
 import org.briarproject.android.privategroup.list.GroupListControllerImpl;
+import org.briarproject.android.sharing.BlogInvitationController;
+import org.briarproject.android.sharing.BlogInvitationControllerImpl;
+import org.briarproject.android.sharing.ForumInvitationController;
+import org.briarproject.android.sharing.ForumInvitationControllerImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -119,10 +125,33 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
+	protected GroupInvitationController provideInvitationGroupController(
+			GroupInvitationControllerImpl groupInvitationController) {
+		return groupInvitationController;
+	}
+
+	@ActivityScope
+	@Provides
 	protected ForumController provideForumController(
 			ForumControllerImpl forumController) {
 		activity.addLifecycleController(forumController);
 		return forumController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected ForumInvitationController provideInvitationForumController(
+			ForumInvitationControllerImpl forumInvitationController) {
+		activity.addLifecycleController(forumInvitationController);
+		return forumInvitationController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected BlogInvitationController provideInvitationBlogController(
+			BlogInvitationControllerImpl blogInvitationController) {
+		activity.addLifecycleController(blogInvitationController);
+		return blogInvitationController;
 	}
 
 	@ActivityScope

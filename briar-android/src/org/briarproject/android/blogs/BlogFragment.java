@@ -24,7 +24,7 @@ import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.sharing.ShareBlogActivity;
-import org.briarproject.android.sharing.SharingStatusBlogActivity;
+import org.briarproject.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
@@ -164,7 +164,7 @@ public class BlogFragment extends BaseFragment implements
 				return true;
 			case R.id.action_blog_sharing_status:
 				Intent i3 = new Intent(getActivity(),
-						SharingStatusBlogActivity.class);
+						BlogSharingStatusActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
 				startActivity(i3, options.toBundle());

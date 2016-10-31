@@ -20,6 +20,7 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
+import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 
@@ -41,6 +42,7 @@ public class GroupListControllerImpl extends DbControllerImpl
 			Logger.getLogger(GroupListControllerImpl.class.getName());
 
 	private final PrivateGroupManager groupManager;
+	private final GroupInvitationManager groupInvitationManager;
 	private final EventBus eventBus;
 	private final AndroidNotificationManager notificationManager;
 	private final IdentityManager identityManager;
@@ -50,10 +52,12 @@ public class GroupListControllerImpl extends DbControllerImpl
 	@Inject
 	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
-			EventBus eventBus, AndroidNotificationManager notificationManager,
+			GroupInvitationManager groupInvitationManager, EventBus eventBus,
+			AndroidNotificationManager notificationManager,
 			IdentityManager identityManager) {
 		super(dbExecutor, lifecycleManager);
 		this.groupManager = groupManager;
+		this.groupInvitationManager = groupInvitationManager;
 		this.eventBus = eventBus;
 		this.notificationManager = notificationManager;
 		this.identityManager = identityManager;
@@ -178,6 +182,24 @@ public class GroupListControllerImpl extends DbControllerImpl
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing group took " + duration + " ms");
 					handler.onResult(null);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void loadAvailableGroups(
+			final ResultExceptionHandler<Integer, DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					handler.onResult(
+							groupInvitationManager.getInvitations().size());
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

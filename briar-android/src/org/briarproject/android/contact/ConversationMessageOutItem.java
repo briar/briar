@@ -1,42 +1,26 @@
 package org.briarproject.android.contact;
 
+import android.support.annotation.LayoutRes;
+
+import org.briarproject.R;
 import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
-// This class is not thread-safe
-class ConversationMessageOutItem extends ConversationMessageItem
-		implements ConversationItem.OutgoingItem {
+import javax.annotation.concurrent.NotThreadSafe;
 
-	private boolean sent, seen;
+@NotThreadSafe
+@NotNullByDefault
+class ConversationMessageOutItem extends ConversationOutItem {
 
-	ConversationMessageOutItem(PrivateMessageHeader header) {
-		super(header);
-
-		sent = header.isSent();
-		seen = header.isSeen();
+	ConversationMessageOutItem(PrivateMessageHeader h) {
+		super(h.getId(), h.getGroupId(), null, h.getTimestamp(), h.isSent(),
+				h.isSeen());
 	}
 
+	@LayoutRes
 	@Override
-	int getType() {
-		return MSG_OUT;
+	public int getLayout() {
+		return R.layout.list_item_conversation_msg_out;
 	}
 
-	@Override
-	public boolean isSent() {
-		return sent;
-	}
-
-	@Override
-	public void setSent(boolean sent) {
-		this.sent = sent;
-	}
-
-	@Override
-	public boolean isSeen() {
-		return seen;
-	}
-
-	@Override
-	public void setSeen(boolean seen) {
-		this.seen = seen;
-	}
 }

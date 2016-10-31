@@ -133,7 +133,6 @@
 	<string name="introduction_request_sent">You have asked to introduce %1$s to %2$s.</string>
 	<string name="introduction_request_received">%1$s has asked to introduce you to %2$s. Do you want to add %2$s to your contact list?</string>
 	<string name="introduction_request_exists_received">%1$s has asked to introduce you to %2$s, but %2$s is already in your contact list. Since %1$s might not know that, you can still respond:</string>
-	<string name="introduction_request_for_our_identity_received">%1$s has asked to introduce you to %2$s, but %2$s is one of your other identities, so you cannot accept the introduction:</string>
 	<string name="introduction_request_answered_received">%1$s has asked to introduce you to %2$s.</string>
 	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
 	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
@@ -167,6 +166,21 @@
 	<string name="groups_invite_members">Invite Members</string>
 	<string name="groups_leave">Leave Group</string>
 	<string name="groups_dissolve">Dissolve Group</string>
+
+	<!-- Private Group Invitations -->
+	<string name="groups_invitations_title">Group Invitations</string>
+	<string name="groups_invitations_invitation_sent">You have invited %1$s to your group "%2$s".</string>
+	<string name="groups_invitations_invitation_received">%1$s has invited you to join the group "%2$s".</string>
+	<string name="groups_invitations_joined">Joined group</string>
+	<string name="groups_invitations_declined">Group invitation declined</string>
+	<plurals name="groups_invitations_open">
+		<item quantity="one">%d open group invitation</item>
+		<item quantity="other">%d open group invitations</item>
+	</plurals>
+	<string name="groups_invitations_response_accepted_sent">You accepted the group invitation from %s.</string>
+	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
+	<string name="groups_invitations_response_accepted_received">%s accepted your group invitation.</string>
+	<string name="groups_invitations_response_declined_received">%s declined your group invitation.</string>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
@@ -206,7 +220,6 @@
 	<string name="forum_share_error">There was an error sharing this forum.</string>
 	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
 	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
-	<string name="forum_show_invitations">Show Forum Invitations</string>
 	<string name="forum_invitations_title">Forum Invitations</string>
 	<string name="forum_invitation_exists">You accepted an invitation to this forum already. Accepting more invitations will grow and strengthen the communication in the forum.</string>
 	<string name="forum_joined_toast">Joined Forum</string>
@@ -270,7 +283,6 @@
 	<string name="blogs_sharing_response_declined_received">%s declined the blog invitation.</string>
 	<string name="blogs_sharing_invitation_received">%1$s has shared the personal blog of %2$s with you.</string>
 	<string name="blogs_sharing_invitation_sent">You have shared the personal blog of %1$s with %2$s.</string>
-	<string name="blogs_sharing_show_invitations">Show Blog Invitations</string>
 	<string name="blogs_sharing_invitations_title">Blog Invitations</string>
 	<string name="blogs_sharing_exists">You are subscribed to this blog already. Accepting again can lead to faster blog post delivery.</string>
 	<string name="blogs_sharing_joined_toast">Subscribed to Blog</string>

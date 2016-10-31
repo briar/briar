@@ -19,7 +19,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.sharing.ShareForumActivity;
-import org.briarproject.android.sharing.SharingStatusForumActivity;
+import org.briarproject.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
@@ -114,7 +114,7 @@ public class ForumActivity extends
 						REQUEST_FORUM_SHARED, options.toBundle());
 				return true;
 			case R.id.action_forum_sharing_status:
-				Intent i3 = new Intent(this, SharingStatusForumActivity.class);
+				Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
 				ActivityCompat.startActivity(this, i3, options.toBundle());

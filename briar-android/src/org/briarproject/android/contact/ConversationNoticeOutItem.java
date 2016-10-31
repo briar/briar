@@ -1,44 +1,38 @@
 package org.briarproject.android.contact;
 
+import android.support.annotation.LayoutRes;
+
+import org.briarproject.R;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
-// This class is not thread-safe
-class ConversationNoticeOutItem extends ConversationNoticeItem
-		implements ConversationItem.OutgoingItem {
+import javax.annotation.concurrent.NotThreadSafe;
 
-	private boolean sent, seen;
+@NotThreadSafe
+@NotNullByDefault
+class ConversationNoticeOutItem extends ConversationOutItem {
 
-	ConversationNoticeOutItem(MessageId id, GroupId groupId, String text,
-			long time, boolean sent, boolean seen) {
-		super(id, groupId, text, time);
+	@Nullable
+	private final String msgText;
 
-		this.sent = sent;
-		this.seen = seen;
+	ConversationNoticeOutItem(MessageId id, GroupId groupId,
+			String text, @Nullable String msgText, long time,
+			boolean sent, boolean seen) {
+		super(id, groupId, text, time, sent, seen);
+		this.msgText = msgText;
 	}
 
+	@Nullable
+	public String getMsgText() {
+		return msgText;
+	}
+
+	@LayoutRes
 	@Override
-	int getType() {
-		return NOTICE_OUT;
+	public int getLayout() {
+		return R.layout.list_item_conversation_notice_out;
 	}
 
-	@Override
-	public  boolean isSent() {
-		return sent;
-	}
-
-	@Override
-	public void setSent(boolean sent) {
-		this.sent = sent;
-	}
-
-	@Override
-	public boolean isSeen() {
-		return seen;
-	}
-
-	@Override
-	public void setSeen(boolean seen) {
-		this.seen = seen;
-	}
 }

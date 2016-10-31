@@ -1,17 +1,19 @@
 package org.briarproject.privategroup;
 
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.sync.GroupFactory;
+import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.system.Clock;
-
-import java.security.SecureRandom;
+import org.briarproject.privategroup.invitation.GroupInvitationManagerImpl;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,6 +27,8 @@ public class PrivateGroupModule {
 	public static class EagerSingletons {
 		@Inject
 		GroupMessageValidator groupMessageValidator;
+		@Inject
+		GroupInvitationManager groupInvitationManager;
 	}
 
 	@Provides
@@ -63,6 +67,24 @@ public class PrivateGroupModule {
 		validationManager.registerMessageValidator(
 				PrivateGroupManagerImpl.CLIENT_ID, validator);
 		return validator;
+	}
+
+	@Provides
+	@Singleton
+	GroupInvitationManager provideGroupInvitationManager(
+			LifecycleManager lifecycleManager, ContactManager contactManager,
+			GroupInvitationManagerImpl groupInvitationManager,
+			ConversationManager conversationManager,
+			ValidationManager validationManager) {
+
+		validationManager.registerIncomingMessageHook(
+				groupInvitationManager.getClientId(), groupInvitationManager);
+		lifecycleManager.registerClient(groupInvitationManager);
+		contactManager.registerAddContactHook(groupInvitationManager);
+		contactManager.registerRemoveContactHook(groupInvitationManager);
+		conversationManager.registerConversationClient(groupInvitationManager);
+
+		return groupInvitationManager;
 	}
 
 }

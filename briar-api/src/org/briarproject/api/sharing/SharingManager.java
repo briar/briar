@@ -1,6 +1,7 @@
 package org.briarproject.api.sharing;
 
 import org.briarproject.api.clients.MessageTracker;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -30,7 +31,14 @@ public interface SharingManager<S extends Shareable> extends MessageTracker {
 			throws DbException;
 
 	/**
-	 * Returns all group sharing messages sent by the given contact.
+	 * Responds to a pending group invitation
+	 */
+	void respondToInvitation(SessionId id, boolean accept)
+			throws DbException;
+
+	/**
+	 * Returns all group sharing messages sent by the Contact
+	 * identified by contactId.
 	 */
 	Collection<InvitationMessage> getInvitationMessages(
 			ContactId contactId) throws DbException;
@@ -38,7 +46,7 @@ public interface SharingManager<S extends Shareable> extends MessageTracker {
 	/**
 	 * Returns all invitations to groups.
 	 */
-	Collection<InvitationItem> getInvitations() throws DbException;
+	Collection<SharingInvitationItem> getInvitations() throws DbException;
 
 	/**
 	 * Returns all contacts who are sharing the given group with us.

@@ -547,7 +547,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 				BlogInvitationReceivedEvent event =
 						(BlogInvitationReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1, event.getContactId());
-				Blog b = event.getBlog();
+				Blog b = event.getShareable();
 				try {
 					Contact c = contactManager0.getContact(contactId1);
 					blogSharingManager0.respondToInvitation(b, c, true);
@@ -589,7 +589,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 						(BlogInvitationReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
-				Blog b = event.getBlog();
+				Blog b = event.getShareable();
 				try {
 					eventWaiter.assertEquals(1,
 							blogSharingManager1.getInvitations().size());

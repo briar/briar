@@ -33,15 +33,16 @@ import org.briarproject.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupMessageFragment;
 import org.briarproject.android.privategroup.list.GroupListFragment;
-import org.briarproject.android.sharing.ContactSelectorFragment;
-import org.briarproject.android.sharing.InvitationsBlogActivity;
-import org.briarproject.android.sharing.InvitationsForumActivity;
+import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.android.sharing.ShareBlogActivity;
-import org.briarproject.android.sharing.ShareBlogMessageFragment;
+import org.briarproject.android.sharing.BlogSharingStatusActivity;
+import org.briarproject.android.sharing.ContactSelectorFragment;
+import org.briarproject.android.sharing.BlogInvitationActivity;
+import org.briarproject.android.sharing.ForumInvitationActivity;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.ShareForumMessageFragment;
-import org.briarproject.android.sharing.SharingStatusBlogActivity;
-import org.briarproject.android.sharing.SharingStatusForumActivity;
+import org.briarproject.android.sharing.ForumSharingStatusActivity;
+import org.briarproject.android.sharing.ShareBlogMessageFragment;
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
@@ -72,13 +73,13 @@ public interface ActivityComponent {
 
 	void inject(ConversationActivity activity);
 
-	void inject(InvitationsForumActivity activity);
+	void inject(ForumInvitationActivity activity);
 
-	void inject(InvitationsBlogActivity activity);
+	void inject(BlogInvitationActivity activity);
 
 	void inject(CreateGroupActivity activity);
-
 	void inject(GroupActivity activity);
+	void inject(GroupInvitationActivity activity);
 
 	void inject(CreateForumActivity activity);
 
@@ -86,9 +87,9 @@ public interface ActivityComponent {
 
 	void inject(ShareBlogActivity activity);
 
-	void inject(SharingStatusForumActivity activity);
+	void inject(ForumSharingStatusActivity activity);
 
-	void inject(SharingStatusBlogActivity activity);
+	void inject(BlogSharingStatusActivity activity);
 
 	void inject(ForumActivity activity);
 

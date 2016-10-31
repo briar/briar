@@ -22,6 +22,7 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.view.BriarRecyclerView;
+import org.briarproject.api.clients.BaseMessageHeader;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -270,34 +271,35 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			LOG.info("Private message received, updating item");
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			PrivateMessageHeader h = p.getMessageHeader();
-			updateItem(p.getContactId(), ConversationItem.from(h));
+			updateItem(p.getContactId(), h);
 		} else if (e instanceof IntroductionRequestReceivedEvent) {
 			LOG.info("Introduction request received, updating item");
 			IntroductionRequestReceivedEvent m =
 					(IntroductionRequestReceivedEvent) e;
 			IntroductionRequest ir = m.getIntroductionRequest();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(), ir);
 		} else if (e instanceof IntroductionResponseReceivedEvent) {
 			LOG.info("Introduction response received, updating item");
 			IntroductionResponseReceivedEvent m =
 					(IntroductionResponseReceivedEvent) e;
 			IntroductionResponse ir = m.getIntroductionResponse();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(), ir);
 		} else if (e instanceof InvitationRequestReceivedEvent) {
-			LOG.info("Invitation request received, updating item");
-			InvitationRequestReceivedEvent m = (InvitationRequestReceivedEvent) e;
+			LOG.info("Invitation Request received, update item");
+			InvitationRequestReceivedEvent m =
+					(InvitationRequestReceivedEvent) e;
 			InvitationRequest ir = m.getRequest();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(), ir);
 		} else if (e instanceof InvitationResponseReceivedEvent) {
 			LOG.info("Invitation response received, updating item");
 			InvitationResponseReceivedEvent m =
 					(InvitationResponseReceivedEvent) e;
 			InvitationResponse ir = m.getResponse();
-			updateItem(m.getContactId(), ConversationItem.from(ir));
+			updateItem(m.getContactId(), ir);
 		}
 	}
 
-	private void updateItem(final ContactId c, final ConversationItem m) {
+	private void updateItem(final ContactId c, final BaseMessageHeader h) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
@@ -305,7 +307,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				int position = adapter.findItemPosition(c);
 				ContactListItem item = adapter.getItemAt(position);
 				if (item != null) {
-					item.addMessage(m);
+					ConversationItem i = ConversationItem.from(getContext(), h);
+					item.addMessage(i);
 					adapter.updateItemAt(position, item);
 				}
 			}

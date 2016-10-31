@@ -7,59 +7,57 @@
 	android:orientation="vertical">
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
-		android:id="@+id/msgBody"
+		android:id="@+id/msgText"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="left|start"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
-		android:background="@drawable/msg_in_top"
-		android:textColor="@color/briar_text_primary"
+		android:layout_marginLeft="@dimen/message_bubble_margin_non_tail"
+		android:layout_marginRight="@dimen/message_bubble_margin_tail"
+		android:background="@drawable/msg_out_top"
+		android:textColor="@color/briar_text_primary_inverse"
 		android:textIsSelectable="true"
 		android:textSize="@dimen/text_size_medium"
-		tools:text="Short message"/>
+		tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
 
 	<RelativeLayout
-		android:id="@+id/noticeLayout"
+		android:id="@+id/layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
-		android:background="@drawable/notice_in_bottom">
+		android:layout_marginLeft="@dimen/message_bubble_margin_non_tail"
+		android:layout_marginRight="@dimen/message_bubble_margin_tail"
+		android:background="@drawable/notice_out_bottom">
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
-			android:id="@+id/introductionText"
+			android:id="@+id/text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:minWidth="80dp"
 			android:textColor="@color/briar_text_secondary"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
 			android:textStyle="italic"
-			tools:text="@string/forum_invitation_received"/>
+			tools:text="@string/introduction_request_received"/>
 
 		<TextView
-			android:id="@+id/introductionTime"
+			android:id="@+id/time"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignEnd="@+id/introductionText"
-			android:layout_alignRight="@+id/introductionText"
-			android:layout_below="@+id/showInvitationsButton"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_below="@+id/text"
 			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
 			android:textColor="@color/private_message_date"
 			android:textSize="@dimen/text_size_tiny"
 			tools:text="Dec 24, 13:37"/>
 
-		<Button
-			android:id="@+id/showInvitationsButton"
-			style="@style/BriarButtonFlat.Positive"
+		<ImageView
+			android:id="@+id/status"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignEnd="@+id/introductionText"
-			android:layout_alignRight="@+id/introductionText"
-			android:layout_below="@+id/introductionText"
-			android:layout_marginBottom="-15dp"
-			tools:text="@string/forum_show_invitations"/>
+			android:layout_alignBottom="@+id/time"
+			android:layout_marginLeft="@dimen/margin_medium"
+			android:layout_toEndOf="@+id/time"
+			android:layout_toRightOf="@+id/time"
+			tools:ignore="ContentDescription"
+			tools:src="@drawable/message_delivered"/>
 
 	</RelativeLayout>
 

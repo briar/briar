@@ -4,13 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
@@ -18,6 +21,7 @@ import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.privategroup.creation.CreateGroupActivity;
+import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.android.privategroup.list.GroupListController.GroupListListener;
 import org.briarproject.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.android.view.BriarRecyclerView;
@@ -30,10 +34,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 
 public class GroupListFragment extends BaseFragment implements
-		GroupListListener, OnGroupRemoveClickListener {
+		GroupListListener, OnGroupRemoveClickListener, OnClickListener {
 
 	public final static String TAG = GroupListFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
@@ -47,6 +52,7 @@ public class GroupListFragment extends BaseFragment implements
 
 	private BriarRecyclerView list;
 	private GroupListAdapter adapter;
+	private Snackbar snackbar;
 
 	@Nullable
 	@Override
@@ -60,6 +66,12 @@ public class GroupListFragment extends BaseFragment implements
 		list.setEmptyText(R.string.groups_list_empty);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
+
+		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
+		snackbar.getView().setBackgroundResource(R.color.briar_primary);
+		snackbar.setAction(R.string.show, this);
+		snackbar.setActionTextColor(ContextCompat
+				.getColor(getContext(), R.color.briar_button_positive));
 
 		return v;
 	}
@@ -76,6 +88,7 @@ public class GroupListFragment extends BaseFragment implements
 		controller.onStart();
 		list.startPeriodicUpdate();
 		loadGroups();
+		loadAvailableGroups();
 	}
 
 	@Override
@@ -178,6 +191,42 @@ public class GroupListFragment extends BaseFragment implements
 						// TODO handle this error
 					}
 				});
+	}
+
+	private void loadAvailableGroups() {
+		controller.loadAvailableGroups(
+				new UiResultExceptionHandler<Integer, DbException>(this) {
+					@Override
+					public void onResultUi(Integer num) {
+						if (num == 0) {
+							snackbar.dismiss();
+						} else {
+							snackbar.setText(getResources().getQuantityString(
+									R.plurals.groups_invitations_open, num,
+									num));
+							if (!snackbar.isShownOrQueued()) snackbar.show();
+						}
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO handle this error
+						finish();
+					}
+				});
+	}
+
+	/**
+	 * This method is handling the available groups snackbar action
+	 */
+	@Override
+	public void onClick(View v) {
+		Intent i = new Intent(getContext(), GroupInvitationActivity.class);
+		ActivityOptionsCompat options =
+				makeCustomAnimation(getActivity(),
+						android.R.anim.slide_in_left,
+						android.R.anim.slide_out_right);
+		startActivity(i, options.toBundle());
 	}
 
 }

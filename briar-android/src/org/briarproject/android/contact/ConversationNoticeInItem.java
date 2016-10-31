@@ -1,33 +1,43 @@
 package org.briarproject.android.contact;
 
+import android.support.annotation.LayoutRes;
+
+import org.briarproject.R;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
+import org.jetbrains.annotations.Nullable;
 
-// This class is not thread-safe
-class ConversationNoticeInItem extends ConversationNoticeItem
-		implements ConversationItem.IncomingItem {
+import javax.annotation.concurrent.NotThreadSafe;
 
-	private boolean read;
+@NotThreadSafe
+@NotNullByDefault
+class ConversationNoticeInItem extends ConversationItem {
 
-	ConversationNoticeInItem(MessageId id, GroupId groupId, String text,
-			long time, boolean read) {
-		super(id, groupId, text, time);
+	@Nullable
+	private final String msgText;
 
-		this.read = read;
+	ConversationNoticeInItem(MessageId id, GroupId groupId,
+			String text, @Nullable String msgText, long time,
+			boolean read) {
+		super(id, groupId, text, time, read);
+		this.msgText = msgText;
+	}
+
+	@Nullable
+	public String getMsgText() {
+		return msgText;
 	}
 
 	@Override
-	int getType() {
-		return NOTICE_IN;
+	public boolean isIncoming() {
+		return true;
 	}
 
+	@LayoutRes
 	@Override
-	public boolean isRead() {
-		return read;
+	public int getLayout() {
+		return R.layout.list_item_conversation_notice_in;
 	}
 
-	@Override
-	public void setRead(boolean read) {
-		this.read = read;
-	}
 }
