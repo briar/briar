@@ -21,7 +21,6 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
-import org.briarproject.util.StringUtils;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -89,7 +88,7 @@ public class ForumControllerImpl
 
 	@Override
 	protected String loadMessageBody(ForumPostHeader h) throws DbException {
-		return StringUtils.fromUtf8(forumManager.getPostBody(h.getId()));
+		return forumManager.getPostBody(h.getId());
 	}
 
 	@Override

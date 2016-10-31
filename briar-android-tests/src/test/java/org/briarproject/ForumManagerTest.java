@@ -7,6 +7,8 @@ import net.jodah.concurrentunit.Waiter;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -34,7 +36,7 @@ import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
 import org.briarproject.transport.TransportModule;
-import org.briarproject.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +55,6 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertFalse;
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
-import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
@@ -74,6 +75,8 @@ public class ForumManagerTest extends BriarIntegrationTest {
 	Clock clock;
 	@Inject
 	AuthorFactory authorFactory;
+	@Inject
+	CryptoComponent crypto;
 	@Inject
 	ForumPostFactory forumPostFactory;
 
@@ -127,16 +130,17 @@ public class ForumManagerTest extends BriarIntegrationTest {
 		deliveryWaiter = new Waiter();
 	}
 
-	private ForumPost createForumPost(GroupId groupId, ForumPost parent,
-			String body, long ms) throws Exception {
-		return forumPostFactory.createAnonymousPost(groupId, ms,
+	private ForumPost createForumPost(GroupId groupId,
+			@Nullable ForumPost parent, String body, long ms) throws Exception {
+		return forumPostFactory.createPost(groupId, ms,
 				parent == null ? null : parent.getMessage().getId(),
-				"text/plain", StringUtils.toUtf8(body));
+				author0, body);
 	}
 
 	@Test
 	public void testForumPost() throws Exception {
 		startLifecycles();
+		addDefaultIdentities();
 		Forum forum = forumManager0.addForum("TestForum");
 		assertEquals(1, forumManager0.getForums().size());
 		final long ms1 = clock.currentTimeMillis() - 1000L;
@@ -167,8 +171,7 @@ public class ForumManagerTest extends BriarIntegrationTest {
 				forumManager0.getPostHeaders(forum.getGroup().getId());
 		assertEquals(2, headers.size());
 		for (ForumPostHeader h : headers) {
-			final String hBody =
-					StringUtils.fromUtf8(forumManager0.getPostBody(h.getId()));
+			final String hBody = forumManager0.getPostBody(h.getId());
 
 			boolean isPost1 = h.getId().equals(post1.getMessage().getId());
 			boolean isPost2 = h.getId().equals(post2.getMessage().getId());
@@ -366,13 +369,18 @@ public class ForumManagerTest extends BriarIntegrationTest {
 	}
 
 	private void addDefaultIdentities() throws DbException {
-		author0 = authorFactory.createLocalAuthor(SHARER,
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				TestUtils.getRandomBytes(123));
+		KeyPair keyPair0 = crypto.generateSignatureKeyPair();
+		byte[] publicKey0 = keyPair0.getPublic().getEncoded();
+		byte[] privateKey0 = keyPair0.getPrivate().getEncoded();
+		author0 = authorFactory
+				.createLocalAuthor(SHARER, publicKey0, privateKey0);
 		identityManager0.addLocalAuthor(author0);
-		author1 = authorFactory.createLocalAuthor(INVITEE,
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				TestUtils.getRandomBytes(123));
+
+		KeyPair keyPair1 = crypto.generateSignatureKeyPair();
+		byte[] publicKey1 = keyPair1.getPublic().getEncoded();
+		byte[] privateKey1 = keyPair1.getPrivate().getEncoded();
+		author1 = authorFactory
+				.createLocalAuthor(INVITEE, publicKey1, privateKey1);
 		identityManager1.addLocalAuthor(author1);
 	}
 

@@ -820,7 +820,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			long time = clock.currentTimeMillis();
 			String body = TestUtils.getRandomString(42);
 			ForumPost p = forumPostFactory
-					.createPseudonymousPost(forum0.getId(), time, null, author0,
+					.createPost(forum0.getId(), time, null, author0,
 							body);
 			forumManager0.addLocalPost(p);
 
@@ -839,7 +839,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			time = clock.currentTimeMillis();
 			body = TestUtils.getRandomString(42);
 			p = forumPostFactory
-					.createPseudonymousPost(forum0.getId(), time, null, author1,
+					.createPost(forum0.getId(), time, null, author1,
 							body);
 			forumManager1.addLocalPost(p);
 
@@ -883,7 +883,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			time = clock.currentTimeMillis();
 			body = TestUtils.getRandomString(42);
 			p = forumPostFactory
-					.createPseudonymousPost(forum0.getId(), time, null, author1,
+					.createPost(forum0.getId(), time, null, author1,
 							body);
 			forumManager1.addLocalPost(p);
 
