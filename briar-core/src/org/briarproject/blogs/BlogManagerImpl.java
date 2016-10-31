@@ -199,7 +199,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		Transaction txn = db.startTransaction(true);
 		try {
 			boolean canBeRemoved = canBeRemoved(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return canBeRemoved;
 		} finally {
 			db.endTransaction(txn);
@@ -228,7 +228,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			for (RemoveBlogHook hook : removeHooks)
 				hook.removingBlog(txn, b);
 			db.removeGroup(txn, b.getGroup());
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -239,7 +239,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		Transaction txn = db.startTransaction(false);
 		try {
 			addLocalPost(txn, p);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			//noinspection ThrowFromFinallyBlock
 			db.endTransaction(txn);
@@ -309,7 +309,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 							meta);
 			BlogPostAddedEvent event = new BlogPostAddedEvent(groupId, h, true);
 			txn.attach(event);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} catch (GeneralSecurityException e) {
@@ -394,7 +394,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		Transaction txn = db.startTransaction(true);
 		try {
 			blog = getBlog(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -441,7 +441,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 				for (Group g : groups) {
 					blogs.add(blogFactory.parseBlog(g));
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -459,7 +459,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			BdfDictionary meta =
 					clientHelper.getMessageMetadataAsDictionary(txn, m);
 			BlogPostHeader h = getPostHeaderFromMetadata(txn, g, m, meta);
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return h;
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -538,7 +538,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 								authorStatuses);
 				headers.add(h);
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);

@@ -38,7 +38,7 @@ class IdentityManagerImpl implements IdentityManager {
 		Transaction txn = db.startTransaction(false);
 		try {
 			db.addLocalAuthor(txn, localAuthor);
-			txn.setComplete();
+			db.commitTransaction(txn);
 			cachedAuthor = localAuthor;
 			LOG.info("Local author registered");
 		} finally {
@@ -53,7 +53,7 @@ class IdentityManagerImpl implements IdentityManager {
 			try {
 				cachedAuthor = loadLocalAuthor(txn);
 				LOG.info("Local author loaded");
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}

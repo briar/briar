@@ -211,7 +211,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.removeGroup(transaction, group);
 			db.removeContact(transaction, contactId);
 			db.removeLocalAuthor(transaction, localAuthorId);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -284,7 +284,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalMessage(transaction, message, metadata, true);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -850,7 +850,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			assertEquals(contactId,
 					db.addContact(transaction, author, localAuthorId, true,
 							true));
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -925,7 +925,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			Ack a = db.generateAck(transaction, contactId, 123);
 			assertEquals(messagesToAck, a.getMessageIds());
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -969,7 +969,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			assertEquals(messages, db.generateBatch(transaction, contactId,
 					size * 2, maxLatency));
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1006,7 +1006,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			Offer o = db.generateOffer(transaction, contactId, 123, maxLatency);
 			assertEquals(ids, o.getMessageIds());
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1040,7 +1040,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			Request r = db.generateRequest(transaction, contactId, 123);
 			assertEquals(ids, r.getMessageIds());
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1085,7 +1085,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			assertEquals(messages, db.generateRequestedBatch(transaction,
 					contactId, size * 2, maxLatency));
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1118,7 +1118,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			Ack a = new Ack(Collections.singletonList(messageId));
 			db.receiveAck(transaction, contactId, a);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1173,7 +1173,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// Receive the message twice
 			db.receiveMessage(transaction, contactId, message);
 			db.receiveMessage(transaction, contactId, message);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1210,7 +1210,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.receiveMessage(transaction, contactId, message);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1240,7 +1240,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.receiveMessage(transaction, contactId, message);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1294,7 +1294,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			Offer o = new Offer(Arrays.asList(messageId, messageId1,
 					messageId2, messageId3));
 			db.receiveOffer(transaction, contactId, o);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1328,7 +1328,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			Request r = new Request(Collections.singletonList(messageId));
 			db.receiveRequest(transaction, contactId, r);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1368,7 +1368,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.setVisibleToContact(transaction, contactId, groupId, true);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1401,7 +1401,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.setVisibleToContact(transaction, contactId, groupId, true);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1444,7 +1444,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		try {
 			db.updateTransportKeys(transaction, keys);
 			assertEquals(keys, db.getTransportKeys(transaction, transportId));
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1512,7 +1512,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.mergeSettings(transaction, update, "namespace");
 			// Second merge should not broadcast an event
 			db.mergeSettings(transaction, update, "namespace");
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}
@@ -1711,7 +1711,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			db.addMessageDependencies(transaction, message, dependencies);
 			db.getMessageDependencies(transaction, messageId);
 			db.getMessageDependents(transaction, messageId);
-			transaction.setComplete();
+			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
 		}

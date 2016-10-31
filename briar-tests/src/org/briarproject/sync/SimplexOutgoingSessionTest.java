@@ -57,6 +57,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			will(returnValue(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
+			oneOf(db).commitTransaction(noAckTxn);
 			oneOf(db).endTransaction(noAckTxn);
 			// No messages to send
 			oneOf(db).startTransaction(false);
@@ -64,6 +65,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(maxLatency));
 			will(returnValue(null));
+			oneOf(db).commitTransaction(noMsgTxn);
 			oneOf(db).endTransaction(noMsgTxn);
 			// Flush the output stream
 			oneOf(packetWriter).flush();
@@ -95,6 +97,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			will(returnValue(ackTxn));
 			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(ack));
+			oneOf(db).commitTransaction(ackTxn);
 			oneOf(db).endTransaction(ackTxn);
 			oneOf(packetWriter).writeAck(ack);
 			// One message to send
@@ -103,6 +106,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			oneOf(db).generateBatch(with(msgTxn), with(contactId),
 					with(any(int.class)), with(maxLatency));
 			will(returnValue(Arrays.asList(raw)));
+			oneOf(db).commitTransaction(msgTxn);
 			oneOf(db).endTransaction(msgTxn);
 			oneOf(packetWriter).writeMessage(raw);
 			// No more acks
@@ -110,6 +114,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			will(returnValue(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
+			oneOf(db).commitTransaction(noAckTxn);
 			oneOf(db).endTransaction(noAckTxn);
 			// No more messages
 			oneOf(db).startTransaction(false);
@@ -117,6 +122,7 @@ public class SimplexOutgoingSessionTest extends BriarTestCase {
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(maxLatency));
 			will(returnValue(null));
+			oneOf(db).commitTransaction(noMsgTxn);
 			oneOf(db).endTransaction(noMsgTxn);
 			// Flush the output stream
 			oneOf(packetWriter).flush();

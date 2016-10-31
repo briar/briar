@@ -36,8 +36,6 @@ import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ValidationManagerImplTest extends BriarTestCase {
 
@@ -91,6 +89,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Load the first raw message and group
 			oneOf(db).startTransaction(true);
@@ -99,6 +98,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(raw));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Validate the first message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -116,6 +116,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Load the second raw message and group
 			oneOf(db).startTransaction(true);
@@ -124,6 +125,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(raw));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
@@ -139,18 +141,21 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Recursively invalidate any dependents
 			oneOf(db).getMessageDependents(txn4, messageId1);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
 			oneOf(db).getPendingMessages(txn5, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn6));
 			oneOf(db).getMessagesToShare(txn6, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn6);
 			oneOf(db).endTransaction(txn6);
 		}});
 
@@ -161,14 +166,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.startService();
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
-		assertTrue(txn3.isComplete());
-		assertTrue(txn4.isComplete());
-		assertTrue(txn5.isComplete());
-		assertTrue(txn6.isComplete());
 	}
 
 	@Test
@@ -192,12 +189,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getPendingMessages(txn1, clientId);
 			will(returnValue(Collections.singletonList(messageId)));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Check whether the message is ready to deliver
 			oneOf(db).startTransaction(false);
@@ -222,6 +221,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
 			will(returnValue(Collections.singletonMap(messageId2, PENDING)));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Check whether the dependent is ready to deliver
 			oneOf(db).startTransaction(false);
@@ -246,6 +246,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn3, messageId2);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 
 			// Get messages to share
@@ -253,6 +254,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn4));
 			oneOf(db).getMessagesToShare(txn4, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 		}});
 
@@ -263,12 +265,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.startService();
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
-		assertTrue(txn3.isComplete());
-		assertTrue(txn4.isComplete());
 	}
 
 	@Test
@@ -292,12 +288,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// No pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getPendingMessages(txn1, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 
 			// Get messages to share
@@ -305,6 +303,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn2));
 			oneOf(db).getMessagesToShare(txn2, clientId);
 			will(returnValue(Collections.singletonList(messageId)));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Share message and get dependencies
 			oneOf(db).startTransaction(false);
@@ -312,6 +311,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).setMessageShared(txn3, messageId);
 			oneOf(db).getMessageDependencies(txn3, messageId);
 			will(returnValue(Collections.singletonMap(messageId2, DELIVERED)));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Share dependency
 			oneOf(db).startTransaction(false);
@@ -319,6 +319,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).setMessageShared(txn4, messageId2);
 			oneOf(db).getMessageDependencies(txn4, messageId2);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 		}});
 
@@ -329,12 +330,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.startService();
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
-		assertTrue(txn3.isComplete());
-		assertTrue(txn4.isComplete());
 	}
 
 	@Test
@@ -355,6 +350,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -378,6 +374,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(Collections.emptyMap()));
 			// Share message
 			oneOf(db).setMessageShared(txn1, messageId);
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Share dependencies
 			oneOf(db).startTransaction(false);
@@ -385,6 +382,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).setMessageShared(txn2, messageId1);
 			oneOf(db).getMessageDependencies(txn2, messageId1);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
 
@@ -395,10 +393,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
 	}
 
 	@Test
@@ -423,12 +417,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Load the first raw message - *gasp* it's gone!
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(throwException(new NoSuchMessageException()));
+			never(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Load the second raw message and group
 			oneOf(db).startTransaction(true);
@@ -437,6 +433,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(raw));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
@@ -452,18 +449,21 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn3, messageId1);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
 			oneOf(db).getPendingMessages(txn4, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
 			oneOf(db).getMessagesToShare(txn5, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 		}});
 
@@ -474,13 +474,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.startService();
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertFalse(txn1.isComplete()); // Aborted due to NoSuchMessageException
-		assertTrue(txn2.isComplete());
-		assertTrue(txn3.isComplete());
-		assertTrue(txn4.isComplete());
-		assertTrue(txn5.isComplete());
 	}
 
 	@Test
@@ -505,6 +498,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn, clientId);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Load the first raw message
 			oneOf(db).startTransaction(true);
@@ -514,6 +508,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Load the group - *gasp* it's gone!
 			oneOf(db).getGroup(txn1, groupId);
 			will(throwException(new NoSuchGroupException()));
+			never(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Load the second raw message and group
 			oneOf(db).startTransaction(true);
@@ -522,6 +517,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(raw));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
@@ -537,18 +533,21 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn3, messageId1);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
 			oneOf(db).getPendingMessages(txn4, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
 			oneOf(db).getMessagesToShare(txn5, clientId);
 			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 		}});
 
@@ -559,13 +558,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.startService();
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertFalse(txn1.isComplete()); // Aborted due to NoSuchGroupException
-		assertTrue(txn2.isComplete());
-		assertTrue(txn3.isComplete());
-		assertTrue(txn4.isComplete());
-		assertTrue(txn5.isComplete());
 	}
 
 	@Test
@@ -585,6 +577,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -602,6 +595,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 		}});
 
@@ -612,9 +606,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
 	}
 
 	@Test
@@ -655,6 +646,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -668,6 +660,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(Collections.singletonMap(messageId1, UNKNOWN)));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			oneOf(db).setMessageState(txn1, messageId, PENDING);
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 		}});
 
@@ -678,9 +671,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
 	}
 
 	@Test
@@ -701,6 +691,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -722,6 +713,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 		}});
 
@@ -732,9 +724,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
 	}
 
 	@Test
@@ -756,6 +745,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -777,6 +767,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(Collections.singletonMap(messageId2, UNKNOWN)));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Invalidate dependent in a new transaction
 			oneOf(db).startTransaction(false);
@@ -788,6 +779,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			oneOf(db).deleteMessageMetadata(txn2, messageId2);
 			oneOf(db).getMessageDependents(txn2, messageId2);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
 
@@ -798,10 +790,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
 	}
 
 	@Test
@@ -831,6 +819,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: invalid
 			oneOf(validator).validateMessage(message, group);
@@ -846,6 +835,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// The message has two dependents: 1 and 2
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(twoDependents));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Invalidate message 1
 			oneOf(db).startTransaction(false);
@@ -858,6 +848,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 1 has one dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
 			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Invalidate message 2
 			oneOf(db).startTransaction(false);
@@ -870,6 +861,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 2 has one dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
 			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Invalidate message 3 (via 1)
 			oneOf(db).startTransaction(false);
@@ -882,12 +874,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 3 has one dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
 			will(returnValue(Collections.singletonMap(messageId4, PENDING)));
+			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Invalidate message 3 (again, via 2)
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn5));
 			oneOf(db).getMessageState(txn5, messageId3);
 			will(returnValue(INVALID)); // Already invalidated
+			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 			// Invalidate message 4 (via 1 and 3)
 			oneOf(db).startTransaction(false);
@@ -900,6 +894,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 4 has no dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn6);
 			oneOf(db).endTransaction(txn6);
 		}});
 
@@ -910,10 +905,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
 	}
 
 	@Test
@@ -950,6 +941,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -967,6 +959,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// The message has two pending dependents: 1 and 2
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(twoDependents));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Check whether message 1 is ready to be delivered
 			oneOf(db).startTransaction(false);
@@ -991,6 +984,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 1 has one pending dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
 			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Check whether message 2 is ready to be delivered
 			oneOf(db).startTransaction(false);
@@ -1015,6 +1009,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 2 has one pending dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
 			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Check whether message 3 is ready to be delivered (via 1)
 			oneOf(db).startTransaction(false);
@@ -1038,12 +1033,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 3 has one pending dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
 			will(returnValue(Collections.singletonMap(messageId4, PENDING)));
+			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Check whether message 3 is ready to be delivered (again, via 2)
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn5));
 			oneOf(db).getMessageState(txn5, messageId3);
 			will(returnValue(DELIVERED)); // Already delivered
+			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 			// Check whether message 4 is ready to be delivered (via 1 and 3)
 			oneOf(db).startTransaction(false);
@@ -1068,6 +1065,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Message 4 has no pending dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
 			will(returnValue(Collections.emptyMap()));
+			oneOf(db).commitTransaction(txn6);
 			oneOf(db).endTransaction(txn6);
 		}});
 
@@ -1078,14 +1076,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
-		assertTrue(txn3.isComplete());
-		assertTrue(txn4.isComplete());
-		assertTrue(txn5.isComplete());
-		assertTrue(txn6.isComplete());
 	}
 
 	@Test
@@ -1109,6 +1099,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -1126,6 +1117,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(Collections.singletonMap(messageId1, PENDING)));
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Check whether the pending dependent is ready to be delivered
 			oneOf(db).startTransaction(false);
@@ -1134,6 +1126,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn2, messageId1);
 			will(returnValue(twoDependencies));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
 
@@ -1144,10 +1137,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
-		assertTrue(txn2.isComplete());
 	}
 
 	@Test
@@ -1172,6 +1161,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
@@ -1185,12 +1175,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(Collections.singletonMap(messageId1, UNKNOWN)));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			oneOf(db).setMessageState(txn1, messageId, PENDING);
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Second message is coming in
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message1, group);
@@ -1204,6 +1196,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(Collections.singletonMap(messageId, PENDING)));
 			oneOf(db).mergeMessageMetadata(txn3, messageId1, metadata);
 			oneOf(db).setMessageState(txn3, messageId1, PENDING);
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 		}});
 
@@ -1215,9 +1208,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		vm.eventOccurred(new MessageAddedEvent(message1, contactId));
 
 		context.assertIsSatisfied();
-
-		assertTrue(txn.isComplete());
-		assertTrue(txn1.isComplete());
 	}
 
 }

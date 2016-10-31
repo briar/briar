@@ -39,7 +39,6 @@ import static org.briarproject.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class TransportKeyManagerTest extends BriarTestCase {
 
@@ -453,13 +452,13 @@ public class TransportKeyManagerTest extends BriarTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(rotationPeriodLength), with(MILLISECONDS));
 			// Commit the key rotation transaction
+			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManager(db,
 				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
 		transportKeyManager.start(txn);
-		assertTrue(txn1.isComplete());
 
 		context.assertIsSatisfied();
 	}

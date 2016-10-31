@@ -106,7 +106,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			Transaction txn = db.startTransaction(true);
 			try {
 				unvalidated.addAll(db.getMessagesToValidate(txn, c));
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -136,7 +136,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				byte[] raw = db.getRawMessage(txn, id);
 				m = parseMessage(id, raw);
 				g = db.getGroup(txn, m.getGroupId());
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -168,7 +168,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			Transaction txn = db.startTransaction(true);
 			try {
 				pending.addAll(db.getPendingMessages(txn, c));
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -228,7 +228,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						}
 					}
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -338,7 +338,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						db.setMessageState(txn, id, PENDING);
 					}
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -397,7 +397,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			Transaction txn = db.startTransaction(true);
 			try {
 				toShare.addAll(db.getMessagesToShare(txn, c));
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -430,7 +430,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				MessageId id = toShare.poll();
 				db.setMessageShared(txn, id);
 				toShare.addAll(db.getMessageDependencies(txn, id).keySet());
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -465,7 +465,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					invalidateMessage(txn, id);
 					invalidate.addAll(getDependentsToInvalidate(txn, id));
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -520,7 +520,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			Transaction txn = db.startTransaction(true);
 			try {
 				g = db.getGroup(txn, m.getGroupId());
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}

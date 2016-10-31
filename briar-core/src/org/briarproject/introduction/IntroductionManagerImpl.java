@@ -305,7 +305,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			Group g2 = getContactGroup(c2);
 			trackMessage(txn, g1.getId(), timestamp, true);
 			trackMessage(txn, g2.getId(), timestamp, true);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -325,7 +325,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 			introduceeManager.acceptIntroduction(txn, state, timestamp);
 			trackMessage(txn, g.getId(), timestamp, true);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -345,7 +345,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 			introduceeManager.declineIntroduction(txn, state, timestamp);
 			trackMessage(txn, g.getId(), timestamp, true);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -458,7 +458,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				}
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {

@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID_2;
@@ -153,6 +152,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			oneOf(clientHelper)
 					.mergeGroupMetadata(txn, introductionGroup2.getId(),
 							metadataAfter);
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -160,7 +160,6 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				.makeIntroduction(introducee1, introducee2, null, time);
 
 		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 	}
 
 	@Test
@@ -188,6 +187,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			oneOf(clientHelper)
 					.mergeGroupMetadata(txn, introductionGroup1.getId(),
 							metadataAfter);
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -195,7 +195,6 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				.acceptIntroduction(introducee1.getId(), sessionId, time);
 
 		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 	}
 
 	@Test
@@ -223,6 +222,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			oneOf(clientHelper)
 					.mergeGroupMetadata(txn, introductionGroup1.getId(),
 							metadataAfter);
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -230,7 +230,6 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				.declineIntroduction(introducee1.getId(), sessionId, time);
 
 		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 	}
 
 	@Test
@@ -254,13 +253,13 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			oneOf(db).getMessageStatus(txn, introducee1.getId(),
 					introductionGroup1.getId());
 			will(returnValue(statuses));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
 		introductionManager.getIntroductionMessages(introducee1.getId());
 
 		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 	}
 
 	@Test
@@ -295,7 +294,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				.incomingMessage(txn, message1, new BdfList(), msg);
 
 		context.assertIsSatisfied();
-		assertFalse(txn.isComplete());
+		assertFalse(txn.isCommitted());
 	}
 
 	@Test
@@ -334,7 +333,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				.incomingMessage(txn, message1, new BdfList(), msg);
 
 		context.assertIsSatisfied();
-		assertFalse(txn.isComplete());
+		assertFalse(txn.isCommitted());
 	}
 
 

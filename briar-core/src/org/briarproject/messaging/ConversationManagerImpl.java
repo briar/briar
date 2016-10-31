@@ -46,7 +46,7 @@ class ConversationManagerImpl implements ConversationManager {
 		Transaction txn = db.startTransaction(true);
 		try {
 			contact = db.getContact(txn, contactId);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -70,7 +70,7 @@ class ConversationManagerImpl implements ConversationManager {
 				if (count.getLatestMsgTime() > latestTime)
 					latestTime = count.getLatestMsgTime();
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}

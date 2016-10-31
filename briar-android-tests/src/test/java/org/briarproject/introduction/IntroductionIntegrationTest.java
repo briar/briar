@@ -590,7 +590,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			Transaction txn = db0.startTransaction(false);
 			try {
 				sender0.sendMessage(txn, d);
-				txn.setComplete();
+				db0.commitTransaction(txn);
 			} finally {
 				db0.endTransaction(txn);
 			}
@@ -637,7 +637,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			Transaction txn = db1.startTransaction(false);
 			try {
 				map = db1.getMessageMetadata(txn, group1.getId());
-				txn.setComplete();
+				db1.commitTransaction(txn);
 			} finally {
 				db1.endTransaction(txn);
 			}
@@ -651,7 +651,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			txn = db1.startTransaction(false);
 			try {
 				map = db1.getMessageMetadata(txn, group1.getId());
-				txn.setComplete();
+				db1.commitTransaction(txn);
 			} finally {
 				db1.endTransaction(txn);
 			}
@@ -694,7 +694,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			Transaction txn = db0.startTransaction(false);
 			try {
 				map = db0.getMessageMetadata(txn, group1.getId());
-				txn.setComplete();
+				db0.commitTransaction(txn);
 			} finally {
 				db0.endTransaction(txn);
 			}
@@ -708,7 +708,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			txn = db0.startTransaction(false);
 			try {
 				map = db0.getMessageMetadata(txn, group1.getId());
-				txn.setComplete();
+				db0.commitTransaction(txn);
 			} finally {
 				db0.endTransaction(txn);
 			}
@@ -722,7 +722,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			txn = db0.startTransaction(false);
 			try {
 				map = db0.getMessageMetadata(txn, group1.getId());
-				txn.setComplete();
+				db0.commitTransaction(txn);
 			} finally {
 				db0.endTransaction(txn);
 			}
@@ -780,7 +780,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			try {
 				db0.deleteMessage(txn, responseId);
 				sender0.sendMessage(txn, response);
-				txn.setComplete();
+				db0.commitTransaction(txn);
 			} finally {
 				db0.endTransaction(txn);
 			}
@@ -804,7 +804,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			txn = db2.startTransaction(true);
 			try {
 				contacts2 = db2.getContacts(txn);
-				txn.setComplete();
+				db2.commitTransaction(txn);
 			} finally {
 				db2.endTransaction(txn);
 			}
@@ -832,7 +832,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 				txn = db1.startTransaction(true);
 				try {
 					contacts1 = db1.getContacts(txn);
-					txn.setComplete();
+					db1.commitTransaction(txn);
 				} finally {
 					db1.endTransaction(txn);
 				}

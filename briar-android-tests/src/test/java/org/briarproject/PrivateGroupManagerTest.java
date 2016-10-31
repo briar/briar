@@ -339,7 +339,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t0.getDatabaseComponent()
 				.setVisibleToContact(txn0, contactId1, privateGroup0.getId(),
 						true);
-		txn0.setComplete();
+		t0.getDatabaseComponent().commitTransaction(txn0);
 		t0.getDatabaseComponent().endTransaction(txn0);
 
 		// author1 joins privateGroup0 and refers to wrong NEW_MEMBER message
@@ -358,7 +358,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t1.getDatabaseComponent()
 				.setVisibleToContact(txn1, contactId0, privateGroup0.getId(),
 						true);
-		txn1.setComplete();
+		t1.getDatabaseComponent().commitTransaction(txn1);
 		t1.getDatabaseComponent().endTransaction(txn1);
 
 		// sync join messages
@@ -467,7 +467,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t0.getDatabaseComponent()
 				.setVisibleToContact(txn0, contactId1, privateGroup0.getId(),
 						true);
-		txn0.setComplete();
+		t0.getDatabaseComponent().commitTransaction(txn0);;
 		t0.getDatabaseComponent().endTransaction(txn0);
 
 		// author1 joins privateGroup0
@@ -487,7 +487,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t1.getDatabaseComponent()
 				.setVisibleToContact(txn1, contactId0, privateGroup0.getId(),
 						true);
-		txn1.setComplete();
+		t1.getDatabaseComponent().commitTransaction(txn1);
 		t1.getDatabaseComponent().endTransaction(txn1);
 
 		// sync join messages

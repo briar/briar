@@ -52,11 +52,17 @@ public interface DatabaseComponent {
 	Transaction startTransaction(boolean readOnly) throws DbException;
 
 	/**
-	 * Ends a transaction. If the transaction is marked as complete, the
-	 * transaction is committed and any events attached to the transaction are
-	 * broadcast; otherwise the transaction is aborted.
+	 * Commits a transaction to the database.
 	 */
-	void endTransaction(Transaction txn) throws DbException;
+	void commitTransaction(Transaction txn) throws DbException;
+
+	/**
+	 * Ends a transaction. If the transaction has not been committed,
+	 * it will be aborted. If the transaction has been committed,
+	 * any events attached to the transaction are broadcast.
+	 * The database lock will be released in either case.
+	 */
+	void endTransaction(Transaction txn);
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,

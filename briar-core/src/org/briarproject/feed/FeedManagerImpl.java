@@ -180,7 +180,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 			List<Feed> feeds = getFeeds(txn);
 			feeds.add(feed);
 			storeFeeds(txn, feeds);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -200,7 +200,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 			feeds.remove(feed);
 			feeds.add(updatedFeed);
 			storeFeeds(txn, feeds);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -222,7 +222,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 			}
 			if (!found) throw new DbException();
 			storeFeeds(txn, feeds);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -234,7 +234,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		Transaction txn = db.startTransaction(true);
 		try {
 			feeds = getFeeds(txn);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -405,7 +405,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 					if (entryTime > lastEntryTime) lastEntryTime = entryTime;
 				}
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}

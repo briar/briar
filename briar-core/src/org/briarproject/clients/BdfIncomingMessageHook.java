@@ -95,7 +95,7 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 		Transaction txn = db.startTransaction(true);
 		try {
 			count = getGroupCount(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		}
 		finally {
 			db.endTransaction(txn);
@@ -157,7 +157,7 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 						c.getUnreadCount() + (read ? -1 : 1));
 				clientHelper.mergeGroupMetadata(txn, g, d);
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {

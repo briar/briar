@@ -89,6 +89,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(metadata));
 			oneOf(db).addLocalMessage(txn, message, metadata, shared);
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -118,6 +119,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getRawMessage(txn, messageId);
 			will(returnValue(rawMessage));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -136,6 +138,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			will(returnValue(metadata));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -155,6 +158,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			will(returnValue(metadata));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -176,6 +180,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			will(returnValue(Collections.singletonMap(messageId, metadata)));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -203,6 +208,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			will(returnValue(Collections.singletonMap(messageId, metadata)));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -221,6 +227,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(metadata));
 			oneOf(db).mergeGroupMetadata(txn, groupId, metadata);
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -238,6 +245,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(metadata));
 			oneOf(db).mergeMessageMetadata(txn, messageId, metadata);
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 

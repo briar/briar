@@ -314,7 +314,7 @@ public class ContactExchangeTaskImpl extends Thread
 					localAuthor.getId(), master, timestamp, alice, true, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
