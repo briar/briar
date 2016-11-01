@@ -58,7 +58,6 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.api.blogs.BlogConstants.KEY_COMMENT;
-import static org.briarproject.api.blogs.BlogConstants.KEY_DESCRIPTION;
 import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
@@ -113,16 +112,14 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
-		// Ensure every identity does have its own personal blog
-		// TODO this can probably be removed once #446 is resolved and all users migrated to a new version
-		for (LocalAuthor a : db.getLocalAuthors(txn)) {
-			Blog b = blogFactory.createPersonalBlog(a);
-			Group g = b.getGroup();
-			if (!db.containsGroup(txn, g.getId())) {
-				db.addGroup(txn, g);
-				for (ContactId c : db.getContacts(txn, a.getId())) {
-					db.setVisibleToContact(txn, c, g.getId(), true);
-				}
+		// Ensure that the local identity has its own personal blog
+		LocalAuthor la = identityManager.getLocalAuthor(txn);
+		Blog b = blogFactory.createBlog(la);
+		Group g = b.getGroup();
+		if (!db.containsGroup(txn, g.getId())) {
+			db.addGroup(txn, g);
+			for (ContactId c : db.getContacts(txn, la.getId())) {
+				db.setVisibleToContact(txn, c, g.getId(), true);
 			}
 		}
 		// Ensure that we have the personal blogs of all pre-existing contacts
@@ -132,7 +129,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// get personal blog of the contact
-		Blog b = blogFactory.createPersonalBlog(c.getAuthor());
+		Blog b = blogFactory.createBlog(c.getAuthor());
 		Group g = b.getGroup();
 		if (!db.containsGroup(txn, g.getId())) {
 			// add the personal blog of the contact
@@ -141,7 +138,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 			// share our personal blog with the new contact
 			LocalAuthor a = db.getLocalAuthor(txn, c.getLocalAuthorId());
-			Blog b2 = blogFactory.createPersonalBlog(a);
+			Blog b2 = blogFactory.createBlog(a);
 			db.setVisibleToContact(txn, c.getId(), b2.getId(), true);
 		}
 	}
@@ -149,7 +146,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		if (c != null) {
-			Blog b = blogFactory.createPersonalBlog(c.getAuthor());
+			Blog b = blogFactory.createBlog(c.getAuthor());
 			db.removeGroup(txn, b.getGroup());
 		}
 	}
@@ -160,7 +157,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 		// add a personal blog for the new identity
 		LOG.info("New Personal Blog Added.");
-		Blog b = blogFactory.createPersonalBlog(a);
+		Blog b = blogFactory.createBlog(a);
 		db.addGroup(txn, b.getGroup());
 	}
 
@@ -169,7 +166,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			throws DbException {
 
 		// remove the personal blog of that identity
-		Blog b = blogFactory.createPersonalBlog(a);
+		Blog b = blogFactory.createBlog(a);
 		db.removeGroup(txn, b.getGroup());
 	}
 
@@ -217,29 +214,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 		// don't share message until parent arrives
 		return false;
-	}
-
-	@Override
-	public Blog addBlog(LocalAuthor localAuthor, String name,
-			String description) throws DbException {
-
-		Blog b = blogFactory
-				.createBlog(name, description, localAuthor);
-		BdfDictionary metadata = BdfDictionary.of(
-				new BdfEntry(KEY_DESCRIPTION, b.getDescription())
-		);
-
-		Transaction txn = db.startTransaction(false);
-		try {
-			db.addGroup(txn, b.getGroup());
-			clientHelper.mergeGroupMetadata(txn, b.getId(), metadata);
-			txn.setComplete();
-		} catch (FormatException e) {
-			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return b;
 	}
 
 	@Override
@@ -453,8 +427,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	public Blog getBlog(Transaction txn, GroupId g) throws DbException {
 		try {
 			Group group = db.getGroup(txn, g);
-			String description = getBlogDescription(txn, g);
-			return blogFactory.parseBlog(group, description);
+			return blogFactory.parseBlog(group);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -476,7 +449,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public Blog getPersonalBlog(Author author) {
-		return blogFactory.createPersonalBlog(author);
+		return blogFactory.createBlog(author);
 	}
 
 	@Override
@@ -488,8 +461,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			try {
 				groups = db.getGroups(txn, CLIENT_ID);
 				for (Group g : groups) {
-					String description = getBlogDescription(txn, g.getId());
-					blogs.add(blogFactory.parseBlog(g, description));
+					blogs.add(blogFactory.parseBlog(g));
 				}
 				txn.setComplete();
 			} finally {
@@ -611,12 +583,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public void registerRemoveBlogHook(RemoveBlogHook hook) {
 		removeHooks.add(hook);
-	}
-
-	private String getBlogDescription(Transaction txn, GroupId g)
-			throws DbException, FormatException {
-		BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(txn, g);
-		return d.getString(KEY_DESCRIPTION, "");
 	}
 
 	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,

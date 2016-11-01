@@ -17,10 +17,6 @@ class BlogItem {
 		return blog;
 	}
 
-	String getName() {
-		return blog.getName();
-	}
-
 	boolean isOurs() {
 		return ours;
 	}

@@ -3,9 +3,12 @@ package org.briarproject.sharing;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
 import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
@@ -19,7 +22,8 @@ import static org.briarproject.sharing.InviteeSessionState.Action.LOCAL_LEAVE;
 import static org.briarproject.sharing.InviteeSessionState.Action.REMOTE_INVITATION;
 import static org.briarproject.sharing.InviteeSessionState.Action.REMOTE_LEAVE;
 
-// This class is not thread-safe
+@NotThreadSafe
+@NotNullByDefault
 public abstract class InviteeSessionState extends SharingSessionState {
 
 	private State state;

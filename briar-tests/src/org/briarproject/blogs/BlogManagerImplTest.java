@@ -41,7 +41,6 @@ import static org.briarproject.TestUtils.getRandomId;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR_NAME;
-import static org.briarproject.api.blogs.BlogConstants.KEY_DESCRIPTION;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TIMESTAMP;
@@ -63,8 +62,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
-	private final MetadataParser metadataParser =
-			context.mock(MetadataParser.class);
 	private final ContactManager contactManager =
 			context.mock(ContactManager.class);
 	private final BlogFactory blogFactory = context.mock(BlogFactory.class);
@@ -78,11 +75,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 	BlogPostFactory blogPostFactory;
 
 	public BlogManagerImplTest() {
+		MetadataParser metadataParser = context.mock(MetadataParser.class);
 		blogManager = new BlogManagerImpl(db, identityManager, clientHelper,
 				metadataParser, contactManager, blogFactory, blogPostFactory);
 
-		blog1 = getBlog("Test Blog 1", "Test Description 1");
-		blog2 = getBlog("Test Blog 2", "Test Description 2");
+		blog1 = createBlog();
+		blog2 = createBlog();
 		messageId = new MessageId(getRandomId());
 		message = new Message(messageId, blog1.getId(), 42, getRandomBytes(42));
 	}
@@ -95,8 +93,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	@Test
 	public void testCreateLocalState() throws DbException {
 		final Transaction txn = new Transaction(null, false);
-		final Collection<LocalAuthor> localAuthors =
-				Collections.singletonList((LocalAuthor) blog1.getAuthor());
+		final LocalAuthor localAuthor = (LocalAuthor) blog1.getAuthor();
 
 		final ContactId contactId = new ContactId(0);
 		final Collection<ContactId> contactIds =
@@ -107,9 +104,9 @@ public class BlogManagerImplTest extends BriarTestCase {
 		final Collection<Contact> contacts = Collections.singletonList(contact);
 
 		context.checking(new Expectations() {{
-			oneOf(db).getLocalAuthors(txn);
-			will(returnValue(localAuthors));
-			oneOf(blogFactory).createPersonalBlog(blog1.getAuthor());
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			oneOf(blogFactory).createBlog(blog1.getAuthor());
 			will(returnValue(blog1));
 			oneOf(db).containsGroup(txn, blog1.getId());
 			will(returnValue(false));
@@ -119,7 +116,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(db).setVisibleToContact(txn, contactId, blog1.getId(), true);
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
-			oneOf(blogFactory).createPersonalBlog(blog2.getAuthor());
+			oneOf(blogFactory).createBlog(blog2.getAuthor());
 			will(returnValue(blog2));
 			oneOf(db).containsGroup(txn, blog2.getId());
 			will(returnValue(false));
@@ -127,7 +124,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(db).setVisibleToContact(txn, contactId, blog2.getId(), true);
 			oneOf(db).getLocalAuthor(txn, blog1.getAuthor().getId());
 			will(returnValue(blog1.getAuthor()));
-			oneOf(blogFactory).createPersonalBlog(blog1.getAuthor());
+			oneOf(blogFactory).createBlog(blog1.getAuthor());
 			will(returnValue(blog1));
 			oneOf(db).setVisibleToContact(txn, contactId, blog1.getId(), true);
 		}});
@@ -145,7 +142,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 				blog1.getAuthor().getId(), true, true);
 
 		context.checking(new Expectations() {{
-			oneOf(blogFactory).createPersonalBlog(blog2.getAuthor());
+			oneOf(blogFactory).createBlog(blog2.getAuthor());
 			will(returnValue(blog2));
 			oneOf(db).removeGroup(txn, blog2.getGroup());
 		}});
@@ -163,7 +160,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 						a.getPublicKey(), 0);
 
 		context.checking(new Expectations() {{
-			oneOf(blogFactory).createPersonalBlog(localAuthor);
+			oneOf(blogFactory).createBlog(localAuthor);
 			will(returnValue(blog1));
 			oneOf(db).addGroup(txn, blog1.getGroup());
 		}});
@@ -181,7 +178,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 						a.getPublicKey(), 0);
 
 		context.checking(new Expectations() {{
-			oneOf(blogFactory).createPersonalBlog(localAuthor);
+			oneOf(blogFactory).createBlog(localAuthor);
 			will(returnValue(blog1));
 			oneOf(db).removeGroup(txn, blog1.getGroup());
 		}});
@@ -224,35 +221,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 		assertEquals(null, h.getParentId());
 		assertEquals(VERIFIED, h.getAuthorStatus());
 		assertEquals(blog1.getAuthor(), h.getAuthor());
-	}
-
-	@Test
-	public void testAddBlog() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, false);
-		Author a = blog1.getAuthor();
-		final LocalAuthor localAuthor =
-				new LocalAuthor(a.getId(), a.getName(), a.getPublicKey(),
-						a.getPublicKey(), 0);
-		final BdfDictionary meta = BdfDictionary.of(
-				new BdfEntry(KEY_DESCRIPTION, blog1.getDescription())
-		);
-
-		context.checking(new Expectations() {{
-			oneOf(blogFactory)
-					.createBlog(blog1.getName(), blog1.getDescription(),
-							blog1.getAuthor());
-			will(returnValue(blog1));
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
-			oneOf(db).addGroup(txn, blog1.getGroup());
-			oneOf(clientHelper).mergeGroupMetadata(txn, blog1.getId(), meta);
-			oneOf(db).endTransaction(txn);
-		}});
-
-		blogManager
-				.addBlog(localAuthor, blog1.getName(), blog1.getDescription());
-		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 	}
 
 	@Test
@@ -369,15 +337,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getGroup(txn, blog.getId());
 			will(returnValue(blog.getGroup()));
-			oneOf(clientHelper)
-					.getGroupMetadataAsDictionary(txn, blog.getId());
-			will(returnValue(new BdfDictionary()));
-			oneOf(blogFactory).parseBlog(blog.getGroup(), "");
+			oneOf(blogFactory).parseBlog(blog.getGroup());
 			will(returnValue(blog));
 		}});
 	}
 
-	private Blog getBlog(String name, String desc) {
+	private Blog createBlog() {
 		final GroupId groupId = new GroupId(getRandomId());
 		final Group group = new Group(groupId, CLIENT_ID, getRandomBytes(42));
 		final AuthorId authorId = new AuthorId(getRandomId());
@@ -387,7 +352,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		final LocalAuthor localAuthor =
 				new LocalAuthor(authorId, "Author", publicKey, privateKey,
 						created);
-		return new Blog(group, name, desc, localAuthor);
+		return new Blog(group, localAuthor);
 	}
 
 	private BdfDictionary authorToBdfDictionary(Author a) {

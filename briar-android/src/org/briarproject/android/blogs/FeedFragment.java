@@ -35,7 +35,6 @@ import static android.app.Activity.RESULT_OK;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.blogs.BlogActivity.BLOG_NAME;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
 public class FeedFragment extends BaseFragment implements
@@ -171,7 +170,6 @@ public class FeedFragment extends BaseFragment implements
 				Intent i1 =
 						new Intent(getActivity(), WriteBlogPostActivity.class);
 				i1.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				i1.putExtra(BLOG_NAME, personalBlog.getName());
 				startActivityForResult(i1, REQUEST_WRITE_POST,
 						options.toBundle());
 				return true;

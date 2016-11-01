@@ -50,23 +50,19 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 	private final Mockery context = new Mockery();
 	private final Blog blog;
-	private final Author author;
 	private final BdfDictionary authorDict;
 	private final ClientId clientId;
 	private final byte[] descriptor;
 	private final Group group;
 	private final Message message;
 	private final BlogPostValidator validator;
-	private final CryptoComponent cryptoComponent =
-			context.mock(CryptoComponent.class);
 	private final GroupFactory groupFactory = context.mock(GroupFactory.class);
 	private final MessageFactory messageFactory =
 			context.mock(MessageFactory.class);
 	private final BlogFactory blogFactory = context.mock(BlogFactory.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
-	private final Clock clock = new SystemClock();
+	private final Author author;
 	private final String body = TestUtils.getRandomString(42);
-	private final String contentType = "text/plain";
 
 	public BlogPostValidatorTest() {
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
@@ -82,7 +78,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 				new BdfEntry(KEY_AUTHOR_NAME, author.getName()),
 				new BdfEntry(KEY_PUBLIC_KEY, author.getPublicKey())
 		);
-		blog = new Blog(group, "Test Blog", "", author);
+		blog = new Blog(group, author);
 
 		MessageId messageId = new MessageId(TestUtils.getRandomId());
 		long timestamp = System.currentTimeMillis();
@@ -90,8 +86,10 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		message = new Message(messageId, group.getId(), timestamp, raw);
 
 		MetadataEncoder metadataEncoder = context.mock(MetadataEncoder.class);
-		validator = new BlogPostValidator(groupFactory, messageFactory,
-				blogFactory, clientHelper, metadataEncoder, clock);
+		Clock clock = new SystemClock();
+		validator =
+				new BlogPostValidator(groupFactory, messageFactory, blogFactory,
+						clientHelper, metadataEncoder, clock);
 		context.assertIsSatisfied();
 	}
 
@@ -115,7 +113,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	@Test(expected = FormatException.class)
 	public void testValidateBlogPostWithoutAttachments()
 			throws IOException, GeneralSecurityException {
-		BdfList content = BdfList.of(null, contentType, null, body);
+		BdfList content = BdfList.of(null, null, body);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 
 		validator.validateMessage(message, group, m).getDictionary();
@@ -124,7 +122,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	@Test(expected = FormatException.class)
 	public void testValidateBlogPostWithoutSignature()
 			throws IOException, GeneralSecurityException {
-		BdfList content = BdfList.of(null, contentType, null, body, null);
+		BdfList content = BdfList.of(null, null, body, null);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 
 		validator.validateMessage(message, group, m).getDictionary();
@@ -261,7 +259,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private void expectCrypto(final BdfList signed, final byte[] sig)
 			throws IOException, GeneralSecurityException {
 		context.checking(new Expectations() {{
-			oneOf(blogFactory).parseBlog(group, "");
+			oneOf(blogFactory).parseBlog(group);
 			will(returnValue(blog));
 			oneOf(clientHelper)
 					.verifySignature(sig, author.getPublicKey(), signed);

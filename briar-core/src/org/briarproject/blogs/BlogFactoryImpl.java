@@ -7,14 +7,14 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.blogs.BlogConstants.PERSONAL_BLOG_NAME;
-
+@NotNullByDefault
 class BlogFactoryImpl implements BlogFactory {
 
 	private final GroupFactory groupFactory;
@@ -31,39 +31,29 @@ class BlogFactoryImpl implements BlogFactory {
 	}
 
 	@Override
-	public Blog createPersonalBlog(@NotNull Author a) {
-		return createBlog(PERSONAL_BLOG_NAME, "", a);
-	}
-
-	@Override
-	public Blog createBlog(@NotNull String name, @NotNull String description,
-			@NotNull Author author) {
+	public Blog createBlog(Author a) {
 		try {
 			BdfList blog = BdfList.of(
-					name,
-					author.getName(),
-					author.getPublicKey()
+					a.getName(),
+					a.getPublicKey()
 			);
 			byte[] descriptor = clientHelper.toByteArray(blog);
 			Group g = groupFactory
 					.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
-			return new Blog(g, name, description, author);
+			return new Blog(g, a);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public Blog parseBlog(@NotNull Group g, @NotNull String description)
-			throws FormatException {
-
+	public Blog parseBlog(@NotNull Group g) throws FormatException {
 		byte[] descriptor = g.getDescriptor();
-		// Blog Name, Author Name, Public Key
+		// Author Name, Public Key
 		BdfList blog = clientHelper.toList(descriptor);
-		String name = blog.getString(0);
 		Author a =
-				authorFactory.createAuthor(blog.getString(1), blog.getRaw(2));
-		return new Blog(g, name, description, a);
+				authorFactory.createAuthor(blog.getString(0), blog.getRaw(1));
+		return new Blog(g, a);
 	}
 
 }

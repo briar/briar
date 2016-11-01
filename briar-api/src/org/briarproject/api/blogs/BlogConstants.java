@@ -16,12 +16,7 @@ public interface BlogConstants {
 	/** The maximum length of a blog comment in bytes. */
 	int MAX_BLOG_COMMENT_LENGTH = MAX_BLOG_POST_BODY_LENGTH;
 
-	/** The internal name of personal blogs that are created automatically */
-	String PERSONAL_BLOG_NAME = "briar.PERSONAL_BLOG_NAME";
-
 	/* Blog Sharing Constants */
-	String BLOG_TITLE = "blogTitle";
-	String BLOG_DESC = "blogDescription";
 	String BLOG_AUTHOR_NAME = "blogAuthorName";
 	String BLOG_PUBLIC_KEY = "blogPublicKey";
 

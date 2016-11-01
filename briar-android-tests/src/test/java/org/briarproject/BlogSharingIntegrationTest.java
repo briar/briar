@@ -72,12 +72,12 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 	private BlogManager blogManager0, blogManager1;
 	private ContactManager contactManager0, contactManager1, contactManager2;
 	private Contact contact1, contact2, contact01, contact02;
-	private ContactId contactId1, contactId2, contactId01, contactId02;
+	private ContactId contactId1, contactId01;
 	private IdentityManager identityManager0, identityManager1,
 			identityManager2;
 	private LocalAuthor author0, author1, author2;
 	private Blog blog0, blog1, blog2;
-	private SharerListener listener0, listener2;
+	private SharerListener listener0;
 	private InviteeListener listener1;
 
 	@Inject
@@ -670,7 +670,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		);
 		contact1 = contactManager0.getContact(contactId1);
 		// sharer adds second contact
-		contactId2 = contactManager0.addContact(author2,
+		ContactId contactId2 = contactManager0.addContact(author2,
 				author0.getId(), master, clock.currentTimeMillis(), true,
 				true, true
 		);
@@ -681,7 +681,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 				true, true
 		);
 		contact01 = contactManager1.getContact(contactId01);
-		contactId02 = contactManager2.addContact(author0,
+		ContactId contactId02 = contactManager2.addContact(author0,
 				author2.getId(), master, clock.currentTimeMillis(), true,
 				true, true
 		);
@@ -699,7 +699,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		t0.getEventBus().addListener(listener0);
 		listener1 = new InviteeListener(accept);
 		t1.getEventBus().addListener(listener1);
-		listener2 = new SharerListener();
+		SharerListener listener2 = new SharerListener();
 		t2.getEventBus().addListener(listener2);
 	}
 

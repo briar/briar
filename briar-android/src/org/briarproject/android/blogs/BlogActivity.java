@@ -2,7 +2,6 @@ package org.briarproject.android.blogs;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ProgressBar;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
@@ -18,8 +17,6 @@ public class BlogActivity extends BriarActivity implements
 
 	static final int REQUEST_WRITE_POST = 1;
 	static final int REQUEST_SHARE = 2;
-	static final String BLOG_NAME = "briar.BLOG_NAME";
-	static final String IS_NEW_BLOG = "briar.IS_NEW_BLOG";
 
 	@Inject
 	BlogController blogController;
@@ -35,17 +32,10 @@ public class BlogActivity extends BriarActivity implements
 		GroupId groupId = new GroupId(b);
 		blogController.setGroupId(groupId);
 
-		// Name of the blog
-		String blogName = i.getStringExtra(BLOG_NAME);
-		if (blogName != null) setTitle(blogName);
-
-		// Was this blog just created?
-		boolean isNew = i.getBooleanExtra(IS_NEW_BLOG, false);
-
 		setContentView(R.layout.activity_fragment_container);
 
 		if (state == null) {
-			BlogFragment f = BlogFragment.newInstance(groupId, blogName, isNew);
+			BlogFragment f = BlogFragment.newInstance(groupId);
 			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 					.commit();

@@ -3,9 +3,12 @@ package org.briarproject.sharing;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.api.sharing.SharingConstants.IS_SHARER;
 import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
@@ -20,7 +23,8 @@ import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_ACCEPT;
 import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_DECLINE;
 import static org.briarproject.sharing.SharerSessionState.Action.REMOTE_LEAVE;
 
-// This class is not thread-safe
+@NotThreadSafe
+@NotNullByDefault
 public abstract class SharerSessionState extends SharingSessionState {
 
 	private State state;
@@ -58,6 +62,7 @@ public abstract class SharerSessionState extends SharingSessionState {
 		this.msg = msg;
 	}
 
+	@Nullable
 	public String getMessage() {
 		return this.msg;
 	}
