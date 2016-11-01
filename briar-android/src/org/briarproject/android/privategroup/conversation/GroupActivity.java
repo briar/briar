@@ -55,17 +55,29 @@ public class GroupActivity extends
 		if (groupName != null) setTitle(groupName);
 		loadNamedGroup();
 
-		list.setEmptyText(R.string.groups_no_messages);
+		setGroupEnabled(false);
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	@LayoutRes
+	protected int getLayout() {
+		return R.layout.activity_forum;
+	}
+
+	@Override
+	protected GroupMessageAdapter createAdapter(
+			LinearLayoutManager layoutManager) {
+		return new GroupMessageAdapter(this, layoutManager);
+	}
+
+	@Override
+	protected void loadItems() {
 		controller.isDissolved(
 				new UiResultExceptionHandler<Boolean, DbException>(this) {
 					@Override
 					public void onResultUi(Boolean isDissolved) {
-						if (isDissolved) disableGroup();
+						setGroupEnabled(!isDissolved);
+						GroupActivity.super.loadItems();
 					}
 
 					@Override
@@ -99,18 +111,6 @@ public class GroupActivity extends
 						finish();
 					}
 				});
-	}
-
-	@Override
-	@LayoutRes
-	protected int getLayout() {
-		return R.layout.activity_forum;
-	}
-
-	@Override
-	protected GroupMessageAdapter createAdapter(
-			LinearLayoutManager layoutManager) {
-		return new GroupMessageAdapter(this, layoutManager);
 	}
 
 	@Override
@@ -166,11 +166,11 @@ public class GroupActivity extends
 		if (!isDissolved) super.onReplyClick(item);
 	}
 
-	private void disableGroup() {
-		isDissolved = true;
-		if (writeMenuItem != null) writeMenuItem.setVisible(false);
-		textInput.setSendButtonEnabled(false);
-		list.setAlpha(0.5f);
+	private void setGroupEnabled(boolean enabled) {
+		isDissolved = !enabled;
+		if (writeMenuItem != null) writeMenuItem.setVisible(enabled);
+		textInput.setSendButtonEnabled(enabled);
+		list.getRecyclerView().setAlpha(enabled ? 1f : 0.5f);
 	}
 
 	private void showMenuItems() {
@@ -182,7 +182,7 @@ public class GroupActivity extends
 			leaveMenuItem.setVisible(true);
 			dissolveMenuItem.setVisible(false);
 		}
-		if (isDissolved) writeMenuItem.setVisible(false);
+		writeMenuItem.setVisible(!isDissolved);
 	}
 
 	private void showLeaveGroupDialog() {
