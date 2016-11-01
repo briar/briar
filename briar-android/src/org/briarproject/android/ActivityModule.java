@@ -29,6 +29,8 @@ import org.briarproject.android.privategroup.invitation.GroupInvitationControlle
 import org.briarproject.android.privategroup.invitation.GroupInvitationControllerImpl;
 import org.briarproject.android.privategroup.list.GroupListController;
 import org.briarproject.android.privategroup.list.GroupListControllerImpl;
+import org.briarproject.android.privategroup.memberlist.GroupMemberListController;
+import org.briarproject.android.privategroup.memberlist.GroupMemberListControllerImpl;
 import org.briarproject.android.sharing.BlogInvitationController;
 import org.briarproject.android.sharing.BlogInvitationControllerImpl;
 import org.briarproject.android.sharing.ForumInvitationController;
@@ -129,6 +131,13 @@ public class ActivityModule {
 	protected GroupInvitationController provideInvitationGroupController(
 			GroupInvitationControllerImpl groupInvitationController) {
 		return groupInvitationController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected GroupMemberListController provideGroupMemberListController(
+			GroupMemberListControllerImpl groupMemberListController) {
+		return groupMemberListController;
 	}
 
 	@ActivityScope

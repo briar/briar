@@ -12,7 +12,6 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -136,7 +135,7 @@ public class AuthorView extends RelativeLayout {
 				break;
 			// commenter
 			case 2:
-				ViewGroup.LayoutParams params = avatar.getLayoutParams();
+				LayoutParams params = (LayoutParams) avatar.getLayoutParams();
 				int size = getResources().getDimensionPixelSize(
 						R.dimen.blogs_avatar_comment_size);
 				params.height = size;
@@ -145,6 +144,25 @@ public class AuthorView extends RelativeLayout {
 				float textSize = getResources()
 						.getDimensionPixelSize(R.dimen.text_size_tiny);
 				authorName.setTextSize(COMPLEX_UNIT_PX, textSize);
+				break;
+			// list
+			case 3:
+				date.setVisibility(GONE);
+				params = (LayoutParams) avatar.getLayoutParams();
+				size = getResources().getDimensionPixelSize(
+						R.dimen.listitem_picture_size_small);
+				params.height = size;
+				params.width = size;
+				avatar.setLayoutParams(params);
+				textSize = getResources()
+						.getDimensionPixelSize(R.dimen.text_size_medium);
+				authorName.setTextSize(COMPLEX_UNIT_PX, textSize);
+				params = (LayoutParams) authorName.getLayoutParams();
+				params.addRule(CENTER_VERTICAL);
+				authorName.setLayoutParams(params);
+				params = (LayoutParams) trustIndicator.getLayoutParams();
+				params.addRule(CENTER_VERTICAL);
+				trustIndicator.setLayoutParams(params);
 				break;
 		}
 	}

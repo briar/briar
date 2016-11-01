@@ -28,21 +28,22 @@ import org.briarproject.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
+import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupFragment;
-import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupMessageFragment;
-import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
-import org.briarproject.android.sharing.ShareBlogActivity;
+import org.briarproject.android.privategroup.list.GroupListFragment;
+import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
+import org.briarproject.android.sharing.BlogInvitationActivity;
 import org.briarproject.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.android.sharing.ContactSelectorFragment;
-import org.briarproject.android.sharing.BlogInvitationActivity;
 import org.briarproject.android.sharing.ForumInvitationActivity;
+import org.briarproject.android.sharing.ForumSharingStatusActivity;
+import org.briarproject.android.sharing.ShareBlogActivity;
+import org.briarproject.android.sharing.ShareBlogMessageFragment;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.ShareForumMessageFragment;
-import org.briarproject.android.sharing.ForumSharingStatusActivity;
-import org.briarproject.android.sharing.ShareBlogMessageFragment;
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
@@ -80,6 +81,7 @@ public interface ActivityComponent {
 	void inject(CreateGroupActivity activity);
 	void inject(GroupActivity activity);
 	void inject(GroupInvitationActivity activity);
+	void inject(GroupMemberListActivity activity);
 
 	void inject(CreateForumActivity activity);
 

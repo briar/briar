@@ -11,7 +11,6 @@
 
 	<item
 		android:id="@+id/action_group_member_list"
-		android:enabled="false"
 		android:icon="@drawable/ic_group_white"
 		android:title="@string/groups_member_list"
 		app:showAsAction="ifRoom"/>
