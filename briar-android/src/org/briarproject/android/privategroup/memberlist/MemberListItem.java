@@ -5,15 +5,15 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.GroupMember;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
-@NotThreadSafe
+@Immutable
 @NotNullByDefault
-public class MemberListItem {
+class MemberListItem {
 
 	private final Author member;
-	private Status status;
-	private boolean sharing;
+	private final Status status;
+	private final boolean sharing;
 
 	public MemberListItem(GroupMember groupMember) {
 		this.member = groupMember.getAuthor();

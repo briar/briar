@@ -41,9 +41,6 @@ public class GroupMemberListActivity extends BriarActivity {
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId in intent.");
 		groupId = new GroupId(b);
-		String name = i.getStringExtra(GROUP_NAME);
-		if (name == null) throw new IllegalStateException("No name in intent.");
-		setTitle(name + " " + getString(R.string.groups_member_list));
 
 		list = (BriarRecyclerView) findViewById(R.id.list);
 		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);

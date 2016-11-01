@@ -140,7 +140,6 @@ public class GroupActivity extends
 			case R.id.action_group_member_list:
 				Intent i = new Intent(this, GroupMemberListActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
-				i.putExtra(GROUP_NAME, getTitle());
 				ActivityOptionsCompat options =
 						makeCustomAnimation(this, android.R.anim.slide_in_left,
 								android.R.anim.slide_out_right);
