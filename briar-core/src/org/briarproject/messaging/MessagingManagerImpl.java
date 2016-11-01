@@ -98,12 +98,10 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 		GroupId groupId = m.getGroupId();
 		long timestamp = meta.getLong("timestamp");
-		String contentType = meta.getString("contentType");
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), groupId, timestamp, contentType, local, read,
-				false, false);
+				m.getId(), groupId, timestamp, local, read, false, false);
 		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, contactId, groupId);
@@ -120,8 +118,6 @@ class MessagingManagerImpl extends ConversationClientImpl
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put("timestamp", m.getMessage().getTimestamp());
-			if (m.getParent() != null) meta.put("parent", m.getParent());
-			meta.put("contentType", m.getContentType());
 			meta.put("local", true);
 			meta.put("read", true);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
@@ -193,11 +189,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 			if (meta == null) continue;
 			try {
 				long timestamp = meta.getLong("timestamp");
-				String contentType = meta.getString("contentType");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
-				headers.add(new PrivateMessageHeader(id, g, timestamp,
-						contentType, local, read, s.isSent(), s.isSeen()));
+				headers.add(
+						new PrivateMessageHeader(id, g, timestamp, local, read,
+								s.isSent(), s.isSeen()));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -206,11 +202,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public byte[] getMessageBody(MessageId m) throws DbException {
+	public String getMessageBody(MessageId m) throws DbException {
 		try {
-			// Parent ID, content type, private message body
+			// 0: private message body
 			BdfList message = clientHelper.getMessageAsList(m);
-			return message.getRaw(2);
+			return message.getString(0);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

@@ -450,11 +450,11 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					byte[] body = messagingManager.getMessageBody(m);
+					String body = messagingManager.getMessageBody(m);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading body took " + duration + " ms");
-					displayMessageBody(m, StringUtils.fromUtf8(body));
+					displayMessageBody(m, body);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -656,8 +656,7 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				try {
 					storeMessage(privateMessageFactory.createPrivateMessage(
-							groupId, timestamp, null, "text/plain",
-							StringUtils.toUtf8(body)), body);
+							groupId, timestamp, body), body);
 				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
@@ -676,9 +675,10 @@ public class ConversationActivity extends BriarActivity
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
 					MessageId id = m.getMessage().getId();
-					PrivateMessageHeader h = new PrivateMessageHeader(id,
-							groupId, m.getMessage().getTimestamp(),
-							m.getContentType(), true, false, false, false);
+					PrivateMessageHeader h =
+							new PrivateMessageHeader(id, groupId,
+									m.getMessage().getTimestamp(), true, false,
+									false, false);
 					ConversationItem item = ConversationItem.from(h);
 					item.setBody(body);
 					bodyCache.put(id, body);

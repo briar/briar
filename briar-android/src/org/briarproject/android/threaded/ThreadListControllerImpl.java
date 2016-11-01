@@ -6,7 +6,7 @@ import android.support.annotation.CallSuper;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.api.clients.BaseMessage;
+import org.briarproject.api.clients.ThreadedMessage;
 import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
 import org.briarproject.api.crypto.CryptoExecutor;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends BaseMessage>
+public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage>
 		extends DbControllerImpl
 		implements ThreadListController<G, I, H>, EventListener {
 

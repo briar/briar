@@ -232,7 +232,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	public void onSendClick(String text) {
 		if (text.trim().length() == 0)
 			return;
-		if (StringUtils.isTooLong(text, getMaxBodyLength())) {
+		if (StringUtils.utf8IsTooLong(text, getMaxBodyLength())) {
 			displaySnackbarShort(R.string.text_too_long);
 			return;
 		}

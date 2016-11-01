@@ -5,16 +5,16 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageId;
-import org.briarproject.util.StringUtils;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.util.StringUtils.utf8IsTooLong;
 
+@NotNullByDefault
 class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 
 	private final ClientHelper clientHelper;
@@ -26,16 +26,13 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 
 	@Override
 	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
-			MessageId parent, String contentType, byte[] body)
-			throws FormatException {
+			String body) throws FormatException {
 		// Validate the arguments
-		if (StringUtils.toUtf8(contentType).length > MAX_CONTENT_TYPE_LENGTH)
-			throw new IllegalArgumentException();
-		if (body.length > MAX_PRIVATE_MESSAGE_BODY_LENGTH)
+		if (utf8IsTooLong(body, MAX_PRIVATE_MESSAGE_BODY_LENGTH))
 			throw new IllegalArgumentException();
 		// Serialise the message
-		BdfList message = BdfList.of(parent, contentType, body);
+		BdfList message = BdfList.of(body);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);
-		return new PrivateMessage(m, parent, contentType);
+		return new PrivateMessage(m);
 	}
 }
