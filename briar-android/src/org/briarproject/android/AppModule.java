@@ -97,12 +97,12 @@ public class AppModule {
 			}
 
 			@Override
-			public void setAuthorNick(String nickname) {
+			public void setLocalAuthorName(String nickname) {
 				this.nickname = nickname;
 			}
 
 			@Override
-			public String getAuthorNick() {
+			public String getLocalAuthorName() {
 				return nickname;
 			}
 

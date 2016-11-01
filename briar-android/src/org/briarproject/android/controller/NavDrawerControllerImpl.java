@@ -9,7 +9,6 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportDisabledEvent;
 import org.briarproject.api.event.TransportEnabledEvent;
-import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
@@ -29,19 +28,16 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	private final PluginManager pluginManager;
 	private final EventBus eventBus;
-	private final IdentityManager identityManager;
 
 	private volatile TransportStateListener listener;
 
 	@Inject
 	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
-			PluginManager pluginManager, EventBus eventBus,
-			IdentityManager identityManager) {
+			PluginManager pluginManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
 		this.pluginManager = pluginManager;
 		this.eventBus = eventBus;
-		this.identityManager = identityManager;
 	}
 
 	@Override

@@ -39,12 +39,12 @@ public class TestDatabaseConfig implements DatabaseConfig {
 	}
 
 	@Override
-	public void setAuthorNick(String nickname) {
+	public void setLocalAuthorName(String nickname) {
 
 	}
 
 	@Override
-	public String getAuthorNick() {
+	public String getLocalAuthorName() {
 		return null;
 	}
 

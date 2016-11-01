@@ -93,7 +93,7 @@ public class BriarService extends Service {
 		new Thread() {
 			@Override
 			public void run() {
-				String nickname = databaseConfig.getAuthorNick();
+				String nickname = databaseConfig.getLocalAuthorName();
 				StartResult result = lifecycleManager.startServices(nickname);
 				if (result == SUCCESS) {
 					started = true;

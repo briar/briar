@@ -38,7 +38,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				databaseConfig.setAuthorNick(nickname);
+				databaseConfig.setLocalAuthorName(nickname);
 				SecretKey key = crypto.generateSecretKey();
 				databaseConfig.setEncryptionKey(key);
 				String hex = encryptDatabaseKey(key, password);

@@ -14,9 +14,9 @@ public interface DatabaseConfig {
 
 	SecretKey getEncryptionKey();
 
-	void setAuthorNick(String nickname);
+	void setLocalAuthorName(String nickname);
 
-	String getAuthorNick();
+	String getLocalAuthorName();
 
 	long getMaxSize();
 }
