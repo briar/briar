@@ -135,7 +135,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		String nickname = nicknameEntry.getText().toString();
 		String password = passwordEntry.getText().toString();
 
-		setupController.storeAuthorInfo(password, nickname,
+		setupController.storeAuthorInfo(nickname, password,
 				new UiResultHandler<Void>(this) {
 					@Override
 					public void onResultUi(Void result) {

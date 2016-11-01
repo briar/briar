@@ -305,8 +305,7 @@ class IntroduceeManager {
 			boolean alice = comp < 0;
 
 			// get our local author
-			LocalAuthor author =
-					identityManager.getLocalAuthor(txn);
+			LocalAuthor author = identityManager.getLocalAuthor(txn);
 
 			SecretKey secretKey;
 			byte[] privateKeyBytes = localState.getRaw(OUR_PRIVATE_KEY);

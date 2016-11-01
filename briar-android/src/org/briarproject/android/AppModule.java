@@ -77,7 +77,7 @@ public class AppModule {
 		return new DatabaseConfig() {
 
 			private volatile SecretKey key = null;
-			private volatile String nickName;
+			private volatile String nickname;
 
 			@Override
 			public boolean databaseExists() {
@@ -97,13 +97,13 @@ public class AppModule {
 			}
 
 			@Override
-			public void setAuthorNick(String nickName) {
-				this.nickName = nickName;
+			public void setAuthorNick(String nickname) {
+				this.nickname = nickname;
 			}
 
 			@Override
 			public String getAuthorNick() {
-				return nickName;
+				return nickname;
 			}
 
 			@Override

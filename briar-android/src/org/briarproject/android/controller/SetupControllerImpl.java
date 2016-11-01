@@ -10,15 +10,11 @@ import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseConfig;
 
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 public class SetupControllerImpl extends PasswordControllerImpl
 		implements SetupController {
-
-	private static final Logger LOG =
-			Logger.getLogger(SetupControllerImpl.class.getName());
 
 	private final PasswordStrengthEstimator strengthEstimator;
 
@@ -37,16 +33,16 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	}
 
 	@Override
-	public void storeAuthorInfo(final String password, final String nickname,
+	public void storeAuthorInfo(final String nickname, final String password,
 			final ResultHandler<Void> resultHandler) {
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
+				databaseConfig.setAuthorNick(nickname);
 				SecretKey key = crypto.generateSecretKey();
 				databaseConfig.setEncryptionKey(key);
 				String hex = encryptDatabaseKey(key, password);
 				storeEncryptedDatabaseKey(hex);
-				databaseConfig.setAuthorNick(nickname);
 				resultHandler.onResult(null);
 			}
 		});

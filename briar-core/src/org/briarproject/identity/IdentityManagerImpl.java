@@ -25,7 +25,7 @@ class IdentityManagerImpl implements IdentityManager {
 	private static final Logger LOG =
 			Logger.getLogger(IdentityManagerImpl.class.getName());
 
-	// Make sure that this variable is immutable
+	// The local author is immutable so we can cache it
 	private volatile LocalAuthor cachedAuthor;
 
 	@Inject
@@ -40,7 +40,7 @@ class IdentityManagerImpl implements IdentityManager {
 			db.addLocalAuthor(txn, localAuthor);
 			txn.setComplete();
 			cachedAuthor = localAuthor;
-			LOG.info("Local Author created");
+			LOG.info("Local author registered");
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -52,7 +52,7 @@ class IdentityManagerImpl implements IdentityManager {
 			Transaction txn = db.startTransaction(true);
 			try {
 				cachedAuthor = loadLocalAuthor(txn);
-				LOG.info("Author loaded from db");
+				LOG.info("Local author loaded");
 				txn.setComplete();
 			} finally {
 				db.endTransaction(txn);
@@ -66,6 +66,7 @@ class IdentityManagerImpl implements IdentityManager {
 	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
 		if (cachedAuthor == null) {
 			cachedAuthor = loadLocalAuthor(txn);
+			LOG.info("Local author loaded");
 		}
 		return cachedAuthor;
 	}
@@ -87,10 +88,7 @@ class IdentityManagerImpl implements IdentityManager {
 	@Override
 	public Status getAuthorStatus(Transaction txn, AuthorId authorId)
 			throws DbException {
-
-		// Compare to the IDs of the user's identity
 		if (getLocalAuthor(txn).getId().equals(authorId)) return OURSELVES;
-
 		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
 		if (contacts.isEmpty()) return UNKNOWN;
 		for (Contact c : contacts) {

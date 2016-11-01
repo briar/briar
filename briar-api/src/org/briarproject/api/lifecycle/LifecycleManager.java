@@ -41,11 +41,11 @@ public interface LifecycleManager {
 
 	/**
 	 * Opens the {@link org.briarproject.api.db.DatabaseComponent
-	 * DatabaseComponent}, creates a local author with the provided nick, and
-	 * starts any registered {@link org.briarproject.api.clients.Client Clients}
-	 * and {@link Service Services}.
+	 * DatabaseComponent}, creates a local author with the provided nickname,
+	 * and starts any registered {@link org.briarproject.api.clients.Client
+	 * Clients} and {@link Service Services}.
 	 */
-	StartResult startServices(@Nullable String authorNick);
+	StartResult startServices(@Nullable String nickname);
 
 	/**
 	 * Stops any registered {@link Service Services}, shuts down any

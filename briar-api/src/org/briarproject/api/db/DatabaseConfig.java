@@ -14,7 +14,7 @@ public interface DatabaseConfig {
 
 	SecretKey getEncryptionKey();
 
-	void setAuthorNick(String nickName);
+	void setAuthorNick(String nickname);
 
 	String getAuthorNick();
 

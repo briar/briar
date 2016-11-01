@@ -52,7 +52,6 @@ public class SetupActivityTest {
 
 	private TestSetupActivity setupActivity;
 	private TextInputLayout nicknameEntryWrapper;
-	private TextInputLayout passwordEntryWrapper;
 	private TextInputLayout passwordConfirmationWrapper;
 	private EditText nicknameEntry;
 	private EditText passwordEntry;
@@ -71,8 +70,6 @@ public class SetupActivityTest {
 		setupActivity = Robolectric.setupActivity(TestSetupActivity.class);
 		nicknameEntryWrapper = (TextInputLayout) setupActivity
 				.findViewById(R.id.nickname_entry_wrapper);
-		passwordEntryWrapper = (TextInputLayout) setupActivity
-				.findViewById(R.id.password_entry_wrapper);
 		passwordConfirmationWrapper = (TextInputLayout) setupActivity
 				.findViewById(R.id.password_confirm_wrapper);
 		nicknameEntry =
@@ -130,7 +127,7 @@ public class SetupActivityTest {
 		// Verify that the controller's method was called with the correct
 		// params and get the callback
 		verify(mockedController, times(1))
-				.storeAuthorInfo(eq(safePass), eq(nick),
+				.storeAuthorInfo(eq(nick), eq(safePass),
 						authorCaptor.capture());
 		authorCaptor.getValue().onResult(null);
 		// execute the callback

@@ -93,7 +93,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 				.createLocalAuthor(nickname, publicKey, privateKey);
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Identity creation took " + duration + " ms");
+			LOG.info("Creating local author took " + duration + " ms");
 		return localAuthor;
 	}
 
@@ -102,12 +102,11 @@ class LifecycleManagerImpl implements LifecycleManager {
 		identityManager.registerLocalAuthor(author);
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Author registration took " + duration +
-					" ms");
+			LOG.info("Registering local author took " + duration + " ms");
 	}
 
 	@Override
-	public StartResult startServices(@Nullable String authorNick) {
+	public StartResult startServices(@Nullable String nickname) {
 		if (!startStopSemaphore.tryAcquire()) {
 			LOG.info("Already starting or stopping");
 			return ALREADY_RUNNING;
@@ -124,8 +123,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 				else LOG.info("Creating database took " + duration + " ms");
 			}
 
-			if (authorNick != null) {
-				registerLocalAuthor(createLocalAuthor(authorNick));
+			if (nickname != null) {
+				registerLocalAuthor(createLocalAuthor(nickname));
 			}
 
 			dbLatch.countDown();

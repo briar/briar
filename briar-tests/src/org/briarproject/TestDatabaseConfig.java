@@ -39,7 +39,7 @@ public class TestDatabaseConfig implements DatabaseConfig {
 	}
 
 	@Override
-	public void setAuthorNick(String nickName) {
+	public void setAuthorNick(String nickname) {
 
 	}
 
