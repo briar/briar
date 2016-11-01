@@ -8,6 +8,8 @@ import org.briarproject.api.data.BdfReader;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import static org.briarproject.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.data.Types.DICTIONARY;
 import static org.briarproject.data.Types.END;
@@ -27,8 +29,10 @@ import static org.briarproject.data.Types.STRING_32;
 import static org.briarproject.data.Types.STRING_8;
 import static org.briarproject.data.Types.TRUE;
 
-// This class is not thread-safe
+@NotThreadSafe
 class BdfReaderImpl implements BdfReader {
+
+	final static int DEFAULT_NESTED_LIMIT = 5;
 
 	private static final byte[] EMPTY_BUFFER = new byte[] {};
 
@@ -37,9 +41,16 @@ class BdfReaderImpl implements BdfReader {
 	private boolean hasLookahead = false, eof = false;
 	private byte next;
 	private byte[] buf = new byte[8];
+	private final int nestedLimit;
 
 	BdfReaderImpl(InputStream in) {
 		this.in = in;
+		this.nestedLimit = DEFAULT_NESTED_LIMIT;
+	}
+
+	BdfReaderImpl(InputStream in, int nestedLimit) {
+		this.in = in;
+		this.nestedLimit = nestedLimit;
 	}
 
 	private void readLookahead() throws IOException {
@@ -77,7 +88,7 @@ class BdfReaderImpl implements BdfReader {
 		}
 	}
 
-	private Object readObject() throws IOException {
+	private Object readObject(int level) throws IOException {
 		if (hasNull()) {
 			readNull();
 			return NULL_VALUE;
@@ -87,8 +98,8 @@ class BdfReaderImpl implements BdfReader {
 		if (hasDouble()) return readDouble();
 		if (hasString()) return readString(Integer.MAX_VALUE);
 		if (hasRaw()) return readRaw(Integer.MAX_VALUE);
-		if (hasList()) return readList();
-		if (hasDictionary()) return readDictionary();
+		if (hasList()) return readList(level);
+		if (hasDictionary()) return readDictionary(level);
 		throw new FormatException();
 	}
 
@@ -287,10 +298,15 @@ class BdfReaderImpl implements BdfReader {
 	}
 
 	public BdfList readList() throws IOException {
+		return readList(1);
+	}
+
+	private BdfList readList(int level) throws IOException {
 		if (!hasList()) throw new FormatException();
+		if (level > nestedLimit) throw new FormatException();
 		BdfList list = new BdfList();
 		readListStart();
-		while (!hasListEnd()) list.add(readObject());
+		while (!hasListEnd()) list.add(readObject(level + 1));
 		readListEnd();
 		return list;
 	}
@@ -333,11 +349,16 @@ class BdfReaderImpl implements BdfReader {
 	}
 
 	public BdfDictionary readDictionary() throws IOException {
+		return readDictionary(1);
+	}
+
+	private BdfDictionary readDictionary(int level) throws IOException {
 		if (!hasDictionary()) throw new FormatException();
+		if (level > nestedLimit) throw new FormatException();
 		BdfDictionary dictionary = new BdfDictionary();
 		readDictionaryStart();
 		while (!hasDictionaryEnd())
-			dictionary.put(readString(Integer.MAX_VALUE), readObject());
+			dictionary.put(readString(Integer.MAX_VALUE), readObject(level + 1));
 		readDictionaryEnd();
 		return dictionary;
 	}
