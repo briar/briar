@@ -41,16 +41,14 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
-	protected final IdentityManager identityManager;
-	protected final Executor cryptoExecutor;
-	protected final AndroidNotificationManager notificationManager;
-	protected final Clock clock;
 	private final EventBus eventBus;
-
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
-
 	private volatile GroupId groupId;
 
+	protected final IdentityManager identityManager;
+	protected final AndroidNotificationManager notificationManager;
+	protected final Executor cryptoExecutor;
+	protected final Clock clock;
 	protected volatile ThreadListListener<H> listener;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,

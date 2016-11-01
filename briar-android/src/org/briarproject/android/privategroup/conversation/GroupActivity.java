@@ -1,10 +1,13 @@
 package org.briarproject.android.privategroup.conversation;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,8 +15,10 @@ import android.view.MenuItem;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
+import org.briarproject.api.db.DbException;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 
@@ -22,10 +27,15 @@ import javax.inject.Inject;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
 public class GroupActivity extends
-		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader> {
+		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader>
+		implements OnClickListener {
 
 	@Inject
 	GroupController controller;
+
+	private boolean isCreator;
+	private MenuItem leaveMenuItem;
+	private MenuItem dissolveMenuItem;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -58,6 +68,20 @@ public class GroupActivity extends
 			actionBar.setSubtitle(getString(R.string.groups_created_by,
 					group.getAuthor().getName()));
 		}
+		controller.isCreator(group,
+				new UiResultExceptionHandler<Boolean, DbException>(this) {
+					@Override
+					public void onResultUi(Boolean isCreator) {
+						GroupActivity.this.isCreator = isCreator;
+						showMenuItems();
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+						finish();
+					}
+				});
 	}
 
 	@Override
@@ -78,6 +102,10 @@ public class GroupActivity extends
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.group_actions, menu);
 
+		leaveMenuItem = menu.findItem(R.id.action_group_leave);
+		dissolveMenuItem = menu.findItem(R.id.action_group_dissolve);
+		showMenuItems();
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -86,6 +114,12 @@ public class GroupActivity extends
 		switch (item.getItemId()) {
 			case R.id.action_group_compose_message:
 				showTextInput(null);
+				return true;
+			case R.id.action_group_leave:
+				showLeaveGroupDialog();
+				return true;
+			case R.id.action_group_dissolve:
+				showDissolveGroupDialog();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -107,6 +141,55 @@ public class GroupActivity extends
 	@StringRes
 	protected int getItemReceivedString() {
 		return R.string.groups_message_received;
+	}
+
+	private void showMenuItems() {
+		if (leaveMenuItem == null || dissolveMenuItem == null) return;
+		if (isCreator) {
+			leaveMenuItem.setVisible(false);
+			dissolveMenuItem.setVisible(true);
+		} else {
+			leaveMenuItem.setVisible(true);
+			dissolveMenuItem.setVisible(false);
+		}
+	}
+
+	private void showLeaveGroupDialog() {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.groups_leave_dialog_title));
+		builder.setMessage(getString(R.string.groups_leave_dialog_message));
+		builder.setNegativeButton(R.string.dialog_button_leave, this);
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void showDissolveGroupDialog() {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.groups_dissolve_dialog_title));
+		builder.setMessage(getString(R.string.groups_dissolve_dialog_message));
+		builder.setNegativeButton(R.string.groups_dissolve_button, this);
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		controller.deleteNamedGroup(
+				new UiResultExceptionHandler<Void, DbException>(this) {
+					@Override
+					public void onResultUi(Void v) {
+						// The activity is going to be destroyed by the
+						// GroupRemovedEvent being fired
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+						finish();
+					}
+				});
 	}
 
 }

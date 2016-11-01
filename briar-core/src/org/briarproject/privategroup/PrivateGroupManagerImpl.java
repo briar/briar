@@ -138,12 +138,13 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 	@Override
 	public void removePrivateGroup(GroupId g) throws DbException {
-		// TODO
 		Transaction txn = db.startTransaction(false);
 		try {
 			for (PrivateGroupHook hook : hooks) {
 				hook.removingGroup(txn, g);
 			}
+			Group group = db.getGroup(txn, g);
+			db.removeGroup(txn, group);
 			txn.setComplete();
 		} finally {
 			db.endTransaction(txn);

@@ -163,6 +163,8 @@
 	<string name="groups_member_list">Member List</string>
 	<string name="groups_invite_members">Invite Members</string>
 	<string name="groups_leave">Leave Group</string>
+	<string name="groups_leave_dialog_title">Confirm Leaving Group</string>
+	<string name="groups_leave_dialog_message">Are you sure that you want to leave this group?</string>
 	<string name="groups_dissolve">Dissolve Group</string>
 	<string name="groups_member_joined">joined the group.</string>
 
@@ -180,6 +182,9 @@
 	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
 	<string name="groups_invitations_response_accepted_received">%s accepted your group invitation.</string>
 	<string name="groups_invitations_response_declined_received">%s declined your group invitation.</string>
+	<string name="groups_dissolve_dialog_title">Confirm Dissolving Group</string>
+	<string name="groups_dissolve_dialog_message">Are you sure that you want to dissolve this group?\n\nAll other members will not be able to continue their conversation and might not receive the latest messages.</string>
+	<string name="groups_dissolve_button">Dissolve</string>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>

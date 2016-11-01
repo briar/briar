@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.lang.Math.max;
+
 import static java.util.logging.Level.WARNING;
 
 public class GroupControllerImpl extends
@@ -172,6 +173,26 @@ public class GroupControllerImpl extends
 			return new JoinMessageItem(header, body);
 		}
 		return new GroupMessageItem(header, body);
+	}
+
+	@Override
+	public void isCreator(final PrivateGroup group,
+			final ResultExceptionHandler<Boolean, DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					LocalAuthor author = identityManager.getLocalAuthor();
+					boolean isCreator =
+							author.getId().equals(group.getAuthor().getId());
+					handler.onResult(isCreator);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
 	}
 
 }
