@@ -2,7 +2,6 @@ package org.briarproject.android.privategroup.list;
 
 import android.support.annotation.CallSuper;
 
-import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
@@ -15,7 +14,6 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
-import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
@@ -44,23 +42,17 @@ public class GroupListControllerImpl extends DbControllerImpl
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
 	private final EventBus eventBus;
-	private final AndroidNotificationManager notificationManager;
-	private final IdentityManager identityManager;
 
 	protected volatile GroupListListener listener;
 
 	@Inject
 	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
-			GroupInvitationManager groupInvitationManager, EventBus eventBus,
-			AndroidNotificationManager notificationManager,
-			IdentityManager identityManager) {
+			GroupInvitationManager groupInvitationManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
 		this.eventBus = eventBus;
-		this.notificationManager = notificationManager;
-		this.identityManager = identityManager;
 	}
 
 	@Override

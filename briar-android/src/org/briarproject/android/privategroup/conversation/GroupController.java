@@ -13,4 +13,7 @@ public interface GroupController
 	void isCreator(PrivateGroup group,
 			ResultExceptionHandler<Boolean, DbException> handler);
 
+	void isDissolved(
+			ResultExceptionHandler<Boolean, DbException> handler);
+
 }

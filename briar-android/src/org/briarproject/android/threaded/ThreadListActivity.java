@@ -110,7 +110,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	@UiThread
 	protected abstract void onNamedGroupLoaded(G groupItem);
 
-	private void loadItems() {
+	protected void loadItems() {
 		final int revision = adapter.getRevision();
 		getController().loadItems(
 				new UiResultExceptionHandler<Collection<I>, DbException>(this) {

@@ -33,9 +33,8 @@ public class GroupActivity extends
 	@Inject
 	GroupController controller;
 
-	private boolean isCreator;
-	private MenuItem leaveMenuItem;
-	private MenuItem dissolveMenuItem;
+	private boolean isCreator, isDissolved = false;
+	private MenuItem writeMenuItem, leaveMenuItem, dissolveMenuItem;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -56,7 +55,37 @@ public class GroupActivity extends
 		if (groupName != null) setTitle(groupName);
 		loadNamedGroup();
 
-		list.setEmptyText(R.string.groups_no_messages);
+		setGroupEnabled(false);
+	}
+
+	@Override
+	@LayoutRes
+	protected int getLayout() {
+		return R.layout.activity_forum;
+	}
+
+	@Override
+	protected GroupMessageAdapter createAdapter(
+			LinearLayoutManager layoutManager) {
+		return new GroupMessageAdapter(this, layoutManager);
+	}
+
+	@Override
+	protected void loadItems() {
+		controller.isDissolved(
+				new UiResultExceptionHandler<Boolean, DbException>(this) {
+					@Override
+					public void onResultUi(Boolean isDissolved) {
+						setGroupEnabled(!isDissolved);
+						GroupActivity.super.loadItems();
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+						finish();
+					}
+				});
 	}
 
 	@Override
@@ -85,23 +114,12 @@ public class GroupActivity extends
 	}
 
 	@Override
-	@LayoutRes
-	protected int getLayout() {
-		return R.layout.activity_forum;
-	}
-
-	@Override
-	protected GroupMessageAdapter createAdapter(
-			LinearLayoutManager layoutManager) {
-		return new GroupMessageAdapter(this, layoutManager);
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.group_actions, menu);
 
+		writeMenuItem = menu.findItem(R.id.action_group_compose_message);
 		leaveMenuItem = menu.findItem(R.id.action_group_leave);
 		dissolveMenuItem = menu.findItem(R.id.action_group_dissolve);
 		showMenuItems();
@@ -143,6 +161,18 @@ public class GroupActivity extends
 		return R.string.groups_message_received;
 	}
 
+	@Override
+	public void onReplyClick(GroupMessageItem item) {
+		if (!isDissolved) super.onReplyClick(item);
+	}
+
+	private void setGroupEnabled(boolean enabled) {
+		isDissolved = !enabled;
+		if (writeMenuItem != null) writeMenuItem.setVisible(enabled);
+		textInput.setSendButtonEnabled(enabled);
+		list.getRecyclerView().setAlpha(enabled ? 1f : 0.5f);
+	}
+
 	private void showMenuItems() {
 		if (leaveMenuItem == null || dissolveMenuItem == null) return;
 		if (isCreator) {
@@ -152,6 +182,7 @@ public class GroupActivity extends
 			leaveMenuItem.setVisible(true);
 			dissolveMenuItem.setVisible(false);
 		}
+		writeMenuItem.setVisible(!isDissolved);
 	}
 
 	private void showLeaveGroupDialog() {
