@@ -19,6 +19,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
+import org.briarproject.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
@@ -33,6 +34,8 @@ import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_
 public class GroupActivity extends
 		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader>
 		implements OnClickListener {
+
+	private final static int REQUEST_INVITE = 1;
 
 	@Inject
 	GroupController controller;
@@ -133,17 +136,23 @@ public class GroupActivity extends
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
+		ActivityOptionsCompat options =
+				makeCustomAnimation(this, android.R.anim.slide_in_left,
+						android.R.anim.slide_out_right);
 		switch (item.getItemId()) {
 			case R.id.action_group_compose_message:
 				showTextInput(null);
 				return true;
 			case R.id.action_group_member_list:
-				Intent i = new Intent(this, GroupMemberListActivity.class);
-				i.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityOptionsCompat options =
-						makeCustomAnimation(this, android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
-				ActivityCompat.startActivity(this, i, options.toBundle());
+				Intent i1 = new Intent(this, GroupMemberListActivity.class);
+				i1.putExtra(GROUP_ID, groupId.getBytes());
+				ActivityCompat.startActivity(this, i1, options.toBundle());
+				return true;
+			case R.id.action_group_invite:
+				Intent i2 = new Intent(this, GroupInviteActivity.class);
+				i2.putExtra(GROUP_ID, groupId.getBytes());
+				ActivityCompat.startActivityForResult(this, i2, REQUEST_INVITE,
+						options.toBundle());
 				return true;
 			case R.id.action_group_leave:
 				showLeaveGroupDialog();
@@ -153,6 +162,13 @@ public class GroupActivity extends
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	protected void onActivityResult(int request, int result, Intent data) {
+		if (request == REQUEST_INVITE && result == RESULT_OK) {
+			displaySnackbarShort(R.string.groups_invitation_sent);
+		} else super.onActivityResult(request, result, data);
 	}
 
 	@Override

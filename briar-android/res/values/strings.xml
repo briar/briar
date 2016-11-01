@@ -157,6 +157,7 @@
 	<string name="groups_create_group_button">Create Group</string>
 	<string name="groups_create_group_invitation_button">Send Invitation</string>
 	<string name="groups_create_group_hint">Add a name for your private group</string>
+	<string name="groups_invitation_sent">Group invitation has been sent</string>
 	<string name="groups_compose_message">Compose Message</string>
 	<string name="groups_message_sent">Message sent</string>
 	<string name="groups_message_received">Message received</string>

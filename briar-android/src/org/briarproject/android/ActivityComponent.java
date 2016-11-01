@@ -32,6 +32,7 @@ import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.android.privategroup.creation.CreateGroupMessageFragment;
+import org.briarproject.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
@@ -80,6 +81,7 @@ public interface ActivityComponent {
 
 	void inject(CreateGroupActivity activity);
 	void inject(GroupActivity activity);
+	void inject(GroupInviteActivity activity);
 	void inject(GroupInvitationActivity activity);
 	void inject(GroupMemberListActivity activity);
 
