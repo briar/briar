@@ -99,7 +99,7 @@ class ContactManagerImpl implements ContactManager, RemoveIdentityHook {
 		}
 		List<Contact> active = new ArrayList<Contact>(contacts.size());
 		for (Contact c : contacts) if (c.isActive()) active.add(c);
-		return Collections.unmodifiableList(active);
+		return active;
 	}
 
 	@Override
