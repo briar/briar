@@ -268,7 +268,7 @@ public class BdfReaderImplTest extends BriarTestCase {
 		String unicode = "\uFDD0\uFDD1\uFDD2\uFDD3";
 		String hex = StringUtils.toHexString(unicode.getBytes("UTF-8"));
 		// STRING_8 tag, "foo", the empty string, and the test string
-		setContents("41" + "03" + "666F6F" +"41" + "00" + "41" + "0C" + hex);
+		setContents("41" + "03" + "666F6F" + "41" + "00" + "41" + "0C" + hex);
 		assertEquals("foo", r.readString(Integer.MAX_VALUE));
 		assertEquals("", r.readString(Integer.MAX_VALUE));
 		assertEquals(unicode, r.readString(Integer.MAX_VALUE));

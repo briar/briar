@@ -4,6 +4,8 @@ import java.io.IOException;
 
 public interface BdfReader {
 
+	int DEFAULT_NESTED_LIMIT = 5;
+
 	boolean eof() throws IOException;
 	void close() throws IOException;
 

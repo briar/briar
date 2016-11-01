@@ -32,21 +32,14 @@ import static org.briarproject.data.Types.TRUE;
 @NotThreadSafe
 class BdfReaderImpl implements BdfReader {
 
-	final static int DEFAULT_NESTED_LIMIT = 5;
-
-	private static final byte[] EMPTY_BUFFER = new byte[] {};
+	private static final byte[] EMPTY_BUFFER = new byte[0];
 
 	private final InputStream in;
+	private final int nestedLimit;
 
 	private boolean hasLookahead = false, eof = false;
 	private byte next;
 	private byte[] buf = new byte[8];
-	private final int nestedLimit;
-
-	BdfReaderImpl(InputStream in) {
-		this.in = in;
-		this.nestedLimit = DEFAULT_NESTED_LIMIT;
-	}
 
 	BdfReaderImpl(InputStream in, int nestedLimit) {
 		this.in = in;
@@ -54,7 +47,7 @@ class BdfReaderImpl implements BdfReader {
 	}
 
 	private void readLookahead() throws IOException {
-		if (eof) throw new IllegalStateException();
+		if (eof) return;
 		if (hasLookahead) throw new IllegalStateException();
 		// Read a lookahead byte
 		int i = in.read();
