@@ -37,7 +37,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	}
 
 	@Override
-	public void storeAuthorInfo(final String password, final String nickName,
+	public void storeAuthorInfo(final String password, final String nickname,
 			final ResultHandler<Void> resultHandler) {
 		cryptoExecutor.execute(new Runnable() {
 			@Override
@@ -46,7 +46,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 				databaseConfig.setEncryptionKey(key);
 				String hex = encryptDatabaseKey(key, password);
 				storeEncryptedDatabaseKey(hex);
-				databaseConfig.setAuthorNick(nickName);
+				databaseConfig.setAuthorNick(nickname);
 				resultHandler.onResult(null);
 			}
 		});
