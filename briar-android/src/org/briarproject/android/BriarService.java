@@ -45,11 +45,13 @@ public class BriarService extends Service {
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
 
-	@Inject protected DatabaseConfig databaseConfig;
-
+	@Inject
+	protected DatabaseConfig databaseConfig;
 	// Fields that are accessed from background threads must be volatile
-	@Inject protected volatile LifecycleManager lifecycleManager;
-	@Inject protected volatile AndroidExecutor androidExecutor;
+	@Inject
+	protected volatile LifecycleManager lifecycleManager;
+	@Inject
+	protected volatile AndroidExecutor androidExecutor;
 	private volatile boolean started = false;
 
 	@Override
@@ -91,7 +93,8 @@ public class BriarService extends Service {
 		new Thread() {
 			@Override
 			public void run() {
-				StartResult result = lifecycleManager.startServices();
+				String nickname = databaseConfig.getLocalAuthorName();
+				StartResult result = lifecycleManager.startServices(nickname);
 				if (result == SUCCESS) {
 					started = true;
 				} else if (result == ALREADY_RUNNING) {
@@ -169,24 +172,32 @@ public class BriarService extends Service {
 		// FIXME: Work out what to do about it
 	}
 
-	/** Waits for all services to start before returning. */
+	/**
+	 * Waits for all services to start before returning.
+	 */
 	public void waitForStartup() throws InterruptedException {
 		lifecycleManager.waitForStartup();
 	}
 
-	/** Waits for all services to stop before returning. */
+	/**
+	 * Waits for all services to stop before returning.
+	 */
 	public void waitForShutdown() throws InterruptedException {
 		lifecycleManager.waitForShutdown();
 	}
 
-	/** Starts the shutdown process. */
+	/**
+	 * Starts the shutdown process.
+	 */
 	public void shutdown() {
 		stopSelf(); // This will call onDestroy()
 	}
 
 	public class BriarBinder extends Binder {
 
-		/** Returns the bound service. */
+		/**
+		 * Returns the bound service.
+		 */
 		public BriarService getService() {
 			return BriarService.this;
 		}
@@ -205,9 +216,12 @@ public class BriarService extends Service {
 		}
 
 		@Override
-		public void onServiceDisconnected(ComponentName name) {}
+		public void onServiceDisconnected(ComponentName name) {
+		}
 
-		/** Waits for the service to connect and returns its binder. */
+		/**
+		 * Waits for the service to connect and returns its binder.
+		 */
 		public IBinder waitForBinder() throws InterruptedException {
 			binderLatch.await();
 			return binder;

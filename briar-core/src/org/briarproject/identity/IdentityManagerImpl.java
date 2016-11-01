@@ -10,8 +10,7 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -22,104 +21,63 @@ import static org.briarproject.api.identity.Author.Status.VERIFIED;
 
 class IdentityManagerImpl implements IdentityManager {
 	private final DatabaseComponent db;
-	private final List<AddIdentityHook> addHooks;
-	private final List<RemoveIdentityHook> removeHooks;
+
+	private static final Logger LOG =
+			Logger.getLogger(IdentityManagerImpl.class.getName());
+
+	// The local author is immutable so we can cache it
+	private volatile LocalAuthor cachedAuthor;
 
 	@Inject
 	IdentityManagerImpl(DatabaseComponent db) {
 		this.db = db;
-		addHooks = new CopyOnWriteArrayList<AddIdentityHook>();
-		removeHooks = new CopyOnWriteArrayList<RemoveIdentityHook>();
 	}
 
 	@Override
-	public void registerAddIdentityHook(AddIdentityHook hook) {
-		addHooks.add(hook);
-	}
-
-	@Override
-	public void registerRemoveIdentityHook(RemoveIdentityHook hook) {
-		removeHooks.add(hook);
-	}
-
-	@Override
-	public void addLocalAuthor(LocalAuthor localAuthor) throws DbException {
+	public void registerLocalAuthor(LocalAuthor localAuthor) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
 			db.addLocalAuthor(txn, localAuthor);
-			for (AddIdentityHook hook : addHooks)
-				hook.addingIdentity(txn, localAuthor);
 			txn.setComplete();
+			cachedAuthor = localAuthor;
+			LOG.info("Local author registered");
 		} finally {
 			db.endTransaction(txn);
 		}
-	}
-
-	@Override
-	public LocalAuthor getLocalAuthor(AuthorId a) throws DbException {
-		LocalAuthor author;
-		Transaction txn = db.startTransaction(true);
-		try {
-			author = getLocalAuthor(txn, a);
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
-		}
-		return author;
-	}
-
-	@Override
-	public LocalAuthor getLocalAuthor(Transaction txn, AuthorId a)
-			throws DbException {
-		return db.getLocalAuthor(txn, a);
 	}
 
 	@Override
 	public LocalAuthor getLocalAuthor() throws DbException {
-		return getLocalAuthors().iterator().next();
+		if (cachedAuthor == null) {
+			Transaction txn = db.startTransaction(true);
+			try {
+				cachedAuthor = loadLocalAuthor(txn);
+				LOG.info("Local author loaded");
+				txn.setComplete();
+			} finally {
+				db.endTransaction(txn);
+			}
+		}
+		return cachedAuthor;
 	}
+
 
 	@Override
 	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
-		return getLocalAuthors(txn).iterator().next();
-	}
-
-	@Override
-	public Collection<LocalAuthor> getLocalAuthors() throws DbException {
-		Collection<LocalAuthor> authors;
-		Transaction txn = db.startTransaction(true);
-		try {
-			authors = getLocalAuthors(txn);
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
+		if (cachedAuthor == null) {
+			cachedAuthor = loadLocalAuthor(txn);
+			LOG.info("Local author loaded");
 		}
-		return authors;
+		return cachedAuthor;
 	}
 
-	private Collection<LocalAuthor> getLocalAuthors(Transaction txn)
-			throws DbException {
-
-		return db.getLocalAuthors(txn);
-	}
-
-	@Override
-	public void removeLocalAuthor(AuthorId a) throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			LocalAuthor localAuthor = db.getLocalAuthor(txn, a);
-			for (RemoveIdentityHook hook : removeHooks)
-				hook.removingIdentity(txn, localAuthor);
-			db.removeLocalAuthor(txn, a);
-			txn.setComplete();
-		} finally {
-			db.endTransaction(txn);
-		}
+	private LocalAuthor loadLocalAuthor(Transaction txn) throws  DbException{
+		return db.getLocalAuthors(txn).iterator().next();
 	}
 
 	@Override
 	public Status getAuthorStatus(AuthorId authorId) throws DbException {
-		Transaction txn = db.startTransaction(false);
+		Transaction txn = db.startTransaction(true);
 		try {
 			return getAuthorStatus(txn, authorId);
 		} finally {
@@ -130,12 +88,7 @@ class IdentityManagerImpl implements IdentityManager {
 	@Override
 	public Status getAuthorStatus(Transaction txn, AuthorId authorId)
 			throws DbException {
-
-		// Compare to the IDs of the user's identities
-		for (LocalAuthor a : db.getLocalAuthors(txn)) {
-			if (a.getId().equals(authorId)) return OURSELVES;
-		}
-
+		if (getLocalAuthor(txn).getId().equals(authorId)) return OURSELVES;
 		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
 		if (contacts.isEmpty()) return UNKNOWN;
 		for (Contact c : contacts) {

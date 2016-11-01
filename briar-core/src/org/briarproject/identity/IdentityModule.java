@@ -31,7 +31,7 @@ public class IdentityModule {
 
 	@Provides
 	@Singleton
-	IdentityManager provideIdendityModule(DatabaseComponent db) {
+	IdentityManager provideIdentityModule(DatabaseComponent db) {
 		return new IdentityManagerImpl(db);
 	}
 

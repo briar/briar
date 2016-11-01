@@ -2,26 +2,19 @@ package org.briarproject.invitation;
 
 import org.briarproject.api.contact.ContactExchangeListener;
 import org.briarproject.api.contact.ContactExchangeTask;
-import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriterFactory;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
-import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
-import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +44,6 @@ class ConnectorGroup extends Thread implements InvitationTask,
 	private final ContactExchangeTask contactExchangeTask;
 	private final IdentityManager identityManager;
 	private final PluginManager pluginManager;
-	private final AuthorId localAuthorId;
 	private final int localInvitationCode, remoteInvitationCode;
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
@@ -66,11 +58,9 @@ class ConnectorGroup extends Thread implements InvitationTask,
 	private String remoteName = null;
 
 	ConnectorGroup(CryptoComponent crypto, BdfReaderFactory bdfReaderFactory,
-			BdfWriterFactory bdfWriterFactory,
-			ContactExchangeTask contactExchangeTask,
+			BdfWriterFactory bdfWriterFactory, ContactExchangeTask contactExchangeTask,
 			IdentityManager identityManager, PluginManager pluginManager,
-			AuthorId localAuthorId, int localInvitationCode,
-			int remoteInvitationCode) {
+			int localInvitationCode, int remoteInvitationCode) {
 		super("ConnectorGroup");
 		this.crypto = crypto;
 		this.bdfReaderFactory = bdfReaderFactory;
@@ -78,7 +68,6 @@ class ConnectorGroup extends Thread implements InvitationTask,
 		this.contactExchangeTask = contactExchangeTask;
 		this.identityManager = identityManager;
 		this.pluginManager = pluginManager;
-		this.localAuthorId = localAuthorId;
 		this.localInvitationCode = localInvitationCode;
 		this.remoteInvitationCode = remoteInvitationCode;
 		listeners = new CopyOnWriteArrayList<InvitationListener>();
@@ -113,7 +102,7 @@ class ConnectorGroup extends Thread implements InvitationTask,
 		LocalAuthor localAuthor;
 		// Load the local pseudonym
 		try {
-			localAuthor = identityManager.getLocalAuthor(localAuthorId);
+			localAuthor = identityManager.getLocalAuthor();
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			lock.lock();

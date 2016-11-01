@@ -10,7 +10,6 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
@@ -729,7 +728,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		startLifecycles();
 		try {
 			// initialize
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addForumForSharer();
 
@@ -1017,9 +1016,9 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 		lifecycleManager0 = t0.getLifecycleManager();
 		lifecycleManager1 = t1.getLifecycleManager();
 		lifecycleManager2 = t2.getLifecycleManager();
-		lifecycleManager0.startServices();
-		lifecycleManager1.startServices();
-		lifecycleManager2.startServices();
+		lifecycleManager0.startServices(SHARER);
+		lifecycleManager1.startServices(INVITEE);
+		lifecycleManager2.startServices(SHARER2);
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
 		lifecycleManager2.waitForStartup();
@@ -1036,30 +1035,16 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 	}
 
 	private void defaultInit(boolean accept) throws DbException {
-		addDefaultIdentities();
+		getDefaultIdentities();
 		addDefaultContacts();
 		addForumForSharer();
 		listenToEvents(accept);
 	}
 
-	private void addDefaultIdentities() throws DbException {
-		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
-		author0 = authorFactory.createLocalAuthor(SHARER,
-				keyPair.getPublic().getEncoded(),
-				keyPair.getPrivate().getEncoded());
-		identityManager0.addLocalAuthor(author0);
-
-		keyPair = cryptoComponent.generateSignatureKeyPair();
-		author1 = authorFactory.createLocalAuthor(INVITEE,
-				keyPair.getPublic().getEncoded(),
-				keyPair.getPrivate().getEncoded());
-		identityManager1.addLocalAuthor(author1);
-
-		keyPair = cryptoComponent.generateSignatureKeyPair();
-		author2 = authorFactory.createLocalAuthor(SHARER2,
-				keyPair.getPublic().getEncoded(),
-				keyPair.getPrivate().getEncoded());
-		identityManager2.addLocalAuthor(author2);
+	private void getDefaultIdentities() throws DbException {
+		author0 = identityManager0.getLocalAuthor();
+		author1 = identityManager1.getLocalAuthor();
+		author2 = identityManager2.getLocalAuthor();
 	}
 
 	private void addDefaultContacts() throws DbException {

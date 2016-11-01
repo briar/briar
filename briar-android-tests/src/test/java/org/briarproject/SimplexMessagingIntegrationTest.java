@@ -43,6 +43,9 @@ import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
+	private final static String ALICE = "Alice";
+	private final static String BOB = "Bob";
+
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
@@ -69,6 +72,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		read(write());
 	}
 
+
 	private byte[] write() throws Exception {
 		// Instantiate Alice's services
 		LifecycleManager lifecycleManager = alice.getLifecycleManager();
@@ -83,17 +87,17 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		SyncSessionFactory syncSessionFactory = alice.getSyncSessionFactory();
 
 		// Start the lifecycle manager
-		lifecycleManager.startServices();
+		lifecycleManager.startServices(null);
 		lifecycleManager.waitForStartup();
 		// Add an identity for Alice
 		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
-		identityManager.addLocalAuthor(aliceAuthor);
+		identityManager.registerLocalAuthor(aliceAuthor);
 		// Add Bob as a contact
-		Author bobAuthor = new Author(bobId, "Bob",
+		Author bobAuthor = new Author(bobId, BOB,
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
-		ContactId contactId = contactManager.addContact(bobAuthor, aliceId,
-				master, timestamp, true, true, true);
+		ContactId contactId = contactManager.addContact(bobAuthor,
+				aliceAuthor.getId(), master, timestamp, true, true, true);
 
 		// Send Bob a message
 		GroupId groupId = messagingManager.getConversationId(contactId);
@@ -136,18 +140,17 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		bob.getMessagingManager();
 
 		// Start the lifecyle manager
-		lifecycleManager.startServices();
+		lifecycleManager.startServices(null);
 		lifecycleManager.waitForStartup();
 		// Add an identity for Bob
-		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
+		LocalAuthor bobAuthor = new LocalAuthor(bobId, BOB,
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
-		identityManager.addLocalAuthor(bobAuthor);
+		identityManager.registerLocalAuthor(bobAuthor);
 		// Add Alice as a contact
-		Author aliceAuthor = new Author(aliceId, "Alice",
+		Author aliceAuthor = new Author(aliceId, ALICE,
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
-		ContactId contactId = contactManager.addContact(aliceAuthor, bobId,
-				master, timestamp, false, true, true);
-
+		ContactId contactId = contactManager.addContact(aliceAuthor,
+				bobAuthor.getId(), master, timestamp, false, true, true);
 		// Set up an event listener
 		MessageListener listener = new MessageListener();
 		bob.getEventBus().addListener(listener);

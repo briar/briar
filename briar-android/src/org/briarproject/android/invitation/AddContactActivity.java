@@ -254,8 +254,7 @@ public class AddContactActivity extends BriarActivity
 		// change UI to show a progress indicator
 		setView(new InvitationCodeView(this, true));
 
-		task = invitationTaskFactory.createTask(localAuthorId,
-				localInvitationCode, code);
+		task = invitationTaskFactory.createTask(localInvitationCode, code);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
 		task.addListener(AddContactActivity.this);
 		// Add a second listener so we can remove the first in onDestroy(),

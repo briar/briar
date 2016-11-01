@@ -4,6 +4,8 @@ import org.briarproject.api.clients.Client;
 
 import java.util.concurrent.ExecutorService;
 
+import javax.annotation.Nullable;
+
 /**
  * Manages the lifecycle of the app, starting {@link
  * org.briarproject.api.clients.Client Clients}, starting and stopping {@link
@@ -14,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 public interface LifecycleManager {
 
 	/**
-	 * The result of calling {@link LifecycleManager#startServices()}.
+	 * The result of calling {@link LifecycleManager#startServices(String)}.
 	 */
 	enum StartResult {
 		ALREADY_RUNNING, DB_ERROR, SERVICE_ERROR, SUCCESS
@@ -39,11 +41,11 @@ public interface LifecycleManager {
 
 	/**
 	 * Opens the {@link org.briarproject.api.db.DatabaseComponent
-	 * DatabaseComponent} and starts any registered {@link
-	 * org.briarproject.api.clients.Client Clients} and {@link Service
-	 * Services}.
+	 * DatabaseComponent}, creates a local author with the provided nickname,
+	 * and starts any registered {@link org.briarproject.api.clients.Client
+	 * Clients} and {@link Service Services}.
 	 */
-	StartResult startServices();
+	StartResult startServices(@Nullable String nickname);
 
 	/**
 	 * Stops any registered {@link Service Services}, shuts down any

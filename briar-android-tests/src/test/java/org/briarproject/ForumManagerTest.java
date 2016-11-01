@@ -140,7 +140,7 @@ public class ForumManagerTest extends BriarIntegrationTest {
 	@Test
 	public void testForumPost() throws Exception {
 		startLifecycles();
-		addDefaultIdentities();
+		getDefaultIdentities();
 		Forum forum = forumManager0.addForum("TestForum");
 		assertEquals(1, forumManager0.getForums().size());
 		final long ms1 = clock.currentTimeMillis() - 1000L;
@@ -362,26 +362,15 @@ public class ForumManagerTest extends BriarIntegrationTest {
 	}
 
 	private void defaultInit() throws DbException {
-		addDefaultIdentities();
+		getDefaultIdentities();
 		addDefaultContacts();
 		addForum();
 		listenToEvents();
 	}
 
-	private void addDefaultIdentities() throws DbException {
-		KeyPair keyPair0 = crypto.generateSignatureKeyPair();
-		byte[] publicKey0 = keyPair0.getPublic().getEncoded();
-		byte[] privateKey0 = keyPair0.getPrivate().getEncoded();
-		author0 = authorFactory
-				.createLocalAuthor(SHARER, publicKey0, privateKey0);
-		identityManager0.addLocalAuthor(author0);
-
-		KeyPair keyPair1 = crypto.generateSignatureKeyPair();
-		byte[] publicKey1 = keyPair1.getPublic().getEncoded();
-		byte[] privateKey1 = keyPair1.getPrivate().getEncoded();
-		author1 = authorFactory
-				.createLocalAuthor(INVITEE, publicKey1, privateKey1);
-		identityManager1.addLocalAuthor(author1);
+	private void getDefaultIdentities() throws DbException {
+		author0 = identityManager0.getLocalAuthor();
+		author1 = identityManager1.getLocalAuthor();
 	}
 
 	private void addDefaultContacts() throws DbException {
@@ -442,8 +431,8 @@ public class ForumManagerTest extends BriarIntegrationTest {
 		// Start the lifecycle manager and wait for it to finish
 		lifecycleManager0 = t0.getLifecycleManager();
 		lifecycleManager1 = t1.getLifecycleManager();
-		lifecycleManager0.startServices();
-		lifecycleManager1.startServices();
+		lifecycleManager0.startServices(SHARER);
+		lifecycleManager1.startServices(INVITEE);
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
 	}

@@ -6,7 +6,7 @@ public interface ConfigController {
 
 	String getEncryptedDatabaseKey();
 
-	void setEncryptedDatabaseKey(String hex);
+	void storeEncryptedDatabaseKey(String hex);
 
 	void deleteAccount(Context ctx);
 

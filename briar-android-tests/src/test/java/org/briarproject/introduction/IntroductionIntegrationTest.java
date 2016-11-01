@@ -188,7 +188,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testIntroductionSession() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(true, true);
 			addTransportProperties();
@@ -282,7 +282,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testIntroductionSessionFirstDecline() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(false, true);
 			addTransportProperties();
@@ -349,7 +349,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testIntroductionSessionSecondDecline() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(true, false);
 			addTransportProperties();
@@ -411,7 +411,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testIntroductionSessionDelayedFirstDecline() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(false, false);
 			addTransportProperties();
@@ -464,7 +464,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testResponseAndAckInOneSession() throws Exception {
 		startLifecycles();
 
-		addDefaultIdentities();
+		getDefaultIdentities();
 		addDefaultContacts();
 		addListeners(true, true);
 		addTransportProperties();
@@ -512,7 +512,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testIntroductionToSameContact() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(true, false);
 			addTransportProperties();
@@ -538,120 +538,10 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	}
 
 	@Test
-	public void testIntroductionToIdentitiesOfSameContact() throws Exception {
-		startLifecycles();
-		try {
-			// Add Identities
-			author0 = authorFactory.createLocalAuthor(INTRODUCER,
-					TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-					TestUtils.getRandomBytes(123));
-			identityManager0.addLocalAuthor(author0);
-			author1 = authorFactory.createLocalAuthor(INTRODUCEE1,
-					TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-					TestUtils.getRandomBytes(123));
-			identityManager1.addLocalAuthor(author1);
-			author2 = authorFactory.createLocalAuthor(INTRODUCEE2,
-					TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-					TestUtils.getRandomBytes(123));
-			identityManager1.addLocalAuthor(author2);
-
-			// Add introducees' authors as contacts
-			contactId1 = contactManager0.addContact(author1,
-					author0.getId(), master, clock.currentTimeMillis(), true,
-					true, true
-			);
-			contactId2 = contactManager0.addContact(author2,
-					author0.getId(), master, clock.currentTimeMillis(), true,
-					true, true
-			);
-			// Add introducer back
-			contactId0 = null;
-			ContactId contactId01 = contactManager1.addContact(author0,
-					author1.getId(), master, clock.currentTimeMillis(), false,
-					true, true
-			);
-			ContactId contactId02 = contactManager1.addContact(author0,
-					author2.getId(), master, clock.currentTimeMillis(), false,
-					true, true
-			);
-			// listen to events
-			addListeners(true, false);
-
-			// Add Transport Properties
-			TransportPropertyManager tpm0 = t0.getTransportPropertyManager();
-			TransportPropertyManager tpm1 = t1.getTransportPropertyManager();
-			TransportProperties tp = new TransportProperties(
-					Collections.singletonMap("key", "value"));
-			tpm0.mergeLocalProperties(TRANSPORT_ID, tp);
-			deliverMessage(sync0, contactId01, sync1, contactId1, "0 to 11");
-			deliverMessage(sync0, contactId02, sync1, contactId2, "0 to 12");
-			tpm1.mergeLocalProperties(TRANSPORT_ID, tp);
-			deliverMessage(sync1, contactId1, sync0, contactId01, "1 to 01");
-			deliverMessage(sync1, contactId2, sync0, contactId02, "1 to 02");
-
-			// make introduction
-			long time = clock.currentTimeMillis();
-			Contact introducee1 = contactManager0.getContact(contactId1);
-			Contact introducee2 = contactManager0.getContact(contactId2);
-			introductionManager0
-					.makeIntroduction(introducee1, introducee2, "Hi!", time);
-
-			// sync request messages
-			deliverMessage(sync0, contactId01, sync1, contactId1);
-			deliverMessage(sync0, contactId02, sync1, contactId2);
-
-			// wait for request to arrive
-			eventWaiter.await(TIMEOUT, 2);
-			assertTrue(listener1.requestReceived);
-
-			// sync responses
-			deliverMessage(sync1, contactId1, sync0, contactId01);
-			deliverMessage(sync1, contactId2, sync0, contactId02);
-
-			// wait for two responses to arrive
-			eventWaiter.await(TIMEOUT, 2);
-			assertTrue(listener0.response1Received);
-			assertTrue(listener0.response2Received);
-
-			// sync forwarded responses to introducees
-			deliverMessage(sync0, contactId01, sync1, contactId1);
-			deliverMessage(sync0, contactId02, sync1, contactId2);
-
-			// wait for "both" introducees to abort session
-			eventWaiter.await(TIMEOUT, 2);
-			assertTrue(listener1.aborted);
-
-			// sync abort message
-			deliverMessage(sync1, contactId1, sync0, contactId01);
-			deliverMessage(sync1, contactId2, sync0, contactId02);
-
-			// wait for introducer to abort session (gets event twice)
-			eventWaiter.await(TIMEOUT, 2);
-			assertTrue(listener0.aborted);
-
-			assertFalse(contactManager1
-					.contactExists(author1.getId(), author2.getId()));
-			assertFalse(contactManager1
-					.contactExists(author2.getId(), author1.getId()));
-
-			assertEquals(2, introductionManager0.getIntroductionMessages(
-					contactId1).size());
-			assertEquals(2, introductionManager0.getIntroductionMessages(
-					contactId2).size());
-			assertEquals(2, introductionManager1.getIntroductionMessages(
-					contactId01).size());
-			assertEquals(2, introductionManager1.getIntroductionMessages(
-					contactId02).size());
-		} finally {
-			stopLifecycles();
-		}
-	}
-
-	@Test
 	public void testSessionIdReuse() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(true, true);
 			addTransportProperties();
@@ -719,7 +609,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testIntroducerRemovedCleanup() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(true, true);
 			addTransportProperties();
@@ -776,7 +666,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	public void testIntroduceesRemovedCleanup() throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(true, true);
 			addTransportProperties();
@@ -847,7 +737,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			throws Exception {
 		startLifecycles();
 		try {
-			addDefaultIdentities();
+			getDefaultIdentities();
 			addDefaultContacts();
 			addListeners(true, true);
 			addTransportProperties();
@@ -1091,9 +981,9 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 		lifecycleManager0 = t0.getLifecycleManager();
 		lifecycleManager1 = t1.getLifecycleManager();
 		lifecycleManager2 = t2.getLifecycleManager();
-		lifecycleManager0.startServices();
-		lifecycleManager1.startServices();
-		lifecycleManager2.startServices();
+		lifecycleManager0.startServices(INTRODUCER);
+		lifecycleManager1.startServices(INTRODUCEE1);
+		lifecycleManager2.startServices(INTRODUCEE2);
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
 		lifecycleManager2.waitForStartup();
@@ -1138,25 +1028,11 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 		t2.getEventBus().addListener(listener2);
 	}
 
-	private void addDefaultIdentities() throws DbException {
-		KeyPair keyPair0 = crypto.generateSignatureKeyPair();
-		byte[] publicKey0 = keyPair0.getPublic().getEncoded();
-		byte[] privateKey0 = keyPair0.getPrivate().getEncoded();
-		author0 = authorFactory
-				.createLocalAuthor(INTRODUCER, publicKey0, privateKey0);
-		identityManager0.addLocalAuthor(author0);
-		KeyPair keyPair1 = crypto.generateSignatureKeyPair();
-		byte[] publicKey1 = keyPair1.getPublic().getEncoded();
-		byte[] privateKey1 = keyPair1.getPrivate().getEncoded();
-		author1 = authorFactory
-				.createLocalAuthor(INTRODUCEE1, publicKey1, privateKey1);
-		identityManager1.addLocalAuthor(author1);
-		KeyPair keyPair2 = crypto.generateSignatureKeyPair();
-		byte[] publicKey2 = keyPair2.getPublic().getEncoded();
-		byte[] privateKey2 = keyPair2.getPrivate().getEncoded();
-		author2 = authorFactory
-				.createLocalAuthor(INTRODUCEE2, publicKey2, privateKey2);
-		identityManager2.addLocalAuthor(author2);
+	private void getDefaultIdentities() throws DbException {
+		author0 = identityManager0.getLocalAuthor();
+		author1 = identityManager1.getLocalAuthor();
+		author2 = identityManager2.getLocalAuthor();
+
 	}
 
 	private void addDefaultContacts() throws DbException {

@@ -1,11 +1,16 @@
 package org.briarproject.lifecycle;
 
 import org.briarproject.api.clients.Client;
+import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.ShutdownEvent;
+import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.identity.IdentityManager;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ServiceException;
@@ -17,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
@@ -36,15 +42,23 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private final List<Service> services;
 	private final List<Client> clients;
 	private final List<ExecutorService> executors;
+	private final CryptoComponent crypto;
+	private final AuthorFactory authorFactory;
+	private final IdentityManager identityManager;
 	private final Semaphore startStopSemaphore = new Semaphore(1);
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 	@Inject
-	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus) {
+	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus,
+			CryptoComponent crypto, AuthorFactory authorFactory,
+			IdentityManager identityManager) {
 		this.db = db;
 		this.eventBus = eventBus;
+		this.crypto = crypto;
+		this.authorFactory = authorFactory;
+		this.identityManager = identityManager;
 		services = new CopyOnWriteArrayList<Service>();
 		clients = new CopyOnWriteArrayList<Client>();
 		executors = new CopyOnWriteArrayList<ExecutorService>();
@@ -70,8 +84,29 @@ class LifecycleManagerImpl implements LifecycleManager {
 		executors.add(e);
 	}
 
+	private LocalAuthor createLocalAuthor(final String nickname) {
+		long now = System.currentTimeMillis();
+		KeyPair keyPair = crypto.generateSignatureKeyPair();
+		byte[] publicKey = keyPair.getPublic().getEncoded();
+		byte[] privateKey = keyPair.getPrivate().getEncoded();
+		LocalAuthor localAuthor = authorFactory
+				.createLocalAuthor(nickname, publicKey, privateKey);
+		long duration = System.currentTimeMillis() - now;
+		if (LOG.isLoggable(INFO))
+			LOG.info("Creating local author took " + duration + " ms");
+		return localAuthor;
+	}
+
+	private void registerLocalAuthor(LocalAuthor author) throws DbException {
+		long now = System.currentTimeMillis();
+		identityManager.registerLocalAuthor(author);
+		long duration = System.currentTimeMillis() - now;
+		if (LOG.isLoggable(INFO))
+			LOG.info("Registering local author took " + duration + " ms");
+	}
+
 	@Override
-	public StartResult startServices() {
+	public StartResult startServices(@Nullable String nickname) {
 		if (!startStopSemaphore.tryAcquire()) {
 			LOG.info("Already starting or stopping");
 			return ALREADY_RUNNING;
@@ -79,6 +114,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 		try {
 			LOG.info("Starting services");
 			long start = System.currentTimeMillis();
+
 			boolean reopened = db.open();
 			long duration = System.currentTimeMillis() - start;
 			if (LOG.isLoggable(INFO)) {
@@ -86,6 +122,11 @@ class LifecycleManagerImpl implements LifecycleManager {
 					LOG.info("Reopening database took " + duration + " ms");
 				else LOG.info("Creating database took " + duration + " ms");
 			}
+
+			if (nickname != null) {
+				registerLocalAuthor(createLocalAuthor(nickname));
+			}
+
 			dbLatch.countDown();
 			Transaction txn = db.startTransaction(false);
 			try {
@@ -181,4 +222,5 @@ class LifecycleManagerImpl implements LifecycleManager {
 	public void waitForShutdown() throws InterruptedException {
 		shutdownLatch.await();
 	}
+
 }

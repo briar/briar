@@ -12,7 +12,6 @@ import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -455,6 +454,7 @@ public class BlogManagerTest extends BriarIntegrationTest {
 
 	@Test
 	public void testCommentOnOwnComment() throws Exception {
+
 		startLifecycles();
 		defaultInit();
 
@@ -526,26 +526,15 @@ public class BlogManagerTest extends BriarIntegrationTest {
 	}
 
 	private void defaultInit() throws DbException {
-		addDefaultIdentities();
+		getDefaultIdentities();
 		addDefaultContacts();
 		listenToEvents();
 	}
 
-	private void addDefaultIdentities() throws DbException {
-		KeyPair keyPair0 = crypto.generateSignatureKeyPair();
-		byte[] publicKey0 = keyPair0.getPublic().getEncoded();
-		byte[] privateKey0 = keyPair0.getPrivate().getEncoded();
-		author0 = authorFactory
-				.createLocalAuthor(AUTHOR1, publicKey0, privateKey0);
-		identityManager0.addLocalAuthor(author0);
+	private void getDefaultIdentities() throws DbException {
+		author0 = identityManager0.getLocalAuthor();
+		author1 = identityManager1.getLocalAuthor();
 		blog0 = blogFactory.createBlog(author0);
-
-		KeyPair keyPair1 = crypto.generateSignatureKeyPair();
-		byte[] publicKey1 = keyPair1.getPublic().getEncoded();
-		byte[] privateKey1 = keyPair1.getPrivate().getEncoded();
-		author1 = authorFactory
-				.createLocalAuthor(AUTHOR2, publicKey1, privateKey1);
-		identityManager1.addLocalAuthor(author1);
 		blog1 = blogFactory.createBlog(author1);
 	}
 
@@ -603,8 +592,8 @@ public class BlogManagerTest extends BriarIntegrationTest {
 		// Start the lifecycle manager and wait for it to finish
 		lifecycleManager0 = t0.getLifecycleManager();
 		lifecycleManager1 = t1.getLifecycleManager();
-		lifecycleManager0.startServices();
-		lifecycleManager1.startServices();
+		lifecycleManager0.startServices(AUTHOR1);
+		lifecycleManager1.startServices(AUTHOR2);
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
 	}

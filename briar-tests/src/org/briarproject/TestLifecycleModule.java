@@ -38,7 +38,7 @@ public class TestLifecycleModule {
 			}
 
 			@Override
-			public StartResult startServices() {
+			public StartResult startServices(String nickname) {
 				return StartResult.SUCCESS;
 			}
 

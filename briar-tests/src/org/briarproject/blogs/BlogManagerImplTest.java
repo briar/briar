@@ -93,7 +93,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 	@Test
 	public void testCreateLocalState() throws DbException {
 		final Transaction txn = new Transaction(null, false);
-		final LocalAuthor localAuthor = (LocalAuthor) blog1.getAuthor();
 
 		final ContactId contactId = new ContactId(0);
 		final Collection<ContactId> contactIds =
@@ -105,7 +104,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			oneOf(identityManager).getLocalAuthor(txn);
-			will(returnValue(localAuthor));
+			will(returnValue(blog1.getAuthor()));
 			oneOf(blogFactory).createBlog(blog1.getAuthor());
 			will(returnValue(blog1));
 			oneOf(db).containsGroup(txn, blog1.getId());
@@ -148,42 +147,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 		}});
 
 		blogManager.removingContact(txn, contact);
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testAddingIdentity() throws DbException {
-		final Transaction txn = new Transaction(null, false);
-		Author a = blog1.getAuthor();
-		final LocalAuthor localAuthor =
-				new LocalAuthor(a.getId(), a.getName(), a.getPublicKey(),
-						a.getPublicKey(), 0);
-
-		context.checking(new Expectations() {{
-			oneOf(blogFactory).createBlog(localAuthor);
-			will(returnValue(blog1));
-			oneOf(db).addGroup(txn, blog1.getGroup());
-		}});
-
-		blogManager.addingIdentity(txn, localAuthor);
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testRemovingIdentity() throws DbException {
-		final Transaction txn = new Transaction(null, false);
-		Author a = blog1.getAuthor();
-		final LocalAuthor localAuthor =
-				new LocalAuthor(a.getId(), a.getName(), a.getPublicKey(),
-						a.getPublicKey(), 0);
-
-		context.checking(new Expectations() {{
-			oneOf(blogFactory).createBlog(localAuthor);
-			will(returnValue(blog1));
-			oneOf(db).removeGroup(txn, blog1.getGroup());
-		}});
-
-		blogManager.removingIdentity(txn, localAuthor);
 		context.assertIsSatisfied();
 	}
 

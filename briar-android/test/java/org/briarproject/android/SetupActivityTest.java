@@ -52,7 +52,6 @@ public class SetupActivityTest {
 
 	private TestSetupActivity setupActivity;
 	private TextInputLayout nicknameEntryWrapper;
-	private TextInputLayout passwordEntryWrapper;
 	private TextInputLayout passwordConfirmationWrapper;
 	private EditText nicknameEntry;
 	private EditText passwordEntry;
@@ -63,7 +62,7 @@ public class SetupActivityTest {
 	@Mock
 	private SetupController setupController;
 	@Captor
-	private ArgumentCaptor<ResultHandler<Long>> resultCaptor;
+	private ArgumentCaptor<ResultHandler<Void>> authorCaptor;
 
 	@Before
 	public void setUp() {
@@ -71,8 +70,6 @@ public class SetupActivityTest {
 		setupActivity = Robolectric.setupActivity(TestSetupActivity.class);
 		nicknameEntryWrapper = (TextInputLayout) setupActivity
 				.findViewById(R.id.nickname_entry_wrapper);
-		passwordEntryWrapper = (TextInputLayout) setupActivity
-				.findViewById(R.id.password_entry_wrapper);
 		passwordConfirmationWrapper = (TextInputLayout) setupActivity
 				.findViewById(R.id.password_confirm_wrapper);
 		nicknameEntry =
@@ -114,7 +111,6 @@ public class SetupActivityTest {
 
 	@Test
 	public void testCreateAccountUI() {
-
 		SetupController mockedController = this.setupController;
 		setupActivity.setController(mockedController);
 		// Mock strong password strength answer
@@ -131,9 +127,10 @@ public class SetupActivityTest {
 		// Verify that the controller's method was called with the correct
 		// params and get the callback
 		verify(mockedController, times(1))
-				.createIdentity(eq(nick), eq(safePass), resultCaptor.capture());
+				.storeAuthorInfo(eq(nick), eq(safePass),
+						authorCaptor.capture());
+		authorCaptor.getValue().onResult(null);
 		// execute the callback
-		resultCaptor.getValue().onResult(1L);
 		assertEquals(setupActivity.isFinishing(), true);
 		// Confirm that the correct Activity has been started
 		ShadowActivity shadowActivity = shadowOf(setupActivity);
@@ -158,13 +155,13 @@ public class SetupActivityTest {
 	public void testAccountCreation() {
 		SetupController controller = setupActivity.getController();
 		// mock a resulthandler
-		ResultHandler<Long> resultHandler =
-				(ResultHandler<Long>) mock(ResultHandler.class);
+		ResultHandler<Void> resultHandler =
+				(ResultHandler<Void>) mock(ResultHandler.class);
 		controller
-				.createIdentity("nick", "some.strong.pass", resultHandler);
+				.storeAuthorInfo("nick", "some.strong.pass", resultHandler);
 		// blocking verification call with timeout that waits until the mocked
 		// result gets called with handle 0L, the expected value
-		verify(resultHandler, timeout(2000).times(1)).onResult(0L);
+		verify(resultHandler, timeout(2000).times(1)).onResult(null);
 		SharedPreferences prefs =
 				setupActivity.getSharedPreferences("db", Context.MODE_PRIVATE);
 		// Confirm database key

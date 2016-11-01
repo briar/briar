@@ -29,7 +29,7 @@ public class ConfigControllerImpl implements ConfigController {
 	}
 
 	@Override
-	public void setEncryptedDatabaseKey(String hex) {
+	public void storeEncryptedDatabaseKey(String hex) {
 		SharedPreferences.Editor editor = briarPrefs.edit();
 		editor.putString(PREF_DB_KEY, hex);
 		editor.apply();

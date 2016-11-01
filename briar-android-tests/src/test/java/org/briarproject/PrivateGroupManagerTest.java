@@ -416,7 +416,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		byte[] privateKey0 = keyPair0.getPrivate().getEncoded();
 		author0 = authorFactory
 				.createLocalAuthor(AUTHOR1, publicKey0, privateKey0);
-		identityManager0.addLocalAuthor(author0);
+		identityManager0.registerLocalAuthor(author0);
 		privateGroup0 =
 				privateGroupFactory.createPrivateGroup("Testgroup", author0);
 		groupId0 = privateGroup0.getId();
@@ -426,7 +426,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		byte[] privateKey1 = keyPair1.getPrivate().getEncoded();
 		author1 = authorFactory
 				.createLocalAuthor(AUTHOR2, publicKey1, privateKey1);
-		identityManager1.addLocalAuthor(author1);
+		identityManager1.registerLocalAuthor(author1);
 	}
 
 	private void addDefaultContacts() throws DbException {
@@ -531,8 +531,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		// Start the lifecycle manager and wait for it to finish
 		lifecycleManager0 = t0.getLifecycleManager();
 		lifecycleManager1 = t1.getLifecycleManager();
-		lifecycleManager0.startServices();
-		lifecycleManager1.startServices();
+		lifecycleManager0.startServices(AUTHOR1);
+		lifecycleManager1.startServices(AUTHOR2);
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
 	}

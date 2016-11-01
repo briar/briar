@@ -9,7 +9,6 @@ import com.rometools.rome.io.XmlReader;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPost;
 import org.briarproject.api.blogs.BlogPostFactory;
@@ -27,7 +26,6 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.feed.Feed;
 import org.briarproject.api.feed.FeedManager;
-import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.IoExecutor;
@@ -459,9 +457,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		String body = getPostBody(b.toString());
 		try {
 			// create and store post
-			Blog blog = blogManager.getBlog(txn, groupId);
-			AuthorId authorId = blog.getAuthor().getId();
-			LocalAuthor author = identityManager.getLocalAuthor(txn, authorId);
+			LocalAuthor author = identityManager.getLocalAuthor(txn);
 			BlogPost post = blogPostFactory
 					.createBlogPost(groupId, time, null, author, body);
 			blogManager.addLocalPost(txn, post);

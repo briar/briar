@@ -114,7 +114,6 @@ public class ChangePasswordActivityTest {
 
 	@Test
 	public void testChangePasswordUI() {
-
 		PasswordController mockedPasswordController = this.passwordController;
 		SetupController mockedSetupController = this.setupController;
 		changePasswordActivity.setPasswordController(mockedPasswordController);
@@ -135,7 +134,7 @@ public class ChangePasswordActivityTest {
 		verify(mockedPasswordController, times(1))
 				.changePassword(eq(curPass), eq(safePass),
 						resultCaptor.capture());
-		// execute the callback
+		// execute the callbacks
 		resultCaptor.getValue().onResult(true);
 		assertEquals(changePasswordActivity.isFinishing(), true);
 	}
@@ -147,12 +146,14 @@ public class ChangePasswordActivityTest {
 		SetupController setupController =
 				changePasswordActivity.getSetupController();
 		// mock a resulthandler
-		ResultHandler<Long> resultHandler =
-				(ResultHandler<Long>) mock(ResultHandler.class);
-		setupController.createIdentity("nick", "some.old.pass", resultHandler);
+		ResultHandler<Void> resultHandler =
+				(ResultHandler<Void>) mock(ResultHandler.class);
+		setupController
+				.storeAuthorInfo("nick", "some.old.pass", resultHandler);
 		// blocking verification call with timeout that waits until the mocked
 		// result gets called with handle 0L, the expected value
-		verify(resultHandler, timeout(2000).times(1)).onResult(0L);
+		verify(resultHandler, timeout(2000).times(1))
+				.onResult(null);
 		SharedPreferences prefs =
 				changePasswordActivity
 						.getSharedPreferences("db", Context.MODE_PRIVATE);

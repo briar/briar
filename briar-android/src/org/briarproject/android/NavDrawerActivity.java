@@ -25,12 +25,10 @@ import org.briarproject.android.blogs.FeedFragment;
 import org.briarproject.android.contact.ContactListFragment;
 import org.briarproject.android.controller.NavDrawerController;
 import org.briarproject.android.controller.TransportStateListener;
-import org.briarproject.android.controller.handler.UiResultHandler;
 import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.api.TransportId;
-import org.briarproject.api.identity.LocalAuthor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +70,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		exitIfStartupFailed(intent);
-		checkAuthorHandle(intent);
 		// FIXME why was the stack cleared here?
 		// This prevents state from being restored properly
 //		clearBackStack();
@@ -115,7 +112,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 				R.string.nav_drawer_close_description);
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
-		checkAuthorHandle(getIntent());
 
 		initializeTransports(getLayoutInflater());
 		transportsView.setAdapter(transportsAdapter);
@@ -146,33 +142,12 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		updateTransports();
 	}
 
-	private void checkAuthorHandle(Intent intent) {
-		long handle = intent.getLongExtra(KEY_LOCAL_AUTHOR_HANDLE, -1);
-		if (handle != -1) {
-			LocalAuthor a = controller.removeAuthorHandle(handle);
-			// The activity was launched from the setup wizard
-			if (a != null) {
-				showLoadingScreen(true, R.string.progress_title_please_wait);
-				storeLocalAuthor(a);
-			}
-		}
-	}
-
 	private void exitIfStartupFailed(Intent intent) {
 		if (intent.getBooleanExtra(KEY_STARTUP_FAILED, false)) {
 			finish();
 			LOG.info("Exiting");
 			System.exit(0);
 		}
-	}
-
-	private void storeLocalAuthor(LocalAuthor a) {
-		controller.storeLocalAuthor(a, new UiResultHandler<Void>(this) {
-			@Override
-			public void onResultUi(Void result) {
-				hideLoadingScreen();
-			}
-		});
 	}
 
 	private void loadFragment(int fragmentId) {
