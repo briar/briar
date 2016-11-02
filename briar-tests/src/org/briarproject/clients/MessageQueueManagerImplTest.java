@@ -1,6 +1,7 @@
 package org.briarproject.clients;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.CaptureArgumentAction;
 import org.briarproject.TestUtils;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.MessageQueueManager.IncomingQueueMessageHook;
@@ -127,7 +128,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(ValidationManager.class);
 
 		final AtomicReference<MessageValidator> captured =
-				new AtomicReference<MessageValidator>();
+				new AtomicReference<>();
 		final QueueMessageValidator queueMessageValidator =
 				context.mock(QueueMessageValidator.class);
 		// The message is too short to be a valid queue message
@@ -138,7 +139,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
-			will(new CaptureArgumentAction<MessageValidator>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					MessageValidator.class, 1));
 		}});
 
@@ -166,7 +167,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(ValidationManager.class);
 
 		final AtomicReference<MessageValidator> captured =
-				new AtomicReference<MessageValidator>();
+				new AtomicReference<>();
 		final QueueMessageValidator queueMessageValidator =
 				context.mock(QueueMessageValidator.class);
 		// The message has a negative queue position
@@ -179,7 +180,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
-			will(new CaptureArgumentAction<MessageValidator>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					MessageValidator.class, 1));
 		}});
 
@@ -207,7 +208,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 				context.mock(ValidationManager.class);
 
 		final AtomicReference<MessageValidator> captured =
-				new AtomicReference<MessageValidator>();
+				new AtomicReference<>();
 		final QueueMessageValidator queueMessageValidator =
 				context.mock(QueueMessageValidator.class);
 		final Metadata metadata = new Metadata();
@@ -221,7 +222,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
-			will(new CaptureArgumentAction<MessageValidator>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					MessageValidator.class, 1));
 			// The message should be delegated
 			oneOf(queueMessageValidator).validateMessage(
@@ -254,7 +255,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
+				new AtomicReference<>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
@@ -270,7 +271,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));
@@ -306,7 +307,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
+				new AtomicReference<>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
@@ -324,7 +325,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));
@@ -362,7 +363,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
+				new AtomicReference<>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
@@ -379,7 +380,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));
@@ -420,7 +421,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		final ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
+				new AtomicReference<>();
 		final IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
@@ -444,7 +445,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));
@@ -557,28 +558,4 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		}
 	}
 
-	private class CaptureArgumentAction<T> implements Action {
-
-		private final AtomicReference<T> captured;
-		private final Class<T> capturedClass;
-		private final int index;
-
-		private CaptureArgumentAction(AtomicReference<T> captured,
-				Class<T> capturedClass, int index) {
-			this.captured = captured;
-			this.capturedClass = capturedClass;
-			this.index = index;
-		}
-
-		@Override
-		public Object invoke(Invocation invocation) throws Throwable {
-			captured.set(capturedClass.cast(invocation.getParameter(index)));
-			return null;
-		}
-
-		@Override
-		public void describeTo(Description description) {
-			description.appendText("captures an argument");
-		}
-	}
 }
