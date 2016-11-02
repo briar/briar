@@ -41,7 +41,8 @@ public class GroupActivity extends
 	GroupController controller;
 
 	private boolean isCreator, isDissolved = false;
-	private MenuItem writeMenuItem, leaveMenuItem, dissolveMenuItem;
+	private MenuItem writeMenuItem, inviteMenuItem, leaveMenuItem,
+			dissolveMenuItem;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -127,6 +128,7 @@ public class GroupActivity extends
 		inflater.inflate(R.menu.group_actions, menu);
 
 		writeMenuItem = menu.findItem(R.id.action_group_compose_message);
+		inviteMenuItem = menu.findItem(R.id.action_group_invite);
 		leaveMenuItem = menu.findItem(R.id.action_group_leave);
 		dissolveMenuItem = menu.findItem(R.id.action_group_dissolve);
 		showMenuItems();
@@ -203,9 +205,11 @@ public class GroupActivity extends
 	private void showMenuItems() {
 		if (leaveMenuItem == null || dissolveMenuItem == null) return;
 		if (isCreator) {
+			inviteMenuItem.setVisible(true);
 			leaveMenuItem.setVisible(false);
 			dissolveMenuItem.setVisible(true);
 		} else {
+			inviteMenuItem.setVisible(false);
 			leaveMenuItem.setVisible(true);
 			dissolveMenuItem.setVisible(false);
 		}
