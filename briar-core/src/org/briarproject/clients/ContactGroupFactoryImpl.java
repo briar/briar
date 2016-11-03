@@ -41,6 +41,13 @@ class ContactGroupFactoryImpl implements ContactGroupFactory {
 		return groupFactory.createGroup(clientId, descriptor);
 	}
 
+	@Override
+	public Group createContactGroup(ClientId clientId, AuthorId authorId1,
+			AuthorId authorId2) {
+		byte[] descriptor = createGroupDescriptor(authorId1, authorId2);
+		return groupFactory.createGroup(clientId, descriptor);
+	}
+
 	private byte[] createGroupDescriptor(AuthorId local, AuthorId remote) {
 		try {
 			if (Bytes.COMPARATOR.compare(local, remote) < 0)

@@ -49,14 +49,12 @@ import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.api.identity.Author.Status.UNVERIFIED;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.api.privategroup.MessageType.JOIN;
-import static org.briarproject.api.privategroup.MessageType.NEW_MEMBER;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.privategroup.Constants.KEY_DISSOLVED;
 import static org.briarproject.privategroup.Constants.KEY_MEMBERS;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_ID;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_NAME;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_PUBLIC_KEY;
-import static org.briarproject.privategroup.Constants.KEY_NEW_MEMBER_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_PARENT_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_PREVIOUS_MSG_ID;
 import static org.briarproject.privategroup.Constants.KEY_READ;
@@ -95,8 +93,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	}
 
 	@Override
-	public void addPrivateGroup(PrivateGroup group,
-			GroupMessage newMemberMsg, GroupMessage joinMsg)
+	public void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg)
 			throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -106,7 +103,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 					new BdfEntry(KEY_DISSOLVED, false)
 			);
 			clientHelper.mergeGroupMetadata(txn, group.getId(), meta);
-			announceNewMember(txn, newMemberMsg);
 			joinPrivateGroup(txn, joinMsg);
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
@@ -114,14 +110,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		} finally {
 			db.endTransaction(txn);
 		}
-	}
-
-	private void announceNewMember(Transaction txn, GroupMessage m)
-			throws DbException, FormatException {
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(KEY_TYPE, NEW_MEMBER.getInt());
-		addMessageMetadata(meta, m, true);
-		clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 	}
 
 	private void joinPrivateGroup(Transaction txn, GroupMessage m)
@@ -315,8 +303,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			// get all authors we need to get the status for
 			Set<AuthorId> authors = new HashSet<AuthorId>();
 			for (BdfDictionary meta : metadata.values()) {
-				if (meta.getLong(KEY_TYPE) == NEW_MEMBER.getInt())
-					continue;
 				byte[] idBytes = meta.getRaw(KEY_MEMBER_ID);
 				authors.add(new AuthorId(idBytes));
 			}
@@ -328,8 +314,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			// Parse the metadata
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfDictionary meta = entry.getValue();
-				if (meta.getLong(KEY_TYPE) == NEW_MEMBER.getInt())
-					continue;
 				headers.add(getGroupMessageHeader(txn, g, entry.getKey(), meta,
 						statuses));
 			}
@@ -434,36 +418,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		MessageType type =
 				MessageType.valueOf(meta.getLong(KEY_TYPE).intValue());
 		switch (type) {
-			case NEW_MEMBER:
-				// don't track incoming message, because it won't show in the UI
-				return true;
 			case JOIN:
-				// new_member_id must be the identifier of a NEW_MEMBER message
-				byte[] newMemberIdBytes =
-						meta.getOptionalRaw(KEY_NEW_MEMBER_MSG_ID);
-				MessageId newMemberId = new MessageId(newMemberIdBytes);
-				BdfDictionary newMemberMeta = clientHelper
-						.getMessageMetadataAsDictionary(txn, newMemberId);
-				MessageType newMemberType = MessageType
-						.valueOf(newMemberMeta.getLong(KEY_TYPE).intValue());
-				if (newMemberType != NEW_MEMBER) {
-					// FIXME throw new InvalidMessageException() (#643)
-					db.deleteMessage(txn, m.getId());
-					return false;
-				}
-				// timestamp must be equal to timestamp of NEW_MEMBER message
-				if (timestamp != newMemberMeta.getLong(KEY_TIMESTAMP)) {
-					// FIXME throw new InvalidMessageException() (#643)
-					db.deleteMessage(txn, m.getId());
-					return false;
-				}
-				// NEW_MEMBER must have same member_name and member_public_key
-				if (!Arrays.equals(meta.getRaw(KEY_MEMBER_ID),
-						newMemberMeta.getRaw(KEY_MEMBER_ID))) {
-					// FIXME throw new InvalidMessageException() (#643)
-					db.deleteMessage(txn, m.getId());
-					return false;
-				}
 				addMember(txn, m.getGroupId(), getAuthor(meta));
 				trackIncomingMessage(txn, m);
 				return true;
